@@ -1,6 +1,8 @@
 {
   "app": {
-    "homeLabel": "Keepraw Fly home"
+    "homeLabel": "Keepraw Fly home",
+    "loading": "Loading Keepraw Fly",
+    "storageUnavailable": "Local storage is unavailable. Changes may not persist."
   },
   "nav": {
     "label": "Primary navigation",
@@ -20,6 +22,9 @@
     "tryDemo": "Try demo",
     "clearSearch": "Clear search",
     "backToFlights": "Back to flights"
+    ,"validating": "Validating…",
+    "export": "Export Keepraw Fly JSON",
+    "clearData": "Clear local data"
   },
   "flights": {
     "archive": "Flight archive",
@@ -68,6 +73,7 @@
     "collectionStats": "Flight collection statistics",
     "flights": "Flights",
     "distanceMiles": "Distance · mi",
+    "distanceKilometers": "Distance · km",
     "timeInAir": "Time in the air",
     "countries": "Countries",
     "airports": "Airports",
@@ -86,5 +92,43 @@
     "shortestFlight": "Shortest flight",
     "byYear": "By year",
     "yearlyHistory": "Yearly history"
+  },
+  "import": {
+    "failed": "This file cannot be imported",
+    "flightNumber": "Flight #{{number}}"
+  },
+  "settings": {
+    "viewerPreferences": "Viewer preferences",
+    "description": "Display preferences stay local. Profile names travel with your Keepraw Fly archive.",
+    "data": "Data",
+    "importTitle": "Import archive",
+    "importDescription": "Validate and replace the current local archive with a Keepraw Fly JSON file.",
+    "exportTitle": "Export archive",
+    "exportDescription": "Download a complete, validated and portable copy of your facts.",
+    "clearTitle": "Clear local data",
+    "clearDescription": "Remove this flight archive from the current browser.",
+    "clearConfirmation": "Clear the local Keepraw Fly archive? Export first if you need a backup.",
+    "display": "Display",
+    "language": "Language",
+    "appearance": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "distance": "Distance",
+    "miles": "Miles",
+    "kilometers": "Kilometers",
+    "timeFormat": "Time format",
+    "twentyFourHour": "24-hour",
+    "twelveHour": "12-hour",
+    "profile": "Profile",
+    "nativeName": "Native name",
+    "romanizedName": "Romanized name",
+    "primaryName": "Primary name",
+    "native": "Native",
+    "romanized": "Romanized",
+    "advanced": "Advanced",
+    "powerUserMode": "Power User Mode",
+    "powerUserDescription": "Enable only if you understand the Keepraw Fly data model.",
+    "advancedPlaceholder": "Advanced editing is reserved for a future release. No raw editor is enabled yet."
   }
 }

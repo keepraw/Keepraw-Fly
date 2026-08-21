@@ -1,6 +1,8 @@
 {
   "app": {
-    "homeLabel": "Keepraw Fly 首页"
+    "homeLabel": "Keepraw Fly 首页",
+    "loading": "正在加载 Keepraw Fly",
+    "storageUnavailable": "本地存储不可用，更改可能无法保留。"
   },
   "nav": {
     "label": "主导航",
@@ -20,6 +22,9 @@
     "tryDemo": "体验示例",
     "clearSearch": "清除搜索",
     "backToFlights": "返回航班"
+    ,"validating": "正在验证…",
+    "export": "导出 Keepraw Fly JSON",
+    "clearData": "清除本地数据"
   },
   "flights": {
     "archive": "飞行档案",
@@ -67,6 +72,7 @@
     "collectionStats": "飞行档案统计",
     "flights": "航班",
     "distanceMiles": "距离 · 英里",
+    "distanceKilometers": "距离 · 公里",
     "timeInAir": "空中时间",
     "countries": "国家与地区",
     "airports": "机场",
@@ -85,5 +91,43 @@
     "shortestFlight": "最短航班",
     "byYear": "年度",
     "yearlyHistory": "年度飞行历史"
+  },
+  "import": {
+    "failed": "无法导入这个文件",
+    "flightNumber": "航班 #{{number}}"
+  },
+  "settings": {
+    "viewerPreferences": "查看器偏好",
+    "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
+    "data": "数据",
+    "importTitle": "导入档案",
+    "importDescription": "验证 Keepraw Fly JSON，并替换当前浏览器中的飞行档案。",
+    "exportTitle": "导出档案",
+    "exportDescription": "下载完整、通过验证且可移植的航班事实副本。",
+    "clearTitle": "清除本地数据",
+    "clearDescription": "从当前浏览器移除这份飞行档案。",
+    "clearConfirmation": "清除本地 Keepraw Fly 档案？如需备份，请先导出。",
+    "display": "显示",
+    "language": "语言",
+    "appearance": "外观",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色",
+    "distance": "距离",
+    "miles": "英里",
+    "kilometers": "公里",
+    "timeFormat": "时间格式",
+    "twentyFourHour": "24 小时制",
+    "twelveHour": "12 小时制",
+    "profile": "个人资料",
+    "nativeName": "本族文字姓名",
+    "romanizedName": "罗马字姓名",
+    "primaryName": "首选姓名",
+    "native": "本族文字",
+    "romanized": "罗马字",
+    "advanced": "高级",
+    "powerUserMode": "高级用户模式",
+    "powerUserDescription": "仅在了解 Keepraw Fly 数据模型时启用。",
+    "advancedPlaceholder": "高级编辑功能预留至未来版本，当前不会启用原始 JSON 编辑器。"
   }
 }

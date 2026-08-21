@@ -7,15 +7,17 @@ import {
   formatServiceDate,
   formatTimeAtAirport,
   type SupportedLocale,
+  type TimeFormat,
 } from "@keepraw-fly/core";
 
 interface FlightRowProps {
   flight: KeeprawFlight;
   locale: SupportedLocale;
+  timeFormat: TimeFormat;
   onOpen: () => void;
 }
 
-export function FlightRow({ flight, locale, onOpen }: FlightRowProps) {
+export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps) {
   const { t } = useTranslation();
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
@@ -67,7 +69,7 @@ export function FlightRow({ flight, locale, onOpen }: FlightRowProps) {
             flight.actualDeparture ?? flight.scheduledDeparture,
             flight.origin.iata,
             locale,
-            "24-hour",
+            timeFormat,
           )}
         </time>
         <span aria-hidden="true">→</span>
@@ -76,7 +78,7 @@ export function FlightRow({ flight, locale, onOpen }: FlightRowProps) {
             flight.actualArrival ?? flight.scheduledArrival,
             flight.destination.iata,
             locale,
-            "24-hour",
+            timeFormat,
           )}
         </time>
       </div>

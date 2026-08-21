@@ -1,10 +1,13 @@
 import { useTranslation } from "react-i18next";
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import { ImportControl } from "./ImportControl";
 
 interface EmptyStateProps {
   onTryDemo: () => void;
+  onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
 }
 
-export function EmptyState({ onTryDemo }: EmptyStateProps) {
+export function EmptyState({ onTryDemo, onImport }: EmptyStateProps) {
   const { t } = useTranslation();
 
   return (
@@ -13,9 +16,7 @@ export function EmptyState({ onTryDemo }: EmptyStateProps) {
       <h1>{t("welcome.title")}</h1>
       <p>{t("welcome.description")}</p>
       <div className="welcome-actions">
-        <button type="button" disabled title={t("welcome.importComingSoon")}>
-          {t("actions.openFile")}
-        </button>
+        <ImportControl onImport={onImport} />
         <button className="button-secondary" type="button" onClick={onTryDemo}>
           {t("actions.tryDemo")}
         </button>
@@ -24,4 +25,3 @@ export function EmptyState({ onTryDemo }: EmptyStateProps) {
     </main>
   );
 }
-

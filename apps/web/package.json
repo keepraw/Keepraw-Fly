@@ -12,6 +12,8 @@
   "dependencies": {
     "@keepraw-fly/core": "workspace:*",
     "@keepraw-fly/schema": "workspace:*",
+    "@keepraw-fly/validator": "workspace:*",
+    "dexie": "^4.2.0",
     "i18next": "^25.3.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -21,6 +23,7 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.2",
+    "fake-indexeddb": "^6.2.2",
     "vite": "^7.1.3"
   }
 }

@@ -12,11 +12,13 @@ import {
   formatTimeAtAirport,
   seatFacts,
   type SupportedLocale,
+  type TimeFormat,
 } from "@keepraw-fly/core";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
   locale: SupportedLocale;
+  timeFormat: TimeFormat;
   onBack: () => void;
 }
 
@@ -35,7 +37,7 @@ function delayText(delay: number | null, onTimeLabel: string): string {
   return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} min`;
 }
 
-export function FlightDetailPage({ flight, locale, onBack }: FlightDetailPageProps) {
+export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
@@ -103,14 +105,14 @@ export function FlightDetailPage({ flight, locale, onBack }: FlightDetailPagePro
                 flight.actualDeparture ?? flight.scheduledDeparture,
                 flight.origin.iata,
                 locale,
-                "24-hour",
+                timeFormat,
               )}</strong>
               {flight.actualDeparture ? (
                 <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
                   flight.scheduledDeparture,
                   flight.origin.iata,
                   locale,
-                  "24-hour",
+                  timeFormat,
                 )}</small>
               ) : null}
             </div>
@@ -128,14 +130,14 @@ export function FlightDetailPage({ flight, locale, onBack }: FlightDetailPagePro
                 flight.actualArrival ?? flight.scheduledArrival,
                 flight.destination.iata,
                 locale,
-                "24-hour",
+                timeFormat,
               )}</strong>
               {flight.actualArrival ? (
                 <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
                   flight.scheduledArrival,
                   flight.destination.iata,
                   locale,
-                  "24-hour",
+                  timeFormat,
                 )}</small>
               ) : null}
             </div>
