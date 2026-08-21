@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keepraw.com/schema/keepraw-fly-0.1.schema.json",
+  "title": "Keepraw Fly 0.1",
+  "description": "Portable, locale-neutral flight-history data.",
+  "type": "object",
+  "required": ["format", "formatVersion", "profile", "flights"],
+  "properties": {
+    "format": { "const": "keepraw-fly" },
+    "formatVersion": { "const": "0.1.0" },
+    "profile": { "$ref": "#/$defs/profile" },
+    "flights": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/flight" }
+    },
+    "extensions": { "$ref": "#/$defs/extensions" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "object",
+          "properties": {
+            "native": { "type": "string", "minLength": 1 },
+            "romanized": { "type": "string", "minLength": 1 },
+            "primary": { "enum": ["native", "romanized"] }
+          },
+          "anyOf": [
+            {
+              "required": ["native"],
+              "properties": { "native": true }
+            },
+            {
+              "required": ["romanized"],
+              "properties": { "romanized": true }
+            }
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "airline": {
+      "type": "object",
+      "properties": {
+        "iata": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{2}$"
+        },
+        "icao": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["iata"],
+          "properties": { "iata": true }
+        },
+        {
+          "required": ["icao"],
+          "properties": { "icao": true }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "airportEndpoint": {
+      "type": "object",
+      "required": ["iata"],
+      "properties": {
+        "iata": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "terminal": { "type": "string", "minLength": 1 },
+        "gate": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+      },
+      "additionalProperties": true
+    },
+    "flight": {
+      "type": "object",
+      "required": [
+        "id",
+        "flightNumber",
+        "serviceDate",
+        "airline",
+        "origin",
+        "destination",
+        "scheduledDeparture",
+        "scheduledArrival"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "flightNumber": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 12,
+          "pattern": "^[A-Z0-9][A-Z0-9 -]*$"
+        },
+        "serviceDate": { "type": "string", "format": "date" },
+        "airline": { "$ref": "#/$defs/airline" },
+        "origin": { "$ref": "#/$defs/airportEndpoint" },
+        "destination": { "$ref": "#/$defs/airportEndpoint" },
+        "scheduledDeparture": { "type": "string", "format": "date-time" },
+        "scheduledArrival": { "type": "string", "format": "date-time" },
+        "actualDeparture": { "type": "string", "format": "date-time" },
+        "actualArrival": { "type": "string", "format": "date-time" },
+        "extensions": { "$ref": "#/$defs/extensions" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

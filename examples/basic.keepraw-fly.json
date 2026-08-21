@@ -1,0 +1,31 @@
+{
+  "format": "keepraw-fly",
+  "formatVersion": "0.1.0",
+  "profile": {
+    "name": {
+      "native": "张鸿川",
+      "romanized": "Hongchuan Zhang",
+      "primary": "native"
+    }
+  },
+  "flights": [
+    {
+      "id": "example-ua123-20260819",
+      "flightNumber": "UA123",
+      "serviceDate": "2026-08-19",
+      "airline": { "iata": "UA" },
+      "origin": { "iata": "SFO", "terminal": "3", "gate": "F12" },
+      "destination": { "iata": "LAX", "terminal": "7" },
+      "scheduledDeparture": "2026-08-19T10:20:00-07:00",
+      "scheduledArrival": "2026-08-19T11:52:00-07:00",
+      "actualDeparture": "2026-08-19T10:57:00-07:00",
+      "actualArrival": "2026-08-19T12:21:00-07:00",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "B789",
+          "registration": "N12345"
+        }
+      }
+    }
+  ]
+}
