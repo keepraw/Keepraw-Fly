@@ -1,5 +1,7 @@
 # Keepraw Fly
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 **An open flight-history data format and a local-first web viewer.**
 
 Keepraw Fly keeps portable flight facts in a readable JSON document and derives
@@ -75,8 +77,10 @@ and [deployment guidance](docs/deployment.md) for details.
 This repository implements the first-stage local viewer. The explicitly deferred
 features are listed in [docs/not-implemented.md](docs/not-implemented.md).
 
+See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the completed-work
+checklist, verification results and milestone commit history.
+
 ## License
 
 Source code is available under the [MIT License](LICENSE). The license does not
 grant rights to project names or identifying marks; see [TRADEMARK.md](TRADEMARK.md).
-
