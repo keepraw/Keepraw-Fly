@@ -11,9 +11,10 @@ import { FlightRow } from "../components/FlightRow";
 interface FlightsPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
+  onOpenFlight: (flightId: string) => void;
 }
 
-export function FlightsPage({ document, locale }: FlightsPageProps) {
+export function FlightsPage({ document, locale, onOpenFlight }: FlightsPageProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const groups = useMemo(
@@ -71,7 +72,12 @@ export function FlightsPage({ document, locale }: FlightsPageProps) {
               </div>
               <div className="flight-list">
                 {group.flights.map((flight) => (
-                  <FlightRow key={flight.id} flight={flight} locale={locale} />
+                  <FlightRow
+                    key={flight.id}
+                    flight={flight}
+                    locale={locale}
+                    onOpen={() => onOpenFlight(flight.id)}
+                  />
                 ))}
               </div>
             </section>
@@ -86,4 +92,3 @@ export function FlightsPage({ document, locale }: FlightsPageProps) {
     </main>
   );
 }
-

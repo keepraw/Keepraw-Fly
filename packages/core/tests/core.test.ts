@@ -2,6 +2,7 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
 import {
   airportByIata,
+  aircraftFacts,
   calculatePassportStatistics,
   departureDelayMinutes,
   distanceKilometers,
@@ -50,6 +51,17 @@ describe("flight calculations", () => {
     expect(
       formatTimeAtAirport(flight.scheduledDeparture, "SFO", "en", "24-hour"),
     ).toBe("10:20");
+  });
+
+  it("reads known UI facts without disturbing the extension map", () => {
+    expect(aircraftFacts(flight)).toEqual({
+      type: "B789",
+      registration: "N12345",
+    });
+    expect(flight.extensions?.["keepraw-fly.aircraft"]).toEqual({
+      type: "B789",
+      registration: "N12345",
+    });
   });
 });
 
