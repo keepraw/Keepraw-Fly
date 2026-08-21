@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   airportByIata,
   aircraftFacts,
+  buildRouteSegments,
+  calculateYearStatistics,
   calculatePassportStatistics,
   departureDelayMinutes,
   distanceKilometers,
@@ -92,5 +94,20 @@ describe("passport statistics", () => {
     expect(stats.countries).toBe(1);
     expect(stats.mostFlownAirline).toEqual({ code: "UA", count: 1 });
     expect(stats.aircraftTypes).toBe(1);
+  });
+
+  it("builds yearly summaries and map-ready route interfaces", () => {
+    const older = { ...flight, id: "older", serviceDate: "2025-01-02" };
+    expect(calculateYearStatistics([flight, older]).map((item) => item.year)).toEqual([
+      2026,
+      2025,
+    ]);
+    expect(buildRouteSegments([flight, { ...flight, id: "second" }])).toEqual([
+      expect.objectContaining({
+        origin: expect.objectContaining({ iata: "SFO" }),
+        destination: expect.objectContaining({ iata: "LAX" }),
+        flightCount: 2,
+      }),
+    ]);
   });
 });

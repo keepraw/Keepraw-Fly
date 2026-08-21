@@ -59,5 +59,32 @@
       "actual": "Actual flight time",
       "scheduled": "Scheduled flight time"
     }
+  },
+  "passport": {
+    "flightHistory": "Flight passport",
+    "periodLabel": "Passport period",
+    "lifetime": "Lifetime",
+    "primaryStats": "Primary flight statistics",
+    "collectionStats": "Flight collection statistics",
+    "flights": "Flights",
+    "distanceMiles": "Distance · mi",
+    "timeInAir": "Time in the air",
+    "countries": "Countries",
+    "airports": "Airports",
+    "airlines": "Airlines",
+    "aircraftTypes": "Aircraft types",
+    "routes": "Routes",
+    "map": "Your world",
+    "mapDescription": "Route geometry is derived locally from airport reference data.",
+    "mapSummary": "{{routes}} routes · {{airports}} airports",
+    "mapPreviewLabel": "Abstract preview of flight routes",
+    "patterns": "Patterns",
+    "highlights": "Highlights",
+    "mostFlownAirline": "Most flown airline",
+    "mostVisitedAirport": "Most visited airport",
+    "longestFlight": "Longest flight",
+    "shortestFlight": "Shortest flight",
+    "byYear": "By year",
+    "yearlyHistory": "Yearly history"
   }
 }
