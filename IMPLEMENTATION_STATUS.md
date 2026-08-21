@@ -5,7 +5,7 @@
 - Product: Keepraw Fly
 - Version: 0.1.0
 - Last updated: 2026-08-21
-- Current milestone: first-stage local viewer complete
+- Current milestone: first-stage local viewer and editor complete
 
 ## English
 
@@ -29,6 +29,8 @@
 4. **Flights archive**
    - Built a dense, responsive flight list with multilingual labels.
    - Added search across flight numbers, airports, cities and airlines.
+   - Added a first-run flow that creates an empty archive without requiring JSON.
+   - Added guided add, edit and delete forms with automatic airport timezone offsets.
    - Added empty states and navigation to individual flight records.
 
 5. **Flight detail**
@@ -40,6 +42,7 @@
    - Added lifetime and yearly summaries.
    - Added totals for flights, distance, time, airports, airlines, countries and routes.
    - Added profile-name presentation using native and romanized forms.
+   - Added a recognizable bundled world map with real airport projection, great-circle routes, date-line handling and frequency encoding.
 
 7. **Local data and preferences**
    - Added IndexedDB persistence behind `StorageAdapter` and `BrowserStorageAdapter`.
@@ -56,9 +59,9 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 26 automated tests pass: 17 core, 7 validator and 2 web-storage tests.
+- All 33 automated tests pass: 17 core, 7 validator and 9 web tests.
 - The Vite production build completes successfully.
-- Browser checks covered desktop and 320 px layouts, search, detail navigation, Passport, settings persistence and hash deep links.
+- Browser checks covered first-run archive creation, guided flight entry, persistence, the world route map, desktop and 320 px layouts, search, detail navigation, Passport, settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -71,10 +74,13 @@
 6. `4ea691b` — Add lifetime and yearly flight passport
 7. `46b86dc` — Persist archives and add data settings
 8. `ffe9d2a` — Polish static release and document architecture
+9. `c96d418` — Add bilingual README and implementation status
+10. `2082177` — Add guided archive and flight creation
+11. `4a3dd14` — Replace route preview with world flight map
 
 ### Deliberately deferred
 
-Backend accounts and sync, live flight services, third-party booking integrations, advanced importers, maps, payments and native apps are outside the 0.1 milestone. See [docs/not-implemented.md](docs/not-implemented.md) for the complete list.
+Backend accounts and sync, live flight services, third-party booking integrations, advanced importers, third-party interactive basemaps, payments and native apps are outside the 0.1 milestone. See [docs/not-implemented.md](docs/not-implemented.md) for the complete list.
 
 ## 简体中文
 
@@ -98,6 +104,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 4. **航班档案页**
    - 构建紧凑、响应式并支持多语言标签的航班列表。
    - 支持按航班号、机场、城市和航空公司搜索。
+   - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
+   - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。
    - 添加空状态以及前往单条航班记录的导航。
 
 5. **航班详情页**
@@ -109,6 +117,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加终身汇总和按年份汇总。
    - 统计航班、距离、时间、机场、航空公司、国家和航线总数。
    - 支持使用原文姓名和罗马字姓名展示个人资料。
+   - 添加可识别的内置世界地图，支持真实机场投影、大圆航线、日期变更线处理和飞行频次表达。
 
 7. **本地数据与偏好设置**
    - 在 `StorageAdapter` 和 `BrowserStorageAdapter` 抽象后实现 IndexedDB 持久化。
@@ -125,9 +134,9 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 26 项自动化测试全部通过：核心逻辑 17 项、校验器 7 项、Web 存储 2 项。
+- 33 项自动化测试全部通过：核心逻辑 17 项、校验器 7 项、Web 端 9 项。
 - Vite 生产构建成功完成。
-- 浏览器检查覆盖桌面布局和 320 px 窄屏布局、搜索、详情导航、飞行护照、设置持久化以及 hash 深链接。
+- 浏览器检查覆盖首次建档、引导式航班录入、持久化、世界航线图、桌面及 320 px 窄屏布局、搜索、详情导航、飞行护照、设置以及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -140,7 +149,10 @@ Backend accounts and sync, live flight services, third-party booking integration
 6. `4ea691b` — 添加终身及年度飞行护照
 7. `46b86dc` — 持久化档案并添加数据设置
 8. `ffe9d2a` — 完善静态发布与架构文档
+9. `c96d418` — 添加双语 README 与实施状态文档
+10. `2082177` — 添加引导式建档与航班录入
+11. `4a3dd14` — 将航线预览替换为世界飞行地图
 
 ### 明确推迟的范围
 
-后端账户与同步、实时航班服务、第三方预订集成、高级导入器、地图、支付和原生应用不属于 0.1 里程碑。完整清单见 [docs/not-implemented.md](docs/not-implemented.md)。
+后端账户与同步、实时航班服务、第三方预订集成、高级导入器、第三方交互式底图、支付和原生应用不属于 0.1 里程碑。完整清单见 [docs/not-implemented.md](docs/not-implemented.md)。

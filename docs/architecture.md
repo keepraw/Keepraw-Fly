@@ -3,8 +3,8 @@
 ## Boundaries
 
 ```text
-Keepraw Fly JSON
-  → @keepraw-fly/validator
+Guided flight editor / Keepraw Fly JSON import
+  → typed document creation / @keepraw-fly/validator
   → StorageAdapter
   → BrowserStorageAdapter / IndexedDB
   → @keepraw-fly/core
@@ -32,6 +32,11 @@ Profile names are part of the portable document and therefore travel with it.
 
 ## Import and export
 
+New users can create an empty archive and add flights through a guided form.
+The editor turns airport-local date/time fields into explicit ISO 8601 timezone
+offsets using bundled airport reference data. JSON remains the portable exchange
+and backup format rather than a first-use requirement.
+
 Import parses JSON, validates the 0.1 schema and semantic invariants, then
 replaces the active local archive. The whole validated document is stored, so
 unrecognized namespaced extensions survive an import/edit/export round trip.
@@ -58,3 +63,7 @@ distance uses airport coordinates; duration uses actual timestamps when both are
 available and otherwise falls back to scheduled timestamps. No derived totals
 are written into Keepraw Fly JSON.
 
+The Passport route map uses the same airport coordinates. It projects a bundled
+world outline locally, samples great-circle paths and splits paths at the
+international date line. No external map tiles, API calls or location data are
+required.
