@@ -1,0 +1,16 @@
+{
+  "name": "@keepraw-fly/schema",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./keepraw-fly.schema.json"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit --pretty false"
+  }
+}
+
