@@ -5,6 +5,7 @@ import {
   calculatePassportStatistics,
   departureDelayMinutes,
   distanceKilometers,
+  formatTimeAtAirport,
   flightDuration,
   groupFlightsByYear,
   searchFlights,
@@ -43,6 +44,12 @@ describe("flight calculations", () => {
     const sfo = airportByIata.get("SFO")!;
     const lax = airportByIata.get("LAX")!;
     expect(Math.round(distanceKilometers(sfo, lax))).toBe(544);
+  });
+
+  it("formats the stored instant in airport-local time", () => {
+    expect(
+      formatTimeAtAirport(flight.scheduledDeparture, "SFO", "en", "24-hour"),
+    ).toBe("10:20");
   });
 });
 

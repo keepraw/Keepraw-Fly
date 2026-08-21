@@ -1,34 +1,36 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import demoData from "@keepraw-fly/core/demo";
+import { AppHeader, type Page } from "./components/AppHeader";
+import { EmptyState } from "./components/EmptyState";
+import { FlightsPage } from "./pages/FlightsPage";
+
+const demoDocument = demoData as KeeprawFlyDocument;
 
 export function App() {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
+  const [page, setPage] = useState<Page>("flights");
+
+  const locale = useMemo(
+    () => (i18n.resolvedLanguage === "zh-CN" ? "zh-CN" : "en"),
+    [i18n.resolvedLanguage],
+  );
 
   return (
     <div className="app-shell">
-      <header className="site-header">
-        <a className="wordmark" href="/" aria-label={t("app.homeLabel")}>
-          Keepraw Fly
-        </a>
-        <nav aria-label={t("nav.label")}>
-          <a aria-current="page" href="#flights">
-            {t("nav.flights")}
-          </a>
-          <a href="#passport">{t("nav.passport")}</a>
-          <a href="#settings">{t("nav.settings")}</a>
-        </nav>
-      </header>
-      <main className="welcome">
-        <p className="eyebrow">{t("welcome.eyebrow")}</p>
-        <h1>{t("welcome.title")}</h1>
-        <p>{t("welcome.description")}</p>
-        <div className="welcome-actions">
-          <button type="button">{t("actions.openFile")}</button>
-          <button className="button-secondary" type="button">
-            {t("actions.tryDemo")}
-          </button>
-        </div>
-      </main>
+      <AppHeader currentPage={page} onNavigate={setPage} />
+      {!document ? (
+        <EmptyState onTryDemo={() => setDocument(structuredClone(demoDocument))} />
+      ) : page === "flights" ? (
+        <FlightsPage document={document} locale={locale} />
+      ) : (
+        <main className="page-placeholder">
+          <p className="eyebrow">Keepraw Fly</p>
+          <h1>{page === "passport" ? "Passport" : "Settings"}</h1>
+        </main>
+      )}
     </div>
   );
 }
-

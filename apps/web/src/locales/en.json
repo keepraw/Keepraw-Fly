@@ -11,11 +11,26 @@
   "welcome": {
     "eyebrow": "Your flight history, in your hands",
     "title": "The data outlives the app.",
-    "description": "Open a Keepraw Fly file or explore the viewer with an example dataset. Your data stays in this browser."
+    "description": "Open a Keepraw Fly file or explore the viewer with an example dataset. Your data stays in this browser.",
+    "privacy": "Local by design. Nothing is uploaded.",
+    "importComingSoon": "File import is added in the Data milestone."
   },
   "actions": {
     "openFile": "Open Keepraw Fly file",
-    "tryDemo": "Try demo"
+    "tryDemo": "Try demo",
+    "clearSearch": "Clear search"
+  },
+  "flights": {
+    "archive": "Flight archive",
+    "count_one": "{{count}} flight",
+    "count_other": "{{count}} flights",
+    "searchLabel": "Search flights",
+    "searchPlaceholder": "Search flights, airports, airlines…",
+    "noResultsTitle": "No flights found",
+    "noResultsDescription": "Nothing in this archive matches “{{query}}”."
+  },
+  "status": {
+    "scheduled": "Scheduled",
+    "onTime": "On time"
   }
 }
-
