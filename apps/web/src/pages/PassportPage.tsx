@@ -13,7 +13,7 @@ import {
   type SupportedLocale,
   type DistanceUnit,
 } from "@keepraw-fly/core";
-import { PassportMapPlaceholder } from "../components/PassportMapPlaceholder";
+import { PassportRouteMap } from "../components/PassportRouteMap";
 
 interface PassportPageProps {
   document: KeeprawFlyDocument;
@@ -98,7 +98,7 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
         <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
       </section>
 
-      <PassportMapPlaceholder routes={routes} />
+      <PassportRouteMap routes={routes} />
 
       <section className="passport-highlights" aria-labelledby="highlights-title">
         <div className="section-heading">
