@@ -1,0 +1,21 @@
+{
+  "app": {
+    "homeLabel": "Keepraw Fly 首页"
+  },
+  "nav": {
+    "label": "主导航",
+    "flights": "航班",
+    "passport": "飞行护照",
+    "settings": "设置"
+  },
+  "welcome": {
+    "eyebrow": "你的飞行历史，由你掌握",
+    "title": "数据比应用更长久。",
+    "description": "打开 Keepraw Fly 文件，或使用示例数据体验查看器。你的数据只保存在这个浏览器中。"
+  },
+  "actions": {
+    "openFile": "打开 Keepraw Fly 文件",
+    "tryDemo": "体验示例"
+  }
+}
+
