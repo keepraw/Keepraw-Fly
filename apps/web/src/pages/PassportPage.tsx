@@ -21,13 +21,13 @@ interface PassportPageProps {
   distanceUnit: DistanceUnit;
 }
 
-function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale) {
+function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale, fallbackName: string) {
   const name = document.profile.name;
-  if (!name) return { primary: "Keepraw Flyer", secondary: undefined };
+  if (!name) return { primary: fallbackName, secondary: undefined };
   const preferred = name.primary ?? (locale === "zh-CN" ? "native" : "romanized");
   const alternate = preferred === "native" ? "romanized" : "native";
   return {
-    primary: name[preferred] ?? name[alternate] ?? "Keepraw Flyer",
+    primary: name[preferred] ?? name[alternate] ?? fallbackName,
     secondary: name[alternate],
   };
 }
@@ -44,7 +44,7 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
   );
   const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
   const routes = useMemo(() => buildRouteSegments(flights), [flights]);
-  const names = profileNames(document, locale);
+  const names = profileNames(document, locale, t("passport.anonymousFlyer"));
   const longest = flights.find((flight) => flight.id === stats.longestFlight?.flightId);
   const shortest = flights.find((flight) => flight.id === stats.shortestFlight?.flightId);
   const distanceSuffix = distanceUnit === "miles" ? "mi" : "km";
@@ -54,7 +54,7 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
   }
 
   return (
-    <main className="passport-page" id="main-content">
+    <main className="passport-page" id="main-content" tabIndex={-1}>
       <header className="passport-heading">
         <div>
           <p className="eyebrow">{t("passport.flightHistory")}</p>
@@ -88,7 +88,7 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
           <strong>{formatDistance(stats.distanceKilometers, locale, distanceUnit)}</strong>
           <span>{t(distanceUnit === "miles" ? "passport.distanceMiles" : "passport.distanceKilometers")}</span>
         </div>
-        <div><strong>{formatDuration(stats.durationMinutes)}</strong><span>{t("passport.timeInAir")}</span></div>
+        <div><strong>{formatDuration(stats.durationMinutes, locale)}</strong><span>{t("passport.timeInAir")}</span></div>
       </section>
 
       <section className="passport-counts" aria-label={t("passport.collectionStats")}>

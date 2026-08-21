@@ -31,10 +31,10 @@ function DetailItem({ label, value }: { label: string; value?: string }) {
   ) : null;
 }
 
-function delayText(delay: number | null, onTimeLabel: string): string {
+function delayText(delay: number | null, onTimeLabel: string, minuteLabel: string): string {
   if (delay === null) return "—";
   if (delay === 0) return onTimeLabel;
-  return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} min`;
+  return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} ${minuteLabel}`;
 }
 
 export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightDetailPageProps) {
@@ -57,7 +57,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightD
   });
 
   return (
-    <main className="detail-page" id="main-content">
+    <main className="detail-page" id="main-content" tabIndex={-1}>
       <button className="back-button" type="button" onClick={onBack}>
         <span aria-hidden="true">←</span> {t("actions.backToFlights")}
       </button>
@@ -69,7 +69,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightD
           <p>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</p>
         </div>
         <span className="detail-duration">
-          {formatDuration(duration.minutes)}
+          {formatDuration(duration.minutes, locale)}
           <small>{t(`flightDetail.durationSource.${duration.source}`)}</small>
         </span>
       </header>
@@ -154,13 +154,13 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightD
         <div>
           <span>{t("flightDetail.departureDelay")}</span>
           <strong className={departureDelay && departureDelay > 0 ? "delay-positive" : ""}>
-            {delayText(departureDelay, t("status.onTime"))}
+            {delayText(departureDelay, t("status.onTime"), t("units.minuteShort"))}
           </strong>
         </div>
         <div>
           <span>{t("flightDetail.arrivalDelay")}</span>
           <strong className={arrivalDelay && arrivalDelay > 0 ? "delay-positive" : ""}>
-            {delayText(arrivalDelay, t("status.onTime"))}
+            {delayText(arrivalDelay, t("status.onTime"), t("units.minuteShort"))}
           </strong>
         </div>
       </section>

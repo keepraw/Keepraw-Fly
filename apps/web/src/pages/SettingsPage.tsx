@@ -4,11 +4,11 @@ import type { ViewerSettings } from "../storage/types";
 import { ImportControl } from "../components/ImportControl";
 
 interface SettingsPageProps {
-  document: KeeprawFlyDocument;
+  document: KeeprawFlyDocument | null;
   settings: ViewerSettings;
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
-  onExport: () => void;
-  onClear: () => void | Promise<void>;
+  onExport?: () => void | Promise<void>;
+  onClear?: () => void | Promise<void>;
   onSettingsChange: (settings: ViewerSettings) => void | Promise<void>;
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
 }
@@ -23,7 +23,7 @@ export function SettingsPage({
   onProfileChange,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const profileName = document.profile.name;
+  const profileName = document?.profile.name;
 
   function updateSetting<Key extends keyof ViewerSettings>(
     key: Key,
@@ -33,6 +33,7 @@ export function SettingsPage({
   }
 
   function updateName(field: "native" | "romanized", value: string) {
+    if (!document) return;
     const native = field === "native" ? value.trimStart() : profileName?.native;
     const romanized = field === "romanized" ? value.trimStart() : profileName?.romanized;
     if (!native && !romanized) {
@@ -50,7 +51,7 @@ export function SettingsPage({
   }
 
   return (
-    <main className="settings-page" id="main-content">
+    <main className="settings-page" id="main-content" tabIndex={-1}>
       <header className="settings-heading">
         <p className="eyebrow">{t("settings.viewerPreferences")}</p>
         <h1>{t("nav.settings")}</h1>
@@ -62,9 +63,9 @@ export function SettingsPage({
           <div><p className="eyebrow">01</p><h2 id="settings-data">{t("settings.data")}</h2></div>
           <div className="settings-panel data-actions">
             <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl onImport={onImport} variant="settings" /></div>
-            <div><span>{t("settings.exportTitle")}</span><small>{t("settings.exportDescription")}</small><button className="settings-action" type="button" onClick={onExport}>{t("actions.export")}</button></div>
-            <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" onClick={() => {
-              if (window.confirm(t("settings.clearConfirmation"))) void onClear();
+            <div><span>{t("settings.exportTitle")}</span><small>{t("settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
+            <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => {
+              if (onClear && window.confirm(t("settings.clearConfirmation"))) void onClear();
             }}>{t("actions.clearData")}</button></div>
           </div>
         </section>
@@ -82,8 +83,8 @@ export function SettingsPage({
         <section className="settings-section" aria-labelledby="settings-profile">
           <div><p className="eyebrow">03</p><h2 id="settings-profile">{t("settings.profile")}</h2></div>
           <div className="settings-panel settings-fields">
-            <label><span>{t("settings.nativeName")}</span><input type="text" value={profileName?.native ?? ""} onChange={(event) => updateName("native", event.target.value)} /></label>
-            <label><span>{t("settings.romanizedName")}</span><input type="text" value={profileName?.romanized ?? ""} onChange={(event) => updateName("romanized", event.target.value)} /></label>
+            <label><span>{t("settings.nativeName")}</span><input type="text" disabled={!document} value={profileName?.native ?? ""} onChange={(event) => updateName("native", event.target.value)} /></label>
+            <label><span>{t("settings.romanizedName")}</span><input type="text" disabled={!document} value={profileName?.romanized ?? ""} onChange={(event) => updateName("romanized", event.target.value)} /></label>
             <fieldset>
               <legend>{t("settings.primaryName")}</legend>
               <div className="radio-row">

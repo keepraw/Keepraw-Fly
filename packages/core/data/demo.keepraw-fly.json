@@ -291,7 +291,7 @@
       "id": "demo-2024-af83",
       "flightNumber": "AF83",
       "serviceDate": "2024-09-08",
-      "airline": { "icao": "AFR" },
+      "airline": { "iata": "AF" },
       "origin": { "iata": "SFO", "terminal": "I" },
       "destination": { "iata": "CDG", "terminal": "2E" },
       "scheduledDeparture": "2024-09-08T15:00:00-07:00",

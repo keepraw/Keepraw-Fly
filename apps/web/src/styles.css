@@ -31,6 +31,21 @@ a { color: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.5; }
 
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 10px;
+  left: 10px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: var(--surface);
+  background: var(--ink);
+  transform: translateY(-160%);
+  transition: transform 120ms ease;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -159,6 +174,9 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   color: var(--faint);
   font-size: 0.76rem;
 }
+
+.import-control-primary { display: grid; grid-template-columns: auto auto; gap: 10px 15px; align-items: center; }
+.drop-hint { color: var(--faint); font-size: 0.7rem; }
 
 .validation-errors { max-width: 680px; margin-top: 18px; padding: 18px; border-left: 3px solid var(--red); color: var(--ink); background: var(--red-soft); font-size: 0.75rem; }
 .validation-errors > strong { color: var(--red); }
@@ -477,6 +495,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   nav { gap: 17px; }
   nav a { padding: 8px 0 18px; font-size: 0.8rem; }
   .welcome-actions { align-items: stretch; flex-direction: column; }
+  .import-control-primary { grid-template-columns: 1fr; text-align: center; }
   .flights-page { padding-top: 54px; }
   .page-heading { margin-bottom: 30px; }
   .page-heading h1 { font-size: 3.3rem; }

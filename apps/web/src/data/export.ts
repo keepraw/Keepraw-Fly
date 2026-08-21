@@ -1,7 +1,7 @@
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import { validateKeeprawFly } from "@keepraw-fly/validator";
 
-export function downloadKeeprawFly(document: KeeprawFlyDocument): void {
+export async function downloadKeeprawFly(document: KeeprawFlyDocument): Promise<void> {
+  const { validateKeeprawFly } = await import("@keepraw-fly/validator");
   const validation = validateKeeprawFly(document);
   if (!validation.valid) {
     throw new Error("The current archive failed validation and cannot be exported.");

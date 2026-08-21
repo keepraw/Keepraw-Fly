@@ -60,9 +60,9 @@ export const airlines: AirlineReferenceData[] = [
   { iata: "CX", name: { en: "Cathay Pacific", "zh-CN": "国泰航空" } },
   { iata: "KE", name: { en: "Korean Air", "zh-CN": "大韩航空" } },
   { iata: "QF", name: { en: "Qantas", "zh-CN": "澳洲航空" } },
-  { iata: "AC", name: { en: "Air Canada", "zh-CN": "加拿大航空" } }
+  { iata: "AC", name: { en: "Air Canada", "zh-CN": "加拿大航空" } },
+  { iata: "AF", name: { en: "Air France", "zh-CN": "法国航空" } }
 ];
 
 export const airportByIata = new Map(airports.map((airport) => [airport.iata, airport]));
 export const airlineByIata = new Map(airlines.map((airline) => [airline.iata, airline]));
-

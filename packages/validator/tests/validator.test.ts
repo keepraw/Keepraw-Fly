@@ -99,4 +99,36 @@ describe("Keepraw Fly validator", () => {
       );
     }
   });
+
+  it("rejects duplicate flight ids", () => {
+    const input = structuredClone(validDocument);
+    input.flights.push(structuredClone(input.flights[0]!));
+    const result = validateKeeprawFly(input);
+
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({
+          path: "/flights/1/id",
+          keyword: "uniqueFlightId",
+        }),
+      );
+    }
+  });
+
+  it("rejects impossible flight chronology", () => {
+    const input = structuredClone(validDocument);
+    input.flights[0]!.scheduledArrival = "2026-08-19T09:52:00-07:00";
+    const result = validateKeeprawFly(input);
+
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({
+          path: "/flights/0/scheduledArrival",
+          keyword: "chronology",
+        }),
+      );
+    }
+  });
 });

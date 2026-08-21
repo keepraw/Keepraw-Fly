@@ -11,7 +11,7 @@ export function EmptyState({ onTryDemo, onImport }: EmptyStateProps) {
   const { t } = useTranslation();
 
   return (
-    <main className="welcome">
+    <main className="welcome" id="main-content" tabIndex={-1}>
       <p className="eyebrow">{t("welcome.eyebrow")}</p>
       <h1>{t("welcome.title")}</h1>
       <p>{t("welcome.description")}</p>

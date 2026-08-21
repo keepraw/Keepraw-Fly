@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import { parseKeeprawFlyJson, type ValidationIssue } from "@keepraw-fly/validator";
+import type { ValidationIssue } from "@keepraw-fly/validator";
 
 interface ImportControlProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
@@ -17,6 +17,7 @@ export function ImportControl({ onImport, variant = "primary" }: ImportControlPr
   async function importFile(file: File | undefined) {
     if (!file) return;
     setBusy(true);
+    const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
     const result = parseKeeprawFlyJson(await file.text());
     if (result.valid) {
       await onImport(result.data);
@@ -28,7 +29,14 @@ export function ImportControl({ onImport, variant = "primary" }: ImportControlPr
   }
 
   return (
-    <div className={`import-control import-control-${variant}`}>
+    <div
+      className={`import-control import-control-${variant}`}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault();
+        void importFile(event.dataTransfer.files[0]);
+      }}
+    >
       <input
         className="sr-only"
         id={inputId}
@@ -43,6 +51,7 @@ export function ImportControl({ onImport, variant = "primary" }: ImportControlPr
       <label className={variant === "primary" ? "import-primary" : "settings-action"} htmlFor={inputId}>
         {busy ? t("actions.validating") : t("actions.openFile")}
       </label>
+      {variant === "primary" ? <span className="drop-hint">{t("import.dropHint")}</span> : null}
       {issues.length ? (
         <div className="validation-errors" role="alert">
           <strong>{t("import.failed")}</strong>
