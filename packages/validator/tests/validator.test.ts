@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseKeeprawFlyJson, validateKeeprawFly } from "../src";
+import demoDocument from "../../core/data/demo.keepraw-fly.json";
 
 const validDocument = {
   format: "keepraw-fly",
@@ -31,6 +32,12 @@ const validDocument = {
 };
 
 describe("Keepraw Fly validator", () => {
+  it("validates the complete 24-flight demo dataset", () => {
+    const result = validateKeeprawFly(demoDocument);
+    expect(result.valid).toBe(true);
+    if (result.valid) expect(result.data.flights).toHaveLength(24);
+  });
+
   it("accepts a valid document and preserves unknown extensions", () => {
     const result = validateKeeprawFly(validDocument);
 
@@ -93,4 +100,3 @@ describe("Keepraw Fly validator", () => {
     }
   });
 });
-

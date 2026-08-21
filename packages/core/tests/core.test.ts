@@ -1,0 +1,77 @@
+import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { describe, expect, it } from "vitest";
+import {
+  airportByIata,
+  calculatePassportStatistics,
+  departureDelayMinutes,
+  distanceKilometers,
+  flightDuration,
+  groupFlightsByYear,
+  searchFlights,
+} from "../src";
+
+const flight: KeeprawFlight = {
+  id: "ua123",
+  flightNumber: "UA123",
+  serviceDate: "2026-08-19",
+  airline: { iata: "UA" },
+  origin: { iata: "SFO" },
+  destination: { iata: "LAX" },
+  scheduledDeparture: "2026-08-19T10:20:00-07:00",
+  scheduledArrival: "2026-08-19T11:52:00-07:00",
+  actualDeparture: "2026-08-19T10:57:00-07:00",
+  actualArrival: "2026-08-19T12:21:00-07:00",
+  extensions: {
+    "keepraw-fly.aircraft": { type: "B789", registration: "N12345" },
+  },
+};
+
+describe("flight calculations", () => {
+  it("derives delay and actual duration from offset datetimes", () => {
+    expect(departureDelayMinutes(flight)).toBe(37);
+    expect(flightDuration(flight)).toEqual({ minutes: 84, source: "actual" });
+  });
+
+  it("falls back to scheduled duration when actual times are incomplete", () => {
+    expect(flightDuration({ ...flight, actualArrival: undefined })).toEqual({
+      minutes: 92,
+      source: "scheduled",
+    });
+  });
+
+  it("uses reference coordinates for great-circle distance", () => {
+    const sfo = airportByIata.get("SFO")!;
+    const lax = airportByIata.get("LAX")!;
+    expect(Math.round(distanceKilometers(sfo, lax))).toBe(544);
+  });
+});
+
+describe("search and grouping", () => {
+  const flights = [flight];
+
+  it.each(["SFO", "United", "美国联合航空", "Los Angeles", "洛杉矶", "2026", "B789", "N12345"])(
+    "matches %s outside React",
+    (query) => expect(searchFlights(flights, query)).toHaveLength(1),
+  );
+
+  it("sorts year groups newest first", () => {
+    const older = { ...flight, id: "older", serviceDate: "2025-01-02" };
+    expect(groupFlightsByYear([older, flight]).map((group) => group.year)).toEqual([
+      "2026",
+      "2025",
+    ]);
+  });
+});
+
+describe("passport statistics", () => {
+  it("derives aggregate facts without storing them", () => {
+    const stats = calculatePassportStatistics([flight]);
+    expect(stats.flights).toBe(1);
+    expect(stats.durationMinutes).toBe(84);
+    expect(Math.round(stats.distanceKilometers)).toBe(544);
+    expect(stats.airports).toBe(2);
+    expect(stats.countries).toBe(1);
+    expect(stats.mostFlownAirline).toEqual({ code: "UA", count: 1 });
+    expect(stats.aircraftTypes).toBe(1);
+  });
+});
