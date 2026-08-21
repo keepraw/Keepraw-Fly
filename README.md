@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-**An open flight-history data format and a local-first web viewer.**
+**An open flight-history data format and a local-first web viewer and editor.**
 
 Keepraw Fly keeps portable flight facts in a readable JSON document and derives
 search results, delays, distances and passport statistics in the viewer.
@@ -15,9 +15,12 @@ search results, delays, distances and passport statistics in the viewer.
 
 - Keepraw Fly 0.1 JSON Schema and Ajv validator with useful error paths
 - a 24-flight fictional demo archive spanning multiple countries and timezones
+- first-run archive creation with no JSON file required
+- a guided form to add, edit and delete flights using airport-local times
 - dense, searchable flight history with English and Simplified Chinese names
 - responsive flight detail timeline and conditional flight facts
 - lifetime and yearly Flight Passport statistics
+- a bundled world map with real airport coordinates and great-circle routes
 - local IndexedDB persistence through a storage adapter
 - validated JSON import and export, including unknown extension preservation
 - independent language, appearance, distance-unit and time-format preferences
