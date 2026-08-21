@@ -14,9 +14,10 @@ interface FlightsPageProps {
   locale: SupportedLocale;
   timeFormat: TimeFormat;
   onOpenFlight: (flightId: string) => void;
+  onAddFlight: () => void;
 }
 
-export function FlightsPage({ document, locale, timeFormat, onOpenFlight }: FlightsPageProps) {
+export function FlightsPage({ document, locale, timeFormat, onOpenFlight, onAddFlight }: FlightsPageProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const groups = useMemo(
@@ -31,12 +32,25 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight }: Flig
           <p className="eyebrow">{t("flights.archive")}</p>
           <h1>{t("nav.flights")}</h1>
         </div>
-        <p className="flight-count">
-          {t("flights.count", { count: document.flights.length })}
-        </p>
+        <div className="page-heading-actions">
+          <p className="flight-count">{t("flights.count", { count: document.flights.length })}</p>
+          <button className="add-flight-button" type="button" onClick={onAddFlight}>
+            <span aria-hidden="true">＋</span>{t("actions.addFlight")}
+          </button>
+        </div>
       </div>
 
-      <div className="search-field">
+      {!document.flights.length ? (
+        <section className="empty-archive" aria-labelledby="empty-archive-title">
+          <span className="empty-archive-mark" aria-hidden="true">↗</span>
+          <div>
+            <p className="eyebrow">{t("flights.emptyEyebrow")}</p>
+            <h2 id="empty-archive-title">{t("flights.emptyTitle")}</h2>
+            <p>{t("flights.emptyDescription")}</p>
+            <button className="button-primary" type="button" onClick={onAddFlight}>{t("actions.addFirstFlight")}</button>
+          </div>
+        </section>
+      ) : <><div className="search-field">
         <svg aria-hidden="true" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="6.5" />
           <path d="m16 16 4 4" />
@@ -91,7 +105,7 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight }: Flig
           <h2>{t("flights.noResultsTitle")}</h2>
           <p>{t("flights.noResultsDescription", { query })}</p>
         </div>
-      )}
+      )}</>}
     </main>
   );
 }

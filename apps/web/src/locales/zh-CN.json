@@ -14,11 +14,19 @@
   "welcome": {
     "eyebrow": "你的飞行历史，由你掌握",
     "title": "数据比应用更长久。",
-    "description": "打开 Keepraw Fly 文件，或使用示例数据体验查看器。你的数据只保存在这个浏览器中。",
+    "description": "直接创建自己的飞行档案，通过简单表单添加航班，不需要准备 JSON 文件。数据只保存在这个浏览器中。",
     "privacy": "本地优先，不上传任何数据。"
   },
   "actions": {
     "openFile": "打开 Keepraw Fly 文件",
+    "createArchive": "创建我的飞行档案",
+    "addFlight": "添加航班",
+    "addFirstFlight": "添加我的第一段航班",
+    "editFlight": "编辑航班",
+    "saveFlight": "保存航班",
+    "deleteFlight": "删除航班",
+    "cancel": "取消",
+    "saving": "正在保存…",
     "tryDemo": "体验示例",
     "clearSearch": "清除搜索",
     "backToFlights": "返回航班",
@@ -34,7 +42,31 @@
     "openFlight": "打开 {{flightNumber}}，{{origin}} 至 {{destination}}",
     "routeLabel": "{{origin}} 至 {{destination}}",
     "noResultsTitle": "没有找到航班",
-    "noResultsDescription": "飞行档案中没有与“{{query}}”匹配的记录。"
+    "noResultsDescription": "飞行档案中没有与“{{query}}”匹配的记录。",
+    "emptyEyebrow": "准备起飞",
+    "emptyTitle": "添加你的第一段航班",
+    "emptyDescription": "使用引导表单开始记录，Keepraw Fly 会在后台为你处理 JSON 格式。"
+  },
+  "flightEditor": {
+    "eyebrow": "航班记录",
+    "addTitle": "添加航班",
+    "editTitle": "编辑航班",
+    "flightNumber": "航班号",
+    "airline": "航空公司",
+    "origin": "出发机场",
+    "destination": "到达机场",
+    "chooseAirline": "选择航空公司",
+    "chooseAirport": "选择机场",
+    "schedule": "计划当地时间",
+    "departureDate": "出发日期",
+    "departureTime": "出发时间",
+    "arrivalDate": "到达日期",
+    "arrivalTime": "到达时间",
+    "localTimeNote": "请填写各机场当地显示的时间，时区偏移会自动添加。",
+    "sameAirport": "出发机场和到达机场不能相同。",
+    "arrivalBeforeDeparture": "换算时区后，到达时间必须晚于出发时间。",
+    "invalidFlight": "请检查航班信息后重试。",
+    "deleteConfirmation": "确定从档案中删除这段航班吗？"
   },
   "status": {
     "scheduled": "计划",

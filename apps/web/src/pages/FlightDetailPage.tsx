@@ -20,6 +20,7 @@ interface FlightDetailPageProps {
   locale: SupportedLocale;
   timeFormat: TimeFormat;
   onBack: () => void;
+  onEdit: () => void;
 }
 
 function DetailItem({ label, value }: { label: string; value?: string }) {
@@ -37,7 +38,7 @@ function delayText(delay: number | null, onTimeLabel: string, minuteLabel: strin
   return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} ${minuteLabel}`;
 }
 
-export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightDetailPageProps) {
+export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
@@ -58,9 +59,12 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack }: FlightD
 
   return (
     <main className="detail-page" id="main-content" tabIndex={-1}>
-      <button className="back-button" type="button" onClick={onBack}>
-        <span aria-hidden="true">←</span> {t("actions.backToFlights")}
-      </button>
+      <div className="detail-toolbar">
+        <button className="back-button" type="button" onClick={onBack}>
+          <span aria-hidden="true">←</span> {t("actions.backToFlights")}
+        </button>
+        <button className="edit-flight-button" type="button" onClick={onEdit}>{t("actions.editFlight")}</button>
+      </div>
 
       <header className="detail-heading">
         <div>

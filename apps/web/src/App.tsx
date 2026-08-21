@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
+import type { KeeprawFlight, KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
 import demoData from "@keepraw-fly/core/demo";
 import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
+import { FlightEditor } from "./components/FlightEditor";
 import { FlightsPage } from "./pages/FlightsPage";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { downloadKeeprawFly } from "./data/export";
+import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 
@@ -22,6 +24,7 @@ export function App() {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
 
   const locale = useMemo(() => settings.language, [settings.language]);
 
@@ -114,6 +117,36 @@ export function App() {
     }
   }
 
+  async function createArchive() {
+    await storeDocument(createEmptyDocument());
+    setPage("flights");
+    setSelectedFlightId(null);
+    setEditorFlightId("new");
+    window.location.hash = "flights";
+  }
+
+  async function saveFlight(flight: KeeprawFlight) {
+    if (!document) return;
+    const existingIndex = document.flights.findIndex((item) => item.id === flight.id);
+    const flights = existingIndex === -1
+      ? [...document.flights, flight]
+      : document.flights.map((item) => item.id === flight.id ? flight : item);
+    await storeDocument({ ...document, flights });
+    setEditorFlightId(null);
+    setSelectedFlightId(flight.id);
+    setPage("flights");
+  }
+
+  async function deleteEditedFlight() {
+    if (!document || !editorFlightId || editorFlightId === "new") return;
+    await storeDocument({
+      ...document,
+      flights: document.flights.filter((flight) => flight.id !== editorFlightId),
+    });
+    setEditorFlightId(null);
+    setSelectedFlightId(null);
+  }
+
   if (!loaded) {
     return <main className="loading-screen" id="main-content" aria-label={t("app.loading")}><span>K</span></main>;
   }
@@ -141,6 +174,7 @@ export function App() {
         />
       ) : !document ? (
         <EmptyState
+          onCreateArchive={createArchive}
           onTryDemo={() => storeDocument(structuredClone(demoDocument))}
           onImport={storeDocument}
         />
@@ -150,6 +184,7 @@ export function App() {
           locale={locale}
           timeFormat={settings.timeFormat}
           onBack={() => setSelectedFlightId(null)}
+          onEdit={() => setEditorFlightId(selectedFlightId)}
         />
       ) : page === "flights" ? (
         <FlightsPage
@@ -157,12 +192,25 @@ export function App() {
           locale={locale}
           timeFormat={settings.timeFormat}
           onOpenFlight={setSelectedFlightId}
+          onAddFlight={() => setEditorFlightId("new")}
         />
       ) : page === "passport" ? (
         <PassportPage
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
+        />
+      ) : null}
+      {document && editorFlightId ? (
+        <FlightEditor
+          key={editorFlightId}
+          flight={editorFlightId === "new"
+            ? undefined
+            : document.flights.find((flight) => flight.id === editorFlightId)}
+          locale={locale}
+          onSave={saveFlight}
+          onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
+          onCancel={() => setEditorFlightId(null)}
         />
       ) : null}
     </div>
