@@ -6,6 +6,7 @@ import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
 import { FlightsPage } from "./pages/FlightsPage";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
+import { PassportPage } from "./pages/PassportPage";
 
 const demoDocument = demoData as KeeprawFlyDocument;
 
@@ -47,10 +48,12 @@ export function App() {
           locale={locale}
           onOpenFlight={setSelectedFlightId}
         />
+      ) : page === "passport" ? (
+        <PassportPage document={document} locale={locale} />
       ) : (
         <main className="page-placeholder">
           <p className="eyebrow">Keepraw Fly</p>
-          <h1>{page === "passport" ? "Passport" : "Settings"}</h1>
+          <h1>Settings</h1>
         </main>
       )}
     </div>
