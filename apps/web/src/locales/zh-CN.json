@@ -11,11 +11,25 @@
   "welcome": {
     "eyebrow": "你的飞行历史，由你掌握",
     "title": "数据比应用更长久。",
-    "description": "打开 Keepraw Fly 文件，或使用示例数据体验查看器。你的数据只保存在这个浏览器中。"
+    "description": "打开 Keepraw Fly 文件，或使用示例数据体验查看器。你的数据只保存在这个浏览器中。",
+    "privacy": "本地优先，不上传任何数据。",
+    "importComingSoon": "文件导入将在数据功能里完成。"
   },
   "actions": {
     "openFile": "打开 Keepraw Fly 文件",
-    "tryDemo": "体验示例"
+    "tryDemo": "体验示例",
+    "clearSearch": "清除搜索"
+  },
+  "flights": {
+    "archive": "飞行档案",
+    "count": "{{count}} 个航班",
+    "searchLabel": "搜索航班",
+    "searchPlaceholder": "搜索航班、机场、航空公司…",
+    "noResultsTitle": "没有找到航班",
+    "noResultsDescription": "飞行档案中没有与“{{query}}”匹配的记录。"
+  },
+  "status": {
+    "scheduled": "计划",
+    "onTime": "准点"
   }
 }
-
