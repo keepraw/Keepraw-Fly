@@ -18,7 +18,8 @@
   "actions": {
     "openFile": "Open Keepraw Fly file",
     "tryDemo": "Try demo",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "backToFlights": "Back to flights"
   },
   "flights": {
     "archive": "Flight archive",
@@ -26,11 +27,37 @@
     "count_other": "{{count}} flights",
     "searchLabel": "Search flights",
     "searchPlaceholder": "Search flights, airports, airlines…",
+    "openFlight": "Open {{flightNumber}}, {{origin}} to {{destination}}",
     "noResultsTitle": "No flights found",
     "noResultsDescription": "Nothing in this archive matches “{{query}}”."
   },
   "status": {
     "scheduled": "Scheduled",
     "onTime": "On time"
+  },
+  "flightDetail": {
+    "routeLabel": "Flight route",
+    "journey": "Journey",
+    "timeline": "Flight timeline",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "scheduled": "Scheduled",
+    "delaySummary": "Delay summary",
+    "departureDelay": "Departure delay",
+    "arrivalDelay": "Arrival delay",
+    "facts": "Flight facts",
+    "details": "Details",
+    "departureTerminal": "Departure terminal",
+    "departureGate": "Departure gate",
+    "arrivalTerminal": "Arrival terminal",
+    "arrivalGate": "Arrival gate",
+    "aircraft": "Aircraft",
+    "registration": "Registration",
+    "seat": "Seat",
+    "cabin": "Cabin",
+    "durationSource": {
+      "actual": "Actual flight time",
+      "scheduled": "Scheduled flight time"
+    }
   }
 }

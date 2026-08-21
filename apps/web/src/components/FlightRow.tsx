@@ -12,9 +12,10 @@ import {
 interface FlightRowProps {
   flight: KeeprawFlight;
   locale: SupportedLocale;
+  onOpen: () => void;
 }
 
-export function FlightRow({ flight, locale }: FlightRowProps) {
+export function FlightRow({ flight, locale, onOpen }: FlightRowProps) {
   const { t } = useTranslation();
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
@@ -38,7 +39,16 @@ export function FlightRow({ flight, locale }: FlightRowProps) {
   }
 
   return (
-    <article className="flight-row">
+    <button
+      className="flight-row"
+      type="button"
+      onClick={onOpen}
+      aria-label={t("flights.openFlight", {
+        flightNumber: flight.flightNumber,
+        origin: flight.origin.iata,
+        destination: flight.destination.iata,
+      })}
+    >
       <time className="flight-date" dateTime={flight.serviceDate}>
         {formatServiceDate(flight.serviceDate, locale)}
       </time>
@@ -71,6 +81,6 @@ export function FlightRow({ flight, locale }: FlightRowProps) {
         </time>
       </div>
       <span className={`flight-status ${delayClass}`}>{delayLabel}</span>
-    </article>
+    </button>
   );
 }

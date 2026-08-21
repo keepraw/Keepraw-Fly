@@ -1,4 +1,5 @@
 export * from "./calculations";
+export * from "./extensions";
 export * from "./formatting";
 export * from "./reference-data";
 export * from "./search";
