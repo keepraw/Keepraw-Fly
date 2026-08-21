@@ -20,7 +20,7 @@ export function App() {
   const [settings, setSettings] = useState<ViewerSettings>(defaultViewerSettings);
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
-  const [page, setPage] = useState<Page>("flights");
+  const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
 
   const locale = useMemo(() => settings.language, [settings.language]);
@@ -61,6 +61,18 @@ export function App() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [page, selectedFlightId]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const nextPage = pageFromLocationHash();
+      if (nextPage) {
+        setPage(nextPage);
+        setSelectedFlightId(null);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   async function storeDocument(nextDocument: KeeprawFlyDocument) {
     setDocument(nextDocument);
     try {
@@ -94,6 +106,7 @@ export function App() {
       await browserStorage.clearDocument();
       setDocument(null);
       setPage("flights");
+      window.location.hash = "flights";
       setSelectedFlightId(null);
       setStorageError(null);
     } catch {
@@ -102,11 +115,12 @@ export function App() {
   }
 
   if (!loaded) {
-    return <main className="loading-screen" aria-label={t("app.loading")}><span>K</span></main>;
+    return <main className="loading-screen" id="main-content" aria-label={t("app.loading")}><span>K</span></main>;
   }
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">{t("app.skipToContent")}</a>
       <AppHeader
         currentPage={page}
         onNavigate={(nextPage) => {
@@ -115,7 +129,17 @@ export function App() {
         }}
       />
       {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
-      {!document ? (
+      {page === "settings" ? (
+        <SettingsPage
+          document={document}
+          settings={settings}
+          onImport={storeDocument}
+          onExport={document ? () => downloadKeeprawFly(document) : undefined}
+          onClear={document ? clearDocument : undefined}
+          onSettingsChange={storeSettings}
+          onProfileChange={updateProfile}
+        />
+      ) : !document ? (
         <EmptyState
           onTryDemo={() => storeDocument(structuredClone(demoDocument))}
           onImport={storeDocument}
@@ -140,21 +164,22 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
         />
-      ) : (
-        <SettingsPage
-          document={document}
-          settings={settings}
-          onImport={storeDocument}
-          onExport={() => downloadKeeprawFly(document)}
-          onClear={clearDocument}
-          onSettingsChange={storeSettings}
-          onProfileChange={updateProfile}
-        />
-      )}
+      ) : null}
     </div>
   );
 }
 
 function documentElementLanguage(language: ViewerSettings["language"]) {
   window.document.documentElement.lang = language;
+}
+
+function pageFromHash(): Page {
+  return pageFromLocationHash() ?? "flights";
+}
+
+function pageFromLocationHash(): Page | null {
+  const hash = window.location.hash.slice(1);
+  return hash === "flights" || hash === "passport" || hash === "settings"
+    ? hash
+    : null;
 }

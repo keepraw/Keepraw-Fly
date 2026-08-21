@@ -2,7 +2,8 @@
   "app": {
     "homeLabel": "Keepraw Fly 首页",
     "loading": "正在加载 Keepraw Fly",
-    "storageUnavailable": "本地存储不可用，更改可能无法保留。"
+    "storageUnavailable": "本地存储不可用，更改可能无法保留。",
+    "skipToContent": "跳到主要内容"
   },
   "nav": {
     "label": "主导航",
@@ -14,15 +15,14 @@
     "eyebrow": "你的飞行历史，由你掌握",
     "title": "数据比应用更长久。",
     "description": "打开 Keepraw Fly 文件，或使用示例数据体验查看器。你的数据只保存在这个浏览器中。",
-    "privacy": "本地优先，不上传任何数据。",
-    "importComingSoon": "文件导入将在数据功能里完成。"
+    "privacy": "本地优先，不上传任何数据。"
   },
   "actions": {
     "openFile": "打开 Keepraw Fly 文件",
     "tryDemo": "体验示例",
     "clearSearch": "清除搜索",
-    "backToFlights": "返回航班"
-    ,"validating": "正在验证…",
+    "backToFlights": "返回航班",
+    "validating": "正在验证…",
     "export": "导出 Keepraw Fly JSON",
     "clearData": "清除本地数据"
   },
@@ -32,6 +32,7 @@
     "searchLabel": "搜索航班",
     "searchPlaceholder": "搜索航班、机场、航空公司…",
     "openFlight": "打开 {{flightNumber}}，{{origin}} 至 {{destination}}",
+    "routeLabel": "{{origin}} 至 {{destination}}",
     "noResultsTitle": "没有找到航班",
     "noResultsDescription": "飞行档案中没有与“{{query}}”匹配的记录。"
   },
@@ -66,6 +67,7 @@
   },
   "passport": {
     "flightHistory": "飞行护照",
+    "anonymousFlyer": "Keepraw 飞行者",
     "periodLabel": "飞行护照统计期间",
     "lifetime": "全部",
     "primaryStats": "主要飞行统计",
@@ -94,7 +96,11 @@
   },
   "import": {
     "failed": "无法导入这个文件",
-    "flightNumber": "航班 #{{number}}"
+    "flightNumber": "航班 #{{number}}",
+    "dropHint": "或将 .json 文件拖放到这里"
+  },
+  "units": {
+    "minuteShort": "分"
   },
   "settings": {
     "viewerPreferences": "查看器偏好",

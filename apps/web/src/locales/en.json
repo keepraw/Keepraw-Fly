@@ -2,7 +2,8 @@
   "app": {
     "homeLabel": "Keepraw Fly home",
     "loading": "Loading Keepraw Fly",
-    "storageUnavailable": "Local storage is unavailable. Changes may not persist."
+    "storageUnavailable": "Local storage is unavailable. Changes may not persist.",
+    "skipToContent": "Skip to content"
   },
   "nav": {
     "label": "Primary navigation",
@@ -14,15 +15,14 @@
     "eyebrow": "Your flight history, in your hands",
     "title": "The data outlives the app.",
     "description": "Open a Keepraw Fly file or explore the viewer with an example dataset. Your data stays in this browser.",
-    "privacy": "Local by design. Nothing is uploaded.",
-    "importComingSoon": "File import is added in the Data milestone."
+    "privacy": "Local by design. Nothing is uploaded."
   },
   "actions": {
     "openFile": "Open Keepraw Fly file",
     "tryDemo": "Try demo",
     "clearSearch": "Clear search",
-    "backToFlights": "Back to flights"
-    ,"validating": "Validating…",
+    "backToFlights": "Back to flights",
+    "validating": "Validating…",
     "export": "Export Keepraw Fly JSON",
     "clearData": "Clear local data"
   },
@@ -33,6 +33,7 @@
     "searchLabel": "Search flights",
     "searchPlaceholder": "Search flights, airports, airlines…",
     "openFlight": "Open {{flightNumber}}, {{origin}} to {{destination}}",
+    "routeLabel": "{{origin}} to {{destination}}",
     "noResultsTitle": "No flights found",
     "noResultsDescription": "Nothing in this archive matches “{{query}}”."
   },
@@ -67,6 +68,7 @@
   },
   "passport": {
     "flightHistory": "Flight passport",
+    "anonymousFlyer": "Keepraw Flyer",
     "periodLabel": "Passport period",
     "lifetime": "Lifetime",
     "primaryStats": "Primary flight statistics",
@@ -95,7 +97,11 @@
   },
   "import": {
     "failed": "This file cannot be imported",
-    "flightNumber": "Flight #{{number}}"
+    "flightNumber": "Flight #{{number}}",
+    "dropHint": "or drop a .json file here"
+  },
+  "units": {
+    "minuteShort": "min"
   },
   "settings": {
     "viewerPreferences": "Viewer preferences",

@@ -25,7 +25,7 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight }: Flig
   );
 
   return (
-    <main className="flights-page" id="main-content">
+    <main className="flights-page" id="main-content" tabIndex={-1}>
       <div className="page-heading">
         <div>
           <p className="eyebrow">{t("flights.archive")}</p>

@@ -9,6 +9,7 @@ import {
   departureDelayMinutes,
   distanceKilometers,
   formatTimeAtAirport,
+  formatDuration,
   flightDuration,
   groupFlightsByYear,
   searchFlights,
@@ -53,6 +54,11 @@ describe("flight calculations", () => {
     expect(
       formatTimeAtAirport(flight.scheduledDeparture, "SFO", "en", "24-hour"),
     ).toBe("10:20");
+  });
+
+  it("formats duration without coupling it to distance units", () => {
+    expect(formatDuration(84, "en")).toBe("1h 24m");
+    expect(formatDuration(84, "zh-CN")).toBe("1小时 24分");
   });
 
   it("reads known UI facts without disturbing the extension map", () => {

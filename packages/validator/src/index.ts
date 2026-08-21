@@ -80,8 +80,64 @@ function toIssue(error: ErrorObject, input: unknown): ValidationIssue {
   };
 }
 
+function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const seenIds = new Set<string>();
+
+  document.flights.forEach((flight, flightIndex) => {
+    if (seenIds.has(flight.id)) {
+      issues.push({
+        path: `/flights/${flightIndex}/id`,
+        keyword: "uniqueFlightId",
+        message: "Flight id must be unique within a Keepraw Fly document.",
+        received: flight.id,
+        flightIndex,
+      });
+    }
+    seenIds.add(flight.id);
+
+    if (flight.scheduledDeparture.slice(0, 10) !== flight.serviceDate) {
+      issues.push({
+        path: `/flights/${flightIndex}/serviceDate`,
+        keyword: "serviceDate",
+        message: "Service date must match the local date in scheduled departure.",
+        received: flight.serviceDate,
+        flightIndex,
+      });
+    }
+
+    if (Date.parse(flight.scheduledArrival) <= Date.parse(flight.scheduledDeparture)) {
+      issues.push({
+        path: `/flights/${flightIndex}/scheduledArrival`,
+        keyword: "chronology",
+        message: "Scheduled arrival must be later than scheduled departure.",
+        received: flight.scheduledArrival,
+        flightIndex,
+      });
+    }
+
+    if (
+      flight.actualDeparture &&
+      flight.actualArrival &&
+      Date.parse(flight.actualArrival) <= Date.parse(flight.actualDeparture)
+    ) {
+      issues.push({
+        path: `/flights/${flightIndex}/actualArrival`,
+        keyword: "chronology",
+        message: "Actual arrival must be later than actual departure.",
+        received: flight.actualArrival,
+        flightIndex,
+      });
+    }
+  });
+
+  return issues;
+}
+
 export function validateKeeprawFly(input: unknown): ValidationResult {
   if (validateSchema(input)) {
+    const issues = semanticIssues(input);
+    if (issues.length) return { valid: false, issues };
     return { valid: true, data: input, issues: [] };
   }
 
@@ -110,4 +166,3 @@ export function parseKeeprawFlyJson(text: string): ValidationResult {
     };
   }
 }
-

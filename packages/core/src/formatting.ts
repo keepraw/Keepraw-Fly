@@ -36,9 +36,9 @@ export function formatDistance(
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value);
 }
 
-export function formatDuration(minutes: number): string {
+export function formatDuration(minutes: number, locale: SupportedLocale = "en"): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = Math.abs(minutes % 60);
+  if (locale === "zh-CN") return `${hours}小时 ${remainingMinutes}分`;
   return `${hours}h ${remainingMinutes.toString().padStart(2, "0")}m`;
 }
-

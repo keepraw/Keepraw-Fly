@@ -58,7 +58,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
         <strong>{flight.flightNumber}</strong>
         <span>{airlineName ?? airlineCode}</span>
       </div>
-      <div className="flight-route" aria-label={`${flight.origin.iata} to ${flight.destination.iata}`}>
+      <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
         <strong>{flight.origin.iata}</strong>
         <span className="route-line" aria-hidden="true"><i /></span>
         <strong>{flight.destination.iata}</strong>
