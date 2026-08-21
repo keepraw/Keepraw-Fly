@@ -1,0 +1,21 @@
+{
+  "app": {
+    "homeLabel": "Keepraw Fly home"
+  },
+  "nav": {
+    "label": "Primary navigation",
+    "flights": "Flights",
+    "passport": "Passport",
+    "settings": "Settings"
+  },
+  "welcome": {
+    "eyebrow": "Your flight history, in your hands",
+    "title": "The data outlives the app.",
+    "description": "Open a Keepraw Fly file or explore the viewer with an example dataset. Your data stays in this browser."
+  },
+  "actions": {
+    "openFile": "Open Keepraw Fly file",
+    "tryDemo": "Try demo"
+  }
+}
+
