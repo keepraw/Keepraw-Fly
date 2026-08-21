@@ -153,7 +153,8 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 
 .welcome-actions { display: flex; gap: 10px; margin-top: 36px; }
 
-.welcome-actions button,
+.button-primary,
+.button-secondary,
 .import-primary {
   display: inline-grid;
   align-items: center;
@@ -167,7 +168,9 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   cursor: pointer;
 }
 
-.welcome-actions .button-secondary { color: var(--ink); background: transparent; }
+.button-secondary { color: var(--ink); background: transparent; }
+.welcome-import .import-primary { border-color: transparent; color: var(--muted); background: transparent; }
+.welcome-import .drop-hint { display: none; }
 
 .privacy-note {
   margin-top: 18px;
@@ -206,6 +209,35 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 }
 
 .flight-count { margin: 0 0 7px; color: var(--muted); font-size: 0.9rem; }
+.page-heading-actions { display: flex; align-items: center; gap: 20px; }
+.page-heading-actions .flight-count { margin: 0; }
+.add-flight-button, .edit-flight-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  color: var(--surface);
+  background: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 680;
+}
+
+.empty-archive {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 520px);
+  gap: 55px;
+  align-items: start;
+  margin-top: 60px;
+  padding: 70px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+.empty-archive-mark { color: var(--green); font-size: 7rem; font-weight: 250; line-height: 0.75; }
+.empty-archive h2 { margin: 13px 0 12px; font-size: 2.5rem; font-weight: 590; letter-spacing: -0.05em; }
+.empty-archive p:not(.eyebrow) { max-width: 480px; margin: 0 0 26px; color: var(--muted); line-height: 1.6; }
 
 .search-field {
   position: relative;
@@ -308,6 +340,7 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .page-placeholder { padding: 120px 0; }
 
 .detail-page { padding: 52px 0 140px; }
+.detail-toolbar { display: flex; align-items: center; justify-content: space-between; }
 
 .back-button {
   display: inline-flex;
@@ -321,6 +354,35 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 }
 
 .back-button span { font-size: 1.1rem; }
+.edit-flight-button { color: var(--ink); background: transparent; }
+
+.editor-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  place-items: center;
+  padding: 32px 20px;
+  background: rgb(20 23 20 / 58%);
+  backdrop-filter: blur(6px);
+}
+.flight-editor { width: min(720px, 100%); padding: 38px; border-radius: 10px; color: var(--ink); background: var(--surface); box-shadow: 0 24px 80px rgb(0 0 0 / 25%); }
+.editor-heading { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 25px; border-bottom: 1px solid var(--ink); }
+.editor-heading h2 { margin: 9px 0 0; font-size: 2.2rem; font-weight: 600; letter-spacing: -0.05em; }
+.editor-close { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); background: transparent; font-size: 1.45rem; }
+.editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 28px 0; }
+.editor-grid label, .editor-schedule label { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
+.editor-grid label > span, .editor-schedule label > span { color: var(--muted); font-size: 0.7rem; }
+.editor-grid input, .editor-grid select, .editor-schedule input { width: 100%; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: var(--surface); }
+.editor-schedule { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin: 0; padding: 24px 0 0; border: 0; border-top: 1px solid var(--line); }
+.editor-schedule legend { padding: 0 0 16px; font-size: 0.8rem; font-weight: 680; }
+.editor-time-note { margin: 12px 0 0; color: var(--faint); font-size: 0.68rem; line-height: 1.5; }
+.editor-error { margin: 18px 0 0; padding: 12px 14px; color: var(--red); background: var(--red-soft); font-size: 0.72rem; }
+.editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+.editor-actions > div { display: flex; gap: 8px; }
+.editor-actions .button-primary, .editor-actions .button-secondary { min-height: 40px; padding: 0 16px; font-size: 0.72rem; }
+.editor-delete { padding: 8px 0; border: 0; color: var(--red); background: transparent; font-size: 0.72rem; }
 
 .detail-heading {
   display: flex;
@@ -485,7 +547,7 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .toggle-row input { width: 42px; height: 23px; accent-color: var(--green); }
 .advanced-note { margin: 18px 0 0; padding: 15px; color: var(--muted); background: var(--line); font-size: 0.72rem; line-height: 1.5; }
 
-button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #6bc6a8; outline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #6bc6a8; outline-offset: 3px; }
 
 @media (max-width: 760px) {
   .app-shell { width: min(100% - 28px, 1120px); }
@@ -495,11 +557,16 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   nav { gap: 17px; }
   nav a { padding: 8px 0 18px; font-size: 0.8rem; }
   .welcome-actions { align-items: stretch; flex-direction: column; }
+  .welcome-actions .button-primary, .welcome-actions .button-secondary, .welcome-actions .import-primary { width: 100%; }
   .import-control-primary { grid-template-columns: 1fr; text-align: center; }
   .flights-page { padding-top: 54px; }
   .page-heading { margin-bottom: 30px; }
   .page-heading h1 { font-size: 3.3rem; }
   .flight-count { margin-bottom: 3px; }
+  .page-heading-actions { align-items: flex-end; flex-direction: column; gap: 10px; }
+  .empty-archive { grid-template-columns: 1fr; gap: 28px; margin-top: 20px; padding: 48px 0; }
+  .empty-archive-mark { font-size: 5rem; }
+  .empty-archive h2 { font-size: 2.15rem; }
   .search-field { margin-bottom: 42px; }
   .flight-year { margin-top: 46px; }
   .flight-row {
@@ -520,6 +587,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .flight-times span { display: none; }
   .flight-status { grid-area: status; }
   .detail-page { padding-top: 34px; }
+  .flight-editor { padding: 28px 20px; }
+  .editor-grid, .editor-schedule { grid-template-columns: 1fr 1fr; }
+  .editor-actions { align-items: stretch; flex-direction: column-reverse; }
+  .editor-actions > div { display: grid; grid-template-columns: 1fr 1fr; }
   .detail-heading { margin-top: 42px; }
   .detail-heading h1 { font-size: 4rem; }
   .detail-duration { font-size: 1rem; }

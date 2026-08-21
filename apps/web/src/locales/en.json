@@ -14,11 +14,19 @@
   "welcome": {
     "eyebrow": "Your flight history, in your hands",
     "title": "The data outlives the app.",
-    "description": "Open a Keepraw Fly file or explore the viewer with an example dataset. Your data stays in this browser.",
+    "description": "Create your own archive and add flights with a simple form. No JSON file is required. Your data stays in this browser.",
     "privacy": "Local by design. Nothing is uploaded."
   },
   "actions": {
     "openFile": "Open Keepraw Fly file",
+    "createArchive": "Create my archive",
+    "addFlight": "Add flight",
+    "addFirstFlight": "Add my first flight",
+    "editFlight": "Edit flight",
+    "saveFlight": "Save flight",
+    "deleteFlight": "Delete flight",
+    "cancel": "Cancel",
+    "saving": "Saving…",
     "tryDemo": "Try demo",
     "clearSearch": "Clear search",
     "backToFlights": "Back to flights",
@@ -35,7 +43,31 @@
     "openFlight": "Open {{flightNumber}}, {{origin}} to {{destination}}",
     "routeLabel": "{{origin}} to {{destination}}",
     "noResultsTitle": "No flights found",
-    "noResultsDescription": "Nothing in this archive matches “{{query}}”."
+    "noResultsDescription": "Nothing in this archive matches “{{query}}”.",
+    "emptyEyebrow": "Ready for takeoff",
+    "emptyTitle": "Add your first flight",
+    "emptyDescription": "Use the guided form to start your archive. Keepraw Fly handles the JSON format for you."
+  },
+  "flightEditor": {
+    "eyebrow": "Flight record",
+    "addTitle": "Add a flight",
+    "editTitle": "Edit flight",
+    "flightNumber": "Flight number",
+    "airline": "Airline",
+    "origin": "Origin",
+    "destination": "Destination",
+    "chooseAirline": "Choose an airline",
+    "chooseAirport": "Choose an airport",
+    "schedule": "Scheduled local times",
+    "departureDate": "Departure date",
+    "departureTime": "Departure time",
+    "arrivalDate": "Arrival date",
+    "arrivalTime": "Arrival time",
+    "localTimeNote": "Enter each time as shown locally at its airport. Timezone offsets are added automatically.",
+    "sameAirport": "Origin and destination must be different airports.",
+    "arrivalBeforeDeparture": "Arrival must be later than departure after timezone conversion.",
+    "invalidFlight": "Please check the flight details and try again.",
+    "deleteConfirmation": "Delete this flight from your archive?"
   },
   "status": {
     "scheduled": "Scheduled",
