@@ -11,12 +11,14 @@ import {
   formatDistance,
   formatDuration,
   type SupportedLocale,
+  type DistanceUnit,
 } from "@keepraw-fly/core";
 import { PassportMapPlaceholder } from "../components/PassportMapPlaceholder";
 
 interface PassportPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
+  distanceUnit: DistanceUnit;
 }
 
 function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale) {
@@ -30,7 +32,7 @@ function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale) {
   };
 }
 
-export function PassportPage({ document, locale }: PassportPageProps) {
+export function PassportPage({ document, locale, distanceUnit }: PassportPageProps) {
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number | "lifetime">("lifetime");
   const years = useMemo(() => calculateYearStatistics(document.flights), [document.flights]);
@@ -45,7 +47,7 @@ export function PassportPage({ document, locale }: PassportPageProps) {
   const names = profileNames(document, locale);
   const longest = flights.find((flight) => flight.id === stats.longestFlight?.flightId);
   const shortest = flights.find((flight) => flight.id === stats.shortestFlight?.flightId);
-  const distanceUnit = "miles" as const;
+  const distanceSuffix = distanceUnit === "miles" ? "mi" : "km";
 
   function routeLabel(flight: typeof longest): string {
     return flight ? `${flight.origin.iata} → ${flight.destination.iata}` : "—";
@@ -84,7 +86,7 @@ export function PassportPage({ document, locale }: PassportPageProps) {
         <div><strong>{stats.flights}</strong><span>{t("passport.flights")}</span></div>
         <div>
           <strong>{formatDistance(stats.distanceKilometers, locale, distanceUnit)}</strong>
-          <span>{t("passport.distanceMiles")}</span>
+          <span>{t(distanceUnit === "miles" ? "passport.distanceMiles" : "passport.distanceKilometers")}</span>
         </div>
         <div><strong>{formatDuration(stats.durationMinutes)}</strong><span>{t("passport.timeInAir")}</span></div>
       </section>
@@ -106,8 +108,8 @@ export function PassportPage({ document, locale }: PassportPageProps) {
         <dl className="highlight-list">
           <div><dt>{t("passport.mostFlownAirline")}</dt><dd>{stats.mostFlownAirline ? airlineDisplayName(stats.mostFlownAirline.code, locale) : "—"}</dd></div>
           <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? (airportByIata.get(stats.mostVisitedAirport.code)?.name[locale] ?? stats.mostVisitedAirport.code) : "—"}</dd></div>
-          <div><dt>{t("passport.longestFlight")}</dt><dd>{routeLabel(longest)}<small>{longest && distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} mi` : ""}</small></dd></div>
-          <div><dt>{t("passport.shortestFlight")}</dt><dd>{routeLabel(shortest)}<small>{shortest && distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} mi` : ""}</small></dd></div>
+          <div><dt>{t("passport.longestFlight")}</dt><dd>{routeLabel(longest)}<small>{longest && distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></dd></div>
+          <div><dt>{t("passport.shortestFlight")}</dt><dd>{routeLabel(shortest)}<small>{shortest && distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></dd></div>
         </dl>
       </section>
 
@@ -121,7 +123,7 @@ export function PassportPage({ document, locale }: PassportPageProps) {
             <button type="button" key={year.year} onClick={() => setSelectedYear(year.year)}>
               <strong>{year.year}</strong>
               <span>{t("flights.count", { count: year.flights })}</span>
-              <span>{formatDistance(year.distanceKilometers, locale, distanceUnit)} mi</span>
+              <span>{formatDistance(year.distanceKilometers, locale, distanceUnit)} {distanceSuffix}</span>
               <span aria-hidden="true">→</span>
             </button>
           ))}

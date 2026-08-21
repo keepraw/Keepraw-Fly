@@ -5,16 +5,18 @@ import {
   groupFlightsByYear,
   searchFlights,
   type SupportedLocale,
+  type TimeFormat,
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
 
 interface FlightsPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
+  timeFormat: TimeFormat;
   onOpenFlight: (flightId: string) => void;
 }
 
-export function FlightsPage({ document, locale, onOpenFlight }: FlightsPageProps) {
+export function FlightsPage({ document, locale, timeFormat, onOpenFlight }: FlightsPageProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const groups = useMemo(
@@ -76,6 +78,7 @@ export function FlightsPage({ document, locale, onOpenFlight }: FlightsPageProps
                     key={flight.id}
                     flight={flight}
                     locale={locale}
+                    timeFormat={timeFormat}
                     onOpen={() => onOpenFlight(flight.id)}
                   />
                 ))}
