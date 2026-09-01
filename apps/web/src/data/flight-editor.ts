@@ -11,8 +11,8 @@ import {
 import { aircraftFacts, airportByIata, seatFacts } from "@keepraw-fly/core";
 
 export interface FlightDraft {
-  flightNumber: string;
-  airlineIata: string;
+  airlineCode: string;
+  serviceNumber: string;
   serviceDate: string;
   originIata: string;
   destinationIata: string;
@@ -44,8 +44,8 @@ export function createEmptyDocument(): KeeprawFlyDocument {
 
 export function createDefaultDraft(today = localDateString(new Date())): FlightDraft {
   return {
-    flightNumber: "",
-    airlineIata: "",
+    airlineCode: "",
+    serviceNumber: "",
     serviceDate: today,
     originIata: "",
     destinationIata: "",
@@ -80,10 +80,12 @@ export function flightToDraft(flight: KeeprawFlight): FlightDraft {
     : null;
   const aircraft = aircraftFacts(flight);
   const seat = seatFacts(flight);
+  const parsedIdentity = splitFlightNumberInput(flight.flightNumber);
+  const referencedAirlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
 
   return {
-    flightNumber: flight.flightNumber,
-    airlineIata: flight.airline.iata ?? "",
+    airlineCode: parsedIdentity?.airlineCode ?? referencedAirlineCode,
+    serviceNumber: parsedIdentity?.serviceNumber ?? flight.flightNumber.trim().toUpperCase(),
     serviceDate: flight.serviceDate,
     originIata: flight.origin.iata,
     destinationIata: flight.destination.iata,
@@ -151,13 +153,14 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
     draft.destinationTerminal,
     draft.destinationGate,
   );
+  const identity = normalizeFlightIdentity(draft.airlineCode, draft.serviceNumber);
 
   const nextFlight: KeeprawFlight = {
     ...existing,
     id: existing?.id ?? `flight-${crypto.randomUUID()}`,
-    flightNumber: draft.flightNumber.trim().toUpperCase(),
+    flightNumber: `${identity.airlineCode}${identity.serviceNumber}`,
     serviceDate: draft.serviceDate,
-    airline: { ...existing?.airline, iata: draft.airlineIata },
+    airline: airlineReference(existing?.airline, identity.airlineCode),
     origin: originEndpoint,
     destination: destinationEndpoint,
     scheduledDeparture,
@@ -170,6 +173,48 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
   if (extensions) nextFlight.extensions = extensions;
   else delete nextFlight.extensions;
   return nextFlight;
+}
+
+export interface FlightIdentity {
+  airlineCode: string;
+  serviceNumber: string;
+}
+
+export function splitFlightNumberInput(value: string): FlightIdentity | null {
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, "");
+  const match = normalized.match(/^([A-Z][A-Z0-9]|[0-9][A-Z]|[A-Z]{3})-?(\d{1,4}[A-Z]?)$/);
+  return match
+    ? { airlineCode: match[1]!, serviceNumber: match[2]! }
+    : null;
+}
+
+function normalizeFlightIdentity(airlineCode: string, serviceNumber: string): FlightIdentity {
+  const pastedIdentity = splitFlightNumberInput(serviceNumber);
+  const normalizedAirlineCode = pastedIdentity?.airlineCode
+    ?? airlineCode.trim().toUpperCase();
+  const normalizedServiceNumber = pastedIdentity?.serviceNumber
+    ?? serviceNumber.trim().toUpperCase().replace(/\s+/g, "");
+
+  if (!/^([A-Z][A-Z0-9]|[0-9][A-Z]|[A-Z]{3})$/.test(normalizedAirlineCode)) {
+    throw new Error("invalid-airline-code");
+  }
+  if (!/^\d{1,4}[A-Z]?$/.test(normalizedServiceNumber)) {
+    throw new Error("invalid-service-number");
+  }
+  return {
+    airlineCode: normalizedAirlineCode,
+    serviceNumber: normalizedServiceNumber,
+  };
+}
+
+function airlineReference(
+  existing: KeeprawFlight["airline"] | undefined,
+  code: string,
+): KeeprawFlight["airline"] {
+  const { iata: _iata, icao: _icao, ...preserved } = existing ?? {};
+  return code.length === 2
+    ? { ...preserved, iata: code }
+    : { ...preserved, icao: code };
 }
 
 function optionalZonedDateTime(date: string, time: string, timezone: string): string | undefined {
