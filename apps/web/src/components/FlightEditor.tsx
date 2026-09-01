@@ -49,9 +49,14 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
       setBusy(true);
       await onSave(nextFlight);
     } catch (caught) {
-      setError(caught instanceof Error && caught.message === "arrival-before-departure"
+      const message = caught instanceof Error ? caught.message : "";
+      setError(message === "arrival-before-departure"
         ? t("flightEditor.arrivalBeforeDeparture")
-        : t("flightEditor.invalidFlight"));
+        : message === "actual-arrival-before-departure"
+          ? t("flightEditor.actualArrivalBeforeDeparture")
+          : message === "incomplete-actual-time"
+            ? t("flightEditor.incompleteActualTime")
+            : t("flightEditor.invalidFlight"));
       setBusy(false);
     }
   }
@@ -106,6 +111,46 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
             <label><span>{t("flightEditor.arrivalTime")}</span><input required type="time" value={draft.arrivalTime} onChange={(event) => update("arrivalTime", event.target.value)} /></label>
           </fieldset>
           <p className="editor-time-note">{t("flightEditor.localTimeNote")}</p>
+
+          <details className="editor-optional">
+            <summary>
+              <span>{t("flightEditor.optionalFacts")}</span>
+              <small>{t("flightEditor.optionalFactsDescription")}</small>
+            </summary>
+
+            <fieldset className="editor-schedule editor-actual-times">
+              <legend>{t("flightEditor.actualTimes")}</legend>
+              <label><span>{t("flightEditor.actualDepartureDate")}</span><input type="date" value={draft.actualDepartureDate} onChange={(event) => update("actualDepartureDate", event.target.value)} /></label>
+              <label><span>{t("flightEditor.actualDepartureTime")}</span><input type="time" value={draft.actualDepartureTime} onChange={(event) => update("actualDepartureTime", event.target.value)} /></label>
+              <label><span>{t("flightEditor.actualArrivalDate")}</span><input type="date" value={draft.actualArrivalDate} onChange={(event) => update("actualArrivalDate", event.target.value)} /></label>
+              <label><span>{t("flightEditor.actualArrivalTime")}</span><input type="time" value={draft.actualArrivalTime} onChange={(event) => update("actualArrivalTime", event.target.value)} /></label>
+            </fieldset>
+
+            <fieldset className="editor-facts-grid">
+              <legend>{t("flightEditor.airportFacts")}</legend>
+              <label><span>{t("flightEditor.originTerminal")}</span><input value={draft.originTerminal} onChange={(event) => update("originTerminal", event.target.value)} /></label>
+              <label><span>{t("flightEditor.originGate")}</span><input value={draft.originGate} onChange={(event) => update("originGate", event.target.value)} /></label>
+              <label><span>{t("flightEditor.destinationTerminal")}</span><input value={draft.destinationTerminal} onChange={(event) => update("destinationTerminal", event.target.value)} /></label>
+              <label><span>{t("flightEditor.destinationGate")}</span><input value={draft.destinationGate} onChange={(event) => update("destinationGate", event.target.value)} /></label>
+            </fieldset>
+
+            <fieldset className="editor-facts-grid">
+              <legend>{t("flightEditor.onboardFacts")}</legend>
+              <label><span>{t("flightEditor.aircraftType")}</span><input value={draft.aircraftType} onChange={(event) => update("aircraftType", event.target.value.toUpperCase())} placeholder="B789" /></label>
+              <label><span>{t("flightEditor.aircraftRegistration")}</span><input value={draft.aircraftRegistration} onChange={(event) => update("aircraftRegistration", event.target.value.toUpperCase())} /></label>
+              <label><span>{t("flightEditor.seat")}</span><input value={draft.seat} onChange={(event) => update("seat", event.target.value.toUpperCase())} placeholder="12A" /></label>
+              <label>
+                <span>{t("flightEditor.cabin")}</span>
+                <select value={draft.cabin} onChange={(event) => update("cabin", event.target.value)}>
+                  <option value="">{t("flightEditor.notRecorded")}</option>
+                  <option value="economy">{t("flightEditor.cabins.economy")}</option>
+                  <option value="premium economy">{t("flightEditor.cabins.premiumEconomy")}</option>
+                  <option value="business">{t("flightEditor.cabins.business")}</option>
+                  <option value="first">{t("flightEditor.cabins.first")}</option>
+                </select>
+              </label>
+            </fieldset>
+          </details>
           {error ? <p className="editor-error" role="alert">{error}</p> : null}
 
           <footer className="editor-actions">

@@ -1,9 +1,14 @@
-import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
+import type {
+  ExtensionMap,
+  JsonValue,
+  KeeprawFlight,
+  KeeprawFlyDocument,
+} from "@keepraw-fly/schema";
 import {
   KEEPRAW_FLY_FORMAT,
   KEEPRAW_FLY_FORMAT_VERSION,
 } from "@keepraw-fly/schema";
-import { airportByIata } from "@keepraw-fly/core";
+import { aircraftFacts, airportByIata, seatFacts } from "@keepraw-fly/core";
 
 export interface FlightDraft {
   flightNumber: string;
@@ -14,6 +19,18 @@ export interface FlightDraft {
   departureTime: string;
   arrivalDate: string;
   arrivalTime: string;
+  actualDepartureDate: string;
+  actualDepartureTime: string;
+  actualArrivalDate: string;
+  actualArrivalTime: string;
+  originTerminal: string;
+  originGate: string;
+  destinationTerminal: string;
+  destinationGate: string;
+  aircraftType: string;
+  aircraftRegistration: string;
+  seat: string;
+  cabin: string;
 }
 
 export function createEmptyDocument(): KeeprawFlyDocument {
@@ -35,6 +52,18 @@ export function createDefaultDraft(today = localDateString(new Date())): FlightD
     departureTime: "09:00",
     arrivalDate: today,
     arrivalTime: "11:00",
+    actualDepartureDate: "",
+    actualDepartureTime: "",
+    actualArrivalDate: "",
+    actualArrivalTime: "",
+    originTerminal: "",
+    originGate: "",
+    destinationTerminal: "",
+    destinationGate: "",
+    aircraftType: "",
+    aircraftRegistration: "",
+    seat: "",
+    cabin: "",
   };
 }
 
@@ -43,6 +72,14 @@ export function flightToDraft(flight: KeeprawFlight): FlightDraft {
   const destinationTimezone = airportByIata.get(flight.destination.iata)?.timezone ?? "UTC";
   const departure = localPartsAtAirport(flight.scheduledDeparture, originTimezone);
   const arrival = localPartsAtAirport(flight.scheduledArrival, destinationTimezone);
+  const actualDeparture = flight.actualDeparture
+    ? localPartsAtAirport(flight.actualDeparture, originTimezone)
+    : null;
+  const actualArrival = flight.actualArrival
+    ? localPartsAtAirport(flight.actualArrival, destinationTimezone)
+    : null;
+  const aircraft = aircraftFacts(flight);
+  const seat = seatFacts(flight);
 
   return {
     flightNumber: flight.flightNumber,
@@ -53,6 +90,18 @@ export function flightToDraft(flight: KeeprawFlight): FlightDraft {
     departureTime: departure.time,
     arrivalDate: arrival.date,
     arrivalTime: arrival.time,
+    actualDepartureDate: actualDeparture?.date ?? "",
+    actualDepartureTime: actualDeparture?.time ?? "",
+    actualArrivalDate: actualArrival?.date ?? "",
+    actualArrivalTime: actualArrival?.time ?? "",
+    originTerminal: flight.origin.terminal ?? "",
+    originGate: flight.origin.gate ?? "",
+    destinationTerminal: flight.destination.terminal ?? "",
+    destinationGate: flight.destination.gate ?? "",
+    aircraftType: aircraft?.type ?? "",
+    aircraftRegistration: aircraft?.registration ?? "",
+    seat: seat?.seat ?? "",
+    cabin: seat?.cabin ?? "",
   };
 }
 
@@ -75,17 +124,106 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
     throw new Error("arrival-before-departure");
   }
 
-  return {
+  const actualDeparture = optionalZonedDateTime(
+    draft.actualDepartureDate,
+    draft.actualDepartureTime,
+    origin.timezone,
+  );
+  const actualArrival = optionalZonedDateTime(
+    draft.actualArrivalDate,
+    draft.actualArrivalTime,
+    destination.timezone,
+  );
+  if (actualDeparture && actualArrival && Date.parse(actualArrival) <= Date.parse(actualDeparture)) {
+    throw new Error("actual-arrival-before-departure");
+  }
+
+  const extensions = updateKnownExtensions(existing?.extensions, draft);
+  const originEndpoint = endpointWithOptionalFacts(
+    existing?.origin,
+    draft.originIata,
+    draft.originTerminal,
+    draft.originGate,
+  );
+  const destinationEndpoint = endpointWithOptionalFacts(
+    existing?.destination,
+    draft.destinationIata,
+    draft.destinationTerminal,
+    draft.destinationGate,
+  );
+
+  const nextFlight: KeeprawFlight = {
     ...existing,
     id: existing?.id ?? `flight-${crypto.randomUUID()}`,
     flightNumber: draft.flightNumber.trim().toUpperCase(),
     serviceDate: draft.serviceDate,
     airline: { ...existing?.airline, iata: draft.airlineIata },
-    origin: { ...existing?.origin, iata: draft.originIata },
-    destination: { ...existing?.destination, iata: draft.destinationIata },
+    origin: originEndpoint,
+    destination: destinationEndpoint,
     scheduledDeparture,
     scheduledArrival,
   };
+  if (actualDeparture) nextFlight.actualDeparture = actualDeparture;
+  else delete nextFlight.actualDeparture;
+  if (actualArrival) nextFlight.actualArrival = actualArrival;
+  else delete nextFlight.actualArrival;
+  if (extensions) nextFlight.extensions = extensions;
+  else delete nextFlight.extensions;
+  return nextFlight;
+}
+
+function optionalZonedDateTime(date: string, time: string, timezone: string): string | undefined {
+  if (!date && !time) return undefined;
+  if (!date || !time) throw new Error("incomplete-actual-time");
+  return zonedDateTimeToIso(date, time, timezone);
+}
+
+function endpointWithOptionalFacts(
+  existing: KeeprawFlight["origin"] | undefined,
+  iata: string,
+  terminal: string,
+  gate: string,
+): KeeprawFlight["origin"] {
+  const { terminal: _terminal, gate: _gate, ...preserved } = existing ?? { iata };
+  return {
+    ...preserved,
+    iata,
+    ...(terminal.trim() ? { terminal: terminal.trim() } : {}),
+    ...(gate.trim() ? { gate: gate.trim() } : {}),
+  };
+}
+
+function updateKnownExtensions(
+  existing: ExtensionMap | undefined,
+  draft: FlightDraft,
+): ExtensionMap | undefined {
+  const extensions: ExtensionMap = structuredClone(existing ?? {});
+  updateExtensionObject(extensions, "keepraw-fly.aircraft", {
+    type: draft.aircraftType.trim(),
+    registration: draft.aircraftRegistration.trim(),
+  });
+  updateExtensionObject(extensions, "keepraw-fly.seat", {
+    seat: draft.seat.trim(),
+    cabin: draft.cabin.trim(),
+  });
+  return Object.keys(extensions).length ? extensions : undefined;
+}
+
+function updateExtensionObject(
+  extensions: ExtensionMap,
+  key: string,
+  values: Record<string, string>,
+) {
+  const current = extensions[key];
+  const object: Record<string, JsonValue> = current && typeof current === "object" && !Array.isArray(current)
+    ? { ...current }
+    : {};
+  for (const [field, value] of Object.entries(values)) {
+    if (value) object[field] = value;
+    else delete object[field];
+  }
+  if (Object.keys(object).length) extensions[key] = object;
+  else delete extensions[key];
 }
 
 export function zonedDateTimeToIso(date: string, time: string, timezone: string): string {
