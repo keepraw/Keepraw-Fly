@@ -1,11 +1,12 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import type { SettingsStore, StorageAdapter } from "./adapter";
+import type { ArchiveKind, SettingsStore, StorageAdapter } from "./adapter";
 import type { ViewerSettings } from "./types";
 
 interface DocumentRecord {
   key: "active";
   document: KeeprawFlyDocument;
+  kind?: ArchiveKind;
   updatedAt: string;
 }
 
@@ -38,10 +39,16 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     return (await this.database.documents.get("active"))?.document ?? null;
   }
 
-  async saveDocument(document: KeeprawFlyDocument): Promise<void> {
+  async loadArchiveKind(): Promise<ArchiveKind | null> {
+    const record = await this.database.documents.get("active");
+    return record ? record.kind ?? "personal" : null;
+  }
+
+  async saveDocument(document: KeeprawFlyDocument, kind: ArchiveKind = "personal"): Promise<void> {
     await this.database.documents.put({
       key: "active",
       document: structuredClone(document),
+      kind,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -68,4 +75,3 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
 }
 
 export const browserStorage = new BrowserStorageAdapter();
-

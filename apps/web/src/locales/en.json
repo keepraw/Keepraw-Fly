@@ -17,6 +17,12 @@
     "description": "Create your own archive and add flights with a simple form. No JSON file is required. Your data stays in this browser.",
     "privacy": "Local by design. Nothing is uploaded."
   },
+  "demo": {
+    "label": "Demo archive",
+    "description": "You are exploring fictional sample flights. This is not your personal history.",
+    "createPersonal": "Create my archive",
+    "exportConfirmation": "This is fictional demo data. Export it anyway?"
+  },
   "actions": {
     "openFile": "Open Keepraw Fly file",
     "createArchive": "Create my archive",
@@ -144,6 +150,7 @@
     "importDescription": "Validate and replace the current local archive with a Keepraw Fly JSON file.",
     "exportTitle": "Export archive",
     "exportDescription": "Download a complete, validated and portable copy of your facts.",
+    "exportDescriptionDemo": "This archive contains fictional demo flights. Export only if you need the sample file.",
     "clearTitle": "Clear local data",
     "clearDescription": "Remove this flight archive from the current browser.",
     "clearConfirmation": "Clear the local Keepraw Fly archive? Export first if you need a backup.",
