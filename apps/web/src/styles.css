@@ -551,6 +551,21 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .data-actions .import-control { display: contents; }
 .data-actions .import-control > label { grid-area: action; }
 .data-actions .validation-errors { grid-area: error; }
+.data-actions .import-preview { grid-area: error; }
+.import-preview { display: grid; grid-column: 1 / -1; gap: 18px; margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-align: left; }
+.import-preview-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.import-preview-heading > div { display: grid; gap: 6px; }
+.import-preview-heading strong { font-size: 1.05rem; }
+.import-file-name { overflow-wrap: anywhere; color: var(--muted); font-size: 0.68rem; }
+.import-preview dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--line); }
+.import-preview dl > div { display: grid; gap: 5px; padding: 14px 12px 0 0; }
+.import-preview dt { color: var(--muted); font-size: 0.66rem; }
+.import-preview dd { margin: 0; font-size: 0.82rem; font-weight: 620; }
+.import-replacement { display: grid; gap: 5px; padding: 13px 14px; border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
+.import-replacement strong { color: var(--red); font-size: 0.78rem; }
+.import-replacement span { color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
+.import-preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+.import-preview-actions .button-primary, .import-preview-actions .button-secondary { min-height: 38px; padding: 0 15px; font-size: 0.7rem; }
 .settings-action { display: inline-grid; min-height: 36px; align-items: center; padding: 0 13px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: transparent; cursor: pointer; font-size: 0.7rem; white-space: nowrap; }
 .settings-action:hover { border-color: var(--ink); }
 .danger-action { color: var(--red); }
@@ -585,6 +600,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .demo-banner span { overflow: visible; white-space: normal; }
   .welcome-actions .button-primary, .welcome-actions .button-secondary, .welcome-actions .import-primary { width: 100%; }
   .import-control-primary { grid-template-columns: 1fr; text-align: center; }
+  .import-preview-heading { flex-direction: column; gap: 8px; }
+  .import-preview dl { grid-template-columns: 1fr; }
+  .import-preview-actions { align-items: stretch; flex-direction: column-reverse; }
+  .import-preview-actions .button-primary, .import-preview-actions .button-secondary { width: 100%; }
   .flights-page { padding-top: 54px; }
   .page-heading { margin-bottom: 30px; }
   .page-heading h1 { font-size: 3.3rem; }

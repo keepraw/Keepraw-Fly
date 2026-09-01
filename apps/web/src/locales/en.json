@@ -163,7 +163,21 @@
   "import": {
     "failed": "This file cannot be imported",
     "flightNumber": "Flight #{{number}}",
-    "dropHint": "or drop a .json file here"
+    "dropHint": "or drop a .json file here",
+    "previewEyebrow": "Validation passed",
+    "previewTitle": "Review before importing",
+    "owner": "Archive name",
+    "flights": "Flights",
+    "dates": "Date range",
+    "dateRange": "{{first}} to {{last}}",
+    "noFlights": "Empty archive",
+    "notRecorded": "Not recorded",
+    "replaceWarningTitle": "This will replace the current archive",
+    "replaceWarning": "Once confirmed, the existing {{flights}} flights in this browser will be replaced by the imported file. Export a backup first if you need to keep them.",
+    "exportBackup": "Export backup first",
+    "importArchive": "Import this archive",
+    "replaceArchive": "Replace current archive",
+    "importing": "Importing…"
   },
   "units": {
     "minuteShort": "min"
@@ -173,7 +187,7 @@
     "description": "Display preferences stay local. Profile names travel with your Keepraw Fly archive.",
     "data": "Data",
     "importTitle": "Import archive",
-    "importDescription": "Validate and replace the current local archive with a Keepraw Fly JSON file.",
+    "importDescription": "Validate and preview a Keepraw Fly JSON file. The current archive changes only after confirmation.",
     "exportTitle": "Export archive",
     "exportDescription": "Download a complete, validated and portable copy of your facts.",
     "exportDescriptionDemo": "This archive contains fictional demo flights. Export only if you need the sample file.",

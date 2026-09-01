@@ -162,7 +162,21 @@
   "import": {
     "failed": "无法导入这个文件",
     "flightNumber": "航班 #{{number}}",
-    "dropHint": "或将 .json 文件拖放到这里"
+    "dropHint": "或将 .json 文件拖放到这里",
+    "previewEyebrow": "验证通过",
+    "previewTitle": "导入前检查",
+    "owner": "档案姓名",
+    "flights": "航班数量",
+    "dates": "日期范围",
+    "dateRange": "{{first}} 至 {{last}}",
+    "noFlights": "空档案",
+    "notRecorded": "未记录",
+    "replaceWarningTitle": "这会替换当前档案",
+    "replaceWarning": "确认后，浏览器中现有的 {{flights}} 个航班将被导入文件取代。需要保留时请先导出备份。",
+    "exportBackup": "先导出备份",
+    "importArchive": "导入这个档案",
+    "replaceArchive": "替换当前档案",
+    "importing": "正在导入…"
   },
   "units": {
     "minuteShort": "分"
@@ -172,7 +186,7 @@
     "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
     "data": "数据",
     "importTitle": "导入档案",
-    "importDescription": "验证 Keepraw Fly JSON，并替换当前浏览器中的飞行档案。",
+    "importDescription": "先验证并预览 Keepraw Fly JSON；只有确认后才会替换当前档案。",
     "exportTitle": "导出档案",
     "exportDescription": "下载完整、通过验证且可移植的航班事实副本。",
     "exportDescriptionDemo": "当前档案包含虚构的示例航班，仅在需要示例文件时导出。",
