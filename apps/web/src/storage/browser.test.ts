@@ -21,10 +21,12 @@ describe("BrowserStorageAdapter", () => {
       extensions: { "example.unknown": { preserved: true } },
     };
 
-    await adapter.saveDocument(document);
+    await adapter.saveDocument(document, "demo");
     expect(await adapter.loadDocument()).toEqual(document);
+    expect(await adapter.loadArchiveKind()).toBe("demo");
     await adapter.clearDocument();
     expect(await adapter.loadDocument()).toBeNull();
+    expect(await adapter.loadArchiveKind()).toBeNull();
   });
 
   it("stores viewer preferences outside the portable document", async () => {
@@ -43,4 +45,3 @@ describe("BrowserStorageAdapter", () => {
     expect(await adapter.loadDocument()).toBeNull();
   });
 });
-

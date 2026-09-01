@@ -5,6 +5,7 @@ import { ImportControl } from "../components/ImportControl";
 
 interface SettingsPageProps {
   document: KeeprawFlyDocument | null;
+  isDemo: boolean;
   settings: ViewerSettings;
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
   onExport?: () => void | Promise<void>;
@@ -15,6 +16,7 @@ interface SettingsPageProps {
 
 export function SettingsPage({
   document,
+  isDemo,
   settings,
   onImport,
   onExport,
@@ -63,7 +65,7 @@ export function SettingsPage({
           <div><p className="eyebrow">01</p><h2 id="settings-data">{t("settings.data")}</h2></div>
           <div className="settings-panel data-actions">
             <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl onImport={onImport} variant="settings" /></div>
-            <div><span>{t("settings.exportTitle")}</span><small>{t("settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
+            <div><span>{t("settings.exportTitle")}</span><small>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
             <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => {
               if (onClear && window.confirm(t("settings.clearConfirmation"))) void onClear();
             }}>{t("actions.clearData")}</button></div>

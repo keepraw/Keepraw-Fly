@@ -4,6 +4,7 @@ import type { KeeprawFlight, KeeprawFlyDocument, ProfileName } from "@keepraw-fl
 import demoData from "@keepraw-fly/core/demo";
 import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
+import { DemoBanner } from "./components/DemoBanner";
 import { FlightEditor } from "./components/FlightEditor";
 import { FlightsPage } from "./pages/FlightsPage";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
@@ -12,6 +13,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { downloadKeeprawFly } from "./data/export";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
+import type { ArchiveKind } from "./storage/adapter";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 
 const demoDocument = demoData as KeeprawFlyDocument;
@@ -19,6 +21,7 @@ const demoDocument = demoData as KeeprawFlyDocument;
 export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
+  const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
   const [settings, setSettings] = useState<ViewerSettings>(defaultViewerSettings);
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -30,10 +33,15 @@ export function App() {
 
   useEffect(() => {
     let active = true;
-    void Promise.all([browserStorage.loadDocument(), browserStorage.loadSettings()])
-      .then(([storedDocument, storedSettings]) => {
+    void Promise.all([
+      browserStorage.loadDocument(),
+      browserStorage.loadArchiveKind(),
+      browserStorage.loadSettings(),
+    ])
+      .then(([storedDocument, storedArchiveKind, storedSettings]) => {
         if (!active) return;
         setDocument(storedDocument);
+        setArchiveKind(storedArchiveKind);
         if (storedSettings) setSettings(storedSettings);
       })
       .catch(() => {
@@ -76,10 +84,14 @@ export function App() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  async function storeDocument(nextDocument: KeeprawFlyDocument) {
+  async function storeDocument(
+    nextDocument: KeeprawFlyDocument,
+    nextKind: ArchiveKind = archiveKind ?? "personal",
+  ) {
     setDocument(nextDocument);
+    setArchiveKind(nextKind);
     try {
-      await browserStorage.saveDocument(nextDocument);
+      await browserStorage.saveDocument(nextDocument, nextKind);
       setStorageError(null);
     } catch {
       setStorageError("storage");
@@ -108,6 +120,7 @@ export function App() {
     try {
       await browserStorage.clearDocument();
       setDocument(null);
+      setArchiveKind(null);
       setPage("flights");
       window.location.hash = "flights";
       setSelectedFlightId(null);
@@ -118,7 +131,7 @@ export function App() {
   }
 
   async function createArchive() {
-    await storeDocument(createEmptyDocument());
+    await storeDocument(createEmptyDocument(), "personal");
     setPage("flights");
     setSelectedFlightId(null);
     setEditorFlightId("new");
@@ -147,6 +160,12 @@ export function App() {
     setSelectedFlightId(null);
   }
 
+  function exportDocument() {
+    if (!document) return;
+    if (archiveKind === "demo" && !window.confirm(t("demo.exportConfirmation"))) return;
+    downloadKeeprawFly(document);
+  }
+
   if (!loaded) {
     return <main className="loading-screen" id="main-content" aria-label={t("app.loading")}><span>K</span></main>;
   }
@@ -162,12 +181,14 @@ export function App() {
         }}
       />
       {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
+      {document && archiveKind === "demo" ? <DemoBanner onCreateArchive={createArchive} /> : null}
       {page === "settings" ? (
         <SettingsPage
           document={document}
+          isDemo={archiveKind === "demo"}
           settings={settings}
-          onImport={storeDocument}
-          onExport={document ? () => downloadKeeprawFly(document) : undefined}
+          onImport={(nextDocument) => storeDocument(nextDocument, "personal")}
+          onExport={document ? exportDocument : undefined}
           onClear={document ? clearDocument : undefined}
           onSettingsChange={storeSettings}
           onProfileChange={updateProfile}
@@ -175,8 +196,8 @@ export function App() {
       ) : !document ? (
         <EmptyState
           onCreateArchive={createArchive}
-          onTryDemo={() => storeDocument(structuredClone(demoDocument))}
-          onImport={storeDocument}
+          onTryDemo={() => storeDocument(structuredClone(demoDocument), "demo")}
+          onImport={(nextDocument) => storeDocument(nextDocument, "personal")}
         />
       ) : page === "flights" && selectedFlightId ? (
         <FlightDetailPage

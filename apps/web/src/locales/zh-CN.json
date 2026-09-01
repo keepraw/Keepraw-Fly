@@ -17,6 +17,12 @@
     "description": "直接创建自己的飞行档案，通过简单表单添加航班，不需要准备 JSON 文件。数据只保存在这个浏览器中。",
     "privacy": "本地优先，不上传任何数据。"
   },
+  "demo": {
+    "label": "示例档案",
+    "description": "你正在体验虚构的示例航班，这不是你的个人飞行历史。",
+    "createPersonal": "创建我的档案",
+    "exportConfirmation": "这是虚构的示例数据，仍然导出吗？"
+  },
   "actions": {
     "openFile": "打开 Keepraw Fly 文件",
     "createArchive": "创建我的飞行档案",
@@ -143,6 +149,7 @@
     "importDescription": "验证 Keepraw Fly JSON，并替换当前浏览器中的飞行档案。",
     "exportTitle": "导出档案",
     "exportDescription": "下载完整、通过验证且可移植的航班事实副本。",
+    "exportDescriptionDemo": "当前档案包含虚构的示例航班，仅在需要示例文件时导出。",
     "clearTitle": "清除本地数据",
     "clearDescription": "从当前浏览器移除这份飞行档案。",
     "clearConfirmation": "清除本地 Keepraw Fly 档案？如需备份，请先导出。",
