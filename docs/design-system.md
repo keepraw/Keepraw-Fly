@@ -23,6 +23,8 @@ The visual system gives later page-by-page UI work a shared foundation. It is in
 
 Existing short names such as `--ink` and `--green` remain as compatibility aliases. New components should prefer the semantic `--color-*` roles and shared shape, spacing and control tokens.
 
+The type scale separates captions, labels, body copy, section headings, page headings, record identifiers and statistics. Display weight and tracking are calibrated separately for Simplified Chinese so dense CJK glyphs do not inherit oversized, over-tight Latin styling. Primary statistics stay on one line at desktop widths and stack before their text becomes cramped.
+
 ## Component rules
 
 - Primary buttons are filled; secondary buttons are outlined or transparent. A destructive action must use the danger role and explicit language.
