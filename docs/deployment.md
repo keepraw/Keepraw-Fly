@@ -7,6 +7,10 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
+To inspect that exact production output locally, run `pnpm preview` from the
+repository root and open <http://127.0.0.1:4173>. This serves `apps/web/dist/`
+over HTTP; opening `dist/index.html` directly is not supported.
+
 Publish `apps/web/dist/` as a static directory. Vite uses a relative asset base,
 so the same build can be hosted at a domain root or a project subpath.
 
@@ -22,4 +26,3 @@ Recommended settings on hosted build services:
 
 The server receives normal asset requests only. Flight archives remain in each
 browser's IndexedDB.
-
