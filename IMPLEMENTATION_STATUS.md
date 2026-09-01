@@ -32,6 +32,7 @@
    - Added a first-run flow that creates an empty archive without requiring JSON.
    - Added guided add, edit and delete forms with automatic airport timezone offsets.
    - Added actual local times plus optional terminal, gate, aircraft, registration, seat and cabin facts.
+   - Separated airline codes from service numbers, with known-airline suggestions, unlisted-code entry and full-number paste handling.
    - Distinguished the persistent fictional demo from a user-owned personal archive.
    - Added empty states and navigation to individual flight records.
 
@@ -117,6 +118,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
    - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。
    - 添加实际当地时间以及可选的航站楼、登机口、机型、注册号、座位和舱位事实。
+   - 将航司代码与航班序号分开录入，支持已知航司建议、未收录代码和完整航班号粘贴。
    - 明确区分会持续保存的虚构演示档案与用户自己的个人档案。
    - 添加空状态以及前往单条航班记录的导航。
 

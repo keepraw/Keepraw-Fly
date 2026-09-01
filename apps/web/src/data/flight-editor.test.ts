@@ -3,6 +3,7 @@ import {
   createEmptyDocument,
   flightFromDraft,
   flightToDraft,
+  splitFlightNumberInput,
   zonedDateTimeToIso,
 } from "./flight-editor";
 
@@ -26,8 +27,8 @@ describe("flight editor data", () => {
   it("round-trips editable flight fields", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "test-id" });
     const flight = flightFromDraft({
-      flightNumber: "mu 589",
-      airlineIata: "MU",
+      airlineCode: "MU",
+      serviceNumber: "589",
       serviceDate: "2026-08-21",
       originIata: "PVG",
       destinationIata: "SFO",
@@ -49,8 +50,10 @@ describe("flight editor data", () => {
     });
 
     expect(flight.id).toBe("flight-test-id");
-    expect(flight.flightNumber).toBe("MU 589");
+    expect(flight.flightNumber).toBe("MU589");
     expect(flightToDraft(flight)).toMatchObject({
+      airlineCode: "MU",
+      serviceNumber: "589",
       serviceDate: "2026-08-21",
       departureTime: "13:00",
       arrivalDate: "2026-08-21",
@@ -61,8 +64,8 @@ describe("flight editor data", () => {
 
   it("rejects an arrival instant before departure", () => {
     expect(() => flightFromDraft({
-      flightNumber: "MU 001",
-      airlineIata: "MU",
+      airlineCode: "MU",
+      serviceNumber: "001",
       serviceDate: "2026-08-21",
       originIata: "PVG",
       destinationIata: "PEK",
@@ -132,12 +135,46 @@ describe("flight editor data", () => {
       actualDepartureDate: "2026-08-21",
     })).toThrow("incomplete-actual-time");
   });
+
+  it("accepts an unlisted airline code and builds the complete flight number", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "small-airline-id" });
+    const flight = flightFromDraft({
+      ...baseDraft(),
+      airlineCode: "9c",
+      serviceNumber: "8835",
+    });
+
+    expect(flight.flightNumber).toBe("9C8835");
+    expect(flight.airline).toEqual({ iata: "9C" });
+    expect(flightToDraft(flight)).toMatchObject({
+      airlineCode: "9C",
+      serviceNumber: "8835",
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it("splits a pasted complete flight number and prevents an airline mismatch", () => {
+    expect(splitFlightNumberInput("mu 589")).toEqual({
+      airlineCode: "MU",
+      serviceNumber: "589",
+    });
+
+    vi.stubGlobal("crypto", { randomUUID: () => "pasted-id" });
+    const flight = flightFromDraft({
+      ...baseDraft(),
+      airlineCode: "CA",
+      serviceNumber: "MU589",
+    });
+    expect(flight.flightNumber).toBe("MU589");
+    expect(flight.airline).toEqual({ iata: "MU" });
+    vi.unstubAllGlobals();
+  });
 });
 
 function baseDraft() {
   return {
-    flightNumber: "MU 583",
-    airlineIata: "MU",
+    airlineCode: "MU",
+    serviceNumber: "583",
     serviceDate: "2026-08-21",
     originIata: "PVG",
     destinationIata: "SFO",

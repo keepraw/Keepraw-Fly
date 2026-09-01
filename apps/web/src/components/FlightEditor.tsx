@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { airlines, airports, type SupportedLocale } from "@keepraw-fly/core";
@@ -6,6 +6,7 @@ import {
   createDefaultDraft,
   flightFromDraft,
   flightToDraft,
+  splitFlightNumberInput,
   type FlightDraft,
 } from "../data/flight-editor";
 
@@ -24,6 +25,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const airlineListId = useId();
   const airportOptions = useMemo(
     () => [...airports].sort((left, right) => left.city[locale].localeCompare(right.city[locale], locale)),
     [locale],
@@ -32,9 +34,22 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
     () => [...airlines].sort((left, right) => left.name[locale].localeCompare(right.name[locale], locale)),
     [locale],
   );
+  const selectedAirline = airlineOptions.find((airline) => airline.iata === draft.airlineCode);
+  const fullFlightNumber = draft.airlineCode && draft.serviceNumber
+    ? `${draft.airlineCode}${draft.serviceNumber}`
+    : null;
 
   function update<Key extends keyof FlightDraft>(key: Key, value: FlightDraft[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
+    setError(null);
+  }
+
+  function updateServiceNumber(value: string) {
+    const normalized = value.toUpperCase();
+    const pastedIdentity = splitFlightNumberInput(normalized);
+    setDraft((current) => pastedIdentity
+      ? { ...current, ...pastedIdentity }
+      : { ...current, serviceNumber: normalized });
     setError(null);
   }
 
@@ -55,7 +70,11 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
         : message === "actual-arrival-before-departure"
           ? t("flightEditor.actualArrivalBeforeDeparture")
           : message === "incomplete-actual-time"
-            ? t("flightEditor.incompleteActualTime")
+          ? t("flightEditor.incompleteActualTime")
+          : message === "invalid-airline-code"
+            ? t("flightEditor.invalidAirlineCode")
+            : message === "invalid-service-number"
+              ? t("flightEditor.invalidServiceNumber")
             : t("flightEditor.invalidFlight"));
       setBusy(false);
     }
@@ -77,15 +96,33 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
         <form onSubmit={submit}>
           <div className="editor-grid">
             <label>
-              <span>{t("flightEditor.flightNumber")}</span>
-              <input required value={draft.flightNumber} onChange={(event) => update("flightNumber", event.target.value)} placeholder="MU 589" autoFocus />
+              <span>{t("flightEditor.airlineCode")}</span>
+              <input
+                required
+                list={airlineListId}
+                maxLength={3}
+                value={draft.airlineCode}
+                onChange={(event) => update("airlineCode", event.target.value.toUpperCase().replace(/\s+/g, ""))}
+                placeholder="MU"
+                autoFocus
+              />
+              <datalist id={airlineListId}>
+                {airlineOptions.map((airline) => <option value={airline.iata} key={airline.iata}>{airline.name[locale]}</option>)}
+              </datalist>
+              <small className="editor-field-hint">
+                {selectedAirline
+                  ? `${selectedAirline.iata} · ${selectedAirline.name[locale]}`
+                  : t("flightEditor.airlineCodeHint")}
+              </small>
             </label>
             <label>
-              <span>{t("flightEditor.airline")}</span>
-              <select required value={draft.airlineIata} onChange={(event) => update("airlineIata", event.target.value)}>
-                <option value="">{t("flightEditor.chooseAirline")}</option>
-                {airlineOptions.map((airline) => <option value={airline.iata} key={airline.iata}>{airline.iata} · {airline.name[locale]}</option>)}
-              </select>
+              <span>{t("flightEditor.serviceNumber")}</span>
+              <input required value={draft.serviceNumber} onChange={(event) => updateServiceNumber(event.target.value)} placeholder="589" />
+              <small className="editor-field-hint">
+                {fullFlightNumber
+                  ? t("flightEditor.fullFlightNumber", { number: fullFlightNumber })
+                  : t("flightEditor.serviceNumberHint")}
+              </small>
             </label>
             <label>
               <span>{t("flightEditor.origin")}</span>
