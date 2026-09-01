@@ -11,6 +11,7 @@ import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { downloadKeeprawFly } from "./data/export";
+import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind } from "./storage/adapter";
@@ -30,6 +31,16 @@ export function App() {
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
 
   const locale = useMemo(() => settings.language, [settings.language]);
+  const selectedFlight = useMemo(
+    () => flightById(document, selectedFlightId),
+    [document, selectedFlightId],
+  );
+  const editedFlight = useMemo(
+    () => editorFlightId && editorFlightId !== "new"
+      ? flightById(document, editorFlightId)
+      : undefined,
+    [document, editorFlightId],
+  );
 
   useEffect(() => {
     let active = true;
@@ -152,12 +163,10 @@ export function App() {
 
   async function deleteEditedFlight() {
     if (!document || !editorFlightId || editorFlightId === "new") return;
-    await storeDocument({
-      ...document,
-      flights: document.flights.filter((flight) => flight.id !== editorFlightId),
-    });
+    const deletedFlightId = editorFlightId;
     setEditorFlightId(null);
-    setSelectedFlightId(null);
+    if (selectedFlightId === deletedFlightId) setSelectedFlightId(null);
+    await storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
   function exportDocument() {
@@ -199,13 +208,13 @@ export function App() {
           onTryDemo={() => storeDocument(structuredClone(demoDocument), "demo")}
           onImport={(nextDocument) => storeDocument(nextDocument, "personal")}
         />
-      ) : page === "flights" && selectedFlightId ? (
+      ) : page === "flights" && selectedFlight ? (
         <FlightDetailPage
-          flight={document.flights.find((flight) => flight.id === selectedFlightId)!}
+          flight={selectedFlight}
           locale={locale}
           timeFormat={settings.timeFormat}
           onBack={() => setSelectedFlightId(null)}
-          onEdit={() => setEditorFlightId(selectedFlightId)}
+          onEdit={() => setEditorFlightId(selectedFlight.id)}
         />
       ) : page === "flights" ? (
         <FlightsPage
@@ -222,12 +231,12 @@ export function App() {
           distanceUnit={settings.distanceUnit}
         />
       ) : null}
-      {document && editorFlightId ? (
+      {document && editorFlightId && (editorFlightId === "new" || editedFlight) ? (
         <FlightEditor
           key={editorFlightId}
           flight={editorFlightId === "new"
             ? undefined
-            : document.flights.find((flight) => flight.id === editorFlightId)}
+            : editedFlight}
           locale={locale}
           onSave={saveFlight}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}

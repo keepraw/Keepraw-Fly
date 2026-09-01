@@ -35,6 +35,7 @@
    - Separated airline codes from service numbers, with known-airline suggestions, unlisted-code entry and full-number paste handling.
    - Distinguished the persistent fictional demo from a user-owned personal archive.
    - Added empty states and navigation to individual flight records.
+   - Guarded stale detail/editor selections so deleting the active flight returns safely to the archive.
 
 5. **Flight detail**
    - Built a responsive origin-to-destination timeline.
@@ -121,6 +122,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 将航司代码与航班序号分开录入，支持已知航司建议、未收录代码和完整航班号粘贴。
    - 明确区分会持续保存的虚构演示档案与用户自己的个人档案。
    - 添加空状态以及前往单条航班记录的导航。
+   - 对失效的详情与编辑选择增加保护，删除当前航班后会安全返回档案列表。
 
 5. **航班详情页**
    - 构建从出发地到目的地的响应式时间线。
