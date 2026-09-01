@@ -64,7 +64,7 @@ export function SettingsPage({
         <section className="settings-section" aria-labelledby="settings-data">
           <div><p className="eyebrow">01</p><h2 id="settings-data">{t("settings.data")}</h2></div>
           <div className="settings-panel data-actions">
-            <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl onImport={onImport} variant="settings" /></div>
+            <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onBackup={onExport} onImport={onImport} variant="settings" /></div>
             <div><span>{t("settings.exportTitle")}</span><small>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
             <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => {
               if (onClear && window.confirm(t("settings.clearConfirmation"))) void onClear();
