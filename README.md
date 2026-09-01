@@ -28,16 +28,43 @@ search results, delays, distances and passport statistics in the viewer.
 - shared visual tokens for color, type, spacing, controls, focus and reduced motion
 - static production output with no backend and no user-data upload
 
-## Start locally
+## Run locally
 
 Requirements: Node.js 20.19 or newer and pnpm.
 
+Install the dependencies once from the repository root:
+
 ```bash
 pnpm install
+```
+
+For development, start Vite with live reload:
+
+```bash
 pnpm dev
 ```
 
-Then open the local URL printed by Vite. Run all checks with:
+Open the URL printed in the terminal, normally <http://localhost:5173>.
+
+### Open the production build locally
+
+`pnpm build` only creates the static files; it does not start a website. Build
+and serve those files with:
+
+```bash
+pnpm build
+pnpm preview
+```
+
+Then open <http://127.0.0.1:4173>. If that port is already in use, open the
+alternative URL printed by Vite. Press `Ctrl+C` in the terminal to stop the
+preview server.
+
+Do not double-click `apps/web/dist/index.html`. Keepraw Fly uses browser modules
+and IndexedDB, so the production files should be opened through the local HTTP
+server above.
+
+Run all checks with:
 
 ```bash
 pnpm typecheck
@@ -45,7 +72,8 @@ pnpm test
 pnpm build
 ```
 
-The static site is written to `apps/web/dist/`.
+The static site is written to `apps/web/dist/`; that is also the directory to
+publish on a static hosting service.
 
 ## Repository layout
 

@@ -56,6 +56,7 @@
 8. **Release readiness and documentation**
    - Added English and Simplified Chinese interfaces.
    - Added relative-base static builds suitable for static hosting.
+   - Added a root-level production preview command and documented the local HTTP workflow.
    - Documented architecture, schema behavior, deployment and intentionally deferred scope.
    - Added bilingual repository entry points and this delivery record.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
@@ -139,6 +140,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 8. **发布准备与文档**
    - 添加英文和简体中文界面。
    - 添加适用于静态托管的相对路径生产构建。
+   - 添加根目录生产预览命令，并记录本地 HTTP 查看流程。
    - 记录架构、数据格式行为、部署方式和明确推迟的范围。
    - 添加双语仓库入口和本交付记录。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。

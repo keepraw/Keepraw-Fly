@@ -27,16 +27,40 @@ Keepraw Fly 使用可读的 JSON 文档保存可迁移的飞行事实，并在�
 - 统一颜色、字体、间距、控件、焦点和减少动效规则的视觉 token
 - 无后端、不会上传用户数据的静态生产构建
 
-## 本地启动
+## 在本地运行
 
 环境要求：Node.js 20.19 或更高版本，以及 pnpm。
 
+首先在仓库根目录安装一次依赖：
+
 ```bash
 pnpm install
+```
+
+日常开发时，启动带热更新的 Vite 开发服务器：
+
+```bash
 pnpm dev
 ```
 
-然后打开 Vite 输出的本地地址。运行全部检查：
+打开终端输出的网址，通常是 <http://localhost:5173>。
+
+### 在本地打开生产构建
+
+`pnpm build` 只负责生成静态文件，并不会自动打开网站。请依次运行：
+
+```bash
+pnpm build
+pnpm preview
+```
+
+然后在浏览器打开 <http://127.0.0.1:4173>。如果 4173 端口被占用，请打开
+Vite 在终端中显示的备用网址。查看结束后，在终端按 `Ctrl+C` 停止预览服务器。
+
+不要直接双击 `apps/web/dist/index.html`。Keepraw Fly 使用浏览器模块和
+IndexedDB，因此生产文件应通过上面的本地 HTTP 服务器打开。
+
+运行全部检查：
 
 ```bash
 pnpm typecheck
@@ -44,7 +68,7 @@ pnpm test
 pnpm build
 ```
 
-静态网站会生成在 `apps/web/dist/`。
+静态网站会生成在 `apps/web/dist/`；部署到静态托管服务时也应发布这个目录。
 
 ## 仓库结构
 
