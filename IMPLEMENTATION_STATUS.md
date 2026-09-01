@@ -60,6 +60,7 @@
    - Documented architecture, schema behavior, deployment and intentionally deferred scope.
    - Added bilingual repository entry points and this delivery record.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
+   - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
 
 ### Verification completed
 
@@ -144,6 +145,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 记录架构、数据格式行为、部署方式和明确推迟的范围。
    - 添加双语仓库入口和本交付记录。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
+   - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
 
 ### 已完成验证
 
