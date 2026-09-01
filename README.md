@@ -15,16 +15,17 @@ search results, delays, distances and passport statistics in the viewer.
 
 - Keepraw Fly 0.1 JSON Schema and Ajv validator with useful error paths
 - a 24-flight fictional demo archive spanning multiple countries and timezones
-- first-run archive creation with no JSON file required
-- a guided form to add, edit and delete flights using airport-local times
+- first-run archive creation with no JSON file required and a clearly labelled demo mode
+- a guided form for scheduled and actual local times, airport facts, aircraft and seat details
 - dense, searchable flight history with English and Simplified Chinese names
 - responsive flight detail timeline and conditional flight facts
 - lifetime and yearly Flight Passport statistics
 - a bundled world map with real airport coordinates and great-circle routes
 - local IndexedDB persistence through a storage adapter
-- validated JSON import and export, including unknown extension preservation
+- validated JSON import preview, explicit replacement confirmation and portable export
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
+- shared visual tokens for color, type, spacing, controls, focus and reduced motion
 - static production output with no backend and no user-data upload
 
 ## Start locally
@@ -69,11 +70,13 @@ The default build is entirely static. Flight data remains in the browser's
 IndexedDB unless the user explicitly exports a file. Keepraw Fly has no server,
 account system, analytics SDK or flight-status API.
 
-Import currently validates and replaces the active local archive. Export first
-when the current archive needs to be retained.
+Import validates the file and previews its owner, flight count and date range
+before anything changes. Replacing an existing archive requires an explicit
+confirmation, with a backup export offered in the same flow.
 
 Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md)
-and [deployment guidance](docs/deployment.md) for details.
+[the visual system](docs/design-system.md) and
+[deployment guidance](docs/deployment.md) for details.
 
 ## Status and scope
 
