@@ -85,9 +85,11 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
           <small>{origin?.name[locale]}</small>
         </div>
         <div className="route-track" aria-hidden="true">
-          <span />
-          <svg viewBox="0 0 40 40"><path d="M7 20h26M25 12l8 8-8 8" /></svg>
-          <span />
+          <span className="route-track-line" />
+          <span className="route-track-mark">
+            <svg viewBox="0 0 40 40"><path d="M7 20h26M25 12l8 8-8 8" /></svg>
+          </span>
+          <span className="route-track-line" />
         </div>
         <div className="airport-block airport-block-arrival">
           <span className="airport-code">{flight.destination.iata}</span>

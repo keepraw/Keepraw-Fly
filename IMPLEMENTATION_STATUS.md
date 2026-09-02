@@ -41,6 +41,7 @@
 
 5. **Flight detail**
    - Built a responsive origin-to-destination timeline.
+   - Refined the route hero into a distinctive horizontal composition with restrained, reduced-motion-safe transitions.
    - Added scheduled/actual times, duration, distance, delay and conditional operational facts.
    - Added accessible semantic structure for desktop and narrow mobile layouts.
 
@@ -130,6 +131,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 5. **航班详情页**
    - 构建从出发地到目的地的响应式时间线。
+   - 将航线主视觉优化为独立的横向构图，并加入克制且兼容“减少动态效果”的过渡动画。
    - 展示计划/实际时间、时长、距离、延误和按条件出现的运行信息。
    - 为桌面端和窄屏移动端添加可访问的语义结构。
 
