@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   airportByIata,
+  airportCityGroupForAirport,
+  airportCityGroupName,
   searchAirports,
   type AirportReference,
   type SupportedLocale,
@@ -23,6 +25,9 @@ export function AirportCombobox({ label, locale, value, onChange }: AirportCombo
   const [activeIndex, setActiveIndex] = useState(0);
   const results = useMemo(() => searchAirports(query, locale), [query, locale]);
   const selectedAirport = airportByIata.get(value);
+  const selectedCityGroup = selectedAirport
+    ? airportCityGroupForAirport(selectedAirport.iata)
+    : undefined;
 
   useEffect(() => {
     if (value) setQuery(value);
@@ -79,12 +84,17 @@ export function AirportCombobox({ label, locale, value, onChange }: AirportCombo
       />
       <small className="editor-field-hint">
         {selectedAirport
-          ? `${selectedAirport.iata} · ${selectedAirport.name[locale]} · ${selectedAirport.city[locale]}`
+          ? `${selectedAirport.iata} · ${selectedAirport.name[locale]} · ${selectedCityGroup ? airportCityGroupName(selectedCityGroup, locale) : selectedAirport.city[locale]}`
           : t("flightEditor.airportSearchHint")}
       </small>
       {open && query.trim() ? (
         <div className="airport-options" id={listId} role="listbox">
-          {results.length ? results.map((airport, index) => (
+          {results.length ? results.map((airport, index) => {
+            const cityGroup = airportCityGroupForAirport(airport.iata);
+            const cityName = cityGroup
+              ? airportCityGroupName(cityGroup, locale)
+              : airport.city[locale];
+            return (
             <button
               id={`${listId}-${airport.iata}`}
               key={airport.iata}
@@ -98,9 +108,14 @@ export function AirportCombobox({ label, locale, value, onChange }: AirportCombo
             >
               <strong>{airport.iata}</strong>
               <span>{airport.name[locale]}</span>
-              <small>{airport.city[locale]} · {airport.countryName[locale]}</small>
+              <small>
+                {cityName}
+                {cityGroup ? ` · ${t("flightEditor.multiAirportCount", { count: cityGroup.airportCodes.length })}` : ""}
+                {` · ${airport.countryName[locale]}`}
+              </small>
             </button>
-          )) : <p>{t("flightEditor.noAirportResults")}</p>}
+            );
+          }) : <p>{t("flightEditor.noAirportResults")}</p>}
         </div>
       ) : null}
     </div>

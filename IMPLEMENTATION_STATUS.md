@@ -5,7 +5,7 @@
 - Product: Keepraw Fly
 - Version: 0.1.0
 - Last updated: 2026-09-02
-- Current milestone: core archive, flight detail and Passport experience complete
+- Current milestone: core archive, offline global airport entry, flight detail and Passport experience complete
 
 ## English
 
@@ -35,6 +35,7 @@
    - Added a first-run flow that creates an empty archive without requiring JSON.
    - Added guided add, edit and delete forms with automatic airport timezone offsets.
    - Replaced fixed airport dropdowns with searchable, keyboard-accessible airport inputs that accept code, city or airport name.
+   - Added multi-airport city aliases and explicit airport-name context while preventing city codes from being stored as endpoints.
    - Added actual local times plus optional terminal, gate, aircraft, registration, seat and cabin facts.
    - Separated airline codes from service numbers, with known-airline suggestions, unlisted-code entry and full-number paste handling.
    - Distinguished the persistent fictional demo from a user-owned personal archive.
@@ -75,9 +76,9 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 49 automated tests pass: 25 core, 7 validator and 17 web tests.
+- All 63 automated tests pass: 37 core, 7 validator and 19 web tests.
 - The Vite production build completes successfully.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, settings and hash deep links.
+- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -106,6 +107,7 @@
 22. `3cf9d5d` — Refine the flight detail route hero
 23. `95b2316` — Complete flight detail status information
 24. `2dfdb99` — Complete the lifetime flight passport
+25. `8980322` — Add offline global airport search
 
 ### Deliberately deferred
 
@@ -139,6 +141,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
    - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。
    - 将固定机场下拉框替换为支持键盘操作的搜索输入，可按代码、城市或机场名称查找。
+   - 添加多机场城市别名与明确的机场全名，并防止将城市代码误存为航班端点。
    - 添加实际当地时间以及可选的航站楼、登机口、机型、注册号、座位和舱位事实。
    - 将航司代码与航班序号分开录入，支持已知航司建议、未收录代码和完整航班号粘贴。
    - 明确区分会持续保存的虚构演示档案与用户自己的个人档案。
@@ -179,9 +182,9 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 49 项自动化测试全部通过：核心逻辑 25 项、校验器 7 项、Web 端 17 项。
+- 63 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 19 项。
 - Vite 生产构建成功完成。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、设置及 hash 深链接。
+- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、设置及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -210,6 +213,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 22. `3cf9d5d` — 优化航班详情航线主视觉
 23. `95b2316` — 补齐航班详情状态信息
 24. `2dfdb99` — 完善终身飞行护照
+25. `8980322` — 添加离线全球机场搜索
 
 ### 明确推迟的范围
 

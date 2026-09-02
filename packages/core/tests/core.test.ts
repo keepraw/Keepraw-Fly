@@ -2,6 +2,8 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
 import {
   airportByIata,
+  airportCityGroupByCode,
+  airportCityGroupForAirport,
   airports,
   aircraftFacts,
   buildRouteSegments,
@@ -165,6 +167,32 @@ describe("offline airport directory", () => {
 
   it.each(["TAO", "Qingdao", "青岛", "Jiaodong"])("finds TAO from %s", (query) => {
     expect(searchAirports(query, "zh-CN").map((airport) => airport.iata)).toContain("TAO");
+  });
+
+  it.each([
+    ["TYO", ["HND", "NRT"]],
+    ["Tokyo", ["HND", "NRT"]],
+    ["东京", ["HND", "NRT"]],
+    ["BJS", ["PEK", "PKX"]],
+    ["北京", ["PEK", "PKX"]],
+  ] as const)("expands the multi-airport city %s", (query, expectedCodes) => {
+    expect(searchAirports(query, "zh-CN").slice(0, 2).map((airport) => airport.iata))
+      .toEqual(expectedCodes);
+  });
+
+  it("keeps city aliases separate from airport endpoints", () => {
+    expect(airportByIata.has("TYO")).toBe(false);
+    expect(airportCityGroupByCode.get("TYO")?.airportCodes).toEqual(["HND", "NRT"]);
+    expect(airportCityGroupForAirport("NRT")?.code).toBe("TYO");
+    expect(searchAirports("TYO", "zh-CN").map((airport) => airport.iata))
+      .toEqual(["HND", "NRT"]);
+    expect(searchAirports("SHA", "zh-CN").map((airport) => airport.iata))
+      .toEqual(["SHA", "PVG"]);
+  });
+
+  it("adds maintained metropolitan corrections for New York and Chengdu", () => {
+    expect(airportCityGroupByCode.get("NYC")?.airportCodes).toEqual(["EWR", "JFK", "LGA"]);
+    expect(airportCityGroupByCode.get("CTU")?.airportCodes).toEqual(["CTU", "TFU"]);
   });
 });
 
