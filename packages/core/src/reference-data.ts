@@ -1,3 +1,5 @@
+import airportRows from "../data/airports.iata.json";
+
 export type SupportedLocale = "en" | "zh-CN";
 
 export interface LocalizedText {
@@ -21,7 +23,19 @@ export interface AirlineReferenceData {
   name: LocalizedText;
 }
 
-export const airports: AirportReference[] = [
+type CompactAirportRow = [string, string, string, string, number, number, string];
+
+const englishRegions = new Intl.DisplayNames(["en"], { type: "region" });
+const chineseRegions = new Intl.DisplayNames(["zh-CN"], { type: "region" });
+
+function countryName(country: string): LocalizedText {
+  return {
+    en: englishRegions.of(country) ?? country,
+    "zh-CN": chineseRegions.of(country) ?? country,
+  };
+}
+
+const curatedAirports: AirportReference[] = [
   { iata: "SFO", name: { en: "San Francisco International Airport", "zh-CN": "旧金山国际机场" }, city: { en: "San Francisco", "zh-CN": "旧金山" }, country: "US", countryName: { en: "United States", "zh-CN": "美国" }, latitude: 37.6213, longitude: -122.379, timezone: "America/Los_Angeles" },
   { iata: "LAX", name: { en: "Los Angeles International Airport", "zh-CN": "洛杉矶国际机场" }, city: { en: "Los Angeles", "zh-CN": "洛杉矶" }, country: "US", countryName: { en: "United States", "zh-CN": "美国" }, latitude: 33.9416, longitude: -118.4085, timezone: "America/Los_Angeles" },
   { iata: "JFK", name: { en: "John F. Kennedy International Airport", "zh-CN": "纽约肯尼迪国际机场" }, city: { en: "New York", "zh-CN": "纽约" }, country: "US", countryName: { en: "United States", "zh-CN": "美国" }, latitude: 40.6413, longitude: -73.7781, timezone: "America/New_York" },
@@ -34,6 +48,7 @@ export const airports: AirportReference[] = [
   { iata: "CAN", name: { en: "Guangzhou Baiyun International Airport", "zh-CN": "广州白云国际机场" }, city: { en: "Guangzhou", "zh-CN": "广州" }, country: "CN", countryName: { en: "China", "zh-CN": "中国" }, latitude: 23.3924, longitude: 113.2988, timezone: "Asia/Shanghai" },
   { iata: "CTU", name: { en: "Chengdu Shuangliu International Airport", "zh-CN": "成都双流国际机场" }, city: { en: "Chengdu", "zh-CN": "成都" }, country: "CN", countryName: { en: "China", "zh-CN": "中国" }, latitude: 30.5785, longitude: 103.9471, timezone: "Asia/Shanghai" },
   { iata: "HKG", name: { en: "Hong Kong International Airport", "zh-CN": "香港国际机场" }, city: { en: "Hong Kong", "zh-CN": "香港" }, country: "HK", countryName: { en: "Hong Kong", "zh-CN": "中国香港" }, latitude: 22.308, longitude: 113.9185, timezone: "Asia/Hong_Kong" },
+  { iata: "TAO", name: { en: "Qingdao Jiaodong International Airport", "zh-CN": "青岛胶东国际机场" }, city: { en: "Qingdao", "zh-CN": "青岛" }, country: "CN", countryName: { en: "China", "zh-CN": "中国" }, latitude: 36.365, longitude: 120.09833, timezone: "Asia/Shanghai" },
   { iata: "HND", name: { en: "Tokyo Haneda Airport", "zh-CN": "东京羽田机场" }, city: { en: "Tokyo", "zh-CN": "东京" }, country: "JP", countryName: { en: "Japan", "zh-CN": "日本" }, latitude: 35.5494, longitude: 139.7798, timezone: "Asia/Tokyo" },
   { iata: "NRT", name: { en: "Narita International Airport", "zh-CN": "东京成田国际机场" }, city: { en: "Tokyo", "zh-CN": "东京" }, country: "JP", countryName: { en: "Japan", "zh-CN": "日本" }, latitude: 35.772, longitude: 140.3929, timezone: "Asia/Tokyo" },
   { iata: "ICN", name: { en: "Incheon International Airport", "zh-CN": "首尔仁川国际机场" }, city: { en: "Seoul", "zh-CN": "首尔" }, country: "KR", countryName: { en: "South Korea", "zh-CN": "韩国" }, latitude: 37.4602, longitude: 126.4407, timezone: "Asia/Seoul" },
@@ -44,6 +59,24 @@ export const airports: AirportReference[] = [
   { iata: "SYD", name: { en: "Sydney Kingsford Smith Airport", "zh-CN": "悉尼金斯福德·史密斯机场" }, city: { en: "Sydney", "zh-CN": "悉尼" }, country: "AU", countryName: { en: "Australia", "zh-CN": "澳大利亚" }, latitude: -33.9399, longitude: 151.1753, timezone: "Australia/Sydney" },
   { iata: "YVR", name: { en: "Vancouver International Airport", "zh-CN": "温哥华国际机场" }, city: { en: "Vancouver", "zh-CN": "温哥华" }, country: "CA", countryName: { en: "Canada", "zh-CN": "加拿大" }, latitude: 49.1967, longitude: -123.1815, timezone: "America/Vancouver" }
 ];
+
+const airportReferences = new Map<string, AirportReference>();
+for (const row of airportRows as CompactAirportRow[]) {
+  const [iata, name, city, country, latitude, longitude, timezone] = row;
+  airportReferences.set(iata, {
+    iata,
+    name: { en: name, "zh-CN": name },
+    city: { en: city, "zh-CN": city },
+    country,
+    countryName: countryName(country),
+    latitude,
+    longitude,
+    timezone,
+  });
+}
+for (const airport of curatedAirports) airportReferences.set(airport.iata, airport);
+
+export const airports = [...airportReferences.values()].sort((left, right) => left.iata.localeCompare(right.iata));
 
 export const airlines: AirlineReferenceData[] = [
   { iata: "UA", name: { en: "United Airlines", "zh-CN": "美国联合航空" } },

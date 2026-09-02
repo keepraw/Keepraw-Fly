@@ -9,7 +9,7 @@ The 0.1 local viewer does not implement:
 - payment, subscriptions, advertising, analytics or social features
 - zoomable third-party basemaps or map APIs (the bundled route map is local and static)
 - a raw JSON editor (Power User Mode is an informational placeholder)
-- complete worldwide airport and airline reference datasets
+- a complete worldwide airline reference dataset
 - self-hosted `ServerStorageAdapter`
 - native mobile or desktop applications
 

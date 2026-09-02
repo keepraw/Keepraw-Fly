@@ -1,12 +1,6 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { airlineByIata, airportByIata } from "./reference-data";
-
-function normalizeSearchValue(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/\p{M}+/gu, "")
-    .toLocaleLowerCase();
-}
+import { normalizeSearchValue } from "./normalization";
 
 function extensionSearchText(flight: KeeprawFlight): string {
   const aircraft = flight.extensions?.["keepraw-fly.aircraft"];

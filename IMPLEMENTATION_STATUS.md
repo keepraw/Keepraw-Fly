@@ -24,6 +24,7 @@
 3. **Demo data and domain logic**
    - Added a fictional 24-flight archive covering multiple countries and timezones.
    - Added airport, airline and aircraft reference data.
+   - Replaced the small airport sample with a pinned, MIT-licensed offline directory of 7,800+ IATA airports, including coordinates and IANA timezones.
    - Implemented search, distance, duration, delay and passport-statistics calculations.
 
 4. **Flights archive**
@@ -33,6 +34,7 @@
    - Kept search in the core layer and covered localized airline/airport names, years, aircraft facts and normalized full-width input.
    - Added a first-run flow that creates an empty archive without requiring JSON.
    - Added guided add, edit and delete forms with automatic airport timezone offsets.
+   - Replaced fixed airport dropdowns with searchable, keyboard-accessible airport inputs that accept code, city or airport name.
    - Added actual local times plus optional terminal, gate, aircraft, registration, seat and cabin facts.
    - Separated airline codes from service numbers, with known-airline suggestions, unlisted-code entry and full-number paste handling.
    - Distinguished the persistent fictional demo from a user-owned personal archive.
@@ -126,6 +128,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 3. **演示数据与领域逻辑**
    - 添加一份覆盖多个国家和时区的 24 段虚构航班档案。
    - 添加机场、航空公司和机型参考数据。
+   - 将小型机场样本替换为固定版本、MIT 许可的离线目录，覆盖 7,800 多个 IATA 机场及坐标和 IANA 时区。
    - 实现搜索、距离、时长、延误和飞行护照统计计算。
 
 4. **航班档案页**
@@ -135,6 +138,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 搜索逻辑保持在 core 层，并覆盖航司/机场本地化名称、年份、机型信息与全角输入规范化。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
    - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。
+   - 将固定机场下拉框替换为支持键盘操作的搜索输入，可按代码、城市或机场名称查找。
    - 添加实际当地时间以及可选的航站楼、登机口、机型、注册号、座位和舱位事实。
    - 将航司代码与航班序号分开录入，支持已知航司建议、未收录代码和完整航班号粘贴。
    - 明确区分会持续保存的虚构演示档案与用户自己的个人档案。

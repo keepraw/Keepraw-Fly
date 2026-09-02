@@ -24,6 +24,29 @@ describe("flight editor data", () => {
       .toBe("2026-08-21T09:00:00-07:00");
   });
 
+  it("creates a HKG to TAO flight from the offline airport directory", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "cx954-id" });
+    const flight = flightFromDraft({
+      ...baseDraft(),
+      airlineCode: "CX",
+      serviceNumber: "954",
+      originIata: "HKG",
+      destinationIata: "TAO",
+      departureTime: "09:00",
+      arrivalTime: "13:00",
+    });
+
+    expect(flight).toMatchObject({
+      id: "flight-cx954-id",
+      flightNumber: "CX954",
+      origin: { iata: "HKG" },
+      destination: { iata: "TAO" },
+      scheduledDeparture: "2026-08-21T09:00:00+08:00",
+      scheduledArrival: "2026-08-21T13:00:00+08:00",
+    });
+    vi.unstubAllGlobals();
+  });
+
   it("round-trips editable flight fields", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "test-id" });
     const flight = flightFromDraft({

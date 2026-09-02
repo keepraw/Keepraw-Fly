@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/mborsetti/airportsdata",
+  "revision": "671fa36e373faa3068e15bb453dac96a41087e19",
+  "csv": "https://raw.githubusercontent.com/mborsetti/airportsdata/671fa36e373faa3068e15bb453dac96a41087e19/airportsdata/airports.csv",
+  "license": "MIT",
+  "generatedAt": "2026-09-02T00:55:06.917Z",
+  "airportCount": 7884
+}

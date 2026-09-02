@@ -17,6 +17,7 @@ search results, delays, distances and passport statistics in the viewer.
 - a 24-flight fictional demo archive spanning multiple countries and timezones
 - first-run archive creation with no JSON file required and a clearly labelled demo mode
 - a guided form for scheduled and actual local times, airport facts, aircraft and seat details
+- an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones
 - dense, searchable flight history with English and Simplified Chinese names
 - responsive flight detail timeline and conditional flight facts
 - lifetime and yearly Flight Passport statistics
@@ -97,6 +98,12 @@ separately from the portable document.
 The default build is entirely static. Flight data remains in the browser's
 IndexedDB unless the user explicitly exports a file. Keepraw Fly has no server,
 account system, analytics SDK or flight-status API.
+
+Airport reference data is generated from the MIT-licensed
+[airportsdata](https://github.com/mborsetti/airportsdata) project and bundled
+with the static viewer. It is reference data only—not a live schedule or flight
+status service. See [third-party notices](THIRD_PARTY_NOTICES.md) and run
+`pnpm update:airports` when intentionally refreshing the pinned snapshot.
 
 Import validates the file and previews its owner, flight count and date range
 before anything changes. Replacing an existing archive requires an explicit
