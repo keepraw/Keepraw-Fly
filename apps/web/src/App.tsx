@@ -229,6 +229,7 @@ export function App() {
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
+          onAddFlight={() => setEditorFlightId("new")}
         />
       ) : null}
       {document && editorFlightId && (editorFlightId === "new" || editedFlight) ? (

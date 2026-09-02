@@ -163,6 +163,30 @@ describe("passport statistics", () => {
     expect(stats.aircraftTypes).toBe(1);
   });
 
+  it("ranks repeated airports and distance extremes across an archive", () => {
+    const longFlight: KeeprawFlight = {
+      ...flight,
+      id: "mu589",
+      flightNumber: "MU589",
+      airline: { iata: "MU" },
+      origin: { iata: "PVG" },
+      destination: { iata: "SFO" },
+      extensions: {
+        "keepraw-fly.aircraft": { type: "B77W" },
+      },
+    };
+    const stats = calculatePassportStatistics([flight, longFlight]);
+
+    expect(stats.flights).toBe(2);
+    expect(stats.countries).toBe(2);
+    expect(stats.airports).toBe(3);
+    expect(stats.airlines).toBe(2);
+    expect(stats.aircraftTypes).toBe(2);
+    expect(stats.mostVisitedAirport).toEqual({ code: "SFO", count: 2 });
+    expect(stats.longestFlight?.flightId).toBe("mu589");
+    expect(stats.shortestFlight?.flightId).toBe("ua123");
+  });
+
   it("builds yearly summaries and map-ready route interfaces", () => {
     const older = { ...flight, id: "older", serviceDate: "2025-01-02" };
     expect(calculateYearStatistics([flight, older]).map((item) => item.year)).toEqual([

@@ -163,7 +163,12 @@
     "longestFlight": "最长航班",
     "shortestFlight": "最短航班",
     "byYear": "年度",
-    "yearlyHistory": "年度飞行历史"
+    "yearlyHistory": "年度飞行历史",
+    "flightFrequency": "{{count}} 个航班",
+    "visitFrequency": "到访 {{count}} 次",
+    "emptyEyebrow": "尚无旅程",
+    "emptyTitle": "飞行护照从第一段航班开始。",
+    "emptyDescription": "添加第一条记录，Keepraw Fly 会根据你自己的航班事实生成这本护照。"
   },
   "import": {
     "failed": "无法导入这个文件",

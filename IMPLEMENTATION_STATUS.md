@@ -48,6 +48,7 @@
 
 6. **Flight Passport**
    - Added lifetime and yearly summaries.
+   - Added meaningful empty-archive guidance and frequency context for favorite airlines and airports.
    - Added totals for flights, distance, time, airports, airlines, countries and routes.
    - Added profile-name presentation using native and romanized forms.
    - Added a recognizable bundled world map with real airport projection, great-circle routes, date-line handling and frequency encoding.
@@ -139,6 +140,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 6. **Flight Passport（飞行护照）**
    - 添加终身汇总和按年份汇总。
+   - 添加空档案引导，并为最常乘坐航司和最常到访机场补充次数信息。
    - 统计航班、距离、时间、机场、航空公司、国家和航线总数。
    - 支持使用原文姓名和罗马字姓名展示个人资料。
    - 添加可识别的内置世界地图，支持真实机场投影、大圆航线、日期变更线处理和飞行频次表达。
