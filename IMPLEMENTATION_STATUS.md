@@ -30,6 +30,7 @@
    - Built a dense, responsive flight list with multilingual labels.
    - Reworked the mobile archive into compact rows with aligned airport codes and local times.
    - Added search across flight numbers, airports, cities and airlines.
+   - Kept search in the core layer and covered localized airline/airport names, years, aircraft facts and normalized full-width input.
    - Added a first-run flow that creates an empty archive without requiring JSON.
    - Added guided add, edit and delete forms with automatic airport timezone offsets.
    - Added actual local times plus optional terminal, gate, aircraft, registration, seat and cabin facts.
@@ -118,6 +119,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 构建紧凑、响应式并支持多语言标签的航班列表。
    - 将移动端档案重构为紧凑列表，并让机场代码与各自当地时间清晰对齐。
    - 支持按航班号、机场、城市和航空公司搜索。
+   - 搜索逻辑保持在 core 层，并覆盖航司/机场本地化名称、年份、机型信息与全角输入规范化。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
    - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。
    - 添加实际当地时间以及可选的航站楼、登机口、机型、注册号、座位和舱位事实。

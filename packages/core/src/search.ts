@@ -1,6 +1,13 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { airlineByIata, airportByIata } from "./reference-data";
 
+function normalizeSearchValue(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .toLocaleLowerCase();
+}
+
 function extensionSearchText(flight: KeeprawFlight): string {
   const aircraft = flight.extensions?.["keepraw-fly.aircraft"];
   if (!aircraft || typeof aircraft !== "object" || Array.isArray(aircraft)) {
@@ -20,7 +27,6 @@ function airportSearchText(iata: string): string {
     iata,
     ...Object.values(airport.name),
     ...Object.values(airport.city),
-    ...Object.values(airport.countryName),
   ].join(" ");
 }
 
@@ -30,8 +36,9 @@ export function flightSearchText(flight: KeeprawFlight): string {
     ? airlineByIata.get(flight.airline.iata)
     : undefined;
 
-  return [
+  return normalizeSearchValue([
     flight.flightNumber,
+    flight.flightNumber.replace(/[\s-]+/g, ""),
     airlineCode,
     flight.serviceDate,
     flight.serviceDate.slice(0, 4),
@@ -39,18 +46,14 @@ export function flightSearchText(flight: KeeprawFlight): string {
     airportSearchText(flight.origin.iata),
     airportSearchText(flight.destination.iata),
     extensionSearchText(flight),
-  ]
-    .join(" ")
-    .toLocaleLowerCase();
+  ].join(" "));
 }
 
 export function searchFlights(
   flights: KeeprawFlight[],
   query: string,
 ): KeeprawFlight[] {
-  const terms = query
-    .trim()
-    .toLocaleLowerCase()
+  const terms = normalizeSearchValue(query.trim())
     .split(/\s+/)
     .filter(Boolean);
 
@@ -61,4 +64,3 @@ export function searchFlights(
     return terms.every((term) => text.includes(term));
   });
 }
-
