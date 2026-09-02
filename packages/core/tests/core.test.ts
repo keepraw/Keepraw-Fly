@@ -2,6 +2,7 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
 import {
   airportByIata,
+  airports,
   aircraftFacts,
   buildRouteSegments,
   calculateYearStatistics,
@@ -14,6 +15,7 @@ import {
   flightDuration,
   groupFlightsByYear,
   searchFlights,
+  searchAirports,
 } from "../src";
 
 const flight: KeeprawFlight = {
@@ -148,6 +150,21 @@ describe("search and grouping", () => {
       "2026",
       "2025",
     ]);
+  });
+});
+
+describe("offline airport directory", () => {
+  it("bundles global IATA airports with coordinates and timezones", () => {
+    expect(airports.length).toBeGreaterThan(7_800);
+    expect(airportByIata.get("TAO")).toMatchObject({
+      iata: "TAO",
+      city: { en: "Qingdao", "zh-CN": "青岛" },
+      timezone: "Asia/Shanghai",
+    });
+  });
+
+  it.each(["TAO", "Qingdao", "青岛", "Jiaodong"])("finds TAO from %s", (query) => {
+    expect(searchAirports(query, "zh-CN").map((airport) => airport.iata)).toContain("TAO");
   });
 });
 

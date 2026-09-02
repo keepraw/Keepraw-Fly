@@ -1,4 +1,5 @@
 export * from "./calculations";
+export * from "./airport-search";
 export * from "./extensions";
 export * from "./formatting";
 export * from "./reference-data";

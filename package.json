@@ -11,6 +11,7 @@
     "dev": "pnpm --filter @keepraw-fly/web dev",
     "build": "pnpm -r build",
     "preview": "pnpm --filter @keepraw-fly/web preview",
+    "update:airports": "node scripts/update-airports.mjs",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
   },

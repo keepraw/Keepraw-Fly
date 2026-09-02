@@ -364,8 +364,18 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 28px 0; }
 .editor-grid label, .editor-schedule label { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
 .editor-grid label > span, .editor-schedule label > span { color: var(--muted); font-size: var(--font-size-caption); }
+.airport-combobox { position: relative; display: flex; min-width: 0; flex-direction: column; gap: 8px; }
+.airport-combobox > label { color: var(--muted); font-size: var(--font-size-caption); }
 .editor-field-hint { min-height: 1.4em; color: var(--faint); font-size: var(--font-size-caption); line-height: 1.4; }
-.editor-grid input, .editor-grid select, .editor-schedule input { width: 100%; min-height: var(--control-height-md); padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); }
+.editor-grid input, .editor-grid select, .editor-schedule input, .airport-combobox > input { width: 100%; min-height: var(--control-height-md); padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); }
+.airport-options { position: absolute; z-index: 8; top: calc(var(--control-height-md) + 27px); right: 0; left: 0; max-height: 270px; overflow-y: auto; border: 1px solid var(--ink); border-radius: var(--radius-control); background: var(--surface); box-shadow: 0 16px 45px rgb(0 0 0 / 16%); }
+.airport-options button { display: grid; width: 100%; grid-template-columns: 50px 1fr; grid-template-areas: "code name" "code meta"; gap: 2px 10px; padding: 11px 12px; border: 0; border-bottom: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
+.airport-options button:last-child { border-bottom: 0; }
+.airport-options button:hover, .airport-options button[aria-selected="true"] { background: var(--green-soft); }
+.airport-options strong { grid-area: code; align-self: center; color: var(--green); letter-spacing: 0.06em; }
+.airport-options span { grid-area: name; overflow: hidden; font-size: var(--font-size-label); font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.airport-options small { grid-area: meta; overflow: hidden; color: var(--muted); font-size: var(--font-size-caption); text-overflow: ellipsis; white-space: nowrap; }
+.airport-options > p { margin: 0; padding: 16px 12px; color: var(--muted); font-size: var(--font-size-label); }
 .editor-schedule { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin: 0; padding: 24px 0 0; border: 0; border-top: 1px solid var(--line); }
 .editor-schedule legend { padding: 0 0 16px; font-size: var(--font-size-label); font-weight: 680; }
 .editor-time-note { margin: 12px 0 0; color: var(--faint); font-size: var(--font-size-caption); line-height: 1.5; }

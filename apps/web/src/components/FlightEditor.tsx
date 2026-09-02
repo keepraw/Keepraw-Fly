@@ -1,7 +1,8 @@
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { airlines, airports, type SupportedLocale } from "@keepraw-fly/core";
+import { airlines, type SupportedLocale } from "@keepraw-fly/core";
+import { AirportCombobox } from "./AirportCombobox";
 import {
   createDefaultDraft,
   flightFromDraft,
@@ -26,10 +27,6 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const airlineListId = useId();
-  const airportOptions = useMemo(
-    () => [...airports].sort((left, right) => left.city[locale].localeCompare(right.city[locale], locale)),
-    [locale],
-  );
   const airlineOptions = useMemo(
     () => [...airlines].sort((left, right) => left.name[locale].localeCompare(right.name[locale], locale)),
     [locale],
@@ -75,7 +72,9 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
             ? t("flightEditor.invalidAirlineCode")
             : message === "invalid-service-number"
               ? t("flightEditor.invalidServiceNumber")
-            : t("flightEditor.invalidFlight"));
+              : message === "unknown-airport"
+                ? t("flightEditor.unknownAirport")
+                : t("flightEditor.invalidFlight"));
       setBusy(false);
     }
   }
@@ -124,20 +123,8 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
                   : t("flightEditor.serviceNumberHint")}
               </small>
             </label>
-            <label>
-              <span>{t("flightEditor.origin")}</span>
-              <select required value={draft.originIata} onChange={(event) => update("originIata", event.target.value)}>
-                <option value="">{t("flightEditor.chooseAirport")}</option>
-                {airportOptions.map((airport) => <option value={airport.iata} key={airport.iata}>{airport.iata} · {airport.city[locale]}</option>)}
-              </select>
-            </label>
-            <label>
-              <span>{t("flightEditor.destination")}</span>
-              <select required value={draft.destinationIata} onChange={(event) => update("destinationIata", event.target.value)}>
-                <option value="">{t("flightEditor.chooseAirport")}</option>
-                {airportOptions.map((airport) => <option value={airport.iata} key={airport.iata}>{airport.iata} · {airport.city[locale]}</option>)}
-              </select>
-            </label>
+            <AirportCombobox label={t("flightEditor.origin")} locale={locale} value={draft.originIata} onChange={(iata) => update("originIata", iata)} />
+            <AirportCombobox label={t("flightEditor.destination")} locale={locale} value={draft.destinationIata} onChange={(iata) => update("destinationIata", iata)} />
           </div>
 
           <fieldset className="editor-schedule">

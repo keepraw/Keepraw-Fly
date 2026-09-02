@@ -66,6 +66,9 @@
     "origin": "Origin",
     "destination": "Destination",
     "chooseAirport": "Choose an airport",
+    "airportSearchPlaceholder": "IATA code, city or airport",
+    "airportSearchHint": "Search the offline global airport directory.",
+    "noAirportResults": "No matching airport",
     "schedule": "Scheduled local times",
     "departureDate": "Departure date",
     "departureTime": "Departure time",
@@ -102,6 +105,7 @@
     "incompleteActualTime": "Enter both the date and time for each actual event.",
     "invalidAirlineCode": "Enter a 2-character IATA or 3-letter ICAO airline code.",
     "invalidServiceNumber": "Enter 1 to 4 digits with an optional letter suffix.",
+    "unknownAirport": "Choose a valid airport from the offline directory.",
     "invalidFlight": "Please check the flight details and try again.",
     "deleteConfirmation": "Delete this flight from your archive?"
   },
