@@ -4,7 +4,7 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-01
+- Last updated: 2026-09-02
 - Current milestone: local ownership, safe import and visual-system foundation complete
 
 ## English
@@ -28,6 +28,7 @@
 
 4. **Flights archive**
    - Built a dense, responsive flight list with multilingual labels.
+   - Reworked the mobile archive into compact rows with aligned airport codes and local times.
    - Added search across flight numbers, airports, cities and airlines.
    - Added a first-run flow that creates an empty archive without requiring JSON.
    - Added guided add, edit and delete forms with automatic airport timezone offsets.
@@ -115,6 +116,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 4. **航班档案页**
    - 构建紧凑、响应式并支持多语言标签的航班列表。
+   - 将移动端档案重构为紧凑列表，并让机场代码与各自当地时间清晰对齐。
    - 支持按航班号、机场、城市和航空公司搜索。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
    - 添加引导式航班新增、编辑和删除表单，并自动计算机场时区偏移。

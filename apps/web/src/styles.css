@@ -319,6 +319,7 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .flight-times span { color: var(--faint); }
 
 .flight-status { justify-self: end; padding: 5px 8px; border-radius: var(--radius-pill); font-size: var(--font-size-caption); font-weight: 700; font-variant-numeric: tabular-nums; }
+.flight-mobile-summary { display: none; }
 .status-delayed { color: var(--red); background: var(--red-soft); }
 .status-early, .status-on-time { color: var(--green); background: var(--green-soft); }
 .status-scheduled { color: var(--muted); background: var(--line); }
@@ -600,22 +601,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .search-field { margin-bottom: 42px; }
   .flight-year { margin-top: 46px; }
   .flight-row {
-    grid-template-columns: 52px 1fr auto;
-    grid-template-areas:
-      "date number status"
-      "date route times";
-    gap: 8px 14px;
-    min-height: 100px;
-    padding: 14px 0;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 84px;
+    padding: 10px 0;
   }
-  .flight-date { grid-area: date; align-self: start; padding-top: 4px; font-size: var(--font-size-caption); font-weight: 700; }
-  .flight-number { grid-area: number; }
-  .flight-number span { display: none; }
-  .flight-route { grid-area: route; gap: 10px; }
-  .flight-route strong { font-size: 1rem; }
-  .flight-times { grid-area: times; flex-direction: column; gap: 2px; align-items: flex-end; font-size: var(--font-size-label); }
-  .flight-times span { display: none; }
-  .flight-status { grid-area: status; }
+  .flight-row:hover { padding-right: 5px; padding-left: 5px; }
+  .flight-date { align-self: start; padding-top: 3px; font-size: var(--font-size-caption); font-weight: 700; line-height: 1.35; }
+  .flight-number, .flight-route, .flight-times, .flight-row > .flight-status { display: none; }
+  .flight-mobile-summary { display: grid; min-width: 0; gap: 8px; }
+  .flight-mobile-heading { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; }
+  .flight-mobile-heading > strong { font-size: 0.9rem; letter-spacing: 0.01em; }
+  .flight-mobile-route { display: grid; grid-template-columns: auto minmax(36px, 1fr) auto; gap: 10px; align-items: center; }
+  .flight-mobile-route > span { display: flex; flex-direction: column; gap: 2px; }
+  .flight-mobile-route > span:last-child { align-items: flex-end; text-align: right; }
+  .flight-mobile-route strong { font-size: 1rem; letter-spacing: 0.07em; line-height: 1; }
+  .flight-mobile-route time { color: var(--muted); font-size: var(--font-size-caption); font-variant-numeric: tabular-nums; }
+  .flight-mobile-route i { position: relative; height: 1px; background: var(--line); }
+  .flight-mobile-route i::before, .flight-mobile-route i::after { position: absolute; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); content: ""; }
+  .flight-mobile-route i::before { left: 0; }
+  .flight-mobile-route i::after { right: 0; }
   .detail-page { padding-top: 34px; }
   .flight-editor { padding: 28px 20px; }
   .editor-grid, .editor-schedule { grid-template-columns: 1fr 1fr; }
