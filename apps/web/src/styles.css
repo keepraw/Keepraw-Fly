@@ -497,6 +497,11 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .passport-heading h1 { margin: 10px 0 5px; font-size: var(--font-size-record); font-weight: var(--font-weight-display); letter-spacing: var(--tracking-display); line-height: 1; }
 .passport-heading > div:first-child > p:not(.eyebrow) { margin: 0; color: var(--muted); }
 
+.passport-empty { display: grid; grid-template-columns: 150px minmax(0, 520px); gap: 55px; align-items: start; margin-top: 56px; padding: 72px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.passport-empty > span { color: var(--line); font-size: 5rem; font-weight: var(--font-weight-display); letter-spacing: var(--tracking-display); line-height: 0.85; }
+.passport-empty h2 { margin: 13px 0 12px; font-size: var(--font-size-section); font-weight: var(--font-weight-medium); letter-spacing: var(--tracking-tight); }
+.passport-empty p:not(.eyebrow) { max-width: 460px; margin: 0 0 26px; color: var(--muted); line-height: 1.6; }
+
 .view-switcher { display: flex; gap: 4px; overflow-x: auto; max-width: 48%; padding: 4px; border-radius: var(--radius-pill); background: var(--line); }
 .view-switcher button { min-width: 62px; padding: 8px 13px; border: 0; border-radius: var(--radius-pill); color: var(--muted); background: transparent; font-size: var(--font-size-caption); white-space: nowrap; }
 .view-switcher button[aria-pressed="true"] { color: var(--surface); background: var(--ink); }
@@ -673,6 +678,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-page { padding-top: 56px; }
   .passport-heading { align-items: flex-start; flex-direction: column; }
   .passport-heading h1 { font-size: var(--font-size-record); }
+  .passport-empty { grid-template-columns: 1fr; gap: 28px; padding: 50px 0; }
+  .passport-empty > span { font-size: 3.5rem; }
   .view-switcher { width: 100%; max-width: 100%; }
   .primary-stats { grid-template-columns: 1fr; gap: 30px; margin-top: 54px; padding: 34px 0; }
   .primary-stats > div + div { padding-top: 26px; padding-left: 0; border-top: 1px solid var(--line); border-left: 0; }

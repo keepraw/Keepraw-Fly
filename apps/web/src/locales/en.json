@@ -164,7 +164,14 @@
     "longestFlight": "Longest flight",
     "shortestFlight": "Shortest flight",
     "byYear": "By year",
-    "yearlyHistory": "Yearly history"
+    "yearlyHistory": "Yearly history",
+    "flightFrequency_one": "{{count}} flight",
+    "flightFrequency_other": "{{count}} flights",
+    "visitFrequency_one": "{{count}} visit",
+    "visitFrequency_other": "{{count}} visits",
+    "emptyEyebrow": "No journeys yet",
+    "emptyTitle": "Your passport starts with one flight.",
+    "emptyDescription": "Add your first record and Keepraw Fly will build this passport from your own flight facts."
   },
   "import": {
     "failed": "This file cannot be imported",

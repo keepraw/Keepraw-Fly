@@ -19,6 +19,7 @@ interface PassportPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
+  onAddFlight: () => void;
 }
 
 function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale, fallbackName: string) {
@@ -32,7 +33,7 @@ function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale, fal
   };
 }
 
-export function PassportPage({ document, locale, distanceUnit }: PassportPageProps) {
+export function PassportPage({ document, locale, distanceUnit, onAddFlight }: PassportPageProps) {
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number | "lifetime">("lifetime");
   const years = useMemo(() => calculateYearStatistics(document.flights), [document.flights]);
@@ -51,6 +52,31 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
 
   function routeLabel(flight: typeof longest): string {
     return flight ? `${flight.origin.iata} → ${flight.destination.iata}` : "—";
+  }
+
+  if (!document.flights.length) {
+    return (
+      <main className="passport-page" id="main-content" tabIndex={-1}>
+        <header className="passport-heading">
+          <div>
+            <p className="eyebrow">{t("passport.flightHistory")}</p>
+            <h1>{names.primary}</h1>
+            {names.secondary && names.secondary !== names.primary ? <p>{names.secondary}</p> : null}
+          </div>
+        </header>
+        <section className="passport-empty" aria-labelledby="passport-empty-title">
+          <span aria-hidden="true">00</span>
+          <div>
+            <p className="eyebrow">{t("passport.emptyEyebrow")}</p>
+            <h2 id="passport-empty-title">{t("passport.emptyTitle")}</h2>
+            <p>{t("passport.emptyDescription")}</p>
+            <button className="button-primary" type="button" onClick={onAddFlight}>
+              {t("actions.addFirstFlight")}
+            </button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
@@ -106,8 +132,8 @@ export function PassportPage({ document, locale, distanceUnit }: PassportPagePro
           <h2 id="highlights-title">{t("passport.highlights")}</h2>
         </div>
         <dl className="highlight-list">
-          <div><dt>{t("passport.mostFlownAirline")}</dt><dd>{stats.mostFlownAirline ? airlineDisplayName(stats.mostFlownAirline.code, locale) : "—"}</dd></div>
-          <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? (airportByIata.get(stats.mostVisitedAirport.code)?.name[locale] ?? stats.mostVisitedAirport.code) : "—"}</dd></div>
+          <div><dt>{t("passport.mostFlownAirline")}</dt><dd>{stats.mostFlownAirline ? <>{airlineDisplayName(stats.mostFlownAirline.code, locale)}<small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small></> : "—"}</dd></div>
+          <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? <>{airportByIata.get(stats.mostVisitedAirport.code)?.name[locale] ?? stats.mostVisitedAirport.code}<small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small></> : "—"}</dd></div>
           <div><dt>{t("passport.longestFlight")}</dt><dd>{routeLabel(longest)}<small>{longest && distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></dd></div>
           <div><dt>{t("passport.shortestFlight")}</dt><dd>{routeLabel(shortest)}<small>{shortest && distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></dd></div>
         </dl>
