@@ -63,6 +63,7 @@
    - Added an import summary, explicit archive-replacement confirmation and an in-flow backup action.
    - Added language, theme, distance-unit, clock-format and primary-name settings.
    - Kept viewer preferences separate from the portable archive document.
+   - Rebuilt settings as a compact, layered control surface with an aviation route hero, lightweight inline icons and responsive cards.
 
 8. **Release readiness and documentation**
    - Added English and Simplified Chinese interfaces.
@@ -78,7 +79,8 @@
 - TypeScript type checking passes across the workspace.
 - All 63 automated tests pass: 37 core, 7 validator and 19 web tests.
 - The Vite production build completes successfully.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, settings and hash deep links.
+- The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
+- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -108,6 +110,7 @@
 23. `95b2316` — Complete flight detail status information
 24. `2dfdb99` — Complete the lifetime flight passport
 25. `8980322` — Add offline global airport search
+26. `622a7a2` — Handle multi-airport cities explicitly
 
 ### Deliberately deferred
 
@@ -169,6 +172,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加导入摘要、明确的档案替换确认和流程内备份入口。
    - 添加语言、主题、距离单位、时间格式和主要姓名设置。
    - 将查看器偏好与可迁移的飞行档案分开保存。
+   - 将设置页重构为紧凑且有层次的控制界面，加入航空航线主视觉、轻量内联图标和响应式卡片。
 
 8. **发布准备与文档**
    - 添加英文和简体中文界面。
@@ -184,7 +188,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 63 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 19 项。
 - Vite 生产构建成功完成。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、设置及 hash 深链接。
+- 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
+- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -214,6 +219,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 23. `95b2316` — 补齐航班详情状态信息
 24. `2dfdb99` — 完善终身飞行护照
 25. `8980322` — 添加离线全球机场搜索
+26. `622a7a2` — 明确处理多机场城市
 
 ### 明确推迟的范围
 
