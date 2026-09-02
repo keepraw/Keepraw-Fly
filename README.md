@@ -18,6 +18,7 @@ search results, delays, distances and passport statistics in the viewer.
 - first-run archive creation with no JSON file required and a clearly labelled demo mode
 - a guided form for scheduled and actual local times, airport facts, aircraft and seat details
 - an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones
+- multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
 - dense, searchable flight history with English and Simplified Chinese names
 - responsive flight detail timeline and conditional flight facts
 - lifetime and yearly Flight Passport statistics

@@ -68,6 +68,7 @@
     "airportSearchPlaceholder": "IATA、城市或机场名称",
     "airportSearchHint": "搜索离线全球机场目录。",
     "noAirportResults": "没有匹配的机场",
+    "multiAirportCount": "{{count}} 个机场",
     "schedule": "计划当地时间",
     "departureDate": "出发日期",
     "departureTime": "出发时间",

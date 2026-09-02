@@ -47,6 +47,14 @@ describe("flight editor data", () => {
     vi.unstubAllGlobals();
   });
 
+  it("rejects a metropolitan city code as a flight endpoint", () => {
+    expect(() => flightFromDraft({
+      ...baseDraft(),
+      originIata: "TYO",
+      destinationIata: "SFO",
+    })).toThrow("unknown-airport");
+  });
+
   it("round-trips editable flight fields", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "test-id" });
     const flight = flightFromDraft({

@@ -1,8 +1,10 @@
 {
   "source": "https://github.com/mborsetti/airportsdata",
-  "revision": "671fa36e373faa3068e15bb453dac96a41087e19",
-  "csv": "https://raw.githubusercontent.com/mborsetti/airportsdata/671fa36e373faa3068e15bb453dac96a41087e19/airportsdata/airports.csv",
+  "revision": "d306f66b5c33617e0bc13d413fea07292a5d9211",
+  "csv": "https://raw.githubusercontent.com/mborsetti/airportsdata/d306f66b5c33617e0bc13d413fea07292a5d9211/airportsdata/airports.csv",
+  "cityGroupsCsv": "https://raw.githubusercontent.com/mborsetti/airportsdata/d306f66b5c33617e0bc13d413fea07292a5d9211/airportsdata/iata_macs.csv",
   "license": "MIT",
-  "generatedAt": "2026-09-02T00:55:06.917Z",
-  "airportCount": 7884
+  "generatedAt": "2026-09-02T01:03:39.583Z",
+  "airportCount": 7884,
+  "cityGroupCount": 40
 }

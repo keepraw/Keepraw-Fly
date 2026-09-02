@@ -69,6 +69,8 @@
     "airportSearchPlaceholder": "IATA code, city or airport",
     "airportSearchHint": "Search the offline global airport directory.",
     "noAirportResults": "No matching airport",
+    "multiAirportCount_one": "{{count}} airport",
+    "multiAirportCount_other": "{{count}} airports",
     "schedule": "Scheduled local times",
     "departureDate": "Departure date",
     "departureTime": "Departure time",
