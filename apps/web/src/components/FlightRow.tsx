@@ -83,6 +83,37 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
         </time>
       </div>
       <span className={`flight-status ${delayClass}`}>{delayLabel}</span>
+      <div className="flight-mobile-summary" aria-hidden="true">
+        <div className="flight-mobile-heading">
+          <strong>{flight.flightNumber}</strong>
+          <span className={`flight-status ${delayClass}`}>{delayLabel}</span>
+        </div>
+        <div className="flight-mobile-route">
+          <span>
+            <strong>{flight.origin.iata}</strong>
+            <time dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>
+              {formatTimeAtAirport(
+                flight.actualDeparture ?? flight.scheduledDeparture,
+                flight.origin.iata,
+                locale,
+                timeFormat,
+              )}
+            </time>
+          </span>
+          <i />
+          <span>
+            <strong>{flight.destination.iata}</strong>
+            <time dateTime={flight.actualArrival ?? flight.scheduledArrival}>
+              {formatTimeAtAirport(
+                flight.actualArrival ?? flight.scheduledArrival,
+                flight.destination.iata,
+                locale,
+                timeFormat,
+              )}
+            </time>
+          </span>
+        </div>
+      </div>
     </button>
   );
 }
