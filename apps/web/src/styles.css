@@ -393,6 +393,7 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   align-items: flex-end;
   justify-content: space-between;
   margin-top: 48px;
+  animation: detail-reveal 420ms var(--ease-standard) both;
 }
 
 .detail-heading h1 {
@@ -418,14 +419,17 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .detail-duration small { margin-top: 4px; color: var(--faint); font-size: var(--font-size-caption); letter-spacing: 0; }
 
 .route-hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(190px, auto) 1fr minmax(190px, auto);
   gap: 34px;
   align-items: center;
+  overflow: hidden;
   margin-top: 56px;
   padding: 52px 0 58px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
+  animation: detail-reveal 520ms 70ms var(--ease-standard) both;
 }
 
 .airport-block { display: flex; min-width: 0; flex-direction: column; }
@@ -434,9 +438,20 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .airport-block strong { margin-top: 18px; font-size: 1rem; }
 .airport-block small { max-width: 220px; margin-top: 5px; color: var(--faint); font-size: var(--font-size-caption); line-height: 1.4; }
 
-.route-track { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; }
-.route-track > span { height: 1px; background: var(--line); }
-.route-track svg { width: 40px; height: 40px; fill: none; stroke: var(--green); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.route-track { display: grid; grid-template-columns: 1fr 48px 1fr; align-items: center; }
+.route-track-line { height: 1px; background: var(--line); transform-origin: center; animation: route-line-arrive 560ms 190ms var(--ease-standard) both; }
+.route-track-mark { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid color-mix(in srgb, var(--green) 28%, transparent); border-radius: 50%; background: var(--green-soft); }
+.route-track svg { width: 34px; height: 34px; fill: none; stroke: var(--green); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+
+@keyframes detail-reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes route-line-arrive {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 
 .timeline { display: grid; grid-template-columns: minmax(180px, 0.65fr) minmax(420px, 1fr); gap: 100px; padding: 104px 0; }
 
@@ -632,11 +647,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-heading { margin-top: 42px; }
   .detail-heading h1 { font-size: var(--font-size-record); }
   .detail-duration { font-size: 1rem; }
-  .route-hero { grid-template-columns: 1fr; gap: 24px; margin-top: 46px; padding: 48px 0; }
-  .airport-block-arrival { align-items: flex-start; text-align: left; }
-  .airport-code { font-size: var(--font-size-record); }
-  .airport-block strong { margin-top: 7px; }
-  .route-track { width: 110px; transform: rotate(90deg); transform-origin: left center; }
+  .route-hero { grid-template-columns: minmax(0, 1fr) 68px minmax(0, 1fr); gap: 12px; margin-top: 46px; padding: 42px 0; }
+  .airport-block-arrival { align-items: flex-end; text-align: right; }
+  .airport-code { font-size: clamp(2.65rem, 15vw, 3.6rem); }
+  .airport-block strong { margin-top: 9px; font-size: var(--font-size-label); }
+  .airport-block small { display: none; }
+  .route-track { grid-template-columns: 1fr 34px 1fr; }
+  .route-track-mark { width: 34px; height: 34px; }
+  .route-track svg { width: 26px; height: 26px; }
   .timeline, .flight-facts { grid-template-columns: 1fr; gap: 44px; padding: 76px 0; }
   .timeline-event { grid-template-columns: 1fr 14px 0.8fr; gap: 16px; }
   .timeline-stem { grid-template-columns: 1fr 14px 0.8fr; gap: 16px; }
@@ -687,4 +705,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  .detail-heading, .route-hero, .route-track-line { animation: none !important; }
 }
