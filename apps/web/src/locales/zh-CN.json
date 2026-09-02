@@ -106,7 +106,9 @@
   },
   "status": {
     "scheduled": "计划",
-    "onTime": "准点"
+    "onTime": "准点",
+    "delayed": "延误",
+    "early": "提前"
   },
   "flightDetail": {
     "routeLabel": "航线路径",

@@ -7,6 +7,7 @@ import {
   arrivalDelayMinutes,
   departureDelayMinutes,
   flightDuration,
+  flightOperationalStatus,
   formatDuration,
   formatServiceDate,
   formatTimeAtAirport,
@@ -50,6 +51,17 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
   const departureDelay = departureDelayMinutes(flight);
   const arrivalDelay = arrivalDelayMinutes(flight);
   const duration = flightDuration(flight);
+  const operationalStatus = flightOperationalStatus(flight);
+  const hasFacts = Boolean(
+    flight.origin.terminal
+    || flight.origin.gate
+    || flight.destination.terminal
+    || flight.destination.gate
+    || aircraft?.type
+    || aircraft?.registration
+    || seat?.seat
+    || seat?.cabin,
+  );
   const dateLabel = formatServiceDate(flight.serviceDate, locale, {
     weekday: "long",
     year: "numeric",
@@ -70,7 +82,12 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
         <div>
           <p className="eyebrow">{dateLabel}</p>
           <h1>{flight.flightNumber}</h1>
-          <p>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</p>
+          <p className="detail-airline-line">
+            <span>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</span>
+            <span className={`detail-status status-${operationalStatus}`}>
+              {t(`status.${operationalStatus}`)}
+            </span>
+          </p>
         </div>
         <span className="detail-duration">
           {formatDuration(duration.minutes, locale)}
@@ -171,7 +188,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
         </div>
       </section>
 
-      <section className="flight-facts" aria-labelledby="facts-title">
+      {hasFacts ? <section className="flight-facts" aria-labelledby="facts-title">
         <div className="section-heading">
           <p className="eyebrow">{t("flightDetail.facts")}</p>
           <h2 id="facts-title">{t("flightDetail.details")}</h2>
@@ -186,7 +203,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
           <DetailItem label={t("flightDetail.seat")} value={seat?.seat} />
           <DetailItem label={t("flightDetail.cabin")} value={seat?.cabin} />
         </dl>
-      </section>
+      </section> : null}
     </main>
   );
 }
