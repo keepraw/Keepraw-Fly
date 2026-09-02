@@ -10,6 +10,7 @@ import {
   distanceKilometers,
   formatTimeAtAirport,
   formatDuration,
+  flightOperationalStatus,
   flightDuration,
   groupFlightsByYear,
   searchFlights,
@@ -70,6 +71,25 @@ describe("flight calculations", () => {
       type: "B789",
       registration: "N12345",
     });
+  });
+
+  it("derives status from the latest recorded operational event", () => {
+    expect(flightOperationalStatus(flight)).toBe("delayed");
+    expect(flightOperationalStatus({
+      ...flight,
+      actualDeparture: "2026-08-19T10:10:00-07:00",
+      actualArrival: undefined,
+    })).toBe("early");
+    expect(flightOperationalStatus({
+      ...flight,
+      actualDeparture: flight.scheduledDeparture,
+      actualArrival: undefined,
+    })).toBe("onTime");
+    expect(flightOperationalStatus({
+      ...flight,
+      actualDeparture: undefined,
+      actualArrival: undefined,
+    })).toBe("scheduled");
   });
 });
 

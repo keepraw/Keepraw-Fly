@@ -23,6 +23,21 @@ export function arrivalDelayMinutes(flight: KeeprawFlight): number | null {
     : null;
 }
 
+export type FlightOperationalStatus = "scheduled" | "onTime" | "delayed" | "early";
+
+export function flightOperationalStatus(flight: KeeprawFlight): FlightOperationalStatus {
+  const delay = flight.actualArrival
+    ? arrivalDelayMinutes(flight)
+    : flight.actualDeparture
+      ? departureDelayMinutes(flight)
+      : null;
+
+  if (delay === null) return "scheduled";
+  if (delay > 0) return "delayed";
+  if (delay < 0) return "early";
+  return "onTime";
+}
+
 export interface FlightDuration {
   minutes: number;
   source: "actual" | "scheduled";
@@ -63,4 +78,3 @@ export function distanceKilometers(
 export function kilometersToMiles(kilometers: number): number {
   return kilometers * 0.6213711922;
 }
-

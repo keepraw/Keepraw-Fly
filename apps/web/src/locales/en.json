@@ -107,7 +107,9 @@
   },
   "status": {
     "scheduled": "Scheduled",
-    "onTime": "On time"
+    "onTime": "On time",
+    "delayed": "Delayed",
+    "early": "Early"
   },
   "flightDetail": {
     "routeLabel": "Flight route",

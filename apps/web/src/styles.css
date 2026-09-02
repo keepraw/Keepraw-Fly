@@ -405,6 +405,11 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 }
 
 .detail-heading p:not(.eyebrow) { margin: 0; color: var(--muted); }
+.detail-airline-line { display: flex; align-items: center; gap: 10px; }
+.detail-status { padding: 4px 8px; border-radius: var(--radius-pill); font-size: var(--font-size-caption); font-weight: 700; }
+.detail-status.status-delayed { color: var(--red); background: var(--red-soft); }
+.detail-status.status-early, .detail-status.status-onTime { color: var(--green); background: var(--green-soft); }
+.detail-status.status-scheduled { color: var(--muted); background: var(--line); }
 
 .detail-duration {
   display: flex;
