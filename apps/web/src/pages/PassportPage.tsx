@@ -37,6 +37,9 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number | "lifetime">("lifetime");
   const years = useMemo(() => calculateYearStatistics(document.flights), [document.flights]);
+  const selectedYearSummary = selectedYear === "lifetime"
+    ? undefined
+    : years.find((year) => year.year === selectedYear);
   const flights = useMemo(
     () => selectedYear === "lifetime"
       ? document.flights
@@ -83,7 +86,11 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
     <main className="passport-page" id="main-content" tabIndex={-1}>
       <header className="passport-heading">
         <div>
-          <p className="eyebrow">{t("passport.flightHistory")}</p>
+          <p className="eyebrow">
+            {selectedYear === "lifetime"
+              ? t("passport.flightHistory")
+              : t("passport.yearPassport", { year: selectedYear })}
+          </p>
           <h1>{names.primary}</h1>
           {names.secondary && names.secondary !== names.primary ? <p>{names.secondary}</p> : null}
         </div>
@@ -118,10 +125,17 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
       </section>
 
       <section className="passport-counts" aria-label={t("passport.collectionStats")}>
-        <div><span>{t("passport.countries")}</span><strong>{stats.countries}</strong></div>
-        <div><span>{t("passport.airports")}</span><strong>{stats.airports}</strong></div>
-        <div><span>{t("passport.airlines")}</span><strong>{stats.airlines}</strong></div>
-        <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
+        {selectedYearSummary ? <>
+          <div><span>{t("passport.airlines")}</span><strong>{selectedYearSummary.airlines}</strong></div>
+          <div><span>{t("passport.airports")}</span><strong>{selectedYearSummary.airports}</strong></div>
+          <div><span>{t("passport.routes")}</span><strong>{selectedYearSummary.routes}</strong></div>
+          <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
+        </> : <>
+          <div><span>{t("passport.countries")}</span><strong>{stats.countries}</strong></div>
+          <div><span>{t("passport.airports")}</span><strong>{stats.airports}</strong></div>
+          <div><span>{t("passport.airlines")}</span><strong>{stats.airlines}</strong></div>
+          <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
+        </>}
       </section>
 
       <PassportRouteMap routes={routes} />
@@ -146,7 +160,12 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
         </div>
         <div className="year-list">
           {years.map((year) => (
-            <button type="button" key={year.year} onClick={() => setSelectedYear(year.year)}>
+            <button
+              type="button"
+              key={year.year}
+              aria-pressed={selectedYear === year.year}
+              onClick={() => setSelectedYear(year.year)}
+            >
               <strong>{year.year}</strong>
               <span>{t("flights.count", { count: year.flights })}</span>
               <span>{formatDistance(year.distanceKilometers, locale, distanceUnit)} {distanceSuffix}</span>

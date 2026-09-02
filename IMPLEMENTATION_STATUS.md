@@ -5,7 +5,7 @@
 - Product: Keepraw Fly
 - Version: 0.1.0
 - Last updated: 2026-09-02
-- Current milestone: local ownership, safe import and visual-system foundation complete
+- Current milestone: core archive, flight detail and Passport experience complete
 
 ## English
 
@@ -48,6 +48,7 @@
 
 6. **Flight Passport**
    - Added lifetime and yearly summaries.
+   - Made yearly Passport views explicit, selected-state-aware and complete across flights, distance, time, airlines, airports and routes.
    - Added meaningful empty-archive guidance and frequency context for favorite airlines and airports.
    - Added totals for flights, distance, time, airports, airlines, countries and routes.
    - Added profile-name presentation using native and romanized forms.
@@ -72,9 +73,9 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 37 automated tests pass: 17 core, 7 validator and 13 web tests.
+- All 49 automated tests pass: 25 core, 7 validator and 17 web tests.
 - The Vite production build completes successfully.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, safe import preview, persistence, the world route map, desktop and 320 px layouts, search, detail navigation, Passport, settings and hash deep links.
+- Browser checks covered first-run archive creation, demo ownership, guided flight facts, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -94,6 +95,15 @@
 13. `ba2dd4f` — Clarify demo mode and archive ownership
 14. `ad371b2` — Add actual times and optional flight facts
 15. `ed437f0` — Preview imports and protect archive replacement
+16. `b2669ca` — Document and add production preview
+17. `8685d3e` — Rebalance typography across the viewer
+18. `1ea87e3` — Clarify airline and flight number entry
+19. `0d084ef` — Prevent white screens after flight deletion
+20. `f21f3a9` — Refine compact mobile flight rows
+21. `d6925f7` — Strengthen core flight search
+22. `3cf9d5d` — Refine the flight detail route hero
+23. `95b2316` — Complete flight detail status information
+24. `2dfdb99` — Complete the lifetime flight passport
 
 ### Deliberately deferred
 
@@ -140,6 +150,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 6. **Flight Passport（飞行护照）**
    - 添加终身汇总和按年份汇总。
+   - 将年度护照完善为带明确选中状态的独立视图，覆盖航班、距离、时间、航司、机场与航线。
    - 添加空档案引导，并为最常乘坐航司和最常到访机场补充次数信息。
    - 统计航班、距离、时间、机场、航空公司、国家和航线总数。
    - 支持使用原文姓名和罗马字姓名展示个人资料。
@@ -164,9 +175,9 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 37 项自动化测试全部通过：核心逻辑 17 项、校验器 7 项、Web 端 13 项。
+- 49 项自动化测试全部通过：核心逻辑 25 项、校验器 7 项、Web 端 17 项。
 - Vite 生产构建成功完成。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、安全导入预览、持久化、世界航线图、桌面及 320 px 窄屏布局、搜索、详情导航、飞行护照、设置以及 hash 深链接。
+- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、设置及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -186,6 +197,15 @@ Backend accounts and sync, live flight services, third-party booking integration
 13. `ba2dd4f` — 明确演示模式与档案归属
 14. `ad371b2` — 添加实际时间与可选航班事实
 15. `ed437f0` — 预览导入并保护档案替换
+16. `b2669ca` — 记录并添加生产预览流程
+17. `8685d3e` — 重新平衡查看器字体比例
+18. `1ea87e3` — 明确航司与航班号录入
+19. `0d084ef` — 防止删除航班后出现白屏
+20. `f21f3a9` — 优化移动端紧凑航班列表
+21. `d6925f7` — 加强 core 层航班搜索
+22. `3cf9d5d` — 优化航班详情航线主视觉
+23. `95b2316` — 补齐航班详情状态信息
+24. `2dfdb99` — 完善终身飞行护照
 
 ### 明确推迟的范围
 

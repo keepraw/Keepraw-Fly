@@ -137,6 +137,7 @@
   },
   "passport": {
     "flightHistory": "飞行护照",
+    "yearPassport": "{{year}} 年飞行护照",
     "anonymousFlyer": "Keepraw 飞行者",
     "periodLabel": "飞行护照统计期间",
     "lifetime": "全部",

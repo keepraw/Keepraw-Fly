@@ -201,4 +201,29 @@ describe("passport statistics", () => {
       }),
     ]);
   });
+
+  it("calculates the six required yearly passport measures", () => {
+    const returnFlight: KeeprawFlight = {
+      ...flight,
+      id: "return",
+      flightNumber: "MU590",
+      airline: { iata: "MU" },
+      origin: { iata: "LAX" },
+      destination: { iata: "SFO" },
+    };
+    const summaries = calculateYearStatistics([flight, returnFlight]);
+    expect(summaries).toHaveLength(1);
+    const summary = summaries[0];
+    if (!summary) throw new Error("Expected a 2026 yearly summary");
+
+    expect(summary).toEqual(expect.objectContaining({
+      year: 2026,
+      flights: 2,
+      durationMinutes: 168,
+      airlines: 2,
+      airports: 2,
+      routes: 2,
+    }));
+    expect(summary.distanceKilometers).toBeGreaterThan(1_000);
+  });
 });

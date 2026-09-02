@@ -138,6 +138,7 @@
   },
   "passport": {
     "flightHistory": "Flight passport",
+    "yearPassport": "{{year}} flight passport",
     "anonymousFlyer": "Keepraw Flyer",
     "periodLabel": "Passport period",
     "lifetime": "Lifetime",
