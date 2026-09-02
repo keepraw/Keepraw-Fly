@@ -74,12 +74,53 @@ describe("flight calculations", () => {
 });
 
 describe("search and grouping", () => {
-  const flights = [flight];
+  const tokyoFlights: KeeprawFlight[] = [
+    {
+      ...flight,
+      id: "nrt-flight",
+      flightNumber: "JL58",
+      airline: { iata: "JL" },
+      origin: { iata: "NRT" },
+      destination: { iata: "SFO" },
+    },
+    {
+      ...flight,
+      id: "hnd-flight",
+      flightNumber: "NH107",
+      airline: { iata: "NH" },
+      origin: { iata: "LAX" },
+      destination: { iata: "HND" },
+    },
+  ];
+  const flights = [flight, ...tokyoFlights];
 
-  it.each(["SFO", "United", "美国联合航空", "Los Angeles", "洛杉矶", "2026", "B789", "N12345"])(
-    "matches %s outside React",
-    (query) => expect(searchFlights(flights, query)).toHaveLength(1),
-  );
+  it.each([
+    ["UA123", ["ua123"]],
+    ["UA", ["ua123"]],
+    ["United", ["ua123"]],
+    ["美国联合航空", ["ua123"]],
+    ["LAX", ["ua123", "hnd-flight"]],
+    ["Los Angeles International Airport", ["ua123", "hnd-flight"]],
+    ["洛杉矶", ["ua123", "hnd-flight"]],
+    ["2026", ["ua123", "nrt-flight", "hnd-flight"]],
+    ["B789", ["ua123", "nrt-flight", "hnd-flight"]],
+    ["N12345", ["ua123", "nrt-flight", "hnd-flight"]],
+  ] as const)("matches %s in core", (query, expectedIds) => {
+    expect(searchFlights(flights, query).map((item) => item.id)).toEqual(expectedIds);
+  });
+
+  it.each(["Tokyo", "东京"])("finds both Tokyo airports for %s", (query) => {
+    expect(searchFlights(flights, query).map((item) => item.id)).toEqual([
+      "nrt-flight",
+      "hnd-flight",
+    ]);
+  });
+
+  it("normalizes full-width user input and supports multiple terms", () => {
+    expect(searchFlights(flights, "ＵＡ１２３ SFO").map((item) => item.id)).toEqual([
+      "ua123",
+    ]);
+  });
 
   it("sorts year groups newest first", () => {
     const older = { ...flight, id: "older", serviceDate: "2025-01-02" };
