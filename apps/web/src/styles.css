@@ -542,6 +542,7 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .year-list { border-top: 1px solid var(--ink); }
 .year-list button { display: grid; width: 100%; grid-template-columns: 1fr 1fr 1fr auto; gap: 20px; align-items: center; padding: 23px 0; border: 0; border-bottom: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
 .year-list button:hover { color: var(--green); }
+.year-list button[aria-pressed="true"] { padding-right: 12px; padding-left: 12px; color: var(--green); background: var(--green-soft); }
 .year-list strong { font-size: 1.15rem; }
 .year-list span { color: var(--muted); font-size: var(--font-size-label); }
 
