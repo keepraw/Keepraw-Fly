@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import type { ReactNode } from "react";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
 import type { ViewerSettings } from "../storage/types";
+import { AviationIcon, type AviationIconName } from "../components/AviationPrimitives";
 import { ImportControl } from "../components/ImportControl";
 
 interface SettingsPageProps {
@@ -15,33 +15,20 @@ interface SettingsPageProps {
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
 }
 
-type SettingsIconName = "data" | "display" | "profile" | "advanced";
-
-function SettingsIcon({ name }: { name: SettingsIconName }) {
-  const paths: Record<SettingsIconName, ReactNode> = {
-    data: <><ellipse cx="12" cy="5" rx="7" ry="3" /><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" /></>,
-    display: <><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></>,
-    profile: <><circle cx="12" cy="8" r="4" /><path d="M4.5 21c.7-4.2 3.2-6.5 7.5-6.5s6.8 2.3 7.5 6.5" /></>,
-    advanced: <><path d="M4 7h10M18 7h2M4 17h2M10 17h10" /><circle cx="16" cy="7" r="2" /><circle cx="8" cy="17" r="2" /></>,
-  };
-
-  return <svg aria-hidden="true" viewBox="0 0 24 24">{paths[name]}</svg>;
-}
-
 function SectionHeading({
   icon,
   number,
   title,
   titleId,
 }: {
-  icon: SettingsIconName;
+  icon: AviationIconName;
   number: string;
   title: string;
   titleId: string;
 }) {
   return (
     <div className="settings-section-heading">
-      <span className="settings-section-icon"><SettingsIcon name={icon} /></span>
+      <span className="settings-section-icon"><AviationIcon name={icon} /></span>
       <div><p className="eyebrow">{number}</p><h2 id={titleId}>{title}</h2></div>
     </div>
   );

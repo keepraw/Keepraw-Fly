@@ -27,7 +27,7 @@ search results, delays, distances and passport statistics in the viewer.
 - validated JSON import preview, explicit replacement confirmation and portable export
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
-- shared visual tokens for color, type, spacing, controls, focus and reduced motion
+- shared premium visual tokens plus reusable airport-code, flight-status and aviation-icon primitives
 - static production output with no backend and no user-data upload
 
 ## Run locally
@@ -117,7 +117,7 @@ Import validates the file and previews its owner, flight count and date range
 before anything changes. Replacing an existing archive requires an explicit
 confirmation, with a backup export offered in the same flow.
 
-Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md)
+Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md),
 [the visual system](docs/design-system.md) and
 [deployment guidance](docs/deployment.md) for details.
 

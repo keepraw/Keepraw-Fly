@@ -1,9 +1,14 @@
 :root {
   color: var(--color-text);
   background: var(--color-canvas);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-family-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  color-scheme: light;
+
+  /* Typography families */
+  --font-family-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-data: "Segoe UI Variable Display", Inter, ui-sans-serif, system-ui, sans-serif;
 
   /* Semantic color roles */
   --color-text: #20231f;
@@ -11,15 +16,30 @@
   --color-text-faint: #9ca099;
   --color-canvas: #f5f4ef;
   --color-surface: #fdfcf8;
+  --color-surface-raised: #fffefa;
+  --color-surface-sunken: #eeede7;
+  --color-surface-glass: rgb(253 252 248 / 82%);
   --color-line: rgb(32 35 31 / 10%);
+  --color-line-strong: rgb(32 35 31 / 18%);
   --color-accent: #16795a;
+  --color-accent-bright: #56c49d;
   --color-accent-soft: #e4f1ea;
+  --color-warning: #9a681a;
+  --color-warning-soft: #f4ead5;
+  --color-info: #326c8c;
+  --color-info-soft: #e3eef3;
   --color-danger: #bf4b3f;
   --color-danger-soft: #f6e7e3;
   --color-header: rgb(245 244 239 / 90%);
   --color-focus: #46a988;
   --color-overlay: rgb(20 23 20 / 58%);
   --color-brand-mark: #f8f7f2;
+  --color-on-inverted: #f2f6f3;
+  --color-on-inverted-muted: rgb(229 238 232 / 68%);
+  --gradient-aviation-hero:
+    radial-gradient(circle at 82% 12%, rgb(53 142 111 / 34%), transparent 34%),
+    radial-gradient(circle at 18% 108%, rgb(40 88 112 / 32%), transparent 42%),
+    linear-gradient(135deg, #18221e 0%, #101714 100%);
 
   /* Passport map is a deliberately dark, atlas-like subtheme. */
   --color-map-surface: #1d2721;
@@ -58,6 +78,8 @@
   --font-weight-display: 570;
   --tracking-tight: -0.035em;
   --tracking-display: -0.045em;
+  --tracking-airport: 0.075em;
+  --numeric-features: "tnum" 1, "zero" 1;
 
   /* Spacing and layout */
   --space-1: 4px;
@@ -74,10 +96,15 @@
   --radius-control: 4px;
   --radius-card: 8px;
   --radius-modal: 10px;
+  --radius-icon: 13px;
+  --radius-panel: 20px;
+  --radius-hero: 26px;
   --radius-pill: 999px;
   --control-height-sm: 36px;
   --control-height-md: 44px;
   --control-height-lg: 46px;
+  --shadow-raised: 0 12px 36px rgb(28 37 32 / 5%);
+  --shadow-floating: 0 28px 70px rgb(20 30 25 / 14%), inset 0 1px rgb(255 255 255 / 5%);
   --shadow-modal: 0 24px 80px rgb(0 0 0 / 25%);
   --focus-ring: 3px solid var(--color-focus);
 
@@ -88,7 +115,8 @@
 }
 
 :root:lang(zh-CN) {
-  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-family-sans: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-family-data: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
   --font-weight-display: 520;
   --tracking-tight: -0.02em;
   --tracking-display: -0.03em;
@@ -96,19 +124,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --color-text: #f0f0ea;
     --color-text-muted: #a7aaa5;
     --color-text-faint: #7d817b;
     --color-canvas: #151715;
-    --color-surface: #151715;
+    --color-surface: #191c19;
+    --color-surface-raised: #202420;
+    --color-surface-sunken: #111311;
+    --color-surface-glass: rgb(25 28 25 / 82%);
     --color-line: rgb(255 255 255 / 12%);
+    --color-line-strong: rgb(255 255 255 / 20%);
     --color-accent: #6bc6a8;
+    --color-accent-bright: #7bdbbb;
     --color-accent-soft: #17372c;
+    --color-warning: #efbe67;
+    --color-warning-soft: #3c301c;
+    --color-info: #8dc7e5;
+    --color-info-soft: #1b3441;
     --color-danger: #ef9488;
     --color-danger-soft: #442722;
     --color-header: rgb(21 23 21 / 90%);
     --color-focus: #8cddc1;
     --color-brand-mark: #151715;
+    --shadow-raised: 0 12px 36px rgb(0 0 0 / 18%);
   }
 }
 
@@ -118,14 +157,25 @@
   --color-text-faint: #9ca099;
   --color-canvas: #f5f4ef;
   --color-surface: #fdfcf8;
+  --color-surface-raised: #fffefa;
+  --color-surface-sunken: #eeede7;
+  --color-surface-glass: rgb(253 252 248 / 82%);
   --color-line: rgb(32 35 31 / 10%);
+  --color-line-strong: rgb(32 35 31 / 18%);
   --color-accent: #16795a;
+  --color-accent-bright: #56c49d;
   --color-accent-soft: #e4f1ea;
+  --color-warning: #9a681a;
+  --color-warning-soft: #f4ead5;
+  --color-info: #326c8c;
+  --color-info-soft: #e3eef3;
   --color-danger: #bf4b3f;
   --color-danger-soft: #f6e7e3;
   --color-header: rgb(245 244 239 / 90%);
   --color-focus: #46a988;
   --color-brand-mark: #f8f7f2;
+  --shadow-raised: 0 12px 36px rgb(28 37 32 / 5%);
+  color-scheme: light;
 }
 
 :root[data-theme="dark"] {
@@ -133,13 +183,90 @@
   --color-text-muted: #a7aaa5;
   --color-text-faint: #7d817b;
   --color-canvas: #151715;
-  --color-surface: #151715;
+  --color-surface: #191c19;
+  --color-surface-raised: #202420;
+  --color-surface-sunken: #111311;
+  --color-surface-glass: rgb(25 28 25 / 82%);
   --color-line: rgb(255 255 255 / 12%);
+  --color-line-strong: rgb(255 255 255 / 20%);
   --color-accent: #6bc6a8;
+  --color-accent-bright: #7bdbbb;
   --color-accent-soft: #17372c;
+  --color-warning: #efbe67;
+  --color-warning-soft: #3c301c;
+  --color-info: #8dc7e5;
+  --color-info-soft: #1b3441;
   --color-danger: #ef9488;
   --color-danger-soft: #442722;
   --color-header: rgb(21 23 21 / 90%);
   --color-focus: #8cddc1;
   --color-brand-mark: #151715;
+  --shadow-raised: 0 12px 36px rgb(0 0 0 / 18%);
+  color-scheme: dark;
 }
+
+/* Shared aviation primitives */
+.aviation-icon {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.aviation-status {
+  --aviation-status-color: var(--color-text-muted);
+  --aviation-status-surface: var(--color-surface-sunken);
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 9px;
+  border: 1px solid color-mix(in srgb, var(--aviation-status-color) 14%, transparent);
+  border-radius: var(--radius-pill);
+  color: var(--aviation-status-color);
+  background: var(--aviation-status-surface);
+  font-family: var(--font-family-data);
+  font-size: var(--font-size-caption);
+  font-feature-settings: var(--numeric-features);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.aviation-status--positive {
+  --aviation-status-color: var(--color-accent);
+  --aviation-status-surface: var(--color-accent-soft);
+}
+
+.aviation-status--attention {
+  --aviation-status-color: var(--color-warning);
+  --aviation-status-surface: var(--color-warning-soft);
+}
+
+.aviation-status--critical {
+  --aviation-status-color: var(--color-danger);
+  --aviation-status-surface: var(--color-danger-soft);
+}
+
+.aviation-status--info {
+  --aviation-status-color: var(--color-info);
+  --aviation-status-surface: var(--color-info-soft);
+}
+
+.airport-code-display {
+  display: inline-block;
+  font-family: var(--font-family-data);
+  font-feature-settings: var(--numeric-features);
+  font-weight: var(--font-weight-display);
+  letter-spacing: var(--tracking-airport);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.airport-code-display--compact { font-size: 1.13rem; font-weight: var(--font-weight-semibold); }
+.airport-code-display--display { font-size: var(--font-size-record); letter-spacing: var(--tracking-display); }

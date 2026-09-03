@@ -15,6 +15,7 @@ import {
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
+import { AirportCode, AviationIcon, FlightStatusBadge } from "../components/AviationPrimitives";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
@@ -84,9 +85,9 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
           <h1>{flight.flightNumber}</h1>
           <p className="detail-airline-line">
             <span>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</span>
-            <span className={`detail-status status-${operationalStatus}`}>
+            <FlightStatusBadge className="detail-status" status={operationalStatus}>
               {t(`status.${operationalStatus}`)}
-            </span>
+            </FlightStatusBadge>
           </p>
         </div>
         <span className="detail-duration">
@@ -97,19 +98,19 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
 
       <section className="route-hero" aria-label={t("flightDetail.routeLabel")}>
         <div className="airport-block">
-          <span className="airport-code">{flight.origin.iata}</span>
+          <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
           <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
           <small>{origin?.name[locale]}</small>
         </div>
         <div className="route-track" aria-hidden="true">
           <span className="route-track-line" />
           <span className="route-track-mark">
-            <svg viewBox="0 0 40 40"><path d="M7 20h26M25 12l8 8-8 8" /></svg>
+            <AviationIcon name="flight" />
           </span>
           <span className="route-track-line" />
         </div>
         <div className="airport-block airport-block-arrival">
-          <span className="airport-code">{flight.destination.iata}</span>
+          <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
           <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
           <small>{destination?.name[locale]}</small>
         </div>

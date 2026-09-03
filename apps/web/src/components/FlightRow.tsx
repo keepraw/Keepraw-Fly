@@ -4,11 +4,13 @@ import {
   airlineByIata,
   arrivalDelayMinutes,
   departureDelayMinutes,
+  flightOperationalStatus,
   formatServiceDate,
   formatTimeAtAirport,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
+import { AirportCode, FlightStatusBadge } from "./AviationPrimitives";
 
 interface FlightRowProps {
   flight: KeeprawFlight;
@@ -20,23 +22,20 @@ interface FlightRowProps {
 export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps) {
   const { t } = useTranslation();
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
+  const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
   const airlineName = flight.airline.iata
     ? airlineByIata.get(flight.airline.iata)?.name[locale]
     : undefined;
 
   let delayLabel = t("status.scheduled");
-  let delayClass = "status-scheduled";
   if (delay !== null) {
     if (delay > 0) {
       delayLabel = `+${delay}m`;
-      delayClass = "status-delayed";
     } else if (delay < 0) {
       delayLabel = `−${Math.abs(delay)}m`;
-      delayClass = "status-early";
     } else {
       delayLabel = t("status.onTime");
-      delayClass = "status-on-time";
     }
   }
 
@@ -59,9 +58,9 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
         <span>{airlineName ?? airlineCode}</span>
       </div>
       <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
-        <strong>{flight.origin.iata}</strong>
+        <AirportCode code={flight.origin.iata} />
         <span className="route-line" aria-hidden="true"><i /></span>
-        <strong>{flight.destination.iata}</strong>
+        <AirportCode code={flight.destination.iata} />
       </div>
       <div className="flight-times">
         <time dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>
@@ -82,15 +81,15 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
           )}
         </time>
       </div>
-      <span className={`flight-status ${delayClass}`}>{delayLabel}</span>
+      <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
       <div className="flight-mobile-summary" aria-hidden="true">
         <div className="flight-mobile-heading">
           <strong>{flight.flightNumber}</strong>
-          <span className={`flight-status ${delayClass}`}>{delayLabel}</span>
+          <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
         </div>
         <div className="flight-mobile-route">
           <span>
-            <strong>{flight.origin.iata}</strong>
+            <AirportCode code={flight.origin.iata} />
             <time dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>
               {formatTimeAtAirport(
                 flight.actualDeparture ?? flight.scheduledDeparture,
@@ -102,7 +101,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
           </span>
           <i />
           <span>
-            <strong>{flight.destination.iata}</strong>
+            <AirportCode code={flight.destination.iata} />
             <time dateTime={flight.actualArrival ?? flight.scheduledArrival}>
               {formatTimeAtAirport(
                 flight.actualArrival ?? flight.scheduledArrival,
