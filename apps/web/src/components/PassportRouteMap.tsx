@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next";
 import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
 import {
   greatCirclePath,
-  polygonPoints,
   projectPoint,
+  WORLD_GRATICULE_PATH,
   WORLD_HEIGHT,
+  WORLD_LAND_PATH,
+  WORLD_SPHERE_PATH,
   WORLD_WIDTH,
-  worldLandShapes,
 } from "../data/map-geometry";
 
 interface PassportRouteMapProps {
@@ -40,20 +41,25 @@ export function PassportRouteMap({ routes }: PassportRouteMapProps) {
 
       <div className="route-map-canvas">
         <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} role="img" aria-label={t("passport.mapPreviewLabel", { flights: totalFlights })}>
-          <g className="map-graticule" aria-hidden="true">
-            {[-120, -60, 0, 60, 120].map((longitude) => {
-              const x = projectPoint({ longitude, latitude: 0 }).x;
-              return <line key={`longitude-${longitude}`} x1={x} y1="0" x2={x} y2={WORLD_HEIGHT} />;
-            })}
-            {[-60, -30, 0, 30, 60].map((latitude) => {
-              const y = projectPoint({ longitude: 0, latitude }).y;
-              return <line key={`latitude-${latitude}`} x1="0" y1={y} x2={WORLD_WIDTH} y2={y} />;
-            })}
-          </g>
-          <g className="map-land" aria-hidden="true">
-            {worldLandShapes.map((shape, index) => <polygon points={polygonPoints(shape)} key={index} />)}
-          </g>
-          <g className="map-routes">
+          <defs aria-hidden="true">
+            <linearGradient id="passport-ocean" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#1b2923" />
+              <stop offset="0.55" stopColor="#14201b" />
+              <stop offset="1" stopColor="#101814" />
+            </linearGradient>
+            <linearGradient id="passport-land" x1="0" y1="0" x2="0.8" y2="1">
+              <stop offset="0" stopColor="#405249" />
+              <stop offset="1" stopColor="#2b3a32" />
+            </linearGradient>
+            <filter id="passport-route-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="1.8" result="route-blur" />
+              <feMerge><feMergeNode in="route-blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          <path className="map-sphere" d={WORLD_SPHERE_PATH} aria-hidden="true" />
+          <path className="map-graticule" d={WORLD_GRATICULE_PATH} aria-hidden="true" />
+          <path className="map-land" d={WORLD_LAND_PATH} aria-hidden="true" />
+          <g className="map-routes" filter="url(#passport-route-glow)">
             {routes.map((route) => (
               <path
                 key={`${route.origin.iata}-${route.destination.iata}`}

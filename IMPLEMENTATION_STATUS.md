@@ -4,7 +4,7 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-02
+- Last updated: 2026-09-03
 - Current milestone: core archive, offline global airport entry, flight detail and Passport experience complete
 
 ## English
@@ -55,7 +55,7 @@
    - Added meaningful empty-archive guidance and frequency context for favorite airlines and airports.
    - Added totals for flights, distance, time, airports, airlines, countries and routes.
    - Added profile-name presentation using native and romanized forms.
-   - Added a recognizable bundled world map with real airport projection, great-circle routes, date-line handling and frequency encoding.
+   - Replaced the hand-drawn world outline with on-demand generated Natural Earth geometry, a Natural Earth 1 projection, adaptive great-circle routes, date-line clipping and frequency encoding.
 
 7. **Local data and preferences**
    - Added IndexedDB persistence behind `StorageAdapter` and `BrowserStorageAdapter`.
@@ -77,8 +77,9 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 63 automated tests pass: 37 core, 7 validator and 19 web tests.
+- All 64 automated tests pass: 37 core, 7 validator and 20 web tests.
 - The Vite production build completes successfully.
+- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk remains 371.7 kB gzip.
 - The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
 - Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
@@ -111,6 +112,7 @@
 24. `2dfdb99` — Complete the lifetime flight passport
 25. `8980322` — Add offline global airport search
 26. `622a7a2` — Handle multi-airport cities explicitly
+27. `c25bda6` — Elevate the settings experience
 
 ### Deliberately deferred
 
@@ -164,7 +166,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加空档案引导，并为最常乘坐航司和最常到访机场补充次数信息。
    - 统计航班、距离、时间、机场、航空公司、国家和航线总数。
    - 支持使用原文姓名和罗马字姓名展示个人资料。
-   - 添加可识别的内置世界地图，支持真实机场投影、大圆航线、日期变更线处理和飞行频次表达。
+   - 将手绘世界轮廓替换为按需加载的 Natural Earth 生成地理数据，使用 Natural Earth 1 投影、自适应大圆航线、日期变更线裁剪和飞行频次表达。
 
 7. **本地数据与偏好设置**
    - 在 `StorageAdapter` 和 `BrowserStorageAdapter` 抽象后实现 IndexedDB 持久化。
@@ -186,8 +188,9 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 63 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 19 项。
+- 64 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 20 项。
 - Vite 生产构建成功完成。
+- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包保持为 371.7 kB gzip。
 - 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
 - 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
@@ -220,6 +223,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 24. `2dfdb99` — 完善终身飞行护照
 25. `8980322` — 添加离线全球机场搜索
 26. `622a7a2` — 明确处理多机场城市
+27. `c25bda6` — 提升设置页体验
 
 ### 明确推迟的范围
 

@@ -12,11 +12,13 @@
     "build": "pnpm -r build",
     "preview": "pnpm --filter @keepraw-fly/web preview",
     "update:airports": "node scripts/update-airports.mjs",
+    "update:world-map": "node scripts/update-world-map.mjs",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "d3-geo": "3.1.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
