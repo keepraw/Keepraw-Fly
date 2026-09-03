@@ -69,6 +69,18 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
     month: "long",
     day: "numeric",
   });
+  const departureTime = formatTimeAtAirport(
+    flight.actualDeparture ?? flight.scheduledDeparture,
+    flight.origin.iata,
+    locale,
+    timeFormat,
+  );
+  const arrivalTime = formatTimeAtAirport(
+    flight.actualArrival ?? flight.scheduledArrival,
+    flight.destination.iata,
+    locale,
+    timeFormat,
+  );
 
   return (
     <main className="detail-page" id="main-content" tabIndex={-1}>
@@ -79,40 +91,46 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
         <button className="edit-flight-button" type="button" onClick={onEdit}>{t("actions.editFlight")}</button>
       </div>
 
-      <header className="detail-heading">
-        <div>
-          <p className="eyebrow">{dateLabel}</p>
-          <h1>{flight.flightNumber}</h1>
-          <p className="detail-airline-line">
-            <span>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</span>
-            <FlightStatusBadge className="detail-status" status={operationalStatus}>
-              {t(`status.${operationalStatus}`)}
-            </FlightStatusBadge>
-          </p>
-        </div>
-        <span className="detail-duration">
-          {formatDuration(duration.minutes, locale)}
-          <small>{t(`flightDetail.durationSource.${duration.source}`)}</small>
-        </span>
-      </header>
-
-      <section className="route-hero" aria-label={t("flightDetail.routeLabel")}>
-        <div className="airport-block">
-          <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
-          <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
-          <small>{origin?.name[locale]}</small>
-        </div>
-        <div className="route-track" aria-hidden="true">
-          <span className="route-track-line" />
-          <span className="route-track-mark">
-            <AviationIcon name="flight" />
+      <section className="detail-flight-card" aria-labelledby="flight-detail-title">
+        <header className="detail-heading">
+          <div>
+            <p className="eyebrow">{dateLabel}</p>
+            <h1 id="flight-detail-title">{flight.flightNumber}</h1>
+            <p className="detail-airline-line">
+              <span>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</span>
+              <FlightStatusBadge className="detail-status" status={operationalStatus}>
+                {t(`status.${operationalStatus}`)}
+              </FlightStatusBadge>
+            </p>
+          </div>
+          <span className="detail-duration">
+            {formatDuration(duration.minutes, locale)}
+            <small>{t(`flightDetail.durationSource.${duration.source}`)}</small>
           </span>
-          <span className="route-track-line" />
-        </div>
-        <div className="airport-block airport-block-arrival">
-          <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
-          <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
-          <small>{destination?.name[locale]}</small>
+        </header>
+
+        <div className="route-hero" role="group" aria-label={t("flightDetail.routeLabel")}>
+          <div className="airport-block">
+            <span className="airport-role">{t("flightDetail.departure")}</span>
+            <time className="detail-airport-time" dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>{departureTime}</time>
+            <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
+            <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
+            <small>{origin?.name[locale]}</small>
+          </div>
+          <div className="route-track" aria-hidden="true">
+            <span className="route-track-line" />
+            <span className="route-track-mark">
+              <AviationIcon name="flight" />
+            </span>
+            <span className="route-track-line" />
+          </div>
+          <div className="airport-block airport-block-arrival">
+            <span className="airport-role">{t("flightDetail.arrival")}</span>
+            <time className="detail-airport-time" dateTime={flight.actualArrival ?? flight.scheduledArrival}>{arrivalTime}</time>
+            <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
+            <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
+            <small>{destination?.name[locale]}</small>
+          </div>
         </div>
       </section>
 
@@ -125,12 +143,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
           <div className="timeline-event">
             <div>
               <p>{t("flightDetail.departure")}</p>
-              <strong>{formatTimeAtAirport(
-                flight.actualDeparture ?? flight.scheduledDeparture,
-                flight.origin.iata,
-                locale,
-                timeFormat,
-              )}</strong>
+              <strong>{departureTime}</strong>
               {flight.actualDeparture ? (
                 <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
                   flight.scheduledDeparture,
@@ -150,12 +163,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
           <div className="timeline-event">
             <div>
               <p>{t("flightDetail.arrival")}</p>
-              <strong>{formatTimeAtAirport(
-                flight.actualArrival ?? flight.scheduledArrival,
-                flight.destination.iata,
-                locale,
-                timeFormat,
-              )}</strong>
+              <strong>{arrivalTime}</strong>
               {flight.actualArrival ? (
                 <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
                   flight.scheduledArrival,
