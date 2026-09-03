@@ -22,7 +22,7 @@ search results, delays, distances and passport statistics in the viewer.
 - dense, searchable flight history with English and Simplified Chinese names
 - responsive flight detail timeline and conditional flight facts
 - lifetime and yearly Flight Passport statistics
-- a bundled world map with real airport coordinates and great-circle routes
+- a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
 - local IndexedDB persistence through a storage adapter
 - validated JSON import preview, explicit replacement confirmation and portable export
 - independent language, appearance, distance-unit and time-format preferences
@@ -105,6 +105,13 @@ Airport reference data is generated from the MIT-licensed
 with the static viewer. It is reference data only—not a live schedule or flight
 status service. See [third-party notices](THIRD_PARTY_NOTICES.md) and run
 `pnpm update:airports` when intentionally refreshing the pinned snapshot.
+
+The Passport basemap is generated from pinned, public-domain Natural Earth
+vector data with the ISC-licensed `d3-geo` projection library. The optimized
+SVG paths are bundled locally and loaded on demand with the Passport; no map
+tiles or location requests are made at runtime. See
+[third-party notices](THIRD_PARTY_NOTICES.md) and run
+`pnpm update:world-map` only when intentionally refreshing the pinned source.
 
 Import validates the file and previews its owner, flight count and date range
 before anything changes. Replacing an existing archive requires an explicit

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { greatCirclePath, projectPoint, WORLD_HEIGHT, WORLD_WIDTH } from "./map-geometry";
+import {
+  greatCirclePath,
+  projectPoint,
+  WORLD_GRATICULE_PATH,
+  WORLD_HEIGHT,
+  WORLD_LAND_PATH,
+  WORLD_SPHERE_PATH,
+  WORLD_WIDTH,
+} from "./map-geometry";
 
 describe("passport map geometry", () => {
   it("projects geographic coordinates onto the world canvas", () => {
@@ -16,7 +24,7 @@ describe("passport map geometry", () => {
       8,
     );
     expect(path.startsWith("M")).toBe(true);
-    expect(path.match(/L/g)?.length).toBe(8);
+    expect(path.match(/L/g)?.length).toBeGreaterThan(8);
   });
 
   it("splits paths that cross the international date line", () => {
@@ -26,5 +34,11 @@ describe("passport map geometry", () => {
       20,
     );
     expect(path.match(/M/g)?.length).toBe(2);
+  });
+
+  it("bundles detailed generated globe geometry", () => {
+    expect(WORLD_SPHERE_PATH.length).toBeGreaterThan(500);
+    expect(WORLD_GRATICULE_PATH.length).toBeGreaterThan(10_000);
+    expect(WORLD_LAND_PATH.length).toBeGreaterThan(50_000);
   });
 });

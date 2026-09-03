@@ -528,16 +528,18 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .passport-counts span { color: var(--muted); font-size: var(--font-size-caption); }
 .passport-counts strong { font-size: 1.25rem; }
 
-.route-map { margin-top: 90px; padding: 54px 58px 38px; overflow: hidden; border-radius: var(--radius-card); color: var(--color-map-text); background: var(--color-map-surface); }
+.route-map { margin-top: 90px; padding: 54px 58px 38px; overflow: hidden; border: 1px solid rgb(255 255 255 / 7%); border-radius: 22px; color: var(--color-map-text); background: var(--color-map-surface); box-shadow: 0 28px 70px rgb(20 30 25 / 13%); }
+.route-map-loading { display: grid; min-height: 420px; place-items: center; color: var(--color-map-faint); font-size: var(--font-size-label); }
 .route-map-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 50px; }
 .route-map-heading h2 { margin: 11px 0 10px; font-size: var(--font-size-section); font-weight: var(--font-weight-medium); letter-spacing: var(--tracking-tight); }
 .route-map-heading p:not(.eyebrow) { max-width: 480px; margin: 0; color: var(--color-map-muted); font-size: var(--font-size-label); line-height: 1.6; }
 .route-map-heading > span { flex: 0 0 auto; margin-bottom: 3px; color: var(--color-map-faint); font-size: var(--font-size-caption); letter-spacing: 0.06em; text-transform: uppercase; }
-.route-map-canvas { margin-top: 36px; border-top: 1px solid rgb(255 255 255 / 9%); border-bottom: 1px solid rgb(255 255 255 / 9%); background: radial-gradient(circle at 65% 35%, rgb(107 198 168 / 9%), transparent 45%); }
+.route-map-canvas { margin-top: 36px; border-top: 1px solid rgb(255 255 255 / 9%); border-bottom: 1px solid rgb(255 255 255 / 9%); background: radial-gradient(circle at 65% 35%, rgb(107 198 168 / 10%), transparent 46%); }
 .route-map svg { display: block; width: 100%; height: auto; }
-.map-graticule { stroke: rgb(255 255 255 / 6%); stroke-width: 1; }
-.map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.7; }
-.map-routes path { fill: none; stroke: var(--color-map-route); stroke-linecap: round; stroke-linejoin: round; opacity: 0.72; vector-effect: non-scaling-stroke; }
+.map-sphere { fill: url(#passport-ocean); stroke: rgb(255 255 255 / 10%); stroke-width: 1; }
+.map-graticule { fill: none; stroke: rgb(255 255 255 / 5%); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-land { fill: url(#passport-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-routes path { fill: none; stroke: var(--color-map-route); stroke-linecap: round; stroke-linejoin: round; opacity: 0.82; vector-effect: non-scaling-stroke; }
 .map-airports circle { fill: var(--color-map-airport); stroke: var(--color-map-surface); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .map-airports text { fill: var(--color-map-text); paint-order: stroke; stroke: var(--color-map-surface); stroke-linejoin: round; stroke-width: 3px; font-size: 10px; font-weight: 760; letter-spacing: 0.06em; }
 .route-map-legend { margin: 18px 0 0; color: var(--color-map-faint); font-size: var(--font-size-caption); line-height: 1.5; }

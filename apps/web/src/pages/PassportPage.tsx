@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -13,7 +13,9 @@ import {
   type SupportedLocale,
   type DistanceUnit,
 } from "@keepraw-fly/core";
-import { PassportRouteMap } from "../components/PassportRouteMap";
+
+const PassportRouteMap = lazy(() => import("../components/PassportRouteMap")
+  .then((module) => ({ default: module.PassportRouteMap })));
 
 interface PassportPageProps {
   document: KeeprawFlyDocument;
@@ -138,7 +140,9 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
         </>}
       </section>
 
-      <PassportRouteMap routes={routes} />
+      <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
+        <PassportRouteMap routes={routes} />
+      </Suspense>
 
       <section className="passport-highlights" aria-labelledby="highlights-title">
         <div className="section-heading">

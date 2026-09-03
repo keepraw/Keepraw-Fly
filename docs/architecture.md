@@ -63,7 +63,8 @@ distance uses airport coordinates; duration uses actual timestamps when both are
 available and otherwise falls back to scheduled timestamps. No derived totals
 are written into Keepraw Fly JSON.
 
-The Passport route map uses the same airport coordinates. It projects a bundled
-world outline locally, samples great-circle paths and splits paths at the
-international date line. No external map tiles, API calls or location data are
-required.
+The Passport route map uses the same airport coordinates. A reproducible update
+script converts pinned Natural Earth 1:110m land data into checked-in SVG paths.
+At runtime, `d3-geo` applies the matching Natural Earth 1 projection to airport
+points and great-circle routes, including adaptive sampling and date-line
+clipping. No external map tiles, API calls or location data are required.
