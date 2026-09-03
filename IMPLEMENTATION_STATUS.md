@@ -73,14 +73,16 @@
    - Added bilingual repository entry points and this delivery record.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
    - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
+   - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
 
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 64 automated tests pass: 37 core, 7 validator and 20 web tests.
+- All 67 automated tests pass: 37 core, 7 validator and 23 web tests.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk remains 371.7 kB gzip.
 - The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
+- The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
 - Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
@@ -113,6 +115,7 @@
 25. `8980322` — Add offline global airport search
 26. `622a7a2` — Handle multi-airport cities explicitly
 27. `c25bda6` — Elevate the settings experience
+28. `e7c9211` — Rebuild Passport map with Natural Earth
 
 ### Deliberately deferred
 
@@ -184,14 +187,16 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加双语仓库入口和本交付记录。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
    - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
+   - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
 
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 64 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 20 项。
+- 67 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 23 项。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包保持为 371.7 kB gzip。
 - 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
+- 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
 - 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
@@ -224,6 +229,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 25. `8980322` — 添加离线全球机场搜索
 26. `622a7a2` — 明确处理多机场城市
 27. `c25bda6` — 提升设置页体验
+28. `e7c9211` — 使用 Natural Earth 重建飞行护照地图
 
 ### 明确推迟的范围
 
