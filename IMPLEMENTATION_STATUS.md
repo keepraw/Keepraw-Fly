@@ -30,6 +30,7 @@
 4. **Flights archive**
    - Built a dense, responsive flight list with multilingual labels.
    - Reworked the mobile archive into compact rows with aligned airport codes and local times.
+   - Recast desktop archive rows as elevated trip cards with airport cities, route cues, local times, semantic status and a clear open affordance.
    - Added search across flight numbers, airports, cities and airlines.
    - Kept search in the core layer and covered localized airline/airport names, years, aircraft facts and normalized full-width input.
    - Added a first-run flow that creates an empty archive without requiring JSON.
@@ -45,6 +46,8 @@
 5. **Flight detail**
    - Built a responsive origin-to-destination timeline.
    - Refined the route hero into a distinctive horizontal composition with restrained, reduced-motion-safe transitions.
+   - Upgraded the detail experience with a high-contrast flight panel that prioritizes local times, airports, airline identity and operational state.
+   - Grouped the timeline, delay summary and optional facts into a consistent layered card hierarchy.
    - Added scheduled/actual times, duration, distance, delay and conditional operational facts.
    - Added latest-event operational status and removed empty optional-facts sections when no facts were recorded.
    - Added accessible semantic structure for desktop and narrow mobile layouts.
@@ -83,6 +86,7 @@
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk remains 371.7 kB gzip.
 - The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
 - The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
+- The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
 - Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
@@ -116,6 +120,7 @@
 26. `622a7a2` — Handle multi-airport cities explicitly
 27. `c25bda6` — Elevate the settings experience
 28. `e7c9211` — Rebuild Passport map with Natural Earth
+29. `5c143e4` — Establish premium aviation design primitives
 
 ### Deliberately deferred
 
@@ -144,6 +149,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 4. **航班档案页**
    - 构建紧凑、响应式并支持多语言标签的航班列表。
    - 将移动端档案重构为紧凑列表，并让机场代码与各自当地时间清晰对齐。
+   - 将桌面端档案行重构为抬升式行程卡，集中呈现机场城市、航线提示、当地时间、语义状态和明确的打开提示。
    - 支持按航班号、机场、城市和航空公司搜索。
    - 搜索逻辑保持在 core 层，并覆盖航司/机场本地化名称、年份、机型信息与全角输入规范化。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
@@ -159,6 +165,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 5. **航班详情页**
    - 构建从出发地到目的地的响应式时间线。
    - 将航线主视觉优化为独立的横向构图，并加入克制且兼容“减少动态效果”的过渡动画。
+   - 使用高对比航班面板升级详情体验，优先呈现当地时间、机场、航司身份和运行状态。
+   - 将时间线、延误摘要和可选事实组织为一致的分层卡片结构。
    - 展示计划/实际时间、时长、距离、延误和按条件出现的运行信息。
    - 添加基于最新运行事件的航班状态，并在没有可选事实时隐藏空白详情区块。
    - 为桌面端和窄屏移动端添加可访问的语义结构。
@@ -197,6 +205,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包保持为 371.7 kB gzip。
 - 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
 - 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
+- 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
 - 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
@@ -230,6 +239,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 26. `622a7a2` — 明确处理多机场城市
 27. `c25bda6` — 提升设置页体验
 28. `e7c9211` — 使用 Natural Earth 重建飞行护照地图
+29. `5c143e4` — 建立高级航空视觉基础组件
 
 ### 明确推迟的范围
 

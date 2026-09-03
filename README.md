@@ -19,8 +19,8 @@ search results, delays, distances and passport statistics in the viewer.
 - a guided form for scheduled and actual local times, airport facts, aircraft and seat details
 - an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones
 - multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
-- dense, searchable flight history with English and Simplified Chinese names
-- responsive flight detail timeline and conditional flight facts
+- premium, searchable trip cards with airport cities, local times and operational status
+- responsive flight detail with a high-contrast route panel, local-time hierarchy and layered fact cards
 - lifetime and yearly Flight Passport statistics
 - a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
 - local IndexedDB persistence through a storage adapter

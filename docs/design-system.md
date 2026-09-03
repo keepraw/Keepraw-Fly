@@ -49,7 +49,7 @@ These primitives are already used by the flight archive, flight detail and setti
 
 ### Scope
 
-This foundation is Step 28, not the page-by-page redesign. The flight archive/detail work in Step 29 and the motion pass in Step 31 remain separate so each can be reviewed and committed independently.
+Step 28 established the foundation. Step 29 now applies it to the flight archive and detail experience: archive rows are composed as scannable trip cards, while detail pages use a high-contrast route panel and layered information cards. The Step 31 motion pass remains separate.
 
 ## 简体中文
 
@@ -98,4 +98,4 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 
 ### 范围
 
-这次只完成第 28 步的基础系统，不等同于逐页重做。第 29 步的航班档案/详情升级和第 31 步的动效精修仍保持独立，方便分别检查和 commit。
+第 28 步建立了基础系统。第 29 步已经将它应用到航班档案和详情体验：档案行被组织成可快速浏览的行程卡，详情页采用高对比航线面板和分层信息卡片。第 31 步的动效精修仍保持独立。
