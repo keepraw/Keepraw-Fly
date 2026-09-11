@@ -1,5 +1,5 @@
 import cityGroupRows from "../data/airport-city-groups.json";
-import { airportByIata, type LocalizedText, type SupportedLocale } from "./reference-data";
+import type { LocalizedText, SupportedLocale } from "./reference-data";
 
 type CompactCityGroupRow = [string, string, string, string[]];
 
@@ -31,13 +31,12 @@ for (const [code, name, country, airportCodes] of [
   ...(cityGroupRows as CompactCityGroupRow[]),
   ...maintainedGroups,
 ]) {
-  const validAirportCodes = airportCodes.filter((airportCode) => airportByIata.has(airportCode));
-  if (validAirportCodes.length < 2) continue;
+  if (airportCodes.length < 2) continue;
   groupsByCode.set(code, {
     code,
     name: localizedCityNames[code] ?? { en: name, "zh-CN": name },
     country,
-    airportCodes: validAirportCodes,
+    airportCodes,
   });
 }
 

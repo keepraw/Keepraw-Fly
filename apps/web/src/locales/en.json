@@ -1,5 +1,7 @@
 {
   "app": {
+    "loadingAirportDirectory": "Preparing the offline airport directory…",
+    "airportDirectoryUnavailable": "The offline airport directory could not be loaded. Check this site's static files and try again.",
     "homeLabel": "Keepraw Fly home",
     "loading": "Loading Keepraw Fly",
     "storageUnavailable": "Local storage is unavailable. Changes may not persist.",
@@ -24,6 +26,7 @@
     "exportConfirmation": "This is fictional demo data. Export it anyway?"
   },
   "actions": {
+    "retry": "Try again",
     "openFile": "Open Keepraw Fly file",
     "createArchive": "Create my archive",
     "addFlight": "Add flight",

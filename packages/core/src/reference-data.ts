@@ -1,5 +1,3 @@
-import airportRows from "../data/airports.iata.json";
-
 export type SupportedLocale = "en" | "zh-CN";
 
 export interface LocalizedText {
@@ -23,7 +21,7 @@ export interface AirlineReferenceData {
   name: LocalizedText;
 }
 
-type CompactAirportRow = [string, string, string, string, number, number, string];
+export type CompactAirportRow = [string, string, string, string, number, number, string];
 
 const englishRegions = new Intl.DisplayNames(["en"], { type: "region" });
 const chineseRegions = new Intl.DisplayNames(["zh-CN"], { type: "region" });
@@ -71,23 +69,43 @@ const curatedAirports: AirportReference[] = [
   { iata: "YVR", name: { en: "Vancouver International Airport", "zh-CN": "温哥华国际机场" }, city: { en: "Vancouver", "zh-CN": "温哥华" }, country: "CA", countryName: { en: "Canada", "zh-CN": "加拿大" }, latitude: 49.1967, longitude: -123.1815, timezone: "America/Vancouver" }
 ];
 
-const airportReferences = new Map<string, AirportReference>();
-for (const row of airportRows as CompactAirportRow[]) {
-  const [iata, name, city, country, latitude, longitude, timezone] = row;
-  airportReferences.set(iata, {
-    iata,
-    name: { en: name, "zh-CN": name },
-    city: { en: city, "zh-CN": city },
-    country,
-    countryName: countryName(country),
-    latitude,
-    longitude,
-    timezone,
-  });
-}
-for (const airport of curatedAirports) airportReferences.set(airport.iata, airport);
+export const airports: AirportReference[] = [];
+export const airportByIata = new Map<string, AirportReference>();
+let directoryVersion = 0;
 
-export const airports = [...airportReferences.values()].sort((left, right) => left.iata.localeCompare(right.iata));
+/**
+ * Installs the complete airport directory without replacing the exported array
+ * and map references held by the domain modules. The web app loads the compact
+ * rows as a separately cached static asset before rendering the archive.
+ */
+export function installAirportDirectory(rows: readonly CompactAirportRow[]): void {
+  airportByIata.clear();
+  for (const [iata, name, city, country, latitude, longitude, timezone] of rows) {
+    airportByIata.set(iata, {
+      iata,
+      name: { en: name, "zh-CN": name },
+      city: { en: city, "zh-CN": city },
+      country,
+      countryName: countryName(country),
+      latitude,
+      longitude,
+      timezone,
+    });
+  }
+  for (const airport of curatedAirports) airportByIata.set(airport.iata, airport);
+  airports.splice(
+    0,
+    airports.length,
+    ...[...airportByIata.values()].sort((left, right) => left.iata.localeCompare(right.iata)),
+  );
+  directoryVersion += 1;
+}
+
+export function airportDirectoryVersion(): number {
+  return directoryVersion;
+}
+
+installAirportDirectory([]);
 
 export const airlines: AirlineReferenceData[] = [
   { iata: "UA", name: { en: "United Airlines", "zh-CN": "美国联合航空" } },
@@ -108,5 +126,4 @@ export const airlines: AirlineReferenceData[] = [
   { iata: "AF", name: { en: "Air France", "zh-CN": "法国航空" } }
 ];
 
-export const airportByIata = new Map(airports.map((airport) => [airport.iata, airport]));
 export const airlineByIata = new Map(airlines.map((airline) => [airline.iata, airline]));

@@ -1,5 +1,11 @@
 import { normalizeSearchValue } from "./normalization";
-import { airportByIata, airports, type AirportReference, type SupportedLocale } from "./reference-data";
+import {
+  airportByIata,
+  airportDirectoryVersion,
+  airports,
+  type AirportReference,
+  type SupportedLocale,
+} from "./reference-data";
 import { airportCityGroupByCode, airportCityGroupForAirport } from "./airport-cities";
 
 interface AirportSearchEntry {
@@ -11,7 +17,12 @@ interface AirportSearchEntry {
   text: string;
 }
 
-const searchIndex: AirportSearchEntry[] = airports.map((airport) => {
+let indexedDirectoryVersion = -1;
+let searchIndex: AirportSearchEntry[] = [];
+
+function ensureSearchIndex(): void {
+  if (indexedDirectoryVersion === airportDirectoryVersion()) return;
+  searchIndex = airports.map((airport) => {
   const cities = [...new Set(Object.values(airport.city).map(normalizeSearchValue))];
   const names = [...new Set(Object.values(airport.name).map(normalizeSearchValue))];
   const cityGroup = airportCityGroupForAirport(airport.iata);
@@ -32,7 +43,9 @@ const searchIndex: AirportSearchEntry[] = airports.map((airport) => {
       ...cityGroupAliases,
     ].join(" ")),
   };
-});
+  });
+  indexedDirectoryVersion = airportDirectoryVersion();
+}
 
 export function searchAirports(
   query: string,
@@ -41,6 +54,7 @@ export function searchAirports(
 ): AirportReference[] {
   const normalizedQuery = normalizeSearchValue(query.trim());
   if (!normalizedQuery || limit <= 0) return [];
+  ensureSearchIndex();
   const exactCityGroup = airportCityGroupByCode.get(query.trim().toUpperCase());
   if (exactCityGroup) {
     return exactCityGroup.airportCodes
