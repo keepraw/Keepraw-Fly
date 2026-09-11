@@ -40,5 +40,11 @@ jobs:
       - name: Run automated tests
         run: pnpm test
 
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser journeys
+        run: pnpm test:e2e
+
       - name: Build production site
         run: pnpm build

@@ -72,10 +72,11 @@ Run all checks with:
 ```bash
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 ```
 
-The same frozen install, type check, test suite and production build run on
+The same frozen install, type check, unit suite, Chromium user journeys and production build run on
 every pull request and every push to `main` through GitHub Actions.
 
 The static site is written to `apps/web/dist/`; that is also the directory to
