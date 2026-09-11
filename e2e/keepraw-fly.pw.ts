@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 
 const exampleArchive = fileURLToPath(new URL("../examples/basic.keepraw-fly.json", import.meta.url));
+const exampleCsv = fileURLToPath(new URL("../examples/flights.csv", import.meta.url));
 
 test("creates, edits and deletes a personal flight without a JSON file", async ({ page }) => {
   await page.goto("/");
@@ -48,4 +49,17 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await expect(page.getByRole("heading", { name: "张鸿川" })).toBeVisible();
   await expect(page.getByRole("img", { name: /World map showing 1 flight/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
+});
+
+test("maps and previews CSV columns before appending flights", async ({ page }) => {
+  await page.goto("/#settings");
+  await page.locator('input[type="file"][accept*=".csv"]').setInputFiles(exampleCsv);
+  const preview = page.getByRole("region", { name: "Review CSV import" });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByLabel("Flight number", { exact: true })).toHaveValue("0");
+  await expect(preview.getByText("MU589")).toBeVisible();
+  await preview.getByRole("button", { name: "Add 1 flight" }).click();
+
+  await page.getByRole("link", { name: "Flights" }).click();
+  await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
 });

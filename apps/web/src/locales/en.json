@@ -210,12 +210,37 @@
   "units": {
     "minuteShort": "min"
   },
+  "csvImport": {
+    "openFile": "Open CSV file",
+    "previewEyebrow": "Column mapping",
+    "previewTitle": "Review CSV import",
+    "rowCount_one": "{{count}} row",
+    "rowCount_other": "{{count}} rows",
+    "mappingLabel": "CSV column mapping",
+    "chooseColumn": "Choose a column",
+    "timezoneNote": "Scheduled times must be ISO 8601 values with an explicit offset, for example 2026-09-02T13:00:00+08:00. Flights are appended only after confirmation.",
+    "invalidFile": "This CSV could not be read. Include one header row and at least one flight row.",
+    "importFailed": "The CSV was not imported. {{detail}}",
+    "importing": "Adding flights…",
+    "appendFlights_one": "Add {{count}} flight",
+    "appendFlights_other": "Add {{count}} flights",
+    "fields": {
+      "flightNumber": "Flight number",
+      "serviceDate": "Service date",
+      "originIata": "Origin IATA",
+      "destinationIata": "Destination IATA",
+      "scheduledDeparture": "Scheduled departure",
+      "scheduledArrival": "Scheduled arrival"
+    }
+  },
   "settings": {
     "viewerPreferences": "Viewer preferences",
     "description": "Display preferences stay local. Profile names travel with your Keepraw Fly archive.",
     "data": "Data",
     "importTitle": "Import archive",
     "importDescription": "Validate and preview a Keepraw Fly JSON file. The current archive changes only after confirmation.",
+    "csvImportTitle": "Import flights from CSV",
+    "csvImportDescription": "Map and preview CSV columns, then append valid rows to the current archive.",
     "exportTitle": "Export archive",
     "exportDescription": "Download a complete, validated and portable copy of your facts.",
     "exportDescriptionDemo": "This archive contains fictional demo flights. Export only if you need the sample file.",

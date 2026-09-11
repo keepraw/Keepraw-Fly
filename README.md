@@ -26,6 +26,7 @@ search results, delays, distances and passport statistics in the viewer.
 - a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
 - local IndexedDB persistence through a storage adapter
 - validated JSON import preview, explicit replacement confirmation and portable export
+- CSV bulk import with automatic/manual column mapping, five-row preview, strict timezone validation and append-only confirmation
 - explicit migration of former `rawfly` / `0.1` archives to canonical Keepraw Fly 0.1.0 without changing flight facts
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
@@ -123,6 +124,12 @@ tiles or location requests are made at runtime. See
 Import validates the file and previews its owner, flight count and date range
 before anything changes. Replacing an existing archive requires an explicit
 confirmation, with a backup export offered in the same flow.
+
+CSV import is available under Settings → Data. It maps six required columns
+(flight number, service date, origin IATA, destination IATA, scheduled departure
+and scheduled arrival), previews up to five rows and appends only after
+confirmation. Scheduled timestamps must contain an explicit timezone offset.
+See [`examples/flights.csv`](examples/flights.csv).
 
 Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md),
 [the visual system](docs/design-system.md) and

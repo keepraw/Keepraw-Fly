@@ -65,6 +65,7 @@
 7. **Local data and preferences**
    - Added IndexedDB persistence behind `StorageAdapter` and `BrowserStorageAdapter`.
    - Added validated JSON file import, drag-and-drop import and export.
+   - Added CSV bulk import with automatic/manual column mapping, preview, canonical conversion, timezone checks and append-only confirmation.
    - Added an import summary, explicit archive-replacement confirmation and an in-flow backup action.
    - Added language, theme, distance-unit, clock-format and primary-name settings.
    - Kept viewer preferences separate from the portable archive document.
@@ -136,6 +137,7 @@
 33. `0049a78` — Split airport directory from initial bundle
 34. `79f448f` — Add critical browser journey tests
 35. `6ab3517` — Migrate legacy flight archives safely
+36. `eeeade7` — Speed up repeat flight entry
 
 ### Deliberately deferred
 
@@ -199,6 +201,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 7. **本地数据与偏好设置**
    - 在 `StorageAdapter` 和 `BrowserStorageAdapter` 抽象后实现 IndexedDB 持久化。
    - 添加经过校验的 JSON 文件导入、拖放导入和导出。
+   - 添加 CSV 批量导入，支持自动/手动列映射、预览、规范格式转换、时区检查和确认后追加。
    - 添加导入摘要、明确的档案替换确认和流程内备份入口。
    - 添加语言、主题、距离单位、时间格式和主要姓名设置。
    - 将查看器偏好与可迁移的飞行档案分开保存。
@@ -270,6 +273,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 33. `0049a78` — 从初始包拆分机场目录
 34. `79f448f` — 添加关键浏览器用户流程测试
 35. `6ab3517` — 安全迁移旧版飞行档案
+36. `eeeade7` — 加快重复航班录入
 
 ### 明确推迟的范围
 
