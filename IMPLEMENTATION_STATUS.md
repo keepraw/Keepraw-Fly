@@ -76,6 +76,7 @@
    - Added bilingual repository entry points and this delivery record.
    - Added a least-privilege GitHub Actions workflow for frozen installs, type checking, tests and production builds.
    - Split the 7,800+ airport directory from application JavaScript into a separately cached static asset with an explicit, retryable loading state.
+   - Added Playwright coverage for first-run creation, add/edit/delete, validated JSON import and Passport map rendering in Chromium.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
    - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
@@ -130,6 +131,7 @@
 30. `06bce1d` — Elevate flight archive and detail experience
 31. `db636d4` — Add reduced-motion-safe interaction polish
 32. `31df07a` — Add continuous integration workflow
+33. `0049a78` — Split airport directory from initial bundle
 
 ### Deliberately deferred
 
@@ -204,6 +206,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加双语仓库入口和本交付记录。
    - 添加最小权限 GitHub Actions 工作流，执行冻结依赖安装、类型检查、测试和生产构建。
    - 将 7,800 多个机场的目录从应用 JavaScript 中拆为可独立缓存的静态资源，并提供明确且可重试的加载状态。
+   - 添加 Playwright Chromium 覆盖，验证首次建档、增改删航班、JSON 导入预览和护照地图渲染。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
    - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
@@ -258,6 +261,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 30. `06bce1d` — 提升航班档案与详情体验
 31. `db636d4` — 添加兼容减少动效的交互精修
 32. `31df07a` — 添加持续集成工作流
+33. `0049a78` — 从初始包拆分机场目录
 
 ### 明确推迟的范围
 
