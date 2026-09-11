@@ -1,5 +1,6 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
+import airportRows from "../data/airports.iata.json";
 import {
   airportByIata,
   airportCityGroupByCode,
@@ -16,9 +17,13 @@ import {
   flightOperationalStatus,
   flightDuration,
   groupFlightsByYear,
+  installAirportDirectory,
   searchFlights,
   searchAirports,
 } from "../src";
+import type { CompactAirportRow } from "../src";
+
+installAirportDirectory(airportRows as CompactAirportRow[]);
 
 const flight: KeeprawFlight = {
   id: "ua123",

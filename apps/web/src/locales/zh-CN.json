@@ -1,5 +1,7 @@
 {
   "app": {
+    "loadingAirportDirectory": "正在准备离线机场目录…",
+    "airportDirectoryUnavailable": "无法加载离线机场目录。请检查网站静态文件后重试。",
     "homeLabel": "Keepraw Fly 首页",
     "loading": "正在加载 Keepraw Fly",
     "storageUnavailable": "本地存储不可用，更改可能无法保留。",
@@ -24,6 +26,7 @@
     "exportConfirmation": "这是虚构的示例数据，仍然导出吗？"
   },
   "actions": {
+    "retry": "重试",
     "openFile": "打开 Keepraw Fly 文件",
     "createArchive": "创建我的飞行档案",
     "addFlight": "添加航班",

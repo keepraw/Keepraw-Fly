@@ -75,6 +75,7 @@
    - Documented architecture, schema behavior, deployment and intentionally deferred scope.
    - Added bilingual repository entry points and this delivery record.
    - Added a least-privilege GitHub Actions workflow for frozen installs, type checking, tests and production builds.
+   - Split the 7,800+ airport directory from application JavaScript into a separately cached static asset with an explicit, retryable loading state.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
    - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
@@ -86,7 +87,8 @@
 - TypeScript type checking passes across the workspace.
 - All 67 automated tests pass: 37 core, 7 validator and 23 web tests.
 - The Vite production build completes successfully.
-- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk is 372.3 kB gzip.
+- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
+- The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
 - The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
 - The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
 - The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
@@ -127,6 +129,7 @@
 29. `5c143e4` — Establish premium aviation design primitives
 30. `06bce1d` — Elevate flight archive and detail experience
 31. `db636d4` — Add reduced-motion-safe interaction polish
+32. `31df07a` — Add continuous integration workflow
 
 ### Deliberately deferred
 
@@ -200,6 +203,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 记录架构、数据格式行为、部署方式和明确推迟的范围。
    - 添加双语仓库入口和本交付记录。
    - 添加最小权限 GitHub Actions 工作流，执行冻结依赖安装、类型检查、测试和生产构建。
+   - 将 7,800 多个机场的目录从应用 JavaScript 中拆为可独立缓存的静态资源，并提供明确且可重试的加载状态。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
    - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
@@ -211,7 +215,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 67 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 23 项。
 - Vite 生产构建成功完成。
-- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包为 372.3 kB gzip。
+- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
+- 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
 - 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
 - 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
 - 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
@@ -252,6 +257,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 29. `5c143e4` — 建立高级航空视觉基础组件
 30. `06bce1d` — 提升航班档案与详情体验
 31. `db636d4` — 添加兼容减少动效的交互精修
+32. `31df07a` — 添加持续集成工作流
 
 ### 明确推迟的范围
 

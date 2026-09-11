@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./demo": "./data/demo.keepraw-fly.json"
+    "./demo": "./data/demo.keepraw-fly.json",
+    "./airport-directory": "./data/airports.iata.json"
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -16,4 +17,3 @@
     "@keepraw-fly/schema": "workspace:*"
   }
 }
-

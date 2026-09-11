@@ -52,6 +52,12 @@ than localized names. Airport and airline names, coordinates and timezones live
 in replaceable Viewer reference data. Language, distance unit and time format
 are independent settings.
 
+The compact 7,800+ airport directory is emitted as a content-hashed JSON asset,
+loaded before the archive UI, and installed into stable core collection
+references. This keeps the reference snapshot out of the parse-critical app
+JavaScript while retaining an entirely local/static runtime. The viewer shows a
+retryable error instead of silently running with partial reference data.
+
 ## Search and statistics
 
 Core search builds normalized text from flight number, airline identifiers and
