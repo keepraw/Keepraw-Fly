@@ -657,9 +657,12 @@ nav a:hover { color: var(--ink); }
 .data-actions > div > span { grid-area: title; font-size: 0.9rem; font-weight: var(--font-weight-semibold); }
 .data-actions > div > small { grid-area: description; max-width: 430px; color: var(--muted); font-size: var(--font-size-label); line-height: 1.5; }
 .data-actions .import-control { display: contents; }
+.data-actions .csv-import-control { display: contents; }
 .data-actions .import-control > label { grid-area: action; }
+.data-actions .csv-import-control > label { grid-area: action; }
 .data-actions .validation-errors { grid-area: error; }
 .data-actions .import-preview { grid-area: error; }
+.data-actions .csv-preview, .data-actions .csv-import-error { grid-area: error; }
 .import-preview { display: grid; grid-column: 1 / -1; gap: 18px; margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); text-align: left; }
 .import-preview-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .import-preview-heading > div { display: grid; gap: 6px; }
@@ -675,6 +678,17 @@ nav a:hover { color: var(--ink); }
 .import-replacement span { color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
 .import-preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
 .import-preview-actions .button-primary, .import-preview-actions .button-secondary { min-height: 38px; padding: 0 15px; font-size: 0.7rem; }
+.csv-preview { display: grid; grid-column: 1 / -1; gap: 18px; margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
+.csv-mapping { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.csv-mapping > div { display: grid; gap: 6px; }
+.csv-mapping label { color: var(--muted); font-size: var(--font-size-caption); }
+.csv-mapping select { width: 100%; min-height: 39px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: var(--color-canvas); }
+.csv-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.csv-table-wrap table { width: 100%; border-collapse: collapse; font-size: var(--font-size-caption); white-space: nowrap; }
+.csv-table-wrap th, .csv-table-wrap td { padding: 9px 11px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; }
+.csv-table-wrap th { color: var(--muted); background: var(--color-canvas); font-weight: var(--font-weight-semibold); }
+.csv-timezone-note, .csv-import-error { margin: 0; color: var(--muted); font-size: var(--font-size-caption); line-height: 1.5; }
+.csv-import-error { grid-column: 1 / -1; margin-top: 10px; color: var(--red); }
 .settings-action { display: inline-grid; min-height: 38px; align-items: center; padding: 0 15px; border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); border-radius: 11px; color: var(--ink); background: color-mix(in srgb, var(--surface) 72%, transparent); cursor: pointer; font-size: var(--font-size-label); font-weight: 620; white-space: nowrap; }
 .settings-action:hover { border-color: color-mix(in srgb, var(--green) 48%, var(--line)); color: var(--green); background: var(--green-soft); }
 .danger-action { color: var(--red); }
@@ -867,6 +881,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .import-preview dl { grid-template-columns: 1fr; }
   .import-preview-actions { align-items: stretch; flex-direction: column-reverse; }
   .import-preview-actions .button-primary, .import-preview-actions .button-secondary { width: 100%; }
+  .csv-mapping { grid-template-columns: 1fr; }
   .flights-page { padding-top: 54px; }
   .page-heading { margin-bottom: 30px; }
   .page-heading h1 { font-size: clamp(2.5rem, 13vw, 3.25rem); }

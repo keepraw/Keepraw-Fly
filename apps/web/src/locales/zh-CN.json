@@ -205,12 +205,35 @@
   "units": {
     "minuteShort": "分"
   },
+  "csvImport": {
+    "openFile": "打开 CSV 文件",
+    "previewEyebrow": "列映射",
+    "previewTitle": "检查 CSV 导入",
+    "rowCount": "{{count}} 行",
+    "mappingLabel": "CSV 列映射",
+    "chooseColumn": "选择一列",
+    "timezoneNote": "计划时间必须是带明确时区偏移的 ISO 8601 值，例如 2026-09-02T13:00:00+08:00。只有确认后才会追加航班。",
+    "invalidFile": "无法读取这个 CSV。文件需包含一行表头和至少一行航班。",
+    "importFailed": "未导入 CSV。{{detail}}",
+    "importing": "正在添加航班…",
+    "appendFlights": "添加 {{count}} 个航班",
+    "fields": {
+      "flightNumber": "航班号",
+      "serviceDate": "航班日期",
+      "originIata": "出发机场 IATA",
+      "destinationIata": "到达机场 IATA",
+      "scheduledDeparture": "计划出发时间",
+      "scheduledArrival": "计划到达时间"
+    }
+  },
   "settings": {
     "viewerPreferences": "查看器偏好",
     "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
     "data": "数据",
     "importTitle": "导入档案",
     "importDescription": "先验证并预览 Keepraw Fly JSON；只有确认后才会替换当前档案。",
+    "csvImportTitle": "从 CSV 导入航班",
+    "csvImportDescription": "映射并预览 CSV 列，再将通过校验的行追加到当前档案。",
     "exportTitle": "导出档案",
     "exportDescription": "下载完整、通过验证且可移植的航班事实副本。",
     "exportDescriptionDemo": "当前档案包含虚构的示例航班，仅在需要示例文件时导出。",
