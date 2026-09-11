@@ -71,6 +71,9 @@ pnpm test
 pnpm build
 ```
 
+GitHub Actions 会在每个 pull request 和每次推送到 `main` 时，使用冻结的
+lockfile 重新安装依赖，并执行相同的类型检查、测试和生产构建。
+
 静态网站会生成在 `apps/web/dist/`；部署到静态托管服务时也应发布这个目录。
 
 ## 仓库结构

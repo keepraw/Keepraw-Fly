@@ -75,6 +75,9 @@ pnpm test
 pnpm build
 ```
 
+The same frozen install, type check, test suite and production build run on
+every pull request and every push to `main` through GitHub Actions.
+
 The static site is written to `apps/web/dist/`; that is also the directory to
 publish on a static hosting service.
 
