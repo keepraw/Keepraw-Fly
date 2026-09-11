@@ -25,6 +25,7 @@ search results, delays, distances and passport statistics in the viewer.
 - a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
 - local IndexedDB persistence through a storage adapter
 - validated JSON import preview, explicit replacement confirmation and portable export
+- explicit migration of former `rawfly` / `0.1` archives to canonical Keepraw Fly 0.1.0 without changing flight facts
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
 - shared premium visual tokens plus reusable airport-code, flight-status and aviation-icon primitives

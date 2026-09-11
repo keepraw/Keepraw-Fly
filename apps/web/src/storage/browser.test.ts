@@ -44,4 +44,20 @@ describe("BrowserStorageAdapter", () => {
     expect(await adapter.loadSettings()).toEqual(settings);
     expect(await adapter.loadDocument()).toBeNull();
   });
+
+  it("upgrades a legacy RawFly archive when it is loaded", async () => {
+    const adapter = new BrowserStorageAdapter(`test-${crypto.randomUUID()}`);
+    adapters.push(adapter);
+    await adapter.saveDocument({
+      format: "rawfly",
+      formatVersion: "0.1",
+      profile: {},
+      flights: [],
+    } as unknown as KeeprawFlyDocument);
+
+    await expect(adapter.loadDocument()).resolves.toMatchObject({
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+    });
+  });
 });

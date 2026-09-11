@@ -669,6 +669,7 @@ nav a:hover { color: var(--ink); }
 .import-preview dt { color: var(--muted); font-size: var(--font-size-caption); }
 .import-preview dd { margin: 0; font-size: 0.82rem; font-weight: 620; }
 .import-replacement { display: grid; gap: 5px; padding: 13px 14px; border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
+.import-migration { margin: 0; padding: 11px 13px; border-left: 3px solid var(--green); color: var(--muted); background: var(--green-soft); font-size: var(--font-size-caption); line-height: 1.5; }
 .import-replacement strong { color: var(--red); font-size: 0.78rem; }
 .import-replacement span { color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
 .import-preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseKeeprawFlyJson, validateKeeprawFly } from "../src";
+import { parseKeeprawFlyJson, validateAndMigrateKeeprawFly, validateKeeprawFly } from "../src";
 import demoDocument from "../../core/data/demo.keepraw-fly.json";
 
 const validDocument = {
@@ -47,6 +47,36 @@ describe("Keepraw Fly validator", () => {
         { kept: true, nested: [1, "two"] },
       );
     }
+  });
+
+  it("migrates the former RawFly identifier without losing facts", () => {
+    const legacy = structuredClone(validDocument) as Record<string, unknown>;
+    legacy.format = "rawfly";
+
+    const result = validateAndMigrateKeeprawFly(legacy);
+
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.data.format).toBe("keepraw-fly");
+      expect(result.data.flights).toEqual(validDocument.flights);
+      expect(result.migrations).toEqual(["rawfly-brand"]);
+    }
+  });
+
+  it("migrates the 0.1 shorthand but rejects unsupported future versions", () => {
+    const shorthand = { ...structuredClone(validDocument), formatVersion: "0.1" };
+    const migrated = validateAndMigrateKeeprawFly(shorthand);
+    expect(migrated.valid).toBe(true);
+    if (migrated.valid) {
+      expect(migrated.data.formatVersion).toBe("0.1.0");
+      expect(migrated.migrations).toEqual(["version-0.1"]);
+    }
+
+    const future = validateAndMigrateKeeprawFly({
+      ...structuredClone(validDocument),
+      formatVersion: "9.0.0",
+    });
+    expect(future.valid).toBe(false);
   });
 
   it("reports the flight and path for a datetime without a timezone", () => {
