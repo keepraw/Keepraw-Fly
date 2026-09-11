@@ -14,16 +14,22 @@ interface AirportComboboxProps {
   locale: SupportedLocale;
   value: string;
   onChange: (iata: string) => void;
+  preferredCodes?: readonly string[];
 }
 
-export function AirportCombobox({ label, locale, value, onChange }: AirportComboboxProps) {
+export function AirportCombobox({ label, locale, value, onChange, preferredCodes = [] }: AirportComboboxProps) {
   const { t } = useTranslation();
   const inputId = useId();
   const listId = useId();
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const results = useMemo(() => searchAirports(query, locale), [query, locale]);
+  const results = useMemo(() => query.trim()
+    ? searchAirports(query, locale)
+    : preferredCodes
+      .map((code) => airportByIata.get(code))
+      .filter((airport): airport is AirportReference => Boolean(airport)),
+  [query, locale, preferredCodes]);
   const selectedAirport = airportByIata.get(value);
   const selectedCityGroup = selectedAirport
     ? airportCityGroupForAirport(selectedAirport.iata)
@@ -57,7 +63,7 @@ export function AirportCombobox({ label, locale, value, onChange }: AirportCombo
         role="combobox"
         aria-autocomplete="list"
         aria-controls={listId}
-        aria-expanded={open && Boolean(query.trim())}
+        aria-expanded={open && Boolean(results.length)}
         aria-activedescendant={open && results[activeIndex] ? `${listId}-${results[activeIndex].iata}` : undefined}
         autoComplete="off"
         spellCheck={false}
@@ -85,9 +91,11 @@ export function AirportCombobox({ label, locale, value, onChange }: AirportCombo
       <small className="editor-field-hint">
         {selectedAirport
           ? `${selectedAirport.iata} · ${selectedAirport.name[locale]} · ${selectedCityGroup ? airportCityGroupName(selectedCityGroup, locale) : selectedAirport.city[locale]}`
-          : t("flightEditor.airportSearchHint")}
+          : preferredCodes.length
+            ? t("flightEditor.airportRecentHint")
+            : t("flightEditor.airportSearchHint")}
       </small>
-      {open && query.trim() ? (
+      {open && results.length ? (
         <div className="airport-options" id={listId} role="listbox">
           {results.length ? results.map((airport, index) => {
             const cityGroup = airportCityGroupForAirport(airport.iata);

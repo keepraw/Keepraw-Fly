@@ -17,6 +17,7 @@ search results, delays, distances and passport statistics in the viewer.
 - a 24-flight fictional demo archive spanning multiple countries and timezones
 - first-run archive creation with no JSON file required and a clearly labelled demo mode
 - a guided form for scheduled and actual local times, airport facts, aircraft and seat details
+- faster repeat entry with recent-airport suggestions and a duplicate-as-new action that never reuses the original record ID
 - an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones, shipped as a separately cached static asset
 - multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
 - premium, searchable trip cards with airport cities, local times and operational status

@@ -43,6 +43,7 @@
    - Distinguished the persistent fictional demo from a user-owned personal archive.
    - Added empty states and navigation to individual flight records.
    - Guarded stale detail/editor selections so deleting the active flight returns safely to the archive.
+   - Added recent-airport suggestions and a duplicate-as-new flow that prefills facts while generating a fresh record ID.
 
 5. **Flight detail**
    - Built a responsive origin-to-destination timeline.
@@ -134,6 +135,7 @@
 32. `31df07a` — Add continuous integration workflow
 33. `0049a78` — Split airport directory from initial bundle
 34. `79f448f` — Add critical browser journey tests
+35. `6ab3517` — Migrate legacy flight archives safely
 
 ### Deliberately deferred
 
@@ -175,6 +177,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 明确区分会持续保存的虚构演示档案与用户自己的个人档案。
    - 添加空状态以及前往单条航班记录的导航。
    - 对失效的详情与编辑选择增加保护，删除当前航班后会安全返回档案列表。
+   - 添加最近机场建议和“复制为新航班”流程，在预填事实的同时生成全新的记录 ID。
 
 5. **航班详情页**
    - 构建从出发地到目的地的响应式时间线。
@@ -266,6 +269,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 32. `31df07a` — 添加持续集成工作流
 33. `0049a78` — 从初始包拆分机场目录
 34. `79f448f` — 添加关键浏览器用户流程测试
+35. `6ab3517` — 安全迁移旧版飞行档案
 
 ### 明确推迟的范围
 

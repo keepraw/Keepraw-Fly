@@ -23,6 +23,7 @@ interface FlightDetailPageProps {
   timeFormat: TimeFormat;
   onBack: () => void;
   onEdit: () => void;
+  onDuplicate: () => void;
 }
 
 function DetailItem({ label, value }: { label: string; value?: string }) {
@@ -40,7 +41,7 @@ function delayText(delay: number | null, onTimeLabel: string, minuteLabel: strin
   return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} ${minuteLabel}`;
 }
 
-export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }: FlightDetailPageProps) {
+export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, onDuplicate }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
@@ -88,7 +89,10 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit }:
         <button className="back-button" type="button" onClick={onBack}>
           <span aria-hidden="true">←</span> {t("actions.backToFlights")}
         </button>
-        <button className="edit-flight-button" type="button" onClick={onEdit}>{t("actions.editFlight")}</button>
+        <div>
+          <button className="button-secondary" type="button" onClick={onDuplicate}>{t("actions.duplicateFlight")}</button>
+          <button className="edit-flight-button" type="button" onClick={onEdit}>{t("actions.editFlight")}</button>
+        </div>
       </div>
 
       <section className="detail-flight-card" aria-labelledby="flight-detail-title">

@@ -16,6 +16,7 @@ import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind } from "./storage/adapter";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
+import { recentAirportCodes } from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
 
@@ -29,6 +30,7 @@ export function App() {
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
+  const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
 
   const locale = useMemo(() => settings.language, [settings.language]);
   const selectedFlight = useMemo(
@@ -40,6 +42,10 @@ export function App() {
       ? flightById(document, editorFlightId)
       : undefined,
     [document, editorFlightId],
+  );
+  const preferredAirportCodes = useMemo(
+    () => recentAirportCodes(document?.flights ?? []),
+    [document?.flights],
   );
 
   useEffect(() => {
@@ -146,6 +152,7 @@ export function App() {
     setPage("flights");
     setSelectedFlightId(null);
     setEditorFlightId("new");
+    setDuplicateTemplate(null);
     window.location.hash = "flights";
   }
 
@@ -157,6 +164,7 @@ export function App() {
       : document.flights.map((item) => item.id === flight.id ? flight : item);
     await storeDocument({ ...document, flights });
     setEditorFlightId(null);
+    setDuplicateTemplate(null);
     setSelectedFlightId(flight.id);
     setPage("flights");
   }
@@ -215,6 +223,10 @@ export function App() {
           timeFormat={settings.timeFormat}
           onBack={() => setSelectedFlightId(null)}
           onEdit={() => setEditorFlightId(selectedFlight.id)}
+          onDuplicate={() => {
+            setDuplicateTemplate(selectedFlight);
+            setEditorFlightId("new");
+          }}
         />
       ) : page === "flights" ? (
         <FlightsPage
@@ -222,26 +234,28 @@ export function App() {
           locale={locale}
           timeFormat={settings.timeFormat}
           onOpenFlight={setSelectedFlightId}
-          onAddFlight={() => setEditorFlightId("new")}
+          onAddFlight={() => { setDuplicateTemplate(null); setEditorFlightId("new"); }}
         />
       ) : page === "passport" ? (
         <PassportPage
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
-          onAddFlight={() => setEditorFlightId("new")}
+          onAddFlight={() => { setDuplicateTemplate(null); setEditorFlightId("new"); }}
         />
       ) : null}
       {document && editorFlightId && (editorFlightId === "new" || editedFlight) ? (
         <FlightEditor
-          key={editorFlightId}
+          key={`${editorFlightId}-${duplicateTemplate?.id ?? "blank"}`}
           flight={editorFlightId === "new"
-            ? undefined
+            ? duplicateTemplate ?? undefined
             : editedFlight}
+          isDuplicate={editorFlightId === "new" && Boolean(duplicateTemplate)}
+          preferredAirportCodes={preferredAirportCodes}
           locale={locale}
           onSave={saveFlight}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
-          onCancel={() => setEditorFlightId(null)}
+          onCancel={() => { setEditorFlightId(null); setDuplicateTemplate(null); }}
         />
       ) : null}
     </div>
