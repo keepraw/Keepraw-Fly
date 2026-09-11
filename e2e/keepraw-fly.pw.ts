@@ -22,11 +22,18 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await editDialog.getByRole("button", { name: "Save flight" }).click();
   await expect(page.getByRole("heading", { name: "UA124" })).toBeVisible();
 
+  await page.getByRole("button", { name: "Duplicate as new" }).click();
+  const duplicateDialog = page.getByRole("dialog", { name: "Duplicate flight" });
+  await expect(duplicateDialog.getByRole("combobox", { name: "Origin" })).toHaveValue("SFO");
+  await duplicateDialog.getByLabel("Flight number").fill("125");
+  await duplicateDialog.getByRole("button", { name: "Save flight" }).click();
+  await expect(page.getByRole("heading", { name: "UA125" })).toBeVisible();
+
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Edit flight" }).click();
   await page.getByRole("dialog", { name: "Edit flight" })
     .getByRole("button", { name: "Delete flight" }).click();
-  await expect(page.getByRole("heading", { name: "Add your first flight" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Open UA124/ })).toBeVisible();
 });
 
 test("previews a JSON import and renders its Passport route map", async ({ page }) => {

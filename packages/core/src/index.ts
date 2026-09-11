@@ -2,6 +2,7 @@ export * from "./calculations";
 export * from "./airport-search";
 export * from "./airport-cities";
 export * from "./extensions";
+export * from "./entry-history";
 export * from "./formatting";
 export * from "./reference-data";
 export * from "./routes";

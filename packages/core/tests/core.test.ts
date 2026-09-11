@@ -18,6 +18,7 @@ import {
   flightDuration,
   groupFlightsByYear,
   installAirportDirectory,
+  recentAirportCodes,
   searchFlights,
   searchAirports,
 } from "../src";
@@ -157,6 +158,12 @@ describe("search and grouping", () => {
       "2026",
       "2025",
     ]);
+  });
+
+  it("offers unique recent airports in newest-flight order", () => {
+    const older = { ...flight, id: "older", serviceDate: "2025-01-02", origin: { iata: "JFK" } };
+    expect(recentAirportCodes([older, flight])).toEqual(["SFO", "LAX", "JFK"]);
+    expect(recentAirportCodes([older, flight], 2)).toEqual(["SFO", "LAX"]);
   });
 });
 

@@ -14,6 +14,7 @@ button, input, select, textarea, a { font: inherit; }
 a { color: inherit; }
 button { cursor: pointer; transition: border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
 button:disabled { cursor: not-allowed; opacity: 0.5; }
+.detail-toolbar > div { display: flex; gap: 9px; align-items: center; }
 
 .bootstrap-screen {
   display: grid;

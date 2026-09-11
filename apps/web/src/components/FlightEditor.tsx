@@ -17,9 +17,11 @@ interface FlightEditorProps {
   onSave: (flight: KeeprawFlight) => void | Promise<void>;
   onDelete?: () => void | Promise<void>;
   onCancel: () => void;
+  isDuplicate?: boolean;
+  preferredAirportCodes?: readonly string[];
 }
 
-export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: FlightEditorProps) {
+export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDuplicate = false, preferredAirportCodes = [] }: FlightEditorProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<FlightDraft>(() =>
     flight ? flightToDraft(flight) : createDefaultDraft(),
@@ -57,7 +59,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
       return;
     }
     try {
-      const nextFlight = flightFromDraft(draft, flight);
+      const nextFlight = flightFromDraft(draft, isDuplicate ? undefined : flight);
       setBusy(true);
       await onSave(nextFlight);
     } catch (caught) {
@@ -87,7 +89,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
         <header className="editor-heading">
           <div>
             <p className="eyebrow">{t("flightEditor.eyebrow")}</p>
-            <h2 id="flight-editor-title">{t(flight ? "flightEditor.editTitle" : "flightEditor.addTitle")}</h2>
+            <h2 id="flight-editor-title">{t(isDuplicate ? "flightEditor.duplicateTitle" : flight ? "flightEditor.editTitle" : "flightEditor.addTitle")}</h2>
           </div>
           <button type="button" className="editor-close" onClick={onCancel} aria-label={t("actions.cancel")}>×</button>
         </header>
@@ -123,8 +125,8 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel }: Fli
                   : t("flightEditor.serviceNumberHint")}
               </small>
             </label>
-            <AirportCombobox label={t("flightEditor.origin")} locale={locale} value={draft.originIata} onChange={(iata) => update("originIata", iata)} />
-            <AirportCombobox label={t("flightEditor.destination")} locale={locale} value={draft.destinationIata} onChange={(iata) => update("destinationIata", iata)} />
+            <AirportCombobox label={t("flightEditor.origin")} locale={locale} value={draft.originIata} onChange={(iata) => update("originIata", iata)} preferredCodes={preferredAirportCodes} />
+            <AirportCombobox label={t("flightEditor.destination")} locale={locale} value={draft.destinationIata} onChange={(iata) => update("destinationIata", iata)} preferredCodes={preferredAirportCodes} />
           </div>
 
           <fieldset className="editor-schedule">
