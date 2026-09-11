@@ -28,6 +28,7 @@ search results, delays, distances and passport statistics in the viewer.
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
 - shared premium visual tokens plus reusable airport-code, flight-status and aviation-icon primitives
+- restrained CSS-only page, card and route transitions with complete reduced-motion fallback
 - static production output with no backend and no user-data upload
 
 ## Run locally

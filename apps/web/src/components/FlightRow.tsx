@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -18,9 +19,10 @@ interface FlightRowProps {
   locale: SupportedLocale;
   timeFormat: TimeFormat;
   onOpen: () => void;
+  revealIndex?: number;
 }
 
-export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps) {
+export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 }: FlightRowProps) {
   const { t } = useTranslation();
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const operationalStatus = flightOperationalStatus(flight);
@@ -47,6 +49,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen }: FlightRowProps
       className="flight-row"
       type="button"
       onClick={onOpen}
+      style={{ "--flight-row-index": revealIndex } as CSSProperties}
       aria-label={t("flights.openFlight", {
         flightNumber: flight.flightNumber,
         origin: flight.origin.iata,

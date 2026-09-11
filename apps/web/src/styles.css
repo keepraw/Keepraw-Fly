@@ -89,6 +89,7 @@ nav a {
   color: var(--muted);
   font-size: var(--font-size-body);
   text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 
 nav a::after {
@@ -103,6 +104,7 @@ nav a::after {
 
 nav a[aria-current="page"] { color: var(--ink); }
 nav a[aria-current="page"]::after { background: var(--ink); }
+nav a:hover { color: var(--ink); }
 
 .welcome {
   max-width: 730px;
@@ -304,11 +306,11 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   color: inherit;
   background: transparent;
   text-align: left;
-  transition: background-color var(--duration-standard) var(--ease-standard);
+  transition: background-color var(--duration-standard) var(--ease-standard), box-shadow var(--duration-standard) var(--ease-standard);
 }
 
 .flight-row:last-child { border-bottom: 0; }
-.flight-row:hover { background: color-mix(in srgb, var(--color-accent-soft) 52%, transparent); }
+.flight-row:hover { z-index: 1; background: color-mix(in srgb, var(--color-accent-soft) 52%, transparent); box-shadow: inset 3px 0 var(--green); }
 
 .flight-date { color: var(--muted); font-family: var(--font-family-data); font-size: var(--font-size-caption); font-feature-settings: var(--numeric-features); text-transform: uppercase; }
 
@@ -439,7 +441,6 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   justify-content: space-between;
   padding: 34px 40px 28px;
   border-bottom: 1px solid rgb(255 255 255 / 9%);
-  animation: detail-reveal 420ms var(--ease-standard) both;
 }
 
 .detail-heading h1 {
@@ -480,7 +481,6 @@ nav a[aria-current="page"]::after { background: var(--ink); }
   gap: 38px;
   align-items: center;
   padding: 42px 40px 48px;
-  animation: detail-reveal 520ms 70ms var(--ease-standard) both;
 }
 
 .airport-block { display: flex; min-width: 0; flex-direction: column; }
@@ -492,19 +492,9 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 .airport-block small { max-width: 220px; margin-top: 4px; overflow: hidden; color: var(--color-on-inverted-muted); font-size: var(--font-size-caption); line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
 
 .route-track { display: grid; grid-template-columns: 1fr 48px 1fr; align-items: center; }
-.route-track-line { height: 1px; background: rgb(121 219 184 / 22%); transform-origin: center; animation: route-line-arrive 560ms 190ms var(--ease-standard) both; }
+.route-track-line { height: 1px; background: rgb(121 219 184 / 22%); transform-origin: center; }
 .route-track-mark { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid rgb(121 219 184 / 30%); border-radius: 50%; background: rgb(30 111 84 / 34%); box-shadow: 0 0 28px rgb(86 196 157 / 10%); }
 .route-track .aviation-icon { width: 26px; height: 26px; color: var(--color-accent-bright); transform: rotate(12deg); }
-
-@keyframes detail-reveal {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes route-line-arrive {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
 
 .timeline { display: grid; grid-template-columns: minmax(180px, 0.58fr) minmax(420px, 1fr); gap: 72px; margin-top: 24px; padding: 36px 40px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--color-surface-raised); box-shadow: var(--shadow-raised); }
 
@@ -697,6 +687,147 @@ nav a[aria-current="page"]::after { background: var(--ink); }
 
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
 
+@keyframes content-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes row-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes route-line-arrive {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes map-route-arrive {
+  from { opacity: 0; stroke-dashoffset: 1; }
+  to { opacity: 0.82; stroke-dashoffset: 0; }
+}
+
+@keyframes map-airport-arrive {
+  from { opacity: 0; transform: scale(0.35); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes settings-route-arrive {
+  from { opacity: 0; stroke-dashoffset: 420; }
+  to { opacity: 1; stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button-primary,
+  .button-secondary,
+  .import-primary,
+  .add-flight-button,
+  .edit-flight-button,
+  .settings-action,
+  .demo-banner button {
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-standard) var(--ease-out),
+      transform var(--duration-standard) var(--ease-out);
+  }
+
+  .button-primary:hover,
+  .button-secondary:hover,
+  .import-primary:hover,
+  .add-flight-button:hover,
+  .edit-flight-button:hover,
+  .settings-action:hover,
+  .demo-banner button:hover {
+    box-shadow: 0 7px 18px rgb(20 30 25 / 10%);
+    transform: translateY(-1px);
+  }
+
+  .button-primary:active,
+  .button-secondary:active,
+  .import-primary:active,
+  .add-flight-button:active,
+  .edit-flight-button:active,
+  .settings-action:active,
+  .demo-banner button:active {
+    box-shadow: none;
+    transform: translateY(0) scale(0.98);
+  }
+
+  .page-heading,
+  .passport-heading,
+  .passport-empty,
+  .settings-heading {
+    animation: content-enter var(--duration-slow) var(--ease-out) both;
+  }
+
+  .search-field,
+  .primary-stats,
+  .timeline {
+    animation: content-enter var(--duration-slow) 60ms var(--ease-out) both;
+  }
+
+  .flight-year,
+  .passport-counts,
+  .delay-summary,
+  .settings-section {
+    animation: content-enter var(--duration-slow) 110ms var(--ease-out) both;
+  }
+
+  .flight-row {
+    animation: row-enter var(--duration-slow) var(--ease-out) both;
+    animation-delay: calc(130ms + var(--flight-row-index, 0) * 28ms);
+  }
+
+  .flight-row:hover .route-line .aviation-icon { transform: translate(-50%, -50%) rotate(12deg) translateX(2px); }
+
+  .detail-flight-card { animation: content-enter 440ms var(--ease-out) both; }
+  .detail-heading { animation: content-enter var(--duration-slow) 70ms var(--ease-out) both; }
+  .route-hero { animation: content-enter 440ms 120ms var(--ease-out) both; }
+  .route-track-line { animation: route-line-arrive 560ms 240ms var(--ease-out) both; }
+  .flight-facts { animation: content-enter var(--duration-slow) 160ms var(--ease-out) both; }
+
+  .route-map,
+  .passport-highlights,
+  .year-history {
+    animation: content-enter 440ms 150ms var(--ease-out) both;
+  }
+
+  .map-routes path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: map-route-arrive var(--duration-map) var(--ease-out) both;
+    animation-delay: calc(260ms + var(--map-item-index, 0) * 22ms);
+  }
+
+  .map-airports circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-airport-arrive 300ms var(--ease-emphasized) both;
+    animation-delay: calc(360ms + var(--map-item-index, 0) * 16ms);
+  }
+
+  .settings-route-line {
+    stroke-dasharray: 420;
+    stroke-dashoffset: 420;
+    animation: settings-route-arrive 820ms 160ms var(--ease-out) both;
+  }
+
+  .settings-route-mark circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-airport-arrive 320ms var(--ease-emphasized) both;
+  }
+
+  .settings-route-mark circle:nth-of-type(1) { animation-delay: 260ms; }
+  .settings-route-mark circle:nth-of-type(2) { animation-delay: 420ms; }
+  .settings-route-mark circle:nth-of-type(3) { animation-delay: 600ms; }
+  .settings-section:nth-child(2) { animation-delay: 150ms; }
+  .settings-section:nth-child(3) { animation-delay: 190ms; }
+  .settings-section:nth-child(4) { animation-delay: 230ms; }
+}
+
 @media (max-width: 940px) and (min-width: 761px) {
   .flight-row { grid-template-columns: 70px minmax(118px, 0.8fr) minmax(220px, 1.5fr) auto 18px; gap: 13px; padding: 0 16px; }
   .flight-times { display: none; }
@@ -830,6 +961,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
-  .detail-heading, .route-hero, .route-track-line { animation: none !important; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

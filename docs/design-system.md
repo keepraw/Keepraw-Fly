@@ -47,9 +47,13 @@ These primitives are already used by the flight archive, flight detail and setti
 - Cards use card or panel elevation; modal surfaces use modal elevation. Shadows express hierarchy, not decoration.
 - Animations use shared durations and are effectively disabled when the operating system requests reduced motion.
 
+### Motion language
+
+Step 31 adds a lightweight, CSS-only motion layer. Content enters with short opacity-and-position transitions, archive rows use a small data-order stagger, controls respond with restrained elevation, and Passport routes draw from origin to destination before airport points appear. Period changes remount only the derived Passport content, so the selected control and keyboard focus remain stable. All motion is gated behind `prefers-reduced-motion: no-preference`; the reduced-motion rule also clamps any legacy animation or transition to an effectively immediate duration.
+
 ### Scope
 
-Step 28 established the foundation. Step 29 now applies it to the flight archive and detail experience: archive rows are composed as scannable trip cards, while detail pages use a high-contrast route panel and layered information cards. The Step 31 motion pass remains separate.
+Step 28 established the foundation, Step 29 applied it to the archive and detail experience, and Step 31 completes the shared visual pass with restrained interaction feedback. Further page changes should reuse these roles instead of creating parallel motion rules.
 
 ## 简体中文
 
@@ -96,6 +100,10 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 - 卡片使用卡片或面板纵深，弹窗使用弹窗纵深；阴影用来表达层级，而不是单纯装饰。
 - 动效使用共享时长，并在系统要求“减少动态效果”时基本停用。
 
+### 动效语言
+
+第 31 步加入轻量、纯 CSS 的动效层。内容使用短促的透明度与位移进入，档案行按数据顺序轻微错开，控件用克制的抬升反馈交互，Flight Passport 航线则从起点绘制到终点，随后显示机场点。切换统计期间时只重新挂载派生出的护照内容，因此选中控件和键盘焦点保持稳定。所有动效都受 `prefers-reduced-motion: no-preference` 约束；减少动效规则还会把任何旧动画或过渡压缩为几乎即时完成。
+
 ### 范围
 
-第 28 步建立了基础系统。第 29 步已经将它应用到航班档案和详情体验：档案行被组织成可快速浏览的行程卡，详情页采用高对比航线面板和分层信息卡片。第 31 步的动效精修仍保持独立。
+第 28 步建立基础系统，第 29 步将其应用到档案和详情体验，第 31 步用克制的交互反馈完成共享视觉升级。后续页面修改应继续复用这些角色，避免产生平行的动效规则。
