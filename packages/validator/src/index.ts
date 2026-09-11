@@ -1,6 +1,10 @@
 import Ajv2020, { type ErrorObject } from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import {
+  KEEPRAW_FLY_FORMAT,
+  KEEPRAW_FLY_FORMAT_VERSION,
+  type KeeprawFlyDocument,
+} from "@keepraw-fly/schema";
 import keeprawFlySchema from "@keepraw-fly/schema/schema";
 
 export interface ValidationIssue {
@@ -11,8 +15,10 @@ export interface ValidationIssue {
   flightIndex?: number;
 }
 
+export type KeeprawFlyMigration = "rawfly-brand" | "version-0.1";
+
 export type ValidationResult =
-  | { valid: true; data: KeeprawFlyDocument; issues: [] }
+  | { valid: true; data: KeeprawFlyDocument; issues: []; migrations: KeeprawFlyMigration[] }
   | { valid: false; issues: ValidationIssue[] };
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -138,7 +144,7 @@ export function validateKeeprawFly(input: unknown): ValidationResult {
   if (validateSchema(input)) {
     const issues = semanticIssues(input);
     if (issues.length) return { valid: false, issues };
-    return { valid: true, data: input, issues: [] };
+    return { valid: true, data: input, issues: [], migrations: [] };
   }
 
   return {
@@ -147,9 +153,39 @@ export function validateKeeprawFly(input: unknown): ValidationResult {
   };
 }
 
+export function validateAndMigrateKeeprawFly(input: unknown): ValidationResult {
+  const { data, migrations } = migrateKeeprawFly(input);
+  const result = validateKeeprawFly(data);
+  return result.valid ? { ...result, migrations } : result;
+}
+
+export function migrateKeeprawFly(input: unknown): {
+  data: unknown;
+  migrations: KeeprawFlyMigration[];
+} {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return { data: input, migrations: [] };
+  }
+
+  const source = input as Record<string, unknown>;
+  const data = { ...source };
+  const migrations: KeeprawFlyMigration[] = [];
+
+  if (data.format === "rawfly") {
+    data.format = KEEPRAW_FLY_FORMAT;
+    migrations.push("rawfly-brand");
+  }
+  if (data.formatVersion === "0.1") {
+    data.formatVersion = KEEPRAW_FLY_FORMAT_VERSION;
+    migrations.push("version-0.1");
+  }
+
+  return { data, migrations };
+}
+
 export function parseKeeprawFlyJson(text: string): ValidationResult {
   try {
-    return validateKeeprawFly(JSON.parse(text) as unknown);
+    return validateAndMigrateKeeprawFly(JSON.parse(text) as unknown);
   } catch (error) {
     return {
       valid: false,

@@ -20,6 +20,7 @@
    - Defined the Keepraw Fly 0.1 types and JSON Schema.
    - Added Ajv validation with readable issue paths.
    - Preserved unknown extension fields during validated import and export.
+   - Added explicit, non-destructive migrations for the former `rawfly` identifier and `0.1` version shorthand at both file-import and browser-storage boundaries.
 
 3. **Demo data and domain logic**
    - Added a fictional 24-flight archive covering multiple countries and timezones.
@@ -132,6 +133,7 @@
 31. `db636d4` — Add reduced-motion-safe interaction polish
 32. `31df07a` — Add continuous integration workflow
 33. `0049a78` — Split airport directory from initial bundle
+34. `79f448f` — Add critical browser journey tests
 
 ### Deliberately deferred
 
@@ -150,6 +152,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 定义 Keepraw Fly 0.1 类型和 JSON Schema。
    - 使用 Ajv 完成校验，并提供易读的问题路径。
    - 经过校验的导入与导出可以保留未知扩展字段。
+   - 在文件导入与浏览器存储边界添加明确、非破坏性的迁移，兼容旧 `rawfly` 标识和 `0.1` 版本简写。
 
 3. **演示数据与领域逻辑**
    - 添加一份覆盖多个国家和时区的 24 段虚构航班档案。
@@ -262,6 +265,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 31. `db636d4` — 添加兼容减少动效的交互精修
 32. `31df07a` — 添加持续集成工作流
 33. `0049a78` — 从初始包拆分机场目录
+34. `79f448f` — 添加关键浏览器用户流程测试
 
 ### 明确推迟的范围
 

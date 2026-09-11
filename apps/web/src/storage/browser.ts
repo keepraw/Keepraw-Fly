@@ -5,7 +5,7 @@ import type { ViewerSettings } from "./types";
 
 interface DocumentRecord {
   key: "active";
-  document: KeeprawFlyDocument;
+  document: unknown;
   kind?: ArchiveKind;
   updatedAt: string;
 }
@@ -36,7 +36,15 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
   }
 
   async loadDocument(): Promise<KeeprawFlyDocument | null> {
-    return (await this.database.documents.get("active"))?.document ?? null;
+    const record = await this.database.documents.get("active");
+    if (!record) return null;
+    const { validateAndMigrateKeeprawFly } = await import("@keepraw-fly/validator");
+    const result = validateAndMigrateKeeprawFly(record.document);
+    if (!result.valid) return null;
+    if (result.migrations.length) {
+      await this.saveDocument(result.data, record.kind ?? "personal");
+    }
+    return result.data;
   }
 
   async loadArchiveKind(): Promise<ArchiveKind | null> {

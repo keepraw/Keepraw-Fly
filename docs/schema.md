@@ -21,6 +21,15 @@ The validator also requires unique flight IDs, a service date matching the
 scheduled departure's local date, and arrival instants later than departure
 instants.
 
+## Compatibility and migration
+
+`keepraw-fly` with version `0.1.0` is the canonical representation. Import and
+browser-storage boundaries also recognize the former `rawfly` format identifier
+and the early `0.1` version shorthand. They are copied and upgraded in memory,
+validated against the current schema, and saved/exported as canonical 0.1.0.
+Unsupported future versions remain rejected; migration never guesses at flight
+facts or changes timestamps, identifiers, endpoints, profile data or extensions.
+
 ## Facts, not derivatives
 
 The document does not store delay minutes, distance, duration, totals, rankings
@@ -43,4 +52,3 @@ Advanced facts use namespaced keys:
 
 Unknown extension values may be ignored for display but must be retained through
 normal import/edit/export operations.
-

@@ -96,6 +96,7 @@
     "seat": "座位",
     "cabin": "舱位",
     "notRecorded": "未记录",
+    "migratedArchive": "已在内存中更新 {{count}} 项旧格式信息；导入后将按 Keepraw Fly 0.1.0 保存。",
     "cabins": {
       "economy": "经济舱",
       "premiumEconomy": "高级经济舱",

@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import type { ValidationIssue } from "@keepraw-fly/validator";
+import type { KeeprawFlyMigration, ValidationIssue } from "@keepraw-fly/validator";
 import { summarizeImport } from "../data/import-preview";
 
 interface ImportControlProps {
@@ -14,6 +14,7 @@ interface ImportControlProps {
 interface PendingImport {
   document: KeeprawFlyDocument;
   fileName: string;
+  migrations: KeeprawFlyMigration[];
 }
 
 export function ImportControl({
@@ -34,7 +35,7 @@ export function ImportControl({
     const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
     const result = parseKeeprawFlyJson(await file.text());
     if (result.valid) {
-      setPending({ document: result.data, fileName: file.name });
+      setPending({ document: result.data, fileName: file.name, migrations: result.migrations });
       setIssues([]);
     } else {
       setPending(null);
@@ -103,6 +104,11 @@ export function ImportControl({
             <div><dt>{t("import.flights")}</dt><dd>{summary.flightCount}</dd></div>
             <div><dt>{t("import.dates")}</dt><dd>{dateRange}</dd></div>
           </dl>
+          {pending.migrations.length ? (
+            <p className="import-migration" role="note">
+              {t("import.migratedArchive", { count: pending.migrations.length })}
+            </p>
+          ) : null}
           {existingDocument ? (
             <div className="import-replacement" role="note">
               <strong>{t("import.replaceWarningTitle")}</strong>
