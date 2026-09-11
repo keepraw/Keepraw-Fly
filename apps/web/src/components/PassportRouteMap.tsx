@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
 import {
@@ -60,21 +60,28 @@ export function PassportRouteMap({ routes }: PassportRouteMapProps) {
           <path className="map-graticule" d={WORLD_GRATICULE_PATH} aria-hidden="true" />
           <path className="map-land" d={WORLD_LAND_PATH} aria-hidden="true" />
           <g className="map-routes" filter="url(#passport-route-glow)">
-            {routes.map((route) => (
+            {routes.map((route, index) => (
               <path
                 key={`${route.origin.iata}-${route.destination.iata}`}
                 d={greatCirclePath(route.origin, route.destination)}
-                style={{ strokeWidth: 1.4 + Math.min(route.flightCount, 5) * 0.55 }}
+                pathLength={1}
+                style={{
+                  "--map-item-index": index,
+                  strokeWidth: 1.4 + Math.min(route.flightCount, 5) * 0.55,
+                } as CSSProperties}
               >
                 <title>{route.origin.iata} → {route.destination.iata} · {t("flights.count", { count: route.flightCount })}</title>
               </path>
             ))}
           </g>
           <g className="map-airports">
-            {airports.map((airport) => {
+            {airports.map((airport, index) => {
               const point = projectPoint(airport);
               return <g key={airport.iata} transform={`translate(${point.x} ${point.y})`}>
-                <circle r={3.5 + Math.min(airport.flightCount, 6) * 0.4} />
+                <circle
+                  r={3.5 + Math.min(airport.flightCount, 6) * 0.4}
+                  style={{ "--map-item-index": index } as CSSProperties}
+                />
                 <title>{airport.iata} · {t("flights.count", { count: airport.flightCount })}</title>
                 {labeledAirports.has(airport.iata) ? <text x="8" y="-7">{airport.iata}</text> : null}
               </g>;

@@ -4,8 +4,8 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-03
-- Current milestone: core archive, offline global airport entry, flight detail and Passport experience complete
+- Last updated: 2026-09-11
+- Current milestone: core archive, offline global airport entry, flight detail, Passport and shared visual motion pass complete
 
 ## English
 
@@ -77,17 +77,20 @@
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
    - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
+   - Added a CSS-only motion language for page hierarchy, staggered archive rows, control feedback, route drawing and airport-point reveals.
+   - Gated all new motion behind the operating-system preference and strengthened the global reduced-motion fallback.
 
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
 - All 67 automated tests pass: 37 core, 7 validator and 23 web tests.
 - The Vite production build completes successfully.
-- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk remains 371.7 kB gzip.
+- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk; the initial application chunk is 372.3 kB gzip.
 - The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
 - The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
 - The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and narrow mobile layouts, compact flight rows, detail status and conditional facts, Lifetime/Year Passport views, search, responsive premium settings and hash deep links.
+- The Step 31 motion layer adds about 0.7 kB gzip across CSS and JavaScript, with no animation runtime or new dependency.
+- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and 390 px mobile layouts, premium flight cards, detail status and conditional facts, Lifetime/Year Passport views, staggered content and SVG route reveals, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -121,6 +124,7 @@
 27. `c25bda6` — Elevate the settings experience
 28. `e7c9211` — Rebuild Passport map with Natural Earth
 29. `5c143e4` — Establish premium aviation design primitives
+30. `06bce1d` — Elevate flight archive and detail experience
 
 ### Deliberately deferred
 
@@ -196,17 +200,20 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
    - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
+   - 添加纯 CSS 动效语言，覆盖页面层级、档案行错峰出现、控件反馈、航线绘制和机场点出现。
+   - 所有新动效均受操作系统偏好约束，并加强全局“减少动态效果”降级。
 
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 67 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 23 项。
 - Vite 生产构建成功完成。
-- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包保持为 371.7 kB gzip。
+- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源；应用初始主包为 372.3 kB gzip。
 - 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
 - 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
 - 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与窄屏布局、紧凑航班列表、详情状态与条件事实、终身/年度护照、搜索、响应式高级设置页及 hash 深链接。
+- 第 31 步动效层在 CSS 和 JavaScript 中合计约增加 0.7 kB gzip，未加入动画运行库或新依赖。
+- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与 390 px 移动端布局、高级航班卡片、详情状态与条件事实、终身/年度护照、错峰内容与 SVG 航线出现、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -240,6 +247,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 27. `c25bda6` — 提升设置页体验
 28. `e7c9211` — 使用 Natural Earth 重建飞行护照地图
 29. `5c143e4` — 建立高级航空视觉基础组件
+30. `06bce1d` — 提升航班档案与详情体验
 
 ### 明确推迟的范围
 

@@ -87,13 +87,14 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight, onAddF
                 <span>{t("flights.count", { count: group.flights.length })}</span>
               </div>
               <div className="flight-list">
-                {group.flights.map((flight) => (
+                {group.flights.map((flight, index) => (
                   <FlightRow
                     key={flight.id}
                     flight={flight}
                     locale={locale}
                     timeFormat={timeFormat}
                     onOpen={() => onOpenFlight(flight.id)}
+                    revealIndex={index}
                   />
                 ))}
               </div>

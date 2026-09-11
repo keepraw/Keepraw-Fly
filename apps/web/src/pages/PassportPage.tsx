@@ -117,7 +117,7 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
         </div>
       </header>
 
-      <section className="primary-stats" aria-label={t("passport.primaryStats")}>
+      <section className="primary-stats" key={`primary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
         <div><strong>{stats.flights}</strong><span>{t("passport.flights")}</span></div>
         <div>
           <strong>{formatDistance(stats.distanceKilometers, locale, distanceUnit)}</strong>
@@ -126,7 +126,7 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
         <div><strong>{formatDuration(stats.durationMinutes, locale)}</strong><span>{t("passport.timeInAir")}</span></div>
       </section>
 
-      <section className="passport-counts" aria-label={t("passport.collectionStats")}>
+      <section className="passport-counts" key={`counts-${selectedYear}`} aria-label={t("passport.collectionStats")}>
         {selectedYearSummary ? <>
           <div><span>{t("passport.airlines")}</span><strong>{selectedYearSummary.airlines}</strong></div>
           <div><span>{t("passport.airports")}</span><strong>{selectedYearSummary.airports}</strong></div>
@@ -141,10 +141,10 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
       </section>
 
       <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
-        <PassportRouteMap routes={routes} />
+        <PassportRouteMap key={`map-${selectedYear}`} routes={routes} />
       </Suspense>
 
-      <section className="passport-highlights" aria-labelledby="highlights-title">
+      <section className="passport-highlights" key={`highlights-${selectedYear}`} aria-labelledby="highlights-title">
         <div className="section-heading">
           <p className="eyebrow">{t("passport.patterns")}</p>
           <h2 id="highlights-title">{t("passport.highlights")}</h2>
