@@ -74,6 +74,7 @@
    - Added a root-level production preview command and documented the local HTTP workflow.
    - Documented architecture, schema behavior, deployment and intentionally deferred scope.
    - Added bilingual repository entry points and this delivery record.
+   - Added a least-privilege GitHub Actions workflow for frozen installs, type checking, tests and production builds.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
    - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
@@ -125,6 +126,7 @@
 28. `e7c9211` — Rebuild Passport map with Natural Earth
 29. `5c143e4` — Establish premium aviation design primitives
 30. `06bce1d` — Elevate flight archive and detail experience
+31. `db636d4` — Add reduced-motion-safe interaction polish
 
 ### Deliberately deferred
 
@@ -197,6 +199,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加根目录生产预览命令，并记录本地 HTTP 查看流程。
    - 记录架构、数据格式行为、部署方式和明确推迟的范围。
    - 添加双语仓库入口和本交付记录。
+   - 添加最小权限 GitHub Actions 工作流，执行冻结依赖安装、类型检查、测试和生产构建。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
    - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
@@ -248,6 +251,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 28. `e7c9211` — 使用 Natural Earth 重建飞行护照地图
 29. `5c143e4` — 建立高级航空视觉基础组件
 30. `06bce1d` — 提升航班档案与详情体验
+31. `db636d4` — 添加兼容减少动效的交互精修
 
 ### 明确推迟的范围
 
