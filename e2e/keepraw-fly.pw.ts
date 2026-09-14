@@ -52,6 +52,32 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
 });
 
+test("keeps delay facts inside their card at desktop and mobile widths", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+  await page.getByRole("button", { name: /Open / }).first().click();
+
+  const delaySummary = page.locator(".delay-summary");
+  await expect(delaySummary).toBeVisible();
+
+  const expectContentInset = async (minimumInset: number) => {
+    const insets = await delaySummary.evaluate((summary) => {
+      const bounds = summary.getBoundingClientRect();
+      return Array.from(summary.querySelectorAll(":scope > div > *")).map((element) => {
+        const item = element.getBoundingClientRect();
+        return Math.min(item.left - bounds.left, bounds.right - item.right);
+      });
+    });
+    expect(Math.min(...insets)).toBeGreaterThanOrEqual(minimumInset);
+  };
+
+  await expectContentInset(29);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectContentInset(19);
+  const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
+  expect(fitsViewport).toBe(true);
+});
+
 test("maps and previews CSV columns before appending flights", async ({ page }) => {
   await page.goto("/#settings");
   await page.locator('input[type="file"][accept*=".csv"]').setInputFiles(exampleCsv);
