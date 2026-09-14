@@ -123,6 +123,10 @@ IATA、到达机场 IATA、计划出发和计划到达），预览最多五行�
 
 更多细节请阅读[架构说明](docs/architecture.md)、[数据格式说明](docs/schema.md)、[视觉系统](docs/design-system.md)和[部署指南](docs/deployment.md)。
 
+需要借助外部工具探索 UI 时，可使用 [Google Stitch 设计简报](docs/stitch-ui-brief.md)。
+其中包含可直接粘贴的主提示词、分屏生成顺序、虚构样例数据、原创性与许可证约束，
+以及整合验收标准。生成代码只作为视觉参考，不能替换应用已经通过测试的行为。
+
 ## 状态与范围
 
 本仓库已经完成第一阶段的本地查看器。明确推迟的功能列在 [docs/not-implemented.md](docs/not-implemented.md) 中。

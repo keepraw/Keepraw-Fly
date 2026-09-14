@@ -5,7 +5,7 @@
 - Product: Keepraw Fly
 - Version: 0.1.0
 - Last updated: 2026-09-14
-- Current milestone: local-first 0.1 viewer, verified import paths, release automation and language-aware typography complete
+- Current milestone: local-first 0.1 viewer, verified import paths, release automation, language-aware typography and UI-design handoff complete
 
 ## English
 
@@ -80,6 +80,7 @@
    - Added bilingual repository entry points and this delivery record.
    - Added a least-privilege GitHub Actions workflow for frozen installs, type checking, tests and production builds.
    - Added a separate, least-privilege GitHub Pages workflow that verifies and publishes the static artifact on `main` or manual dispatch.
+   - Added a Google Stitch handoff with staged prompts, fictional screen data, originality boundaries, license requirements and code-integration acceptance criteria.
    - Split the 7,800+ airport directory from application JavaScript into a separately cached static asset with an explicit, retryable loading state.
    - Added Playwright coverage for first-run creation, add/edit/delete, validated JSON import and Passport map rendering in Chromium.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
@@ -148,6 +149,7 @@
 38. `32d2e1f` — Complete accessibility and theme audit
 39. `321759c` — Automate static GitHub Pages releases
 40. `30b47b5` — Rebuild language-aware typography scale
+41. `cd05915` — Keep delay facts within responsive cards
 
 ### Deliberately deferred
 
@@ -226,6 +228,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 添加双语仓库入口和本交付记录。
    - 添加最小权限 GitHub Actions 工作流，执行冻结依赖安装、类型检查、测试和生产构建。
    - 添加独立、最小权限的 GitHub Pages 工作流，在推送 `main` 或手动触发时先验证再发布静态产物。
+   - 添加 Google Stitch 设计交接文档，包含分阶段提示词、虚构页面数据、原创边界、许可证要求和代码整合验收标准。
    - 将 7,800 多个机场的目录从应用 JavaScript 中拆为可独立缓存的静态资源，并提供明确且可重试的加载状态。
    - 添加 Playwright Chromium 覆盖，验证首次建档、增改删航班、JSON 导入预览和护照地图渲染。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
@@ -294,6 +297,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 38. `32d2e1f` — 完成可访问性与主题审计
 39. `321759c` — 自动化 GitHub Pages 静态发布
 40. `30b47b5` — 重建语言感知的字号体系
+41. `cd05915` — 确保延误信息保持在响应式卡片内
 
 ### 明确推迟的范围
 

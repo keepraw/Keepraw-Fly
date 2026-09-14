@@ -140,6 +140,12 @@ Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md
 [the visual system](docs/design-system.md) and
 [deployment guidance](docs/deployment.md) for details.
 
+For external UI exploration, the [Google Stitch design brief](docs/stitch-ui-brief.md)
+contains a ready-to-paste master prompt, screen-generation sequence, fictional
+sample data, originality and licensing constraints, and integration acceptance
+criteria. Generated code is reference material—not a replacement for the
+application's tested behavior.
+
 ## Status and scope
 
 This repository implements the first-stage local viewer. The explicitly deferred
