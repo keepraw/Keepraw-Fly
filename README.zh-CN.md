@@ -81,6 +81,10 @@ lockfile 重新安装依赖，并执行相同的类型检查、单元测试、Ch
 
 静态网站会生成在 `apps/web/dist/`；部署到静态托管服务时也应发布这个目录。
 
+使用 GitHub Pages 时，先将仓库推送到 GitHub，再在 **Settings → Pages** 中选择
+**GitHub Actions**；仓库内置的发布工作流会部署每次通过检查的 `main` 构建。详见
+[部署指南](docs/deployment.md)。
+
 ## 仓库结构
 
 ```text
