@@ -2,13 +2,16 @@
   color: var(--color-text);
   background: var(--color-canvas);
   font-family: var(--font-family-sans);
+  font-kerning: normal;
+  font-optical-sizing: auto;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   color-scheme: light;
 
   /* Typography families */
-  --font-family-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-family-data: "Segoe UI Variable Display", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-family-sans: "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-display: "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-data: "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 
   /* Semantic color roles */
   --color-text: #20231f;
@@ -64,20 +67,20 @@
   --header: var(--color-header);
 
   /* Type scale */
-  --font-size-caption: 0.75rem;
-  --font-size-label: 0.8125rem;
+  --font-size-caption: 0.8125rem;
+  --font-size-label: 0.875rem;
   --font-size-body: 0.9375rem;
-  --font-size-lead: 1rem;
-  --font-size-section: clamp(1.625rem, 2.4vw, 2.125rem);
-  --font-size-page: clamp(2.75rem, 4.25vw, 4.25rem);
-  --font-size-record: clamp(3rem, 5vw, 5.25rem);
-  --font-size-stat: clamp(2.25rem, 3.6vw, 3.4rem);
-  --font-weight-medium: 580;
-  --font-weight-semibold: 650;
-  --font-weight-bold: 760;
-  --font-weight-display: 570;
-  --tracking-tight: -0.035em;
-  --tracking-display: -0.045em;
+  --font-size-lead: 1.0625rem;
+  --font-size-section: clamp(1.5rem, 1.8vw, 1.75rem);
+  --font-size-page: clamp(2.5rem, 3.5vw, 3.25rem);
+  --font-size-record: clamp(2.75rem, 4.25vw, 4.25rem);
+  --font-size-stat: clamp(2.25rem, 3vw, 3rem);
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-display: 560;
+  --tracking-tight: -0.025em;
+  --tracking-display: -0.035em;
   --tracking-airport: 0.075em;
   --numeric-features: "tnum" 1, "zero" 1;
 
@@ -120,11 +123,12 @@
 }
 
 :root:lang(zh-CN) {
-  --font-family-sans: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
-  --font-family-data: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, sans-serif;
-  --font-weight-display: 520;
-  --tracking-tight: -0.02em;
-  --tracking-display: -0.03em;
+  --font-family-sans: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-family-display: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-family-data: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
+  --font-weight-display: 500;
+  --tracking-tight: 0;
+  --tracking-display: 0;
 }
 
 @media (prefers-color-scheme: dark) {
