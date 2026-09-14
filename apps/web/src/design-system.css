@@ -12,8 +12,8 @@
 
   /* Semantic color roles */
   --color-text: #20231f;
-  --color-text-muted: #70746e;
-  --color-text-faint: #9ca099;
+  --color-text-muted: #626762;
+  --color-text-faint: #6a6f69;
   --color-canvas: #f5f4ef;
   --color-surface: #fdfcf8;
   --color-surface-raised: #fffefa;
@@ -132,7 +132,7 @@
     color-scheme: dark;
     --color-text: #f0f0ea;
     --color-text-muted: #a7aaa5;
-    --color-text-faint: #7d817b;
+    --color-text-faint: #969a94;
     --color-canvas: #151715;
     --color-surface: #191c19;
     --color-surface-raised: #202420;
@@ -158,8 +158,8 @@
 
 :root[data-theme="light"] {
   --color-text: #20231f;
-  --color-text-muted: #70746e;
-  --color-text-faint: #9ca099;
+  --color-text-muted: #626762;
+  --color-text-faint: #6a6f69;
   --color-canvas: #f5f4ef;
   --color-surface: #fdfcf8;
   --color-surface-raised: #fffefa;
@@ -186,7 +186,7 @@
 :root[data-theme="dark"] {
   --color-text: #f0f0ea;
   --color-text-muted: #a7aaa5;
-  --color-text-faint: #7d817b;
+  --color-text-faint: #969a94;
   --color-canvas: #151715;
   --color-surface: #191c19;
   --color-surface-raised: #202420;

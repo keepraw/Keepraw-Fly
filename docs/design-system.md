@@ -55,6 +55,15 @@ Step 31 adds a lightweight, CSS-only motion layer. Content enters with short opa
 
 Step 28 established the foundation, Step 29 applied it to the archive and detail experience, and Step 31 completes the shared visual pass with restrained interaction feedback. Further page changes should reuse these roles instead of creating parallel motion rules.
 
+### Accessibility verification
+
+Step 38 adds Axe checks for the light welcome screen, dark settings/archive views
+and the flight editor. Secondary text tokens meet WCAG AA against their actual
+canvas and raised surfaces. The editor contains keyboard focus, closes with
+Escape, restores focus to its opener and avoids nested banner landmarks. The
+audit runs with reduced motion so entrance opacity cannot create a transient
+false contrast result.
+
 ## 简体中文
 
 Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可以持续精修，而不必各自发明一套语言。Token 负责定义整体氛围，共享组件负责反复出现的航空信息，页面 CSS 仍负责具体构图。
@@ -107,3 +116,10 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 ### 范围
 
 第 28 步建立基础系统，第 29 步将其应用到档案和详情体验，第 31 步用克制的交互反馈完成共享视觉升级。后续页面修改应继续复用这些角色，避免产生平行的动效规则。
+
+### 可访问性验证
+
+第 38 步为浅色欢迎页、深色设置/档案页和航班编辑器加入 Axe 检查。次要文字 token
+在实际画布与抬升表面上满足 WCAG AA。编辑器会约束键盘焦点、支持 Escape 关闭、
+将焦点还给触发控件，并避免嵌套 banner landmark。审计在减少动效条件下运行，防止
+入场透明度产生瞬时的伪对比度结果。

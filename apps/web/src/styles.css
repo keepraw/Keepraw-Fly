@@ -78,6 +78,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  color: var(--color-text);
   font-weight: 720;
   letter-spacing: -0.035em;
   text-decoration: none;

@@ -85,6 +85,7 @@
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
    - Added a CSS-only motion language for page hierarchy, staggered archive rows, control feedback, route drawing and airport-point reveals.
    - Gated all new motion behind the operating-system preference and strengthened the global reduced-motion fallback.
+   - Audited light and dark UI with Axe, added CI-enforced WCAG checks, and completed modal Escape, focus containment and focus restoration behavior.
 
 ### Verification completed
 
@@ -138,6 +139,7 @@
 34. `79f448f` — Add critical browser journey tests
 35. `6ab3517` — Migrate legacy flight archives safely
 36. `eeeade7` — Speed up repeat flight entry
+37. `15baf7b` — Add mapped CSV flight import
 
 ### Deliberately deferred
 
@@ -221,6 +223,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
    - 添加纯 CSS 动效语言，覆盖页面层级、档案行错峰出现、控件反馈、航线绘制和机场点出现。
    - 所有新动效均受操作系统偏好约束，并加强全局“减少动态效果”降级。
+   - 使用 Axe 审计浅色与深色界面，将 WCAG 检查纳入 CI，并补齐弹窗的 Escape、焦点约束与焦点恢复行为。
 
 ### 已完成验证
 
@@ -274,6 +277,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 34. `79f448f` — 添加关键浏览器用户流程测试
 35. `6ab3517` — 安全迁移旧版飞行档案
 36. `eeeade7` — 加快重复航班录入
+37. `15baf7b` — 添加带列映射的 CSV 航班导入
 
 ### 明确推迟的范围
 
