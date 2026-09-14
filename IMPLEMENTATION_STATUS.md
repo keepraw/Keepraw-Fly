@@ -4,8 +4,8 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-11
-- Current milestone: core archive, offline global airport entry, flight detail, Passport and shared visual motion pass complete
+- Last updated: 2026-09-14
+- Current milestone: local-first 0.1 viewer, verified import paths and static GitHub Pages release automation complete
 
 ## English
 
@@ -78,6 +78,7 @@
    - Documented architecture, schema behavior, deployment and intentionally deferred scope.
    - Added bilingual repository entry points and this delivery record.
    - Added a least-privilege GitHub Actions workflow for frozen installs, type checking, tests and production builds.
+   - Added a separate, least-privilege GitHub Pages workflow that verifies and publishes the static artifact on `main` or manual dispatch.
    - Split the 7,800+ airport directory from application JavaScript into a separately cached static asset with an explicit, retryable loading state.
    - Added Playwright coverage for first-run creation, add/edit/delete, validated JSON import and Passport map rendering in Chromium.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
@@ -90,7 +91,8 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 67 automated tests pass: 37 core, 7 validator and 23 web tests.
+- All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
+- All 4 Playwright Chromium journeys pass, including WCAG audits of light, dark and modal states.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
 - The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
@@ -140,6 +142,7 @@
 35. `6ab3517` — Migrate legacy flight archives safely
 36. `eeeade7` — Speed up repeat flight entry
 37. `15baf7b` — Add mapped CSV flight import
+38. `32d2e1f` — Complete accessibility and theme audit
 
 ### Deliberately deferred
 
@@ -216,6 +219,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 记录架构、数据格式行为、部署方式和明确推迟的范围。
    - 添加双语仓库入口和本交付记录。
    - 添加最小权限 GitHub Actions 工作流，执行冻结依赖安装、类型检查、测试和生产构建。
+   - 添加独立、最小权限的 GitHub Pages 工作流，在推送 `main` 或手动触发时先验证再发布静态产物。
    - 将 7,800 多个机场的目录从应用 JavaScript 中拆为可独立缓存的静态资源，并提供明确且可重试的加载状态。
    - 添加 Playwright Chromium 覆盖，验证首次建档、增改删航班、JSON 导入预览和护照地图渲染。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
@@ -228,7 +232,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 67 项自动化测试全部通过：核心逻辑 37 项、校验器 7 项、Web 端 23 项。
+- 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
+- 4 条 Playwright Chromium 用户旅程全部通过，其中包含浅色、深色与弹窗状态的 WCAG 审计。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
 - 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
@@ -278,6 +283,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 35. `6ab3517` — 安全迁移旧版飞行档案
 36. `eeeade7` — 加快重复航班录入
 37. `15baf7b` — 添加带列映射的 CSV 航班导入
+38. `32d2e1f` — 完成可访问性与主题审计
 
 ### 明确推迟的范围
 

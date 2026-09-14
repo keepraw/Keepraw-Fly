@@ -86,6 +86,10 @@ every pull request and every push to `main` through GitHub Actions.
 The static site is written to `apps/web/dist/`; that is also the directory to
 publish on a static hosting service.
 
+For GitHub Pages, push the repository, choose **GitHub Actions** under
+**Settings → Pages**, and let the included deployment workflow publish every
+successful `main` build. See [deployment guidance](docs/deployment.md).
+
 ## Repository layout
 
 ```text
