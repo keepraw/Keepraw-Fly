@@ -534,11 +534,10 @@ nav a:hover { color: var(--ink); }
 .timeline-stem i { grid-column: 2; width: 1px; height: calc(100% + 2px); justify-self: center; background: var(--line); }
 
 .delay-summary { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--color-surface-raised); }
-.delay-summary > div { display: flex; align-items: center; justify-content: space-between; padding: 25px 0; }
-.delay-summary > div:first-child { padding-right: 34px; border-right: 1px solid var(--line); }
-.delay-summary > div:last-child { padding-left: 34px; }
-.delay-summary span { color: var(--muted); font-size: 0.77rem; }
-.delay-summary strong { font-family: var(--font-family-data); font-size: 1.125rem; font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.delay-summary > div { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 24px; padding: 23px 30px; }
+.delay-summary > div:first-child { border-right: 1px solid var(--line); }
+.delay-summary span { min-width: 0; color: var(--muted); font-size: 0.77rem; overflow-wrap: anywhere; }
+.delay-summary strong { flex: 0 0 auto; font-family: var(--font-family-data); font-size: 1.125rem; font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .delay-summary .delay-positive { color: var(--red); }
 
 .flight-facts { display: grid; grid-template-columns: minmax(180px, 0.58fr) minmax(420px, 1fr); gap: 72px; margin-top: 16px; padding: 36px 40px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--color-surface-raised); box-shadow: var(--shadow-raised); }
@@ -948,8 +947,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .timeline-event > div:first-child > strong { font-size: 2rem; }
   .timeline-dot { width: 11px; height: 11px; }
   .delay-summary { grid-template-columns: 1fr; margin-top: 12px; }
-  .delay-summary > div:first-child { padding: 20px; border-right: 0; border-bottom: 1px solid var(--line); }
-  .delay-summary > div:last-child { padding: 20px; }
+  .delay-summary > div { padding: 20px; }
+  .delay-summary > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
   .facts-grid { grid-template-columns: 1fr; }
   .detail-item:nth-child(odd), .detail-item:nth-child(even) { padding-right: 0; padding-left: 0; border-left: 0; }
   .passport-page { padding-top: 56px; }

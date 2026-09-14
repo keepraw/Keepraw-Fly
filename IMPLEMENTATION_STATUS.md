@@ -50,6 +50,7 @@
    - Refined the route hero into a distinctive horizontal composition with restrained, reduced-motion-safe transitions.
    - Upgraded the detail experience with a high-contrast flight panel that prioritizes local times, airports, airline identity and operational state.
    - Grouped the timeline, delay summary and optional facts into a consistent layered card hierarchy.
+   - Kept delay labels and values inside their card at desktop, zoomed and narrow-mobile widths with regression coverage.
    - Added scheduled/actual times, duration, distance, delay and conditional operational facts.
    - Added latest-event operational status and removed empty optional-facts sections when no facts were recorded.
    - Added accessible semantic structure for desktop and narrow mobile layouts.
@@ -93,7 +94,7 @@
 
 - TypeScript type checking passes across the workspace.
 - All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
-- All 4 Playwright Chromium journeys pass, including WCAG audits of light, dark and modal states.
+- All 5 Playwright Chromium journeys pass, including responsive boundary checks and WCAG audits of light, dark and modal states.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
 - The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
@@ -146,6 +147,7 @@
 37. `15baf7b` — Add mapped CSV flight import
 38. `32d2e1f` — Complete accessibility and theme audit
 39. `321759c` — Automate static GitHub Pages releases
+40. `30b47b5` — Rebuild language-aware typography scale
 
 ### Deliberately deferred
 
@@ -194,6 +196,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 将航线主视觉优化为独立的横向构图，并加入克制且兼容“减少动态效果”的过渡动画。
    - 使用高对比航班面板升级详情体验，优先呈现当地时间、机场、航司身份和运行状态。
    - 将时间线、延误摘要和可选事实组织为一致的分层卡片结构。
+   - 确保延误标签和数值在桌面、缩放及窄屏移动端均保持在卡片边界内，并加入回归覆盖。
    - 展示计划/实际时间、时长、距离、延误和按条件出现的运行信息。
    - 添加基于最新运行事件的航班状态，并在没有可选事实时隐藏空白详情区块。
    - 为桌面端和窄屏移动端添加可访问的语义结构。
@@ -237,7 +240,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
-- 4 条 Playwright Chromium 用户旅程全部通过，其中包含浅色、深色与弹窗状态的 WCAG 审计。
+- 5 条 Playwright Chromium 用户旅程全部通过，其中包含响应式边界检查以及浅色、深色与弹窗状态的 WCAG 审计。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
 - 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
@@ -290,6 +293,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 37. `15baf7b` — 添加带列映射的 CSV 航班导入
 38. `32d2e1f` — 完成可访问性与主题审计
 39. `321759c` — 自动化 GitHub Pages 静态发布
+40. `30b47b5` — 重建语言感知的字号体系
 
 ### 明确推迟的范围
 
