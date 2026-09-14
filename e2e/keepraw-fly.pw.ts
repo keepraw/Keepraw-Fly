@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { fileURLToPath } from "node:url";
 
 const exampleArchive = fileURLToPath(new URL("../examples/basic.keepraw-fly.json", import.meta.url));
@@ -62,4 +63,36 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
 
   await page.getByRole("link", { name: "Flights" }).click();
   await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
+});
+
+test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const welcomeAudit = await new AxeBuilder({ page }).analyze();
+  expect(welcomeAudit.violations).toEqual([]);
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByLabel("Appearance").selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  const settingsAudit = await new AxeBuilder({ page }).analyze();
+  expect(settingsAudit.violations).toEqual([]);
+
+  await page.getByRole("link", { name: "Flights" }).click();
+  const addButton = page.getByRole("button", { name: "Add flight" });
+  await addButton.focus();
+  await addButton.click();
+  const dialog = page.getByRole("dialog", { name: "Add a flight" });
+  await expect(dialog).toBeVisible();
+  const modalAudit = await new AxeBuilder({ page }).include(".flight-editor").analyze();
+  expect(modalAudit.violations).toEqual([]);
+  await dialog.getByRole("button", { name: "Save flight" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(dialog.locator(".editor-close")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(addButton).toBeFocused();
+
+  const archiveAudit = await new AxeBuilder({ page }).analyze();
+  expect(archiveAudit.violations).toEqual([]);
 });

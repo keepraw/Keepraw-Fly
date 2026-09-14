@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { airlines, type SupportedLocale } from "@keepraw-fly/core";
@@ -19,9 +19,10 @@ interface FlightEditorProps {
   onCancel: () => void;
   isDuplicate?: boolean;
   preferredAirportCodes?: readonly string[];
+  returnFocus?: HTMLElement | null;
 }
 
-export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDuplicate = false, preferredAirportCodes = [] }: FlightEditorProps) {
+export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDuplicate = false, preferredAirportCodes = [], returnFocus }: FlightEditorProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<FlightDraft>(() =>
     flight ? flightToDraft(flight) : createDefaultDraft(),
@@ -29,6 +30,41 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const airlineListId = useId();
+  const errorId = useId();
+  const dialogRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCancel();
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
+      )].filter((element) => !element.hidden);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.setTimeout(() => {
+        if (!document.querySelector('[role="dialog"]') && returnFocus?.isConnected) {
+          returnFocus.focus();
+        }
+      }, 0);
+    };
+  }, [onCancel, returnFocus]);
   const airlineOptions = useMemo(
     () => [...airlines].sort((left, right) => left.name[locale].localeCompare(right.name[locale], locale)),
     [locale],
@@ -85,16 +121,16 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
     <div className="editor-backdrop" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onCancel();
     }}>
-      <section className="flight-editor" role="dialog" aria-modal="true" aria-labelledby="flight-editor-title">
-        <header className="editor-heading">
+      <section ref={dialogRef} className="flight-editor" role="dialog" aria-modal="true" aria-labelledby="flight-editor-title">
+        <div className="editor-heading">
           <div>
             <p className="eyebrow">{t("flightEditor.eyebrow")}</p>
             <h2 id="flight-editor-title">{t(isDuplicate ? "flightEditor.duplicateTitle" : flight ? "flightEditor.editTitle" : "flightEditor.addTitle")}</h2>
           </div>
           <button type="button" className="editor-close" onClick={onCancel} aria-label={t("actions.cancel")}>×</button>
-        </header>
+        </div>
 
-        <form onSubmit={submit}>
+        <form onSubmit={submit} aria-describedby={error ? errorId : undefined}>
           <div className="editor-grid">
             <label>
               <span>{t("flightEditor.airlineCode")}</span>
@@ -177,7 +213,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
               </label>
             </fieldset>
           </details>
-          {error ? <p className="editor-error" role="alert">{error}</p> : null}
+          {error ? <p className="editor-error" id={errorId} role="alert">{error}</p> : null}
 
           <footer className="editor-actions">
             {flight && onDelete ? <button className="editor-delete" type="button" onClick={() => {
