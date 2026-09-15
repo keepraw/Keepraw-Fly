@@ -85,8 +85,8 @@
    - Split the 7,800+ airport directory from application JavaScript into a separately cached static asset with an explicit, retryable loading state.
    - Added Playwright coverage for first-run creation, add/edit/delete, validated JSON import and Passport map rendering in Chromium.
    - Established semantic visual tokens for themes, type, spacing, shape, controls, focus and motion.
-   - Rebalanced display, statistic, section, body and caption typography with separate Simplified Chinese calibration.
-   - Rebuilt the typography scale around real system font weights, language-aware font stacks and CJK-safe spacing; reduced oversized page, section and data display roles without bundling a font.
+   - Rebuilt bilingual typography around explicit UI, display and data families plus semantic size, leading, weight and tracking tokens.
+   - Optically calibrated Simplified Chinese display sizes and line heights while keeping flight numbers, airport codes, local times and statistics stable with tabular numerals; no font file or dependency is bundled.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
    - Added a CSS-only motion language for page hierarchy, staggered archive rows, control feedback, route drawing and airport-point reveals.
    - Gated all new motion behind the operating-system preference and strengthened the global reduced-motion fallback.
@@ -96,7 +96,7 @@
 
 - TypeScript type checking passes across the workspace.
 - All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
-- All 5 Playwright Chromium journeys pass, including responsive boundary checks and WCAG audits of light, dark and modal states.
+- All 6 Playwright Chromium journeys pass, including bilingual typography, responsive boundary checks and WCAG audits of light, dark and modal states.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
 - The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
@@ -104,7 +104,7 @@
 - The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
 - The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
 - The Step 31 motion layer adds about 0.7 kB gzip across CSS and JavaScript, with no animation runtime or new dependency.
-- The Step 40 typography rebuild adds about 0.1 kB gzip CSS and no font file or dependency.
+- The revised Step 43 bilingual typography system adds no font file or dependency.
 - Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and 390 px mobile layouts, premium flight cards, detail status and conditional facts, Lifetime/Year Passport views, staggered content and SVG route reveals, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
@@ -234,8 +234,8 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 将 7,800 多个机场的目录从应用 JavaScript 中拆为可独立缓存的静态资源，并提供明确且可重试的加载状态。
    - 添加 Playwright Chromium 覆盖，验证首次建档、增改删航班、JSON 导入预览和护照地图渲染。
    - 建立覆盖主题、字体、间距、形状、控件、焦点和动效的语义化视觉 token。
-   - 重新平衡展示标题、统计数字、章节、正文和说明文字，并单独校准简体中文字体表现。
-   - 基于系统真实可用字重、语言感知字体栈和适合中文的字距重建字号体系；收敛过大的页面、章节与数据字号，且不打包字体文件。
+   - 围绕明确的界面、展示和数据字体角色重建双语字体体系，并以语义 token 统一字号、行高、字重和字距。
+   - 对简体中文展示字号与行高进行视觉校准，同时通过等宽数字保持航班号、机场代码、当地时间和统计数字稳定；不打包字体文件或增加依赖。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
    - 添加纯 CSS 动效语言，覆盖页面层级、档案行错峰出现、控件反馈、航线绘制和机场点出现。
    - 所有新动效均受操作系统偏好约束，并加强全局“减少动态效果”降级。
@@ -245,7 +245,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
-- 5 条 Playwright Chromium 用户旅程全部通过，其中包含响应式边界检查以及浅色、深色与弹窗状态的 WCAG 审计。
+- 6 条 Playwright Chromium 用户旅程全部通过，其中包含双语字体、响应式边界检查以及浅色、深色与弹窗状态的 WCAG 审计。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
 - 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
@@ -253,7 +253,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 - 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
 - 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
 - 第 31 步动效层在 CSS 和 JavaScript 中合计约增加 0.7 kB gzip，未加入动画运行库或新依赖。
-- 第 40 步排版重建仅增加约 0.1 kB gzip CSS，没有添加字体文件或依赖。
+- 修订后的第 43 步双语字体体系没有添加字体文件或依赖。
 - 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与 390 px 移动端布局、高级航班卡片、详情状态与条件事实、终身/年度护照、错峰内容与 SVG 航线出现、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 

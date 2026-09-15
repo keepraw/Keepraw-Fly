@@ -1,17 +1,18 @@
 :root {
   color: var(--color-text);
   background: var(--color-canvas);
-  font-family: var(--font-family-sans);
+  font-family: var(--font-family-ui);
   font-kerning: normal;
   font-optical-sizing: auto;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   color-scheme: light;
 
-  /* Typography families */
-  --font-family-sans: "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-display: "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-data: "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  /* Typography families: UI prose, display hierarchy and scannable flight data. */
+  --font-family-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-family-sans: var(--font-family-ui);
+  --font-family-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-family-data: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
 
   /* Semantic color roles */
   --color-text: #20231f;
@@ -66,23 +67,56 @@
   --red-soft: var(--color-danger-soft);
   --header: var(--color-header);
 
-  /* Type scale */
-  --font-size-caption: 0.8125rem;
-  --font-size-label: 0.875rem;
-  --font-size-body: 0.9375rem;
-  --font-size-lead: 1.0625rem;
-  --font-size-section: clamp(1.5rem, 1.8vw, 1.75rem);
-  --font-size-page: clamp(2.5rem, 3.5vw, 3.25rem);
-  --font-size-record: clamp(2.75rem, 4.25vw, 4.25rem);
-  --font-size-stat: clamp(2.25rem, 3vw, 3rem);
+  /* Semantic type scale */
+  --type-size-caption: 0.8125rem;
+  --type-size-label: 0.875rem;
+  --type-size-body: 0.9375rem;
+  --type-size-lead: 1.0625rem;
+  --type-size-section: clamp(1.5rem, 1.8vw, 1.75rem);
+  --type-size-page: clamp(2.5rem, 3.5vw, 3.25rem);
+  --type-size-record: clamp(2.75rem, 4.25vw, 4.25rem);
+  --type-size-stat: clamp(2.25rem, 3vw, 3rem);
+  --type-size-dialog: 1.75rem;
+  --type-size-data-heading: 1.25rem;
+  --type-size-data-emphasis: 1.125rem;
+  --type-size-flight-row: 1rem;
+  --type-size-flight-hero: clamp(2.125rem, 3.2vw, 2.75rem);
+  --type-size-time-hero: clamp(2.5rem, 4vw, 3.5rem);
+  --type-size-time-detail: clamp(2rem, 2.6vw, 2.25rem);
+  --type-size-airport-compact: 1.125rem;
+  --type-size-airport-display: clamp(1.5rem, 2.2vw, 2rem);
+  --type-size-map-label: 0.6875rem;
+  --type-leading-caption: 1.45;
+  --type-leading-label: 1.4;
+  --type-leading-body: 1.6;
+  --type-leading-lead: 1.55;
+  --type-leading-heading: 1.22;
+  --type-leading-display: 1.06;
+  --type-leading-data: 1;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-display: 560;
+  --tracking-wordmark: -0.02em;
+  --tracking-eyebrow: 0.1em;
   --tracking-tight: -0.025em;
   --tracking-display: -0.035em;
-  --tracking-airport: 0.075em;
-  --numeric-features: "tnum" 1, "zero" 1;
+  --tracking-data: -0.035em;
+  --tracking-flight: 0.01em;
+  --tracking-airport: 0.065em;
+  --numeric-features: "kern" 1, "tnum" 1, "zero" 1;
+
+  /* Compatibility aliases for established page styles. */
+  --font-size-caption: var(--type-size-caption);
+  --font-size-label: var(--type-size-label);
+  --font-size-body: var(--type-size-body);
+  --font-size-lead: var(--type-size-lead);
+  --font-size-section: var(--type-size-section);
+  --font-size-page: var(--type-size-page);
+  --font-size-record: var(--type-size-record);
+  --font-size-stat: var(--type-size-stat);
 
   /* Spacing and layout */
   --space-1: 4px;
@@ -123,10 +157,24 @@
 }
 
 :root:lang(zh-CN) {
-  --font-family-sans: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-family-ui: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC", system-ui, sans-serif;
+  --font-family-sans: var(--font-family-ui);
   --font-family-display: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
-  --font-family-data: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
+  --font-family-data: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --type-size-lead: 1rem;
+  --type-size-section: clamp(1.375rem, 1.55vw, 1.625rem);
+  --type-size-page: clamp(2.25rem, 3vw, 2.875rem);
+  --type-size-record: clamp(2.5rem, 3.75vw, 3.625rem);
+  --type-size-stat: clamp(2.125rem, 2.8vw, 2.75rem);
+  --type-size-dialog: 1.625rem;
+  --type-leading-label: 1.5;
+  --type-leading-body: 1.7;
+  --type-leading-lead: 1.7;
+  --type-leading-heading: 1.3;
+  --type-leading-display: 1.14;
   --font-weight-display: 500;
+  --tracking-wordmark: 0;
+  --tracking-eyebrow: 0.06em;
   --tracking-tight: 0;
   --tracking-display: 0;
 }
@@ -243,7 +291,7 @@
   font-size: var(--font-size-caption);
   font-feature-settings: var(--numeric-features);
   font-weight: var(--font-weight-semibold);
-  line-height: 1;
+  line-height: 1.15;
   white-space: nowrap;
 }
 
@@ -273,9 +321,9 @@
   font-feature-settings: var(--numeric-features);
   font-weight: var(--font-weight-display);
   letter-spacing: var(--tracking-airport);
-  line-height: 1;
+  line-height: var(--type-leading-data);
   text-transform: uppercase;
 }
 
-.airport-code-display--compact { font-size: 1.13rem; font-weight: var(--font-weight-semibold); }
-.airport-code-display--display { font-size: var(--font-size-record); letter-spacing: var(--tracking-display); }
+.airport-code-display--compact { font-size: var(--type-size-airport-compact); font-weight: var(--font-weight-semibold); }
+.airport-code-display--display { font-size: var(--type-size-airport-display); }
