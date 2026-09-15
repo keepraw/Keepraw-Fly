@@ -8,12 +8,14 @@ Keepraw Fly uses a small, dependency-free visual foundation so later page work c
 
 ### Principles
 
-1. **Facts first.** Flight numbers, airport codes, times and route relationships carry the strongest visual hierarchy.
-2. **Quiet depth.** Warm neutral surfaces, restrained color, fine borders and layered elevation should feel precise rather than decorative.
-3. **Operational color has meaning.** Green is positive, amber needs attention, red is critical, blue is informational and neutral is scheduled or unknown.
-4. **Local ownership is visible.** Demo, replacement and destructive states must be explicit before the user acts.
-5. **One system, two languages.** Layouts must tolerate longer English labels and dense Chinese labels without fixed text widths.
-6. **Accessible by default.** Semantic controls, visible keyboard focus, sufficient contrast and reduced-motion support are system rules.
+1. **One dominant idea per page.** The first glance must land on the user's most important flight object, not on navigation, decoration or a generic page title.
+2. **Facts first.** Flight numbers, airport codes, times and route relationships carry the strongest visual hierarchy when they are the page's subject.
+3. **Hierarchy before decoration.** Scale, whitespace, alignment, order and restrained contrast establish importance before borders, shadows, gradients, icons or motion are considered.
+4. **Quiet depth.** Warm neutral surfaces, restrained color, fine borders and layered elevation should feel precise rather than decorative.
+5. **Operational color has meaning.** Green is positive, amber needs attention, red is critical, blue is informational and neutral is scheduled or unknown.
+6. **Local ownership is visible.** Demo, replacement and destructive states must be explicit before the user acts.
+7. **One system, two languages.** Layouts must tolerate longer English labels and dense Chinese labels without fixed text widths.
+8. **Accessible by default.** Semantic controls, visible keyboard focus, sufficient contrast and reduced-motion support are system rules.
 
 ### Token layers
 
@@ -48,6 +50,93 @@ hides only the wordmark text and allows the link row to scroll internally at unu
 narrow widths instead of widening the document. Viewport and container insets include
 device safe areas.
 
+### Composition contract
+
+Before changing a core page, complete this sentence in the implementation notes:
+“The first glance should land on **[one object]**, because **[product reason]**.”
+If the answer names a collection of unrelated modules, the composition does not yet
+have a dominant idea. A page title names the place; it is not automatically the hero.
+
+Use four levels of visual weight:
+
+| Level | Role | Appropriate tools | Must not compete with |
+| --- | --- | --- | --- |
+| 1. Dominant | The one page-defining object or relationship | Largest relevant data/display type, spatial isolation, deliberate whitespace, one high-contrast field or meaningful route/map geometry | Another hero, equally large controls, decorative illustration |
+| 2. Supporting | Context needed to understand or operate on the dominant object | Section type, normal surface contrast, compact controls, restrained semantic color | The dominant scale or contrast |
+| 3. Detail | Facts consulted after the main story is understood | Body/data type, aligned rows or definition lists, dividers, muted labels | Separate cards for every fact |
+| 4. Meta/action | Counts, helper text, tertiary actions and provenance | Label/caption type, muted or faint text, text/secondary controls | Persistent accent, large pills or elevation |
+
+Only the dominant level may routinely combine several emphasis tools at once—for
+example large type, an inverted surface and generous isolation. Supporting content
+must step down in scale or contrast, and detail/meta content must step down again.
+Do not solve an unclear hierarchy by making every heading larger.
+
+The core-page contracts for later work are:
+
+| Page | Dominant visual idea | Supporting content | Content that should recede |
+| --- | --- | --- | --- |
+| Flights | The chronological flight records themselves | Search, year grouping and the add action | Page title, total count and secondary status detail |
+| Flight Detail | Origin → destination and the relationship between local times | Date, flight identity, duration and truthful operational status | Aircraft, seat, terminal, gate and notes |
+| Passport | The user's geographic flight footprint, led by the route map | Lifetime/year context and a small number of derived totals | Ranking details, counts and period controls |
+| Settings | Data ownership and the settings content itself | Clear section labels, preference controls and import/export actions | Decorative route art, icons and promotional hero treatment |
+
+Desktop and mobile must preserve the same dominant idea. Mobile may change the
+composition, disclosure and order; it must not become a uniformly shrunken desktop
+screen or promote controls above the page's subject.
+
+### Grouping, surfaces and anti-SaaS rules
+
+Choose the lightest grouping device that communicates the relationship:
+
+1. Start with proximity, alignment and whitespace.
+2. Add a divider when repeated facts need scanning structure.
+3. Add a surface only when content has an independent interaction, state, containment or ownership boundary.
+4. Add elevation only for overlap, a modal/floating layer or the single dominant surface—not merely to make a section feel finished.
+5. Reserve inverted, gradient or illustrated treatment for at most one meaningful focal region on a page. It must reinforce real flight information.
+
+A container must not exist only to hold a heading and another container. Avoid card
+mosaics, nested cards, one-field cards and rows of equally elevated rounded rectangles.
+Prefer editorial sequences, aligned lists, definition lists and open sections. A
+repeated component may use a card when each item is genuinely actionable as a whole,
+but its internal facts should remain one composition rather than smaller cards.
+
+Badges are for compact state, category or selection—not for every value. Icons must
+improve recognition, direction or control affordance; section-by-section decorative
+icons are not a default. Shadows express actual depth. Accent color communicates a
+route, selection, status or action and must not be spread across unrelated labels.
+Never add a module, metric or placeholder fact to fill empty space.
+
+### Applying the existing tokens
+
+The current foundation is sufficient for this hierarchy and should stay small:
+
+- `--type-size-record`, `--type-size-time-hero` and `--type-size-airport-display` are available for dominant real-world data. Use `--type-size-page` for page identity, not as a competing data hero.
+- `--type-size-section` and `--type-size-data-heading` establish supporting structure; body, label and caption roles carry detail and meta information.
+- `--color-text`, muted and faint roles create deliberate recession. Accent and operational colors retain semantic meaning and are not general emphasis colors.
+- `--space-8` through `--space-10` separate major narrative regions; `--space-5` through `--space-7` separate sections; smaller steps group related facts and controls.
+- Canvas or open layout is the default. Surface, raised and inverted roles are progressively stronger boundaries. Radius and shadow size must follow that boundary strength.
+
+The audit for Step 45 found no shared card utility forcing page composition, and the
+existing typography, spacing, color and elevation tokens already cover the needed
+roles. Therefore this step deliberately adds no new visual primitive or page-level CSS.
+Later page tasks should first remove unnecessary containers and reassign existing
+roles; extend the token set only when a recurring semantic need is demonstrated.
+
+### Composition review checklist
+
+Before a later page redesign is accepted, verify:
+
+1. Can a reviewer name the first visual focus in one short phrase?
+2. Is that focus a truthful flight record, relationship or user-owned capability?
+3. Would the hierarchy still read clearly without gradients, shadows and icons?
+4. Does each border, radius, surface and shadow communicate a real boundary or depth?
+5. Can any card be replaced by whitespace, alignment or a divider?
+6. Are status badges and accent colors limited to semantic uses?
+7. Do secondary facts visibly recede without becoming inaccessible?
+8. Does mobile preserve the same priority while changing composition where needed?
+9. Do Chinese, English and numeric content retain the intended hierarchy?
+10. Was anything added only to fill space or make the page feel like a dashboard?
+
 ### Shared aviation primitives
 
 `apps/web/src/components/AviationPrimitives.tsx` provides three dependency-free building blocks:
@@ -73,7 +162,10 @@ Step 31 adds a lightweight, CSS-only motion layer. Content enters with short opa
 
 ### Scope
 
-Step 28 established the foundation, Step 29 applied it to the archive and detail experience, and Step 31 completes the shared visual pass with restrained interaction feedback. Further page changes should reuse these roles instead of creating parallel motion rules.
+Step 45 defines composition rules and page-level hierarchy contracts; it does not
+redesign a business page. Steps 47–54 should apply these contracts to one page or
+bounded experience at a time while preserving product facts and behavior. Existing
+visual tokens and motion rules should be reused instead of creating parallel systems.
 
 ### Accessibility verification
 
@@ -90,12 +182,14 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 
 ### 设计原则
 
-1. **事实优先。** 航班号、机场代码、时间和航线关系拥有最强的信息层级。
-2. **克制的纵深。** 暖色中性背景、节制配色、细边框和分层阴影应体现精确感，而不是装饰感。
-3. **运行颜色必须有含义。** 绿色表示正向，琥珀色表示需要关注，红色表示严重，蓝色表示信息，灰色表示计划中或未知。
-4. **明确数据归属。** 演示、替换和破坏性状态都必须在用户操作前明确说明。
-5. **同一系统，双语适配。** 布局需要同时容纳更长的英文标签和密集的中文标签，不能依赖固定文本宽度。
-6. **默认可访问。** 语义化控件、可见的键盘焦点、足够对比度和减少动效支持都属于系统规则。
+1. **每页只有一个主导构图。** 第一眼必须落在用户最重要的飞行对象上，而不是导航、装饰或通用页面标题。
+2. **事实优先。** 当航班号、机场代码、时间和航线关系是页面主题时，它们拥有最强的信息层级。
+3. **先建立层级，再考虑装饰。** 先用尺度、留白、对齐、顺序和克制的对比表达重要性，再考虑边框、阴影、渐变、图标或动效。
+4. **克制的纵深。** 暖色中性背景、节制配色、细边框和分层阴影应体现精确感，而不是装饰感。
+5. **运行颜色必须有含义。** 绿色表示正向，琥珀色表示需要关注，红色表示严重，蓝色表示信息，灰色表示计划中或未知。
+6. **明确数据归属。** 演示、替换和破坏性状态都必须在用户操作前明确说明。
+7. **同一系统，双语适配。** 布局需要同时容纳更长的英文标签和密集的中文标签，不能依赖固定文本宽度。
+8. **默认可访问。** 语义化控件、可见的键盘焦点、足够对比度和减少动效支持都属于系统规则。
 
 ### Token 层级
 
@@ -125,6 +219,88 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 文字；在异常窄的屏幕上，链接行会在自身内部滚动，不会撑宽整个页面。Viewport 与
 容器间距均包含设备 safe area。
 
+### 构图契约
+
+修改核心页面前，先在实施说明中补完这句话：
+“用户第一眼应该看到 **[唯一对象]**，因为 **[产品原因]**。”
+如果答案包含一组互不相关的模块，说明构图仍没有明确主角。页面标题用于说明当前位置，
+它不天然等于页面主视觉。
+
+视觉权重分为四级：
+
+| 层级 | 作用 | 可以使用的手段 | 不应与什么竞争 |
+| --- | --- | --- | --- |
+| 1. 主导层 | 唯一决定页面身份的对象或关系 | 最大的相关数据/展示字号、空间隔离、明确留白、一个高对比区域或有意义的航线/地图几何 | 另一个 hero、同样巨大的控件、装饰插画 |
+| 2. 支撑层 | 理解或操作主导对象所需的上下文 | 章节字号、普通表面对比、紧凑控件、克制的语义颜色 | 主导层的尺度或对比度 |
+| 3. 细节层 | 理解主线后才需要查阅的事实 | 正文/数据字号、对齐行或定义列表、分隔线、弱化标签 | 每个字段一个独立 card |
+| 4. 元信息/操作层 | 数量、辅助说明、三级操作与来源 | 标签/说明字号、muted 或 faint 文字、文字型/次级控件 | 持续强调色、大型 pill 或抬升效果 |
+
+只有主导层可以常态化叠加多种强调手段，例如大字号、反色表面和充分空间隔离。
+支撑内容必须在尺度或对比度上退后一步，细节和元信息还要继续退后。不能通过把所有标题
+一起放大来修复不清晰的层级。
+
+后续核心页面遵守以下契约：
+
+| 页面 | 主导视觉构图 | 支撑内容 | 应主动退后的内容 |
+| --- | --- | --- | --- |
+| Flights | 按时间组织的航班记录本身 | 搜索、年份分组和新增操作 | 页面标题、总数和次要状态细节 |
+| Flight Detail | origin → destination 与两地当地时间的关系 | 日期、航班身份、时长和真实运行状态 | 机型、座位、航站楼、登机口和备注 |
+| Passport | 以航线地图为核心的个人地理飞行足迹 | Lifetime/年度上下文和少量派生总数 | 排名细节、计数和周期控件 |
+| Settings | 数据所有权与设置内容本身 | 清晰的章节标签、偏好控件以及导入/导出操作 | 装饰航线图、图标和宣传式 hero 表达 |
+
+Desktop 与 Mobile 必须保留同一个主导构图。移动端可以改变构图、披露方式和信息顺序，
+但不能只是把桌面页面等比压小，也不能让控件越过页面主题成为第一视觉重点。
+
+### 分组、表面与 anti-SaaS 规则
+
+始终选择能够说明关系的最轻分组方式：
+
+1. 先使用邻近关系、对齐和留白。
+2. 重复事实需要清晰扫描结构时，再加入分隔线。
+3. 只有当内容具备独立交互、状态、内容约束或数据所有权边界时，才加入表面。
+4. 只有重叠层、弹窗/浮层或页面唯一主导表面可以使用纵深；不能只为了让 section 看起来完整而加阴影。
+5. 每个页面最多允许一个反色、渐变或插画区域，并且它必须强化真实的飞行信息。
+
+容器不能仅仅为了包住标题和另一个容器而存在。避免 dashboard card mosaic、嵌套 card、
+一字段一卡片，以及整排具有相同抬升和圆角的矩形。优先采用编辑式信息序列、对齐列表、
+定义列表和开放 section。重复组件只有在每个项目确实作为整体可操作时才适合使用 card；
+其内部事实仍应组成一个构图，而不是继续拆成更小的 card。
+
+Badge 只用于紧凑表达状态、类别或选择，不能把每个值都变成 badge。图标必须帮助识别、
+方向判断或控件理解，不能默认给每个 section 加装饰图标。阴影只表达真实纵深。强调色
+用于航线、选择、状态或操作，不能散布在互不相关的标签上。绝不为了填满留白而增加模块、
+指标或占位事实。
+
+### 使用现有 token 建立层级
+
+当前基础已经足以表达这些层级，应继续保持精简：
+
+- `--type-size-record`、`--type-size-time-hero` 与 `--type-size-airport-display` 可用于主导层的真实数据；`--type-size-page` 只表达页面身份，不能与数据主视觉竞争。
+- `--type-size-section` 与 `--type-size-data-heading` 建立支撑结构；正文、标签和说明字号承担细节与元信息。
+- `--color-text`、muted 与 faint 角色形成明确的后退层级；强调色和运行状态色继续保持语义，不能作为通用强调色。
+- `--space-8` 至 `--space-10` 分隔主要叙事区域，`--space-5` 至 `--space-7` 分隔 section，更小的间距用于组织相关事实与控件。
+- 默认使用 canvas 或开放布局。surface、raised 与 inverted 代表逐步增强的边界；圆角和阴影大小必须服从边界强度。
+
+任务 45 的审查没有发现会强制页面构图的共享 card 工具类，现有字体、间距、颜色和纵深
+token 也已经覆盖所需角色。因此本任务刻意不增加视觉 primitive 或页面级 CSS。后续页面
+任务应先移除不必要容器并重新分配现有角色；只有反复出现的语义需求确实无法表达时，
+才扩展 token。
+
+### 构图验收清单
+
+后续页面重设计通过验收前，需要确认：
+
+1. 审查者能否用一个短语说出第一视觉重点？
+2. 这个重点是否属于真实航班记录、真实关系或用户拥有的能力？
+3. 移除渐变、阴影和图标后，信息层级是否仍然清晰？
+4. 每个边框、圆角、表面和阴影是否都表达真实边界或纵深？
+5. 是否有 card 可以用留白、对齐或分隔线替代？
+6. 状态 badge 和强调色是否只用于语义场景？
+7. 次要事实是否明显退后，同时仍保持可访问和可读？
+8. Mobile 是否在必要时改变构图，同时保留相同优先级？
+9. 中文、英文和数字内容是否保持预期层级？
+10. 是否存在只为了填满空间或让页面更像 dashboard 而添加的内容？
+
 ### 共享航空组件
 
 `apps/web/src/components/AviationPrimitives.tsx` 提供三个不依赖外部库的基础组件：
@@ -150,7 +326,9 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 
 ### 范围
 
-第 28 步建立基础系统，第 29 步将其应用到档案和详情体验，第 31 步用克制的交互反馈完成共享视觉升级。后续页面修改应继续复用这些角色，避免产生平行的动效规则。
+任务 45 定义构图规则和页面级层级契约，不重设计任何业务页面。任务 47–54 应按页面或
+边界明确的体验逐项应用这些契约，同时保留产品事实与现有行为。后续应继续复用现有视觉
+token 和动效规则，避免建立平行系统。
 
 ### 可访问性验证
 

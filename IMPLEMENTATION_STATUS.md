@@ -89,6 +89,7 @@
    - Optically calibrated Simplified Chinese display sizes and line heights while keeping flight numbers, airport codes, local times and statistics stable with tabular numerals; no font file or dependency is bundled.
    - Unified every public screen behind one semantic page shell with shared content width, responsive gutters, vertical rhythm, sticky navigation bounds and device safe-area handling.
    - Kept desktop and mobile navigation on one responsive structure, with a single 760 px transition and contained overflow for unusually narrow viewports.
+   - Defined an executable visual-composition contract with one dominant idea per page, four explicit hierarchy levels, restrained surface/elevation rules and anti-SaaS review criteria for later page work.
    - Extended the foundation with layered surfaces, operational status colors, data typography, elevation roles and reusable airport-code, status-badge and aviation-icon primitives.
    - Added a CSS-only motion language for page hierarchy, staggered archive rows, control feedback, route drawing and airport-point reveals.
    - Gated all new motion behind the operating-system preference and strengthened the global reduced-motion fallback.
@@ -240,6 +241,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 对简体中文展示字号与行高进行视觉校准，同时通过等宽数字保持航班号、机场代码、当地时间和统计数字稳定；不打包字体文件或增加依赖。
    - 将所有公共页面统一到同一个语义化页面骨架，共享内容宽度、响应式左右留白、纵向节奏、粘滞导航边界与设备 safe area 处理。
    - Desktop 与 Mobile 导航沿用同一套响应式结构，以 760 px 作为统一切换点，并在异常窄的 viewport 内约束导航溢出。
+   - 为后续页面任务定义可执行的视觉构图契约：每页一个主导构图、四级信息层级、克制的表面/纵深规则以及 anti-SaaS 验收标准。
    - 扩展分层表面、运行状态颜色、数据字体和纵深角色，并建立可复用的机场代码、状态徽章和航空图标组件。
    - 添加纯 CSS 动效语言，覆盖页面层级、档案行错峰出现、控件反馈、航线绘制和机场点出现。
    - 所有新动效均受操作系统偏好约束，并加强全局“减少动态效果”降级。
