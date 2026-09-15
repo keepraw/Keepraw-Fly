@@ -28,6 +28,15 @@ Keepraw Fly uses a small, dependency-free visual foundation so later page work c
 
 Compatibility aliases such as `--ink` and `--green` remain for first-stage screens. New components should prefer the semantic `--color-*`, `--font-*`, `--radius-*` and `--shadow-*` roles.
 
+The bilingual type system uses three roles without downloading fonts: the UI family
+for prose and controls, the display family for page hierarchy, and the data family
+for flight numbers, airport codes, local times and statistics. Size, leading,
+weight and tracking are defined by `--type-*`, `--font-weight-*` and `--tracking-*`
+tokens. Simplified Chinese overrides only the roles that need optical correction:
+display sizes are slightly smaller, line heights are more open, and display
+tracking returns to zero. Data roles retain tabular numerals so columns and time
+comparisons remain stable in both languages.
+
 ### Shared aviation primitives
 
 `apps/web/src/components/AviationPrimitives.tsx` provides three dependency-free building blocks:
@@ -89,6 +98,12 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 - **地图与动效：** Flight Passport 的地图配色和现有减少动效安全时序保持独立层级。
 
 `--ink`、`--green` 等兼容别名继续服务第一阶段页面。新组件应优先使用语义化的 `--color-*`、`--font-*`、`--radius-*` 和 `--shadow-*` 角色。
+
+双语字体体系不下载字体文件，而是明确分为三类：界面字体用于正文与控件，展示字体用于
+页面层级，数据字体用于航班号、机场代码、当地时间和统计数字。字号、行高、字重和字距
+分别由 `--type-*`、`--font-weight-*` 与 `--tracking-*` token 管理。简体中文只覆盖需要
+视觉校准的角色：展示字号略小、行高更宽松、展示字距归零；数据角色在两种语言中都保留
+等宽数字特性，使列对齐和时间比较保持稳定。
 
 ### 共享航空组件
 

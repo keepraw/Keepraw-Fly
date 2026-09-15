@@ -122,3 +122,48 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   const archiveAudit = await new AxeBuilder({ page }).analyze();
   expect(archiveAudit.violations).toEqual([]);
 });
+
+test("keeps bilingual typography distinct, scannable and inside the viewport", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  const englishTitleSize = await page.locator(".page-heading h1").evaluate((element) =>
+    Number.parseFloat(getComputedStyle(element).fontSize),
+  );
+  const bodyMetrics = await page.locator("body").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { family: style.fontFamily, size: Number.parseFloat(style.fontSize) };
+  });
+  const flightDataMetrics = await page.locator(".flight-number strong").first().evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { family: style.fontFamily, features: style.fontFeatureSettings };
+  });
+
+  expect(bodyMetrics.size).toBeGreaterThanOrEqual(15);
+  expect(bodyMetrics.family).toContain("Segoe UI Variable Text");
+  expect(flightDataMetrics.family).toContain("Segoe UI Variable Display");
+  expect(flightDataMetrics.features).toContain("tnum");
+
+  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByLabel("Language").selectOption("zh-CN");
+  await page.locator(".settings-fields select").nth(1).selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+  const chineseHeadingMetrics = await page.locator(".settings-heading h1").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      family: style.fontFamily,
+      size: Number.parseFloat(style.fontSize),
+      tracking: style.letterSpacing,
+    };
+  });
+  expect(chineseHeadingMetrics.family).toContain("Microsoft YaHei UI");
+  expect(chineseHeadingMetrics.size).toBeLessThan(englishTitleSize);
+  expect(chineseHeadingMetrics.tracking).toBe("normal");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("link", { name: "航班" }).click();
+  const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
+  expect(fitsViewport).toBe(true);
+});
