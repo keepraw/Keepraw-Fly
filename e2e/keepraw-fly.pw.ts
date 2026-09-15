@@ -167,3 +167,46 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
   expect(fitsViewport).toBe(true);
 });
+
+test("keeps every page aligned to the shared responsive shell", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  for (const width of [320, 760, 761, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+
+    for (const pageName of ["Flights", "Passport", "Settings"]) {
+      await page.getByRole("link", { name: pageName }).click();
+
+      const layout = await page.evaluate(() => {
+        const main = document.querySelector<HTMLElement>(".page-shell");
+        const header = document.querySelector<HTMLElement>(".site-header-inner");
+        if (!main || !header) throw new Error("Shared page shell is missing");
+
+        const contentEdges = (element: HTMLElement) => {
+          const bounds = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            left: bounds.left + Number.parseFloat(style.paddingLeft),
+            right: bounds.right - Number.parseFloat(style.paddingRight),
+          };
+        };
+
+        return {
+          fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+          header: contentEdges(header),
+          main: contentEdges(main),
+          mainPaddingTop: Number.parseFloat(getComputedStyle(main).paddingTop),
+          mainPaddingBottom: Number.parseFloat(getComputedStyle(main).paddingBottom),
+        };
+      });
+
+      expect(layout.fitsViewport).toBe(true);
+      expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);
+      expect(Math.abs(layout.header.right - layout.main.right)).toBeLessThan(1);
+      expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1120);
+      expect(layout.mainPaddingTop).toBe(width <= 760 ? 40 : 48);
+      expect(layout.mainPaddingBottom).toBe(width <= 760 ? 80 : 120);
+    }
+  }
+});

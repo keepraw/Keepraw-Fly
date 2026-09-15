@@ -13,6 +13,7 @@ import {
   type SupportedLocale,
   type DistanceUnit,
 } from "@keepraw-fly/core";
+import { PageShell } from "../components/PageShell";
 
 const PassportRouteMap = lazy(() => import("../components/PassportRouteMap")
   .then((module) => ({ default: module.PassportRouteMap })));
@@ -61,7 +62,7 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
 
   if (!document.flights.length) {
     return (
-      <main className="passport-page" id="main-content" tabIndex={-1}>
+      <PageShell className="passport-page">
         <header className="passport-heading">
           <div>
             <p className="eyebrow">{t("passport.flightHistory")}</p>
@@ -80,12 +81,12 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
             </button>
           </div>
         </section>
-      </main>
+      </PageShell>
     );
   }
 
   return (
-    <main className="passport-page" id="main-content" tabIndex={-1}>
+    <PageShell className="passport-page">
       <header className="passport-heading">
         <div>
           <p className="eyebrow">
@@ -178,6 +179,6 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
           ))}
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }

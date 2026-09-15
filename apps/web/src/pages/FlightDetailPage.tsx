@@ -16,6 +16,7 @@ import {
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { AirportCode, AviationIcon, FlightStatusBadge } from "../components/AviationPrimitives";
+import { PageShell } from "../components/PageShell";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
@@ -84,7 +85,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
   );
 
   return (
-    <main className="detail-page" id="main-content" tabIndex={-1}>
+    <PageShell className="detail-page">
       <div className="detail-toolbar">
         <button className="back-button" type="button" onClick={onBack}>
           <span aria-hidden="true">←</span> {t("actions.backToFlights")}
@@ -217,6 +218,6 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
           <DetailItem label={t("flightDetail.cabin")} value={seat?.cabin} />
         </dl>
       </section> : null}
-    </main>
+    </PageShell>
   );
 }
