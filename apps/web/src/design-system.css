@@ -330,6 +330,7 @@
   letter-spacing: var(--tracking-airport);
   line-height: var(--type-leading-data);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .airport-code-display--compact { font-size: var(--type-size-airport-compact); font-weight: var(--font-weight-semibold); }

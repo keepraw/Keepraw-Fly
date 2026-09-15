@@ -105,6 +105,16 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   expect(settingsAudit.violations).toEqual([]);
 
   await page.getByRole("link", { name: "Flights" }).click();
+  const reducedMotionDurations = await page.locator(".flight-row").first().evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      animation: Number.parseFloat(style.animationDuration),
+      transition: Math.max(...style.transitionDuration.split(",").map(Number.parseFloat)),
+    };
+  });
+  expect(reducedMotionDurations.animation).toBeLessThanOrEqual(0.001);
+  expect(reducedMotionDurations.transition).toBeLessThanOrEqual(0.001);
+
   const addButton = page.getByRole("button", { name: "Add flight" });
   await addButton.focus();
   await addButton.click();
@@ -208,5 +218,124 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
       expect(layout.mainPaddingTop).toBe(width <= 760 ? 40 : 48);
       expect(layout.mainPaddingBottom).toBe(width <= 760 ? 80 : 120);
     }
+  }
+});
+
+test("enforces the static responsive UI acceptance constraints", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.getByRole("link", { name: "Flights" }).click();
+
+    const archive = await page.evaluate(() => {
+      window.scrollTo(0, 0);
+      const visible = (element: Element | null) => Boolean(
+        element && getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width,
+      );
+      const row = document.querySelector<HTMLElement>(".flight-row");
+      const header = document.querySelector<HTMLElement>(".site-header");
+      const main = document.querySelector<HTMLElement>(".page-shell");
+      if (!row || !header || !main) throw new Error("Responsive archive landmarks are missing");
+
+      const overflowingButtons = Array.from(document.querySelectorAll<HTMLElement>("button"))
+        .filter(visible)
+        .filter((button) => {
+          const bounds = button.getBoundingClientRect();
+          return bounds.left < -0.5 || bounds.right > window.innerWidth + 0.5;
+        }).length;
+      const atomicValues = Array.from(row.querySelectorAll<HTMLElement>(
+        ".flight-number strong, .flight-times time, .flight-mobile-heading > strong, .flight-mobile-route time, .airport-code-display",
+      )).filter(visible);
+      const headerBounds = header.getBoundingClientRect();
+      const mainBounds = main.getBoundingClientRect();
+
+      return {
+        atomicValues: atomicValues.length,
+        atomicValuesStayWhole: atomicValues.every((element) => getComputedStyle(element).whiteSpace === "nowrap"),
+        desktopIdentityVisible: visible(row.querySelector(".flight-number")),
+        desktopRouteVisible: visible(row.querySelector(".flight-route")),
+        desktopStatusVisible: visible(row.querySelector(":scope > .flight-status")),
+        desktopTimesVisible: visible(row.querySelector(".flight-times")),
+        fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        headerClearsContent: headerBounds.bottom <= mainBounds.top + 1,
+        headerIsSticky: getComputedStyle(header).position === "sticky",
+        mobileIdentityVisible: visible(row.querySelector(".flight-mobile-heading > strong")),
+        mobileRouteValues: Array.from(row.querySelectorAll(".flight-mobile-route .airport-code-display, .flight-mobile-route time")).filter(visible).length,
+        mobileStatusVisible: visible(row.querySelector(".flight-mobile-summary .flight-status")),
+        mobileSummaryVisible: visible(row.querySelector(".flight-mobile-summary")),
+        overflowingButtons,
+        rowIsActionable: row.tagName === "BUTTON",
+      };
+    });
+
+    expect(archive.fitsViewport).toBe(true);
+    expect(archive.overflowingButtons).toBe(0);
+    expect(archive.headerIsSticky).toBe(true);
+    expect(archive.headerClearsContent).toBe(true);
+    expect(archive.rowIsActionable).toBe(true);
+    expect(archive.atomicValues).toBeGreaterThanOrEqual(5);
+    expect(archive.atomicValuesStayWhole).toBe(true);
+
+    if (viewport.width === 390) {
+      expect(archive.mobileSummaryVisible).toBe(true);
+      expect(archive.mobileIdentityVisible).toBe(true);
+      expect(archive.mobileRouteValues).toBe(4);
+      expect(archive.mobileStatusVisible).toBe(true);
+      expect(archive.desktopIdentityVisible).toBe(false);
+    } else {
+      expect(archive.mobileSummaryVisible).toBe(false);
+      expect(archive.desktopIdentityVisible).toBe(true);
+      expect(archive.desktopRouteVisible).toBe(true);
+      expect(archive.desktopTimesVisible).toBe(true);
+      expect(archive.desktopStatusVisible).toBe(true);
+    }
+
+    await page.locator(".flight-row").first().click();
+    const detail = await page.evaluate(() => {
+      const values = Array.from(document.querySelectorAll<HTMLElement>(
+        ".detail-heading h1, .detail-airport-time, .airport-code",
+      ));
+      const airportNames = Array.from(document.querySelectorAll<HTMLElement>(".airport-block small"));
+      return {
+        airportNamesConstrained: airportNames.every((element) => {
+          const style = getComputedStyle(element);
+          return style.display === "none" || (style.overflow === "hidden" && style.textOverflow === "ellipsis");
+        }),
+        atomicValuesStayWhole: values.every((element) => getComputedStyle(element).whiteSpace === "nowrap"),
+        fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      };
+    });
+    expect(detail.fitsViewport).toBe(true);
+    expect(detail.atomicValuesStayWhole).toBe(true);
+    expect(detail.airportNamesConstrained).toBe(true);
+  }
+
+  for (const viewport of [
+    { width: 1024, height: 768 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.getByRole("link", { name: "Flights" }).click();
+    await page.getByRole("button", { name: "Add flight" }).click();
+
+    const dialog = await page.getByRole("dialog", { name: "Add a flight" }).evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      return {
+        fitsViewport: bounds.top >= 0
+          && bounds.left >= 0
+          && bounds.right <= window.innerWidth
+          && bounds.bottom <= window.innerHeight,
+        scrollable: ["auto", "scroll"].includes(getComputedStyle(element).overflowY),
+      };
+    });
+    expect(dialog.fitsViewport).toBe(true);
+    expect(dialog.scrollable).toBe(true);
+    await page.getByRole("dialog").locator(".editor-close").click();
   }
 });

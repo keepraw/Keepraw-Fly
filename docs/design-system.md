@@ -50,6 +50,68 @@ hides only the wordmark text and allows the link row to scroll internally at unu
 narrow widths instead of widening the document. Viewport and container insets include
 device safe areas.
 
+### Responsive UI acceptance
+
+Responsive work is reviewed at three representative widths. They are inspection
+baselines, not three layouts to hard-code:
+
+| Baseline | Approximate width | What it must prove |
+| --- | ---: | --- |
+| Desktop | 1440 px | The content maximum and deliberate whitespace hold; information does not expand merely to fill the screen. |
+| Narrow desktop / tablet | 1024 px | Grids reallocate space without losing the primary flight facts or leaking outside their containers. |
+| Mobile | 390 px | The composition changes where needed, preserves the content priority and remains usable without hover. |
+
+Tests that cover the shared 760 px transition should also exercise 760 px and 761 px.
+Unusual widths such as 320 px are useful overflow guards, but they do not replace the
+three design baselines.
+
+Every page and shared component must satisfy these invariants:
+
+- The document has no horizontal overflow. A deliberately scrollable local region, such as a data table or navigation strip, must contain its own overflow.
+- Airport codes, flight numbers and critical times remain atomic and readable. They do not split across lines or solve pressure by shrinking without a lower bound.
+- Buttons stay inside the viewport and their owning container. Labels may wrap when the control remains clear and usable.
+- Modals fit the dynamic viewport and device safe area. Long forms scroll inside the modal or its backdrop; essential actions remain keyboard reachable.
+- Sticky and fixed elements reserve or account for their occupied space, do not cover the main content, and do not trap focus behind them.
+- Desktop grids are replaced, reordered or progressively disclosed on mobile rather than simply compressed until their contents collide.
+- Core navigation and actions remain visible to touch, keyboard and pointer users. Hover may reinforce an affordance but cannot reveal the only route to a core function.
+- Long airport, airline and localized names wrap in supporting regions or use a clear ellipsis where the full text is non-primary; they never widen the page or displace route identity.
+
+When space becomes constrained, preserve information in this order:
+
+1. Origin and destination.
+2. The key local times.
+3. Flight identity.
+4. Primary truthful status.
+5. Supporting names, dates, counts and optional facts.
+
+Supporting information may wrap, move below the primary row, enter a secondary region
+or use progressive disclosure on mobile. Do not keep the desktop order by reducing all
+type indefinitely. The dominant idea defined by the composition contract must survive
+the transition.
+
+Chinese and English are separate acceptance cases. Chinese copy often has greater
+visual density; English airport and action names often require more horizontal space.
+Components must use the language-aware type tokens, allow prose to reflow and keep
+numeric/data roles stable. Do not introduce fixed widths that work only for one locale.
+
+Light and dark implementations must consume the shared theme roles: canvas/background,
+base and raised surfaces, regular/strong borders, primary/muted/faint text, operational
+status pairs and the focus ring. Business-page CSS must not add a parallel light/dark
+palette. A self-contained semantic subtheme, such as the existing Passport map, remains
+tokenized and must still meet contrast requirements.
+
+Motion cannot carry layout meaning or be required to discover an action. New animation
+belongs behind `prefers-reduced-motion: no-preference`; the global reduced-motion rule
+must leave content immediately present, focused elements stable and controls usable.
+
+The automated acceptance floor is intentionally lightweight:
+
+- Typecheck, unit tests and production build must pass.
+- Headless browser tests assert whole-document overflow, shared-shell alignment and the three baseline widths.
+- Representative archive and detail data assert atomic airport codes, flight identity and times plus the mobile compression order.
+- Representative desktop/mobile modal bounds, sticky-header clearance, visible button bounds, theme accessibility and reduced-motion duration are checked.
+- Screenshot-diff infrastructure is not required. Add it only if a later task establishes a stable, maintainable need.
+
 ### Composition contract
 
 Before changing a core page, complete this sentence in the implementation notes:
@@ -218,6 +280,62 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 760 px 这一处移动端切换点。移动端继续沿用同一套顶部导航结构，只隐藏 wordmark
 文字；在异常窄的屏幕上，链接行会在自身内部滚动，不会撑宽整个页面。Viewport 与
 容器间距均包含设备 safe area。
+
+### 响应式 UI 验收
+
+响应式设计以三个代表性宽度验收。它们是检查基准，不是需要硬编码的三套布局：
+
+| 基准 | 参考宽度 | 必须证明的内容 |
+| --- | ---: | --- |
+| Desktop | 1440 px | 内容最大宽度和有意留白保持稳定；信息不会只为了填满屏幕而拉伸。 |
+| 窄桌面 / Tablet | 1024 px | Grid 能重新分配空间，不丢失主要航班事实，也不会越出容器。 |
+| Mobile | 390 px | 必要时真正改变构图，保留内容优先级，并且不依赖 hover 仍可使用。 |
+
+覆盖共享 760 px 切换点的测试还应检查 760 px 与 761 px。320 px 等异常窄宽度适合用作
+overflow 防线，但不能代替三个设计基准。
+
+每个页面和共享组件都必须满足以下不变量：
+
+- 整个 document 不得出现横向溢出。数据表或导航条等有意横向滚动的局部区域必须在自身内部约束 overflow。
+- 机场代码、航班号和关键时间必须保持完整、稳定、可读；不得被拆行，也不能通过无下限缩小字号来吸收压力。
+- 按钮必须留在 viewport 及其所属容器内；只要控件仍清楚可用，按钮文字可以合理换行。
+- Modal 必须适应动态 viewport 和设备 safe area；长表单在 modal 或 backdrop 内滚动，关键操作保持键盘可达。
+- Sticky 与 fixed 元素必须预留或计算自身占用空间，不遮挡主内容，也不能把焦点留在遮挡层之后。
+- Desktop grid 到 Mobile 时应被替换、重排或渐进披露，不能持续压缩到内容互相碰撞。
+- 核心导航和操作对触屏、键盘和鼠标用户都应直接可见；hover 可以加强 affordance，但不能成为发现核心功能的唯一途径。
+- 超长机场名、航司名和本地化名称应在辅助区域换行，或在全文不属于主信息时明确省略；不得撑宽页面或挤走航线身份。
+
+空间不足时，按以下顺序保留信息：
+
+1. Origin 与 destination。
+2. 关键当地时间。
+3. Flight identity。
+4. 主要且真实的状态。
+5. 辅助名称、日期、计数和可选事实。
+
+辅助信息可以换行、移到主行下方、进入次级区域，或在 Mobile 使用渐进披露。不能为了
+维持桌面顺序而无限缩小所有文字。构图契约定义的主导对象必须在响应式切换后继续成立。
+
+中文和英文是两个独立验收场景。中文文案通常视觉密度更高，英文机场名和操作名称通常
+需要更多横向空间。组件应使用语言感知字体 token，允许正文重新流动，并保持数字/数据
+角色稳定；不能引入只适合一种语言的固定宽度。
+
+Light 与 Dark 必须使用共享主题角色：canvas/background、基础与 raised surface、普通/
+强调 border、primary/muted/faint text、运行状态颜色组和 focus ring。业务页面 CSS 不得
+再创建一套平行的 Light/Dark 色板。Passport 地图等自包含语义子主题仍须 token 化，
+并继续满足对比度要求。
+
+动效不能承担布局含义，也不能成为发现操作的必要条件。新动画必须放在
+`prefers-reduced-motion: no-preference` 后；全局 reduced-motion 规则必须保证内容立即
+可见、焦点稳定且控件仍然可用。
+
+自动化验收底线保持轻量：
+
+- Typecheck、单元测试和 production build 必须通过。
+- Headless browser 测试检查整页 overflow、共享骨架对齐和三个基准宽度。
+- 代表性的档案与详情数据检查机场代码、航班身份、时间不可拆分，以及 Mobile 压缩顺序。
+- 检查代表性 Desktop/Mobile modal 边界、sticky header 避让、可见按钮边界、主题可访问性和 reduced-motion 时长。
+- 不要求 screenshot diff 基础设施；只有后续任务证明存在稳定且可维护的需求时才增加。
 
 ### 构图契约
 
