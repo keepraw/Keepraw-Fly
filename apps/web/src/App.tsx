@@ -201,8 +201,12 @@ export function App() {
           setSelectedFlightId(null);
         }}
       />
-      {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
-      {document && archiveKind === "demo" ? <DemoBanner onCreateArchive={createArchive} /> : null}
+      {storageError || (document && archiveKind === "demo") ? (
+        <div className="page-notices">
+          {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
+          {document && archiveKind === "demo" ? <DemoBanner onCreateArchive={createArchive} /> : null}
+        </div>
+      ) : null}
       {page === "settings" ? (
         <SettingsPage
           document={document}

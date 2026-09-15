@@ -127,7 +127,14 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
-  --container-max: 1120px;
+  --space-9: 80px;
+  --space-10: 120px;
+  --layout-content-max: 1120px;
+  --layout-gutter-max: 40px;
+  --layout-gutter: clamp(20px, 3vw, var(--layout-gutter-max));
+  --layout-page-start: var(--space-7);
+  --layout-page-end: var(--space-10);
+  --layout-header-height: 76px;
 
   /* Shape, elevation and controls */
   --radius-control: 4px;

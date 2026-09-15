@@ -37,6 +37,17 @@ display sizes are slightly smaller, line heights are more open, and display
 tracking returns to zero. Data roles retain tabular numerals so columns and time
 comparisons remain stable in both languages.
 
+### Shared page layout
+
+`PageShell` owns the semantic main-content landmark and applies one content width,
+responsive gutter and vertical rhythm to every page. The sticky application header
+uses the same inner bounds while its surface remains full width. Layout tokens define
+the 1,120 px content maximum, 20–40 px fluid gutters, desktop page spacing and the
+single 760 px mobile transition. Mobile keeps the same top-navigation structure,
+hides only the wordmark text and allows the link row to scroll internally at unusually
+narrow widths instead of widening the document. Viewport and container insets include
+device safe areas.
+
 ### Shared aviation primitives
 
 `apps/web/src/components/AviationPrimitives.tsx` provides three dependency-free building blocks:
@@ -104,6 +115,15 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 分别由 `--type-*`、`--font-weight-*` 与 `--tracking-*` token 管理。简体中文只覆盖需要
 视觉校准的角色：展示字号略小、行高更宽松、展示字距归零；数据角色在两种语言中都保留
 等宽数字特性，使列对齐和时间比较保持稳定。
+
+### 共享页面布局
+
+`PageShell` 统一负责语义化主内容区域，并为所有页面应用相同的内容最大宽度、响应式
+左右留白和纵向节奏。粘滞应用导航使用相同的内容边界，同时让导航表面保持全宽。
+布局 token 统一定义 1120 px 内容最大宽度、20–40 px 流动 gutter、桌面页面间距和
+760 px 这一处移动端切换点。移动端继续沿用同一套顶部导航结构，只隐藏 wordmark
+文字；在异常窄的屏幕上，链接行会在自身内部滚动，不会撑宽整个页面。Viewport 与
+容器间距均包含设备 safe area。
 
 ### 共享航空组件
 

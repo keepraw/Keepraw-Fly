@@ -4,6 +4,7 @@ import type { ViewerSettings } from "../storage/types";
 import { AviationIcon, type AviationIconName } from "../components/AviationPrimitives";
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
+import { PageShell } from "../components/PageShell";
 
 interface SettingsPageProps {
   document: KeeprawFlyDocument | null;
@@ -74,7 +75,7 @@ export function SettingsPage({
   }
 
   return (
-    <main className="settings-page" id="main-content" tabIndex={-1}>
+    <PageShell className="settings-page">
       <header className="settings-heading">
         <div className="settings-heading-copy">
           <p className="eyebrow">{t("settings.viewerPreferences")}</p>
@@ -142,6 +143,6 @@ export function SettingsPage({
           </div>
         </section>
       </div>
-    </main>
+    </PageShell>
   );
 }

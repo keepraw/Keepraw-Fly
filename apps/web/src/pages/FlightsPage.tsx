@@ -8,6 +8,7 @@ import {
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
+import { PageShell } from "../components/PageShell";
 
 interface FlightsPageProps {
   document: KeeprawFlyDocument;
@@ -26,7 +27,7 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight, onAddF
   );
 
   return (
-    <main className="flights-page" id="main-content" tabIndex={-1}>
+    <PageShell className="flights-page">
       <div className="page-heading">
         <div>
           <p className="eyebrow">{t("flights.archive")}</p>
@@ -107,6 +108,6 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight, onAddF
           <p>{t("flights.noResultsDescription", { query })}</p>
         </div>
       )}</>}
-    </main>
+    </PageShell>
   );
 }
