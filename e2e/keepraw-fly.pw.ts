@@ -52,7 +52,7 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
 });
 
-test("keeps delay facts inside their card at desktop and mobile widths", async ({ page }) => {
+test("keeps delay facts inside their section at desktop and mobile widths", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open / }).first().click();
@@ -60,7 +60,7 @@ test("keeps delay facts inside their card at desktop and mobile widths", async (
   const delaySummary = page.locator(".delay-summary");
   await expect(delaySummary).toBeVisible();
 
-  const expectContentInset = async (minimumInset: number) => {
+  const expectContentContained = async () => {
     const insets = await delaySummary.evaluate((summary) => {
       const bounds = summary.getBoundingClientRect();
       return Array.from(summary.querySelectorAll(":scope > div > *")).map((element) => {
@@ -68,12 +68,12 @@ test("keeps delay facts inside their card at desktop and mobile widths", async (
         return Math.min(item.left - bounds.left, bounds.right - item.right);
       });
     });
-    expect(Math.min(...insets)).toBeGreaterThanOrEqual(minimumInset);
+    expect(Math.min(...insets)).toBeGreaterThanOrEqual(-0.5);
   };
 
-  await expectContentInset(29);
+  await expectContentContained();
   await page.setViewportSize({ width: 390, height: 844 });
-  await expectContentInset(19);
+  await expectContentContained();
   const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
   expect(fitsViewport).toBe(true);
 });
@@ -224,6 +224,84 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
   }
 });
 
+test("removes decorative surfaces from the core archive pages", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  await expect(page.locator(".flight-row .aviation-icon")).toHaveCount(0);
+  await expect(page.locator(".flight-row .route-line").first()).toBeVisible();
+
+  await page.locator(".flight-row").first().click();
+  const detailPresentation = await page.evaluate(() => {
+    const hero = document.querySelector<HTMLElement>(".detail-flight-card");
+    const timeline = document.querySelector<HTMLElement>(".timeline");
+    const facts = document.querySelector<HTMLElement>(".flight-facts");
+    if (!hero || !timeline) throw new Error("Flight detail presentation landmarks are missing");
+    const heroStyle = getComputedStyle(hero);
+    const timelineStyle = getComputedStyle(timeline);
+    const factsStyle = facts ? getComputedStyle(facts) : undefined;
+    return {
+      factsBoxShadow: factsStyle?.boxShadow ?? "none",
+      heroBackgroundImage: heroStyle.backgroundImage,
+      heroBorderRadius: heroStyle.borderRadius,
+      heroBoxShadow: heroStyle.boxShadow,
+      routeIcons: hero.querySelectorAll(".aviation-icon").length,
+      routeTrackChildren: hero.querySelectorAll(".route-track > *").length,
+      timelineBackgroundImage: timelineStyle.backgroundImage,
+      timelineBorderRadius: timelineStyle.borderRadius,
+      timelineBoxShadow: timelineStyle.boxShadow,
+    };
+  });
+  expect(detailPresentation).toEqual({
+    factsBoxShadow: "none",
+    heroBackgroundImage: "none",
+    heroBorderRadius: "0px",
+    heroBoxShadow: "none",
+    routeIcons: 0,
+    routeTrackChildren: 1,
+    timelineBackgroundImage: "none",
+    timelineBorderRadius: "0px",
+    timelineBoxShadow: "none",
+  });
+
+  await page.getByRole("link", { name: "Passport" }).click();
+  await expect(page.locator(".route-map svg")).toBeVisible();
+  const passportPresentation = await page.evaluate(() => {
+    const map = document.querySelector<HTMLElement>(".route-map");
+    const canvas = document.querySelector<HTMLElement>(".route-map-canvas");
+    const switcher = document.querySelector<HTMLElement>(".view-switcher");
+    const highlights = document.querySelector<HTMLElement>(".passport-highlights");
+    const yearHistory = document.querySelector<HTMLElement>(".year-history");
+    if (!map || !canvas || !switcher || !highlights || !yearHistory) {
+      throw new Error("Passport presentation landmarks are missing");
+    }
+    const mapStyle = getComputedStyle(map);
+    const switcherStyle = getComputedStyle(switcher);
+    return {
+      canvasBackgroundImage: getComputedStyle(canvas).backgroundImage,
+      highlightsDisplay: getComputedStyle(highlights).display,
+      mapBorderRadius: mapStyle.borderRadius,
+      mapBoxShadow: mapStyle.boxShadow,
+      routeFilter: getComputedStyle(document.querySelector<SVGGElement>(".map-routes")!).filter,
+      svgDefinitions: map.querySelectorAll("defs").length,
+      switcherBorderRadius: switcherStyle.borderRadius,
+      switcherBackgroundImage: switcherStyle.backgroundImage,
+      yearHistoryDisplay: getComputedStyle(yearHistory).display,
+    };
+  });
+  expect(passportPresentation).toEqual({
+    canvasBackgroundImage: "none",
+    highlightsDisplay: "block",
+    mapBorderRadius: "0px",
+    mapBoxShadow: "none",
+    routeFilter: "none",
+    svgDefinitions: 0,
+    switcherBorderRadius: "0px",
+    switcherBackgroundImage: "none",
+    yearHistoryDisplay: "block",
+  });
+});
+
 test("keeps every page aligned to the shared responsive shell", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
@@ -314,7 +392,6 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
         routeValues: routeValues.length,
         routeVisible: visible(row.querySelector(".flight-route")),
         statusVisible: visible(row.querySelector(":scope > .flight-status")),
-        cueVisible: visible(row.querySelector(".flight-open-cue")),
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
         gridAreas: rowStyle.gridTemplateAreas,
         headerClearsContent: headerBounds.bottom <= mainBounds.top + 1,
@@ -339,11 +416,9 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     if (viewport.width === 390) {
       expect(archive.gridAreas).toContain('"route route route"');
       expect(archive.airportNamesVisible).toBe(false);
-      expect(archive.cueVisible).toBe(false);
     } else {
-      expect(archive.gridAreas).toBe('"route identity date status cue"');
+      expect(archive.gridAreas).toBe('"route identity date status"');
       expect(archive.airportNamesVisible).toBe(true);
-      expect(archive.cueVisible).toBe(true);
     }
 
     await page.locator(".flight-row").first().click();

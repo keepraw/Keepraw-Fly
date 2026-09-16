@@ -41,25 +41,10 @@ export function PassportRouteMap({ routes }: PassportRouteMapProps) {
 
       <div className="route-map-canvas">
         <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} role="img" aria-label={t("passport.mapPreviewLabel", { flights: totalFlights })}>
-          <defs aria-hidden="true">
-            <linearGradient id="passport-ocean" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#1b2923" />
-              <stop offset="0.55" stopColor="#14201b" />
-              <stop offset="1" stopColor="#101814" />
-            </linearGradient>
-            <linearGradient id="passport-land" x1="0" y1="0" x2="0.8" y2="1">
-              <stop offset="0" stopColor="#405249" />
-              <stop offset="1" stopColor="#2b3a32" />
-            </linearGradient>
-            <filter id="passport-route-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="1.8" result="route-blur" />
-              <feMerge><feMergeNode in="route-blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
           <path className="map-sphere" d={WORLD_SPHERE_PATH} aria-hidden="true" />
           <path className="map-graticule" d={WORLD_GRATICULE_PATH} aria-hidden="true" />
           <path className="map-land" d={WORLD_LAND_PATH} aria-hidden="true" />
-          <g className="map-routes" filter="url(#passport-route-glow)">
+          <g className="map-routes">
             {routes.map((route, index) => (
               <path
                 key={`${route.origin.iata}-${route.destination.iata}`}

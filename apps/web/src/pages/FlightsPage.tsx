@@ -43,7 +43,6 @@ export function FlightsPage({ document, locale, timeFormat, onOpenFlight, onAddF
 
       {!document.flights.length ? (
         <section className="empty-archive" aria-labelledby="empty-archive-title">
-          <span className="empty-archive-mark" aria-hidden="true">↗</span>
           <div>
             <p className="eyebrow">{t("flights.emptyEyebrow")}</p>
             <h2 id="empty-archive-title">{t("flights.emptyTitle")}</h2>

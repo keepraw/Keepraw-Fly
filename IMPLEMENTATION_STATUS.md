@@ -32,6 +32,7 @@
    - Built a dense, responsive flight list with multilingual labels.
    - Reworked the archive into an open, route-first ledger where airport codes and local times lead, while identity, date and status deliberately recede.
    - Reordered the same flight content for narrow screens without duplicate mobile markup, preserving atomic codes, times and flight numbers.
+   - Removed the decorative route aircraft, open chevron and empty-state symbol; a single directional rule now keeps each row reading as one flight.
    - Added search across flight numbers, airports, cities and airlines.
    - Kept search in the core layer and covered localized airline/airport names, years, aircraft facts and normalized full-width input.
    - Added a first-run flow that creates an empty archive without requiring JSON.
@@ -47,10 +48,10 @@
 
 5. **Flight detail**
    - Built a responsive origin-to-destination timeline.
-   - Refined the route hero into a distinctive horizontal composition with restrained, reduced-motion-safe transitions.
-   - Upgraded the detail experience with a high-contrast flight panel that prioritizes local times, airports, airline identity and operational state.
-   - Grouped the timeline, delay summary and optional facts into a consistent layered card hierarchy.
-   - Kept delay labels and values inside their card at desktop, zoomed and narrow-mobile widths with regression coverage.
+   - Recast the route hero as an open, type-led composition with aligned airport codes, cities and local times plus one semantic direction line.
+   - Removed the decorative gradient, concentric geometry, aircraft mark, elevation and rounded panel treatment while preserving route hierarchy and truthful status.
+   - Grouped the timeline, delay summary and optional facts with whitespace, alignment and minimal rules instead of layered cards.
+   - Kept delay labels and values inside their section at desktop, zoomed and narrow-mobile widths with regression coverage.
    - Added scheduled/actual times, duration, distance, delay and conditional operational facts.
    - Added latest-event operational status and removed empty optional-facts sections when no facts were recorded.
    - Added accessible semantic structure for desktop and narrow mobile layouts.
@@ -62,6 +63,7 @@
    - Added totals for flights, distance, time, airports, airlines, countries and routes.
    - Added profile-name presentation using native and romanized forms.
    - Replaced the hand-drawn world outline with on-demand generated Natural Earth geometry, a Natural Earth 1 projection, adaptive great-circle routes, date-line clipping and frequency encoding.
+   - Flattened the atlas to semantic map colors without gradients or route glow, changed period selection from pills to tabs and replaced editorial two-column sections with a compact archive sequence.
 
 7. **Local data and preferences**
    - Added IndexedDB persistence behind `StorageAdapter` and `BrowserStorageAdapter`.
@@ -100,7 +102,7 @@
 
 - TypeScript type checking passes across the workspace.
 - All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
-- All 9 Playwright Chromium journeys pass, including the route-first archive hierarchy, bilingual typography, shared-layout and responsive UI constraints, plus WCAG audits of light, dark and modal states.
+- All 10 Playwright Chromium journeys pass, including de-vibe surface constraints, the route-first archive hierarchy, bilingual typography, shared-layout and responsive UI constraints, plus WCAG audits of light, dark and modal states.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
 - The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
@@ -185,6 +187,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 构建紧凑、响应式并支持多语言标签的航班列表。
    - 将档案重构为开放式、航线优先的连续记录，让机场代码与当地时间成为主角，航班身份、日期和状态主动退后。
    - 窄屏使用同一份航班内容重新编排，不再维护重复的 Mobile 摘要，同时保持机场代码、时间和航班号不可拆分。
+   - 移除装饰性航线飞机、打开箭头和空状态符号，仅保留一条有方向语义的线，让每行更像完整的一趟航班。
    - 支持按航班号、机场、城市和航空公司搜索。
    - 搜索逻辑保持在 core 层，并覆盖航司/机场本地化名称、年份、机型信息与全角输入规范化。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
@@ -200,10 +203,10 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 5. **航班详情页**
    - 构建从出发地到目的地的响应式时间线。
-   - 将航线主视觉优化为独立的横向构图，并加入克制且兼容“减少动态效果”的过渡动画。
-   - 使用高对比航班面板升级详情体验，优先呈现当地时间、机场、航司身份和运行状态。
-   - 将时间线、延误摘要和可选事实组织为一致的分层卡片结构。
-   - 确保延误标签和数值在桌面、缩放及窄屏移动端均保持在卡片边界内，并加入回归覆盖。
+   - 将航线主视觉改为开放式字体构图，对齐机场代码、城市和当地时间，并只保留一条具有方向语义的路线。
+   - 移除装饰性渐变、同心几何、飞机标记、阴影和大圆角面板，同时保留明确的航线层级与真实状态。
+   - 使用留白、对齐和最少量分隔线组织时间线、延误摘要与可选事实，不再依赖分层卡片。
+   - 确保延误标签和数值在桌面、缩放及窄屏移动端均保持在区块边界内，并加入回归覆盖。
    - 展示计划/实际时间、时长、距离、延误和按条件出现的运行信息。
    - 添加基于最新运行事件的航班状态，并在没有可选事实时隐藏空白详情区块。
    - 为桌面端和窄屏移动端添加可访问的语义结构。
@@ -215,6 +218,7 @@ Backend accounts and sync, live flight services, third-party booking integration
    - 统计航班、距离、时间、机场、航空公司、国家和航线总数。
    - 支持使用原文姓名和罗马字姓名展示个人资料。
    - 将手绘世界轮廓替换为按需加载的 Natural Earth 生成地理数据，使用 Natural Earth 1 投影、自适应大圆航线、日期变更线裁剪和飞行频次表达。
+   - 将地图收敛为无渐变、无航线 glow 的语义色图层，把周期选择从 pill 改为 tab，并将 editorial 式左右分栏改为紧凑的档案序列。
 
 7. **本地数据与偏好设置**
    - 在 `StorageAdapter` 和 `BrowserStorageAdapter` 抽象后实现 IndexedDB 持久化。
@@ -253,7 +257,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
-- 9 条 Playwright Chromium 用户旅程全部通过，其中包含航线优先的档案层级、双语字体、共享布局与响应式 UI 约束，以及浅色、深色与弹窗状态的 WCAG 审计。
+- 10 条 Playwright Chromium 用户旅程全部通过，其中包含去装饰表面约束、航线优先的档案层级、双语字体、共享布局与响应式 UI 约束，以及浅色、深色与弹窗状态的 WCAG 审计。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
 - 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
