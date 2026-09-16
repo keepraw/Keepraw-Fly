@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -6,9 +6,11 @@ import {
   csvFlightFields,
   detectCsvMapping,
   parseCsv,
+  preflightCsvImport,
   type CsvColumnMapping,
   type ParsedCsv,
 } from "../data/csv-import";
+import { ImportPreflightSummary } from "./ImportPreflightSummary";
 
 interface CsvImportControlProps {
   document: KeeprawFlyDocument | null;
@@ -27,6 +29,10 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
   const [pending, setPending] = useState<PendingCsv | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const preflight = useMemo(
+    () => pending ? preflightCsvImport(pending.parsed, pending.mapping, document) : null,
+    [document, pending],
+  );
 
   async function selectFile(file: File | undefined) {
     if (!file) return;
@@ -34,14 +40,15 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
       const parsed = parseCsv(await file.text());
       setPending({ fileName: file.name, parsed, mapping: detectCsvMapping(parsed.headers) });
       setError(null);
-    } catch {
+    } catch (caught) {
       setPending(null);
-      setError(t("csvImport.invalidFile"));
+      const code = caught instanceof Error ? caught.message : "invalid-file";
+      setError(t(`csvImport.fileErrors.${code}`, { defaultValue: t("csvImport.invalidFile") }));
     }
   }
 
   async function confirmImport() {
-    if (!pending) return;
+    if (!pending || !preflight?.canImport) return;
     try {
       setBusy(true);
       const nextDocument = buildDocumentFromCsv(pending.parsed, pending.mapping, document);
@@ -76,7 +83,9 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
         <section className="csv-preview" aria-live="polite" aria-labelledby={`${inputId}-title`}>
           <header className="import-preview-heading">
             <div>
-              <span className="eyebrow">{t("csvImport.previewEyebrow")}</span>
+              <span className="eyebrow">
+                {t(preflight?.canImport ? "csvImport.previewEyebrow" : "import.blockedEyebrow")}
+              </span>
               <strong id={`${inputId}-title`}>{t("csvImport.previewTitle")}</strong>
             </div>
             <span className="import-file-name">{pending.fileName} · {t("csvImport.rowCount", { count: pending.parsed.rows.length })}</span>
@@ -106,19 +115,47 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
             ))}
           </div>
 
-          <div className="csv-table-wrap">
-            <table>
-              <thead><tr>{pending.parsed.headers.map((header, index) => <th key={`${header}-${index}`}>{header}</th>)}</tr></thead>
-              <tbody>{pending.parsed.rows.slice(0, 5).map((row, rowIndex) => (
-                <tr key={rowIndex}>{pending.parsed.headers.map((_, columnIndex) => <td key={columnIndex}>{row[columnIndex] ?? ""}</td>)}</tr>
-              ))}</tbody>
-            </table>
-          </div>
+          {preflight ? <ImportPreflightSummary preflight={preflight} /> : null}
+          {preflight?.flights.length ? (
+            <div className="csv-record-preview" aria-label={t("csvImport.sampleRecords")}>
+              <span>{t("csvImport.sampleRecords")}</span>
+              <ul>
+                {preflight.flights.slice(0, 3).map((flight) => (
+                  <li key={flight.id}>
+                    <strong>{flight.flightNumber}</strong>
+                    <span>{flight.origin.iata} → {flight.destination.iata}</span>
+                    <time dateTime={flight.serviceDate}>{flight.serviceDate}</time>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {preflight?.issues.length ? (
+            <div className="validation-errors import-blocking-issues" role="alert">
+              <strong>{t("import.blockingTitle")}</strong>
+              <p>{t("import.blockingDescription")}</p>
+              <ul>
+                {preflight.issues.slice(0, 6).map((issue, index) => (
+                  <li key={`${issue.lineNumber ?? "mapping"}-${issue.code}-${index}`}>
+                    <span>{issue.lineNumber ? t("csvImport.lineNumber", { number: issue.lineNumber }) : t("csvImport.mappingIssue")}</span>
+                    {t(`csvImport.issues.${issue.code}`)}
+                  </li>
+                ))}
+              </ul>
+              {preflight.issues.length > 6 ? (
+                <small>{t("import.moreIssues", { count: preflight.issues.length - 6 })}</small>
+              ) : null}
+            </div>
+          ) : null}
           <p className="csv-timezone-note">{t("csvImport.timezoneNote")}</p>
           <div className="import-preview-actions">
             <button className="button-secondary" type="button" disabled={busy} onClick={() => { setPending(null); setError(null); }}>{t("actions.cancel")}</button>
-            <button className="button-primary" type="button" disabled={busy} onClick={() => void confirmImport()}>
-              {busy ? t("csvImport.importing") : t("csvImport.appendFlights", { count: pending.parsed.rows.length })}
+            <button className="button-primary" type="button" disabled={busy || !preflight?.canImport} onClick={() => void confirmImport()}>
+              {busy
+                ? t("csvImport.importing")
+                : preflight?.canImport
+                  ? t("csvImport.appendFlights", { count: preflight.validRecords })
+                  : t("import.resolveIssues")}
             </button>
           </div>
         </section>

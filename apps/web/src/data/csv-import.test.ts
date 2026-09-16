@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { installAirportDirectory, type CompactAirportRow } from "@keepraw-fly/core";
-import { buildDocumentFromCsv, detectCsvMapping, parseCsv } from "./csv-import";
+import {
+  buildDocumentFromCsv,
+  detectCsvMapping,
+  parseCsv,
+  preflightCsvImport,
+} from "./csv-import";
 
 installAirportDirectory(airportRows as CompactAirportRow[]);
 
@@ -42,5 +47,93 @@ describe("CSV flight import", () => {
     const parsed = parseCsv(csv.replace("2026-09-02T13:00:00+08:00", "2026-09-02T13:00:00"));
     expect(() => buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null))
       .toThrow("line-2:timezone-required");
+  });
+
+  it("reports impossible calendar dates and timestamps during preflight", () => {
+    const invalidDate = parseCsv(csv.replace("2026-09-02", "2026-02-30"));
+    const invalidDatePreflight = preflightCsvImport(
+      invalidDate,
+      detectCsvMapping(invalidDate.headers),
+      null,
+      () => "preview",
+    );
+    const invalidTime = parseCsv(csv.replace("13:00:00", "29:00:00"));
+    const invalidTimePreflight = preflightCsvImport(
+      invalidTime,
+      detectCsvMapping(invalidTime.headers),
+      null,
+      () => "preview",
+    );
+
+    expect(invalidDatePreflight.issues[0]).toEqual({ code: "invalid-date", lineNumber: 2 });
+    expect(invalidTimePreflight.issues[0]).toEqual({ code: "invalid-time", lineNumber: 2 });
+  });
+
+  it("preflights valid rows when there is no existing archive", () => {
+    const parsed = parseCsv(csv);
+    const preflight = preflightCsvImport(parsed, detectCsvMapping(parsed.headers), null, () => "preview");
+
+    expect(preflight).toMatchObject({
+      totalRecords: 1,
+      validRecords: 1,
+      problemRecords: 0,
+      duplicateRecords: 0,
+      canImport: true,
+      issues: [],
+    });
+  });
+
+  it("identifies an exact possible duplicate in a non-empty archive", () => {
+    const parsed = parseCsv(csv);
+    const imported = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null, () => "existing");
+    const preflight = preflightCsvImport(
+      parsed,
+      detectCsvMapping(parsed.headers),
+      imported,
+      () => "preview",
+    );
+
+    expect(preflight.duplicateRecords).toBe(1);
+    expect(preflight.canImport).toBe(true);
+  });
+
+  it("counts partial row failures and blocks the whole CSV import", () => {
+    const parsed = parseCsv(`${csv}\nUA123,2026-08-19,SFO,LAX,2026-08-19T10:20:00-07:00,not-a-time`);
+    const mapping = detectCsvMapping(parsed.headers);
+    const preflight = preflightCsvImport(parsed, mapping, null, () => "preview");
+
+    expect(preflight).toMatchObject({
+      totalRecords: 2,
+      validRecords: 1,
+      problemRecords: 1,
+      canImport: false,
+    });
+    expect(preflight.issues).toEqual([{ code: "timezone-required", lineNumber: 3 }]);
+    expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow("line-3:timezone-required");
+  });
+
+  it("does not silently normalize flight numbers or airport codes", () => {
+    const spacedFlightNumber = parseCsv(csv.replace("MU589", "MU 589"));
+    const numberPreflight = preflightCsvImport(
+      spacedFlightNumber,
+      detectCsvMapping(spacedFlightNumber.headers),
+      null,
+      () => "preview",
+    );
+    const lowercaseAirport = parseCsv(csv.replace(",PVG,SFO,", ",pvg,SFO,"));
+    const airportPreflight = preflightCsvImport(
+      lowercaseAirport,
+      detectCsvMapping(lowercaseAirport.headers),
+      null,
+      () => "preview",
+    );
+
+    expect(numberPreflight.issues[0]).toEqual({ code: "invalid-flight-number", lineNumber: 2 });
+    expect(airportPreflight.issues[0]).toEqual({ code: "unknown-airport", lineNumber: 2 });
+  });
+
+  it("rejects empty and malformed CSV files before preview", () => {
+    expect(() => parseCsv("")).toThrow("missing-rows");
+    expect(() => parseCsv('Flight Number,Date\n"UA123,2026-08-19')).toThrow("unterminated-quote");
   });
 });

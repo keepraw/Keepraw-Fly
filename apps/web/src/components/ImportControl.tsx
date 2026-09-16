@@ -1,8 +1,12 @@
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import type { KeeprawFlyMigration, ValidationIssue } from "@keepraw-fly/validator";
-import { summarizeImport } from "../data/import-preview";
+import {
+  preflightJsonImport,
+  summarizeImport,
+  type JsonImportPreflight,
+} from "../data/import-preview";
+import { ImportPreflightSummary } from "./ImportPreflightSummary";
 
 interface ImportControlProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
@@ -11,10 +15,8 @@ interface ImportControlProps {
   variant?: "primary" | "settings";
 }
 
-interface PendingImport {
-  document: KeeprawFlyDocument;
+interface PendingImport extends JsonImportPreflight {
   fileName: string;
-  migrations: KeeprawFlyMigration[];
 }
 
 export function ImportControl({
@@ -25,7 +27,6 @@ export function ImportControl({
 }: ImportControlProps) {
   const { i18n, t } = useTranslation();
   const inputId = useId();
-  const [issues, setIssues] = useState<ValidationIssue[]>([]);
   const [pending, setPending] = useState<PendingImport | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,26 +34,21 @@ export function ImportControl({
     if (!file) return;
     setBusy(true);
     const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
-    const result = parseKeeprawFlyJson(await file.text());
-    if (result.valid) {
-      setPending({ document: result.data, fileName: file.name, migrations: result.migrations });
-      setIssues([]);
-    } else {
-      setPending(null);
-      setIssues(result.issues);
-    }
+    const text = await file.text();
+    const result = parseKeeprawFlyJson(text);
+    setPending({ fileName: file.name, ...preflightJsonImport(text, result, existingDocument) });
     setBusy(false);
   }
 
   async function confirmImport() {
-    if (!pending) return;
+    if (!pending?.document) return;
     setBusy(true);
     await onImport(pending.document);
     setPending(null);
     setBusy(false);
   }
 
-  const summary = pending ? summarizeImport(pending.document) : null;
+  const summary = pending?.document ? summarizeImport(pending.document) : null;
   const dateFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
     dateStyle: "medium",
     timeZone: "UTC",
@@ -90,33 +86,57 @@ export function ImportControl({
         {busy ? t("actions.validating") : t("actions.openFile")}
       </label>
       {variant === "primary" ? <span className="drop-hint">{t("import.dropHint")}</span> : null}
-      {pending && summary ? (
+      {pending ? (
         <section className="import-preview" aria-live="polite" aria-labelledby={`${inputId}-preview-title`}>
           <div className="import-preview-heading">
             <div>
-              <span className="eyebrow">{t("import.previewEyebrow")}</span>
+              <span className="eyebrow">
+                {t(pending.canImport ? "import.previewEyebrow" : "import.blockedEyebrow")}
+              </span>
               <strong id={`${inputId}-preview-title`}>{t("import.previewTitle")}</strong>
             </div>
             <span className="import-file-name">{pending.fileName}</span>
           </div>
-          <dl>
+          <ImportPreflightSummary preflight={pending} />
+          {summary ? <dl className="import-preview-meta">
             <div><dt>{t("import.owner")}</dt><dd>{summary.profileName ?? t("import.notRecorded")}</dd></div>
-            <div><dt>{t("import.flights")}</dt><dd>{summary.flightCount}</dd></div>
             <div><dt>{t("import.dates")}</dt><dd>{dateRange}</dd></div>
-          </dl>
+          </dl> : null}
           {pending.migrations.length ? (
             <p className="import-migration" role="note">
               {t("import.migratedArchive", { count: pending.migrations.length })}
             </p>
           ) : null}
-          {existingDocument ? (
+          {existingDocument && pending.canImport ? (
             <div className="import-replacement" role="note">
               <strong>{t("import.replaceWarningTitle")}</strong>
               <span>{t("import.replaceWarning", { flights: existingDocument.flights.length })}</span>
             </div>
           ) : null}
+          {pending.issues.length ? (
+            <div className="validation-errors import-blocking-issues" role="alert">
+              <strong>{t("import.blockingTitle")}</strong>
+              <p>{t("import.blockingDescription")}</p>
+              <ul>
+                {pending.issues.slice(0, 6).map((issue, index) => (
+                  <li key={`${issue.path}-${issue.keyword}-${index}`}>
+                    <span>
+                      {issue.flightIndex !== undefined
+                        ? `${t("import.flightNumber", { number: issue.flightIndex + 1 })} · `
+                        : `${t("import.fileIssue")} · `}
+                      {issue.path}
+                    </span>
+                    {t(`import.issueMessages.${issue.keyword}`, { defaultValue: issue.message })}
+                  </li>
+                ))}
+              </ul>
+              {pending.issues.length > 6 ? (
+                <small>{t("import.moreIssues", { count: pending.issues.length - 6 })}</small>
+              ) : null}
+            </div>
+          ) : null}
           <div className="import-preview-actions">
-            {existingDocument && onBackup ? (
+            {existingDocument && pending.canImport && onBackup ? (
               <button className="button-secondary" type="button" disabled={busy} onClick={() => void onBackup()}>
                 {t("import.exportBackup")}
               </button>
@@ -124,32 +144,15 @@ export function ImportControl({
             <button className="button-secondary" type="button" disabled={busy} onClick={() => setPending(null)}>
               {t("actions.cancel")}
             </button>
-            <button className="button-primary" type="button" disabled={busy} onClick={() => void confirmImport()}>
+            <button className="button-primary" type="button" disabled={busy || !pending.canImport} onClick={() => void confirmImport()}>
               {busy
                 ? t("import.importing")
-                : t(existingDocument ? "import.replaceArchive" : "import.importArchive")}
+                : pending.canImport
+                  ? t(existingDocument ? "import.replaceArchive" : "import.importArchive")
+                  : t("import.resolveIssues")}
             </button>
           </div>
         </section>
-      ) : null}
-      {issues.length ? (
-        <div className="validation-errors" role="alert">
-          <strong>{t("import.failed")}</strong>
-          <ul>
-            {issues.slice(0, 6).map((issue, index) => (
-              <li key={`${issue.path}-${issue.keyword}-${index}`}>
-                <span>
-                  {issue.flightIndex !== undefined
-                    ? `${t("import.flightNumber", { number: issue.flightIndex + 1 })} · `
-                    : ""}
-                  {issue.path}
-                </span>
-                {issue.message}
-                {issue.received !== undefined ? <code>{JSON.stringify(issue.received)}</code> : null}
-              </li>
-            ))}
-          </ul>
-        </div>
       ) : null}
     </div>
   );

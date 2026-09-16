@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import { summarizeImport } from "./import-preview";
+import { parseKeeprawFlyJson, validateKeeprawFly } from "@keepraw-fly/validator";
+import { preflightJsonImport, summarizeImport } from "./import-preview";
 
 describe("import preview", () => {
   it("summarizes the owner, flight count and service-date range", () => {
@@ -19,6 +20,61 @@ describe("import preview", () => {
       profile: {},
       flights: [],
     })).toEqual({ flightCount: 0 });
+  });
+
+  it("preflights a valid archive against an empty collection", () => {
+    const text = JSON.stringify(documentWithFlights);
+    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), null);
+
+    expect(preflight).toMatchObject({
+      totalRecords: 2,
+      validRecords: 2,
+      problemRecords: 0,
+      duplicateRecords: 0,
+      canImport: true,
+      issues: [],
+    });
+  });
+
+  it("flags possible duplicates when an archive already contains the same flight identity", () => {
+    const existing = {
+      ...documentWithFlights,
+      flights: [structuredClone(documentWithFlights.flights[0]!)],
+    };
+    const text = JSON.stringify(documentWithFlights);
+    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), existing);
+
+    expect(preflight.duplicateRecords).toBe(1);
+    expect(preflight.canImport).toBe(true);
+  });
+
+  it("counts valid and affected records without accepting a partially invalid archive", () => {
+    const input = structuredClone(documentWithFlights);
+    input.flights[1]!.scheduledArrival = "2024-01-03T07:00:00+08:00";
+    const result = validateKeeprawFly(input);
+    const preflight = preflightJsonImport(JSON.stringify(input), result, null);
+
+    expect(preflight).toMatchObject({
+      totalRecords: 2,
+      validRecords: 1,
+      problemRecords: 1,
+      duplicateRecords: 0,
+      canImport: false,
+    });
+    expect(preflight.issues[0]).toMatchObject({ flightIndex: 1, keyword: "chronology" });
+  });
+
+  it("reports an empty or malformed file as a blocking file issue", () => {
+    for (const text of ["", '{"format":']) {
+      const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), null);
+      expect(preflight).toMatchObject({
+        totalRecords: 0,
+        validRecords: 0,
+        problemRecords: 0,
+        canImport: false,
+      });
+      expect(preflight.issues[0]?.keyword).toBe("parse");
+    }
   });
 });
 
