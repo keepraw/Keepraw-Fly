@@ -1,9 +1,16 @@
-import type { KeeprawFlight, KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
+import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
 import type {
   KeeprawFlyMigration,
   ValidationIssue,
   ValidationResult,
 } from "@keepraw-fly/validator";
+import {
+  assessFlightImports,
+  countFlightImportAssessments,
+  selectFlightsForImport,
+  type FlightImportAssessment,
+  type FlightImportCounts,
+} from "./duplicate-detection";
 
 export interface ImportPreviewSummary {
   flightCount: number;
@@ -12,16 +19,16 @@ export interface ImportPreviewSummary {
   profileName?: string;
 }
 
-export interface ImportPreflightCounts {
+export interface ImportPreflightCounts extends FlightImportCounts {
   totalRecords: number;
   validRecords: number;
   problemRecords: number;
-  duplicateRecords: number;
   canImport: boolean;
 }
 
 export interface JsonImportPreflight extends ImportPreflightCounts {
   document?: KeeprawFlyDocument;
+  assessments: FlightImportAssessment[];
   issues: ValidationIssue[];
   migrations: KeeprawFlyMigration[];
 }
@@ -49,13 +56,15 @@ export function preflightJsonImport(
   const rawRecordCount = countJsonFlightRecords(text);
 
   if (result.valid) {
+    const assessments = assessFlightImports(result.data.flights, existing?.flights ?? []);
     return {
       document: result.data,
       totalRecords: result.data.flights.length,
       validRecords: result.data.flights.length,
       problemRecords: 0,
-      duplicateRecords: countPossibleDuplicateFlights(result.data.flights, existing?.flights ?? []),
+      ...countFlightImportAssessments(assessments),
       canImport: true,
+      assessments,
       issues: [],
       migrations: result.migrations,
     };
@@ -71,27 +80,35 @@ export function preflightJsonImport(
     totalRecords: rawRecordCount,
     validRecords: Math.max(0, rawRecordCount - problemIndexes.size),
     problemRecords: problemIndexes.size,
-    duplicateRecords: 0,
+    newRecords: 0,
+    possibleDuplicateRecords: 0,
+    exactDuplicateRecords: 0,
     canImport: false,
+    assessments: [],
     issues: result.issues,
     migrations: [],
   };
 }
 
-export function countPossibleDuplicateFlights(
-  candidates: readonly KeeprawFlight[],
-  existing: readonly KeeprawFlight[],
-): number {
-  const seen = new Set(existing.map(flightDuplicateKey));
-  let duplicates = 0;
+export function buildDocumentFromJsonImport(
+  preflight: JsonImportPreflight,
+  existing: KeeprawFlyDocument | null,
+  includePossibleDuplicates = false,
+): KeeprawFlyDocument {
+  if (!preflight.document) throw new Error("invalid-import-preflight");
+  const importedFlights = selectFlightsForImport(preflight.assessments, includePossibleDuplicates);
 
-  for (const flight of candidates) {
-    const key = flightDuplicateKey(flight);
-    if (seen.has(key)) duplicates += 1;
-    seen.add(key);
+  if (existing) {
+    return {
+      ...existing,
+      flights: [...existing.flights, ...importedFlights],
+    };
   }
 
-  return duplicates;
+  return {
+    ...preflight.document,
+    flights: importedFlights,
+  };
 }
 
 function countJsonFlightRecords(text: string): number {
@@ -103,15 +120,6 @@ function countJsonFlightRecords(text: string): number {
   } catch {
     return 0;
   }
-}
-
-function flightDuplicateKey(flight: KeeprawFlight): string {
-  return [
-    flight.serviceDate,
-    flight.flightNumber,
-    flight.origin.iata,
-    flight.destination.iata,
-  ].join("\u001f");
 }
 
 function displayProfileName(name: ProfileName | undefined): string | undefined {

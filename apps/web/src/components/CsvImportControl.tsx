@@ -2,7 +2,7 @@ import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
-  buildDocumentFromCsv,
+  buildDocumentFromCsvPreflight,
   csvFlightFields,
   detectCsvMapping,
   parseCsv,
@@ -28,6 +28,7 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
   const inputId = useId();
   const [pending, setPending] = useState<PendingCsv | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [includePossibleDuplicates, setIncludePossibleDuplicates] = useState(false);
   const [busy, setBusy] = useState(false);
   const preflight = useMemo(
     () => pending ? preflightCsvImport(pending.parsed, pending.mapping, document) : null,
@@ -39,6 +40,7 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
     try {
       const parsed = parseCsv(await file.text());
       setPending({ fileName: file.name, parsed, mapping: detectCsvMapping(parsed.headers) });
+      setIncludePossibleDuplicates(false);
       setError(null);
     } catch (caught) {
       setPending(null);
@@ -51,12 +53,17 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
     if (!pending || !preflight?.canImport) return;
     try {
       setBusy(true);
-      const nextDocument = buildDocumentFromCsv(pending.parsed, pending.mapping, document);
+      const nextDocument = buildDocumentFromCsvPreflight(
+        preflight,
+        document,
+        includePossibleDuplicates,
+      );
       const { validateKeeprawFly } = await import("@keepraw-fly/validator");
       const result = validateKeeprawFly(nextDocument);
       if (!result.valid) throw new Error(result.issues[0]?.message);
       await onImport(result.data);
       setPending(null);
+      setIncludePossibleDuplicates(false);
       setError(null);
     } catch (caught) {
       const detail = caught instanceof Error ? caught.message : "";
@@ -65,6 +72,10 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
       setBusy(false);
     }
   }
+
+  const selectedRecords = preflight
+    ? preflight.newRecords + (includePossibleDuplicates ? preflight.possibleDuplicateRecords : 0)
+    : 0;
 
   return (
     <div className="csv-import-control">
@@ -98,13 +109,16 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
                 <select
                   id={`${inputId}-${field}`}
                   value={pending.mapping[field] ?? ""}
-                  onChange={(event) => setPending({
-                    ...pending,
-                    mapping: {
-                      ...pending.mapping,
-                      [field]: event.target.value === "" ? null : Number(event.target.value),
-                    },
-                  })}
+                  onChange={(event) => {
+                    setIncludePossibleDuplicates(false);
+                    setPending({
+                      ...pending,
+                      mapping: {
+                        ...pending.mapping,
+                        [field]: event.target.value === "" ? null : Number(event.target.value),
+                      },
+                    });
+                  }}
                 >
                   <option value="">{t("csvImport.chooseColumn")}</option>
                   {pending.parsed.headers.map((header, index) => (
@@ -115,16 +129,25 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
             ))}
           </div>
 
-          {preflight ? <ImportPreflightSummary preflight={preflight} /> : null}
-          {preflight?.flights.length ? (
+          {preflight ? (
+            <ImportPreflightSummary
+              preflight={preflight}
+              includePossibleDuplicates={includePossibleDuplicates}
+              onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
+            />
+          ) : null}
+          {preflight?.assessments.length ? (
             <div className="csv-record-preview" aria-label={t("csvImport.sampleRecords")}>
               <span>{t("csvImport.sampleRecords")}</span>
               <ul>
-                {preflight.flights.slice(0, 3).map((flight) => (
+                {preflight.assessments.slice(0, 3).map(({ flight, disposition }) => (
                   <li key={flight.id}>
                     <strong>{flight.flightNumber}</strong>
                     <span>{flight.origin.iata} → {flight.destination.iata}</span>
                     <time dateTime={flight.serviceDate}>{flight.serviceDate}</time>
+                    <em className={`import-disposition import-disposition-${disposition}`}>
+                      {t(`import.dispositions.${disposition}`)}
+                    </em>
                   </li>
                 ))}
               </ul>
@@ -149,12 +172,14 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
           ) : null}
           <p className="csv-timezone-note">{t("csvImport.timezoneNote")}</p>
           <div className="import-preview-actions">
-            <button className="button-secondary" type="button" disabled={busy} onClick={() => { setPending(null); setError(null); }}>{t("actions.cancel")}</button>
-            <button className="button-primary" type="button" disabled={busy || !preflight?.canImport} onClick={() => void confirmImport()}>
+            <button className="button-secondary" type="button" disabled={busy} onClick={() => { setPending(null); setIncludePossibleDuplicates(false); setError(null); }}>{t("actions.cancel")}</button>
+            <button className="button-primary" type="button" disabled={busy || !preflight?.canImport || selectedRecords === 0} onClick={() => void confirmImport()}>
               {busy
                 ? t("csvImport.importing")
                 : preflight?.canImport
-                  ? t("csvImport.appendFlights", { count: preflight.validRecords })
+                  ? selectedRecords
+                    ? t("csvImport.appendFlights", { count: selectedRecords })
+                    : t("import.noNewFlights")
                   : t("import.resolveIssues")}
             </button>
           </div>
