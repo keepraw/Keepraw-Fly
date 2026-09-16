@@ -11,8 +11,8 @@
   /* Typography families: UI prose, display hierarchy and scannable flight data. */
   --font-family-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  --font-family-data: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --font-family-display: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-family-data: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   --font-family-mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace;
 
   /* Semantic color roles */
@@ -130,12 +130,12 @@
   --space-8: 64px;
   --space-9: 80px;
   --space-10: 120px;
-  --layout-content-max: 1120px;
+  --layout-content-max: 1280px;
   --layout-gutter-max: 40px;
   --layout-gutter: clamp(20px, 3vw, var(--layout-gutter-max));
-  --layout-page-start: var(--space-7);
+  --layout-page-start: var(--space-6);
   --layout-page-end: var(--space-10);
-  --layout-header-height: 76px;
+  --layout-header-height: 64px;
 
   /* Shape, elevation and controls */
   --radius-control: 3px;

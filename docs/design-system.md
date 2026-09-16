@@ -47,6 +47,8 @@ flight record is composed as one owned object; airport codes and local times sha
 a baseline, while labels and provenance use the local monospace fallback stack.
 This layer does not download fonts: it prefers Cascadia Mono, SFMono, Consolas and
 system CJK fallbacks already available on the device.
+New local archives start in the dark archival theme; users can still select Light
+or System explicitly, and all semantic tokens remain shared across those modes.
 
 The archive treatment is structural, not theatrical. A bordered surface may group
 one complete record or one map, but must not split its internal fields into cards.
@@ -292,6 +294,8 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 克制的薄荷绿色强调。整趟航班作为一个完整的用户档案对象构图；机场代码与当地时间共享
 基线，标签和档案元信息使用本机等宽字体 fallback。该层不下载网络字体，优先使用设备
 已有的 Cascadia Mono、SFMono、Consolas 与系统中文字体。
+新的本地档案默认使用深色档案主题；用户仍可明确选择 Light 或 System，三种模式继续共享
+同一套语义 token。
 
 档案感来自结构，而不是戏剧化装饰。一个有边框的表面可以组织一条完整记录或一张地图，
 但不能继续把内部字段拆成卡片。绿色、琥珀色与红色继续只表达语义。任何概念稿中的虚构

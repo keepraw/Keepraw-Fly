@@ -47,7 +47,8 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
 
   await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
   await page.getByRole("link", { name: "Passport" }).click();
-  await expect(page.getByRole("heading", { name: "张鸿川" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Passport" })).toBeVisible();
+  await expect(page.getByText("张鸿川", { exact: false })).toBeVisible();
   await expect(page.getByRole("img", { name: /World map showing 1 flight/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
 });
@@ -94,11 +95,16 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
 test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   const welcomeAudit = await new AxeBuilder({ page }).analyze();
   expect(welcomeAudit.violations).toEqual([]);
   await page.getByRole("button", { name: "Try demo" }).click();
 
   await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByLabel("Appearance").selectOption("light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  const lightSettingsAudit = await new AxeBuilder({ page }).analyze();
+  expect(lightSettingsAudit.violations).toEqual([]);
   await page.getByLabel("Appearance").selectOption("dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   const settingsAudit = await new AxeBuilder({ page }).analyze();
@@ -148,7 +154,7 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
 
   expect(bodyMetrics.size).toBeGreaterThanOrEqual(15);
   expect(bodyMetrics.family).toContain("Segoe UI Variable Text");
-  expect(flightDataMetrics.family).toContain("Segoe UI Variable Display");
+  expect(flightDataMetrics.family).toContain("Bahnschrift");
   expect(flightDataMetrics.features).toContain("tnum");
 
   await page.getByRole("link", { name: "Settings" }).click();
@@ -216,10 +222,10 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
     expect(presentation.routeComesFirst).toBe(true);
     expect(presentation.routeCodeSize).toBeGreaterThan(presentation.flightNumberSize);
     expect(presentation.flightNumberSize).toBeGreaterThan(presentation.dateSize);
-    expect(presentation.listBorderRadius).toBe("0px");
+    expect(presentation.listBorderRadius).toBe("4px");
     expect(presentation.listBoxShadow).toBe("none");
-    expect(presentation.listSideBorders).toEqual(["0px", "0px"]);
-    expect(presentation.searchBorderRadius).toBe("0px");
+    expect(presentation.listSideBorders).toEqual(["1px", "1px"]);
+    expect(presentation.searchBorderRadius).toBe("3px");
     expect(presentation.searchBoxShadow).toBe("none");
   }
 });
@@ -292,11 +298,11 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   expect(passportPresentation).toEqual({
     canvasBackgroundImage: "none",
     highlightsDisplay: "block",
-    mapBorderRadius: "8px",
+    mapBorderRadius: "4px",
     mapBoxShadow: "none",
     routeFilter: "none",
     svgDefinitions: 0,
-    switcherBorderRadius: "0px",
+    switcherBorderRadius: "4px",
     switcherBackgroundImage: "none",
     yearHistoryDisplay: "block",
   });
@@ -338,9 +344,9 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
       expect(layout.fitsViewport).toBe(true);
       expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);
       expect(Math.abs(layout.header.right - layout.main.right)).toBeLessThan(1);
-      expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1120);
-      expect(layout.mainPaddingTop).toBe(width <= 760 ? 40 : 48);
-      expect(layout.mainPaddingBottom).toBe(width <= 760 ? 80 : 120);
+      expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1280);
+      expect(layout.mainPaddingTop).toBe(width <= 760 ? 24 : 32);
+      expect(layout.mainPaddingBottom).toBe(width <= 760 ? 64 : 120);
     }
   }
 });
