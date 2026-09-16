@@ -14,7 +14,7 @@ export interface ViewerSettings {
 export function defaultViewerSettings(): ViewerSettings {
   return {
     language: navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en",
-    appearance: "dark",
+    appearance: "system",
     distanceUnit: "miles",
     timeFormat: "24-hour",
     powerUserMode: false,

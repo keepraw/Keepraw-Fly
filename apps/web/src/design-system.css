@@ -35,6 +35,8 @@
   --color-info-soft: #e3eef3;
   --color-danger: #bf4b3f;
   --color-danger-soft: #f6e7e3;
+  --color-gate-sign: #eaa900;
+  --color-on-gate-sign: #171509;
   --color-header: rgb(245 244 239 / 90%);
   --color-focus: #46a988;
   --color-overlay: rgb(20 23 20 / 58%);
@@ -209,6 +211,8 @@
     --color-info-soft: #1b3441;
     --color-danger: #ff746b;
     --color-danger-soft: #3d1a1c;
+    --color-gate-sign: #f0ae16;
+    --color-on-gate-sign: #171509;
     --color-header: rgb(9 11 14 / 92%);
     --color-focus: #6ffbbe;
     --color-brand-mark: #090b0e;
@@ -236,6 +240,8 @@
   --color-info-soft: #e3eef3;
   --color-danger: #bf4b3f;
   --color-danger-soft: #f6e7e3;
+  --color-gate-sign: #eaa900;
+  --color-on-gate-sign: #171509;
   --color-header: rgb(245 244 239 / 90%);
   --color-focus: #46a988;
   --color-brand-mark: #f8f7f2;
@@ -263,6 +269,8 @@
   --color-info-soft: #1b3441;
   --color-danger: #ff746b;
   --color-danger-soft: #3d1a1c;
+  --color-gate-sign: #f0ae16;
+  --color-on-gate-sign: #171509;
   --color-header: rgb(9 11 14 / 92%);
   --color-focus: #6ffbbe;
   --color-brand-mark: #090b0e;
