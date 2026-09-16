@@ -83,12 +83,9 @@ pnpm build
 The same frozen install, type check, unit suite, Chromium user journeys and production build run on
 every pull request and every push to `main` through GitHub Actions.
 
-The static site is written to `apps/web/dist/`; that is also the directory to
-publish on a static hosting service.
-
-For GitHub Pages, push the repository, choose **GitHub Actions** under
-**Settings → Pages**, and let the included deployment workflow publish every
-successful `main` build. See [deployment guidance](docs/deployment.md).
+The static site is written to `apps/web/dist/`; that directory can be published
+manually or through a hosting service configured outside this repository. See
+[deployment guidance](docs/deployment.md).
 
 ## Repository layout
 
