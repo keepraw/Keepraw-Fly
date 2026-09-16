@@ -77,13 +77,15 @@ describe("CSV flight import", () => {
       totalRecords: 1,
       validRecords: 1,
       problemRecords: 0,
-      duplicateRecords: 0,
+      newRecords: 1,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 0,
       canImport: true,
       issues: [],
     });
   });
 
-  it("identifies an exact possible duplicate in a non-empty archive", () => {
+  it("skips an exact duplicate in a non-empty archive", () => {
     const parsed = parseCsv(csv);
     const imported = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null, () => "existing");
     const preflight = preflightCsvImport(
@@ -93,8 +95,31 @@ describe("CSV flight import", () => {
       () => "preview",
     );
 
-    expect(preflight.duplicateRecords).toBe(1);
-    expect(preflight.canImport).toBe(true);
+    expect(preflight).toMatchObject({
+      newRecords: 0,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 1,
+      canImport: true,
+    });
+    expect(buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), imported).flights).toHaveLength(1);
+  });
+
+  it("requires an explicit opt-in to import a possible duplicate", () => {
+    const parsed = parseCsv(csv);
+    const existing = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null, () => "existing");
+    const changedTime = parseCsv(csv
+      .replace("13:00:00", "14:00:00")
+      .replace("09:20:00", "10:20:00"));
+    const mapping = detectCsvMapping(changedTime.headers);
+    const preflight = preflightCsvImport(changedTime, mapping, existing, () => "possible");
+
+    expect(preflight).toMatchObject({
+      newRecords: 0,
+      possibleDuplicateRecords: 1,
+      exactDuplicateRecords: 0,
+    });
+    expect(buildDocumentFromCsv(changedTime, mapping, existing, () => "skipped").flights).toHaveLength(1);
+    expect(buildDocumentFromCsv(changedTime, mapping, existing, () => "included", true).flights).toHaveLength(2);
   });
 
   it("counts partial row failures and blocks the whole CSV import", () => {

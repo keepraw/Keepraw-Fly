@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { parseKeeprawFlyJson, validateKeeprawFly } from "@keepraw-fly/validator";
-import { preflightJsonImport, summarizeImport } from "./import-preview";
+import {
+  buildDocumentFromJsonImport,
+  preflightJsonImport,
+  summarizeImport,
+} from "./import-preview";
 
 describe("import preview", () => {
   it("summarizes the owner, flight count and service-date range", () => {
@@ -30,13 +34,15 @@ describe("import preview", () => {
       totalRecords: 2,
       validRecords: 2,
       problemRecords: 0,
-      duplicateRecords: 0,
+      newRecords: 2,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 0,
       canImport: true,
       issues: [],
     });
   });
 
-  it("flags possible duplicates when an archive already contains the same flight identity", () => {
+  it("separates exact duplicates from new flights in an existing archive", () => {
     const existing = {
       ...documentWithFlights,
       flights: [structuredClone(documentWithFlights.flights[0]!)],
@@ -44,8 +50,16 @@ describe("import preview", () => {
     const text = JSON.stringify(documentWithFlights);
     const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), existing);
 
-    expect(preflight.duplicateRecords).toBe(1);
-    expect(preflight.canImport).toBe(true);
+    expect(preflight).toMatchObject({
+      newRecords: 1,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 1,
+      canImport: true,
+    });
+
+    const merged = buildDocumentFromJsonImport(preflight, existing);
+    expect(merged.flights.map(({ id }) => id)).toEqual(["newer", "older"]);
+    expect(merged.profile).toEqual(existing.profile);
   });
 
   it("counts valid and affected records without accepting a partially invalid archive", () => {
@@ -58,7 +72,9 @@ describe("import preview", () => {
       totalRecords: 2,
       validRecords: 1,
       problemRecords: 1,
-      duplicateRecords: 0,
+      newRecords: 0,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 0,
       canImport: false,
     });
     expect(preflight.issues[0]).toMatchObject({ flightIndex: 1, keyword: "chronology" });
@@ -71,6 +87,9 @@ describe("import preview", () => {
         totalRecords: 0,
         validRecords: 0,
         problemRecords: 0,
+        newRecords: 0,
+        possibleDuplicateRecords: 0,
+        exactDuplicateRecords: 0,
         canImport: false,
       });
       expect(preflight.issues[0]?.keyword).toBe("parse");

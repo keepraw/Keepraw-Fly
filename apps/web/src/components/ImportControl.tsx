@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
+  buildDocumentFromJsonImport,
   preflightJsonImport,
   summarizeImport,
   type JsonImportPreflight,
@@ -11,7 +12,6 @@ import { ImportPreflightSummary } from "./ImportPreflightSummary";
 interface ImportControlProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
   existingDocument?: KeeprawFlyDocument | null;
-  onBackup?: () => void | Promise<void>;
   variant?: "primary" | "settings";
 }
 
@@ -22,12 +22,12 @@ interface PendingImport extends JsonImportPreflight {
 export function ImportControl({
   onImport,
   existingDocument = null,
-  onBackup,
   variant = "primary",
 }: ImportControlProps) {
   const { i18n, t } = useTranslation();
   const inputId = useId();
   const [pending, setPending] = useState<PendingImport | null>(null);
+  const [includePossibleDuplicates, setIncludePossibleDuplicates] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function importFile(file: File | undefined) {
@@ -37,16 +37,27 @@ export function ImportControl({
     const text = await file.text();
     const result = parseKeeprawFlyJson(text);
     setPending({ fileName: file.name, ...preflightJsonImport(text, result, existingDocument) });
+    setIncludePossibleDuplicates(false);
     setBusy(false);
   }
 
   async function confirmImport() {
     if (!pending?.document) return;
     setBusy(true);
-    await onImport(pending.document);
+    await onImport(buildDocumentFromJsonImport(
+      pending,
+      existingDocument,
+      includePossibleDuplicates,
+    ));
     setPending(null);
+    setIncludePossibleDuplicates(false);
     setBusy(false);
   }
+
+  const selectedRecords = pending
+    ? pending.newRecords + (includePossibleDuplicates ? pending.possibleDuplicateRecords : 0)
+    : 0;
+  const hasImportableContent = !existingDocument || selectedRecords > 0;
 
   const summary = pending?.document ? summarizeImport(pending.document) : null;
   const dateFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
@@ -97,21 +108,22 @@ export function ImportControl({
             </div>
             <span className="import-file-name">{pending.fileName}</span>
           </div>
-          <ImportPreflightSummary preflight={pending} />
+          <ImportPreflightSummary
+            preflight={pending}
+            includePossibleDuplicates={includePossibleDuplicates}
+            onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
+          />
+          {existingDocument && pending.canImport ? (
+            <p className="import-preservation-note" role="note">{t("import.preserveArchiveNote")}</p>
+          ) : null}
           {summary ? <dl className="import-preview-meta">
-            <div><dt>{t("import.owner")}</dt><dd>{summary.profileName ?? t("import.notRecorded")}</dd></div>
+            <div><dt>{t(existingDocument ? "import.sourceOwner" : "import.owner")}</dt><dd>{summary.profileName ?? t("import.notRecorded")}</dd></div>
             <div><dt>{t("import.dates")}</dt><dd>{dateRange}</dd></div>
           </dl> : null}
           {pending.migrations.length ? (
             <p className="import-migration" role="note">
               {t("import.migratedArchive", { count: pending.migrations.length })}
             </p>
-          ) : null}
-          {existingDocument && pending.canImport ? (
-            <div className="import-replacement" role="note">
-              <strong>{t("import.replaceWarningTitle")}</strong>
-              <span>{t("import.replaceWarning", { flights: existingDocument.flights.length })}</span>
-            </div>
           ) : null}
           {pending.issues.length ? (
             <div className="validation-errors import-blocking-issues" role="alert">
@@ -136,19 +148,21 @@ export function ImportControl({
             </div>
           ) : null}
           <div className="import-preview-actions">
-            {existingDocument && pending.canImport && onBackup ? (
-              <button className="button-secondary" type="button" disabled={busy} onClick={() => void onBackup()}>
-                {t("import.exportBackup")}
-              </button>
-            ) : null}
-            <button className="button-secondary" type="button" disabled={busy} onClick={() => setPending(null)}>
+            <button className="button-secondary" type="button" disabled={busy} onClick={() => { setPending(null); setIncludePossibleDuplicates(false); }}>
               {t("actions.cancel")}
             </button>
-            <button className="button-primary" type="button" disabled={busy || !pending.canImport} onClick={() => void confirmImport()}>
+            <button className="button-primary" type="button" disabled={busy || !pending.canImport || !hasImportableContent} onClick={() => void confirmImport()}>
               {busy
                 ? t("import.importing")
                 : pending.canImport
-                  ? t(existingDocument ? "import.replaceArchive" : "import.importArchive")
+                  ? existingDocument
+                    ? selectedRecords
+                      ? t(
+                        includePossibleDuplicates ? "import.importSelectedFlights" : "import.addNewFlights",
+                        { count: selectedRecords },
+                      )
+                      : t("import.noNewFlights")
+                    : t("import.importArchive")
                   : t("import.resolveIssues")}
             </button>
           </div>

@@ -45,7 +45,7 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   const preview = page.getByRole("region", { name: "Review before importing" });
   await expect(preview).toBeVisible();
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
-    "Recognized1Valid1With issues0Possible duplicates0",
+    "Recognized1Valid1With issues0New1Possible duplicate0Existing / duplicate0",
   );
   await expect(preview.getByText("张鸿川")).toBeVisible();
   await preview.getByRole("button", { name: "Import this archive" }).click();
@@ -91,7 +91,7 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
   await expect(preview).toBeVisible();
   await expect(preview.getByLabel("Flight number", { exact: true })).toHaveValue("0");
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
-    "Recognized1Valid1With issues0Possible duplicates0",
+    "Recognized1Valid1With issues0New1Possible duplicate0Existing / duplicate0",
   );
   await expect(preview.getByText("MU589")).toBeVisible();
   await preview.getByRole("button", { name: "Add 1 flight" }).click();
@@ -117,11 +117,55 @@ test("blocks a partially invalid JSON archive before writing anything", async ({
 
   const preview = page.getByRole("region", { name: "Review before importing" });
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
-    "Recognized2Valid1With issues1Possible duplicates0",
+    "Recognized2Valid1With issues1New0Possible duplicate0Existing / duplicate0",
   );
   await expect(preview.getByText("Flight #2", { exact: false })).toBeVisible();
   await expect(preview.getByRole("button", { name: "Resolve issues to import" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Create my archive" })).toBeVisible();
+});
+
+test("skips an exact JSON duplicate without replacing the existing archive", async ({ page }) => {
+  await page.goto("/");
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles(exampleArchive);
+  await page.getByRole("button", { name: "Import this archive" }).click();
+  await page.getByRole("link", { name: "Settings" }).click();
+
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles(exampleArchive);
+  const preview = page.getByRole("region", { name: "Review before importing" });
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1Valid1With issues0New0Possible duplicate0Existing / duplicate1",
+  );
+  await expect(preview.getByText("1 exact duplicate will be skipped", { exact: false })).toBeVisible();
+  await expect(preview.getByRole("button", { name: "No new flights to import" })).toBeDisabled();
+
+  await preview.getByRole("button", { name: "Cancel" }).click();
+  const possibleArchive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  possibleArchive.flights[0] = {
+    ...possibleArchive.flights[0],
+    id: "possible-ua123",
+    scheduledDeparture: "2026-08-19T11:20:00-07:00",
+    scheduledArrival: "2026-08-19T12:52:00-07:00",
+    actualDeparture: "2026-08-19T11:57:00-07:00",
+    actualArrival: "2026-08-19T13:21:00-07:00",
+  };
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({
+    name: "possible.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(possibleArchive)),
+  });
+
+  const possiblePreview = page.getByRole("region", { name: "Review before importing" });
+  await expect(possiblePreview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1Valid1With issues0New0Possible duplicate1Existing / duplicate0",
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await expect(possiblePreview.getByRole("button", { name: "No new flights to import" })).toBeDisabled();
+  await possiblePreview.getByRole("checkbox", { name: /Also import 1 possible duplicate/ }).check();
+  await possiblePreview.getByRole("button", { name: "Import 1 selected flight" }).click();
+
+  await page.getByRole("link", { name: "Flights" }).click();
+  await expect(page.getByRole("button", { name: /Open UA123/ })).toHaveCount(2);
 });
 
 test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {

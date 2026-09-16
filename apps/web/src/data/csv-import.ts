@@ -2,7 +2,13 @@ import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import { airportByIata } from "@keepraw-fly/core";
 import { splitFlightNumberInput } from "./flight-editor";
-import { countPossibleDuplicateFlights, type ImportPreflightCounts } from "./import-preview";
+import {
+  assessFlightImports,
+  countFlightImportAssessments,
+  selectFlightsForImport,
+  type FlightImportAssessment,
+} from "./duplicate-detection";
+import type { ImportPreflightCounts } from "./import-preview";
 
 export type CsvFlightField =
   | "flightNumber"
@@ -46,6 +52,7 @@ export interface CsvImportIssue {
 
 export interface CsvImportPreflight extends ImportPreflightCounts {
   flights: KeeprawFlight[];
+  assessments: FlightImportAssessment[];
   issues: CsvImportIssue[];
 }
 
@@ -112,15 +119,25 @@ export function buildDocumentFromCsv(
   mapping: CsvColumnMapping,
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
+  includePossibleDuplicates = false,
 ): KeeprawFlyDocument {
   const preflight = preflightCsvImport(parsed, mapping, existing, idFactory);
+  return buildDocumentFromCsvPreflight(preflight, existing, includePossibleDuplicates);
+}
+
+export function buildDocumentFromCsvPreflight(
+  preflight: CsvImportPreflight,
+  existing: KeeprawFlyDocument | null,
+  includePossibleDuplicates = false,
+): KeeprawFlyDocument {
   if (!preflight.canImport) throw new Error(formatCsvIssue(preflight.issues[0]!));
+  const importedFlights = selectFlightsForImport(preflight.assessments, includePossibleDuplicates);
 
   return {
     format: KEEPRAW_FLY_FORMAT,
     formatVersion: KEEPRAW_FLY_FORMAT_VERSION,
     profile: existing?.profile ?? {},
-    flights: [...(existing?.flights ?? []), ...preflight.flights],
+    flights: [...(existing?.flights ?? []), ...importedFlights],
     ...(existing?.extensions ? { extensions: existing.extensions } : {}),
   };
 }
@@ -136,9 +153,12 @@ export function preflightCsvImport(
       totalRecords: parsed.rows.length,
       validRecords: 0,
       problemRecords: parsed.rows.length,
-      duplicateRecords: 0,
+      newRecords: 0,
+      possibleDuplicateRecords: 0,
+      exactDuplicateRecords: 0,
       canImport: false,
       flights: [],
+      assessments: [],
       issues: [{ code: "incomplete-mapping" }],
     };
   }
@@ -155,13 +175,15 @@ export function preflightCsvImport(
     }
   });
 
+  const assessments = assessFlightImports(flights, existing?.flights ?? []);
   return {
     totalRecords: parsed.rows.length,
     validRecords: flights.length,
     problemRecords: issues.length,
-    duplicateRecords: countPossibleDuplicateFlights(flights, existing?.flights ?? []),
+    ...countFlightImportAssessments(assessments),
     canImport: issues.length === 0,
     flights,
+    assessments,
     issues,
   };
 }
