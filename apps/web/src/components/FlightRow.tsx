@@ -32,6 +32,10 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
     : undefined;
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
+  const departureTimestamp = flight.actualDeparture ?? flight.scheduledDeparture;
+  const arrivalTimestamp = flight.actualArrival ?? flight.scheduledArrival;
+  const departureTime = formatTimeAtAirport(departureTimestamp, flight.origin.iata, locale, timeFormat);
+  const arrivalTime = formatTimeAtAirport(arrivalTimestamp, flight.destination.iata, locale, timeFormat);
 
   let delayLabel = t("status.scheduled");
   if (delay !== null) {
@@ -56,76 +60,32 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
         destination: flight.destination.iata,
       })}
     >
-      <time className="flight-date" dateTime={flight.serviceDate}>
-        {formatServiceDate(flight.serviceDate, locale)}
-      </time>
+      <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
+        <span className="flight-airport">
+          <span className="flight-airport-heading">
+            <AirportCode code={flight.origin.iata} />
+            <small>{origin?.city[locale]}</small>
+          </span>
+          <time dateTime={departureTimestamp}>{departureTime}</time>
+        </span>
+        <span className="route-line" aria-hidden="true"><i /><AviationIcon name="flight" /></span>
+        <span className="flight-airport flight-airport-arrival">
+          <span className="flight-airport-heading">
+            <AirportCode code={flight.destination.iata} />
+            <small>{destination?.city[locale]}</small>
+          </span>
+          <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
+        </span>
+      </div>
       <div className="flight-number">
         <strong>{flight.flightNumber}</strong>
         <span>{airlineName ?? airlineCode}</span>
       </div>
-      <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
-        <span className="flight-airport">
-          <AirportCode code={flight.origin.iata} />
-          <small>{origin?.city[locale]}</small>
-        </span>
-        <span className="route-line" aria-hidden="true"><i /><AviationIcon name="flight" /></span>
-        <span className="flight-airport flight-airport-arrival">
-          <AirportCode code={flight.destination.iata} />
-          <small>{destination?.city[locale]}</small>
-        </span>
-      </div>
-      <div className="flight-times">
-        <time dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>
-          {formatTimeAtAirport(
-            flight.actualDeparture ?? flight.scheduledDeparture,
-            flight.origin.iata,
-            locale,
-            timeFormat,
-          )}
-        </time>
-        <span aria-hidden="true">→</span>
-        <time dateTime={flight.actualArrival ?? flight.scheduledArrival}>
-          {formatTimeAtAirport(
-            flight.actualArrival ?? flight.scheduledArrival,
-            flight.destination.iata,
-            locale,
-            timeFormat,
-          )}
-        </time>
-      </div>
+      <time className="flight-date" dateTime={flight.serviceDate}>
+        {formatServiceDate(flight.serviceDate, locale)}
+      </time>
       <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
       <span className="flight-open-cue" aria-hidden="true">›</span>
-      <div className="flight-mobile-summary" aria-hidden="true">
-        <div className="flight-mobile-heading">
-          <strong>{flight.flightNumber}</strong>
-          <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
-        </div>
-        <div className="flight-mobile-route">
-          <span>
-            <AirportCode code={flight.origin.iata} />
-            <time dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>
-              {formatTimeAtAirport(
-                flight.actualDeparture ?? flight.scheduledDeparture,
-                flight.origin.iata,
-                locale,
-                timeFormat,
-              )}
-            </time>
-          </span>
-          <i />
-          <span>
-            <AirportCode code={flight.destination.iata} />
-            <time dateTime={flight.actualArrival ?? flight.scheduledArrival}>
-              {formatTimeAtAirport(
-                flight.actualArrival ?? flight.scheduledArrival,
-                flight.destination.iata,
-                locale,
-                timeFormat,
-              )}
-            </time>
-          </span>
-        </div>
-      </div>
     </button>
   );
 }
