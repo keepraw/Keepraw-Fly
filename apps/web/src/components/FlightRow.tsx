@@ -12,7 +12,7 @@ import {
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
-import { AirportCode, AviationIcon, FlightStatusBadge } from "./AviationPrimitives";
+import { AirportCode, FlightStatusBadge } from "./AviationPrimitives";
 
 interface FlightRowProps {
   flight: KeeprawFlight;
@@ -68,7 +68,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
           </span>
           <time dateTime={departureTimestamp}>{departureTime}</time>
         </span>
-        <span className="route-line" aria-hidden="true"><i /><AviationIcon name="flight" /></span>
+        <span className="route-line" aria-hidden="true" />
         <span className="flight-airport flight-airport-arrival">
           <span className="flight-airport-heading">
             <AirportCode code={flight.destination.iata} />
@@ -85,7 +85,6 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
         {formatServiceDate(flight.serviceDate, locale)}
       </time>
       <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
-      <span className="flight-open-cue" aria-hidden="true">›</span>
     </button>
   );
 }

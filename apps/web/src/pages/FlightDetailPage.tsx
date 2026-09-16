@@ -15,7 +15,7 @@ import {
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
-import { AirportCode, AviationIcon, FlightStatusBadge } from "../components/AviationPrimitives";
+import { AirportCode, FlightStatusBadge } from "../components/AviationPrimitives";
 import { PageShell } from "../components/PageShell";
 
 interface FlightDetailPageProps {
@@ -117,23 +117,23 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
         <div className="route-hero" role="group" aria-label={t("flightDetail.routeLabel")}>
           <div className="airport-block">
             <span className="airport-role">{t("flightDetail.departure")}</span>
+            <div className="detail-airport-heading">
+              <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
+              <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
+            </div>
             <time className="detail-airport-time" dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>{departureTime}</time>
-            <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
-            <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
             <small>{origin?.name[locale]}</small>
           </div>
           <div className="route-track" aria-hidden="true">
             <span className="route-track-line" />
-            <span className="route-track-mark">
-              <AviationIcon name="flight" />
-            </span>
-            <span className="route-track-line" />
           </div>
           <div className="airport-block airport-block-arrival">
             <span className="airport-role">{t("flightDetail.arrival")}</span>
+            <div className="detail-airport-heading">
+              <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
+              <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
+            </div>
             <time className="detail-airport-time" dateTime={flight.actualArrival ?? flight.scheduledArrival}>{arrivalTime}</time>
-            <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
-            <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
             <small>{destination?.name[locale]}</small>
           </div>
         </div>

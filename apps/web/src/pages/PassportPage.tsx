@@ -71,7 +71,6 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
           </div>
         </header>
         <section className="passport-empty" aria-labelledby="passport-empty-title">
-          <span aria-hidden="true">00</span>
           <div>
             <p className="eyebrow">{t("passport.emptyEyebrow")}</p>
             <h2 id="passport-empty-title">{t("passport.emptyTitle")}</h2>
