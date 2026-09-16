@@ -782,25 +782,39 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .import-preview-heading > div { display: grid; gap: 6px; }
 .import-preview-heading strong { font-size: 1.05rem; }
 .import-file-name { overflow-wrap: anywhere; color: var(--muted); font-size: var(--font-size-caption); }
-.import-preview dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--line); }
-.import-preview dl > div { display: grid; gap: 5px; padding: 14px 12px 0 0; }
+.import-preview-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--line); }
+.import-preview-meta > div { display: grid; gap: 5px; padding: 14px 12px 0 0; }
 .import-preview dt { color: var(--muted); font-size: var(--font-size-caption); }
 .import-preview dd { margin: 0; font-size: var(--type-size-caption); font-weight: var(--font-weight-semibold); line-height: var(--type-leading-caption); }
+.import-preflight-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.import-preflight-stats > div { display: flex; min-width: 0; flex-direction: column; gap: 9px; padding: 15px 12px 15px 0; }
+.import-preflight-stats dt { color: var(--muted); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
+.import-preflight-stats dd { margin: 0; font-family: var(--font-family-data); font-size: var(--type-size-data-heading); font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-semibold); line-height: 1; }
+.import-preflight-stats .import-stat-valid dd { color: var(--green); }
+.import-preflight-stats .import-stat-problem dd { color: var(--red); }
+.import-preflight-stats .import-stat-duplicate dd { color: var(--color-warning); }
+.import-duplicate-note { margin: 0; padding: 11px 13px; border-left: 3px solid var(--color-warning); color: var(--muted); background: var(--color-warning-soft); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
 .import-replacement { display: grid; gap: 5px; padding: 13px 14px; border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
 .import-migration { margin: 0; padding: 11px 13px; border-left: 3px solid var(--green); color: var(--muted); background: var(--green-soft); font-size: var(--font-size-caption); line-height: 1.5; }
 .import-replacement strong { color: var(--red); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
 .import-replacement span { color: var(--muted); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
 .import-preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
 .import-preview-actions .button-primary, .import-preview-actions .button-secondary { min-height: 38px; padding: 0 15px; font-size: var(--type-size-caption); }
+.import-blocking-issues { max-width: none; margin: 0; }
+.import-blocking-issues > p { margin: 7px 0 0; color: var(--muted); line-height: var(--type-leading-caption); }
+.import-blocking-issues > small { display: block; margin-top: 12px; color: var(--muted); }
 .csv-preview { display: grid; grid-column: 1 / -1; gap: 18px; margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
 .csv-mapping { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .csv-mapping > div { display: grid; gap: 6px; }
 .csv-mapping label { color: var(--muted); font-size: var(--font-size-caption); }
 .csv-mapping select { width: 100%; min-height: 39px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: var(--color-canvas); }
-.csv-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
-.csv-table-wrap table { width: 100%; border-collapse: collapse; font-size: var(--font-size-caption); white-space: nowrap; }
-.csv-table-wrap th, .csv-table-wrap td { padding: 9px 11px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; }
-.csv-table-wrap th { color: var(--muted); background: var(--color-canvas); font-weight: var(--font-weight-semibold); }
+.csv-record-preview { display: grid; gap: 10px; }
+.csv-record-preview > span { color: var(--muted); font-size: var(--type-size-caption); }
+.csv-record-preview ul { display: grid; margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+.csv-record-preview li { display: grid; grid-template-columns: minmax(90px, 0.65fr) minmax(130px, 1fr) auto; gap: 16px; align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.csv-record-preview strong { font-family: var(--font-family-data); font-feature-settings: var(--numeric-features); white-space: nowrap; }
+.csv-record-preview li span { color: var(--ink); font-family: var(--font-family-data); letter-spacing: var(--tracking-airport); white-space: nowrap; }
+.csv-record-preview time { color: var(--muted); font-family: var(--font-family-mono); font-size: var(--type-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .csv-timezone-note, .csv-import-error { margin: 0; color: var(--muted); font-size: var(--font-size-caption); line-height: 1.5; }
 .csv-import-error { grid-column: 1 / -1; margin-top: 10px; color: var(--red); }
 .settings-action { display: inline-grid; min-height: 38px; align-items: center; padding: 0 15px; border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); border-radius: 11px; color: var(--ink); background: color-mix(in srgb, var(--surface) 72%, transparent); cursor: pointer; font-size: var(--font-size-label); font-weight: var(--font-weight-medium); white-space: nowrap; }
@@ -994,10 +1008,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .welcome-actions .button-primary, .welcome-actions .button-secondary, .welcome-actions .import-primary { width: 100%; }
   .import-control-primary { grid-template-columns: 1fr; text-align: center; }
   .import-preview-heading { flex-direction: column; gap: 8px; }
-  .import-preview dl { grid-template-columns: 1fr; }
+  .import-preview-meta { grid-template-columns: 1fr; }
+  .import-preflight-stats { grid-template-columns: 1fr 1fr; }
+  .import-preflight-stats > div { padding: 13px 8px 13px 0; }
   .import-preview-actions { align-items: stretch; flex-direction: column-reverse; }
   .import-preview-actions .button-primary, .import-preview-actions .button-secondary { width: 100%; }
   .csv-mapping { grid-template-columns: 1fr; }
+  .csv-record-preview li { grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .csv-record-preview li span { grid-column: 1; }
+  .csv-record-preview time { grid-column: 2; grid-row: 1 / span 2; }
   .page-heading { margin-bottom: 30px; }
   .page-heading h1 { font-size: var(--type-size-page); }
   .flights-page .page-heading { align-items: center; margin-bottom: 26px; }

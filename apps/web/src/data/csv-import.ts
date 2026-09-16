@@ -2,6 +2,7 @@ import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import { airportByIata } from "@keepraw-fly/core";
 import { splitFlightNumberInput } from "./flight-editor";
+import { countPossibleDuplicateFlights, type ImportPreflightCounts } from "./import-preview";
 
 export type CsvFlightField =
   | "flightNumber"
@@ -25,6 +26,27 @@ export type CsvColumnMapping = Record<CsvFlightField, number | null>;
 export interface ParsedCsv {
   headers: string[];
   rows: string[][];
+}
+
+export type CsvImportIssueCode =
+  | "incomplete-mapping"
+  | "invalid-flight-number"
+  | "invalid-date"
+  | "unknown-airport"
+  | "same-airport"
+  | "timezone-required"
+  | "invalid-time"
+  | "date-mismatch"
+  | "chronology";
+
+export interface CsvImportIssue {
+  code: CsvImportIssueCode;
+  lineNumber?: number;
+}
+
+export interface CsvImportPreflight extends ImportPreflightCounts {
+  flights: KeeprawFlight[];
+  issues: CsvImportIssue[];
 }
 
 const aliases: Record<CsvFlightField, string[]> = {
@@ -91,18 +113,56 @@ export function buildDocumentFromCsv(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
 ): KeeprawFlyDocument {
-  if (csvFlightFields.some((field) => mapping[field] === null)) {
-    throw new Error("incomplete-mapping");
-  }
+  const preflight = preflightCsvImport(parsed, mapping, existing, idFactory);
+  if (!preflight.canImport) throw new Error(formatCsvIssue(preflight.issues[0]!));
 
-  const importedFlights = parsed.rows.map((row, index) =>
-    flightFromCsvRow(row, mapping, index + 2, idFactory));
   return {
     format: KEEPRAW_FLY_FORMAT,
     formatVersion: KEEPRAW_FLY_FORMAT_VERSION,
     profile: existing?.profile ?? {},
-    flights: [...(existing?.flights ?? []), ...importedFlights],
+    flights: [...(existing?.flights ?? []), ...preflight.flights],
     ...(existing?.extensions ? { extensions: existing.extensions } : {}),
+  };
+}
+
+export function preflightCsvImport(
+  parsed: ParsedCsv,
+  mapping: CsvColumnMapping,
+  existing: KeeprawFlyDocument | null,
+  idFactory: () => string = () => crypto.randomUUID(),
+): CsvImportPreflight {
+  if (csvFlightFields.some((field) => mapping[field] === null)) {
+    return {
+      totalRecords: parsed.rows.length,
+      validRecords: 0,
+      problemRecords: parsed.rows.length,
+      duplicateRecords: 0,
+      canImport: false,
+      flights: [],
+      issues: [{ code: "incomplete-mapping" }],
+    };
+  }
+
+  const flights: KeeprawFlight[] = [];
+  const issues: CsvImportIssue[] = [];
+
+  parsed.rows.forEach((row, index) => {
+    const lineNumber = index + 2;
+    try {
+      flights.push(flightFromCsvRow(row, mapping, lineNumber, idFactory));
+    } catch (error) {
+      issues.push(csvIssueFromError(error, lineNumber));
+    }
+  });
+
+  return {
+    totalRecords: parsed.rows.length,
+    validRecords: flights.length,
+    problemRecords: issues.length,
+    duplicateRecords: countPossibleDuplicateFlights(flights, existing?.flights ?? []),
+    canImport: issues.length === 0,
+    flights,
+    issues,
   };
 }
 
@@ -113,22 +173,27 @@ function flightFromCsvRow(
   idFactory: () => string,
 ): KeeprawFlight {
   const value = (field: CsvFlightField) => (row[mapping[field]!] ?? "").trim();
-  const flightNumber = value("flightNumber").toUpperCase().replace(/\s+/g, "");
+  const flightNumber = value("flightNumber");
   const identity = splitFlightNumberInput(flightNumber);
   const serviceDate = value("serviceDate");
-  const originIata = value("originIata").toUpperCase();
-  const destinationIata = value("destinationIata").toUpperCase();
+  const originIata = value("originIata");
+  const destinationIata = value("destinationIata");
   const scheduledDeparture = value("scheduledDeparture");
   const scheduledArrival = value("scheduledArrival");
 
-  if (!identity) throw new Error(`line-${lineNumber}:invalid-flight-number`);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate)) throw new Error(`line-${lineNumber}:invalid-date`);
+  if (!identity || `${identity.airlineCode}${identity.serviceNumber}` !== flightNumber) {
+    throw new Error(`line-${lineNumber}:invalid-flight-number`);
+  }
+  if (!isCalendarDate(serviceDate)) throw new Error(`line-${lineNumber}:invalid-date`);
   if (!airportByIata.has(originIata) || !airportByIata.has(destinationIata)) {
     throw new Error(`line-${lineNumber}:unknown-airport`);
   }
   if (originIata === destinationIata) throw new Error(`line-${lineNumber}:same-airport`);
   if (!hasExplicitOffset(scheduledDeparture) || !hasExplicitOffset(scheduledArrival)) {
     throw new Error(`line-${lineNumber}:timezone-required`);
+  }
+  if (!Number.isFinite(Date.parse(scheduledDeparture)) || !Number.isFinite(Date.parse(scheduledArrival))) {
+    throw new Error(`line-${lineNumber}:invalid-time`);
   }
   if (scheduledDeparture.slice(0, 10) !== serviceDate) {
     throw new Error(`line-${lineNumber}:date-mismatch`);
@@ -151,10 +216,44 @@ function flightFromCsvRow(
   };
 }
 
+function csvIssueFromError(error: unknown, fallbackLineNumber: number): CsvImportIssue {
+  const message = error instanceof Error ? error.message : "";
+  const match = /^line-(\d+):(.+)$/.exec(message);
+  const code = match?.[2] as CsvImportIssueCode | undefined;
+  return {
+    code: code && isCsvIssueCode(code) ? code : "invalid-flight-number",
+    lineNumber: match?.[1] ? Number(match[1]) : fallbackLineNumber,
+  };
+}
+
+function formatCsvIssue(issue: CsvImportIssue): string {
+  return issue.lineNumber ? `line-${issue.lineNumber}:${issue.code}` : issue.code;
+}
+
+function isCsvIssueCode(value: string): value is CsvImportIssueCode {
+  return [
+    "incomplete-mapping",
+    "invalid-flight-number",
+    "invalid-date",
+    "unknown-airport",
+    "same-airport",
+    "timezone-required",
+    "invalid-time",
+    "date-mismatch",
+    "chronology",
+  ].includes(value);
+}
+
 function normalizeHeader(value: string): string {
   return value.trim().toLowerCase().replace(/[\s_-]+/g, "");
 }
 
 function hasExplicitOffset(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value);
+}
+
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value;
 }

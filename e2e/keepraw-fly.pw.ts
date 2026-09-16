@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const exampleArchive = fileURLToPath(new URL("../examples/basic.keepraw-fly.json", import.meta.url));
@@ -41,9 +42,13 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
 test("previews a JSON import and renders its Passport route map", async ({ page }) => {
   await page.goto("/");
   await page.locator('input[type="file"]').setInputFiles(exampleArchive);
-  await expect(page.getByRole("region", { name: "Review before importing" })).toBeVisible();
-  await expect(page.getByText("张鸿川")).toBeVisible();
-  await page.getByRole("button", { name: "Import this archive" }).click();
+  const preview = page.getByRole("region", { name: "Review before importing" });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1Valid1With issues0Possible duplicates0",
+  );
+  await expect(preview.getByText("张鸿川")).toBeVisible();
+  await preview.getByRole("button", { name: "Import this archive" }).click();
 
   await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
   await page.getByRole("link", { name: "Passport" }).click();
@@ -85,11 +90,38 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
   const preview = page.getByRole("region", { name: "Review CSV import" });
   await expect(preview).toBeVisible();
   await expect(preview.getByLabel("Flight number", { exact: true })).toHaveValue("0");
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1Valid1With issues0Possible duplicates0",
+  );
   await expect(preview.getByText("MU589")).toBeVisible();
   await preview.getByRole("button", { name: "Add 1 flight" }).click();
 
   await page.getByRole("link", { name: "Flights" }).click();
   await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
+});
+
+test("blocks a partially invalid JSON archive before writing anything", async ({ page }) => {
+  const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  archive.flights.push({
+    ...archive.flights[0],
+    id: "invalid-record",
+    flightNumber: undefined,
+  });
+
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "partial.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+
+  const preview = page.getByRole("region", { name: "Review before importing" });
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized2Valid1With issues1Possible duplicates0",
+  );
+  await expect(preview.getByText("Flight #2", { exact: false })).toBeVisible();
+  await expect(preview.getByRole("button", { name: "Resolve issues to import" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Create my archive" })).toBeVisible();
 });
 
 test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {
