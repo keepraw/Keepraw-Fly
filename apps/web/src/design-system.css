@@ -13,6 +13,7 @@
   --font-family-sans: var(--font-family-ui);
   --font-family-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-family-data: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --font-family-mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace;
 
   /* Semantic color roles */
   --color-text: #20231f;
@@ -45,15 +46,15 @@
     radial-gradient(circle at 18% 108%, rgb(40 88 112 / 32%), transparent 42%),
     linear-gradient(135deg, #18221e 0%, #101714 100%);
 
-  /* Passport map is a deliberately dark, atlas-like subtheme. */
-  --color-map-surface: #1d2721;
-  --color-map-land: #334139;
-  --color-map-land-line: #405047;
-  --color-map-route: #6bd0ad;
-  --color-map-airport: #b2f0d8;
-  --color-map-text: #e8eee8;
-  --color-map-muted: #a9b6ad;
-  --color-map-faint: #7f9185;
+  /* Passport map is a deliberately dark, graphite atlas subtheme. */
+  --color-map-surface: #0d1116;
+  --color-map-land: #171c23;
+  --color-map-land-line: #28313c;
+  --color-map-route: #4edea3;
+  --color-map-airport: #75f5bf;
+  --color-map-text: #f4f6f8;
+  --color-map-muted: #a4abb6;
+  --color-map-faint: #7f8895;
 
   /* Compatibility aliases used by the first-stage screens. */
   --ink: var(--color-text);
@@ -137,12 +138,12 @@
   --layout-header-height: 76px;
 
   /* Shape, elevation and controls */
-  --radius-control: 4px;
-  --radius-card: 8px;
-  --radius-modal: 10px;
-  --radius-icon: 13px;
-  --radius-panel: 20px;
-  --radius-hero: 26px;
+  --radius-control: 3px;
+  --radius-card: 4px;
+  --radius-modal: 8px;
+  --radius-icon: 6px;
+  --radius-panel: 8px;
+  --radius-hero: 10px;
   --radius-pill: 999px;
   --control-height-sm: 36px;
   --control-height-md: 44px;
@@ -189,29 +190,29 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --color-text: #f0f0ea;
-    --color-text-muted: #a7aaa5;
-    --color-text-faint: #969a94;
-    --color-canvas: #151715;
-    --color-surface: #191c19;
-    --color-surface-raised: #202420;
-    --color-surface-sunken: #111311;
-    --color-surface-glass: rgb(25 28 25 / 82%);
-    --color-line: rgb(255 255 255 / 12%);
-    --color-line-strong: rgb(255 255 255 / 20%);
-    --color-accent: #6bc6a8;
-    --color-accent-bright: #7bdbbb;
-    --color-accent-soft: #17372c;
-    --color-warning: #efbe67;
-    --color-warning-soft: #3c301c;
+    --color-text: #f4f6f8;
+    --color-text-muted: #a4abb6;
+    --color-text-faint: #858d9a;
+    --color-canvas: #090b0e;
+    --color-surface: #111317;
+    --color-surface-raised: #15191f;
+    --color-surface-sunken: #0c0e12;
+    --color-surface-glass: rgb(17 19 23 / 88%);
+    --color-line: #242a35;
+    --color-line-strong: #374151;
+    --color-accent: #4edea3;
+    --color-accent-bright: #6ffbbe;
+    --color-accent-soft: #12382c;
+    --color-warning: #ffb95f;
+    --color-warning-soft: #392609;
     --color-info: #8dc7e5;
     --color-info-soft: #1b3441;
-    --color-danger: #ef9488;
-    --color-danger-soft: #442722;
-    --color-header: rgb(21 23 21 / 90%);
-    --color-focus: #8cddc1;
-    --color-brand-mark: #151715;
-    --shadow-raised: 0 12px 36px rgb(0 0 0 / 18%);
+    --color-danger: #ff746b;
+    --color-danger-soft: #3d1a1c;
+    --color-header: rgb(9 11 14 / 92%);
+    --color-focus: #6ffbbe;
+    --color-brand-mark: #090b0e;
+    --shadow-raised: none;
   }
 }
 
@@ -243,29 +244,29 @@
 }
 
 :root[data-theme="dark"] {
-  --color-text: #f0f0ea;
-  --color-text-muted: #a7aaa5;
-  --color-text-faint: #969a94;
-  --color-canvas: #151715;
-  --color-surface: #191c19;
-  --color-surface-raised: #202420;
-  --color-surface-sunken: #111311;
-  --color-surface-glass: rgb(25 28 25 / 82%);
-  --color-line: rgb(255 255 255 / 12%);
-  --color-line-strong: rgb(255 255 255 / 20%);
-  --color-accent: #6bc6a8;
-  --color-accent-bright: #7bdbbb;
-  --color-accent-soft: #17372c;
-  --color-warning: #efbe67;
-  --color-warning-soft: #3c301c;
+  --color-text: #f4f6f8;
+  --color-text-muted: #a4abb6;
+  --color-text-faint: #858d9a;
+  --color-canvas: #090b0e;
+  --color-surface: #111317;
+  --color-surface-raised: #15191f;
+  --color-surface-sunken: #0c0e12;
+  --color-surface-glass: rgb(17 19 23 / 88%);
+  --color-line: #242a35;
+  --color-line-strong: #374151;
+  --color-accent: #4edea3;
+  --color-accent-bright: #6ffbbe;
+  --color-accent-soft: #12382c;
+  --color-warning: #ffb95f;
+  --color-warning-soft: #392609;
   --color-info: #8dc7e5;
   --color-info-soft: #1b3441;
-  --color-danger: #ef9488;
-  --color-danger-soft: #442722;
-  --color-header: rgb(21 23 21 / 90%);
-  --color-focus: #8cddc1;
-  --color-brand-mark: #151715;
-  --shadow-raised: 0 12px 36px rgb(0 0 0 / 18%);
+  --color-danger: #ff746b;
+  --color-danger-soft: #3d1a1c;
+  --color-header: rgb(9 11 14 / 92%);
+  --color-focus: #6ffbbe;
+  --color-brand-mark: #090b0e;
+  --shadow-raised: none;
   color-scheme: dark;
 }
 
@@ -291,10 +292,10 @@
   justify-content: center;
   padding: 4px 9px;
   border: 1px solid color-mix(in srgb, var(--aviation-status-color) 14%, transparent);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   color: var(--aviation-status-color);
   background: var(--aviation-status-surface);
-  font-family: var(--font-family-data);
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-caption);
   font-feature-settings: var(--numeric-features);
   font-weight: var(--font-weight-semibold);

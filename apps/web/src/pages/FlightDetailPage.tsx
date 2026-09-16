@@ -108,116 +108,116 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
               </FlightStatusBadge>
             </p>
           </div>
-          <span className="detail-duration">
-            {formatDuration(duration.minutes, locale)}
-            <small>{t(`flightDetail.durationSource.${duration.source}`)}</small>
-          </span>
         </header>
 
         <div className="route-hero" role="group" aria-label={t("flightDetail.routeLabel")}>
           <div className="airport-block">
             <span className="airport-role">{t("flightDetail.departure")}</span>
-            <div className="detail-airport-heading">
+            <div className="detail-route-primary">
               <AirportCode className="airport-code" code={flight.origin.iata} size="display" />
-              <strong>{origin?.city[locale] ?? flight.origin.iata}</strong>
+              <time className="detail-airport-time" dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>{departureTime}</time>
             </div>
-            <time className="detail-airport-time" dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>{departureTime}</time>
+            <strong className="detail-airport-city">{origin?.city[locale] ?? flight.origin.iata}</strong>
             <small>{origin?.name[locale]}</small>
           </div>
-          <div className="route-track" aria-hidden="true">
-            <span className="route-track-line" />
+          <div className="route-track">
+            <span className="route-track-line" aria-hidden="true" />
+            <span className="detail-duration">
+              {formatDuration(duration.minutes, locale)}
+              <small>{t(`flightDetail.durationSource.${duration.source}`)}</small>
+            </span>
           </div>
           <div className="airport-block airport-block-arrival">
             <span className="airport-role">{t("flightDetail.arrival")}</span>
-            <div className="detail-airport-heading">
+            <div className="detail-route-primary">
               <AirportCode className="airport-code" code={flight.destination.iata} size="display" />
-              <strong>{destination?.city[locale] ?? flight.destination.iata}</strong>
+              <time className="detail-airport-time" dateTime={flight.actualArrival ?? flight.scheduledArrival}>{arrivalTime}</time>
             </div>
-            <time className="detail-airport-time" dateTime={flight.actualArrival ?? flight.scheduledArrival}>{arrivalTime}</time>
+            <strong className="detail-airport-city">{destination?.city[locale] ?? flight.destination.iata}</strong>
             <small>{destination?.name[locale]}</small>
           </div>
         </div>
-      </section>
 
-      <section className="timeline" aria-labelledby="timeline-title">
-        <div className="section-heading">
-          <p className="eyebrow">{t("flightDetail.journey")}</p>
-          <h2 id="timeline-title">{t("flightDetail.timeline")}</h2>
-        </div>
-        <div className="timeline-grid">
-          <div className="timeline-event">
-            <div>
-              <p>{t("flightDetail.departure")}</p>
-              <strong>{departureTime}</strong>
-              {flight.actualDeparture ? (
-                <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
-                  flight.scheduledDeparture,
-                  flight.origin.iata,
-                  locale,
-                  timeFormat,
-                )}</small>
-              ) : null}
+        <section className="timeline" aria-labelledby="timeline-title">
+          <div className="section-heading">
+            <p className="eyebrow">{t("flightDetail.journey")}</p>
+            <h2 id="timeline-title">{t("flightDetail.timeline")}</h2>
+          </div>
+          <div className="timeline-grid">
+            <div className="timeline-event">
+              <div>
+                <p>{t("flightDetail.departure")}</p>
+                <strong>{departureTime}</strong>
+                {flight.actualDeparture ? (
+                  <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
+                    flight.scheduledDeparture,
+                    flight.origin.iata,
+                    locale,
+                    timeFormat,
+                  )}</small>
+                ) : null}
+              </div>
+              <span className="timeline-dot" aria-hidden="true" />
+              <div className="timeline-place">
+                <strong>{flight.origin.iata}</strong>
+                <small>{origin?.timezone}</small>
+              </div>
             </div>
-            <span className="timeline-dot" aria-hidden="true" />
-            <div className="timeline-place">
-              <strong>{flight.origin.iata}</strong>
-              <small>{origin?.timezone}</small>
+            <div className="timeline-stem" aria-hidden="true"><i /></div>
+            <div className="timeline-event">
+              <div>
+                <p>{t("flightDetail.arrival")}</p>
+                <strong>{arrivalTime}</strong>
+                {flight.actualArrival ? (
+                  <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
+                    flight.scheduledArrival,
+                    flight.destination.iata,
+                    locale,
+                    timeFormat,
+                  )}</small>
+                ) : null}
+              </div>
+              <span className="timeline-dot" aria-hidden="true" />
+              <div className="timeline-place">
+                <strong>{flight.destination.iata}</strong>
+                <small>{destination?.timezone}</small>
+              </div>
             </div>
           </div>
-          <div className="timeline-stem" aria-hidden="true"><i /></div>
-          <div className="timeline-event">
-            <div>
-              <p>{t("flightDetail.arrival")}</p>
-              <strong>{arrivalTime}</strong>
-              {flight.actualArrival ? (
-                <small>{t("flightDetail.scheduled")} {formatTimeAtAirport(
-                  flight.scheduledArrival,
-                  flight.destination.iata,
-                  locale,
-                  timeFormat,
-                )}</small>
-              ) : null}
-            </div>
-            <span className="timeline-dot" aria-hidden="true" />
-            <div className="timeline-place">
-              <strong>{flight.destination.iata}</strong>
-              <small>{destination?.timezone}</small>
-            </div>
+        </section>
+
+        <section className="delay-summary" aria-label={t("flightDetail.delaySummary")}>
+          <div>
+            <span>{t("flightDetail.departureDelay")}</span>
+            <strong className={departureDelay && departureDelay > 0 ? "delay-positive" : ""}>
+              {delayText(departureDelay, t("status.onTime"), t("units.minuteShort"))}
+            </strong>
           </div>
-        </div>
-      </section>
+          <div>
+            <span>{t("flightDetail.arrivalDelay")}</span>
+            <strong className={arrivalDelay && arrivalDelay > 0 ? "delay-positive" : ""}>
+              {delayText(arrivalDelay, t("status.onTime"), t("units.minuteShort"))}
+            </strong>
+          </div>
+        </section>
 
-      <section className="delay-summary" aria-label={t("flightDetail.delaySummary")}>
-        <div>
-          <span>{t("flightDetail.departureDelay")}</span>
-          <strong className={departureDelay && departureDelay > 0 ? "delay-positive" : ""}>
-            {delayText(departureDelay, t("status.onTime"), t("units.minuteShort"))}
-          </strong>
-        </div>
-        <div>
-          <span>{t("flightDetail.arrivalDelay")}</span>
-          <strong className={arrivalDelay && arrivalDelay > 0 ? "delay-positive" : ""}>
-            {delayText(arrivalDelay, t("status.onTime"), t("units.minuteShort"))}
-          </strong>
-        </div>
+        {hasFacts ? <section className="flight-facts" aria-labelledby="facts-title">
+          <div className="section-heading">
+            <p className="eyebrow">{t("flightDetail.facts")}</p>
+            <h2 id="facts-title">{t("flightDetail.details")}</h2>
+          </div>
+          <dl className="facts-grid">
+            <DetailItem label={t("flightDetail.departureTerminal")} value={flight.origin.terminal} />
+            <DetailItem label={t("flightDetail.departureGate")} value={flight.origin.gate} />
+            <DetailItem label={t("flightDetail.arrivalTerminal")} value={flight.destination.terminal} />
+            <DetailItem label={t("flightDetail.arrivalGate")} value={flight.destination.gate} />
+            <DetailItem label={t("flightDetail.aircraft")} value={aircraft?.type} />
+            <DetailItem label={t("flightDetail.registration")} value={aircraft?.registration} />
+            <DetailItem label={t("flightDetail.seat")} value={seat?.seat} />
+            <DetailItem label={t("flightDetail.cabin")} value={seat?.cabin} />
+          </dl>
+        </section> : null}
       </section>
-
-      {hasFacts ? <section className="flight-facts" aria-labelledby="facts-title">
-        <div className="section-heading">
-          <p className="eyebrow">{t("flightDetail.facts")}</p>
-          <h2 id="facts-title">{t("flightDetail.details")}</h2>
-        </div>
-        <dl className="facts-grid">
-          <DetailItem label={t("flightDetail.departureTerminal")} value={flight.origin.terminal} />
-          <DetailItem label={t("flightDetail.departureGate")} value={flight.origin.gate} />
-          <DetailItem label={t("flightDetail.arrivalTerminal")} value={flight.destination.terminal} />
-          <DetailItem label={t("flightDetail.arrivalGate")} value={flight.destination.gate} />
-          <DetailItem label={t("flightDetail.aircraft")} value={aircraft?.type} />
-          <DetailItem label={t("flightDetail.registration")} value={aircraft?.registration} />
-          <DetailItem label={t("flightDetail.seat")} value={seat?.seat} />
-          <DetailItem label={t("flightDetail.cabin")} value={seat?.cabin} />
-        </dl>
-      </section> : null}
     </PageShell>
   );
 }

@@ -224,7 +224,7 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
   }
 });
 
-test("removes decorative surfaces from the core archive pages", async ({ page }) => {
+test("keeps core archive surfaces precise and non-decorative", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
 
@@ -255,10 +255,10 @@ test("removes decorative surfaces from the core archive pages", async ({ page })
   expect(detailPresentation).toEqual({
     factsBoxShadow: "none",
     heroBackgroundImage: "none",
-    heroBorderRadius: "0px",
+    heroBorderRadius: "8px",
     heroBoxShadow: "none",
     routeIcons: 0,
-    routeTrackChildren: 1,
+    routeTrackChildren: 2,
     timelineBackgroundImage: "none",
     timelineBorderRadius: "0px",
     timelineBoxShadow: "none",
@@ -292,7 +292,7 @@ test("removes decorative surfaces from the core archive pages", async ({ page })
   expect(passportPresentation).toEqual({
     canvasBackgroundImage: "none",
     highlightsDisplay: "block",
-    mapBorderRadius: "0px",
+    mapBorderRadius: "8px",
     mapBoxShadow: "none",
     routeFilter: "none",
     svgDefinitions: 0,
