@@ -66,10 +66,9 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
     || seat?.cabin,
   );
   const dateLabel = formatServiceDate(flight.serviceDate, locale, {
-    weekday: "long",
     year: "numeric",
-    month: "long",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   });
   const departureTime = formatTimeAtAirport(
     flight.actualDeparture ?? flight.scheduledDeparture,
@@ -98,15 +97,17 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
 
       <section className="detail-flight-card" aria-labelledby="flight-detail-title">
         <header className="detail-heading">
-          <div>
-            <p className="eyebrow">{dateLabel}</p>
+          <div className="detail-heading-identity">
             <h1 id="flight-detail-title">{flight.flightNumber}</h1>
             <p className="detail-airline-line">
               <span>{airline?.name[locale] ?? flight.airline.iata ?? flight.airline.icao}</span>
-              <FlightStatusBadge className="detail-status" status={operationalStatus}>
-                {t(`status.${operationalStatus}`)}
-              </FlightStatusBadge>
             </p>
+          </div>
+          <div className="detail-heading-meta">
+            <time dateTime={flight.serviceDate}>{dateLabel}</time>
+            <FlightStatusBadge className="detail-status" status={operationalStatus}>
+              {t(`status.${operationalStatus}`)}
+            </FlightStatusBadge>
           </div>
         </header>
 

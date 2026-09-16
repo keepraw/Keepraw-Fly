@@ -24,8 +24,8 @@ export function AppHeader({ currentPage, onNavigate }: AppHeaderProps) {
           aria-label={t("app.homeLabel")}
           onClick={() => onNavigate("flights")}
         >
-          <span className="wordmark-mark" aria-hidden="true">K</span>
-          <span>Keepraw Fly</span>
+          <span className="wordmark-name">KEEPRAW FLY</span>
+          <span className="wordmark-context" aria-hidden="true">LOGBOOK</span>
         </a>
         <nav className="site-navigation" aria-label={t("nav.label")}>
           {links.map(({ page, label }) => (

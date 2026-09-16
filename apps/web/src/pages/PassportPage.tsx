@@ -66,8 +66,11 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
         <header className="passport-heading">
           <div>
             <p className="eyebrow">{t("passport.flightHistory")}</p>
-            <h1>{names.primary}</h1>
-            {names.secondary && names.secondary !== names.primary ? <p>{names.secondary}</p> : null}
+            <h1>{t("nav.passport")}</h1>
+            <p className="passport-holder-name">
+              {names.primary}
+              {names.secondary && names.secondary !== names.primary ? <span> / {names.secondary}</span> : null}
+            </p>
           </div>
         </header>
         <section className="passport-empty" aria-labelledby="passport-empty-title">
@@ -93,8 +96,11 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight }: Pa
               ? t("passport.flightHistory")
               : t("passport.yearPassport", { year: selectedYear })}
           </p>
-          <h1>{names.primary}</h1>
-          {names.secondary && names.secondary !== names.primary ? <p>{names.secondary}</p> : null}
+          <h1>{t("nav.passport")}</h1>
+          <p className="passport-holder-name">
+            {names.primary}
+            {names.secondary && names.secondary !== names.primary ? <span> / {names.secondary}</span> : null}
+          </p>
         </div>
         <div className="view-switcher" aria-label={t("passport.periodLabel")}>
           <button
