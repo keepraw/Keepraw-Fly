@@ -62,29 +62,27 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
     >
       <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
         <span className="flight-airport">
-          <span className="flight-airport-heading">
-            <AirportCode code={flight.origin.iata} />
-            <small>{origin?.city[locale]}</small>
-          </span>
+          <AirportCode code={flight.origin.iata} />
           <time dateTime={departureTimestamp}>{departureTime}</time>
+          <small>{origin?.city[locale]}</small>
         </span>
-        <span className="route-line" aria-hidden="true" />
+        <span className="route-direction" aria-hidden="true">→</span>
         <span className="flight-airport flight-airport-arrival">
-          <span className="flight-airport-heading">
-            <AirportCode code={flight.destination.iata} />
-            <small>{destination?.city[locale]}</small>
-          </span>
+          <AirportCode code={flight.destination.iata} />
           <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
+          <small>{destination?.city[locale]}</small>
         </span>
       </div>
-      <div className="flight-number">
-        <strong>{flight.flightNumber}</strong>
-        <span>{airlineName ?? airlineCode}</span>
+      <div className="flight-record-meta">
+        <div className="flight-number">
+          <strong>{flight.flightNumber}</strong>
+          <span>{airlineName ?? airlineCode}</span>
+        </div>
+        <time className="flight-date" dateTime={flight.serviceDate}>
+          {formatServiceDate(flight.serviceDate, locale)}
+        </time>
+        <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
       </div>
-      <time className="flight-date" dateTime={flight.serviceDate}>
-        {formatServiceDate(flight.serviceDate, locale)}
-      </time>
-      <FlightStatusBadge className="flight-status" status={operationalStatus}>{delayLabel}</FlightStatusBadge>
     </button>
   );
 }

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -18,6 +19,9 @@ import {
 import { AirportCode, FlightStatusBadge } from "../components/AviationPrimitives";
 import { PageShell } from "../components/PageShell";
 
+const FlightRouteMap = lazy(() => import("../components/FlightRouteMap")
+  .then((module) => ({ default: module.FlightRouteMap })));
+
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
   locale: SupportedLocale;
@@ -34,6 +38,38 @@ function DetailItem({ label, value }: { label: string; value?: string }) {
       <dd>{value}</dd>
     </div>
   ) : null;
+}
+
+interface FacilityStopProps {
+  role: string;
+  iata: string;
+  terminal?: string;
+  gate?: string;
+  terminalLabel: string;
+  gateLabel: string;
+}
+
+function FacilityStop({ role, iata, terminal, gate, terminalLabel, gateLabel }: FacilityStopProps) {
+  if (!terminal && !gate) return null;
+
+  return (
+    <article className="facility-stop">
+      <header className="facility-stop-heading">
+        <span>{role}</span>
+        <strong>{iata}</strong>
+      </header>
+      <div className="facility-values">
+        {terminal ? <div className="facility-terminal">
+          <span>{terminalLabel}</span>
+          <strong>{terminal}</strong>
+        </div> : null}
+        {gate ? <div className="gate-sign">
+          <span>{gateLabel}</span>
+          <strong>{gate}</strong>
+        </div> : null}
+      </div>
+    </article>
+  );
 }
 
 function delayText(delay: number | null, onTimeLabel: string, minuteLabel: string): string {
@@ -55,12 +91,14 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
   const arrivalDelay = arrivalDelayMinutes(flight);
   const duration = flightDuration(flight);
   const operationalStatus = flightOperationalStatus(flight);
-  const hasFacts = Boolean(
+  const hasFacilities = Boolean(
     flight.origin.terminal
     || flight.origin.gate
     || flight.destination.terminal
-    || flight.destination.gate
-    || aircraft?.type
+    || flight.destination.gate,
+  );
+  const hasFacts = Boolean(
+    aircraft?.type
     || aircraft?.registration
     || seat?.seat
     || seat?.cabin,
@@ -202,16 +240,41 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
           </div>
         </section>
 
+        {hasFacilities ? <section className="flight-facilities" aria-labelledby="facilities-title">
+          <div className="section-heading">
+            <p className="eyebrow">{t("flightDetail.facilities")}</p>
+            <h2 id="facilities-title">{t("flightDetail.airportFacilities")}</h2>
+          </div>
+          <div className="facility-grid">
+            <FacilityStop
+              role={t("flightDetail.departure")}
+              iata={flight.origin.iata}
+              terminal={flight.origin.terminal}
+              gate={flight.origin.gate}
+              terminalLabel={t("flightDetail.terminal")}
+              gateLabel={t("flightDetail.gate")}
+            />
+            <FacilityStop
+              role={t("flightDetail.arrival")}
+              iata={flight.destination.iata}
+              terminal={flight.destination.terminal}
+              gate={flight.destination.gate}
+              terminalLabel={t("flightDetail.terminal")}
+              gateLabel={t("flightDetail.gate")}
+            />
+          </div>
+        </section> : null}
+
+        <Suspense fallback={<section className="detail-route-map detail-route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
+          <FlightRouteMap flight={flight} />
+        </Suspense>
+
         {hasFacts ? <section className="flight-facts" aria-labelledby="facts-title">
           <div className="section-heading">
             <p className="eyebrow">{t("flightDetail.facts")}</p>
             <h2 id="facts-title">{t("flightDetail.details")}</h2>
           </div>
           <dl className="facts-grid">
-            <DetailItem label={t("flightDetail.departureTerminal")} value={flight.origin.terminal} />
-            <DetailItem label={t("flightDetail.departureGate")} value={flight.origin.gate} />
-            <DetailItem label={t("flightDetail.arrivalTerminal")} value={flight.destination.terminal} />
-            <DetailItem label={t("flightDetail.arrivalGate")} value={flight.destination.gate} />
             <DetailItem label={t("flightDetail.aircraft")} value={aircraft?.type} />
             <DetailItem label={t("flightDetail.registration")} value={aircraft?.registration} />
             <DetailItem label={t("flightDetail.seat")} value={seat?.seat} />

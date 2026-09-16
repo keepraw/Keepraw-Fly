@@ -95,7 +95,7 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
 test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.+/);
   const welcomeAudit = await new AxeBuilder({ page }).analyze();
   expect(welcomeAudit.violations).toEqual([]);
   await page.getByRole("button", { name: "Try demo" }).click();
@@ -205,13 +205,15 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
       }
 
       const listStyle = getComputedStyle(list);
+      const rowStyle = getComputedStyle(row);
       const searchStyle = getComputedStyle(search);
       return {
         dateSize: Number.parseFloat(getComputedStyle(serviceDate).fontSize),
         flightNumberSize: Number.parseFloat(getComputedStyle(flightNumber).fontSize),
-        listBorderRadius: listStyle.borderRadius,
-        listBoxShadow: listStyle.boxShadow,
-        listSideBorders: [listStyle.borderLeftWidth, listStyle.borderRightWidth],
+        listColumns: listStyle.gridTemplateColumns.split(" ").length,
+        listDisplay: listStyle.display,
+        rowBorderRadius: rowStyle.borderRadius,
+        rowBoxShadow: rowStyle.boxShadow,
         routeCodeSize: Number.parseFloat(getComputedStyle(routeCode).fontSize),
         routeComesFirst: row.firstElementChild?.classList.contains("flight-route") ?? false,
         searchBorderRadius: searchStyle.borderRadius,
@@ -222,9 +224,10 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
     expect(presentation.routeComesFirst).toBe(true);
     expect(presentation.routeCodeSize).toBeGreaterThan(presentation.flightNumberSize);
     expect(presentation.flightNumberSize).toBeGreaterThan(presentation.dateSize);
-    expect(presentation.listBorderRadius).toBe("4px");
-    expect(presentation.listBoxShadow).toBe("none");
-    expect(presentation.listSideBorders).toEqual(["1px", "1px"]);
+    expect(presentation.listDisplay).toBe("grid");
+    expect(presentation.listColumns).toBe(viewport.width > 760 ? 2 : 1);
+    expect(presentation.rowBorderRadius).toBe("4px");
+    expect(presentation.rowBoxShadow).toBe("none");
     expect(presentation.searchBorderRadius).toBe("3px");
     expect(presentation.searchBoxShadow).toBe("none");
   }
@@ -235,9 +238,12 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   await page.getByRole("button", { name: "Try demo" }).click();
 
   await expect(page.locator(".flight-row .aviation-icon")).toHaveCount(0);
-  await expect(page.locator(".flight-row .route-line").first()).toBeVisible();
+  await expect(page.locator(".flight-row .route-direction").first()).toHaveText("→");
 
   await page.locator(".flight-row").first().click();
+  await expect(page.locator(".detail-route-map svg")).toBeVisible();
+  await expect(page.locator(".detail-map-route")).toHaveCount(1);
+  await expect(page.locator(".gate-sign").first()).toBeVisible();
   const detailPresentation = await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".detail-flight-card");
     const timeline = document.querySelector<HTMLElement>(".timeline");
@@ -385,10 +391,11 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
       const routeValues = Array.from(row.querySelectorAll<HTMLElement>(
         ".flight-route .airport-code-display, .flight-route time",
       )).filter(visible);
-      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-airport-heading small"));
+      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-airport small"));
+      const list = row.closest<HTMLElement>(".flight-list");
       const headerBounds = header.getBoundingClientRect();
       const mainBounds = main.getBoundingClientRect();
-      const rowStyle = getComputedStyle(row);
+      if (!list) throw new Error("Responsive archive list is missing");
 
       return {
         atomicValues: atomicValues.length,
@@ -397,9 +404,9 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
         identityVisible: visible(row.querySelector(".flight-number")),
         routeValues: routeValues.length,
         routeVisible: visible(row.querySelector(".flight-route")),
-        statusVisible: visible(row.querySelector(":scope > .flight-status")),
+        statusVisible: visible(row.querySelector(".flight-status")),
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
-        gridAreas: rowStyle.gridTemplateAreas,
+        listColumns: getComputedStyle(list).gridTemplateColumns.split(" ").length,
         headerClearsContent: headerBounds.bottom <= mainBounds.top + 1,
         headerIsSticky: getComputedStyle(header).position === "sticky",
         overflowingButtons,
@@ -419,13 +426,8 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     expect(archive.routeValues).toBe(4);
     expect(archive.statusVisible).toBe(true);
 
-    if (viewport.width === 390) {
-      expect(archive.gridAreas).toContain('"route route route"');
-      expect(archive.airportNamesVisible).toBe(false);
-    } else {
-      expect(archive.gridAreas).toBe('"route identity date status"');
-      expect(archive.airportNamesVisible).toBe(true);
-    }
+    expect(archive.listColumns).toBe(viewport.width <= 760 ? 1 : 2);
+    expect(archive.airportNamesVisible).toBe(true);
 
     await page.locator(".flight-row").first().click();
     const detail = await page.evaluate(() => {
