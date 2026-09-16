@@ -39,6 +39,20 @@ display sizes are slightly smaller, line heights are more open, and display
 tracking returns to zero. Data roles retain tabular numerals so columns and time
 comparisons remain stable in both languages.
 
+### Archival precision layer
+
+Core archive screens use a precise, document-like visual language: graphite dark
+surfaces, one-pixel rules, low semantic radii and a restrained mint accent. The
+flight record is composed as one owned object; airport codes and local times share
+a baseline, while labels and provenance use the local monospace fallback stack.
+This layer does not download fonts: it prefers Cascadia Mono, SFMono, Consolas and
+system CJK fallbacks already available on the device.
+
+The archive treatment is structural, not theatrical. A bordered surface may group
+one complete record or one map, but must not split its internal fields into cards.
+Green, amber and red remain semantic. Demo concepts must never contribute invented
+verification, cryptographic, operational or identity claims to product UI.
+
 ### Shared page layout
 
 `PageShell` owns the semantic main-content landmark and applies one content width,
@@ -271,6 +285,17 @@ Keepraw Fly 使用一套小型、零依赖的视觉基础，让后续页面可�
 分别由 `--type-*`、`--font-weight-*` 与 `--tracking-*` token 管理。简体中文只覆盖需要
 视觉校准的角色：展示字号略小、行高更宽松、展示字距归零；数据角色在两种语言中都保留
 等宽数字特性，使列对齐和时间比较保持稳定。
+
+### 档案式精确视觉层
+
+核心档案页面采用精确、接近文档的视觉语言：石墨色深色表面、1px 线条、低语义圆角和
+克制的薄荷绿色强调。整趟航班作为一个完整的用户档案对象构图；机场代码与当地时间共享
+基线，标签和档案元信息使用本机等宽字体 fallback。该层不下载网络字体，优先使用设备
+已有的 Cascadia Mono、SFMono、Consolas 与系统中文字体。
+
+档案感来自结构，而不是戏剧化装饰。一个有边框的表面可以组织一条完整记录或一张地图，
+但不能继续把内部字段拆成卡片。绿色、琥珀色与红色继续只表达语义。任何概念稿中的虚构
+认证、加密、运行状态或身份声明都不得进入产品界面。
 
 ### 共享页面布局
 
