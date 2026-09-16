@@ -30,8 +30,8 @@
 
 4. **Flights archive**
    - Built a dense, responsive flight list with multilingual labels.
-   - Reworked the mobile archive into compact rows with aligned airport codes and local times.
-   - Recast desktop archive rows as elevated trip cards with airport cities, route cues, local times, semantic status and a clear open affordance.
+   - Reworked the archive into an open, route-first ledger where airport codes and local times lead, while identity, date and status deliberately recede.
+   - Reordered the same flight content for narrow screens without duplicate mobile markup, preserving atomic codes, times and flight numbers.
    - Added search across flight numbers, airports, cities and airlines.
    - Kept search in the core layer and covered localized airline/airport names, years, aircraft facts and normalized full-width input.
    - Added a first-run flow that creates an empty archive without requiring JSON.
@@ -100,7 +100,7 @@
 
 - TypeScript type checking passes across the workspace.
 - All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
-- All 8 Playwright Chromium journeys pass, including bilingual typography, shared-layout and responsive UI constraints, plus WCAG audits of light, dark and modal states.
+- All 9 Playwright Chromium journeys pass, including the route-first archive hierarchy, bilingual typography, shared-layout and responsive UI constraints, plus WCAG audits of light, dark and modal states.
 - The Vite production build completes successfully.
 - The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
 - The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
@@ -109,7 +109,7 @@
 - The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
 - The Step 31 motion layer adds about 0.7 kB gzip across CSS and JavaScript, with no animation runtime or new dependency.
 - The revised Step 43 bilingual typography system adds no font file or dependency.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, desktop and 390 px mobile layouts, premium flight cards, detail status and conditional facts, Lifetime/Year Passport views, staggered content and SVG route reveals, search, responsive premium settings and hash deep links.
+- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, route-first open archive layouts at desktop and 390 px mobile widths, detail status and conditional facts, Lifetime/Year Passport views, staggered content and SVG route reveals, search, responsive premium settings and hash deep links.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -183,8 +183,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 4. **航班档案页**
    - 构建紧凑、响应式并支持多语言标签的航班列表。
-   - 将移动端档案重构为紧凑列表，并让机场代码与各自当地时间清晰对齐。
-   - 将桌面端档案行重构为抬升式行程卡，集中呈现机场城市、航线提示、当地时间、语义状态和明确的打开提示。
+   - 将档案重构为开放式、航线优先的连续记录，让机场代码与当地时间成为主角，航班身份、日期和状态主动退后。
+   - 窄屏使用同一份航班内容重新编排，不再维护重复的 Mobile 摘要，同时保持机场代码、时间和航班号不可拆分。
    - 支持按航班号、机场、城市和航空公司搜索。
    - 搜索逻辑保持在 core 层，并覆盖航司/机场本地化名称、年份、机型信息与全角输入规范化。
    - 添加无需 JSON 文件即可创建空白档案的首次使用流程。
@@ -253,7 +253,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 - 整个 workspace 的 TypeScript 类型检查通过。
 - 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
-- 8 条 Playwright Chromium 用户旅程全部通过，其中包含双语字体、共享布局与响应式 UI 约束，以及浅色、深色与弹窗状态的 WCAG 审计。
+- 9 条 Playwright Chromium 用户旅程全部通过，其中包含航线优先的档案层级、双语字体、共享布局与响应式 UI 约束，以及浅色、深色与弹窗状态的 WCAG 审计。
 - Vite 生产构建成功完成。
 - Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
 - 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
@@ -262,7 +262,7 @@ Backend accounts and sync, live flight services, third-party booking integration
 - 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
 - 第 31 步动效层在 CSS 和 JavaScript 中合计约增加 0.7 kB gzip，未加入动画运行库或新依赖。
 - 修订后的第 43 步双语字体体系没有添加字体文件或依赖。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与 390 px 移动端布局、高级航班卡片、详情状态与条件事实、终身/年度护照、错峰内容与 SVG 航线出现、搜索、响应式高级设置页及 hash 深链接。
+- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与 390 px 移动端航线优先开放式档案、详情状态与条件事实、终身/年度护照、错峰内容与 SVG 航线出现、搜索、响应式高级设置页及 hash 深链接。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit

@@ -137,9 +137,6 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
 
-  const englishTitleSize = await page.locator(".page-heading h1").evaluate((element) =>
-    Number.parseFloat(getComputedStyle(element).fontSize),
-  );
   const bodyMetrics = await page.locator("body").evaluate((element) => {
     const style = getComputedStyle(element);
     return { family: style.fontFamily, size: Number.parseFloat(style.fontSize) };
@@ -155,6 +152,9 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   expect(flightDataMetrics.features).toContain("tnum");
 
   await page.getByRole("link", { name: "Settings" }).click();
+  const englishTitleSize = await page.locator(".settings-heading h1").evaluate((element) =>
+    Number.parseFloat(getComputedStyle(element).fontSize),
+  );
   await page.getByLabel("Language").selectOption("zh-CN");
   await page.locator(".settings-fields select").nth(1).selectOption("dark");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
@@ -176,6 +176,52 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   await page.getByRole("link", { name: "航班" }).click();
   const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
   expect(fitsViewport).toBe(true);
+});
+
+test("presents the flight archive as a route-first open ledger", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+
+    const presentation = await page.locator(".flight-row").first().evaluate((row) => {
+      const list = row.closest<HTMLElement>(".flight-list");
+      const routeCode = row.querySelector<HTMLElement>(".airport-code-display");
+      const flightNumber = row.querySelector<HTMLElement>(".flight-number strong");
+      const serviceDate = row.querySelector<HTMLElement>(".flight-date");
+      const search = document.querySelector<HTMLElement>(".search-field");
+      if (!list || !routeCode || !flightNumber || !serviceDate || !search) {
+        throw new Error("Flight archive presentation landmarks are missing");
+      }
+
+      const listStyle = getComputedStyle(list);
+      const searchStyle = getComputedStyle(search);
+      return {
+        dateSize: Number.parseFloat(getComputedStyle(serviceDate).fontSize),
+        flightNumberSize: Number.parseFloat(getComputedStyle(flightNumber).fontSize),
+        listBorderRadius: listStyle.borderRadius,
+        listBoxShadow: listStyle.boxShadow,
+        listSideBorders: [listStyle.borderLeftWidth, listStyle.borderRightWidth],
+        routeCodeSize: Number.parseFloat(getComputedStyle(routeCode).fontSize),
+        routeComesFirst: row.firstElementChild?.classList.contains("flight-route") ?? false,
+        searchBorderRadius: searchStyle.borderRadius,
+        searchBoxShadow: searchStyle.boxShadow,
+      };
+    });
+
+    expect(presentation.routeComesFirst).toBe(true);
+    expect(presentation.routeCodeSize).toBeGreaterThan(presentation.flightNumberSize);
+    expect(presentation.flightNumberSize).toBeGreaterThan(presentation.dateSize);
+    expect(presentation.listBorderRadius).toBe("0px");
+    expect(presentation.listBoxShadow).toBe("none");
+    expect(presentation.listSideBorders).toEqual(["0px", "0px"]);
+    expect(presentation.searchBorderRadius).toBe("0px");
+    expect(presentation.searchBoxShadow).toBe("none");
+  }
 });
 
 test("keeps every page aligned to the shared responsive shell", async ({ page }) => {
@@ -250,25 +296,29 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
           return bounds.left < -0.5 || bounds.right > window.innerWidth + 0.5;
         }).length;
       const atomicValues = Array.from(row.querySelectorAll<HTMLElement>(
-        ".flight-number strong, .flight-times time, .flight-mobile-heading > strong, .flight-mobile-route time, .airport-code-display",
+        ".flight-number strong, .flight-route time, .airport-code-display",
       )).filter(visible);
+      const routeValues = Array.from(row.querySelectorAll<HTMLElement>(
+        ".flight-route .airport-code-display, .flight-route time",
+      )).filter(visible);
+      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-airport-heading small"));
       const headerBounds = header.getBoundingClientRect();
       const mainBounds = main.getBoundingClientRect();
+      const rowStyle = getComputedStyle(row);
 
       return {
         atomicValues: atomicValues.length,
         atomicValuesStayWhole: atomicValues.every((element) => getComputedStyle(element).whiteSpace === "nowrap"),
-        desktopIdentityVisible: visible(row.querySelector(".flight-number")),
-        desktopRouteVisible: visible(row.querySelector(".flight-route")),
-        desktopStatusVisible: visible(row.querySelector(":scope > .flight-status")),
-        desktopTimesVisible: visible(row.querySelector(".flight-times")),
+        airportNamesVisible: airportNames.some(visible),
+        identityVisible: visible(row.querySelector(".flight-number")),
+        routeValues: routeValues.length,
+        routeVisible: visible(row.querySelector(".flight-route")),
+        statusVisible: visible(row.querySelector(":scope > .flight-status")),
+        cueVisible: visible(row.querySelector(".flight-open-cue")),
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        gridAreas: rowStyle.gridTemplateAreas,
         headerClearsContent: headerBounds.bottom <= mainBounds.top + 1,
         headerIsSticky: getComputedStyle(header).position === "sticky",
-        mobileIdentityVisible: visible(row.querySelector(".flight-mobile-heading > strong")),
-        mobileRouteValues: Array.from(row.querySelectorAll(".flight-mobile-route .airport-code-display, .flight-mobile-route time")).filter(visible).length,
-        mobileStatusVisible: visible(row.querySelector(".flight-mobile-summary .flight-status")),
-        mobileSummaryVisible: visible(row.querySelector(".flight-mobile-summary")),
         overflowingButtons,
         rowIsActionable: row.tagName === "BUTTON",
       };
@@ -281,19 +331,19 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     expect(archive.rowIsActionable).toBe(true);
     expect(archive.atomicValues).toBeGreaterThanOrEqual(5);
     expect(archive.atomicValuesStayWhole).toBe(true);
+    expect(archive.identityVisible).toBe(true);
+    expect(archive.routeVisible).toBe(true);
+    expect(archive.routeValues).toBe(4);
+    expect(archive.statusVisible).toBe(true);
 
     if (viewport.width === 390) {
-      expect(archive.mobileSummaryVisible).toBe(true);
-      expect(archive.mobileIdentityVisible).toBe(true);
-      expect(archive.mobileRouteValues).toBe(4);
-      expect(archive.mobileStatusVisible).toBe(true);
-      expect(archive.desktopIdentityVisible).toBe(false);
+      expect(archive.gridAreas).toContain('"route route route"');
+      expect(archive.airportNamesVisible).toBe(false);
+      expect(archive.cueVisible).toBe(false);
     } else {
-      expect(archive.mobileSummaryVisible).toBe(false);
-      expect(archive.desktopIdentityVisible).toBe(true);
-      expect(archive.desktopRouteVisible).toBe(true);
-      expect(archive.desktopTimesVisible).toBe(true);
-      expect(archive.desktopStatusVisible).toBe(true);
+      expect(archive.gridAreas).toBe('"route identity date status cue"');
+      expect(archive.airportNamesVisible).toBe(true);
+      expect(archive.cueVisible).toBe(true);
     }
 
     await page.locator(".flight-row").first().click();
