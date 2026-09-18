@@ -58,8 +58,8 @@ export function flightDuration(flight: KeeprawFlight): FlightDuration {
 }
 
 export function distanceKilometers(
-  origin: AirportReference,
-  destination: AirportReference,
+  origin: Pick<AirportReference, "latitude" | "longitude">,
+  destination: Pick<AirportReference, "latitude" | "longitude">,
 ): number {
   const latitudeDelta = toRadians(destination.latitude - origin.latitude);
   const longitudeDelta = toRadians(destination.longitude - origin.longitude);

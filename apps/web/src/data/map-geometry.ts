@@ -1,8 +1,9 @@
-import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { geoEqualEarth, geoInterpolate, geoPath } from "d3-geo";
 import type { RoutePoint } from "@keepraw-fly/core";
 import {
   MAP_PROJECTION_SCALE,
   MAP_PROJECTION_TRANSLATE,
+  WORLD_COUNTRIES,
   WORLD_GRATICULE_PATH,
   WORLD_HEIGHT,
   WORLD_LAND_PATH,
@@ -11,6 +12,7 @@ import {
 } from "./world-map.generated";
 
 export {
+  WORLD_COUNTRIES,
   WORLD_GRATICULE_PATH,
   WORLD_HEIGHT,
   WORLD_LAND_PATH,
@@ -23,7 +25,7 @@ export interface GeographicPoint {
   latitude: number;
 }
 
-const mapProjection = geoNaturalEarth1()
+const mapProjection = geoEqualEarth()
   .scale(MAP_PROJECTION_SCALE)
   .translate([MAP_PROJECTION_TRANSLATE[0], MAP_PROJECTION_TRANSLATE[1]])
   .precision(0.25);
@@ -45,4 +47,13 @@ export function greatCirclePath(origin: RoutePoint, destination: RoutePoint, _st
   });
   if (!path) throw new Error(`Unable to draw route ${origin.iata}-${destination.iata}.`);
   return path;
+}
+
+export function greatCircleMidpoint(origin: RoutePoint, destination: RoutePoint) {
+  const interpolate = geoInterpolate(
+    [origin.longitude, origin.latitude],
+    [destination.longitude, destination.latitude],
+  );
+  const [longitude, latitude] = interpolate(0.5);
+  return projectPoint({ longitude, latitude });
 }

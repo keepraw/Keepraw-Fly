@@ -48,17 +48,27 @@
     radial-gradient(circle at 18% 108%, rgb(40 88 112 / 32%), transparent 42%),
     linear-gradient(135deg, #18221e 0%, #101714 100%);
 
-  /* Map colors follow the active theme; routes remain the only vivid layer. */
-  --color-map-surface: #edf1ed;
-  --color-map-land: #d5ddd7;
-  --color-map-land-line: #aebbb3;
-  --color-map-grid: #c8d1cb;
-  --color-map-outline: #9eada5;
-  --color-map-route: #168765;
-  --color-map-airport: #07634a;
-  --color-map-text: #1b2923;
-  --color-map-muted: #4d6359;
-  --color-map-faint: #64766e;
+  /* The passport map uses an editorial, low-saturation travel palette. */
+  --color-map-surface: #f2f0e9;
+  --color-map-land: #e2e3dd;
+  --color-map-land-line: #cacdc5;
+  --color-map-grid: #d9dbd4;
+  --color-map-outline: #c2c6bd;
+  --color-map-route: #286f63;
+  --color-map-airport: #174f46;
+  --color-map-text: #26342f;
+  --color-map-muted: #586b64;
+  --color-map-faint: #718079;
+  --color-map-texture: rgb(255 255 255 / 68%);
+  --color-map-tooltip: rgb(255 254 250 / 96%);
+  --color-map-tooltip-line: rgb(38 52 47 / 14%);
+  --color-map-visited-coral: #c98e7c;
+  --color-map-visited-orange: #d0a16f;
+  --color-map-visited-sage: #91a58d;
+  --color-map-visited-teal: #76a6a0;
+  --color-map-visited-sky: #86a9bc;
+  --color-map-visited-lavender: #a39db8;
+  --color-map-visited-rose: #bd929c;
 
   /* Compatibility aliases used by the first-stage screens. */
   --ink: var(--color-text);
@@ -228,6 +238,16 @@
     --color-map-text: #f4f7f6;
     --color-map-muted: #b9c5c1;
     --color-map-faint: #96a6a1;
+    --color-map-texture: rgb(12 19 22 / 32%);
+    --color-map-tooltip: rgb(20 27 32 / 97%);
+    --color-map-tooltip-line: rgb(224 237 231 / 15%);
+    --color-map-visited-coral: #9d6f65;
+    --color-map-visited-orange: #a17f5b;
+    --color-map-visited-sage: #71866f;
+    --color-map-visited-teal: #5d8985;
+    --color-map-visited-sky: #647f91;
+    --color-map-visited-lavender: #7c7690;
+    --color-map-visited-rose: #906d77;
     --shadow-raised: none;
   }
 }
@@ -296,6 +316,16 @@
   --color-map-text: #f4f7f6;
   --color-map-muted: #b9c5c1;
   --color-map-faint: #96a6a1;
+  --color-map-texture: rgb(12 19 22 / 32%);
+  --color-map-tooltip: rgb(20 27 32 / 97%);
+  --color-map-tooltip-line: rgb(224 237 231 / 15%);
+  --color-map-visited-coral: #9d6f65;
+  --color-map-visited-orange: #a17f5b;
+  --color-map-visited-sage: #71866f;
+  --color-map-visited-teal: #5d8985;
+  --color-map-visited-sky: #647f91;
+  --color-map-visited-lavender: #7c7690;
+  --color-map-visited-rose: #906d77;
   --shadow-raised: none;
   color-scheme: dark;
 }

@@ -2,9 +2,9 @@
   "naturalEarth": {
     "version": "5.1.2",
     "scale": "1:110m",
-    "dataset": "Natural Earth Vector land polygons",
-    "source": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_land.geojson",
-    "sha256": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9",
+    "dataset": "Natural Earth Vector admin 0 country polygons",
+    "source": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson",
+    "sha256": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f",
     "license": "Public domain; see LICENSE.natural-earth"
   },
   "d3Geo": {
@@ -24,10 +24,11 @@
       }
     ]
   },
-  "projection": "Natural Earth 1",
+  "projection": "Equal Earth",
   "generatedArtifacts": [
     "WORLD_SPHERE_PATH",
     "WORLD_GRATICULE_PATH",
-    "WORLD_LAND_PATH"
+    "WORLD_LAND_PATH",
+    "WORLD_COUNTRIES"
   ]
 }
