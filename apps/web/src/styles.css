@@ -689,8 +689,16 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .map-sphere { fill: var(--color-map-surface); stroke: rgb(255 255 255 / 10%); stroke-width: 1; }
 .map-graticule { fill: none; stroke: rgb(255 255 255 / 5%); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
 .map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
-.map-routes path { fill: none; stroke: var(--color-map-route); stroke-linecap: round; stroke-linejoin: round; opacity: 0.82; vector-effect: non-scaling-stroke; }
-.map-airports circle { fill: var(--color-map-airport); stroke: var(--color-map-surface); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.map-route, .map-airport { cursor: pointer; outline: none; }
+.map-routes path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.map-routes .map-route-hit { stroke: transparent; stroke-width: 18; pointer-events: stroke; }
+.map-routes .map-route-line { stroke: var(--color-map-route); opacity: 0.82; pointer-events: none; }
+.map-route:hover .map-route-line, .map-route:focus-visible .map-route-line, .map-route.is-selected .map-route-line { stroke: var(--color-map-airport); opacity: 1; }
+.map-route:focus-visible .map-route-line { filter: drop-shadow(0 0 3px var(--color-map-airport)); }
+.map-airports circle { vector-effect: non-scaling-stroke; }
+.map-airports .map-airport-hit { fill: transparent; stroke: none; pointer-events: all; }
+.map-airports .map-airport-point { fill: var(--color-map-airport); stroke: var(--color-map-surface); stroke-width: 1.5; pointer-events: none; }
+.map-airport:hover .map-airport-point, .map-airport:focus-visible .map-airport-point, .map-airport.is-selected .map-airport-point { fill: var(--color-map-text); stroke: var(--color-map-airport); stroke-width: 2.5; }
 .map-airports text { fill: var(--color-map-text); paint-order: stroke; stroke: var(--color-map-surface); stroke-linejoin: round; stroke-width: 3px; font-family: var(--font-family-data); font-size: var(--type-size-map-label); font-weight: var(--font-weight-bold); letter-spacing: var(--tracking-airport); }
 .route-map-legend { margin: 18px 0 0; color: var(--color-map-faint); font-size: var(--font-size-caption); line-height: 1.5; }
 
@@ -701,8 +709,30 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .highlight-list { margin: 0; border-top: 1px solid var(--line); }
 .highlight-list > div { display: grid; grid-template-columns: 1fr; gap: 7px; align-items: baseline; padding: 15px 0; border-bottom: 1px solid var(--line); }
 .highlight-list dt { color: var(--muted); font-size: var(--font-size-label); }
-.highlight-list dd { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0; font-size: var(--type-size-body); font-weight: var(--font-weight-semibold); text-align: left; }
+.highlight-list dd { margin: 0; font-size: var(--type-size-body); font-weight: var(--font-weight-semibold); text-align: left; }
+.highlight-list dd > button { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 5px 8px; padding: 0; border: 0; color: inherit; background: transparent; font: inherit; text-align: left; }
+.highlight-list dd > button > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.highlight-list dd > button > small { grid-column: 1; grid-row: 2; }
+.highlight-list dd > button > span:last-child { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.highlight-list dd > button:hover { color: var(--green); }
 .highlight-list small { color: var(--faint); font-size: var(--font-size-caption); font-weight: var(--font-weight-regular); white-space: nowrap; }
+
+.passport-exploration { display: grid; grid-column: 1 / -1; grid-row: 6; grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr); gap: 28px 48px; margin-top: 28px; padding: 28px 0 0; border-top: 1px solid var(--ink); }
+.passport-exploration-heading { display: flex; grid-column: 1; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.passport-exploration-heading h2 { margin: 9px 0 0; font-family: var(--font-family-data); font-size: var(--font-size-section); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-airport); line-height: var(--type-leading-heading); }
+.passport-exploration-close { flex: 0 0 auto; padding: 4px 0; border: 0; border-bottom: 1px solid var(--line-strong); color: var(--muted); background: transparent; font-family: var(--font-family-mono); font-size: var(--font-size-caption); }
+.passport-exploration-close:hover { color: var(--ink); }
+.passport-exploration-summary { display: grid; grid-column: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-self: start; margin: 0; }
+.passport-exploration-summary > div { min-width: 0; padding-top: 13px; border-top: 1px solid var(--line); }
+.passport-exploration-summary dt { color: var(--faint); font-family: var(--font-family-mono); font-size: var(--font-size-caption); letter-spacing: 0.02em; }
+.passport-exploration-summary dd { margin: 7px 0 0; font-family: var(--font-family-data); font-feature-settings: var(--numeric-features); font-size: var(--type-size-body); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+.passport-related-flights { grid-column: 2; grid-row: 1 / span 2; border-top: 1px solid var(--line); }
+.passport-related-flights button { display: grid; width: 100%; grid-template-columns: minmax(118px, 0.7fr) minmax(150px, 1fr) minmax(72px, 0.55fr) auto; align-items: baseline; gap: 16px; padding: 15px 0; border: 0; border-bottom: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
+.passport-related-flights button:hover { color: var(--green); }
+.passport-related-flights time, .passport-related-flights button > span { color: var(--muted); font-family: var(--font-family-mono); font-size: var(--font-size-caption); font-feature-settings: var(--numeric-features); font-variant-numeric: tabular-nums; }
+.passport-related-flights strong { font-family: var(--font-family-data); font-size: var(--type-size-body); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-airport); white-space: nowrap; }
+.passport-related-flights strong span { color: var(--faint); }
+.passport-related-flights button > span:last-child { justify-self: end; }
 
 .year-list { border-top: 1px solid var(--line); }
 .year-list button { display: grid; width: 100%; grid-template-columns: 0.7fr 1fr auto; gap: 4px 12px; align-items: center; padding: 14px 0; border: 0; border-bottom: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
@@ -1125,6 +1155,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-highlights > .section-heading, .year-history > .section-heading { margin-bottom: 18px; }
   .highlight-list > div { grid-template-columns: 1fr; gap: 8px; }
   .highlight-list dd { text-align: left; }
+  .passport-exploration { grid-template-columns: 1fr; gap: 22px; margin-top: 24px; padding-top: 24px; }
+  .passport-exploration-heading, .passport-exploration-summary, .passport-related-flights { grid-column: 1; grid-row: auto; }
+  .passport-exploration-heading { gap: 18px; }
+  .passport-exploration-heading h2 { font-size: var(--type-size-data-heading); overflow-wrap: anywhere; }
+  .passport-exploration-summary { gap: 8px; }
+  .passport-related-flights button { grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 12px; }
+  .passport-related-flights time { grid-column: 1; grid-row: 1; }
+  .passport-related-flights strong { grid-column: 1 / span 2; grid-row: 2; }
+  .passport-related-flights button > span:not(:last-child) { grid-column: 2; grid-row: 1; }
+  .passport-related-flights button > span:last-child { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
   .year-list button { grid-template-columns: 0.7fr 1fr auto; gap: 4px 8px; }
   .settings-heading { min-height: 250px; grid-template-columns: 1fr; padding: 32px 28px; border-radius: 20px; }
   .settings-heading-copy { max-width: 88%; }
