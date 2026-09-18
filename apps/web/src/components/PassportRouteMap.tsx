@@ -2,7 +2,6 @@ import { useMemo, useState, type CSSProperties, type KeyboardEvent } from "react
 import { useTranslation } from "react-i18next";
 import {
   airportByIata,
-  collectVisitedCountryCodes,
   distanceKilometers,
   type RoutePoint,
   type RouteSegment,
@@ -10,13 +9,13 @@ import {
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   greatCircleMidpoint,
-  greatCirclePath,
   projectPoint,
-  WORLD_COUNTRIES,
   WORLD_HEIGHT,
-  WORLD_SPHERE_PATH,
   WORLD_WIDTH,
 } from "../data/map-geometry";
+import { passportMapCamera, unwrappedGreatCirclePath, wrapXNear, type MapCamera } from "../data/map-camera";
+import { MapViewport } from "./MapViewport";
+import { MapWorld } from "./MapWorld";
 
 interface PassportRouteMapProps {
   routes: RouteSegment[];
@@ -55,15 +54,15 @@ export function PassportRouteMap({
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage === "zh-CN" ? "zh-CN" : "en";
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
-  const visitedCountries = useMemo(() => collectVisitedCountryCodes(flights), [flights]);
+  const countryVisits = useMemo(() => collectCountryVisits(flights), [flights]);
   const airports = useMemo(() => collectAirports(flights, locale), [flights, locale]);
+  const initialCamera = useMemo(() => passportMapCamera(routes, airports), [airports, routes]);
   const routeYears = useMemo(() => collectRouteYears(flights), [flights]);
   const regionNames = useMemo(() => new Intl.DisplayNames([locale], { type: "region" }), [locale]);
   const labeledAirports = useMemo(
     () => new Map(
       [...airports]
         .sort((left, right) => right.flightCount - left.flightCount || left.iata.localeCompare(right.iata))
-        .slice(0, 5)
         .map((airport, rank) => [airport.iata, rank]),
     ),
     [airports],
@@ -85,7 +84,7 @@ export function PassportRouteMap({
       ...route,
       key,
       label,
-      path: greatCirclePath(route.origin, route.destination),
+      path: unwrappedGreatCirclePath(route.origin, route.destination),
       tooltip: {
         key,
         x: midpoint.x,
@@ -150,31 +149,29 @@ export function PassportRouteMap({
         <span>{t("passport.mapSummary", { routes: routes.length, airports: airports.length })}</span>
       </header>
 
-      <div className="route-map-canvas">
-        <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} role="group" aria-label={t("passport.mapPreviewLabel", { flights: totalFlights })}>
+      <MapViewport
+        className="route-map-canvas"
+        ariaLabel={t("passport.mapPreviewLabel", { flights: totalFlights })}
+        initialCamera={initialCamera}
+        labels={{
+          zoomIn: t("mapControls.zoomIn"),
+          zoomOut: t("mapControls.zoomOut"),
+          reset: t("mapControls.reset"),
+        }}
+      >
+        {(camera) => <>
           <defs>
-            <pattern id="passport-map-dots" width="7" height="7" patternUnits="userSpaceOnUse">
-              <circle className="map-texture-dot" cx="1.5" cy="1.5" r="0.85" />
-            </pattern>
+            <linearGradient id="passport-route-gradient" x1="0" y1="0" x2={WORLD_WIDTH} y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="var(--color-map-route-warm)" />
+              <stop offset="1" stopColor="var(--color-map-route-cool)" />
+            </linearGradient>
           </defs>
-          <path className="map-sphere" d={WORLD_SPHERE_PATH} aria-hidden="true" />
-          <g className="map-countries" aria-hidden="true">
-            {WORLD_COUNTRIES.map((country) => {
-              const visited = visitedCountries.has(country.code);
-              const countryName = country.code.length === 2
-                ? regionNames.of(country.code) ?? country.name
-                : country.name;
-              const className = visited
-                ? `map-country is-visited map-country-palette-${countryPalette(country.code)}`
-                : "map-country";
-              return <g key={country.code} className={className}>
-                <path d={country.path}>
-                  <title>{t(visited ? "passport.mapCountryVisited" : "passport.mapCountryUnvisited", { country: countryName })}</title>
-                </path>
-                {visited ? <path className="map-country-texture" d={country.path} /> : null}
-              </g>;
-            })}
-          </g>
+          <MapWorld
+            countryVisits={countryVisits}
+            showOutline={camera.zoom <= 1.05}
+            countryName={(code, fallback) => code.length === 2 ? regionNames.of(code) ?? fallback : fallback}
+            countryLabel={(name, visited) => t(visited ? "passport.mapCountryVisited" : "passport.mapCountryUnvisited", { country: name })}
+          />
           <g className="map-routes">
             {routeItems.map((route) => {
               const selected = selectedRoute?.origin === route.origin.iata
@@ -193,8 +190,11 @@ export function PassportRouteMap({
                 onClick={() => onSelectRoute(route.origin.iata, route.destination.iata)}
                 onKeyDown={(event) => activateMapItem(event, () => onSelectRoute(route.origin.iata, route.destination.iata))}
               >
-                <path className="map-route-hit" d={route.path} />
-                <path className="map-route-line" d={route.path} pathLength={1} style={route.style} />
+                {[-WORLD_WIDTH, 0, WORLD_WIDTH].map((offset) => <g key={offset} transform={`translate(${offset} 0)`}>
+                  <path className="map-route-hit" d={route.path} />
+                  <path className="map-route-underlay" d={route.path} />
+                  <path className="map-route-line" d={route.path} pathLength={1} style={route.style} />
+                </g>)}
                 <title>{route.label}</title>
               </g>;
             })}
@@ -203,10 +203,16 @@ export function PassportRouteMap({
             {airportItems.map((airport) => {
               const selected = selectedAirport === airport.iata;
               const labelRank = labeledAirports.get(airport.iata);
+              const showLabel = selected
+                || labelRank === 0
+                || (camera.zoom >= 1.65 && (labelRank ?? Infinity) < 3)
+                || (camera.zoom >= 2.6 && (labelRank ?? Infinity) < 8)
+                || camera.zoom >= 4;
+              const displayX = wrapXNear(airport.point.x, camera.centerX);
               return <g
                 key={airport.iata}
                 className={selected ? "map-airport is-selected" : "map-airport"}
-                transform={`translate(${airport.point.x} ${airport.point.y})`}
+                transform={`translate(${displayX} ${airport.point.y})`}
                 role="button"
                 tabIndex={0}
                 aria-label={airport.label}
@@ -218,34 +224,41 @@ export function PassportRouteMap({
                 onClick={() => onSelectAirport(airport.iata)}
                 onKeyDown={(event) => activateMapItem(event, () => onSelectAirport(airport.iata))}
               >
-                <circle className="map-airport-hit" r="14" />
-                <circle className="map-airport-ring" r={airport.radius + 3.2} />
-                <circle className="map-airport-point" r={airport.radius} style={airport.style} />
-                <title>{airport.label}</title>
-                {labelRank !== undefined ? <text className={labelRank > 1 ? "map-airport-label is-secondary" : "map-airport-label"} x="8" y="-7">{airport.iata}</text> : null}
+                <g transform={`scale(${1 / camera.zoom})`}>
+                  <circle className="map-airport-hit" r="14" />
+                  <circle className="map-airport-ring" r={airport.radius + 3.2} />
+                  <circle className="map-airport-point" r={airport.radius} style={airport.style} />
+                  <title>{airport.label}</title>
+                  {showLabel ? <text className={(labelRank ?? Infinity) > 1 ? "map-airport-label is-secondary" : "map-airport-label"} x="8" y="-7">{airport.iata}</text> : null}
+                </g>
               </g>;
             })}
           </g>
-          {tooltip ? <MapTooltip tooltip={tooltip} /> : null}
-        </svg>
-      </div>
+          {tooltip ? <MapTooltip tooltip={tooltip} camera={camera} /> : null}
+        </>}
+      </MapViewport>
       <p className="route-map-legend">{t("passport.mapLegend")}</p>
     </section>
   );
 }
 
-function MapTooltip({ tooltip }: { tooltip: MapTooltipData }) {
+function MapTooltip({ tooltip, camera }: { tooltip: MapTooltipData; camera: MapCamera }) {
   const width = 176;
   const height = 58;
-  const x = Math.min(Math.max(tooltip.x + 12, 8), WORLD_WIDTH - width - 8);
-  const y = tooltip.y > WORLD_HEIGHT - height - 18 ? tooltip.y - height - 12 : tooltip.y + 12;
-  return <g className="map-tooltip" transform={`translate(${x} ${Math.max(8, y)})`} aria-hidden="true">
-    <rect width={width} height={height} rx="5" />
-    <text x="12" y="18">
-      <tspan className="map-tooltip-title">{tooltip.title}</tspan>
-      <tspan className="map-tooltip-detail" x="12" dy="16">{tooltip.detail}</tspan>
-      <tspan className="map-tooltip-meta" x="12" dy="15">{tooltip.meta}</tspan>
-    </text>
+  const x = wrapXNear(tooltip.x, camera.centerX);
+  const screenX = (x - camera.centerX) * camera.zoom + WORLD_WIDTH / 2;
+  const screenY = (tooltip.y - camera.centerY) * camera.zoom + WORLD_HEIGHT / 2;
+  const offsetX = screenX + width + 24 > WORLD_WIDTH ? -width - 12 : 12;
+  const offsetY = screenY + height + 20 > WORLD_HEIGHT ? -height - 12 : 12;
+  return <g className="map-tooltip" transform={`translate(${x} ${tooltip.y}) scale(${1 / camera.zoom})`} aria-hidden="true">
+    <g transform={`translate(${offsetX} ${offsetY})`}>
+      <rect width={width} height={height} rx="5" />
+      <text x="12" y="18">
+        <tspan className="map-tooltip-title">{tooltip.title}</tspan>
+        <tspan className="map-tooltip-detail" x="12" dy="16">{tooltip.detail}</tspan>
+        <tspan className="map-tooltip-meta" x="12" dy="15">{tooltip.meta}</tspan>
+      </text>
+    </g>
   </g>;
 }
 
@@ -278,6 +291,17 @@ function collectAirports(flights: KeeprawFlight[], locale: "en" | "zh-CN"): Airp
   return [...points.values()];
 }
 
+function collectCountryVisits(flights: KeeprawFlight[]) {
+  const visits = new Map<string, number>();
+  for (const flight of flights) {
+    for (const iata of [flight.origin.iata, flight.destination.iata]) {
+      const country = airportByIata.get(iata)?.country;
+      if (country) visits.set(country, (visits.get(country) ?? 0) + 1);
+    }
+  }
+  return visits;
+}
+
 function collectRouteYears(flights: KeeprawFlight[]) {
   const years = new Map<string, { firstYear: string; lastYear: string }>();
   for (const flight of flights) {
@@ -304,10 +328,6 @@ function routeVisuals(count: number) {
   if (count <= 3) return { opacity: 0.52, width: 1.5 };
   if (count <= 9) return { opacity: 0.68, width: 1.85 };
   return { opacity: 0.82, width: 2.2 };
-}
-
-function countryPalette(code: string): number {
-  return [...code].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 7;
 }
 
 function compactAirportName(name: string): string {

@@ -2,14 +2,10 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { buildRouteSegments } from "@keepraw-fly/core";
-import {
-  greatCirclePath,
-  projectPoint,
-  WORLD_GRATICULE_PATH,
-  WORLD_HEIGHT,
-  WORLD_LAND_PATH,
-  WORLD_WIDTH,
-} from "../data/map-geometry";
+import { flightRouteCamera, unwrappedGreatCirclePath, wrapXNear } from "../data/map-camera";
+import { projectPoint, WORLD_WIDTH } from "../data/map-geometry";
+import { MapViewport } from "./MapViewport";
+import { MapWorld } from "./MapWorld";
 
 interface FlightRouteMapProps {
   flight: KeeprawFlight;
@@ -18,12 +14,16 @@ interface FlightRouteMapProps {
 export function FlightRouteMap({ flight }: FlightRouteMapProps) {
   const { t } = useTranslation();
   const route = useMemo(() => buildRouteSegments([flight])[0], [flight]);
+  const camera = useMemo(
+    () => route ? flightRouteCamera(route.origin, route.destination) : null,
+    [route],
+  );
 
-  if (!route) return null;
+  if (!route || !camera) return null;
 
   const origin = projectPoint(route.origin);
   const destination = projectPoint(route.destination);
-  const mapFrame = routeViewBox(origin, destination);
+  const routePath = unwrappedGreatCirclePath(route.origin, route.destination);
 
   return (
     <section className="detail-route-map" aria-labelledby="detail-route-map-title">
@@ -34,55 +34,53 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
         </div>
         <p>{t("flightDetail.routeAtlasDescription")}</p>
       </header>
-      <div className="detail-route-map-canvas">
-        <svg
-          viewBox={mapFrame.value}
-          role="img"
-          aria-label={t("flightDetail.routeAtlasLabel", {
-            origin: flight.origin.iata,
-            destination: flight.destination.iata,
-          })}
-        >
-          <path className="map-graticule" d={WORLD_GRATICULE_PATH} aria-hidden="true" />
-          <path className="map-land" d={WORLD_LAND_PATH} aria-hidden="true" />
-          <path className="detail-map-route" d={greatCirclePath(route.origin, route.destination)} />
-          <g className="detail-map-airport" transform={`translate(${origin.x} ${origin.y})`}>
-            <circle r={5 * mapFrame.scale} />
-            <text
-              x={9 * mapFrame.scale}
-              y={-8 * mapFrame.scale}
-              style={{ fontSize: 11 * mapFrame.scale }}
-            >{route.origin.iata}</text>
-          </g>
-          <g className="detail-map-airport" transform={`translate(${destination.x} ${destination.y})`}>
-            <circle r={5 * mapFrame.scale} />
-            <text
-              x={9 * mapFrame.scale}
-              y={-8 * mapFrame.scale}
-              style={{ fontSize: 11 * mapFrame.scale }}
-            >{route.destination.iata}</text>
-          </g>
-        </svg>
-      </div>
+      <MapViewport
+        className="detail-route-map-canvas"
+        ariaLabel={t("flightDetail.routeAtlasLabel", {
+          origin: flight.origin.iata,
+          destination: flight.destination.iata,
+        })}
+        initialCamera={camera}
+        maxZoom={8}
+        labels={{
+          zoomIn: t("mapControls.zoomIn"),
+          zoomOut: t("mapControls.zoomOut"),
+          reset: t("mapControls.reset"),
+        }}
+      >
+        {(viewport) => {
+          const inverseZoom = 1 / viewport.zoom;
+          const originX = wrapXNear(origin.x, viewport.centerX);
+          const destinationX = wrapXNear(destination.x, viewport.centerX);
+          return <>
+            <defs>
+              <linearGradient id="detail-route-gradient" x1="0" y1="0" x2={WORLD_WIDTH} y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="var(--color-map-route-warm)" />
+                <stop offset="1" stopColor="var(--color-map-route-cool)" />
+              </linearGradient>
+            </defs>
+            <MapWorld showOutline={false} />
+            <g className="detail-map-route-group">
+              {[-WORLD_WIDTH, 0, WORLD_WIDTH].map((offset) => <g key={offset} transform={`translate(${offset} 0)`}>
+                <path className="detail-map-route-underlay" d={routePath} />
+                <path className="detail-map-route" d={routePath} />
+              </g>)}
+            </g>
+            <DetailAirport x={originX} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} />
+            <DetailAirport x={destinationX} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} />
+          </>;
+        }}
+      </MapViewport>
     </section>
   );
 }
 
-function routeViewBox(origin: { x: number; y: number }, destination: { x: number; y: number }) {
-  const centerX = (origin.x + destination.x) / 2;
-  const centerY = (origin.y + destination.y) / 2;
-  const horizontalSpan = Math.abs(origin.x - destination.x);
-  const verticalSpan = Math.abs(origin.y - destination.y);
-  const aspectRatio = 2.2;
-  const width = Math.min(
-    WORLD_WIDTH,
-    Math.max(320, horizontalSpan * 1.75, verticalSpan * aspectRatio * 1.75),
-  );
-  const height = Math.min(WORLD_HEIGHT, width / aspectRatio);
-  const x = Math.min(Math.max(0, centerX - width / 2), WORLD_WIDTH - width);
-  const y = Math.min(Math.max(0, centerY - height / 2), WORLD_HEIGHT - height);
-  return {
-    value: `${x} ${y} ${width} ${height}`,
-    scale: width / WORLD_WIDTH,
-  };
+function DetailAirport({ x, y, inverseZoom, code }: { x: number; y: number; inverseZoom: number; code: string }) {
+  return <g className="detail-map-airport" transform={`translate(${x} ${y})`}>
+    <g transform={`scale(${inverseZoom})`}>
+      <circle className="detail-map-airport-ring" r="8" />
+      <circle className="detail-map-airport-point" r="3.5" />
+      <text x="9" y="-7">{code}</text>
+    </g>
+  </g>;
 }
