@@ -79,6 +79,15 @@ function delayText(delay: number | null, onTimeLabel: string, minuteLabel: strin
   return `${delay > 0 ? "+" : "−"}${Math.abs(delay)} ${minuteLabel}`;
 }
 
+function airportNameLabel(
+  airport: ReturnType<typeof airportByIata.get>,
+  iata: string,
+  locale: SupportedLocale,
+): string | undefined {
+  if (!airport) return undefined;
+  return locale === "en" ? `${iata} · ${airport.name.en}` : airport.name[locale];
+}
+
 export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, onDuplicate }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
@@ -93,10 +102,11 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
   const arrivalDelay = arrivalDelayMinutes(flight);
   const duration = flightDuration(flight);
   const operationalStatus = flightOperationalStatus(flight);
+  const originHasFacilities = Boolean(flight.origin.terminal || flight.origin.gate);
+  const destinationHasFacilities = Boolean(flight.destination.terminal);
+  const facilityStopCount = Number(originHasFacilities) + Number(destinationHasFacilities);
   const hasFacilities = Boolean(
-    flight.origin.terminal
-    || flight.origin.gate
-    || flight.destination.terminal,
+    originHasFacilities || destinationHasFacilities,
   );
   const hasFacts = Boolean(
     aircraft?.type
@@ -160,7 +170,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
               <time className="detail-airport-time" dateTime={flight.actualDeparture ?? flight.scheduledDeparture}>{departureTime}</time>
             </div>
             <strong className="detail-airport-city">{origin?.city[locale] ?? flight.origin.iata}</strong>
-            <small>{origin?.name[locale]}</small>
+            <small>{airportNameLabel(origin, flight.origin.iata, locale)}</small>
           </div>
           <div className="route-track">
             <span className="route-track-line" aria-hidden="true" />
@@ -176,7 +186,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
               <time className="detail-airport-time" dateTime={flight.actualArrival ?? flight.scheduledArrival}>{arrivalTime}</time>
             </div>
             <strong className="detail-airport-city">{destination?.city[locale] ?? flight.destination.iata}</strong>
-            <small>{destination?.name[locale]}</small>
+            <small>{airportNameLabel(destination, flight.destination.iata, locale)}</small>
           </div>
         </div>
 
@@ -248,7 +258,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
             <p className="eyebrow">{t("flightDetail.facilities")}</p>
             <h2 id="facilities-title">{t("flightDetail.airportFacilities")}</h2>
           </div>
-          <div className="facility-grid">
+          <div className={facilityStopCount === 1 ? "facility-grid facility-grid--single" : "facility-grid"}>
             <FacilityStop
               role={t("flightDetail.departure")}
               iata={flight.origin.iata}

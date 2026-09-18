@@ -103,7 +103,6 @@
     "seat": "座位",
     "cabinClass": "舱等",
     "bookingClass": "舱位代码",
-    "bookingClassHint": "填写航司的单字母订座舱位代码，例如 P。",
     "notRecorded": "未记录",
     "migratedArchive": "已在内存中更新 {{count}} 项旧格式信息；导入后将按 Keepraw Fly 0.1.0 保存。",
     "cabins": {
