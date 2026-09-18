@@ -195,7 +195,14 @@ describe("offline airport directory", () => {
     expect(airports.length).toBeGreaterThan(7_800);
     expect(airportByIata.get("TAO")).toMatchObject({
       iata: "TAO",
+      name: { en: "Qingdao Jiaodong International Airport", "zh-CN": "青岛胶东机场" },
       city: { en: "Qingdao", "zh-CN": "青岛" },
+      timezone: "Asia/Shanghai",
+    });
+    expect(airportByIata.get("SZX")).toMatchObject({
+      iata: "SZX",
+      name: { en: "Shenzhen Bao'an International Airport", "zh-CN": "深圳宝安机场" },
+      city: { en: "Shenzhen", "zh-CN": "深圳" },
       timezone: "Asia/Shanghai",
     });
   });

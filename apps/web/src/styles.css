@@ -579,22 +579,22 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   display: grid;
   grid-template-columns: minmax(230px, 1fr) minmax(120px, 0.45fr) minmax(230px, 1fr);
   gap: 28px;
-  align-items: center;
+  align-items: stretch;
   padding: 46px 28px 48px;
   background: var(--surface);
 }
 
-.airport-block { display: flex; min-width: 0; flex-direction: column; }
-.airport-block-arrival { align-items: flex-end; text-align: right; }
+.airport-block { display: grid; min-width: 0; align-content: start; justify-items: start; }
+.airport-block-arrival { justify-items: end; text-align: right; }
 .airport-role { color: var(--faint); font-family: var(--font-family-mono); font-size: var(--type-size-caption); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-eyebrow); line-height: var(--type-leading-caption); text-transform: uppercase; }
 .detail-route-primary { display: flex; min-width: 0; align-items: baseline; gap: 16px; margin-top: 15px; }
 .airport-block-arrival .detail-route-primary { flex-direction: row-reverse; }
 .detail-airport-time { margin: 0; color: var(--ink); font-family: var(--font-family-data); font-size: clamp(2.15rem, 4.5vw, 3.35rem); font-feature-settings: var(--numeric-features); font-variant-numeric: tabular-nums; font-weight: var(--font-weight-medium); letter-spacing: var(--tracking-data); line-height: var(--type-leading-data); white-space: nowrap; }
 .airport-code { margin: 0; color: var(--ink); font-family: var(--font-family-data); font-size: clamp(3.4rem, 7vw, 5.25rem); font-weight: var(--font-weight-semibold); letter-spacing: -0.045em; line-height: var(--type-leading-data); }
-.detail-airport-city { max-width: 100%; margin-top: 13px; overflow: hidden; color: var(--muted); font-size: var(--type-size-body); font-weight: var(--font-weight-medium); line-height: var(--type-leading-label); text-overflow: ellipsis; white-space: nowrap; }
-.airport-block small { max-width: 220px; margin-top: 7px; overflow: hidden; color: var(--faint); font-size: var(--font-size-caption); line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.detail-airport-city { max-width: 100%; margin-top: 15px; color: var(--muted); font-size: var(--type-size-body); font-weight: var(--font-weight-medium); line-height: var(--type-leading-label); }
+.airport-block small { max-width: 290px; margin-top: 6px; color: var(--faint); font-size: var(--font-size-caption); line-height: 1.45; overflow-wrap: anywhere; }
 
-.route-track { display: grid; min-width: 0; justify-items: stretch; gap: 16px; text-align: center; }
+.route-track { display: grid; min-width: 0; align-self: center; justify-items: stretch; gap: 16px; text-align: center; }
 .route-track-line { position: relative; display: block; height: 1px; background: var(--color-line-strong); transform-origin: center; }
 .route-track-line::after { position: absolute; top: -4px; right: 0; width: 7px; height: 7px; border-top: 1px solid var(--green); border-right: 1px solid var(--green); content: ""; transform: rotate(45deg); }
 
@@ -637,6 +637,10 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .facility-terminal strong { overflow: hidden; font-family: var(--font-family-data); font-size: clamp(2rem, 3vw, 2.65rem); font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-data); line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
 .gate-sign { display: flex; min-width: 86px; min-height: 78px; flex: 0 0 auto; align-items: center; justify-content: center; flex-direction: column; gap: 9px; padding: 12px 16px; color: var(--color-on-gate-sign); background: var(--color-gate-sign); text-align: center; }
 .gate-sign strong { max-width: 116px; overflow: hidden; font-family: var(--font-family-data); font-size: clamp(1.5rem, 2.4vw, 2rem); font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-bold); letter-spacing: var(--tracking-flight); line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+.facility-grid--single { grid-template-columns: minmax(260px, 420px); }
+.facility-grid--single .facility-stop { display: grid; grid-template-columns: minmax(88px, 0.55fr) minmax(120px, 1fr); align-items: center; gap: 24px; padding-top: 18px; }
+.facility-grid--single .facility-stop-heading { align-items: flex-start; flex-direction: column; gap: 6px; margin: 0; }
+.facility-grid--single .facility-values { justify-content: flex-start; }
 
 .detail-route-map { overflow: hidden; padding: 28px; border-top: 1px solid var(--color-map-land-line); color: var(--color-map-text); background: var(--color-map-surface); }
 .detail-route-map-loading { display: grid; min-height: 260px; place-items: center; color: var(--color-map-faint); }
@@ -691,8 +695,8 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .route-map-heading > span { flex: 0 0 auto; margin-bottom: 3px; color: var(--color-map-faint); font-family: var(--font-family-mono); font-size: var(--font-size-caption); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
 .route-map-canvas { margin-top: 30px; }
 .route-map svg { display: block; width: 100%; height: auto; }
-.map-sphere { fill: var(--color-map-surface); stroke: rgb(255 255 255 / 10%); stroke-width: 1; }
-.map-graticule { fill: none; stroke: rgb(255 255 255 / 5%); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-sphere { fill: var(--color-map-surface); stroke: var(--color-map-outline); stroke-width: 1; }
+.map-graticule { fill: none; stroke: var(--color-map-grid); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
 .map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
 .map-route, .map-airport { cursor: pointer; outline: none; }
 .map-routes path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
@@ -1107,7 +1111,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-heading-meta { max-width: 48%; gap: 7px; }
   .detail-heading-meta > time { white-space: normal; }
   .route-hero { grid-template-columns: 1fr; gap: 25px; margin: 0; padding: 32px 20px 36px; }
-  .airport-block-arrival { align-items: flex-start; text-align: left; }
+  .airport-block-arrival { justify-items: start; text-align: left; }
   .airport-role { font-size: var(--type-size-caption); }
   .detail-route-primary, .airport-block-arrival .detail-route-primary { width: 100%; flex-direction: row; justify-content: space-between; gap: 14px; }
   .detail-airport-time { font-size: clamp(2rem, 10vw, 2.65rem); }
@@ -1128,6 +1132,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .delay-summary > div, .delay-summary > div:first-child, .delay-summary > div:last-child { padding: 18px 0; }
   .delay-summary > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
   .facility-grid { grid-template-columns: 1fr; }
+  .facility-grid--single .facility-stop { grid-template-columns: minmax(76px, 0.55fr) minmax(118px, 1fr); gap: 18px; }
   .facility-stop { padding: 18px 0; }
   .facility-stop + .facility-stop { margin-left: 0; padding-left: 0; border-top: 1px solid var(--line); border-left: 0; }
   .facility-terminal strong { font-size: 2.2rem; }

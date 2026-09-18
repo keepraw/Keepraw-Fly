@@ -230,7 +230,6 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
                   onChange={(event) => update("bookingClass", event.target.value.toUpperCase())}
                   placeholder="P"
                 />
-                <small className="editor-field-hint">{t("flightEditor.bookingClassHint")}</small>
               </label>
               <label>
                 <span>{t("flightEditor.cabinClass")}</span>

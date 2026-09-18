@@ -105,7 +105,6 @@
     "seat": "Seat",
     "cabinClass": "Cabin class",
     "bookingClass": "Booking class",
-    "bookingClassHint": "Single-letter airline booking code, such as P.",
     "notRecorded": "Not recorded",
     "migratedArchive_one": "One legacy format detail was updated in memory. The imported archive will be saved as Keepraw Fly 0.1.0.",
     "migratedArchive_other": "{{count}} legacy format details were updated in memory. The imported archive will be saved as Keepraw Fly 0.1.0.",

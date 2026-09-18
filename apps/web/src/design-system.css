@@ -48,15 +48,17 @@
     radial-gradient(circle at 18% 108%, rgb(40 88 112 / 32%), transparent 42%),
     linear-gradient(135deg, #18221e 0%, #101714 100%);
 
-  /* Passport map is a deliberately dark, graphite atlas subtheme. */
-  --color-map-surface: #0d1116;
-  --color-map-land: #171c23;
-  --color-map-land-line: #28313c;
-  --color-map-route: #4edea3;
-  --color-map-airport: #75f5bf;
-  --color-map-text: #f4f6f8;
-  --color-map-muted: #a4abb6;
-  --color-map-faint: #7f8895;
+  /* Map colors follow the active theme; routes remain the only vivid layer. */
+  --color-map-surface: #edf1ed;
+  --color-map-land: #d5ddd7;
+  --color-map-land-line: #aebbb3;
+  --color-map-grid: #c8d1cb;
+  --color-map-outline: #9eada5;
+  --color-map-route: #168765;
+  --color-map-airport: #07634a;
+  --color-map-text: #1b2923;
+  --color-map-muted: #4d6359;
+  --color-map-faint: #64766e;
 
   /* Compatibility aliases used by the first-stage screens. */
   --ink: var(--color-text);
@@ -216,6 +218,16 @@
     --color-header: rgb(9 11 14 / 92%);
     --color-focus: #6ffbbe;
     --color-brand-mark: #090b0e;
+    --color-map-surface: #111820;
+    --color-map-land: #26333d;
+    --color-map-land-line: #43535e;
+    --color-map-grid: #2a3943;
+    --color-map-outline: #53656f;
+    --color-map-route: #5ce0b3;
+    --color-map-airport: #8af8cb;
+    --color-map-text: #f4f7f6;
+    --color-map-muted: #b9c5c1;
+    --color-map-faint: #96a6a1;
     --shadow-raised: none;
   }
 }
@@ -274,6 +286,16 @@
   --color-header: rgb(9 11 14 / 92%);
   --color-focus: #6ffbbe;
   --color-brand-mark: #090b0e;
+  --color-map-surface: #111820;
+  --color-map-land: #26333d;
+  --color-map-land-line: #43535e;
+  --color-map-grid: #2a3943;
+  --color-map-outline: #53656f;
+  --color-map-route: #5ce0b3;
+  --color-map-airport: #8af8cb;
+  --color-map-text: #f4f7f6;
+  --color-map-muted: #b9c5c1;
+  --color-map-faint: #96a6a1;
   --shadow-raised: none;
   color-scheme: dark;
 }

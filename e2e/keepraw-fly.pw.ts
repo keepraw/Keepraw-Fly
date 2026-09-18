@@ -18,6 +18,7 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await editor.getByRole("combobox", { name: "Destination" }).fill("LAX");
   await editor.locator(".editor-optional > summary").click();
   await expect(editor.getByLabel("Destination gate")).toHaveCount(0);
+  await expect(editor.getByText("Single-letter airline booking code", { exact: false })).toHaveCount(0);
   await editor.getByLabel("Booking class").fill("P");
   await editor.getByLabel("Checked baggage").selectOption("checked");
   await editor.getByLabel("Baggage carousel").fill("8");
@@ -434,6 +435,71 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   });
 });
 
+test("localizes airport identity and keeps sparse facility and map layouts legible", async ({ page }) => {
+  const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  archive.flights[0] = {
+    ...archive.flights[0],
+    id: "example-zh9911-20260917",
+    flightNumber: "ZH9911",
+    serviceDate: "2026-09-17",
+    airline: { iata: "ZH" },
+    origin: { iata: "SZX", gate: "338" },
+    destination: { iata: "TAO" },
+    scheduledDeparture: "2026-09-17T20:45:00+08:00",
+    scheduledArrival: "2026-09-18T00:05:00+08:00",
+    actualDeparture: "2026-09-17T20:56:00+08:00",
+    actualArrival: "2026-09-17T23:30:00+08:00",
+    extensions: {},
+  };
+
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "localized-flight.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+  await page.getByRole("region", { name: "Review before importing" })
+    .getByRole("button", { name: "Import this archive" }).click();
+  await page.getByRole("button", { name: /Open ZH9911/ }).click();
+
+  await expect(page.locator(".airport-block").first().locator("small"))
+    .toHaveText("SZX · Shenzhen Bao'an International Airport");
+  await expect(page.locator(".facility-grid--single .facility-stop")).toHaveCount(1);
+  await expect(page.locator(".gate-sign")).toContainText("338");
+
+  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByLabel("Appearance").selectOption("light");
+  await page.getByLabel("Language").selectOption("zh-CN");
+  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("button", { name: /打开 ZH9911/ }).click();
+
+  const airportBlocks = page.locator(".airport-block");
+  await expect(airportBlocks.nth(0).locator(".detail-airport-city")).toHaveText("深圳");
+  await expect(airportBlocks.nth(0).locator("small")).toHaveText("深圳宝安机场");
+  await expect(airportBlocks.nth(1).locator(".detail-airport-city")).toHaveText("青岛");
+  await expect(airportBlocks.nth(1).locator("small")).toHaveText("青岛胶东机场");
+
+  const heroAlignment = await page.locator(".route-hero").evaluate((hero) => {
+    const primaries = [...hero.querySelectorAll<HTMLElement>(".detail-route-primary")];
+    const names = [...hero.querySelectorAll<HTMLElement>(".detail-airport-city")];
+    return {
+      primaryTopDelta: Math.abs(primaries[0].getBoundingClientRect().top - primaries[1].getBoundingClientRect().top),
+      cityTopDelta: Math.abs(names[0].getBoundingClientRect().top - names[1].getBoundingClientRect().top),
+    };
+  });
+  expect(heroAlignment.primaryTopDelta).toBeLessThanOrEqual(1);
+  expect(heroAlignment.cityTopDelta).toBeLessThanOrEqual(1);
+
+  const mapSurface = await page.locator(".detail-route-map").evaluate((element) => {
+    const channels = getComputedStyle(element).backgroundColor.match(/\d+/g)?.slice(0, 3).map(Number) ?? [];
+    return channels.reduce((sum, channel) => sum + channel, 0) / channels.length;
+  });
+  expect(mapSurface).toBeGreaterThan(180);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+});
+
 test("keeps every page aligned to the shared responsive shell", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
@@ -558,7 +624,10 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
       return {
         airportNamesConstrained: airportNames.every((element) => {
           const style = getComputedStyle(element);
-          return style.display === "none" || (style.overflow === "hidden" && style.textOverflow === "ellipsis");
+          return style.display === "none" || (
+            element.scrollWidth <= element.clientWidth + 0.5
+            && ["anywhere", "break-word"].includes(style.overflowWrap)
+          );
         }),
         atomicValuesStayWhole: values.every((element) => getComputedStyle(element).whiteSpace === "nowrap"),
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
