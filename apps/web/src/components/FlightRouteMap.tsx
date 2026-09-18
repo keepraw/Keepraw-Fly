@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { buildRouteSegments } from "@keepraw-fly/core";
-import { flightRouteCamera, unwrappedGreatCirclePath, wrapXNear } from "../data/map-camera";
-import { projectPoint, WORLD_WIDTH } from "../data/map-geometry";
+import { flightRouteCamera } from "../data/map-camera";
+import { greatCirclePath, projectPoint, WORLD_WIDTH } from "../data/map-geometry";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
 
@@ -23,7 +23,7 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
 
   const origin = projectPoint(route.origin);
   const destination = projectPoint(route.destination);
-  const routePath = unwrappedGreatCirclePath(route.origin, route.destination);
+  const routePath = greatCirclePath(route.origin, route.destination);
 
   return (
     <section className="detail-route-map" aria-labelledby="detail-route-map-title">
@@ -50,8 +50,6 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
       >
         {(viewport) => {
           const inverseZoom = 1 / viewport.zoom;
-          const originX = wrapXNear(origin.x, viewport.centerX);
-          const destinationX = wrapXNear(destination.x, viewport.centerX);
           return <>
             <defs>
               <linearGradient id="detail-route-gradient" x1="0" y1="0" x2={WORLD_WIDTH} y2="0" gradientUnits="userSpaceOnUse">
@@ -61,13 +59,11 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
             </defs>
             <MapWorld showOutline={false} />
             <g className="detail-map-route-group">
-              {[-WORLD_WIDTH, 0, WORLD_WIDTH].map((offset) => <g key={offset} transform={`translate(${offset} 0)`}>
-                <path className="detail-map-route-underlay" d={routePath} />
-                <path className="detail-map-route" d={routePath} />
-              </g>)}
+              <path className="detail-map-route-underlay" d={routePath} />
+              <path className="detail-map-route" d={routePath} />
             </g>
-            <DetailAirport x={originX} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} />
-            <DetailAirport x={destinationX} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} />
+            <DetailAirport x={origin.x} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} />
+            <DetailAirport x={destination.x} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} />
           </>;
         }}
       </MapViewport>

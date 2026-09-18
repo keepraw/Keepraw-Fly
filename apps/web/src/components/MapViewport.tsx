@@ -233,7 +233,7 @@ function clampCamera(camera: MapCamera, maxZoom: number): MapCamera {
   const halfWidth = WORLD_WIDTH / (2 * zoom);
   const halfHeight = WORLD_HEIGHT / (2 * zoom);
   return {
-    centerX: Math.min(WORLD_WIDTH * 2 - halfWidth, Math.max(halfWidth, camera.centerX)),
+    centerX: Math.min(WORLD_WIDTH - halfWidth, Math.max(halfWidth, camera.centerX)),
     centerY: Math.min(WORLD_HEIGHT - halfHeight, Math.max(halfHeight, camera.centerY)),
     zoom,
   };

@@ -9,11 +9,12 @@ import {
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   greatCircleMidpoint,
+  greatCirclePath,
   projectPoint,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "../data/map-geometry";
-import { passportMapCamera, unwrappedGreatCirclePath, wrapXNear, type MapCamera } from "../data/map-camera";
+import { passportMapCamera, type MapCamera } from "../data/map-camera";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
 
@@ -84,7 +85,7 @@ export function PassportRouteMap({
       ...route,
       key,
       label,
-      path: unwrappedGreatCirclePath(route.origin, route.destination),
+      path: greatCirclePath(route.origin, route.destination),
       tooltip: {
         key,
         x: midpoint.x,
@@ -190,11 +191,9 @@ export function PassportRouteMap({
                 onClick={() => onSelectRoute(route.origin.iata, route.destination.iata)}
                 onKeyDown={(event) => activateMapItem(event, () => onSelectRoute(route.origin.iata, route.destination.iata))}
               >
-                {[-WORLD_WIDTH, 0, WORLD_WIDTH].map((offset) => <g key={offset} transform={`translate(${offset} 0)`}>
-                  <path className="map-route-hit" d={route.path} />
-                  <path className="map-route-underlay" d={route.path} />
-                  <path className="map-route-line" d={route.path} pathLength={1} style={route.style} />
-                </g>)}
+                <path className="map-route-hit" d={route.path} />
+                <path className="map-route-underlay" d={route.path} />
+                <path className="map-route-line" d={route.path} pathLength={1} style={route.style} />
                 <title>{route.label}</title>
               </g>;
             })}
@@ -208,11 +207,10 @@ export function PassportRouteMap({
                 || (camera.zoom >= 1.65 && (labelRank ?? Infinity) < 3)
                 || (camera.zoom >= 2.6 && (labelRank ?? Infinity) < 8)
                 || camera.zoom >= 4;
-              const displayX = wrapXNear(airport.point.x, camera.centerX);
               return <g
                 key={airport.iata}
                 className={selected ? "map-airport is-selected" : "map-airport"}
-                transform={`translate(${displayX} ${airport.point.y})`}
+                transform={`translate(${airport.point.x} ${airport.point.y})`}
                 role="button"
                 tabIndex={0}
                 aria-label={airport.label}
@@ -245,12 +243,11 @@ export function PassportRouteMap({
 function MapTooltip({ tooltip, camera }: { tooltip: MapTooltipData; camera: MapCamera }) {
   const width = 176;
   const height = 58;
-  const x = wrapXNear(tooltip.x, camera.centerX);
-  const screenX = (x - camera.centerX) * camera.zoom + WORLD_WIDTH / 2;
+  const screenX = (tooltip.x - camera.centerX) * camera.zoom + WORLD_WIDTH / 2;
   const screenY = (tooltip.y - camera.centerY) * camera.zoom + WORLD_HEIGHT / 2;
   const offsetX = screenX + width + 24 > WORLD_WIDTH ? -width - 12 : 12;
   const offsetY = screenY + height + 20 > WORLD_HEIGHT ? -height - 12 : 12;
-  return <g className="map-tooltip" transform={`translate(${x} ${tooltip.y}) scale(${1 / camera.zoom})`} aria-hidden="true">
+  return <g className="map-tooltip" transform={`translate(${tooltip.x} ${tooltip.y}) scale(${1 / camera.zoom})`} aria-hidden="true">
     <g transform={`translate(${offsetX} ${offsetY})`}>
       <rect width={width} height={height} rx="5" />
       <text x="12" y="18">
