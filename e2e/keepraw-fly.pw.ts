@@ -54,8 +54,38 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await page.getByRole("link", { name: "Passport" }).click();
   await expect(page.getByRole("heading", { name: "Passport" })).toBeVisible();
   await expect(page.getByText("张鸿川", { exact: false })).toBeVisible();
-  await expect(page.getByRole("img", { name: /World map showing 1 flight/ })).toBeVisible();
+  await expect(page.getByRole("group", { name: /World map showing 1 flight/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
+});
+
+test("explores personal airport, airline and route history from Passport", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+  await page.getByRole("link", { name: "Passport" }).click();
+  await expect(page.locator(".route-map svg")).toBeVisible();
+
+  const airportNode = page.locator(".map-airport").first();
+  await airportNode.focus();
+  await page.keyboard.press("Enter");
+  const exploration = page.locator(".passport-exploration");
+  await expect(exploration.getByText("Airport history")).toBeVisible();
+  await expect(exploration.getByText("First visited")).toBeVisible();
+  await expect(exploration.getByRole("button")).not.toHaveCount(0);
+
+  await page.locator(".passport-highlights dd button").first().click();
+  await expect(exploration.getByText("Airline history")).toBeVisible();
+
+  const route = page.locator(".map-route").first();
+  await route.focus();
+  await page.keyboard.press("Enter");
+  await expect(exploration.getByText("Route history")).toBeVisible();
+  await expect(exploration.getByText(/flight/).first()).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+
+  await exploration.locator(".passport-related-flights button").first().click();
+  await expect(page.locator(".detail-flight-card")).toBeVisible();
 });
 
 test("keeps delay facts inside their section at desktop and mobile widths", async ({ page }) => {

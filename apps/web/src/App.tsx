@@ -257,6 +257,11 @@ export function App() {
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
+          onOpenFlight={(flightId) => {
+            window.history.replaceState(null, "", "#flights");
+            setPage("flights");
+            setSelectedFlightId(flightId);
+          }}
           onAddFlight={() => {
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);

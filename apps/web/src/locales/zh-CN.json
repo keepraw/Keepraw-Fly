@@ -176,6 +176,8 @@
     "mapSummary": "{{routes}} 条航线 · {{airports}} 个机场",
     "mapPreviewLabel": "世界地图，显示已记录机场之间的 {{flights}} 段航班",
     "mapLegend": "地图标注最常到访的机场；航线越粗，表示重复飞行次数越多。",
+    "mapAirportData": "{{airport}} · {{count}} 个航班 · 首次到访 {{first}} · 最近到访 {{last}}",
+    "mapRouteData": "{{origin}} 至 {{destination}} · {{count}} 个航班 · 首次飞行 {{first}} · 最近飞行 {{last}}",
     "patterns": "飞行轨迹",
     "highlights": "旅程亮点",
     "mostFlownAirline": "最常乘坐的航空公司",
@@ -186,6 +188,18 @@
     "yearlyHistory": "年度飞行历史",
     "flightFrequency": "{{count}} 个航班",
     "visitFrequency": "到访 {{count}} 次",
+    "explore": {
+      "airport": "机场记录",
+      "airline": "航司记录",
+      "route": "航线记录"
+    },
+    "relatedFlights": "已记录航班",
+    "relatedFlightRecords": "相关航班记录",
+    "firstVisited": "首次到访",
+    "lastVisited": "最近到访",
+    "firstFlown": "首次飞行",
+    "lastFlown": "最近飞行",
+    "closeExploration": "关闭",
     "emptyEyebrow": "尚无旅程",
     "emptyTitle": "飞行护照从第一段航班开始。",
     "emptyDescription": "添加第一条记录，Keepraw Fly 会根据你自己的航班事实生成这本护照。"
