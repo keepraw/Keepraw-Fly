@@ -128,6 +128,11 @@
     "delayed": "延误",
     "early": "提前"
   },
+  "mapControls": {
+    "zoomIn": "放大地图",
+    "zoomOut": "缩小地图",
+    "reset": "查看完整世界地图"
+  },
   "flightDetail": {
     "routeLabel": "航线路径",
     "journey": "行程",

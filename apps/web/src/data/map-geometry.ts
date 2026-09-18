@@ -57,3 +57,14 @@ export function greatCircleMidpoint(origin: RoutePoint, destination: RoutePoint)
   const [longitude, latitude] = interpolate(0.5);
   return projectPoint({ longitude, latitude });
 }
+
+export function sampleGreatCircle(origin: RoutePoint, destination: RoutePoint, steps = 48) {
+  const interpolate = geoInterpolate(
+    [origin.longitude, origin.latitude],
+    [destination.longitude, destination.latitude],
+  );
+  return Array.from({ length: steps + 1 }, (_, index) => {
+    const [longitude, latitude] = interpolate(index / steps);
+    return projectPoint({ longitude, latitude });
+  });
+}
