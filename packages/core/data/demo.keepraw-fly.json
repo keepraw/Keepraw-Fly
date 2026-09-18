@@ -21,14 +21,15 @@
       "serviceDate": "2026-08-19",
       "airline": { "iata": "UA" },
       "origin": { "iata": "SFO", "terminal": "3", "gate": "F12" },
-      "destination": { "iata": "LAX", "terminal": "7", "gate": "72A" },
+      "destination": { "iata": "LAX", "terminal": "7" },
       "scheduledDeparture": "2026-08-19T10:20:00-07:00",
       "scheduledArrival": "2026-08-19T11:52:00-07:00",
       "actualDeparture": "2026-08-19T10:57:00-07:00",
       "actualArrival": "2026-08-19T12:21:00-07:00",
       "extensions": {
         "keepraw-fly.aircraft": { "type": "B739", "registration": "N38417" },
-        "keepraw-fly.seat": { "seat": "12A", "cabin": "economy" }
+        "keepraw-fly.seat": { "seat": "12A", "cabin": "economy", "bookingClass": "P" },
+        "keepraw-fly.baggage": { "checkedBaggage": false }
       }
     },
     {

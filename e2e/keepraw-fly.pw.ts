@@ -16,9 +16,23 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await editor.getByLabel("Flight number").fill("123");
   await editor.getByRole("combobox", { name: "Origin" }).fill("SFO");
   await editor.getByRole("combobox", { name: "Destination" }).fill("LAX");
+  await editor.locator(".editor-optional > summary").click();
+  await expect(editor.getByLabel("Destination gate")).toHaveCount(0);
+  await editor.getByLabel("Booking class").fill("P");
+  await editor.getByLabel("Checked baggage").selectOption("checked");
+  await editor.getByLabel("Baggage carousel").fill("8");
+  await editor.getByLabel("Checked baggage").selectOption("not-checked");
+  await expect(editor.getByLabel("Baggage carousel")).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
   await editor.getByRole("button", { name: "Save flight" }).click();
 
   await expect(page.getByRole("heading", { name: "UA123" })).toBeVisible();
+  await expect(page.getByText("Booking class")).toBeVisible();
+  await expect(page.getByText("P", { exact: true })).toBeVisible();
+  await expect(page.getByText("Checked baggage")).toBeVisible();
+  await expect(page.getByText("No", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Edit flight" }).click();
   const editDialog = page.getByRole("dialog", { name: "Edit flight" });
   await editDialog.getByLabel("Flight number").fill("124");

@@ -8,7 +8,9 @@ import {
   KEEPRAW_FLY_FORMAT,
   KEEPRAW_FLY_FORMAT_VERSION,
 } from "@keepraw-fly/schema";
-import { aircraftFacts, airportByIata, seatFacts } from "@keepraw-fly/core";
+import { aircraftFacts, airportByIata, baggageFacts, seatFacts } from "@keepraw-fly/core";
+
+export type BaggageStatus = "" | "not-checked" | "checked";
 
 export interface FlightDraft {
   airlineCode: string;
@@ -26,11 +28,13 @@ export interface FlightDraft {
   originTerminal: string;
   originGate: string;
   destinationTerminal: string;
-  destinationGate: string;
   aircraftType: string;
   aircraftRegistration: string;
   seat: string;
   cabin: string;
+  bookingClass: string;
+  baggageStatus: BaggageStatus;
+  baggageCarousel: string;
 }
 
 export function createEmptyDocument(): KeeprawFlyDocument {
@@ -59,11 +63,13 @@ export function createDefaultDraft(today = localDateString(new Date())): FlightD
     originTerminal: "",
     originGate: "",
     destinationTerminal: "",
-    destinationGate: "",
     aircraftType: "",
     aircraftRegistration: "",
     seat: "",
     cabin: "",
+    bookingClass: "",
+    baggageStatus: "",
+    baggageCarousel: "",
   };
 }
 
@@ -80,6 +86,7 @@ export function flightToDraft(flight: KeeprawFlight): FlightDraft {
     : null;
   const aircraft = aircraftFacts(flight);
   const seat = seatFacts(flight);
+  const baggage = baggageFacts(flight);
   const parsedIdentity = splitFlightNumberInput(flight.flightNumber);
   const referencedAirlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
 
@@ -99,11 +106,17 @@ export function flightToDraft(flight: KeeprawFlight): FlightDraft {
     originTerminal: flight.origin.terminal ?? "",
     originGate: flight.origin.gate ?? "",
     destinationTerminal: flight.destination.terminal ?? "",
-    destinationGate: flight.destination.gate ?? "",
     aircraftType: aircraft?.type ?? "",
     aircraftRegistration: aircraft?.registration ?? "",
     seat: seat?.seat ?? "",
     cabin: seat?.cabin ?? "",
+    bookingClass: seat?.bookingClass ?? "",
+    baggageStatus: baggage?.checkedBaggage === true
+      ? "checked"
+      : baggage?.checkedBaggage === false
+        ? "not-checked"
+        : "",
+    baggageCarousel: baggage?.carousel ?? "",
   };
 }
 
@@ -139,19 +152,22 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
   if (actualDeparture && actualArrival && Date.parse(actualArrival) <= Date.parse(actualDeparture)) {
     throw new Error("actual-arrival-before-departure");
   }
+  const bookingClass = draft.bookingClass.trim().toUpperCase();
+  if (bookingClass && !/^[A-Z]$/.test(bookingClass)) {
+    throw new Error("invalid-booking-class");
+  }
 
-  const extensions = updateKnownExtensions(existing?.extensions, draft);
+  const extensions = updateKnownExtensions(existing?.extensions, draft, bookingClass);
   const originEndpoint = endpointWithOptionalFacts(
     existing?.origin,
     draft.originIata,
     draft.originTerminal,
     draft.originGate,
   );
-  const destinationEndpoint = endpointWithOptionalFacts(
+  const destinationEndpoint = endpointWithOptionalTerminal(
     existing?.destination,
     draft.destinationIata,
     draft.destinationTerminal,
-    draft.destinationGate,
   );
   const identity = normalizeFlightIdentity(draft.airlineCode, draft.serviceNumber);
 
@@ -238,9 +254,24 @@ function endpointWithOptionalFacts(
   };
 }
 
+function endpointWithOptionalTerminal(
+  existing: KeeprawFlight["destination"] | undefined,
+  iata: string,
+  terminal: string,
+): KeeprawFlight["destination"] {
+  const sameAirport = existing?.iata === iata ? existing : { iata };
+  const { terminal: _terminal, ...preserved } = sameAirport;
+  return {
+    ...preserved,
+    iata,
+    ...(terminal.trim() ? { terminal: terminal.trim() } : {}),
+  };
+}
+
 function updateKnownExtensions(
   existing: ExtensionMap | undefined,
   draft: FlightDraft,
+  bookingClass: string,
 ): ExtensionMap | undefined {
   const extensions: ExtensionMap = structuredClone(existing ?? {});
   updateExtensionObject(extensions, "keepraw-fly.aircraft", {
@@ -250,6 +281,11 @@ function updateKnownExtensions(
   updateExtensionObject(extensions, "keepraw-fly.seat", {
     seat: draft.seat.trim(),
     cabin: draft.cabin.trim(),
+    bookingClass,
+  });
+  updateExtensionObject(extensions, "keepraw-fly.baggage", {
+    checkedBaggage: draft.baggageStatus === "" ? undefined : draft.baggageStatus === "checked",
+    carousel: draft.baggageStatus === "checked" ? draft.baggageCarousel.trim() : "",
   });
   return Object.keys(extensions).length ? extensions : undefined;
 }
@@ -257,15 +293,15 @@ function updateKnownExtensions(
 function updateExtensionObject(
   extensions: ExtensionMap,
   key: string,
-  values: Record<string, string>,
+  values: Record<string, JsonValue | undefined>,
 ) {
   const current = extensions[key];
   const object: Record<string, JsonValue> = current && typeof current === "object" && !Array.isArray(current)
     ? { ...current }
     : {};
   for (const [field, value] of Object.entries(values)) {
-    if (value) object[field] = value;
-    else delete object[field];
+    if (value === undefined || value === "") delete object[field];
+    else object[field] = value;
   }
   if (Object.keys(object).length) extensions[key] = object;
   else delete extensions[key];
