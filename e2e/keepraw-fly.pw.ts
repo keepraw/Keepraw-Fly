@@ -415,8 +415,12 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
       highlightsDisplay: getComputedStyle(highlights).display,
       mapBorderRadius: mapStyle.borderRadius,
       mapBoxShadow: mapStyle.boxShadow,
+      countryPaths: map.querySelectorAll(".map-country").length,
+      graticules: map.querySelectorAll(".map-graticule").length,
+      permanentAirportLabels: map.querySelectorAll(".map-airport-label").length,
       routeFilter: getComputedStyle(document.querySelector<SVGGElement>(".map-routes")!).filter,
       svgDefinitions: map.querySelectorAll("defs").length,
+      visitedCountries: map.querySelectorAll(".map-country.is-visited").length,
       switcherBorderRadius: switcherStyle.borderRadius,
       switcherBackgroundImage: switcherStyle.backgroundImage,
       yearHistoryDisplay: getComputedStyle(yearHistory).display,
@@ -424,13 +428,17 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   });
   expect(passportPresentation).toEqual({
     canvasBackgroundImage: "none",
+    countryPaths: 177,
+    graticules: 0,
     highlightsDisplay: "block",
     mapBorderRadius: "4px",
     mapBoxShadow: "none",
+    permanentAirportLabels: 5,
     routeFilter: "none",
-    svgDefinitions: 0,
+    svgDefinitions: 1,
     switcherBorderRadius: "4px",
     switcherBackgroundImage: "none",
+    visitedCountries: 9,
     yearHistoryDisplay: "block",
   });
 });

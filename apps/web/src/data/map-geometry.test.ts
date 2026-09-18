@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   greatCirclePath,
+  greatCircleMidpoint,
   projectPoint,
+  WORLD_COUNTRIES,
   WORLD_GRATICULE_PATH,
   WORLD_HEIGHT,
   WORLD_LAND_PATH,
@@ -36,9 +38,20 @@ describe("passport map geometry", () => {
     expect(path.match(/M/g)?.length).toBe(2);
   });
 
+  it("projects the spherical midpoint of a route", () => {
+    const midpoint = greatCircleMidpoint(
+      { iata: "SFO", latitude: 37.6213, longitude: -122.379 },
+      { iata: "HND", latitude: 35.5494, longitude: 139.7798 },
+    );
+    expect(midpoint.x).toBeGreaterThan(0);
+    expect(midpoint.y).toBeGreaterThan(0);
+  });
+
   it("bundles detailed generated globe geometry", () => {
     expect(WORLD_SPHERE_PATH.length).toBeGreaterThan(500);
     expect(WORLD_GRATICULE_PATH.length).toBeGreaterThan(10_000);
     expect(WORLD_LAND_PATH.length).toBeGreaterThan(50_000);
+    expect(WORLD_COUNTRIES.length).toBeGreaterThan(170);
+    expect(WORLD_COUNTRIES.find((country) => country.code === "CN")?.path.length).toBeGreaterThan(100);
   });
 });

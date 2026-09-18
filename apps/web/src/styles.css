@@ -693,22 +693,42 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .route-map-heading h2 { margin: 11px 0 10px; font-size: var(--font-size-section); font-weight: var(--font-weight-medium); letter-spacing: var(--tracking-tight); }
 .route-map-heading p:not(.eyebrow) { max-width: 480px; margin: 0; color: var(--color-map-muted); font-size: var(--font-size-label); line-height: 1.6; }
 .route-map-heading > span { flex: 0 0 auto; margin-bottom: 3px; color: var(--color-map-faint); font-family: var(--font-family-mono); font-size: var(--font-size-caption); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
-.route-map-canvas { margin-top: 30px; }
+.route-map-canvas { position: relative; margin-top: 30px; }
 .route-map svg { display: block; width: 100%; height: auto; }
-.map-sphere { fill: var(--color-map-surface); stroke: var(--color-map-outline); stroke-width: 1; }
+.map-sphere { fill: color-mix(in srgb, var(--color-map-surface) 84%, var(--color-surface)); stroke: var(--color-map-outline); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
 .map-graticule { fill: none; stroke: var(--color-map-grid); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
 .map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-country > path:first-child { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.55; vector-effect: non-scaling-stroke; transition: filter var(--duration-fast) var(--ease-standard), stroke var(--duration-fast) var(--ease-standard); }
+.map-country.is-visited > path:first-child { fill: var(--map-country-fill); }
+.map-country:hover > path:first-child { filter: saturate(1.08) brightness(0.97); stroke: var(--color-map-muted); stroke-width: 0.85; }
+.map-country-palette-0 { --map-country-fill: var(--color-map-visited-coral); }
+.map-country-palette-1 { --map-country-fill: var(--color-map-visited-orange); }
+.map-country-palette-2 { --map-country-fill: var(--color-map-visited-sage); }
+.map-country-palette-3 { --map-country-fill: var(--color-map-visited-teal); }
+.map-country-palette-4 { --map-country-fill: var(--color-map-visited-sky); }
+.map-country-palette-5 { --map-country-fill: var(--color-map-visited-lavender); }
+.map-country-palette-6 { --map-country-fill: var(--color-map-visited-rose); }
+.map-country-texture { fill: url("#passport-map-dots"); opacity: 0.38; pointer-events: none; }
+.map-texture-dot { fill: var(--color-map-texture); }
 .map-route, .map-airport { cursor: pointer; outline: none; }
 .map-routes path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .map-routes .map-route-hit { stroke: transparent; stroke-width: 18; pointer-events: stroke; }
-.map-routes .map-route-line { stroke: var(--color-map-route); opacity: 0.82; pointer-events: none; }
+.map-routes .map-route-line { stroke: var(--color-map-route); stroke-width: var(--map-route-width); opacity: var(--map-route-opacity); pointer-events: none; }
 .map-route:hover .map-route-line, .map-route:focus-visible .map-route-line, .map-route.is-selected .map-route-line { stroke: var(--color-map-airport); opacity: 1; }
-.map-route:focus-visible .map-route-line { filter: drop-shadow(0 0 3px var(--color-map-airport)); }
+.map-route:focus-visible .map-route-line { filter: drop-shadow(0 0 2px var(--color-map-airport)); }
 .map-airports circle { vector-effect: non-scaling-stroke; }
 .map-airports .map-airport-hit { fill: transparent; stroke: none; pointer-events: all; }
-.map-airports .map-airport-point { fill: var(--color-map-airport); stroke: var(--color-map-surface); stroke-width: 1.5; pointer-events: none; }
-.map-airport:hover .map-airport-point, .map-airport:focus-visible .map-airport-point, .map-airport.is-selected .map-airport-point { fill: var(--color-map-text); stroke: var(--color-map-airport); stroke-width: 2.5; }
-.map-airports text { fill: var(--color-map-text); paint-order: stroke; stroke: var(--color-map-surface); stroke-linejoin: round; stroke-width: 3px; font-family: var(--font-family-data); font-size: var(--type-size-map-label); font-weight: var(--font-weight-bold); letter-spacing: var(--tracking-airport); }
+.map-airports .map-airport-ring { fill: color-mix(in srgb, var(--color-map-airport) 12%, transparent); stroke: color-mix(in srgb, var(--color-map-airport) 34%, transparent); stroke-width: 0.8; pointer-events: none; }
+.map-airports .map-airport-point { fill: var(--color-map-airport); stroke: color-mix(in srgb, var(--color-map-surface) 88%, white); stroke-width: 1.25; pointer-events: none; }
+.map-airport:hover .map-airport-point, .map-airport:focus-visible .map-airport-point, .map-airport.is-selected .map-airport-point { fill: var(--color-map-text); stroke: var(--color-map-airport); stroke-width: 2; }
+.map-airport:hover .map-airport-ring, .map-airport:focus-visible .map-airport-ring, .map-airport.is-selected .map-airport-ring { fill: color-mix(in srgb, var(--color-map-airport) 20%, transparent); stroke: color-mix(in srgb, var(--color-map-airport) 58%, transparent); }
+.map-airports .map-airport-label { fill: var(--color-map-text); paint-order: stroke; stroke: var(--color-map-surface); stroke-linejoin: round; stroke-width: 3px; font-family: var(--font-family-data); font-size: var(--type-size-map-label); font-weight: var(--font-weight-bold); letter-spacing: var(--tracking-airport); pointer-events: none; }
+.map-tooltip { pointer-events: none; }
+.map-tooltip rect { fill: var(--color-map-tooltip); stroke: var(--color-map-tooltip-line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.map-tooltip text { fill: var(--color-map-text); stroke: none; font-family: var(--font-family-ui); font-size: 10px; letter-spacing: 0; paint-order: normal; }
+.map-tooltip-title { font-size: 11px; font-weight: var(--font-weight-semibold); }
+.map-tooltip-detail { fill: var(--color-map-muted); font-family: var(--font-family-data); font-weight: var(--font-weight-semibold); }
+.map-tooltip-meta { fill: var(--color-map-faint); font-size: 9px; }
 .route-map-legend { margin: 18px 0 0; color: var(--color-map-faint); font-size: var(--font-size-caption); line-height: 1.5; }
 
 .passport-highlights, .year-history { min-width: 0; max-width: none; margin-top: 20px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
@@ -903,7 +923,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @keyframes map-route-arrive {
   from { opacity: 0; stroke-dashoffset: 1; }
-  to { opacity: 0.82; stroke-dashoffset: 0; }
+  to { opacity: var(--map-route-opacity); stroke-dashoffset: 0; }
 }
 
 @keyframes map-airport-arrive {
@@ -990,14 +1010,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     animation: content-enter 440ms 150ms var(--ease-out) both;
   }
 
-  .map-routes path {
+  .map-routes .map-route-line {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
     animation: map-route-arrive var(--duration-map) var(--ease-out) both;
     animation-delay: calc(260ms + var(--map-item-index, 0) * 22ms);
   }
 
-  .map-airports circle {
+  .map-airports .map-airport-point,
+  .map-airports .map-airport-ring {
     transform-box: fill-box;
     transform-origin: center;
     animation: map-airport-arrive 300ms var(--ease-emphasized) both;
@@ -1161,7 +1182,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .route-map-heading h2 { font-size: var(--font-size-section); }
   .route-map-heading > span { margin: 0; }
   .route-map-canvas { width: 100%; margin: 24px 0 0; }
-  .map-airports text { font-size: 0.75rem; }
+  .map-airports .map-airport-label { font-size: 0.75rem; }
+  .map-airports .map-airport-label.is-secondary { display: none; }
   .passport-highlights, .year-history { margin-top: 16px; padding: 20px; }
   .passport-highlights > .section-heading, .year-history > .section-heading { margin-bottom: 18px; }
   .highlight-list > div { grid-template-columns: 1fr; gap: 8px; }

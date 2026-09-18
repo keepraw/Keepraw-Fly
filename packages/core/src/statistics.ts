@@ -67,7 +67,7 @@ export function calculatePassportStatistics(
 ): PassportStatistics {
   const airlineCounts = new Map<string, number>();
   const airportCounts = new Map<string, number>();
-  const countryCodes = new Set<string>();
+  const countryCodes = collectVisitedCountryCodes(flights);
   const aircraftTypes = new Set<string>();
   const distances: FlightDistanceRecord[] = [];
   let durationMinutes = 0;
@@ -77,11 +77,6 @@ export function calculatePassportStatistics(
     if (airlineCode) increment(airlineCounts, airlineCode);
     increment(airportCounts, flight.origin.iata);
     increment(airportCounts, flight.destination.iata);
-
-    for (const iata of [flight.origin.iata, flight.destination.iata]) {
-      const country = airportByIata.get(iata)?.country;
-      if (country) countryCodes.add(country);
-    }
 
     const type = aircraftType(flight);
     if (type) aircraftTypes.add(type);
@@ -106,6 +101,17 @@ export function calculatePassportStatistics(
     shortestFlight: rankedDistances[0] ?? null,
     longestFlight: rankedDistances.at(-1) ?? null,
   };
+}
+
+export function collectVisitedCountryCodes(flights: KeeprawFlight[]): Set<string> {
+  const countryCodes = new Set<string>();
+  for (const flight of flights) {
+    for (const iata of [flight.origin.iata, flight.destination.iata]) {
+      const country = airportByIata.get(iata)?.country;
+      if (country) countryCodes.add(country);
+    }
+  }
+  return countryCodes;
 }
 
 export function calculateYearStatistics(
