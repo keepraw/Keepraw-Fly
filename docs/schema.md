@@ -45,10 +45,24 @@ Advanced facts use namespaced keys:
     "keepraw-fly.aircraft": {
       "type": "B789",
       "registration": "N12345"
+    },
+    "keepraw-fly.seat": {
+      "seat": "14F",
+      "cabin": "economy",
+      "bookingClass": "P"
+    },
+    "keepraw-fly.baggage": {
+      "checkedBaggage": true,
+      "carousel": "8"
     }
   }
 }
 ```
+
+`bookingClass` stores the airline's single-letter booking class independently
+from the broader cabin class. `checkedBaggage` distinguishes an explicit
+carry-on-only journey (`false`) from an unrecorded baggage fact. `carousel` is
+optional and is only recorded when the user had checked baggage.
 
 Unknown extension values may be ignored for display but must be retained through
 normal import/edit/export operations.

@@ -6,6 +6,7 @@ import {
   airlineByIata,
   airportByIata,
   arrivalDelayMinutes,
+  baggageFacts,
   departureDelayMinutes,
   flightDuration,
   flightOperationalStatus,
@@ -46,7 +47,7 @@ interface FacilityStopProps {
   terminal?: string;
   gate?: string;
   terminalLabel: string;
-  gateLabel: string;
+  gateLabel?: string;
 }
 
 function FacilityStop({ role, iata, terminal, gate, terminalLabel, gateLabel }: FacilityStopProps) {
@@ -63,7 +64,7 @@ function FacilityStop({ role, iata, terminal, gate, terminalLabel, gateLabel }: 
           <span>{terminalLabel}</span>
           <strong>{terminal}</strong>
         </div> : null}
-        {gate ? <div className="gate-sign">
+        {gate && gateLabel ? <div className="gate-sign">
           <span>{gateLabel}</span>
           <strong>{gate}</strong>
         </div> : null}
@@ -87,6 +88,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
     : undefined;
   const aircraft = aircraftFacts(flight);
   const seat = seatFacts(flight);
+  const baggage = baggageFacts(flight);
   const departureDelay = departureDelayMinutes(flight);
   const arrivalDelay = arrivalDelayMinutes(flight);
   const duration = flightDuration(flight);
@@ -94,14 +96,15 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
   const hasFacilities = Boolean(
     flight.origin.terminal
     || flight.origin.gate
-    || flight.destination.terminal
-    || flight.destination.gate,
+    || flight.destination.terminal,
   );
   const hasFacts = Boolean(
     aircraft?.type
     || aircraft?.registration
     || seat?.seat
-    || seat?.cabin,
+    || seat?.cabin
+    || seat?.bookingClass
+    || baggage,
   );
   const dateLabel = formatServiceDate(flight.serviceDate, locale, {
     year: "numeric",
@@ -258,9 +261,7 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
               role={t("flightDetail.arrival")}
               iata={flight.destination.iata}
               terminal={flight.destination.terminal}
-              gate={flight.destination.gate}
               terminalLabel={t("flightDetail.terminal")}
-              gateLabel={t("flightDetail.gate")}
             />
           </div>
         </section> : null}
@@ -278,7 +279,15 @@ export function FlightDetailPage({ flight, locale, timeFormat, onBack, onEdit, o
             <DetailItem label={t("flightDetail.aircraft")} value={aircraft?.type} />
             <DetailItem label={t("flightDetail.registration")} value={aircraft?.registration} />
             <DetailItem label={t("flightDetail.seat")} value={seat?.seat} />
-            <DetailItem label={t("flightDetail.cabin")} value={seat?.cabin} />
+            <DetailItem label={t("flightDetail.bookingClass")} value={seat?.bookingClass} />
+            <DetailItem label={t("flightDetail.cabinClass")} value={seat?.cabin} />
+            <DetailItem
+              label={t("flightDetail.checkedBaggage")}
+              value={baggage?.checkedBaggage === undefined
+                ? undefined
+                : t(baggage.checkedBaggage ? "flightDetail.hasCheckedBaggage" : "flightDetail.noCheckedBaggage")}
+            />
+            <DetailItem label={t("flightDetail.baggageCarousel")} value={baggage?.carousel} />
           </dl>
         </section> : null}
       </section>

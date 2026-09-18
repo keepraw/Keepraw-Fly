@@ -4,6 +4,7 @@ import {
   flightFromDraft,
   flightToDraft,
   splitFlightNumberInput,
+  type FlightDraft,
   zonedDateTimeToIso,
 } from "./flight-editor";
 
@@ -73,11 +74,13 @@ describe("flight editor data", () => {
       originTerminal: "",
       originGate: "",
       destinationTerminal: "",
-      destinationGate: "",
       aircraftType: "",
       aircraftRegistration: "",
       seat: "",
       cabin: "",
+      bookingClass: "",
+      baggageStatus: "",
+      baggageCarousel: "",
     });
 
     expect(flight.id).toBe("flight-test-id");
@@ -110,11 +113,13 @@ describe("flight editor data", () => {
       originTerminal: "",
       originGate: "",
       destinationTerminal: "",
-      destinationGate: "",
       aircraftType: "",
       aircraftRegistration: "",
       seat: "",
       cabin: "",
+      bookingClass: "",
+      baggageStatus: "",
+      baggageCarousel: "",
     })).toThrow("arrival-before-departure");
   });
 
@@ -129,11 +134,13 @@ describe("flight editor data", () => {
       originTerminal: "1",
       originGate: "18",
       destinationTerminal: "B",
-      destinationGate: "204",
       aircraftType: "B773",
       aircraftRegistration: "B-7883",
       seat: "31L",
       cabin: "economy",
+      bookingClass: "P",
+      baggageStatus: "checked",
+      baggageCarousel: "8",
     }, {
       ...flightFromDraft(baseDraft()),
       extensions: {
@@ -151,11 +158,23 @@ describe("flight editor data", () => {
       type: "B773",
       registration: "B-7883",
     });
+    expect(flight.extensions?.["keepraw-fly.seat"]).toEqual({
+      seat: "31L",
+      cabin: "economy",
+      bookingClass: "P",
+    });
+    expect(flight.extensions?.["keepraw-fly.baggage"]).toEqual({
+      checkedBaggage: true,
+      carousel: "8",
+    });
     expect(flightToDraft(flight)).toMatchObject({
       actualDepartureTime: "13:17",
       actualArrivalTime: "09:22",
       aircraftType: "B773",
       seat: "31L",
+      bookingClass: "P",
+      baggageStatus: "checked",
+      baggageCarousel: "8",
     });
     vi.unstubAllGlobals();
   });
@@ -165,6 +184,48 @@ describe("flight editor data", () => {
       ...baseDraft(),
       actualDepartureDate: "2026-08-21",
     })).toThrow("incomplete-actual-time");
+  });
+
+  it("stores an explicit no-checked-baggage fact without a carousel", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "carry-on-id" });
+    const flight = flightFromDraft({
+      ...baseDraft(),
+      baggageStatus: "not-checked",
+      baggageCarousel: "8",
+    });
+
+    expect(flight.extensions?.["keepraw-fly.baggage"]).toEqual({
+      checkedBaggage: false,
+    });
+    expect(flightToDraft(flight)).toMatchObject({
+      baggageStatus: "not-checked",
+      baggageCarousel: "",
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it("accepts one-letter booking classes and rejects ambiguous values", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "booking-class-id" });
+    const flight = flightFromDraft({ ...baseDraft(), bookingClass: "p" });
+
+    expect(flight.extensions?.["keepraw-fly.seat"]).toEqual({ bookingClass: "P" });
+    expect(() => flightFromDraft({ ...baseDraft(), bookingClass: "PP" }))
+      .toThrow("invalid-booking-class");
+    vi.unstubAllGlobals();
+  });
+
+  it("does not expose a legacy destination gate while preserving imported data", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "legacy-gate-id" });
+    const existing = {
+      ...flightFromDraft(baseDraft()),
+      destination: { iata: "SFO", terminal: "I", gate: "72A" },
+    };
+    const draft = flightToDraft(existing);
+    const edited = flightFromDraft(draft, existing);
+
+    expect(draft).not.toHaveProperty("destinationGate");
+    expect(edited.destination).toEqual({ iata: "SFO", terminal: "I", gate: "72A" });
+    vi.unstubAllGlobals();
   });
 
   it("accepts an unlisted airline code and builds the complete flight number", () => {
@@ -202,7 +263,7 @@ describe("flight editor data", () => {
   });
 });
 
-function baseDraft() {
+function baseDraft(): FlightDraft {
   return {
     airlineCode: "MU",
     serviceNumber: "583",
@@ -219,10 +280,12 @@ function baseDraft() {
     originTerminal: "",
     originGate: "",
     destinationTerminal: "",
-    destinationGate: "",
     aircraftType: "",
     aircraftRegistration: "",
     seat: "",
     cabin: "",
+    bookingClass: "",
+    baggageStatus: "",
+    baggageCarousel: "",
   };
 }

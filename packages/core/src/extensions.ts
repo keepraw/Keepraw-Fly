@@ -11,6 +11,11 @@ function stringField(value: Record<string, JsonValue> | null, field: string): st
   return typeof candidate === "string" ? candidate : undefined;
 }
 
+function booleanField(value: Record<string, JsonValue> | null, field: string): boolean | undefined {
+  const candidate = value?.[field];
+  return typeof candidate === "boolean" ? candidate : undefined;
+}
+
 export interface AircraftFacts {
   type?: string;
   registration?: string;
@@ -19,6 +24,12 @@ export interface AircraftFacts {
 export interface SeatFacts {
   seat?: string;
   cabin?: string;
+  bookingClass?: string;
+}
+
+export interface BaggageFacts {
+  checkedBaggage?: boolean;
+  carousel?: string;
 }
 
 export function aircraftFacts(flight: KeeprawFlight): AircraftFacts | null {
@@ -37,7 +48,17 @@ export function seatFacts(flight: KeeprawFlight): SeatFacts | null {
   const facts = {
     seat: stringField(extension, "seat"),
     cabin: stringField(extension, "cabin"),
+    bookingClass: stringField(extension, "bookingClass"),
   };
-  return facts.seat || facts.cabin ? facts : null;
+  return facts.seat || facts.cabin || facts.bookingClass ? facts : null;
 }
 
+export function baggageFacts(flight: KeeprawFlight): BaggageFacts | null {
+  const extension = asObject(flight.extensions?.["keepraw-fly.baggage"]);
+  if (!extension) return null;
+  const facts = {
+    checkedBaggage: booleanField(extension, "checkedBaggage"),
+    carousel: stringField(extension, "carousel"),
+  };
+  return facts.checkedBaggage !== undefined || facts.carousel ? facts : null;
+}

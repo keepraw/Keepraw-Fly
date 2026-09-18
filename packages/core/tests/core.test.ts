@@ -7,6 +7,7 @@ import {
   airportCityGroupForAirport,
   airports,
   aircraftFacts,
+  baggageFacts,
   buildRouteSegments,
   calculateYearStatistics,
   calculatePassportStatistics,
@@ -21,6 +22,7 @@ import {
   recentAirportCodes,
   searchFlights,
   searchAirports,
+  seatFacts,
 } from "../src";
 import type { CompactAirportRow } from "../src";
 
@@ -81,6 +83,27 @@ describe("flight calculations", () => {
       type: "B789",
       registration: "N12345",
     });
+  });
+
+  it("reads booking class and baggage facts without inferring missing values", () => {
+    const withPersonalFacts: KeeprawFlight = {
+      ...flight,
+      extensions: {
+        "keepraw-fly.seat": { seat: "14F", cabin: "economy", bookingClass: "P" },
+        "keepraw-fly.baggage": { checkedBaggage: true, carousel: "8" },
+      },
+    };
+
+    expect(seatFacts(withPersonalFacts)).toEqual({
+      seat: "14F",
+      cabin: "economy",
+      bookingClass: "P",
+    });
+    expect(baggageFacts(withPersonalFacts)).toEqual({
+      checkedBaggage: true,
+      carousel: "8",
+    });
+    expect(baggageFacts({ ...flight, extensions: undefined })).toBeNull();
   });
 
   it("derives status from the latest recorded operational event", () => {
