@@ -363,7 +363,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
 
   await page.locator(".flight-row").first().click();
   await expect(page.locator(".detail-route-map-canvas > svg")).toBeVisible();
-  await expect(page.locator(".detail-map-route")).toHaveCount(3);
+  await expect(page.locator(".detail-map-route")).toHaveCount(1);
   await expect(page.locator(".gate-sign").first()).toBeVisible();
   const detailPresentation = await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".detail-flight-card");
@@ -422,6 +422,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
       routeFilter: getComputedStyle(document.querySelector<SVGGElement>(".map-routes")!).filter,
       svgDefinitions: map.querySelectorAll("defs").length,
       visitedCountries: map.querySelectorAll(".map-country.is-visited").length,
+      worldSilhouettes: map.querySelectorAll(".map-world > .map-sphere").length,
       switcherBorderRadius: switcherStyle.borderRadius,
       switcherBackgroundImage: switcherStyle.backgroundImage,
       yearHistoryDisplay: getComputedStyle(yearHistory).display,
@@ -429,7 +430,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   });
   expect(passportPresentation).toEqual({
     canvasHasDepth: true,
-    countryPaths: 354,
+    countryPaths: 177,
     graticules: 0,
     highlightsDisplay: "block",
     mapBorderRadius: "4px",
@@ -439,7 +440,8 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     svgDefinitions: 1,
     switcherBorderRadius: "4px",
     switcherBackgroundImage: "none",
-    visitedCountries: 18,
+    visitedCountries: 9,
+    worldSilhouettes: 1,
     zoomControls: 3,
     yearHistoryDisplay: "block",
   });
@@ -450,6 +452,15 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   await page.getByRole("button", { name: "Show the whole world" }).click();
   await page.waitForTimeout(280);
   expect(await page.locator(".route-map-canvas").getAttribute("data-zoom")).toBe("1.00");
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await page.waitForTimeout(260);
+  }
+  expect(await page.locator(".route-map-canvas").getAttribute("data-zoom")).toBe("6.00");
+  await expect(page.locator(".route-map-canvas .map-world > .map-sphere")).toHaveCount(1);
+  await page.getByRole("button", { name: "Show the whole world" }).click();
+  await page.waitForTimeout(280);
 
   const mapSvg = page.locator(".route-map-canvas > svg");
   await mapSvg.hover({ position: { x: 220, y: 120 } });
@@ -464,6 +475,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   await page.mouse.move(mapBounds.x + mapBounds.width * 0.42, mapBounds.y + mapBounds.height * 0.48, { steps: 4 });
   await page.mouse.up();
   expect(await page.locator(".route-map-canvas .map-viewport-content").getAttribute("transform")).not.toBe(beforePan);
+  await expect(page.locator(".route-map-canvas .map-world > .map-sphere")).toHaveCount(1);
   await page.getByRole("button", { name: "Show the whole world" }).click();
   await page.waitForTimeout(280);
 });
@@ -529,7 +541,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   });
   expect(mapSurface).toBeGreaterThan(180);
   expect(Number(await page.locator(".detail-route-map-canvas").getAttribute("data-zoom"))).toBeGreaterThan(4);
-  await expect(page.locator(".detail-map-route")).toHaveCount(3);
+  await expect(page.locator(".detail-map-route")).toHaveCount(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);

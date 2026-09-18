@@ -4,17 +4,17 @@ import {
   fitProjectedPoints,
   flightRouteCamera,
   passportMapCamera,
-  unwrappedGreatCirclePath,
-  unwrapProjectedPoints,
   WORLD_CAMERA,
 } from "./map-camera";
-import { sampleGreatCircle, WORLD_WIDTH } from "./map-geometry";
+import { greatCirclePath } from "./map-geometry";
 
 const SZX: RoutePoint = { iata: "SZX", latitude: 22.6393, longitude: 113.8107 };
 const TAO: RoutePoint = { iata: "TAO", latitude: 36.2661, longitude: 120.3744 };
 const HKG: RoutePoint = { iata: "HKG", latitude: 22.308, longitude: 113.9185 };
 const LHR: RoutePoint = { iata: "LHR", latitude: 51.47, longitude: -0.4543 };
 const SFO: RoutePoint = { iata: "SFO", latitude: 37.6213, longitude: -122.379 };
+const NRT: RoutePoint = { iata: "NRT", latitude: 35.772, longitude: 140.3929 };
+const LAX: RoutePoint = { iata: "LAX", latitude: 33.9416, longitude: -118.4085 };
 
 describe("map camera", () => {
   it("keeps regional passport framing restrained", () => {
@@ -46,14 +46,15 @@ describe("map camera", () => {
     expect(camera.zoom).toBeLessThan(4);
   });
 
-  it("unwraps a transpacific route across the antimeridian", () => {
-    const points = unwrapProjectedPoints(sampleGreatCircle(HKG, SFO, 72));
-    const span = Math.max(...points.map((point) => point.x)) - Math.min(...points.map((point) => point.x));
-    const camera = flightRouteCamera(HKG, SFO);
+  it.each([
+    [HKG, SFO],
+    [NRT, LAX],
+  ])("keeps the fixed world camera when a route crosses the antimeridian", (origin, destination) => {
+    const camera = flightRouteCamera(origin, destination);
+    const path = greatCirclePath(origin, destination);
 
-    expect(span).toBeLessThan(WORLD_WIDTH / 2);
-    expect(camera.zoom).toBeGreaterThan(1);
-    expect(unwrappedGreatCirclePath(HKG, SFO).match(/M/g)).toHaveLength(1);
+    expect(camera).toEqual(WORLD_CAMERA);
+    expect(path.match(/M/g)?.length).toBeGreaterThan(1);
   });
 
   it("handles one point and global coverage without invalid cameras", () => {

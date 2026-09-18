@@ -42,20 +42,14 @@ export function flightRouteCamera(origin: RoutePoint, destination: RoutePoint): 
   });
 }
 
-export function unwrappedGreatCirclePath(origin: RoutePoint, destination: RoutePoint, steps = 72): string {
-  const points = unwrapProjectedPoints(sampleGreatCircle(origin, destination, steps));
-  return points.map((point, index) => `${index === 0 ? "M" : "L"}${round(point.x)},${round(point.y)}`).join("");
-}
-
 export function fitProjectedPoints(
   points: ProjectedPoint[],
   options: { maxZoom: number; padding: number },
 ): MapCamera {
   if (points.length === 0) return WORLD_CAMERA;
 
-  const unwrapped = unwrapProjectedPoints(points);
-  const xs = unwrapped.map((point) => point.x);
-  const ys = unwrapped.map((point) => point.y);
+  const xs = points.map((point) => point.x);
+  const ys = points.map((point) => point.y);
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
   const minY = Math.min(...ys);
@@ -73,45 +67,4 @@ export function fitProjectedPoints(
     centerY: (minY + maxY) / 2,
     zoom,
   };
-}
-
-export function unwrapProjectedPoints(points: ProjectedPoint[]): ProjectedPoint[] {
-  if (points.length < 2) return points;
-
-  const xs = points
-    .map((point) => normalizeX(point.x))
-    .sort((left, right) => left - right);
-  let largestGap = -1;
-  let cut = 0;
-
-  for (let index = 0; index < xs.length; index += 1) {
-    const current = xs[index]!;
-    const next = index === xs.length - 1 ? xs[0]! + WORLD_WIDTH : xs[index + 1]!;
-    const gap = next - current;
-    if (gap > largestGap) {
-      largestGap = gap;
-      cut = normalizeX(next);
-    }
-  }
-
-  return points.map((point) => {
-    const x = normalizeX(point.x);
-    return { x: x < cut ? x + WORLD_WIDTH : x, y: point.y };
-  });
-}
-
-export function wrapXNear(x: number, centerX: number): number {
-  const normalized = normalizeX(x);
-  const candidates = [normalized, normalized + WORLD_WIDTH];
-  return candidates.reduce((closest, candidate) => (
-    Math.abs(candidate - centerX) < Math.abs(closest - centerX) ? candidate : closest
-  ));
-}
-
-function normalizeX(x: number): number {
-  return ((x % WORLD_WIDTH) + WORLD_WIDTH) % WORLD_WIDTH;
-}
-
-function round(value: number): number {
-  return Math.round(value * 10) / 10;
 }
