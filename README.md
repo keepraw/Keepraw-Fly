@@ -16,9 +16,10 @@ search results, delays, distances and passport statistics in the viewer.
 - Keepraw Fly 0.1 JSON Schema and Ajv validator with useful error paths
 - a 24-flight fictional demo archive spanning multiple countries and timezones
 - first-run archive creation with no JSON file required and a clearly labelled demo mode
-- a guided form for scheduled and actual local times, airport facts, aircraft and seat details
+- a single-field flight-number form with offline IATA/ICAO airline resolution, plus scheduled/actual local times, ticket, loyalty, airport, aircraft and seat facts
 - faster repeat entry with recent-airport suggestions and a duplicate-as-new action that never reuses the original record ID
 - an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones, shipped as a separately cached static asset
+- offline bilingual airline references and a Wikidata CC0 Chinese airport-localization overlay
 - multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
 - premium, searchable trip cards with airport cities, local times and operational status
 - responsive flight detail with a high-contrast route panel, local-time hierarchy and layered fact cards
@@ -115,6 +116,8 @@ Airport reference data is generated from the MIT-licensed
 with the static viewer as a separate local asset. It is reference data only—not a live schedule or flight
 status service. See [third-party notices](THIRD_PARTY_NOTICES.md) and run
 `pnpm update:airports` when intentionally refreshing the pinned snapshot.
+Run `pnpm update:airlines` or `pnpm update:airport-locales` to refresh the
+checked-in Wikidata CC0 reference overlays; the viewer never fetches them at runtime.
 
 The Passport basemap is generated from pinned, public-domain Natural Earth
 vector data with the ISC-licensed `d3-geo` projection library. The optimized

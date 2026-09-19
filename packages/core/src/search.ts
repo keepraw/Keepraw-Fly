@@ -1,5 +1,6 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { airlineByIata, airportByIata } from "./reference-data";
+import { airportByIata } from "./reference-data";
+import { airlineSearchText } from "./airline-reference";
 import { normalizeSearchValue } from "./normalization";
 
 function extensionSearchText(flight: KeeprawFlight): string {
@@ -26,17 +27,13 @@ function airportSearchText(iata: string): string {
 
 export function flightSearchText(flight: KeeprawFlight): string {
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
-  const airline = flight.airline.iata
-    ? airlineByIata.get(flight.airline.iata)
-    : undefined;
-
   return normalizeSearchValue([
     flight.flightNumber,
     flight.flightNumber.replace(/[\s-]+/g, ""),
     airlineCode,
     flight.serviceDate,
     flight.serviceDate.slice(0, 4),
-    airline ? Object.values(airline.name).join(" ") : "",
+    airlineSearchText(flight.airline),
     airportSearchText(flight.origin.iata),
     airportSearchText(flight.destination.iata),
     extensionSearchText(flight),

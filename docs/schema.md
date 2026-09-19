@@ -54,10 +54,29 @@ Advanced facts use namespaced keys:
     "keepraw-fly.baggage": {
       "checkedBaggage": true,
       "carousel": "8"
+    },
+    "keepraw-fly.ticket": {
+      "number": "7811234567890"
+    },
+    "keepraw-fly.frequent-flyer": {
+      "membershipId": "membership-zh",
+      "programName": "PhoenixMiles",
+      "memberNumber": "ZH123456",
+      "tier": "Gold"
     }
   }
 }
 ```
+
+The document-level `keepraw-fly.frequent-flyer` extension stores a
+`memberships` array with stable IDs, program/member identifiers, current tier,
+associated airline codes and optional airline defaults. A flight-level value
+is an immutable snapshot of the membership facts used for that journey.
+Changing a profile tier does not rewrite historical flight snapshots.
+
+Standard 13-digit ticket numbers are stored as digits and displayed with the
+three-digit airline prefix separated by a hyphen. Non-standard values are
+preserved as entered.
 
 `bookingClass` stores the airline's single-letter booking class independently
 from the broader cabin class. `checkedBaggage` distinguishes an explicit

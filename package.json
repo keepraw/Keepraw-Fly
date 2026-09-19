@@ -12,6 +12,8 @@
     "build": "pnpm -r build",
     "preview": "pnpm --filter @keepraw-fly/web preview",
     "update:airports": "node scripts/update-airports.mjs",
+    "update:airlines": "node scripts/update-airlines.mjs",
+    "update:airport-locales": "node scripts/update-airport-locales.mjs",
     "update:world-map": "node scripts/update-world-map.mjs",
     "test": "pnpm -r test",
     "test:e2e": "playwright test",
@@ -22,6 +24,7 @@
     "@playwright/test": "^1.63.0",
     "@types/node": "^24.3.0",
     "d3-geo": "3.1.1",
+    "opencc-js": "1.4.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

@@ -12,3 +12,6 @@ import/edit/export round trip.
 Viewer preferences such as language, appearance, units and time format are not
 part of this document. They belong to local application storage.
 
+Keepraw Fly's ticket and frequent-flyer UI uses namespaced document/flight
+extensions, so archives remain format version `0.1.0` and older 0.1.0 files
+continue to validate unchanged.

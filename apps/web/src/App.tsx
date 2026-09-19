@@ -16,7 +16,12 @@ import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind } from "./storage/adapter";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
-import { recentAirportCodes } from "@keepraw-fly/core";
+import {
+  frequentFlyerMemberships,
+  recentAirportCodes,
+  withFrequentFlyerMemberships,
+  type FrequentFlyerMembership,
+} from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
 
@@ -48,6 +53,7 @@ export function App() {
     () => recentAirportCodes(document?.flights ?? []),
     [document?.flights],
   );
+  const memberships = useMemo(() => document ? frequentFlyerMemberships(document) : [], [document]);
 
   useEffect(() => {
     let active = true;
@@ -134,6 +140,15 @@ export function App() {
     });
   }
 
+  async function updateMemberships(nextMemberships: readonly FrequentFlyerMembership[]) {
+    if (!document) return;
+    const extensions = withFrequentFlyerMemberships(document.extensions, nextMemberships);
+    const nextDocument = { ...document };
+    if (extensions) nextDocument.extensions = extensions;
+    else delete nextDocument.extensions;
+    await storeDocument(nextDocument);
+  }
+
   async function clearDocument() {
     try {
       await browserStorage.clearDocument();
@@ -204,7 +219,9 @@ export function App() {
       {storageError || (document && archiveKind === "demo") ? (
         <div className="page-notices">
           {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
-          {document && archiveKind === "demo" ? <DemoBanner onCreateArchive={createArchive} /> : null}
+          {document && archiveKind === "demo" ? (
+            <DemoBanner compact={page === "flights" && Boolean(selectedFlight)} onCreateArchive={createArchive} />
+          ) : null}
         </div>
       ) : null}
       {page === "settings" ? (
@@ -217,6 +234,7 @@ export function App() {
           onClear={document ? clearDocument : undefined}
           onSettingsChange={storeSettings}
           onProfileChange={updateProfile}
+          onMembershipsChange={updateMemberships}
         />
       ) : !document ? (
         <EmptyState
@@ -279,6 +297,7 @@ export function App() {
           preferredAirportCodes={preferredAirportCodes}
           returnFocus={editorReturnFocusRef.current}
           locale={locale}
+          memberships={memberships}
           onSave={saveFlight}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
           onCancel={() => { setEditorFlightId(null); setDuplicateTemplate(null); }}

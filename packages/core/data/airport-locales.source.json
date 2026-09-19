@@ -1,0 +1,15 @@
+{
+  "source": "Wikidata",
+  "endpoint": "https://query.wikidata.org/sparql",
+  "retrievedAt": "2026-09-19T04:03:50.484Z",
+  "license": "CC0-1.0",
+  "count": 4469,
+  "normalizedAt": "2026-09-19T08:35:31.158Z",
+  "languagePriority": [
+    "zh-hans",
+    "zh-cn",
+    "zh",
+    "en"
+  ],
+  "normalization": "OpenCC Traditional Chinese to Mainland Simplified Chinese at update time"
+}
