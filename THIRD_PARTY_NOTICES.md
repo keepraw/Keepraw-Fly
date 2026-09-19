@@ -15,6 +15,27 @@ in `packages/core/data/LICENSE.airportsdata`.
 Run `pnpm update:airports` to refresh the generated airport data from a pinned
 upstream revision.
 
+## Wikidata airline and airport localization references
+
+Keepraw Fly bundles an offline airline code/name reference and a Chinese airport
+name/city overlay generated from [Wikidata](https://www.wikidata.org/). Wikidata
+structured data is available under the Creative Commons CC0 1.0 dedication.
+Snapshot metadata is recorded in `packages/core/data/airlines.source.json` and
+`packages/core/data/airport-locales.source.json`.
+`airline-overrides.json` contains a small maintained correction layer for
+current high-use carriers where Wikidata reuses a designator for a subsidiary,
+historic operator or branded service; it is applied after the generated data.
+
+Run `pnpm update:airlines` and `pnpm update:airport-locales` to refresh these
+checked-in runtime datasets. The application never queries Wikidata at runtime.
+
+## OpenCC.js
+
+Keepraw Fly uses [OpenCC.js](https://github.com/nk2028/opencc-js), version
+1.4.1, under the Apache License 2.0. It is a development-only dependency used
+by the airport localization update script to normalize generated labels to
+Mainland Simplified Chinese. It is not included in the browser runtime.
+
 ## Natural Earth Vector
 
 Keepraw Fly bundles optimized SVG paths generated from the Natural Earth Vector

@@ -1,6 +1,7 @@
 export * from "./calculations";
 export * from "./airport-search";
 export * from "./airport-cities";
+export * from "./airline-reference";
 export * from "./extensions";
 export * from "./entry-history";
 export * from "./formatting";
@@ -9,3 +10,4 @@ export * from "./routes";
 export * from "./search";
 export * from "./sorting";
 export * from "./statistics";
+export * from "./travel-extensions";

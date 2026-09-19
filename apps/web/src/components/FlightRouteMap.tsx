@@ -28,10 +28,7 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
   return (
     <section className="detail-route-map" aria-labelledby="detail-route-map-title">
       <header className="detail-route-map-heading">
-        <div>
-          <p className="eyebrow">{t("flightDetail.routeAtlas")}</p>
-          <h2 id="detail-route-map-title">{flight.origin.iata} → {flight.destination.iata}</h2>
-        </div>
+        <h2 id="detail-route-map-title">{flight.origin.iata} → {flight.destination.iata}</h2>
         <p>{t("flightDetail.routeAtlasDescription")}</p>
       </header>
       <MapViewport

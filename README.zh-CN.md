@@ -108,6 +108,8 @@ docs/                  架构、数据格式与部署说明
 [airportsdata](https://github.com/mborsetti/airportsdata) 项目生成，并作为独立的本地静态资源随查看器分发。
 它只提供机场参考信息，不是实时航班计划或状态服务。来源和许可证见
 [第三方声明](THIRD_PARTY_NOTICES.md)；需要主动更新固定版本时可运行 `pnpm update:airports`。
+航司中英文名称与机场中文名覆盖层来自 Wikidata CC0，并完整打包为离线资源；可分别运行
+`pnpm update:airlines` 与 `pnpm update:airport-locales` 更新，查看器运行时不会请求网络。
 
 飞行护照底图由固定版本、公共领域的 Natural Earth 矢量数据和采用 ISC 许可证的
 `d3-geo` 投影库生成。优化后的 SVG 路径随应用离线打包，并仅在打开飞行护照时加载；

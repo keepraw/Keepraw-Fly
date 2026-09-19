@@ -9,6 +9,23 @@ import {
 } from "./flight-editor";
 
 describe("flight editor data", () => {
+  it.each(["ZH9911", "zh9911", "ZH 9911", "ZH-9911"])("normalizes %s as one flight-number field", (value) => {
+    expect(splitFlightNumberInput(value)).toMatchObject({
+      canonical: "ZH9911",
+      airline: { iata: "ZH", icao: "CSZ" },
+    });
+  });
+
+  it.each(["3U8633", "6E203", "9C8835"])("accepts numeric IATA designators in %s", (value) => {
+    expect(splitFlightNumberInput(value)?.canonical).toBe(value);
+  });
+
+  it("resolves a known ICAO designator while preserving the entered flight identity", () => {
+    expect(splitFlightNumberInput("CCA123")).toMatchObject({
+      canonical: "CCA123",
+      airline: { iata: "CA", icao: "CCA" },
+    });
+  });
   it("creates a valid empty Keepraw Fly archive", () => {
     expect(createEmptyDocument()).toEqual({
       format: "keepraw-fly",
@@ -29,8 +46,7 @@ describe("flight editor data", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "cx954-id" });
     const flight = flightFromDraft({
       ...baseDraft(),
-      airlineCode: "CX",
-      serviceNumber: "954",
+      flightNumber: "CX954",
       originIata: "HKG",
       destinationIata: "TAO",
       departureTime: "09:00",
@@ -59,8 +75,7 @@ describe("flight editor data", () => {
   it("round-trips editable flight fields", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "test-id" });
     const flight = flightFromDraft({
-      airlineCode: "MU",
-      serviceNumber: "589",
+      flightNumber: "MU589",
       serviceDate: "2026-08-21",
       originIata: "PVG",
       destinationIata: "SFO",
@@ -81,13 +96,17 @@ describe("flight editor data", () => {
       bookingClass: "",
       baggageStatus: "",
       baggageCarousel: "",
+      ticketNumber: "",
+      frequentFlyerMembershipId: "",
+      frequentFlyerProgramName: "",
+      frequentFlyerMemberNumber: "",
+      frequentFlyerTier: "",
     });
 
     expect(flight.id).toBe("flight-test-id");
     expect(flight.flightNumber).toBe("MU589");
     expect(flightToDraft(flight)).toMatchObject({
-      airlineCode: "MU",
-      serviceNumber: "589",
+      flightNumber: "MU589",
       serviceDate: "2026-08-21",
       departureTime: "13:00",
       arrivalDate: "2026-08-21",
@@ -98,8 +117,7 @@ describe("flight editor data", () => {
 
   it("rejects an arrival instant before departure", () => {
     expect(() => flightFromDraft({
-      airlineCode: "MU",
-      serviceNumber: "001",
+      flightNumber: "MU001",
       serviceDate: "2026-08-21",
       originIata: "PVG",
       destinationIata: "PEK",
@@ -120,6 +138,11 @@ describe("flight editor data", () => {
       bookingClass: "",
       baggageStatus: "",
       baggageCarousel: "",
+      ticketNumber: "",
+      frequentFlyerMembershipId: "",
+      frequentFlyerProgramName: "",
+      frequentFlyerMemberNumber: "",
+      frequentFlyerTier: "",
     })).toThrow("arrival-before-departure");
   });
 
@@ -179,6 +202,65 @@ describe("flight editor data", () => {
     vi.unstubAllGlobals();
   });
 
+  it("round-trips ticket and frequent-flyer snapshots through extensions", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "travel-id" });
+    const flight = flightFromDraft({
+      ...baseDraft(),
+      ticketNumber: "781-1234567890",
+      frequentFlyerMembershipId: "membership-zh",
+      frequentFlyerProgramName: "尊鹏俱乐部",
+      frequentFlyerMemberNumber: "ZH123456",
+      frequentFlyerTier: "金卡",
+    });
+    expect(flight.extensions?.["keepraw-fly.ticket"]).toEqual({ number: "7811234567890" });
+    expect(flight.extensions?.["keepraw-fly.frequent-flyer"]).toEqual({
+      membershipId: "membership-zh",
+      programName: "尊鹏俱乐部",
+      memberNumber: "ZH123456",
+      tier: "金卡",
+    });
+    expect(flightToDraft(flight)).toMatchObject({ ticketNumber: "7811234567890", frequentFlyerTier: "金卡" });
+    vi.unstubAllGlobals();
+  });
+
+  it("duplicates membership intent with the current profile tier but clears journey-specific facts", () => {
+    const original = flightFromDraft({
+      ...baseDraft(),
+      actualDepartureDate: "2026-08-21",
+      actualDepartureTime: "13:10",
+      actualArrivalDate: "2026-08-21",
+      actualArrivalTime: "09:15",
+      ticketNumber: "7811234567890",
+      originGate: "18",
+      aircraftRegistration: "B-1234",
+      seat: "12A",
+      frequentFlyerMembershipId: "membership-zh",
+      frequentFlyerProgramName: "尊鹏俱乐部",
+      frequentFlyerMemberNumber: "ZH123456",
+      frequentFlyerTier: "银卡",
+    });
+    const duplicate = flightToDraft(original, {
+      duplicate: true,
+      memberships: [{
+        id: "membership-zh",
+        programName: "尊鹏俱乐部",
+        memberNumber: "ZH123456",
+        tier: "金卡",
+        associatedAirlines: ["ZH"],
+      }],
+    });
+    expect(duplicate).toMatchObject({
+      ticketNumber: "",
+      actualDepartureDate: "",
+      actualArrivalDate: "",
+      originGate: "",
+      aircraftRegistration: "",
+      seat: "",
+      frequentFlyerMembershipId: "membership-zh",
+      frequentFlyerTier: "金卡",
+    });
+  });
+
   it("requires both date and time for an actual event", () => {
     expect(() => flightFromDraft({
       ...baseDraft(),
@@ -232,21 +314,19 @@ describe("flight editor data", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "small-airline-id" });
     const flight = flightFromDraft({
       ...baseDraft(),
-      airlineCode: "9c",
-      serviceNumber: "8835",
+      flightNumber: "9c8835",
     });
 
     expect(flight.flightNumber).toBe("9C8835");
-    expect(flight.airline).toEqual({ iata: "9C" });
+    expect(flight.airline).toMatchObject({ iata: "9C", icao: "CQH" });
     expect(flightToDraft(flight)).toMatchObject({
-      airlineCode: "9C",
-      serviceNumber: "8835",
+      flightNumber: "9C8835",
     });
     vi.unstubAllGlobals();
   });
 
   it("splits a pasted complete flight number and prevents an airline mismatch", () => {
-    expect(splitFlightNumberInput("mu 589")).toEqual({
+    expect(splitFlightNumberInput("mu 589")).toMatchObject({
       airlineCode: "MU",
       serviceNumber: "589",
     });
@@ -254,19 +334,17 @@ describe("flight editor data", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "pasted-id" });
     const flight = flightFromDraft({
       ...baseDraft(),
-      airlineCode: "CA",
-      serviceNumber: "MU589",
+      flightNumber: "MU589",
     });
     expect(flight.flightNumber).toBe("MU589");
-    expect(flight.airline).toEqual({ iata: "MU" });
+    expect(flight.airline).toMatchObject({ iata: "MU", icao: "CES" });
     vi.unstubAllGlobals();
   });
 });
 
 function baseDraft(): FlightDraft {
   return {
-    airlineCode: "MU",
-    serviceNumber: "583",
+    flightNumber: "MU583",
     serviceDate: "2026-08-21",
     originIata: "PVG",
     destinationIata: "SFO",
@@ -287,5 +365,10 @@ function baseDraft(): FlightDraft {
     bookingClass: "",
     baggageStatus: "",
     baggageCarousel: "",
+    ticketNumber: "",
+    frequentFlyerMembershipId: "",
+    frequentFlyerProgramName: "",
+    frequentFlyerMemberNumber: "",
+    frequentFlyerTier: "",
   };
 }

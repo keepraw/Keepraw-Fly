@@ -228,9 +228,7 @@ function flightFromCsvRow(
     id: `flight-${idFactory()}`,
     flightNumber: `${identity.airlineCode}${identity.serviceNumber}`,
     serviceDate,
-    airline: identity.airlineCode.length === 2
-      ? { iata: identity.airlineCode }
-      : { icao: identity.airlineCode },
+    airline: identity.airline,
     origin: { iata: originIata },
     destination: { iata: destinationIata },
     scheduledDeparture,

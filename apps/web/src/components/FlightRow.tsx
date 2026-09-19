@@ -2,13 +2,14 @@ import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
-  airlineByIata,
+  airlineNames,
   airportByIata,
   arrivalDelayMinutes,
   departureDelayMinutes,
   flightOperationalStatus,
   formatServiceDate,
   formatTimeAtAirport,
+  resolveAirline,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
@@ -27,9 +28,8 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
-  const airlineName = flight.airline.iata
-    ? airlineByIata.get(flight.airline.iata)?.name[locale]
-    : undefined;
+  const airline = resolveAirline(flight.airline);
+  const airlineName = airline ? airlineNames(airline, locale)[0] : undefined;
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
   const departureTimestamp = flight.actualDeparture ?? flight.scheduledDeparture;

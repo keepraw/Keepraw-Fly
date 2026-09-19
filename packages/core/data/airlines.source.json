@@ -1,0 +1,7 @@
+{
+  "source": "Wikidata",
+  "endpoint": "https://query.wikidata.org/sparql",
+  "retrievedAt": "2026-09-19T04:05:48.293Z",
+  "license": "CC0-1.0",
+  "count": 859
+}

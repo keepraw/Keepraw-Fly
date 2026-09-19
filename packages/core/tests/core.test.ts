@@ -23,6 +23,14 @@ import {
   searchFlights,
   searchAirports,
   seatFacts,
+  airlineNames,
+  autoMatchedMembership,
+  formatTicketNumber,
+  frequentFlyerMemberships,
+  frequentFlyerSnapshot,
+  normalizeTicketNumber,
+  resolveAirline,
+  ticketFacts,
 } from "../src";
 import type { CompactAirportRow } from "../src";
 
@@ -195,15 +203,43 @@ describe("offline airport directory", () => {
     expect(airports.length).toBeGreaterThan(7_800);
     expect(airportByIata.get("TAO")).toMatchObject({
       iata: "TAO",
-      name: { en: "Qingdao Jiaodong International Airport", "zh-CN": "青岛胶东机场" },
+      name: { en: "Qingdao Jiaodong International Airport", "zh-CN": "青岛胶东国际机场" },
       city: { en: "Qingdao", "zh-CN": "青岛" },
       timezone: "Asia/Shanghai",
     });
     expect(airportByIata.get("SZX")).toMatchObject({
       iata: "SZX",
-      name: { en: "Shenzhen Bao'an International Airport", "zh-CN": "深圳宝安机场" },
+      name: { en: "Shenzhen Bao'an International Airport", "zh-CN": "深圳宝安国际机场" },
       city: { en: "Shenzhen", "zh-CN": "深圳" },
       timezone: "Asia/Shanghai",
+    });
+  });
+
+  it.each([
+    ["SZX", "深圳", "深圳宝安国际机场"],
+    ["TAO", "青岛", "青岛胶东国际机场"],
+    ["HKG", "香港", "香港国际机场"],
+    ["BOM", "孟买", "贾特拉帕蒂·希瓦吉·马哈拉杰国际机场"],
+    ["LAX", "洛杉矶", "洛杉矶国际机场"],
+    ["SFO", "旧金山", "旧金山国际机场"],
+    ["TPE", "桃园", "台湾桃园国际机场"],
+  ])("localizes %s for Chinese display", (code, city, name) => {
+    expect(airportByIata.get(code)).toMatchObject({ city: { "zh-CN": city }, name: { "zh-CN": name } });
+  });
+
+  it("stores generated zh-CN airport labels as simplified Chinese", () => {
+    const sfo = airportByIata.get("SFO")!;
+    expect(sfo.city["zh-CN"]).toBe("旧金山");
+    expect(sfo.name["zh-CN"]).toBe("旧金山国际机场");
+    expect(sfo.name["zh-CN"]).not.toMatch(/舊|國際|機場/);
+    expect(airportByIata.get("HKG")).toMatchObject({
+      city: { "zh-CN": "香港" },
+      name: { "zh-CN": "香港国际机场" },
+    });
+    expect(airportByIata.get("BOM")?.city["zh-CN"]).toBe("孟买");
+    expect(airportByIata.get("TPE")).toMatchObject({
+      city: { "zh-CN": "桃园" },
+      name: { "zh-CN": "台湾桃园国际机场" },
     });
   });
 
@@ -235,6 +271,42 @@ describe("offline airport directory", () => {
   it("adds maintained metropolitan corrections for New York and Chengdu", () => {
     expect(airportCityGroupByCode.get("NYC")?.airportCodes).toEqual(["EWR", "JFK", "LGA"]);
     expect(airportCityGroupByCode.get("CTU")?.airportCodes).toEqual(["CTU", "TFU"]);
+  });
+});
+
+describe("airline and travel references", () => {
+  it.each([
+    ["ZH", "CSZ", "深圳航空", "Shenzhen Airlines"],
+    ["3U", "CSC", "四川航空", "Sichuan Airlines"],
+    ["CCA", "CCA", "中国国际航空", "Air China"],
+  ])("resolves %s through IATA or ICAO", (code, icao, nameZh, nameEn) => {
+    const airline = resolveAirline(code)!;
+    expect(airline.icao).toBe(icao);
+    expect(airlineNames(airline, "zh-CN")).toEqual([nameZh, nameEn]);
+  });
+
+  it("normalizes standard tickets and preserves non-standard values", () => {
+    expect(normalizeTicketNumber("781-1234567890")).toBe("7811234567890");
+    expect(formatTicketNumber("7811234567890")).toBe("781-1234567890");
+    expect(normalizeTicketNumber("stock-control-7")).toBe("stock-control-7");
+    expect(ticketFacts({ ...flight, extensions: { "keepraw-fly.ticket": { number: "7811234567890" } } }))
+      .toEqual({ number: "7811234567890" });
+  });
+
+  it("matches one membership, requires a choice for ambiguity, and honors an explicit default", () => {
+    const base = { programName: "PhoenixMiles", memberNumber: "CA123", associatedAirlines: ["CA", "CCA"] };
+    const first = { ...base, id: "first" };
+    const second = { ...base, id: "second", memberNumber: "CA456" };
+    expect(autoMatchedMembership([first], { iata: "CA" })?.id).toBe("first");
+    expect(autoMatchedMembership([first, second], { iata: "CA" })).toBeUndefined();
+    expect(autoMatchedMembership([{ ...first, defaultForAirlines: ["CA"] }, second], { iata: "CA" })?.id).toBe("first");
+  });
+
+  it("reads profile memberships and immutable per-flight snapshots", () => {
+    const document = { extensions: { "keepraw-fly.frequent-flyer": { memberships: [{ id: "zh", programName: "尊鹏", memberNumber: "ZH123", tier: "金卡", associatedAirlines: ["ZH"] }] } } };
+    expect(frequentFlyerMemberships(document as never)[0]?.tier).toBe("金卡");
+    const snapshotted = { ...flight, extensions: { "keepraw-fly.frequent-flyer": { membershipId: "zh", programName: "尊鹏", memberNumber: "ZH123", tier: "银卡" } } };
+    expect(frequentFlyerSnapshot(snapshotted)?.tier).toBe("银卡");
   });
 });
 

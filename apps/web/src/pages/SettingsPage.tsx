@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
+import { frequentFlyerMemberships, type FrequentFlyerMembership } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
 import { AviationIcon, type AviationIconName } from "../components/AviationPrimitives";
 import { ImportControl } from "../components/ImportControl";
@@ -15,6 +16,7 @@ interface SettingsPageProps {
   onClear?: () => void | Promise<void>;
   onSettingsChange: (settings: ViewerSettings) => void | Promise<void>;
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
+  onMembershipsChange: (memberships: readonly FrequentFlyerMembership[]) => void | Promise<void>;
 }
 
 function SectionHeading({
@@ -45,9 +47,11 @@ export function SettingsPage({
   onClear,
   onSettingsChange,
   onProfileChange,
+  onMembershipsChange,
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const profileName = document?.profile.name;
+  const memberships = document ? frequentFlyerMemberships(document) : [];
 
   function updateSetting<Key extends keyof ViewerSettings>(
     key: Key,
@@ -72,6 +76,19 @@ export function SettingsPage({
       ...(romanized ? { romanized } : {}),
       ...(primary ? { primary } : {}),
     });
+  }
+
+  function updateMembership(id: string, patch: Partial<FrequentFlyerMembership>) {
+    void onMembershipsChange(memberships.map((membership) => membership.id === id ? { ...membership, ...patch } : membership));
+  }
+
+  function addMembership() {
+    void onMembershipsChange([...memberships, {
+      id: `membership-${crypto.randomUUID()}`,
+      programName: "",
+      memberNumber: "",
+      associatedAirlines: [],
+    }]);
   }
 
   return (
@@ -132,8 +149,27 @@ export function SettingsPage({
           </div>
         </section>
 
+        <section className="settings-section" aria-labelledby="settings-loyalty">
+          <SectionHeading icon="profile" number="04" title={t("settings.frequentFlyerProfiles")} titleId="settings-loyalty" />
+          <div className="settings-panel membership-editor">
+            <p className="settings-helper">{t("settings.frequentFlyerDescription")}</p>
+            {memberships.map((membership) => (
+              <fieldset className="membership-row" key={membership.id}>
+                <legend>{membership.programName || t("settings.newMembership")}</legend>
+                <label><span>{t("settings.programName")}</span><input value={membership.programName} onChange={(event) => updateMembership(membership.id, { programName: event.target.value })} /></label>
+                <label><span>{t("settings.memberNumber")}</span><input value={membership.memberNumber} onChange={(event) => updateMembership(membership.id, { memberNumber: event.target.value })} /></label>
+                <label><span>{t("settings.tier")}</span><input value={membership.tier ?? ""} onChange={(event) => updateMembership(membership.id, { tier: event.target.value })} /></label>
+                <label><span>{t("settings.associatedAirlines")}</span><input value={membership.associatedAirlines.join(", ")} placeholder="ZH, CA" onChange={(event) => updateMembership(membership.id, { associatedAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
+                <label><span>{t("settings.defaultForAirlines")}</span><input value={membership.defaultForAirlines?.join(", ") ?? ""} placeholder="ZH" onChange={(event) => updateMembership(membership.id, { defaultForAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
+                <button className="button-secondary membership-delete" type="button" onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}>{t("settings.removeMembership")}</button>
+              </fieldset>
+            ))}
+            <button className="button-secondary" type="button" disabled={!document} onClick={addMembership}>{t("settings.addMembership")}</button>
+          </div>
+        </section>
+
         <section className="settings-section" aria-labelledby="settings-advanced">
-          <SectionHeading icon="advanced" number="04" title={t("settings.advanced")} titleId="settings-advanced" />
+          <SectionHeading icon="advanced" number="05" title={t("settings.advanced")} titleId="settings-advanced" />
           <div className="settings-panel">
             <label className="toggle-row">
               <span><strong>{t("settings.powerUserMode")}</strong><small>{t("settings.powerUserDescription")}</small></span>

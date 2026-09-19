@@ -1,3 +1,5 @@
+import airportLocaleRows from "../data/airport-locales.json";
+
 export type SupportedLocale = "en" | "zh-CN";
 
 export interface LocalizedText {
@@ -16,12 +18,11 @@ export interface AirportReference {
   timezone: string;
 }
 
-export interface AirlineReferenceData {
-  iata: string;
-  name: LocalizedText;
-}
-
 export type CompactAirportRow = [string, string, string, string, number, number, string];
+type AirportLocaleRow = [string, string, string];
+
+const airportLocales = new Map((airportLocaleRows as AirportLocaleRow[])
+  .map(([iata, nameZh, cityZh]) => [iata, { nameZh, cityZh }]));
 
 const englishRegions = new Intl.DisplayNames(["en"], { type: "region" });
 const chineseRegions = new Intl.DisplayNames(["zh-CN"], { type: "region" });
@@ -82,10 +83,11 @@ let directoryVersion = 0;
 export function installAirportDirectory(rows: readonly CompactAirportRow[]): void {
   airportByIata.clear();
   for (const [iata, name, city, country, latitude, longitude, timezone] of rows) {
+    const localization = airportLocales.get(iata);
     airportByIata.set(iata, {
       iata,
-      name: { en: name, "zh-CN": name },
-      city: { en: city, "zh-CN": city },
+      name: { en: name, "zh-CN": localization?.nameZh ?? name },
+      city: { en: city, "zh-CN": localization?.cityZh ?? city },
       country,
       countryName: countryName(country),
       latitude,
@@ -94,6 +96,15 @@ export function installAirportDirectory(rows: readonly CompactAirportRow[]): voi
     });
   }
   for (const airport of curatedAirports) airportByIata.set(airport.iata, airport);
+  for (const [iata, localization] of airportLocales) {
+    const airport = airportByIata.get(iata);
+    if (!airport) continue;
+    airportByIata.set(iata, {
+      ...airport,
+      name: { ...airport.name, "zh-CN": localization.nameZh },
+      city: { ...airport.city, "zh-CN": localization.cityZh },
+    });
+  }
   airports.splice(
     0,
     airports.length,
@@ -107,24 +118,3 @@ export function airportDirectoryVersion(): number {
 }
 
 installAirportDirectory([]);
-
-export const airlines: AirlineReferenceData[] = [
-  { iata: "UA", name: { en: "United Airlines", "zh-CN": "美国联合航空" } },
-  { iata: "AA", name: { en: "American Airlines", "zh-CN": "美国航空" } },
-  { iata: "DL", name: { en: "Delta Air Lines", "zh-CN": "达美航空" } },
-  { iata: "MU", name: { en: "China Eastern Airlines", "zh-CN": "中国东方航空" } },
-  { iata: "CA", name: { en: "Air China", "zh-CN": "中国国际航空" } },
-  { iata: "CZ", name: { en: "China Southern Airlines", "zh-CN": "中国南方航空" } },
-  { iata: "JL", name: { en: "Japan Airlines", "zh-CN": "日本航空" } },
-  { iata: "NH", name: { en: "All Nippon Airways", "zh-CN": "全日空" } },
-  { iata: "SQ", name: { en: "Singapore Airlines", "zh-CN": "新加坡航空" } },
-  { iata: "BA", name: { en: "British Airways", "zh-CN": "英国航空" } },
-  { iata: "LH", name: { en: "Lufthansa", "zh-CN": "汉莎航空" } },
-  { iata: "CX", name: { en: "Cathay Pacific", "zh-CN": "国泰航空" } },
-  { iata: "KE", name: { en: "Korean Air", "zh-CN": "大韩航空" } },
-  { iata: "QF", name: { en: "Qantas", "zh-CN": "澳洲航空" } },
-  { iata: "AC", name: { en: "Air Canada", "zh-CN": "加拿大航空" } },
-  { iata: "AF", name: { en: "Air France", "zh-CN": "法国航空" } }
-];
-
-export const airlineByIata = new Map(airlines.map((airline) => [airline.iata, airline]));

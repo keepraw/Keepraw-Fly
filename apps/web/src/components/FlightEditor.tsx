@@ -1,12 +1,21 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { airlines, type SupportedLocale } from "@keepraw-fly/core";
+import {
+  airlineNames,
+  autoMatchedMembership,
+  isStandardTicketNumber,
+  membershipsForAirline,
+  resolveAirline,
+  type FrequentFlyerMembership,
+  type SupportedLocale,
+} from "@keepraw-fly/core";
 import { AirportCombobox } from "./AirportCombobox";
 import {
   createDefaultDraft,
   flightFromDraft,
   flightToDraft,
+  normalizeFlightNumberInput,
   splitFlightNumberInput,
   type FlightDraft,
 } from "../data/flight-editor";
@@ -20,16 +29,16 @@ interface FlightEditorProps {
   isDuplicate?: boolean;
   preferredAirportCodes?: readonly string[];
   returnFocus?: HTMLElement | null;
+  memberships?: readonly FrequentFlyerMembership[];
 }
 
-export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDuplicate = false, preferredAirportCodes = [], returnFocus }: FlightEditorProps) {
+export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDuplicate = false, preferredAirportCodes = [], returnFocus, memberships = [] }: FlightEditorProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<FlightDraft>(() =>
-    flight ? flightToDraft(flight) : createDefaultDraft(),
+    flight ? flightToDraft(flight, { duplicate: isDuplicate, memberships }) : createDefaultDraft(),
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const airlineListId = useId();
   const errorId = useId();
   const dialogRef = useRef<HTMLElement>(null);
 
@@ -65,27 +74,60 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
       }, 0);
     };
   }, [onCancel, returnFocus]);
-  const airlineOptions = useMemo(
-    () => [...airlines].sort((left, right) => left.name[locale].localeCompare(right.name[locale], locale)),
-    [locale],
-  );
-  const selectedAirline = airlineOptions.find((airline) => airline.iata === draft.airlineCode);
-  const fullFlightNumber = draft.airlineCode && draft.serviceNumber
-    ? `${draft.airlineCode}${draft.serviceNumber}`
-    : null;
+  const identity = splitFlightNumberInput(draft.flightNumber);
+  const selectedAirline = identity ? resolveAirline(identity.airline) : undefined;
+  const airlineNamePair = selectedAirline ? airlineNames(selectedAirline, locale) : null;
+  const matchingMemberships = identity ? membershipsForAirline(memberships, identity.airline) : [];
 
   function update<Key extends keyof FlightDraft>(key: Key, value: FlightDraft[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
     setError(null);
   }
 
-  function updateServiceNumber(value: string) {
-    const normalized = value.toUpperCase();
-    const pastedIdentity = splitFlightNumberInput(normalized);
-    setDraft((current) => pastedIdentity
-      ? { ...current, ...pastedIdentity }
-      : { ...current, serviceNumber: normalized });
+  function updateFlightNumber(value: string) {
+    const upper = value.toUpperCase();
+    const parsed = splitFlightNumberInput(upper);
+    setDraft((current) => {
+      if (!parsed) return { ...current, flightNumber: upper };
+      const currentMembership = memberships.find((item) => item.id === current.frequentFlyerMembershipId);
+      if (currentMembership && membershipsForAirline([currentMembership], parsed.airline).length) {
+        return { ...current, flightNumber: upper };
+      }
+      const match = autoMatchedMembership(memberships, parsed.airline);
+      return match ? {
+        ...current,
+        flightNumber: upper,
+        frequentFlyerMembershipId: match.id,
+        frequentFlyerProgramName: match.programName,
+        frequentFlyerMemberNumber: match.memberNumber,
+        frequentFlyerTier: match.tier ?? "",
+      } : {
+        ...current,
+        flightNumber: upper,
+        frequentFlyerMembershipId: "",
+        frequentFlyerProgramName: "",
+        frequentFlyerMemberNumber: "",
+        frequentFlyerTier: "",
+      };
+    });
     setError(null);
+  }
+
+  function selectMembership(id: string) {
+    const membership = memberships.find((item) => item.id === id);
+    setDraft((current) => membership ? {
+      ...current,
+      frequentFlyerMembershipId: membership.id,
+      frequentFlyerProgramName: membership.programName,
+      frequentFlyerMemberNumber: membership.memberNumber,
+      frequentFlyerTier: membership.tier ?? "",
+    } : {
+      ...current,
+      frequentFlyerMembershipId: "",
+      frequentFlyerProgramName: "",
+      frequentFlyerMemberNumber: "",
+      frequentFlyerTier: "",
+    });
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -106,10 +148,8 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
           ? t("flightEditor.actualArrivalBeforeDeparture")
           : message === "incomplete-actual-time"
           ? t("flightEditor.incompleteActualTime")
-          : message === "invalid-airline-code"
-            ? t("flightEditor.invalidAirlineCode")
-            : message === "invalid-service-number"
-              ? t("flightEditor.invalidServiceNumber")
+          : message === "invalid-flight-number"
+            ? t("flightEditor.invalidFlightNumber")
               : message === "invalid-booking-class"
                 ? t("flightEditor.invalidBookingClass")
               : message === "unknown-airport"
@@ -134,35 +174,24 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
 
         <form onSubmit={submit} aria-describedby={error ? errorId : undefined}>
           <div className="editor-grid">
-            <label>
-              <span>{t("flightEditor.airlineCode")}</span>
+            <p className="editor-group-title">{t("flightEditor.flightSection")}</p>
+            <label className="editor-field-wide">
+              <span>{t("flightEditor.flightNumber")}</span>
               <input
                 required
-                list={airlineListId}
-                maxLength={3}
-                value={draft.airlineCode}
-                onChange={(event) => update("airlineCode", event.target.value.toUpperCase().replace(/\s+/g, ""))}
-                placeholder="MU"
+                value={draft.flightNumber}
+                onChange={(event) => updateFlightNumber(event.target.value)}
+                onBlur={() => update("flightNumber", normalizeFlightNumberInput(draft.flightNumber))}
+                placeholder="ZH9911"
                 autoFocus
               />
-              <datalist id={airlineListId}>
-                {airlineOptions.map((airline) => <option value={airline.iata} key={airline.iata}>{airline.name[locale]}</option>)}
-              </datalist>
               <small className="editor-field-hint">
-                {selectedAirline
-                  ? `${selectedAirline.iata} · ${selectedAirline.name[locale]}`
-                  : t("flightEditor.airlineCodeHint")}
+                {airlineNamePair
+                  ? `${selectedAirline!.iata} / ${selectedAirline!.icao} · ${airlineNamePair[0]} · ${airlineNamePair[1]}`
+                  : identity ? t("flightEditor.unknownAirlineHint") : t("flightEditor.flightNumberHint")}
               </small>
             </label>
-            <label>
-              <span>{t("flightEditor.serviceNumber")}</span>
-              <input required value={draft.serviceNumber} onChange={(event) => updateServiceNumber(event.target.value)} placeholder="589" />
-              <small className="editor-field-hint">
-                {fullFlightNumber
-                  ? t("flightEditor.fullFlightNumber", { number: fullFlightNumber })
-                  : t("flightEditor.serviceNumberHint")}
-              </small>
-            </label>
+            <p className="editor-group-title">{t("flightEditor.routeSection")}</p>
             <AirportCombobox label={t("flightEditor.origin")} locale={locale} value={draft.originIata} onChange={(iata) => update("originIata", iata)} preferredCodes={preferredAirportCodes} />
             <AirportCombobox label={t("flightEditor.destination")} locale={locale} value={draft.destinationIata} onChange={(iata) => update("destinationIata", iata)} preferredCodes={preferredAirportCodes} />
           </div>
@@ -176,9 +205,28 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
           </fieldset>
           <p className="editor-time-note">{t("flightEditor.localTimeNote")}</p>
 
+          <fieldset className="editor-facts-grid editor-travel-grid">
+            <legend>{t("flightEditor.ticketAndLoyalty")}</legend>
+            <label>
+              <span>{t("flightEditor.ticketNumber")}</span>
+              <input value={draft.ticketNumber} onChange={(event) => update("ticketNumber", event.target.value)} placeholder="781-1234567890" />
+              {draft.ticketNumber && !isStandardTicketNumber(draft.ticketNumber) ? <small className="editor-field-warning">{t("flightEditor.nonstandardTicket")}</small> : null}
+            </label>
+            <label>
+              <span>{t("flightEditor.frequentFlyerPlan")}</span>
+              <select value={draft.frequentFlyerMembershipId} onChange={(event) => selectMembership(event.target.value)}>
+                <option value="">{t("flightEditor.noFrequentFlyer")}</option>
+                {memberships.map((membership) => <option value={membership.id} key={membership.id}>{membership.programName} · {membership.memberNumber}</option>)}
+              </select>
+              {matchingMemberships.length > 1 && !draft.frequentFlyerMembershipId ? <small className="editor-field-hint">{t("flightEditor.multipleMemberships")}</small> : null}
+            </label>
+            <label><span>{t("flightEditor.memberNumber")}</span><input value={draft.frequentFlyerMemberNumber} readOnly /></label>
+            <label><span>{t("flightEditor.tier")}</span><input value={draft.frequentFlyerTier} onChange={(event) => update("frequentFlyerTier", event.target.value)} /></label>
+          </fieldset>
+
           <details className="editor-optional">
             <summary>
-              <span>{t("flightEditor.optionalFacts")}</span>
+              <span>{t("flightEditor.flightInformation")}</span>
               <small>{t("flightEditor.optionalFactsDescription")}</small>
             </summary>
 

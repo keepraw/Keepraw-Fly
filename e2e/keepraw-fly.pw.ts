@@ -12,8 +12,7 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
 
   const editor = page.getByRole("dialog", { name: "Add a flight" });
   await expect(editor).toBeVisible();
-  await editor.getByLabel("Airline code").fill("UA");
-  await editor.getByLabel("Flight number").fill("123");
+  await editor.getByLabel("Flight number").fill("UA123");
   await editor.getByRole("combobox", { name: "Origin" }).fill("SFO");
   await editor.getByRole("combobox", { name: "Destination" }).fill("LAX");
   await editor.locator(".editor-optional > summary").click();
@@ -36,14 +35,14 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await expect(page.getByText("No", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Edit flight" }).click();
   const editDialog = page.getByRole("dialog", { name: "Edit flight" });
-  await editDialog.getByLabel("Flight number").fill("124");
+  await editDialog.getByLabel("Flight number").fill("UA124");
   await editDialog.getByRole("button", { name: "Save flight" }).click();
   await expect(page.getByRole("heading", { name: "UA124" })).toBeVisible();
 
   await page.getByRole("button", { name: "Duplicate as new" }).click();
   const duplicateDialog = page.getByRole("dialog", { name: "Duplicate flight" });
   await expect(duplicateDialog.getByRole("combobox", { name: "Origin" })).toHaveValue("SFO");
-  await duplicateDialog.getByLabel("Flight number").fill("125");
+  await duplicateDialog.getByLabel("Flight number").fill("UA125");
   await duplicateDialog.getByRole("button", { name: "Save flight" }).click();
   await expect(page.getByRole("heading", { name: "UA125" })).toBeVisible();
 
@@ -103,21 +102,19 @@ test("explores personal airport, airline and route history from Passport", async
   await expect(page.locator(".detail-flight-card")).toBeVisible();
 });
 
-test("keeps delay facts inside their section at desktop and mobile widths", async ({ page }) => {
+test("keeps the operational summary inside the flight header at desktop and mobile widths", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open / }).first().click();
 
-  const delaySummary = page.locator(".delay-summary");
+  const delaySummary = page.locator(".detail-operational-status");
   await expect(delaySummary).toBeVisible();
 
   const expectContentContained = async () => {
     const insets = await delaySummary.evaluate((summary) => {
-      const bounds = summary.getBoundingClientRect();
-      return Array.from(summary.querySelectorAll(":scope > div > *")).map((element) => {
-        const item = element.getBoundingClientRect();
-        return Math.min(item.left - bounds.left, bounds.right - item.right);
-      });
+      const bounds = summary.closest(".detail-heading")!.getBoundingClientRect();
+      const item = summary.getBoundingClientRect();
+      return [item.left - bounds.left, bounds.right - item.right];
     });
     expect(Math.min(...insets)).toBeGreaterThanOrEqual(-0.5);
   };
@@ -127,6 +124,82 @@ test("keeps delay facts inside their section at desktop and mobile widths", asyn
   await expectContentContained();
   const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
   expect(fitsViewport).toBe(true);
+});
+
+test("aligns Flight Detail to one grid without dashboard or table patterns", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+  await page.getByRole("button", { name: /Open UA123/ }).click();
+  await expect(page.locator(".detail-route-map-heading > h2")).toBeVisible();
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const layout = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
+      const style = (selector: string) => getComputedStyle(document.querySelector<HTMLElement>(selector)!);
+      const contentStarts = [
+        rect(".detail-heading-identity").left,
+        rect(".route-origin-code").left,
+        rect(".flight-facts > h2").left,
+        rect(".detail-route-map-heading > h2").left,
+      ];
+      const codeTop = [rect(".route-origin-code").top, rect(".route-arrival-code").top];
+      const cityTop = [rect(".route-origin-city").top, rect(".route-arrival-city").top];
+      const timeTop = [rect(".route-origin-time .detail-airport-time").top, rect(".route-arrival-time .detail-airport-time").top];
+      const scheduleTop = [rect(".route-origin-time small").top, rect(".route-arrival-time small").top];
+      const firstFact = style(".detail-item");
+      const primaryAction = style(".detail-action-primary");
+      const secondaryAction = style(".detail-action-secondary");
+      const connectorOriginMarker = getComputedStyle(document.querySelector<HTMLElement>(".route-track-line")!, "::before");
+      const connectorDestinationMarker = getComputedStyle(document.querySelector<HTMLElement>(".route-track-line")!, "::after");
+      return {
+        alignedContentDelta: Math.max(...contentStarts) - Math.min(...contentStarts),
+        codeBaselineDelta: Math.abs(codeTop[0] - codeTop[1]),
+        cityBaselineDelta: Math.abs(cityTop[0] - cityTop[1]),
+        timeBaselineDelta: Math.abs(timeTop[0] - timeTop[1]),
+        scheduleBaselineDelta: Math.abs(scheduleTop[0] - scheduleTop[1]),
+        codeIsPrimary: Number.parseFloat(style(".route-origin-code").fontSize) > Number.parseFloat(style(".detail-airport-time").fontSize),
+        factsColumns: style(".facts-grid").gridTemplateColumns.split(" ").length,
+        factsHaveCellBorders: firstFact.borderTopWidth !== "0px" || firstFact.borderRightWidth !== "0px" || firstFact.borderBottomWidth !== "0px" || firstFact.borderLeftWidth !== "0px",
+        factGroups: document.querySelectorAll(".fact-group").length,
+        fullWidthStatusBars: document.querySelectorAll(".detail-performance").length,
+        statusLivesInHeader: document.querySelector(".detail-operational-status")?.parentElement?.classList.contains("detail-heading-meta") ?? false,
+        actionsHaveDistinctWeight: primaryAction.backgroundColor !== secondaryAction.backgroundColor,
+        connectorHasEndpointMarkers: connectorOriginMarker.content !== "none" && connectorDestinationMarker.content !== "none",
+        demoNoticeIsCompact: document.querySelector(".demo-banner")?.classList.contains("demo-banner--compact") ?? false,
+        fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      };
+    });
+
+    expect(layout.alignedContentDelta).toBeLessThanOrEqual(1);
+    expect(layout.codeBaselineDelta).toBeLessThanOrEqual(1);
+    expect(layout.cityBaselineDelta).toBeLessThanOrEqual(1);
+    expect(layout.timeBaselineDelta).toBeLessThanOrEqual(1);
+    expect(layout.scheduleBaselineDelta).toBeLessThanOrEqual(1);
+    expect(layout.codeIsPrimary).toBe(true);
+    expect(layout.factsColumns).toBe(viewport.width <= 760 ? 2 : 3);
+    expect(layout.factsHaveCellBorders).toBe(false);
+    expect(layout.factGroups).toBe(2);
+    expect(layout.fullWidthStatusBars).toBe(0);
+    expect(layout.statusLivesInHeader).toBe(true);
+    expect(layout.actionsHaveDistinctWeight).toBe(true);
+    expect(layout.connectorHasEndpointMarkers).toBe(true);
+    expect(layout.demoNoticeIsCompact).toBe(true);
+    expect(layout.fitsViewport).toBe(true);
+  }
+
+  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByLabel("Appearance").selectOption("light");
+  await page.getByLabel("Language").selectOption("zh-CN");
+  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("button", { name: /打开 UA123/ }).click();
+  await expect(page.locator(".route-origin-city")).toHaveText("旧金山");
+  await expect(page.locator(".route-origin-airport")).toHaveText("旧金山国际机场");
+  await expect(page.locator(".route-hero")).not.toContainText(/舊|國際|機場/);
 });
 
 test("maps and previews CSV columns before appending flights", async ({ page }) => {
@@ -364,32 +437,34 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   await page.locator(".flight-row").first().click();
   await expect(page.locator(".detail-route-map-canvas > svg")).toBeVisible();
   await expect(page.locator(".detail-map-route")).toHaveCount(1);
-  await expect(page.locator(".gate-sign").first()).toBeVisible();
+  await expect(page.locator(".flight-facts")).toContainText("Departure gate");
   const detailPresentation = await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".detail-flight-card");
-    const timeline = document.querySelector<HTMLElement>(".timeline");
+    const performance = document.querySelector<HTMLElement>(".detail-operational-status");
     const facts = document.querySelector<HTMLElement>(".flight-facts");
-    if (!hero || !timeline) throw new Error("Flight detail presentation landmarks are missing");
+    if (!hero || !performance) throw new Error("Flight detail presentation landmarks are missing");
     const heroStyle = getComputedStyle(hero);
-    const timelineStyle = getComputedStyle(timeline);
+    const performanceStyle = getComputedStyle(performance);
     const factsStyle = facts ? getComputedStyle(facts) : undefined;
     return {
       factsBoxShadow: factsStyle?.boxShadow ?? "none",
       heroBackgroundImage: heroStyle.backgroundImage,
       heroBorderRadius: heroStyle.borderRadius,
       heroBoxShadow: heroStyle.boxShadow,
+      fullWidthStatusBars: hero.querySelectorAll(".detail-performance").length,
       routeIcons: hero.querySelectorAll(".aviation-icon").length,
       routeTrackChildren: hero.querySelectorAll(".route-track > *").length,
-      timelineBackgroundImage: timelineStyle.backgroundImage,
-      timelineBorderRadius: timelineStyle.borderRadius,
-      timelineBoxShadow: timelineStyle.boxShadow,
+      timelineBackgroundImage: performanceStyle.backgroundImage,
+      timelineBorderRadius: performanceStyle.borderRadius,
+      timelineBoxShadow: performanceStyle.boxShadow,
     };
   });
   expect(detailPresentation).toEqual({
     factsBoxShadow: "none",
     heroBackgroundImage: "none",
-    heroBorderRadius: "8px",
+    heroBorderRadius: "0px",
     heroBoxShadow: "none",
+    fullWidthStatusBars: 0,
     routeIcons: 0,
     routeTrackChildren: 2,
     timelineBackgroundImage: "none",
@@ -507,10 +582,9 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     .getByRole("button", { name: "Import this archive" }).click();
   await page.getByRole("button", { name: /Open ZH9911/ }).click();
 
-  await expect(page.locator(".airport-block").first().locator("small"))
-    .toHaveText("SZX · Shenzhen Bao'an International Airport");
-  await expect(page.locator(".facility-grid--single .facility-stop")).toHaveCount(1);
-  await expect(page.locator(".gate-sign")).toContainText("338");
+  await expect(page.locator(".route-origin-airport"))
+    .toHaveText("Shenzhen Bao'an International Airport");
+  await expect(page.locator(".flight-facts")).toContainText("Departure gate338");
 
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByLabel("Appearance").selectOption("light");
@@ -518,22 +592,27 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await page.getByRole("link", { name: "航班" }).click();
   await page.getByRole("button", { name: /打开 ZH9911/ }).click();
 
-  const airportBlocks = page.locator(".airport-block");
-  await expect(airportBlocks.nth(0).locator(".detail-airport-city")).toHaveText("深圳");
-  await expect(airportBlocks.nth(0).locator("small")).toHaveText("深圳宝安机场");
-  await expect(airportBlocks.nth(1).locator(".detail-airport-city")).toHaveText("青岛");
-  await expect(airportBlocks.nth(1).locator("small")).toHaveText("青岛胶东机场");
+  await expect(page.locator(".route-origin-city")).toHaveText("深圳");
+  await expect(page.locator(".route-origin-airport")).toHaveText("深圳宝安国际机场");
+  await expect(page.locator(".route-arrival-city")).toHaveText("青岛");
+  await expect(page.locator(".route-arrival-airport")).toHaveText("青岛胶东国际机场");
 
   const heroAlignment = await page.locator(".route-hero").evaluate((hero) => {
-    const primaries = [...hero.querySelectorAll<HTMLElement>(".detail-route-primary")];
-    const names = [...hero.querySelectorAll<HTMLElement>(".detail-airport-city")];
+    const codes = [...hero.querySelectorAll<HTMLElement>(".airport-code")];
+    const cities = [...hero.querySelectorAll<HTMLElement>(".detail-airport-city")];
+    const times = [...hero.querySelectorAll<HTMLElement>(".detail-airport-time")];
+    const schedules = [...hero.querySelectorAll<HTMLElement>(".route-time small")];
     return {
-      primaryTopDelta: Math.abs(primaries[0].getBoundingClientRect().top - primaries[1].getBoundingClientRect().top),
-      cityTopDelta: Math.abs(names[0].getBoundingClientRect().top - names[1].getBoundingClientRect().top),
+      codeTopDelta: Math.abs(codes[0].getBoundingClientRect().top - codes[1].getBoundingClientRect().top),
+      cityTopDelta: Math.abs(cities[0].getBoundingClientRect().top - cities[1].getBoundingClientRect().top),
+      timeTopDelta: Math.abs(times[0].getBoundingClientRect().top - times[1].getBoundingClientRect().top),
+      scheduleTopDelta: Math.abs(schedules[0].getBoundingClientRect().top - schedules[1].getBoundingClientRect().top),
     };
   });
-  expect(heroAlignment.primaryTopDelta).toBeLessThanOrEqual(1);
+  expect(heroAlignment.codeTopDelta).toBeLessThanOrEqual(1);
   expect(heroAlignment.cityTopDelta).toBeLessThanOrEqual(1);
+  expect(heroAlignment.timeTopDelta).toBeLessThanOrEqual(1);
+  expect(heroAlignment.scheduleTopDelta).toBeLessThanOrEqual(1);
 
   const mapSurface = await page.locator(".detail-route-map").evaluate((element) => {
     const channels = getComputedStyle(element).backgroundColor.match(/\d+/g)?.slice(0, 3).map(Number) ?? [];
@@ -667,7 +746,7 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
       const values = Array.from(document.querySelectorAll<HTMLElement>(
         ".detail-heading h1, .detail-airport-time, .airport-code",
       ));
-      const airportNames = Array.from(document.querySelectorAll<HTMLElement>(".airport-block small"));
+      const airportNames = Array.from(document.querySelectorAll<HTMLElement>(".route-airport-name"));
       return {
         airportNamesConstrained: airportNames.every((element) => {
           const style = getComputedStyle(element);
