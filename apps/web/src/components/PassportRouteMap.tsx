@@ -115,7 +115,7 @@ export function PassportRouteMap({
       key,
       label,
       point,
-      radius: 3.1 + Math.min(Math.log2(airport.flightCount + 1) * 0.8, 2.5),
+      radius: 2.15 + Math.min(Math.log2(airport.flightCount + 1) * 0.42, 1.25),
       tooltip: {
         key,
         x: point.x,
@@ -224,7 +224,7 @@ export function PassportRouteMap({
               >
                 <g transform={`scale(${1 / camera.zoom})`}>
                   <circle className="map-airport-hit" r="14" />
-                  <circle className="map-airport-ring" r={airport.radius + 3.2} />
+                  <circle className="map-airport-ring" r={airport.radius + 3.6} />
                   <circle className="map-airport-point" r={airport.radius} style={airport.style} />
                   <title>{airport.label}</title>
                   {showLabel ? <text className={(labelRank ?? Infinity) > 1 ? "map-airport-label is-secondary" : "map-airport-label"} x="8" y="-7">{airport.iata}</text> : null}
@@ -321,10 +321,10 @@ function updateYearRange(
 }
 
 function routeVisuals(count: number) {
-  if (count === 1) return { opacity: 0.38, width: 1.25 };
-  if (count <= 3) return { opacity: 0.52, width: 1.5 };
-  if (count <= 9) return { opacity: 0.68, width: 1.85 };
-  return { opacity: 0.82, width: 2.2 };
+  if (count === 1) return { opacity: 0.7, width: 1.25 };
+  if (count <= 3) return { opacity: 0.79, width: 1.38 };
+  if (count <= 9) return { opacity: 0.88, width: 1.56 };
+  return { opacity: 0.95, width: 1.74 };
 }
 
 function compactAirportName(name: string): string {
