@@ -62,8 +62,8 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
               <path className="detail-map-route-underlay" d={routePath} />
               <path className="detail-map-route" d={routePath} />
             </g>
-            <DetailAirport x={origin.x} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} />
-            <DetailAirport x={destination.x} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} />
+            <DetailAirport x={origin.x} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} variant="origin" />
+            <DetailAirport x={destination.x} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} variant="destination" />
           </>;
         }}
       </MapViewport>
@@ -71,11 +71,23 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
   );
 }
 
-function DetailAirport({ x, y, inverseZoom, code }: { x: number; y: number; inverseZoom: number; code: string }) {
-  return <g className="detail-map-airport" transform={`translate(${x} ${y})`}>
+function DetailAirport({
+  x,
+  y,
+  inverseZoom,
+  code,
+  variant,
+}: {
+  x: number;
+  y: number;
+  inverseZoom: number;
+  code: string;
+  variant: "origin" | "destination";
+}) {
+  return <g className={`detail-map-airport is-${variant}`} transform={`translate(${x} ${y})`}>
     <g transform={`scale(${inverseZoom})`}>
-      <circle className="detail-map-airport-ring" r="8" />
-      <circle className="detail-map-airport-point" r="3.5" />
+      <circle className="detail-map-airport-ring" r="7" />
+      <circle className="detail-map-airport-point" r="3" />
       <text x="9" y="-7">{code}</text>
     </g>
   </g>;
