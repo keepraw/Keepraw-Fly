@@ -54,14 +54,39 @@ try {
   await page.getByRole("button", { name: /Open ZH9911/ }).click();
   await page.locator(".detail-map-route").waitFor();
   await page.screenshot({
-    path: resolve(outputDirectory, "flight-detail-stitch-desktop-light.png"),
+    path: resolve(outputDirectory, "flight-detail-i18n-en-desktop-1440.png"),
     fullPage: true,
   });
 
+  async function setLanguage(language) {
+    await page.goto(`${baseUrl}#settings`);
+    await page.locator(".settings-fields select").first().selectOption(language);
+    await page.locator("html").waitFor();
+    await page.waitForFunction((expected) => document.documentElement.lang === expected, language);
+    await page.waitForTimeout(100);
+    await page.goto(`${baseUrl}#flights`);
+    await page.locator(".flight-row").first().click();
+    await page.locator(".detail-map-route").waitFor();
+    await page.waitForTimeout(800);
+  }
+
+  await setLanguage("zh-CN");
+  await page.screenshot({
+    path: resolve(outputDirectory, "flight-detail-i18n-zh-CN-desktop-1440.png"),
+    fullPage: true,
+  });
+
+  await setLanguage("zh-TW");
+  await page.screenshot({
+    path: resolve(outputDirectory, "flight-detail-i18n-zh-TW-desktop-1440.png"),
+    fullPage: true,
+  });
+
+  await setLanguage("zh-CN");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(250);
   await page.screenshot({
-    path: resolve(outputDirectory, "flight-detail-stitch-mobile-light.png"),
+    path: resolve(outputDirectory, "flight-detail-i18n-zh-CN-mobile-390.png"),
     fullPage: true,
   });
   await context.close();

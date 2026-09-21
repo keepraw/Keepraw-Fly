@@ -9,6 +9,7 @@ import {
   flightOperationalStatus,
   formatServiceDate,
   formatTimeAtAirport,
+  localizedText,
   resolveAirline,
   type SupportedLocale,
   type TimeFormat,
@@ -64,13 +65,13 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, revealIndex = 0 
         <span className="flight-airport">
           <AirportCode code={flight.origin.iata} />
           <time dateTime={departureTimestamp}>{departureTime}</time>
-          <small>{origin?.city[locale]}</small>
+          <small>{origin ? localizedText(origin.city, locale) : undefined}</small>
         </span>
         <span className="route-direction" aria-hidden="true">→</span>
         <span className="flight-airport flight-airport-arrival">
           <AirportCode code={flight.destination.iata} />
           <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
-          <small>{destination?.city[locale]}</small>
+          <small>{destination ? localizedText(destination.city, locale) : undefined}</small>
         </span>
       </div>
       <div className="flight-record-meta">

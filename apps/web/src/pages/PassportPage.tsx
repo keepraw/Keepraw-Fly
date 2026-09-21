@@ -11,6 +11,7 @@ import {
   formatDistance,
   formatDuration,
   formatServiceDate,
+  localizedText,
   type SupportedLocale,
   type DistanceUnit,
 } from "@keepraw-fly/core";
@@ -34,7 +35,7 @@ interface PassportPageProps {
 function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale, fallbackName: string) {
   const name = document.profile.name;
   if (!name) return { primary: fallbackName, secondary: undefined };
-  const preferred = name.primary ?? (locale === "zh-CN" ? "native" : "romanized");
+  const preferred = name.primary ?? (locale.startsWith("zh") ? "native" : "romanized");
   const alternate = preferred === "native" ? "romanized" : "native";
   return {
     primary: name[preferred] ?? name[alternate] ?? fallbackName,
@@ -79,7 +80,7 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight, onOp
   function explorationTitle(current: PassportSelection): string {
     if (current.kind === "airport") {
       const airport = airportByIata.get(current.code);
-      return airport ? `${current.code} · ${airport.name[locale]}` : current.code;
+      return airport ? `${current.code} · ${localizedText(airport.name, locale)}` : current.code;
     }
     if (current.kind === "airline") {
       return `${airlineDisplayName(current.code, locale)} · ${current.code}`;
@@ -192,7 +193,7 @@ export function PassportPage({ document, locale, distanceUnit, onAddFlight, onOp
         </div>
         <dl className="highlight-list">
           <div><dt>{t("passport.mostFlownAirline")}</dt><dd>{stats.mostFlownAirline ? <button type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}><span>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</span><small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
-          <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? <button type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}><span>{airportByIata.get(stats.mostVisitedAirport.code)?.name[locale] ?? stats.mostVisitedAirport.code}</span><small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
+          <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? <button type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}><span>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</span><small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
           <div><dt>{t("passport.longestFlight")}</dt><dd>{longest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}><span>{routeLabel(longest)}</span><small>{distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
           <div><dt>{t("passport.shortestFlight")}</dt><dd>{shortest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}><span>{routeLabel(shortest)}</span><small>{distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
         </dl>

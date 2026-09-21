@@ -19,6 +19,7 @@ import {
   flightDuration,
   groupFlightsByYear,
   installAirportDirectory,
+  localizedText,
   recentAirportCodes,
   searchFlights,
   searchAirports,
@@ -80,6 +81,7 @@ describe("flight calculations", () => {
   it("formats duration without coupling it to distance units", () => {
     expect(formatDuration(84, "en")).toBe("1h 24m");
     expect(formatDuration(84, "zh-CN")).toBe("1小时 24分");
+    expect(formatDuration(84, "zh-TW")).toBe("1小時 24分");
   });
 
   it("reads known UI facts without disturbing the extension map", () => {
@@ -209,8 +211,8 @@ describe("offline airport directory", () => {
     });
     expect(airportByIata.get("SZX")).toMatchObject({
       iata: "SZX",
-      name: { en: "Shenzhen Bao'an International Airport", "zh-CN": "深圳宝安国际机场" },
-      city: { en: "Shenzhen", "zh-CN": "深圳" },
+      name: { en: "Shenzhen Bao'an International Airport", "zh-CN": "深圳宝安国际机场", "zh-TW": "深圳寶安國際機場" },
+      city: { en: "Shenzhen", "zh-CN": "深圳", "zh-TW": "深圳" },
       timezone: "Asia/Shanghai",
     });
   });
@@ -241,6 +243,13 @@ describe("offline airport directory", () => {
       city: { "zh-CN": "桃园" },
       name: { "zh-CN": "台湾桃园国际机场" },
     });
+  });
+
+  it("stores and resolves generated zh-TW airport labels as traditional Chinese", () => {
+    const tao = airportByIata.get("TAO")!;
+    expect(localizedText(tao.city, "zh-TW")).toBe("青島");
+    expect(localizedText(tao.name, "zh-TW")).toBe("青島膠東國際機場");
+    expect(localizedText(tao.name, "zh-TW")).not.toMatch(/青岛|国际机场/);
   });
 
   it.each(["TAO", "Qingdao", "青岛", "Jiaodong"])("finds TAO from %s", (query) => {
@@ -283,6 +292,7 @@ describe("airline and travel references", () => {
     const airline = resolveAirline(code)!;
     expect(airline.icao).toBe(icao);
     expect(airlineNames(airline, "zh-CN")).toEqual([nameZh, nameEn]);
+    expect(airlineNames(airline, "zh-TW")[1]).toBe(nameEn);
   });
 
   it("normalizes standard tickets and preserves non-standard values", () => {

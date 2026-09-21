@@ -40,5 +40,6 @@ export function formatDuration(minutes: number, locale: SupportedLocale = "en"):
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = Math.abs(minutes % 60);
   if (locale === "zh-CN") return `${hours}小时 ${remainingMinutes}分`;
+  if (locale === "zh-TW") return `${hours}小時 ${remainingMinutes}分`;
   return `${hours}h ${remainingMinutes.toString().padStart(2, "0")}m`;
 }

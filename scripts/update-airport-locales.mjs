@@ -8,7 +8,9 @@ const endpoint = "https://query.wikidata.org/sparql";
 const localesPath = path.join(root, "packages/core/data/airport-locales.json");
 const sourcePath = path.join(root, "packages/core/data/airport-locales.source.json");
 const simplifyChinese = OpenCC.Converter({ from: "t", to: "cn" });
+const traditionalizeChinese = OpenCC.Converter({ from: "cn", to: "tw" });
 const normalizeZhCn = (value) => simplifyChinese(value.normalize("NFC")).trim();
+const normalizeZhTw = (value) => traditionalizeChinese(normalizeZhCn(value));
 const languageRank = (language) => language === "zh-hans" ? 3 : language === "zh-cn" ? 2 : language === "zh" ? 1 : 0;
 
 const maintainedOverrides = [
@@ -72,7 +74,15 @@ if (normalizeExisting) {
 }
 
 for (const row of maintainedOverrides) localized.set(row[0], { score: 999, row });
-const rows = [...localized.values()].map((value) => value.row).sort((left, right) => left[0].localeCompare(right[0]));
+const rows = [...localized.values()]
+  .map(({ row: [iata, nameZhCn, cityZhCn] }) => [
+    iata,
+    nameZhCn,
+    cityZhCn,
+    normalizeZhTw(nameZhCn),
+    normalizeZhTw(cityZhCn),
+  ])
+  .sort((left, right) => left[0].localeCompare(right[0]));
 const previousSource = normalizeExisting ? JSON.parse(await readFile(sourcePath, "utf8")) : {};
 
 await writeFile(localesPath, `${JSON.stringify(rows, null, 2)}\n`, "utf8");
@@ -83,8 +93,8 @@ await writeFile(sourcePath, `${JSON.stringify({
   retrievedAt: normalizeExisting ? previousSource.retrievedAt : new Date().toISOString(),
   normalizedAt: new Date().toISOString(),
   languagePriority: ["zh-hans", "zh-cn", "zh", "en"],
-  normalization: "OpenCC Traditional Chinese to Mainland Simplified Chinese at update time",
+  normalization: "OpenCC Mainland Simplified and Taiwan Traditional Chinese generated at update time",
   license: "CC0-1.0",
   count: rows.length,
 }, null, 2)}\n`, "utf8");
-console.log(`${normalizeExisting ? "Normalized" : "Generated"} ${rows.length} zh-CN airport localizations.`);
+console.log(`${normalizeExisting ? "Normalized" : "Generated"} ${rows.length} zh-CN and zh-TW airport localizations.`);

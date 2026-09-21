@@ -4,8 +4,8 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   aircraftFacts, airlineNames, airportByIata, arrivalDelayMinutes, baggageFacts,
   departureDelayMinutes, distanceForFlight, flightDuration, flightOperationalStatus,
-  formatDistance, formatDuration, formatServiceDate, formatTicketNumber,
-  formatTimeAtAirport, frequentFlyerSnapshot, resolveAirline, seatFacts, ticketFacts,
+  formatDistance, formatServiceDate, formatTicketNumber,
+  formatTimeAtAirport, frequentFlyerSnapshot, localizedText, resolveAirline, seatFacts, ticketFacts,
   type DistanceUnit, type SupportedLocale, type TimeFormat,
 } from "@keepraw-fly/core";
 import { PageShell } from "../components/PageShell";
@@ -130,7 +130,15 @@ function MetadataColumn({ title, children, footer }: { title: string; children: 
 
 function airportNameLabel(airport: ReturnType<typeof airportByIata.get>, iata: string, locale: SupportedLocale): string | undefined {
   if (!airport) return undefined;
-  return airport.name[locale] || airport.name.en || iata;
+  return localizedText(airport.name, locale) || iata;
+}
+
+function cabinTranslationKey(cabin: string): string | undefined {
+  if (cabin === "economy") return "flightEditor.cabins.economy";
+  if (cabin === "premium economy") return "flightEditor.cabins.premiumEconomy";
+  if (cabin === "business") return "flightEditor.cabins.business";
+  if (cabin === "first") return "flightEditor.cabins.first";
+  return undefined;
 }
 
 export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: FlightDetailPageProps) {
@@ -171,9 +179,17 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
       : t("status.scheduled");
   const distanceLabel = distance === null
     ? undefined
-    : `${formatDistance(distance, locale, distanceUnit)} ${distanceUnit === "miles" ? "mi" : "km"}`;
-  const routeSummary = [formatDuration(duration.minutes, locale), distanceLabel].filter(Boolean).join(" · ");
-  const experienceLine = [seat?.seat, seat?.cabin, seat?.bookingClass].filter(Boolean).join(" · ");
+    : t(distanceUnit === "miles" ? "flightDetail.distanceMiles" : "flightDetail.distanceKilometers", {
+        value: formatDistance(distance, locale, distanceUnit),
+      });
+  const durationLabel = t("flightDetail.durationHoursMinutes", {
+    hours: Math.floor(duration.minutes / 60),
+    minutes: Math.abs(duration.minutes % 60),
+  });
+  const routeSummary = [durationLabel, distanceLabel].filter(Boolean).join(" · ");
+  const cabinKey = seat?.cabin ? cabinTranslationKey(seat.cabin) : undefined;
+  const cabinLabel = cabinKey ? t(cabinKey) : seat?.cabin;
+  const experienceLine = [seat?.seat, cabinLabel, seat?.bookingClass].filter(Boolean).join(" · ");
   const baggageLabel = baggage?.checkedBaggage === undefined
     ? undefined
     : t(baggage.checkedBaggage ? "flightDetail.hasCheckedBaggage" : "flightDetail.noCheckedBaggage");
@@ -191,7 +207,7 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
             <i aria-hidden="true">·</i>
             <time dateTime={flight.serviceDate}>{formatServiceDate(flight.serviceDate, locale, { weekday: "short", year: "numeric", month: "short", day: "2-digit" })}</time>
           </div>
-          <h1 id="flight-detail-title">{origin?.city[locale] ?? flight.origin.iata} <span>{t("flightDetail.to")}</span> {destination?.city[locale] ?? flight.destination.iata}</h1>
+          <h1 id="flight-detail-title">{origin ? localizedText(origin.city, locale) : flight.origin.iata} <span>{t("flightDetail.to")}</span> {destination ? localizedText(destination.city, locale) : flight.destination.iata}</h1>
           <div className="detail-heading-summary">
             <strong>{phase}</strong>
             {activeDelay !== null ? <span className={`detail-operational-status is-${operationalStatus}`}>{performance}</span> : null}
@@ -205,7 +221,7 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
             <AirportStop
               kind="departure"
               iata={flight.origin.iata}
-              city={origin?.city[locale] ?? flight.origin.iata}
+              city={origin ? localizedText(origin.city, locale) : flight.origin.iata}
               airport={airportNameLabel(origin, flight.origin.iata, locale)}
               terminal={flight.origin.terminal}
               gate={flight.origin.gate}
@@ -221,7 +237,7 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
             <AirportStop
               kind="arrival"
               iata={flight.destination.iata}
-              city={destination?.city[locale] ?? flight.destination.iata}
+              city={destination ? localizedText(destination.city, locale) : flight.destination.iata}
               airport={airportNameLabel(destination, flight.destination.iata, locale)}
               terminal={flight.destination.terminal}
               gate={flight.destination.gate}

@@ -1,10 +1,11 @@
 import airportLocaleRows from "../data/airport-locales.json";
 
-export type SupportedLocale = "en" | "zh-CN";
+export type SupportedLocale = "en" | "zh-CN" | "zh-TW";
 
 export interface LocalizedText {
   en: string;
   "zh-CN": string;
+  "zh-TW"?: string;
 }
 
 export interface AirportReference {
@@ -19,19 +20,30 @@ export interface AirportReference {
 }
 
 export type CompactAirportRow = [string, string, string, string, number, number, string];
-type AirportLocaleRow = [string, string, string];
+type AirportLocaleRow = [string, string, string, string, string];
 
 const airportLocales = new Map((airportLocaleRows as AirportLocaleRow[])
-  .map(([iata, nameZh, cityZh]) => [iata, { nameZh, cityZh }]));
+  .map(([iata, nameZhCn, cityZhCn, nameZhTw, cityZhTw]) => [iata, {
+    nameZhCn,
+    cityZhCn,
+    nameZhTw,
+    cityZhTw,
+  }]));
 
 const englishRegions = new Intl.DisplayNames(["en"], { type: "region" });
 const chineseRegions = new Intl.DisplayNames(["zh-CN"], { type: "region" });
+const traditionalChineseRegions = new Intl.DisplayNames(["zh-TW"], { type: "region" });
 
 function countryName(country: string): LocalizedText {
   return {
     en: englishRegions.of(country) ?? country,
     "zh-CN": chineseRegions.of(country) ?? country,
+    "zh-TW": traditionalChineseRegions.of(country) ?? country,
   };
+}
+
+export function localizedText(text: LocalizedText, locale: SupportedLocale): string {
+  return text[locale] ?? text[locale === "zh-TW" ? "zh-CN" : "en"] ?? text.en;
 }
 
 const curatedAirports: AirportReference[] = [
@@ -86,8 +98,8 @@ export function installAirportDirectory(rows: readonly CompactAirportRow[]): voi
     const localization = airportLocales.get(iata);
     airportByIata.set(iata, {
       iata,
-      name: { en: name, "zh-CN": localization?.nameZh ?? name },
-      city: { en: city, "zh-CN": localization?.cityZh ?? city },
+      name: { en: name, "zh-CN": localization?.nameZhCn ?? name, "zh-TW": localization?.nameZhTw ?? name },
+      city: { en: city, "zh-CN": localization?.cityZhCn ?? city, "zh-TW": localization?.cityZhTw ?? city },
       country,
       countryName: countryName(country),
       latitude,
@@ -101,8 +113,8 @@ export function installAirportDirectory(rows: readonly CompactAirportRow[]): voi
     if (!airport) continue;
     airportByIata.set(iata, {
       ...airport,
-      name: { ...airport.name, "zh-CN": localization.nameZh },
-      city: { ...airport.city, "zh-CN": localization.cityZh },
+      name: { ...airport.name, "zh-CN": localization.nameZhCn, "zh-TW": localization.nameZhTw },
+      city: { ...airport.city, "zh-CN": localization.cityZhCn, "zh-TW": localization.cityZhTw },
     });
   }
   airports.splice(
