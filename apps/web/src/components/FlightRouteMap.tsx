@@ -27,10 +27,7 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
 
   return (
     <section className="detail-route-map" aria-labelledby="detail-route-map-title">
-      <header className="detail-route-map-heading">
-        <h2 id="detail-route-map-title">{flight.origin.iata} → {flight.destination.iata}</h2>
-        <p>{t("flightDetail.routeAtlasDescription")}</p>
-      </header>
+      <h2 className="sr-only" id="detail-route-map-title">{flight.origin.iata} → {flight.destination.iata}</h2>
       <MapViewport
         className="detail-route-map-canvas"
         ariaLabel={t("flightDetail.routeAtlasLabel", {
@@ -85,7 +82,10 @@ function DetailAirport({
     <g transform={`scale(${inverseZoom})`}>
       <circle className="detail-map-airport-ring" r="7" />
       <circle className="detail-map-airport-point" r="3" />
-      <text x="9" y="-7">{code}</text>
+      <g className="detail-map-airport-label" transform="translate(8 -23)">
+        <rect width="34" height="19" rx="4" />
+        <text x="17" y="13" textAnchor="middle">{code}</text>
+      </g>
     </g>
   </g>;
 }

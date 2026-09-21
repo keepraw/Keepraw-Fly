@@ -215,6 +215,18 @@ export function App() {
           setPage(nextPage);
           setSelectedFlightId(null);
         }}
+        detailActions={page === "flights" && selectedFlight ? {
+          onBack: () => setSelectedFlightId(null),
+          onDuplicate: () => {
+            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
+            setDuplicateTemplate(selectedFlight);
+            setEditorFlightId("new");
+          },
+          onEdit: () => {
+            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
+            setEditorFlightId(selectedFlight.id);
+          },
+        } : undefined}
       />
       {storageError || (document && archiveKind === "demo") ? (
         <div className="page-notices">
@@ -246,17 +258,8 @@ export function App() {
         <FlightDetailPage
           flight={selectedFlight}
           locale={locale}
+          distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          onBack={() => setSelectedFlightId(null)}
-          onEdit={() => {
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
-            setEditorFlightId(selectedFlight.id);
-          }}
-          onDuplicate={() => {
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
-            setDuplicateTemplate(selectedFlight);
-            setEditorFlightId("new");
-          }}
         />
       ) : page === "flights" ? (
         <FlightsPage
