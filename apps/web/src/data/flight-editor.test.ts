@@ -94,13 +94,11 @@ describe("flight editor data", () => {
       seat: "",
       cabin: "",
       bookingClass: "",
-      baggageStatus: "",
       baggageCarousel: "",
       ticketNumber: "",
+      bookingReference: "",
       frequentFlyerMembershipId: "",
-      frequentFlyerProgramName: "",
-      frequentFlyerMemberNumber: "",
-      frequentFlyerTier: "",
+      frequentFlyerTierAtFlight: "",
     });
 
     expect(flight.id).toBe("flight-test-id");
@@ -136,13 +134,11 @@ describe("flight editor data", () => {
       seat: "",
       cabin: "",
       bookingClass: "",
-      baggageStatus: "",
       baggageCarousel: "",
       ticketNumber: "",
+      bookingReference: "",
       frequentFlyerMembershipId: "",
-      frequentFlyerProgramName: "",
-      frequentFlyerMemberNumber: "",
-      frequentFlyerTier: "",
+      frequentFlyerTierAtFlight: "",
     })).toThrow("arrival-before-departure");
   });
 
@@ -162,7 +158,6 @@ describe("flight editor data", () => {
       seat: "31L",
       cabin: "economy",
       bookingClass: "P",
-      baggageStatus: "checked",
       baggageCarousel: "8",
     }, {
       ...flightFromDraft(baseDraft()),
@@ -186,40 +181,35 @@ describe("flight editor data", () => {
       cabin: "economy",
       bookingClass: "P",
     });
-    expect(flight.extensions?.["keepraw-fly.baggage"]).toEqual({
-      checkedBaggage: true,
-      carousel: "8",
-    });
+    expect(flight.baggageCarousel).toBe("8");
+    expect(flight.extensions).not.toHaveProperty("keepraw-fly.baggage");
     expect(flightToDraft(flight)).toMatchObject({
       actualDepartureTime: "13:17",
       actualArrivalTime: "09:22",
       aircraftType: "B773",
       seat: "31L",
       bookingClass: "P",
-      baggageStatus: "checked",
       baggageCarousel: "8",
     });
     vi.unstubAllGlobals();
   });
 
-  it("round-trips ticket and frequent-flyer snapshots through extensions", () => {
+  it("round-trips ticket metadata and a membership reference with a historical tier", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "travel-id" });
     const flight = flightFromDraft({
       ...baseDraft(),
       ticketNumber: "781-1234567890",
+      bookingReference: "KY78M9",
       frequentFlyerMembershipId: "membership-zh",
-      frequentFlyerProgramName: "尊鹏俱乐部",
-      frequentFlyerMemberNumber: "ZH123456",
-      frequentFlyerTier: "金卡",
+      frequentFlyerTierAtFlight: "金卡",
     });
-    expect(flight.extensions?.["keepraw-fly.ticket"]).toEqual({ number: "7811234567890" });
-    expect(flight.extensions?.["keepraw-fly.frequent-flyer"]).toEqual({
+    expect(flight.ticketNumber).toBe("7811234567890");
+    expect(flight.bookingReference).toBe("KY78M9");
+    expect(flight.frequentFlyer).toEqual({
       membershipId: "membership-zh",
-      programName: "尊鹏俱乐部",
-      memberNumber: "ZH123456",
-      tier: "金卡",
+      tierAtFlight: "金卡",
     });
-    expect(flightToDraft(flight)).toMatchObject({ ticketNumber: "7811234567890", frequentFlyerTier: "金卡" });
+    expect(flightToDraft(flight)).toMatchObject({ ticketNumber: "7811234567890", bookingReference: "KY78M9", frequentFlyerTierAtFlight: "金卡" });
     vi.unstubAllGlobals();
   });
 
@@ -235,14 +225,13 @@ describe("flight editor data", () => {
       aircraftRegistration: "B-1234",
       seat: "12A",
       frequentFlyerMembershipId: "membership-zh",
-      frequentFlyerProgramName: "尊鹏俱乐部",
-      frequentFlyerMemberNumber: "ZH123456",
-      frequentFlyerTier: "银卡",
+      frequentFlyerTierAtFlight: "银卡",
     });
     const duplicate = flightToDraft(original, {
       duplicate: true,
       memberships: [{
         id: "membership-zh",
+        programId: "phoenixmiles",
         programName: "尊鹏俱乐部",
         memberNumber: "ZH123456",
         tier: "金卡",
@@ -257,7 +246,7 @@ describe("flight editor data", () => {
       aircraftRegistration: "",
       seat: "",
       frequentFlyerMembershipId: "membership-zh",
-      frequentFlyerTier: "金卡",
+      frequentFlyerTierAtFlight: "金卡",
     });
   });
 
@@ -268,21 +257,16 @@ describe("flight editor data", () => {
     })).toThrow("incomplete-actual-time");
   });
 
-  it("stores an explicit no-checked-baggage fact without a carousel", () => {
-    vi.stubGlobal("crypto", { randomUUID: () => "carry-on-id" });
+  it("stores an alphanumeric carousel independently and uses null when unknown", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "carousel-id" });
     const flight = flightFromDraft({
       ...baseDraft(),
-      baggageStatus: "not-checked",
-      baggageCarousel: "8",
+      baggageCarousel: "D05",
     });
 
-    expect(flight.extensions?.["keepraw-fly.baggage"]).toEqual({
-      checkedBaggage: false,
-    });
-    expect(flightToDraft(flight)).toMatchObject({
-      baggageStatus: "not-checked",
-      baggageCarousel: "",
-    });
+    expect(flight.baggageCarousel).toBe("D05");
+    expect(flightToDraft(flight).baggageCarousel).toBe("D05");
+    expect(flightFromDraft(baseDraft()).baggageCarousel).toBeNull();
     vi.unstubAllGlobals();
   });
 
@@ -363,12 +347,10 @@ function baseDraft(): FlightDraft {
     seat: "",
     cabin: "",
     bookingClass: "",
-    baggageStatus: "",
     baggageCarousel: "",
     ticketNumber: "",
+    bookingReference: "",
     frequentFlyerMembershipId: "",
-    frequentFlyerProgramName: "",
-    frequentFlyerMemberNumber: "",
-    frequentFlyerTier: "",
+    frequentFlyerTierAtFlight: "",
   };
 }

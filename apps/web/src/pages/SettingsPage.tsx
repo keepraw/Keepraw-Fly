@@ -1,6 +1,11 @@
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
-import { frequentFlyerMemberships, type FrequentFlyerMembership } from "@keepraw-fly/core";
+import {
+  frequentFlyerMemberships,
+  frequentFlyerProgramId,
+  frequentFlyerProgramName,
+  type FrequentFlyerMembership,
+} from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
 import { AviationIcon, type AviationIconName } from "../components/AviationPrimitives";
 import { ImportControl } from "../components/ImportControl";
@@ -85,7 +90,7 @@ export function SettingsPage({
   function addMembership() {
     void onMembershipsChange([...memberships, {
       id: `membership-${crypto.randomUUID()}`,
-      programName: "",
+      programId: "custom",
       memberNumber: "",
       associatedAirlines: [],
     }]);
@@ -155,13 +160,22 @@ export function SettingsPage({
             <p className="settings-helper">{t("settings.frequentFlyerDescription")}</p>
             {memberships.map((membership) => (
               <fieldset className="membership-row" key={membership.id}>
-                <legend>{membership.programName || t("settings.newMembership")}</legend>
-                <label><span>{t("settings.programName")}</span><input value={membership.programName} onChange={(event) => updateMembership(membership.id, { programName: event.target.value })} /></label>
+                <legend>{frequentFlyerProgramName(membership, settings.language) || t("settings.newMembership")}</legend>
+                <label><span>{t("settings.programName")}</span><input value={membership.programName ?? frequentFlyerProgramName(membership, settings.language)} onChange={(event) => updateMembership(membership.id, {
+                  programId: frequentFlyerProgramId(event.target.value),
+                  programName: event.target.value || undefined,
+                })} /></label>
                 <label><span>{t("settings.memberNumber")}</span><input value={membership.memberNumber} onChange={(event) => updateMembership(membership.id, { memberNumber: event.target.value })} /></label>
                 <label><span>{t("settings.tier")}</span><input value={membership.tier ?? ""} onChange={(event) => updateMembership(membership.id, { tier: event.target.value })} /></label>
-                <label><span>{t("settings.associatedAirlines")}</span><input value={membership.associatedAirlines.join(", ")} placeholder="ZH, CA" onChange={(event) => updateMembership(membership.id, { associatedAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
+                <label><span>{t("settings.associatedAirlines")}</span><input value={membership.associatedAirlines?.join(", ") ?? ""} placeholder="ZH, CA" onChange={(event) => updateMembership(membership.id, { associatedAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
                 <label><span>{t("settings.defaultForAirlines")}</span><input value={membership.defaultForAirlines?.join(", ") ?? ""} placeholder="ZH" onChange={(event) => updateMembership(membership.id, { defaultForAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
-                <button className="button-secondary membership-delete" type="button" onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}>{t("settings.removeMembership")}</button>
+                <button
+                  className="button-secondary membership-delete"
+                  type="button"
+                  disabled={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id)}
+                  title={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id) ? t("settings.membershipInUse") : undefined}
+                  onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}
+                >{t("settings.removeMembership")}</button>
               </fieldset>
             ))}
             <button className="button-secondary" type="button" disabled={!document} onClick={addMembership}>{t("settings.addMembership")}</button>

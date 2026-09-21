@@ -80,6 +80,25 @@ describe("import preview", () => {
     expect(preflight.issues[0]).toMatchObject({ flightIndex: 1, keyword: "chronology" });
   });
 
+  it("merges referenced memberships and remaps a colliding imported id", () => {
+    const existing: KeeprawFlyDocument = {
+      ...documentWithFlights,
+      flights: [],
+      frequentFlyerMemberships: [{ id: "ff-1", programId: "mileageplus", memberNumber: "UA001" }],
+    };
+    const imported: KeeprawFlyDocument = {
+      ...documentWithFlights,
+      frequentFlyerMemberships: [{ id: "ff-1", programId: "phoenixmiles", memberNumber: "ZH001", tier: "gold" }],
+      flights: [{ ...documentWithFlights.flights[0]!, frequentFlyer: { membershipId: "ff-1", tierAtFlight: "silver" } }],
+    };
+    const text = JSON.stringify(imported);
+    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), existing);
+    const merged = buildDocumentFromJsonImport(preflight, existing);
+
+    expect(merged.frequentFlyerMemberships).toHaveLength(2);
+    expect(merged.flights[0]?.frequentFlyer).toEqual({ membershipId: "ff-1-imported", tierAtFlight: "silver" });
+  });
+
   it("reports an empty or malformed file as a blocking file issue", () => {
     for (const text of ["", '{"format":']) {
       const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), null);

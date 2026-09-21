@@ -32,6 +32,23 @@ export type JsonValue =
 
 export type ExtensionMap = Record<string, JsonValue>;
 
+export interface FrequentFlyerMembership {
+  id: string;
+  programId: string;
+  /** Custom/legacy display name used only when the program reference is unknown. */
+  programName?: string;
+  memberNumber: string;
+  tier?: string | null;
+  associatedAirlines?: string[];
+  defaultForAirlines?: string[];
+}
+
+export interface FlightFrequentFlyerReference {
+  membershipId: string;
+  /** Historical membership tier for this flight; it must not track the current tier. */
+  tierAtFlight?: string | null;
+}
+
 export interface KeeprawFlight {
   id: string;
   flightNumber: string;
@@ -43,6 +60,10 @@ export interface KeeprawFlight {
   scheduledArrival: string;
   actualDeparture?: string;
   actualArrival?: string;
+  ticketNumber?: string | null;
+  bookingReference?: string | null;
+  baggageCarousel?: string | null;
+  frequentFlyer?: FlightFrequentFlyerReference;
   extensions?: ExtensionMap;
 }
 
@@ -51,6 +72,6 @@ export interface KeeprawFlyDocument {
   formatVersion: typeof KEEPRAW_FLY_FORMAT_VERSION;
   profile: KeeprawProfile;
   flights: KeeprawFlight[];
+  frequentFlyerMemberships?: FrequentFlyerMembership[];
   extensions?: ExtensionMap;
 }
-

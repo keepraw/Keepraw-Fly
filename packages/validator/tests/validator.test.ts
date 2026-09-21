@@ -79,6 +79,66 @@ describe("Keepraw Fly validator", () => {
     expect(future.valid).toBe(false);
   });
 
+  it("migrates legacy travel extensions into relationship-based flight metadata", () => {
+    const legacy = structuredClone(validDocument) as Record<string, any>;
+    legacy.extensions = {
+      "keepraw-fly.frequent-flyer": {
+        memberships: [{
+          id: "ff-phoenix-01",
+          programName: "PhoenixMiles",
+          memberNumber: "ZH-88301924",
+          tier: "silver",
+          associatedAirlines: ["ZH"],
+        }],
+      },
+    };
+    legacy.flights[0].extensions = {
+      ...legacy.flights[0].extensions,
+      "keepraw-fly.baggage": { checkedBaggage: false, carousel: "D05" },
+      "keepraw-fly.ticket": { number: "4792401988421" },
+      "keepraw-fly.frequent-flyer": {
+        membershipId: "ff-phoenix-01",
+        programName: "PhoenixMiles",
+        memberNumber: "ZH-88301924",
+        tier: "gold",
+      },
+    };
+
+    const result = validateAndMigrateKeeprawFly(legacy);
+
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.migrations).toContain("flight-metadata-v2");
+      expect(result.data.frequentFlyerMemberships?.[0]).toMatchObject({
+        id: "ff-phoenix-01",
+        programId: "phoenixmiles",
+        memberNumber: "ZH-88301924",
+        tier: "silver",
+      });
+      expect(result.data.flights[0]).toMatchObject({
+        baggageCarousel: "D05",
+        ticketNumber: "4792401988421",
+        frequentFlyer: { membershipId: "ff-phoenix-01", tierAtFlight: "gold" },
+      });
+      expect(JSON.stringify(result.data)).not.toContain("checkedBaggage");
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.baggage");
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.ticket");
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.frequent-flyer");
+    }
+  });
+
+  it("accepts nullable string metadata and keeps ticket number separate from PNR", () => {
+    const input = structuredClone(validDocument) as Record<string, any>;
+    Object.assign(input.flights[0], {
+      ticketNumber: "479-2401988421",
+      bookingReference: "KY78M9",
+      baggageCarousel: null,
+    });
+
+    const result = validateKeeprawFly(input);
+    expect(result.valid).toBe(true);
+  });
+
   it("reports the flight and path for a datetime without a timezone", () => {
     const input = structuredClone(validDocument);
     input.flights[0]!.scheduledDeparture = "2026-08-19 10:20";

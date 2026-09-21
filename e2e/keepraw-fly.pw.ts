@@ -19,10 +19,8 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await expect(editor.getByLabel("Destination gate")).toHaveCount(0);
   await expect(editor.getByText("Single-letter airline booking code", { exact: false })).toHaveCount(0);
   await editor.getByLabel("Booking class").fill("P");
-  await editor.getByLabel("Checked baggage").selectOption("checked");
-  await editor.getByLabel("Baggage carousel").fill("8");
-  await editor.getByLabel("Checked baggage").selectOption("not-checked");
-  await expect(editor.getByLabel("Baggage carousel")).toHaveCount(0);
+  await editor.getByLabel("Baggage carousel").fill("D05");
+  await expect(editor.getByLabel("Baggage carousel")).toHaveValue("D05");
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -30,8 +28,7 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
 
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA123");
   await expect(page.locator(".detail-metadata-column").first()).toContainText("P");
-  await expect(page.locator(".detail-metadata-column").first()).toContainText("Checked baggage");
-  await expect(page.locator(".detail-metadata-column").first()).toContainText("No");
+  await expect(page.locator(".detail-stop--arrival .operation-badge")).toContainText("D05");
   await page.getByRole("button", { name: "Edit flight" }).click();
   const editDialog = page.getByRole("dialog", { name: "Edit flight" });
   await editDialog.getByLabel("Flight number").fill("UA124");
@@ -542,6 +539,13 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
 
 test("localizes airport identity and keeps sparse facility and map layouts legible", async ({ page }) => {
   const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  archive.frequentFlyerMemberships = [{
+    id: "ff_phoenixmiles_01",
+    programId: "phoenixmiles",
+    memberNumber: "ZH-88301924",
+    tier: "Gold",
+    associatedAirlines: ["ZH"],
+  }];
   archive.flights[0] = {
     ...archive.flights[0],
     id: "example-zh9911-20260917",
@@ -554,12 +558,13 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     scheduledArrival: "2026-09-18T00:05:00+08:00",
     actualDeparture: "2026-09-17T20:56:00+08:00",
     actualArrival: "2026-09-17T23:30:00+08:00",
+    ticketNumber: "4792401988421",
+    bookingReference: "KY78M9",
+    baggageCarousel: "10",
+    frequentFlyer: { membershipId: "ff_phoenixmiles_01", tierAtFlight: "Gold" },
     extensions: {
       "keepraw-fly.aircraft": { type: "Airbus A320neo", registration: "B-1234" },
       "keepraw-fly.seat": { seat: "2A", cabin: "business", bookingClass: "J" },
-      "keepraw-fly.baggage": { checkedBaggage: true, carousel: "10" },
-      "keepraw-fly.ticket": { number: "4792401988421" },
-      "keepraw-fly.frequent-flyer": { programName: "PhoenixMiles", memberNumber: "ZH-88301924", tier: "Gold" },
     },
   };
 

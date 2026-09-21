@@ -95,13 +95,11 @@ describe("flight calculations", () => {
     });
   });
 
-  it("reads booking class and baggage facts without inferring missing values", () => {
+  it("reads booking class and a string baggage carousel without a checked-baggage flag", () => {
     const withPersonalFacts: KeeprawFlight = {
       ...flight,
-      extensions: {
-        "keepraw-fly.seat": { seat: "14F", cabin: "economy", bookingClass: "P" },
-        "keepraw-fly.baggage": { checkedBaggage: true, carousel: "8" },
-      },
+      baggageCarousel: "A3",
+      extensions: { "keepraw-fly.seat": { seat: "14F", cabin: "economy", bookingClass: "P" } },
     };
 
     expect(seatFacts(withPersonalFacts)).toEqual({
@@ -109,10 +107,7 @@ describe("flight calculations", () => {
       cabin: "economy",
       bookingClass: "P",
     });
-    expect(baggageFacts(withPersonalFacts)).toEqual({
-      checkedBaggage: true,
-      carousel: "8",
-    });
+    expect(baggageFacts(withPersonalFacts)).toEqual({ carousel: "A3" });
     expect(baggageFacts({ ...flight, extensions: undefined })).toBeNull();
   });
 
@@ -299,12 +294,12 @@ describe("airline and travel references", () => {
     expect(normalizeTicketNumber("781-1234567890")).toBe("7811234567890");
     expect(formatTicketNumber("7811234567890")).toBe("781-1234567890");
     expect(normalizeTicketNumber("stock-control-7")).toBe("stock-control-7");
-    expect(ticketFacts({ ...flight, extensions: { "keepraw-fly.ticket": { number: "7811234567890" } } }))
+    expect(ticketFacts({ ...flight, ticketNumber: "7811234567890" }))
       .toEqual({ number: "7811234567890" });
   });
 
   it("matches one membership, requires a choice for ambiguity, and honors an explicit default", () => {
-    const base = { programName: "PhoenixMiles", memberNumber: "CA123", associatedAirlines: ["CA", "CCA"] };
+    const base = { programId: "phoenixmiles", memberNumber: "CA123", associatedAirlines: ["CA", "CCA"] };
     const first = { ...base, id: "first" };
     const second = { ...base, id: "second", memberNumber: "CA456" };
     expect(autoMatchedMembership([first], { iata: "CA" })?.id).toBe("first");
@@ -312,11 +307,12 @@ describe("airline and travel references", () => {
     expect(autoMatchedMembership([{ ...first, defaultForAirlines: ["CA"] }, second], { iata: "CA" })?.id).toBe("first");
   });
 
-  it("reads profile memberships and immutable per-flight snapshots", () => {
-    const document = { extensions: { "keepraw-fly.frequent-flyer": { memberships: [{ id: "zh", programName: "尊鹏", memberNumber: "ZH123", tier: "金卡", associatedAirlines: ["ZH"] }] } } };
+  it("resolves member data from the account and keeps the per-flight tier immutable", () => {
+    const document = { frequentFlyerMemberships: [{ id: "zh", programId: "phoenixmiles", memberNumber: "ZH123", tier: "金卡", associatedAirlines: ["ZH"] }] };
     expect(frequentFlyerMemberships(document as never)[0]?.tier).toBe("金卡");
-    const snapshotted = { ...flight, extensions: { "keepraw-fly.frequent-flyer": { membershipId: "zh", programName: "尊鹏", memberNumber: "ZH123", tier: "银卡" } } };
-    expect(frequentFlyerSnapshot(snapshotted)?.tier).toBe("银卡");
+    const snapshotted = { ...flight, frequentFlyer: { membershipId: "zh", tierAtFlight: "银卡" } };
+    expect(frequentFlyerSnapshot(snapshotted, frequentFlyerMemberships(document as never), "zh-CN"))
+      .toMatchObject({ programName: "凤凰知音", memberNumber: "ZH123", tierAtFlight: "银卡" });
   });
 });
 
