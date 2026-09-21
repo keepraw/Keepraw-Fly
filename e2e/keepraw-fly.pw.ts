@@ -328,8 +328,9 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   });
 
   expect(bodyMetrics.size).toBeGreaterThanOrEqual(15);
+  expect(bodyMetrics.family).toContain("Inter");
   expect(bodyMetrics.family).toContain("Segoe UI Variable Text");
-  expect(flightDataMetrics.family).toContain("Bahnschrift");
+  expect(flightDataMetrics.family).toContain("Inter");
   expect(flightDataMetrics.features).toContain("tnum");
 
   await page.getByRole("link", { name: "Settings" }).click();
@@ -349,7 +350,9 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
       tracking: style.letterSpacing,
     };
   });
+  expect(chineseHeadingMetrics.family).toContain("PingFang SC");
   expect(chineseHeadingMetrics.family).toContain("Microsoft YaHei UI");
+  expect(chineseHeadingMetrics.family).not.toContain("SimSun");
   expect(chineseHeadingMetrics.size).toBeLessThan(englishTitleSize);
   expect(chineseHeadingMetrics.tracking).toBe("normal");
 
@@ -596,6 +599,25 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expect(page.getByRole("button", { name: "复制为新航班" })).toBeVisible();
   await expect(page.getByRole("button", { name: "编辑航班" })).toBeVisible();
 
+  const simplifiedTypography = await page.evaluate(() => {
+    const title = document.querySelector<HTMLElement>(".detail-heading h1")!;
+    const time = document.querySelector<HTMLElement>(".detail-airport-time")!;
+    const rootStyle = getComputedStyle(document.documentElement);
+    return {
+      titleFamily: getComputedStyle(title).fontFamily,
+      titleWeight: getComputedStyle(title).fontWeight,
+      timeFamily: getComputedStyle(time).fontFamily,
+      chineseStack: rootStyle.getPropertyValue("--font-family-cjk-sc").trim(),
+    };
+  });
+  expect(simplifiedTypography.titleFamily).toContain("Inter");
+  expect(simplifiedTypography.titleFamily).toContain("PingFang SC");
+  expect(simplifiedTypography.titleFamily).toContain("Microsoft YaHei UI");
+  expect(simplifiedTypography.titleFamily).not.toContain("SimSun");
+  expect(simplifiedTypography.timeFamily).toContain("Inter");
+  expect(simplifiedTypography.titleWeight).toBe("700");
+  expect(simplifiedTypography.chineseStack).toBe('"PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif');
+
   const stopHierarchy = await page.locator(".detail-stops").evaluate((hero) => {
     const cities = [...hero.querySelectorAll<HTMLElement>(".detail-stop-place > div > span")];
     const times = [...hero.querySelectorAll<HTMLElement>(".detail-airport-time")];
@@ -632,6 +654,21 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expect(page.locator(".route-arrival-airport")).toHaveText("青島膠東國際機場");
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("深圳航空");
   await expect(page.locator(".detail-metadata-column").first()).toContainText("商務艙");
+  const traditionalTypography = await page.evaluate(() => {
+    const title = document.querySelector<HTMLElement>(".detail-heading h1")!;
+    const rootStyle = getComputedStyle(document.documentElement);
+    return {
+      titleFamily: getComputedStyle(title).fontFamily,
+      titleWeight: getComputedStyle(title).fontWeight,
+      chineseStack: rootStyle.getPropertyValue("--font-family-cjk-tc").trim(),
+    };
+  });
+  expect(traditionalTypography.titleFamily).toContain("Inter");
+  expect(traditionalTypography.titleFamily).toContain("PingFang TC");
+  expect(traditionalTypography.titleFamily).toContain("Microsoft JhengHei UI");
+  expect(traditionalTypography.titleFamily).not.toContain("SimSun");
+  expect(traditionalTypography.titleWeight).toBe("700");
+  expect(traditionalTypography.chineseStack).toBe('"PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif');
 });
 
 test("keeps every page aligned to the shared responsive shell", async ({ page }) => {

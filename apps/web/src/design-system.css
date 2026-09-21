@@ -8,11 +8,14 @@
   text-rendering: optimizeLegibility;
   color-scheme: light;
 
-  /* Typography families: UI prose, display hierarchy and scannable flight data. */
-  --font-family-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  /* Typography families: Latin-first UI prose plus explicit Simplified/Traditional Chinese glyph stacks. */
+  --font-family-latin: "Inter", "Segoe UI Variable Text", "Segoe UI";
+  --font-family-cjk-sc: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+  --font-family-cjk-tc: "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
+  --font-family-ui: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  --font-family-data: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --font-family-display: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-family-data: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   --font-family-mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace;
 
   /* Semantic color roles */
@@ -179,11 +182,25 @@
 }
 
 :root:lang(zh-CN),
-:root:lang(zh-TW) {
-  --font-family-ui: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC", system-ui, sans-serif;
+:root:lang(zh-Hans) {
+  --font-family-ui: var(--font-family-latin), var(--font-family-cjk-sc);
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
-  --font-family-data: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-family-display: var(--font-family-latin), var(--font-family-cjk-sc);
+  --font-family-data: var(--font-family-latin), var(--font-family-cjk-sc);
+}
+
+:root:lang(zh-TW),
+:root:lang(zh-Hant) {
+  --font-family-ui: var(--font-family-latin), var(--font-family-cjk-tc);
+  --font-family-sans: var(--font-family-ui);
+  --font-family-display: var(--font-family-latin), var(--font-family-cjk-tc);
+  --font-family-data: var(--font-family-latin), var(--font-family-cjk-tc);
+}
+
+:root:lang(zh-CN),
+:root:lang(zh-Hans),
+:root:lang(zh-TW),
+:root:lang(zh-Hant) {
   --type-size-lead: 1rem;
   --type-size-section: clamp(1.375rem, 1.55vw, 1.625rem);
   --type-size-page: clamp(2.25rem, 3vw, 2.875rem);
