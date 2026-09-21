@@ -12,6 +12,18 @@ import/edit/export round trip.
 Viewer preferences such as language, appearance, units and time format are not
 part of this document. They belong to local application storage.
 
-Keepraw Fly's ticket and frequent-flyer UI uses namespaced document/flight
-extensions, so archives remain format version `0.1.0` and older 0.1.0 files
-continue to validate unchanged.
+Keepraw Fly stores optional `ticketNumber`, `bookingReference`,
+`registration` and string-valued `baggageCarousel` flight metadata without
+conflating a baggage carousel with whether a passenger checked baggage.
+
+Frequent-flyer memberships are user-level entities. A flight references a
+membership by `membershipId` and keeps `tierAtFlight` as the historical tier
+snapshot; program display data and the member number are resolved from the
+membership and program data layers instead of being copied into every flight.
+Membership airline associations are exported as canonical code arrays, with
+an optional `defaultAirline` that must belong to that array.
+
+Import migration accepts older namespaced ticket/baggage/frequent-flyer values,
+including comma-delimited airline associations, while new exports use the
+canonical typed structure. Archives remain format version `0.1.0`, and older
+0.1.0 files continue to validate unchanged.

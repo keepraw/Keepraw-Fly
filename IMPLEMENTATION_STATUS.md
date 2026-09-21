@@ -4,10 +4,20 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-14
-- Current milestone: local-first 0.1 viewer, verified import paths, release automation, language-aware typography and UI-design handoff complete
+- Last updated: 2026-09-21
+- Current milestone: localized Stitch-aligned Flight Detail, corrected flight metadata relationships and frequent-flyer airline multi-select complete
 
 ## English
+
+### Recent development progress — 2026-09-21
+
+- Reworked Flight Detail against the Stitch export as a visual source of truth while preserving the real map, existing data binding, editor, copy action, routing and business fields.
+- Completed the English, Simplified Chinese and Traditional Chinese i18n audit for Flight Detail, including locale-aware dates, dynamic early/late status text and localized airline, city and airport names from the data layer.
+- Added explicit Simplified and Traditional Chinese UI font stacks. Latin airport codes, flight numbers, times and numeric data continue to use Inter.
+- Separated `ticketNumber` from `bookingReference`, retained nullable string `baggageCarousel`, and removed the obsolete checked-baggage field and UI.
+- Moved frequent-flyer accounts to user-level memberships. Flights now reference `membershipId` and retain `tierAtFlight` as an immutable historical snapshot.
+- Replaced free-text airline associations with a searchable, duplicate-safe multi-select backed by the airline database, removable chips and a constrained `defaultAirline` selector.
+- Added backward-compatible migration for older ticket, baggage and frequent-flyer extensions, comma-delimited airline associations and legacy default-airline representations. New exports emit the canonical typed structure.
 
 ### Completed work
 
@@ -101,17 +111,11 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 74 unit/integration tests pass: 38 core, 9 validator and 27 web tests.
-- All 10 Playwright Chromium journeys pass, including de-vibe surface constraints, the route-first archive hierarchy, bilingual typography, shared-layout and responsive UI constraints, plus WCAG audits of light, dark and modal states.
+- All 145 unit/integration tests pass: 57 core, 11 validator and 77 web tests.
+- All 16 Playwright Chromium journeys pass, including Flight Detail localization and responsive layout, frequent-flyer airline multi-select behavior, route-first archive constraints and WCAG audits.
 - The Vite production build completes successfully.
-- The Natural Earth map is isolated in a 36.8 kB gzip on-demand chunk.
-- The airport directory is a separately cached 234.4 kB gzip JSON asset; removing it from the parse-critical path reduced the initial application chunk from 372.3 kB to 137.9 kB gzip.
-- The settings visual refresh adds about 1.3 kB gzip without a UI library, icon dependency or bundled font.
-- The shared Step 28 visual foundation adds about 1.0 kB gzip across CSS and the initial app JavaScript, with no new runtime dependency.
-- The Step 29 archive and detail upgrade adds about 1.0 kB gzip across CSS and initial JavaScript, without changing the dependency graph.
-- The Step 31 motion layer adds about 0.7 kB gzip across CSS and JavaScript, with no animation runtime or new dependency.
-- The revised Step 43 bilingual typography system adds no font file or dependency.
-- Browser checks covered first-run archive creation, demo ownership, guided flight facts, global airport search, TAO entry, multi-airport city aliases, city-code protection, safe import preview, persistence, the world route map, route-first open archive layouts at desktop and 390 px mobile widths, detail status and conditional facts, Lifetime/Year Passport views, staggered content and SVG route reveals, search, responsive premium settings and hash deep links.
+- Browser checks cover first-run archive creation, import migration, guided flight editing, global airport/airline search, the world route map, localized Flight Detail layouts at desktop and 390 px mobile widths, frequent-flyer membership editing, responsive archive and Passport views, themes, modal behavior and hash deep links.
+- Airline and airport reference data remains offline; the Chinese typography update adds no remote font, bundled CJK font, UI library or runtime lookup.
 - The browser console was clean in the final verification run.
 
 ### Milestone commits
@@ -157,12 +161,36 @@
 39. `321759c` — Automate static GitHub Pages releases
 40. `30b47b5` — Rebuild language-aware typography scale
 41. `cd05915` — Keep delay facts within responsive cards
+42. `3fd5431` — Add Google Stitch UI design handoff
+43. `cf30d1e` — Rebuild bilingual typography system
+44. `6f20610` — Unify shared page layout
+45. `14547bd` — Redesign the flight archive list
+46. `3c06f69` — Add import preflight and preview
+47. `4375e20` — Add duplicate flight detection
+48. `c0ae049` — Make Passport statistics explorable
+49. `2d24ff2` — Add smart camera behavior to flight maps
+50. `2c58ef8` — Enrich flight records and refine details
+51. `f4fc6fe` — Restyle Flight Detail from the Stitch reference
+52. `f45582d` — Complete the Flight Detail localization audit
+53. `f9b1fc2` — Refine Chinese Flight Detail typography
+54. `2805ee2` — Correct flight metadata relationships
+55. `eb7aeab` — Fix frequent-flyer airline associations
 
 ### Deliberately deferred
 
 Backend accounts and sync, live flight services, third-party booking integrations, advanced importers, third-party interactive basemaps, payments and native apps are outside the 0.1 milestone. See [docs/not-implemented.md](docs/not-implemented.md) for the complete list.
 
 ## 简体中文
+
+### 近期开发进度 — 2026-09-21
+
+- 以 Stitch 导出稿作为视觉 source of truth 重构 Flight Detail，同时保留真实地图、现有数据绑定、编辑、复制、路由和业务字段。
+- 完成 Flight Detail 的英文、简体中文和繁体中文 i18n 审计，包括按 locale 格式化日期、动态生成提前/延误状态，以及从数据层取得本地化航司、城市和机场名称。
+- 为简体中文和繁体中文建立明确的 UI 字体栈；机场代码、航班号、时间和数字数据中的拉丁字符继续使用 Inter。
+- 将 `ticketNumber` 与 `bookingReference` 分开保存，保留可空字符串类型的 `baggageCarousel`，并删除语义错误的“是否托运行李”字段与界面。
+- 将常旅客账户调整为用户级 membership；航班通过 `membershipId` 引用账户，并使用 `tierAtFlight` 保存不可变的历史等级快照。
+- 将自由文本的关联航司改为基于航司数据库的可搜索多选，支持去重、删除标签，并让 `defaultAirline` 只能从已关联航司中选择。
+- 为旧版客票、行李和常旅客扩展、逗号分隔的关联航司以及旧默认航司表示增加向后兼容迁移；新导出统一使用规范的类型化结构。
 
 ### 已完成工作
 
@@ -256,17 +284,11 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 74 项单元/集成测试全部通过：核心逻辑 38 项、校验器 9 项、Web 端 27 项。
-- 10 条 Playwright Chromium 用户旅程全部通过，其中包含去装饰表面约束、航线优先的档案层级、双语字体、共享布局与响应式 UI 约束，以及浅色、深色与弹窗状态的 WCAG 审计。
+- 145 项单元/集成测试全部通过：核心逻辑 57 项、校验器 11 项、Web 端 77 项。
+- 16 条 Playwright Chromium 用户旅程全部通过，覆盖 Flight Detail 本地化与响应式布局、常旅客关联航司多选、航线优先档案约束和 WCAG 审计。
 - Vite 生产构建成功完成。
-- Natural Earth 地图被拆分为 36.8 kB gzip 的按需资源。
-- 机场目录成为可独立缓存的 234.4 kB gzip JSON 资源；移出解析关键路径后，应用初始主包从 372.3 kB 降至 137.9 kB gzip。
-- 设置页视觉升级仅增加约 1.3 kB gzip，未引入 UI 库、图标依赖或打包字体。
-- 第 28 步共享视觉基础在 CSS 与初始应用 JavaScript 中合计约增加 1.0 kB gzip，未新增运行时依赖。
-- 第 29 步档案与详情升级在 CSS 和初始 JavaScript 中合计约增加 1.0 kB gzip，依赖关系保持不变。
-- 第 31 步动效层在 CSS 和 JavaScript 中合计约增加 0.7 kB gzip，未加入动画运行库或新依赖。
-- 修订后的第 43 步双语字体体系没有添加字体文件或依赖。
-- 浏览器检查覆盖首次建档、演示档案归属、引导式航班事实、全球机场搜索、TAO 录入、多机场城市别名、城市代码防误存、安全导入预览、持久化、世界航线图、桌面与 390 px 移动端航线优先开放式档案、详情状态与条件事实、终身/年度护照、错峰内容与 SVG 航线出现、搜索、响应式高级设置页及 hash 深链接。
+- 浏览器检查覆盖首次建档、导入迁移、引导式航班编辑、全球机场/航司搜索、世界航线地图、桌面及 390 px 移动端的本地化 Flight Detail、常旅客账户编辑、响应式档案与护照页面、主题、弹窗行为和 hash 深链接。
+- 航司与机场参考数据继续离线提供；中文字体更新没有引入远程字体、打包 CJK 字体、UI 库或运行时查询。
 - 最终验证时浏览器控制台无错误。
 
 ### 阶段 commit
@@ -312,6 +334,20 @@ Backend accounts and sync, live flight services, third-party booking integration
 39. `321759c` — 自动化 GitHub Pages 静态发布
 40. `30b47b5` — 重建语言感知的字号体系
 41. `cd05915` — 确保延误信息保持在响应式卡片内
+42. `3fd5431` — 添加 Google Stitch UI 设计交接资料
+43. `cf30d1e` — 重建双语字体系统
+44. `6f20610` — 统一共享页面布局
+45. `14547bd` — 重构航班档案列表
+46. `3c06f69` — 添加导入预检与预览
+47. `4375e20` — 添加重复航班检测
+48. `c0ae049` — 让飞行护照统计可探索
+49. `2d24ff2` — 为航班地图添加智能镜头
+50. `2c58ef8` — 丰富航班记录并优化详情
+51. `f4fc6fe` — 按 Stitch 参考重构航班详情
+52. `f45582d` — 完成航班详情国际化审计
+53. `f9b1fc2` — 优化中文航班详情字体
+54. `2805ee2` — 修正航班 metadata 关系
+55. `eb7aeab` — 修正常旅客关联航司
 
 ### 明确推迟的范围
 
