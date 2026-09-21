@@ -4,6 +4,9 @@ import {
   frequentFlyerMemberships,
   frequentFlyerProgramId,
   frequentFlyerProgramName,
+  airlineNames,
+  normalizeMembershipAirlines,
+  resolveAirline,
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
@@ -11,6 +14,7 @@ import { AviationIcon, type AviationIconName } from "../components/AviationPrimi
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { PageShell } from "../components/PageShell";
+import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 
 interface SettingsPageProps {
   document: KeeprawFlyDocument | null;
@@ -96,6 +100,15 @@ export function SettingsPage({
     }]);
   }
 
+  function updateAssociatedAirlines(membership: FrequentFlyerMembership, codes: string[]) {
+    updateMembership(membership.id, normalizeMembershipAirlines(codes, membership.defaultAirline));
+  }
+
+  function airlineOptionLabel(code: string): string {
+    const airline = resolveAirline(code);
+    return airline ? `${code} · ${airlineNames(airline, settings.language)[0]}` : code;
+  }
+
   return (
     <PageShell className="settings-page">
       <header className="settings-heading">
@@ -167,8 +180,20 @@ export function SettingsPage({
                 })} /></label>
                 <label><span>{t("settings.memberNumber")}</span><input value={membership.memberNumber} onChange={(event) => updateMembership(membership.id, { memberNumber: event.target.value })} /></label>
                 <label><span>{t("settings.tier")}</span><input value={membership.tier ?? ""} onChange={(event) => updateMembership(membership.id, { tier: event.target.value })} /></label>
-                <label><span>{t("settings.associatedAirlines")}</span><input value={membership.associatedAirlines?.join(", ") ?? ""} placeholder="ZH, CA" onChange={(event) => updateMembership(membership.id, { associatedAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
-                <label><span>{t("settings.defaultForAirlines")}</span><input value={membership.defaultForAirlines?.join(", ") ?? ""} placeholder="ZH" onChange={(event) => updateMembership(membership.id, { defaultForAirlines: event.target.value.split(/[\s,]+/).filter(Boolean).map((code) => code.toUpperCase()) })} /></label>
+                <AirlineMultiSelect
+                  label={t("settings.associatedAirlines")}
+                  locale={settings.language}
+                  value={membership.associatedAirlines}
+                  onChange={(codes) => updateAssociatedAirlines(membership, codes)}
+                />
+                <label><span>{t("settings.defaultAirline")}</span><select
+                  disabled={!membership.associatedAirlines.length}
+                  value={membership.defaultAirline ?? ""}
+                  onChange={(event) => updateMembership(membership.id, normalizeMembershipAirlines(membership.associatedAirlines, event.target.value || null))}
+                >
+                  {membership.associatedAirlines.length !== 1 ? <option value="">{t("settings.noDefaultAirline")}</option> : null}
+                  {membership.associatedAirlines.map((code) => <option value={code} key={code}>{airlineOptionLabel(code)}</option>)}
+                </select></label>
                 <button
                   className="button-secondary membership-delete"
                   type="button"

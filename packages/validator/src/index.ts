@@ -6,6 +6,7 @@ import {
   type KeeprawFlyDocument,
 } from "@keepraw-fly/schema";
 import keeprawFlySchema from "@keepraw-fly/schema/schema";
+import { canonicalAirlineCode } from "@keepraw-fly/core";
 
 export interface ValidationIssue {
   path: string;
@@ -101,6 +102,14 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
       });
     }
     membershipIds.add(membership.id);
+    if (membership.defaultAirline && !membership.associatedAirlines.includes(membership.defaultAirline)) {
+      issues.push({
+        path: `/frequentFlyerMemberships/${membershipIndex}/defaultAirline`,
+        keyword: "membershipDefaultAirline",
+        message: "Default airline must be one of the membership's associated airlines.",
+        received: membership.defaultAirline,
+      });
+    }
   });
 
   document.flights.forEach((flight, flightIndex) => {
@@ -219,7 +228,11 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
   const membershipIds = new Set(memberships.map((membership) => membership.id));
 
   if ((!Array.isArray(document.frequentFlyerMemberships) && sourceMemberships.length)
-    || sourceMemberships.some((item) => !objectValue(item)?.programId)) changed = true;
+    || sourceMemberships.some((item) => {
+      const value = objectValue(item);
+      return !value?.programId
+        || membershipAirlinesNeedMigration(value);
+    })) changed = true;
   if (legacyFrequentFlyer && documentExtensions) {
     delete documentExtensions["keepraw-fly.frequent-flyer"];
     changed = true;
@@ -271,6 +284,7 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
                 ...(programName ? { programName } : {}),
                 memberNumber,
                 associatedAirlines: [],
+                defaultAirline: null,
               });
               membershipIds.add(membershipId);
             }
@@ -304,14 +318,22 @@ function normalizeMembership(item: unknown): Array<Record<string, unknown> & { i
   if (!value || typeof value.id !== "string" || typeof value.memberNumber !== "string") return [];
   const name = typeof value.programName === "string" ? value.programName : "";
   const id = typeof value.programId === "string" && value.programId ? value.programId : programId(name);
+  const associatedAirlines = uniqueAirlineCodes(value.associatedAirlines);
+  const legacyDefaults = stringValues(value.defaultForAirlines);
+  const requestedDefault = typeof value.defaultAirline === "string"
+    ? canonicalAirlineCode(value.defaultAirline)
+    : legacyDefaults[0] ? canonicalAirlineCode(legacyDefaults[0]) : null;
+  const defaultAirline = associatedAirlines.length === 1
+    ? associatedAirlines[0]!
+    : requestedDefault && associatedAirlines.includes(requestedDefault) ? requestedDefault : null;
   return [{
     id: value.id,
     programId: id,
     ...(name ? { programName: name } : {}),
     memberNumber: value.memberNumber,
     ...(typeof value.tier === "string" && value.tier ? { tier: value.tier } : value.tier === null ? { tier: null } : {}),
-    ...(stringArray(value.associatedAirlines).length ? { associatedAirlines: stringArray(value.associatedAirlines) } : {}),
-    ...(stringArray(value.defaultForAirlines).length ? { defaultForAirlines: stringArray(value.defaultForAirlines) } : {}),
+    associatedAirlines,
+    defaultAirline,
   }];
 }
 
@@ -321,6 +343,27 @@ function objectValue(value: unknown): Record<string, unknown> | null {
 
 function stringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function stringValues(value: unknown): string[] {
+  if (typeof value === "string") return value.split(/[\s,，]+/).filter(Boolean);
+  return stringArray(value);
+}
+
+function uniqueAirlineCodes(value: unknown): string[] {
+  return [...new Set(stringValues(value).map(canonicalAirlineCode).filter(Boolean))];
+}
+
+function membershipAirlinesNeedMigration(value: Record<string, unknown> | null): boolean {
+  if (!value || !Array.isArray(value.associatedAirlines) || "defaultForAirlines" in value) return true;
+  const canonical = uniqueAirlineCodes(value.associatedAirlines);
+  const stored = stringArray(value.associatedAirlines);
+  if (canonical.length !== stored.length || canonical.some((code, index) => code !== stored[index])) return true;
+  const requestedDefault = typeof value.defaultAirline === "string" ? canonicalAirlineCode(value.defaultAirline) : null;
+  const expectedDefault = canonical.length === 1
+    ? canonical[0]!
+    : requestedDefault && canonical.includes(requestedDefault) ? requestedDefault : null;
+  return value.defaultAirline !== expectedDefault;
 }
 
 function programId(value: string): string {

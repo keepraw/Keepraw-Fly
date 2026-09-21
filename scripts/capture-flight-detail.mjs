@@ -11,6 +11,7 @@ archive.frequentFlyerMemberships = [{
   memberNumber: "ZH-88301924",
   tier: "Gold",
   associatedAirlines: ["ZH"],
+  defaultAirline: "ZH",
 }];
 
 archive.flights = [{

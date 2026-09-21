@@ -89,6 +89,9 @@ importers:
 
   packages/validator:
     dependencies:
+      '@keepraw-fly/core':
+        specifier: workspace:*
+        version: link:../core
       '@keepraw-fly/schema':
         specifier: workspace:*
         version: link:../schema

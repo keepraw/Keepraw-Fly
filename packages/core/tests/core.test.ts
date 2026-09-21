@@ -25,13 +25,17 @@ import {
   searchAirports,
   seatFacts,
   airlineNames,
+  canonicalAirlineCode,
   autoMatchedMembership,
   formatTicketNumber,
   frequentFlyerMemberships,
   frequentFlyerSnapshot,
   normalizeTicketNumber,
+  normalizeMembershipAirlines,
   resolveAirline,
+  searchAirlines,
   ticketFacts,
+  withFrequentFlyerMemberships,
 } from "../src";
 import type { CompactAirportRow } from "../src";
 
@@ -299,12 +303,52 @@ describe("airline and travel references", () => {
   });
 
   it("matches one membership, requires a choice for ambiguity, and honors an explicit default", () => {
-    const base = { programId: "phoenixmiles", memberNumber: "CA123", associatedAirlines: ["CA", "CCA"] };
+    const base = { programId: "phoenixmiles", memberNumber: "CA123", associatedAirlines: ["CA", "ZH"], defaultAirline: null };
     const first = { ...base, id: "first" };
     const second = { ...base, id: "second", memberNumber: "CA456" };
     expect(autoMatchedMembership([first], { iata: "CA" })?.id).toBe("first");
     expect(autoMatchedMembership([first, second], { iata: "CA" })).toBeUndefined();
-    expect(autoMatchedMembership([{ ...first, defaultForAirlines: ["CA"] }, second], { iata: "CA" })?.id).toBe("first");
+    expect(autoMatchedMembership([{ ...first, defaultAirline: "CA" }, second], { iata: "CA" })?.id).toBe("first");
+  });
+
+  it("searches airlines by IATA, ICAO, English, Simplified Chinese and Traditional Chinese", () => {
+    expect(searchAirlines("ZH")[0]?.iata).toBe("ZH");
+    expect(searchAirlines("CSZ")[0]?.iata).toBe("ZH");
+    expect(searchAirlines("Shenzhen")[0]?.iata).toBe("ZH");
+    expect(searchAirlines("中国国际航空")[0]?.iata).toBe("CA");
+    expect(searchAirlines("中國國際航空")[0]?.iata).toBe("CA");
+    expect(canonicalAirlineCode("CSZ")).toBe("ZH");
+  });
+
+  it("deduplicates associated airlines and maintains a valid default", () => {
+    expect(normalizeMembershipAirlines(["ZH", "CSZ", "ZH"], null)).toEqual({
+      associatedAirlines: ["ZH"],
+      defaultAirline: "ZH",
+    });
+    expect(normalizeMembershipAirlines(["ZH", "CA"], "CA").defaultAirline).toBe("CA");
+    expect(normalizeMembershipAirlines(["ZH"], "CA").defaultAirline).toBe("ZH");
+    expect(normalizeMembershipAirlines(["ZH", "MU"], "CA").defaultAirline).toBeNull();
+  });
+
+  it("writes associated airlines as an array with a constrained singular default", () => {
+    const document = withFrequentFlyerMemberships({
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [],
+    }, [{
+      id: "ff-zh",
+      programId: "phoenixmiles",
+      memberNumber: "ZH123",
+      associatedAirlines: ["CSZ", "CA", "ZH"],
+      defaultAirline: "CCA",
+    }]);
+
+    expect(document.frequentFlyerMemberships?.[0]).toMatchObject({
+      associatedAirlines: ["ZH", "CA"],
+      defaultAirline: "CA",
+    });
+    expect(typeof document.frequentFlyerMemberships?.[0]?.associatedAirlines).toBe("object");
   });
 
   it("resolves member data from the account and keeps the per-flight tier immutable", () => {

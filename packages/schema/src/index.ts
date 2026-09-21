@@ -39,8 +39,8 @@ export interface FrequentFlyerMembership {
   programName?: string;
   memberNumber: string;
   tier?: string | null;
-  associatedAirlines?: string[];
-  defaultForAirlines?: string[];
+  associatedAirlines: string[];
+  defaultAirline?: string | null;
 }
 
 export interface FlightFrequentFlyerReference {
