@@ -49,6 +49,41 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await expect(page.getByRole("button", { name: /Open UA124/ })).toBeVisible();
 });
 
+test("manages associated airlines as searchable chips with a constrained default", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create my archive" }).click();
+  await page.getByRole("dialog", { name: "Add a flight" }).locator(".button-secondary").click();
+  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByRole("button", { name: "Add membership" }).click();
+
+  const membership = page.locator(".membership-row").last();
+  const airlineSearch = membership.getByRole("combobox", { name: "Associated airlines" });
+  const defaultAirline = membership.getByLabel("Default airline");
+
+  await airlineSearch.fill("ZH");
+  await membership.getByRole("option", { name: /ZH.*Shenzhen Airlines/ }).click();
+  await expect(membership.locator('[data-airline-code="ZH"]')).toContainText("Shenzhen Airlines");
+  await expect(airlineSearch).toBeFocused();
+  await expect(defaultAirline).toHaveValue("ZH");
+
+  await airlineSearch.fill("CA");
+  await membership.getByRole("option", { name: /CA.*Air China/ }).click();
+  await expect(membership.locator(".airline-chip")).toHaveCount(2);
+  await expect(defaultAirline.locator("option")).toHaveText(["No default", "ZH · Shenzhen Airlines", "CA · Air China"]);
+
+  await airlineSearch.fill("ZH");
+  await expect(membership.locator(".airline-options").getByRole("option", { name: /ZH.*Shenzhen Airlines/ })).toHaveCount(0);
+  await airlineSearch.fill("");
+  await defaultAirline.selectOption("CA");
+  await membership.getByRole("button", { name: "Remove CA · Air China" }).click();
+  await expect(defaultAirline).toHaveValue("ZH");
+  await expect(defaultAirline.locator('option[value="CA"]')).toHaveCount(0);
+
+  await airlineSearch.fill("CA");
+  await membership.getByRole("option", { name: /CA.*Air China/ }).click();
+  await expect(membership.locator(".airline-chip")).toHaveCount(2);
+});
+
 test("previews a JSON import and renders its Passport route map", async ({ page }) => {
   await page.goto("/");
   await page.locator('input[type="file"]').setInputFiles(exampleArchive);
@@ -545,6 +580,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     memberNumber: "ZH-88301924",
     tier: "Gold",
     associatedAirlines: ["ZH"],
+    defaultAirline: "ZH",
   }];
   archive.flights[0] = {
     ...archive.flights[0],

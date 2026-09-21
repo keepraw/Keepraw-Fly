@@ -50,3 +50,34 @@ export function airlineSearchText(reference: { iata?: string; icao?: string }): 
     ? [airline.iata, airline.icao, airline.nameEn, airline.nameZh, airline.nameZhTw].join(" ")
     : [reference.iata, reference.icao].filter(Boolean).join(" ");
 }
+
+export function canonicalAirlineCode(codeOrReference: string | { iata?: string; icao?: string }): string {
+  const airline = resolveAirline(codeOrReference);
+  if (airline) return airline.iata || airline.icao;
+  return typeof codeOrReference === "string"
+    ? codeOrReference.trim().toUpperCase()
+    : codeOrReference.iata || codeOrReference.icao || "";
+}
+
+export function searchAirlines(query: string): AirlineReference[] {
+  const normalized = query.trim().toLocaleLowerCase();
+  if (!normalized) return [];
+  const seen = new Set<string>();
+  return airlines
+    .filter((airline) => airlineSearchText(airline).toLocaleLowerCase().includes(normalized))
+    .sort((left, right) => airlineSearchRank(left, normalized) - airlineSearchRank(right, normalized)
+      || canonicalAirlineCode(left).localeCompare(canonicalAirlineCode(right)))
+    .filter((airline) => {
+      const code = canonicalAirlineCode(airline);
+      if (!code || seen.has(code)) return false;
+      seen.add(code);
+      return true;
+    });
+}
+
+function airlineSearchRank(airline: AirlineReference, query: string): number {
+  if (airline.iata.toLocaleLowerCase() === query) return 0;
+  if (airline.icao.toLocaleLowerCase() === query) return 1;
+  if ([airline.nameEn, airline.nameZh, airline.nameZhTw].some((name) => name.toLocaleLowerCase().startsWith(query))) return 2;
+  return 3;
+}

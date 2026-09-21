@@ -84,11 +84,11 @@ describe("import preview", () => {
     const existing: KeeprawFlyDocument = {
       ...documentWithFlights,
       flights: [],
-      frequentFlyerMemberships: [{ id: "ff-1", programId: "mileageplus", memberNumber: "UA001" }],
+      frequentFlyerMemberships: [{ id: "ff-1", programId: "mileageplus", memberNumber: "UA001", associatedAirlines: ["UA"], defaultAirline: "UA" }],
     };
     const imported: KeeprawFlyDocument = {
       ...documentWithFlights,
-      frequentFlyerMemberships: [{ id: "ff-1", programId: "phoenixmiles", memberNumber: "ZH001", tier: "gold" }],
+      frequentFlyerMemberships: [{ id: "ff-1", programId: "phoenixmiles", memberNumber: "ZH001", tier: "gold", associatedAirlines: ["ZH"], defaultAirline: "ZH" }],
       flights: [{ ...documentWithFlights.flights[0]!, frequentFlyer: { membershipId: "ff-1", tierAtFlight: "silver" } }],
     };
     const text = JSON.stringify(imported);

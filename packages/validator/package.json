@@ -12,9 +12,9 @@
     "typecheck": "tsc --noEmit --pretty false"
   },
   "dependencies": {
+    "@keepraw-fly/core": "workspace:*",
     "@keepraw-fly/schema": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   }
 }
-

@@ -51,7 +51,8 @@ flight stores only the account reference and the historical tier snapshot:
       "programId": "phoenixmiles",
       "memberNumber": "ZH-88301924",
       "tier": "silver",
-      "associatedAirlines": ["ZH", "CA"]
+      "associatedAirlines": ["ZH", "CA"],
+      "defaultAirline": "CA"
     }
   ],
   "flights": [
@@ -83,6 +84,9 @@ flight stores only the account reference and the historical tier snapshot:
 data: changing the current membership tier does not rewrite earlier flights.
 Program display names and alliance details are resolved from `programId`; a
 custom `programName` may be stored on the membership when no reference exists.
+Associated airlines are canonical airline-code arrays. `defaultAirline`, when
+set, must be one of those codes; a single associated airline becomes the
+default automatically.
 
 Standard 13-digit ticket numbers are stored as digits and displayed with the
 three-digit airline prefix separated by a hyphen. Non-standard values are

@@ -88,7 +88,8 @@ describe("Keepraw Fly validator", () => {
           programName: "PhoenixMiles",
           memberNumber: "ZH-88301924",
           tier: "silver",
-          associatedAirlines: ["ZH"],
+          associatedAirlines: "ZH, CCA",
+          defaultForAirlines: ["CCA"],
         }],
       },
     };
@@ -114,7 +115,11 @@ describe("Keepraw Fly validator", () => {
         programId: "phoenixmiles",
         memberNumber: "ZH-88301924",
         tier: "silver",
+        associatedAirlines: ["ZH", "CA"],
+        defaultAirline: "CA",
       });
+      expect(Array.isArray(result.data.frequentFlyerMemberships?.[0]?.associatedAirlines)).toBe(true);
+      expect(JSON.stringify(result.data)).not.toContain("defaultForAirlines");
       expect(result.data.flights[0]).toMatchObject({
         baggageCarousel: "D05",
         ticketNumber: "4792401988421",

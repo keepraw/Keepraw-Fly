@@ -959,7 +959,26 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .membership-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 20px 0; border: 0; border-top: 1px solid var(--line); }
 .membership-row legend { padding: 0 0 14px; font-weight: var(--font-weight-semibold); }
 .membership-row label { display: grid; gap: 7px; min-width: 0; color: var(--muted); font-size: var(--type-size-caption); }
-.membership-row input { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--ink); background: var(--color-canvas); }
+.membership-row input, .membership-row select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--ink); background: var(--color-canvas); }
+.airline-multi-select { position: relative; display: grid; min-width: 0; gap: 7px; color: var(--muted); font-size: var(--type-size-caption); }
+.airline-chip-input { display: flex; min-height: 42px; flex-wrap: wrap; gap: 6px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--color-canvas); cursor: text; transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard); }
+.airline-chip-input:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 13%, transparent); }
+.membership-row .airline-chip-input input { width: 120px; min-width: 110px; min-height: 28px; flex: 1 1 120px; padding: 2px 3px; border: 0; border-radius: 0; outline: 0; background: transparent; }
+.membership-row .airline-chip-input input:focus-visible { outline: 0; }
+.airline-chip { display: inline-flex; max-width: 100%; align-items: center; gap: 5px; padding: 4px 5px 4px 8px; border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent); border-radius: 7px; color: var(--ink); background: color-mix(in srgb, var(--surface) 74%, transparent); font-size: var(--type-size-caption); line-height: 1.15; }
+.airline-chip strong { font-family: var(--font-family-data); font-weight: var(--font-weight-semibold); letter-spacing: 0.02em; }
+.airline-chip i { color: var(--faint); font-style: normal; }
+.airline-chip > span { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.airline-chip button { display: inline-grid; width: 21px; height: 21px; place-items: center; padding: 0; border: 0; border-radius: 5px; color: var(--faint); background: transparent; cursor: pointer; font-size: 1rem; line-height: 1; }
+.airline-chip button:hover { color: var(--ink); background: var(--line); }
+.airline-options { position: absolute; z-index: 8; top: calc(100% + 5px); right: 0; left: 0; max-height: 260px; overflow-y: auto; border: 1px solid var(--color-line-strong); border-radius: var(--radius-control); background: var(--surface); box-shadow: 0 14px 34px rgb(0 0 0 / 13%); }
+.airline-options button { display: grid; width: 100%; grid-template-columns: 48px 1fr; grid-template-areas: "code name" "code meta"; gap: 2px 9px; padding: 10px 11px; border: 0; border-bottom: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
+.airline-options button:last-child { border-bottom: 0; }
+.airline-options button:hover, .airline-options button[aria-selected="true"] { background: var(--green-soft); }
+.airline-options strong { grid-area: code; align-self: center; color: var(--green); font-family: var(--font-family-data); font-weight: var(--font-weight-semibold); }
+.airline-options span { grid-area: name; overflow: hidden; color: var(--ink); font-size: var(--type-size-label); font-weight: var(--font-weight-medium); text-overflow: ellipsis; white-space: nowrap; }
+.airline-options small { grid-area: meta; overflow: hidden; color: var(--muted); font-size: var(--type-size-caption); text-overflow: ellipsis; white-space: nowrap; }
+.airline-options > p { margin: 0; padding: 13px 11px; color: var(--muted); }
 .membership-delete { align-self: end; justify-self: start; color: var(--red); }
 
 .toggle-row { display: flex; min-height: 70px; align-items: center; justify-content: space-between; gap: 30px; }
