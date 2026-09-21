@@ -4,6 +4,7 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   airlineNames,
   autoMatchedMembership,
+  frequentFlyerProgramName,
   isStandardTicketNumber,
   membershipsForAirline,
   resolveAirline,
@@ -98,16 +99,12 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
         ...current,
         flightNumber: upper,
         frequentFlyerMembershipId: match.id,
-        frequentFlyerProgramName: match.programName,
-        frequentFlyerMemberNumber: match.memberNumber,
-        frequentFlyerTier: match.tier ?? "",
+        frequentFlyerTierAtFlight: match.tier ?? "",
       } : {
         ...current,
         flightNumber: upper,
         frequentFlyerMembershipId: "",
-        frequentFlyerProgramName: "",
-        frequentFlyerMemberNumber: "",
-        frequentFlyerTier: "",
+        frequentFlyerTierAtFlight: "",
       };
     });
     setError(null);
@@ -118,15 +115,11 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
     setDraft((current) => membership ? {
       ...current,
       frequentFlyerMembershipId: membership.id,
-      frequentFlyerProgramName: membership.programName,
-      frequentFlyerMemberNumber: membership.memberNumber,
-      frequentFlyerTier: membership.tier ?? "",
+      frequentFlyerTierAtFlight: membership.tier ?? "",
     } : {
       ...current,
       frequentFlyerMembershipId: "",
-      frequentFlyerProgramName: "",
-      frequentFlyerMemberNumber: "",
-      frequentFlyerTier: "",
+      frequentFlyerTierAtFlight: "",
     });
   }
 
@@ -212,16 +205,17 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
               <input value={draft.ticketNumber} onChange={(event) => update("ticketNumber", event.target.value)} placeholder="781-1234567890" />
               {draft.ticketNumber && !isStandardTicketNumber(draft.ticketNumber) ? <small className="editor-field-warning">{t("flightEditor.nonstandardTicket")}</small> : null}
             </label>
+            <label><span>{t("flightEditor.bookingReference")}</span><input value={draft.bookingReference} onChange={(event) => update("bookingReference", event.target.value.toUpperCase())} /></label>
             <label>
               <span>{t("flightEditor.frequentFlyerPlan")}</span>
               <select value={draft.frequentFlyerMembershipId} onChange={(event) => selectMembership(event.target.value)}>
                 <option value="">{t("flightEditor.noFrequentFlyer")}</option>
-                {memberships.map((membership) => <option value={membership.id} key={membership.id}>{membership.programName} · {membership.memberNumber}</option>)}
+                {memberships.map((membership) => <option value={membership.id} key={membership.id}>{frequentFlyerProgramName(membership, locale)} · {membership.memberNumber}</option>)}
               </select>
               {matchingMemberships.length > 1 && !draft.frequentFlyerMembershipId ? <small className="editor-field-hint">{t("flightEditor.multipleMemberships")}</small> : null}
             </label>
-            <label><span>{t("flightEditor.memberNumber")}</span><input value={draft.frequentFlyerMemberNumber} readOnly /></label>
-            <label><span>{t("flightEditor.tier")}</span><input value={draft.frequentFlyerTier} onChange={(event) => update("frequentFlyerTier", event.target.value)} /></label>
+            <label><span>{t("flightEditor.memberNumber")}</span><input value={memberships.find((membership) => membership.id === draft.frequentFlyerMembershipId)?.memberNumber ?? ""} readOnly /></label>
+            <label><span>{t("flightEditor.frequentFlyerTier")}</span><input value={draft.frequentFlyerTierAtFlight} onChange={(event) => update("frequentFlyerTierAtFlight", event.target.value)} /></label>
           </fieldset>
 
           <details className="editor-optional">
@@ -248,20 +242,9 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
             <fieldset className="editor-facts-grid editor-baggage-grid">
               <legend>{t("flightEditor.baggageFacts")}</legend>
               <label>
-                <span>{t("flightEditor.checkedBaggage")}</span>
-                <select
-                  value={draft.baggageStatus}
-                  onChange={(event) => update("baggageStatus", event.target.value as FlightDraft["baggageStatus"])}
-                >
-                  <option value="">{t("flightEditor.notRecorded")}</option>
-                  <option value="not-checked">{t("flightEditor.noCheckedBaggage")}</option>
-                  <option value="checked">{t("flightEditor.hasCheckedBaggage")}</option>
-                </select>
-              </label>
-              {draft.baggageStatus === "checked" ? <label>
                 <span>{t("flightEditor.baggageCarousel")}</span>
                 <input value={draft.baggageCarousel} onChange={(event) => update("baggageCarousel", event.target.value.toUpperCase())} />
-              </label> : null}
+              </label>
             </fieldset>
 
             <fieldset className="editor-facts-grid editor-onboard-grid">

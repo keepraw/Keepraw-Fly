@@ -142,11 +142,7 @@ export function App() {
 
   async function updateMemberships(nextMemberships: readonly FrequentFlyerMembership[]) {
     if (!document) return;
-    const extensions = withFrequentFlyerMemberships(document.extensions, nextMemberships);
-    const nextDocument = { ...document };
-    if (extensions) nextDocument.extensions = extensions;
-    else delete nextDocument.extensions;
-    await storeDocument(nextDocument);
+    await storeDocument(withFrequentFlyerMemberships(document, nextMemberships));
   }
 
   async function clearDocument() {
@@ -257,6 +253,7 @@ export function App() {
       ) : page === "flights" && selectedFlight ? (
         <FlightDetailPage
           flight={selectedFlight}
+          memberships={memberships}
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}

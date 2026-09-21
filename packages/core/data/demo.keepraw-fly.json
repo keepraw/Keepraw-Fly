@@ -28,8 +28,7 @@
       "actualArrival": "2026-08-19T12:21:00-07:00",
       "extensions": {
         "keepraw-fly.aircraft": { "type": "B739", "registration": "N38417" },
-        "keepraw-fly.seat": { "seat": "12A", "cabin": "economy", "bookingClass": "P" },
-        "keepraw-fly.baggage": { "checkedBaggage": false }
+        "keepraw-fly.seat": { "seat": "12A", "cabin": "economy", "bookingClass": "P" }
       }
     },
     {

@@ -7,6 +7,7 @@ import {
   formatDistance, formatServiceDate, formatTicketNumber,
   formatTimeAtAirport, frequentFlyerSnapshot, localizedText, resolveAirline, seatFacts, ticketFacts,
   type DistanceUnit, type SupportedLocale, type TimeFormat,
+  type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import { PageShell } from "../components/PageShell";
 
@@ -15,6 +16,7 @@ const FlightRouteMap = lazy(() => import("../components/FlightRouteMap")
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
+  memberships: readonly FrequentFlyerMembership[];
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
@@ -141,7 +143,7 @@ function cabinTranslationKey(cabin: string): string | undefined {
   return undefined;
 }
 
-export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: FlightDetailPageProps) {
+export function FlightDetailPage({ flight, memberships, locale, distanceUnit, timeFormat }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
@@ -152,7 +154,7 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
   const seat = seatFacts(flight);
   const baggage = baggageFacts(flight);
   const ticket = ticketFacts(flight);
-  const frequentFlyer = frequentFlyerSnapshot(flight);
+  const frequentFlyer = frequentFlyerSnapshot(flight, memberships, locale);
   const duration = flightDuration(flight);
   const distance = distanceForFlight(flight);
   const operationalStatus = flightOperationalStatus(flight);
@@ -190,11 +192,8 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
   const cabinKey = seat?.cabin ? cabinTranslationKey(seat.cabin) : undefined;
   const cabinLabel = cabinKey ? t(cabinKey) : seat?.cabin;
   const experienceLine = [seat?.seat, cabinLabel, seat?.bookingClass].filter(Boolean).join(" · ");
-  const baggageLabel = baggage?.checkedBaggage === undefined
-    ? undefined
-    : t(baggage.checkedBaggage ? "flightDetail.hasCheckedBaggage" : "flightDetail.noCheckedBaggage");
-  const hasExperience = Boolean(aircraft?.type || seat || baggageLabel);
-  const hasTripRecord = Boolean(ticket || aircraft?.registration);
+  const hasExperience = Boolean(aircraft?.type || seat);
+  const hasTripRecord = Boolean(ticket || flight.bookingReference || aircraft?.registration);
 
   return (
     <PageShell className="detail-page">
@@ -259,7 +258,6 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
             title={t("flightDetail.flightExperience")}
             footer={<>
               {aircraft?.registration ? <span>{t("flightDetail.registration")} {aircraft.registration}</span> : null}
-              {baggageLabel ? <span>{t("flightDetail.checkedBaggage")} · {baggageLabel}</span> : null}
             </>}
           >
             {aircraft?.type ? <strong className="detail-metadata-primary">{aircraft.type}</strong> : null}
@@ -268,16 +266,17 @@ export function FlightDetailPage({ flight, locale, distanceUnit, timeFormat }: F
 
           {hasTripRecord ? <MetadataColumn title={t("flightDetail.tripRecord")}>
             {ticket ? <div className="detail-record-item"><span>{t("flightDetail.ticketNumber")}</span><strong>{formatTicketNumber(ticket.number)}</strong></div> : null}
+            {flight.bookingReference ? <div className="detail-record-item"><span>{t("flightDetail.bookingReference")}</span><strong>{flight.bookingReference}</strong></div> : null}
             {aircraft?.registration ? <div className="detail-record-item"><span>{t("flightDetail.registration")}</span><strong>{aircraft.registration}</strong></div> : null}
           </MetadataColumn> : null}
 
           {frequentFlyer ? <section className="frequent-flyer-card">
             <div className="frequent-flyer-card-heading">
               <span><DetailIcon kind="star" />{t("flightDetail.frequentFlyer")}</span>
-              {frequentFlyer.tier ? <strong>{frequentFlyer.tier}</strong> : null}
+              {frequentFlyer.tierAtFlight ? <strong>{frequentFlyer.tierAtFlight}</strong> : null}
             </div>
             <div className="frequent-flyer-card-main">
-              <strong>{frequentFlyer.programName}{frequentFlyer.tier ? <em>{frequentFlyer.tier}</em> : null}</strong>
+              <strong>{frequentFlyer.programName}{frequentFlyer.tierAtFlight ? <em>{frequentFlyer.tierAtFlight}</em> : null}</strong>
             </div>
             <div className="frequent-flyer-card-footer">
               <span>{t("flightDetail.memberNumber")}</span>

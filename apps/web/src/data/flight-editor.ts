@@ -1,12 +1,10 @@
 import type { ExtensionMap, JsonValue, KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import {
-  aircraftFacts, airportByIata, baggageFacts, frequentFlyerSnapshot,
+  aircraftFacts, airportByIata, baggageFacts,
   normalizeTicketNumber, resolveAirline, seatFacts, ticketFacts,
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
-
-export type BaggageStatus = "" | "not-checked" | "checked";
 
 export interface FlightDraft {
   flightNumber: string; serviceDate: string; originIata: string; destinationIata: string;
@@ -14,9 +12,8 @@ export interface FlightDraft {
   actualDepartureDate: string; actualDepartureTime: string; actualArrivalDate: string; actualArrivalTime: string;
   originTerminal: string; originGate: string; destinationTerminal: string;
   aircraftType: string; aircraftRegistration: string; seat: string; cabin: string; bookingClass: string;
-  baggageStatus: BaggageStatus; baggageCarousel: string; ticketNumber: string;
-  frequentFlyerMembershipId: string; frequentFlyerProgramName: string;
-  frequentFlyerMemberNumber: string; frequentFlyerTier: string;
+  baggageCarousel: string; ticketNumber: string; bookingReference: string;
+  frequentFlyerMembershipId: string; frequentFlyerTierAtFlight: string;
 }
 
 export function createEmptyDocument(): KeeprawFlyDocument {
@@ -30,9 +27,8 @@ export function createDefaultDraft(today = localDateString(new Date())): FlightD
     actualDepartureDate: "", actualDepartureTime: "", actualArrivalDate: "", actualArrivalTime: "",
     originTerminal: "", originGate: "", destinationTerminal: "", aircraftType: "",
     aircraftRegistration: "", seat: "", cabin: "", bookingClass: "",
-    baggageStatus: "", baggageCarousel: "", ticketNumber: "",
-    frequentFlyerMembershipId: "", frequentFlyerProgramName: "",
-    frequentFlyerMemberNumber: "", frequentFlyerTier: "",
+    baggageCarousel: "", ticketNumber: "", bookingReference: "",
+    frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
   };
 }
 
@@ -50,8 +46,8 @@ export function flightToDraft(
   const seat = seatFacts(flight);
   const baggage = baggageFacts(flight);
   const ticket = ticketFacts(flight);
-  const snapshot = frequentFlyerSnapshot(flight);
-  const currentMembership = options.memberships?.find((membership) => membership.id === snapshot?.membershipId);
+  const reference = flight.frequentFlyer;
+  const currentMembership = options.memberships?.find((membership) => membership.id === reference?.membershipId);
 
   return {
     flightNumber: normalizeFlightNumberInput(flight.flightNumber), serviceDate: flight.serviceDate,
@@ -65,12 +61,13 @@ export function flightToDraft(
     destinationTerminal: flight.destination.terminal ?? "", aircraftType: aircraft?.type ?? "",
     aircraftRegistration: options.duplicate ? "" : aircraft?.registration ?? "",
     seat: options.duplicate ? "" : seat?.seat ?? "", cabin: seat?.cabin ?? "", bookingClass: seat?.bookingClass ?? "",
-    baggageStatus: baggage?.checkedBaggage === true ? "checked" : baggage?.checkedBaggage === false ? "not-checked" : "",
-    baggageCarousel: options.duplicate ? "" : baggage?.carousel ?? "", ticketNumber: options.duplicate ? "" : ticket?.number ?? "",
-    frequentFlyerMembershipId: snapshot?.membershipId ?? "",
-    frequentFlyerProgramName: currentMembership?.programName ?? snapshot?.programName ?? "",
-    frequentFlyerMemberNumber: currentMembership?.memberNumber ?? snapshot?.memberNumber ?? "",
-    frequentFlyerTier: options.duplicate ? currentMembership?.tier ?? "" : snapshot?.tier ?? currentMembership?.tier ?? "",
+    baggageCarousel: options.duplicate ? "" : baggage?.carousel ?? "",
+    ticketNumber: options.duplicate ? "" : ticket?.number ?? "",
+    bookingReference: options.duplicate ? "" : flight.bookingReference ?? "",
+    frequentFlyerMembershipId: reference?.membershipId ?? "",
+    frequentFlyerTierAtFlight: options.duplicate
+      ? currentMembership?.tier ?? ""
+      : reference?.tierAtFlight ?? currentMembership?.tier ?? "",
   };
 }
 
@@ -117,7 +114,18 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
     origin: endpointWithOptionalFacts(existing?.origin, draft.originIata, draft.originTerminal, draft.originGate),
     destination: endpointWithOptionalTerminal(existing?.destination, draft.destinationIata, draft.destinationTerminal),
     scheduledDeparture, scheduledArrival,
+    ticketNumber: draft.ticketNumber.trim() ? normalizeTicketNumber(draft.ticketNumber) : null,
+    bookingReference: draft.bookingReference.trim() || null,
+    baggageCarousel: draft.baggageCarousel.trim() || null,
   };
+  if (draft.frequentFlyerMembershipId.trim()) {
+    nextFlight.frequentFlyer = {
+      membershipId: draft.frequentFlyerMembershipId.trim(),
+      tierAtFlight: draft.frequentFlyerTierAtFlight.trim() || null,
+    };
+  } else {
+    delete nextFlight.frequentFlyer;
+  }
   if (actualDeparture) nextFlight.actualDeparture = actualDeparture; else delete nextFlight.actualDeparture;
   if (actualArrival) nextFlight.actualArrival = actualArrival; else delete nextFlight.actualArrival;
   if (extensions) nextFlight.extensions = extensions; else delete nextFlight.extensions;
@@ -151,12 +159,9 @@ function updateKnownExtensions(existing: ExtensionMap | undefined, draft: Flight
   const extensions: ExtensionMap = structuredClone(existing ?? {});
   updateExtensionObject(extensions, "keepraw-fly.aircraft", { type: draft.aircraftType.trim(), registration: draft.aircraftRegistration.trim() });
   updateExtensionObject(extensions, "keepraw-fly.seat", { seat: draft.seat.trim(), cabin: draft.cabin.trim(), bookingClass });
-  updateExtensionObject(extensions, "keepraw-fly.baggage", { checkedBaggage: draft.baggageStatus === "" ? undefined : draft.baggageStatus === "checked", carousel: draft.baggageStatus === "checked" ? draft.baggageCarousel.trim() : "" });
-  updateExtensionObject(extensions, "keepraw-fly.ticket", { number: draft.ticketNumber.trim() ? normalizeTicketNumber(draft.ticketNumber) : undefined });
-  updateExtensionObject(extensions, "keepraw-fly.frequent-flyer", {
-    membershipId: draft.frequentFlyerMembershipId.trim(), programName: draft.frequentFlyerProgramName.trim(),
-    memberNumber: draft.frequentFlyerMemberNumber.trim(), tier: draft.frequentFlyerTier.trim(),
-  });
+  delete extensions["keepraw-fly.baggage"];
+  delete extensions["keepraw-fly.ticket"];
+  delete extensions["keepraw-fly.frequent-flyer"];
   return Object.keys(extensions).length ? extensions : undefined;
 }
 

@@ -1,13 +1,13 @@
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 
 export async function downloadKeeprawFly(document: KeeprawFlyDocument): Promise<void> {
-  const { validateKeeprawFly } = await import("@keepraw-fly/validator");
-  const validation = validateKeeprawFly(document);
+  const { validateAndMigrateKeeprawFly } = await import("@keepraw-fly/validator");
+  const validation = validateAndMigrateKeeprawFly(document);
   if (!validation.valid) {
     throw new Error("The current archive failed validation and cannot be exported.");
   }
 
-  const blob = new Blob([`${JSON.stringify(document, null, 2)}\n`], {
+  const blob = new Blob([`${JSON.stringify(validation.data, null, 2)}\n`], {
     type: "application/json",
   });
   const url = URL.createObjectURL(blob);

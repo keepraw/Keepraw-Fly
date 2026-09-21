@@ -15,7 +15,7 @@ export interface ValidationIssue {
   flightIndex?: number;
 }
 
-export type KeeprawFlyMigration = "rawfly-brand" | "version-0.1";
+export type KeeprawFlyMigration = "rawfly-brand" | "version-0.1" | "flight-metadata-v2";
 
 export type ValidationResult =
   | { valid: true; data: KeeprawFlyDocument; issues: []; migrations: KeeprawFlyMigration[] }
@@ -89,6 +89,19 @@ function toIssue(error: ErrorObject, input: unknown): ValidationIssue {
 function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const seenIds = new Set<string>();
+  const membershipIds = new Set<string>();
+
+  document.frequentFlyerMemberships?.forEach((membership, membershipIndex) => {
+    if (membershipIds.has(membership.id)) {
+      issues.push({
+        path: `/frequentFlyerMemberships/${membershipIndex}/id`,
+        keyword: "uniqueMembershipId",
+        message: "Frequent-flyer membership id must be unique within a Keepraw Fly document.",
+        received: membership.id,
+      });
+    }
+    membershipIds.add(membership.id);
+  });
 
   document.flights.forEach((flight, flightIndex) => {
     if (seenIds.has(flight.id)) {
@@ -101,6 +114,16 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
       });
     }
     seenIds.add(flight.id);
+
+    if (flight.frequentFlyer && !membershipIds.has(flight.frequentFlyer.membershipId)) {
+      issues.push({
+        path: `/flights/${flightIndex}/frequentFlyer/membershipId`,
+        keyword: "membershipReference",
+        message: "Flight frequent-flyer reference must point to a saved membership.",
+        received: flight.frequentFlyer.membershipId,
+        flightIndex,
+      });
+    }
 
     if (flight.scheduledDeparture.slice(0, 10) !== flight.serviceDate) {
       issues.push({
@@ -168,7 +191,7 @@ export function migrateKeeprawFly(input: unknown): {
   }
 
   const source = input as Record<string, unknown>;
-  const data = { ...source };
+  const data = structuredClone(source);
   const migrations: KeeprawFlyMigration[] = [];
 
   if (data.format === "rawfly") {
@@ -180,7 +203,139 @@ export function migrateKeeprawFly(input: unknown): {
     migrations.push("version-0.1");
   }
 
+  if (migrateFlightMetadata(data)) migrations.push("flight-metadata-v2");
+
   return { data, migrations };
+}
+
+function migrateFlightMetadata(document: Record<string, unknown>): boolean {
+  let changed = false;
+  const documentExtensions = objectValue(document.extensions);
+  const legacyFrequentFlyer = objectValue(documentExtensions?.["keepraw-fly.frequent-flyer"]);
+  const sourceMemberships = Array.isArray(document.frequentFlyerMemberships)
+    ? document.frequentFlyerMemberships
+    : Array.isArray(legacyFrequentFlyer?.memberships) ? legacyFrequentFlyer.memberships : [];
+  const memberships = sourceMemberships.flatMap((item) => normalizeMembership(item));
+  const membershipIds = new Set(memberships.map((membership) => membership.id));
+
+  if ((!Array.isArray(document.frequentFlyerMemberships) && sourceMemberships.length)
+    || sourceMemberships.some((item) => !objectValue(item)?.programId)) changed = true;
+  if (legacyFrequentFlyer && documentExtensions) {
+    delete documentExtensions["keepraw-fly.frequent-flyer"];
+    changed = true;
+  }
+
+  if (Array.isArray(document.flights)) {
+    document.flights = document.flights.map((item) => {
+      const flight = objectValue(item);
+      if (!flight) return item;
+      const next = { ...flight };
+      const extensions = objectValue(next.extensions);
+      if (!extensions) return next;
+
+      const baggage = objectValue(extensions["keepraw-fly.baggage"]);
+      if (baggage) {
+        if (!("baggageCarousel" in next)) {
+          next.baggageCarousel = typeof baggage.carousel === "string" && baggage.carousel ? baggage.carousel : null;
+        }
+        delete extensions["keepraw-fly.baggage"];
+        changed = true;
+      }
+
+      const ticket = objectValue(extensions["keepraw-fly.ticket"]);
+      if (ticket) {
+        if (!("ticketNumber" in next)) {
+          next.ticketNumber = typeof ticket.number === "string" && ticket.number ? ticket.number : null;
+        }
+        delete extensions["keepraw-fly.ticket"];
+        changed = true;
+      }
+
+      const oldSnapshot = objectValue(extensions["keepraw-fly.frequent-flyer"]);
+      if (oldSnapshot) {
+        if (!("frequentFlyer" in next)) {
+          let membershipId = typeof oldSnapshot.membershipId === "string" ? oldSnapshot.membershipId : undefined;
+          if (!membershipId || !membershipIds.has(membershipId)) {
+            const programName = typeof oldSnapshot.programName === "string" ? oldSnapshot.programName : "";
+            const memberNumber = typeof oldSnapshot.memberNumber === "string" ? oldSnapshot.memberNumber : "";
+            const matching = memberships.find((membership) =>
+              membership.memberNumber === memberNumber
+              && (membership.programName === programName || membership.programId === programId(programName)),
+            );
+            membershipId = matching?.id;
+            if (!membershipId && (programName || memberNumber)) {
+              membershipId = uniqueLegacyMembershipId(String(next.id ?? "flight"), membershipIds);
+              memberships.push({
+                id: membershipId,
+                programId: programId(programName),
+                ...(programName ? { programName } : {}),
+                memberNumber,
+                associatedAirlines: [],
+              });
+              membershipIds.add(membershipId);
+            }
+          }
+          if (membershipId) {
+            next.frequentFlyer = {
+              membershipId,
+              tierAtFlight: typeof oldSnapshot.tier === "string" && oldSnapshot.tier ? oldSnapshot.tier : null,
+            };
+          }
+        }
+        delete extensions["keepraw-fly.frequent-flyer"];
+        changed = true;
+      }
+
+      if (Object.keys(extensions).length) next.extensions = extensions;
+      else delete next.extensions;
+      return next;
+    });
+  }
+
+  if (memberships.length) document.frequentFlyerMemberships = memberships;
+  else delete document.frequentFlyerMemberships;
+  if (documentExtensions && Object.keys(documentExtensions).length) document.extensions = documentExtensions;
+  else delete document.extensions;
+  return changed;
+}
+
+function normalizeMembership(item: unknown): Array<Record<string, unknown> & { id: string; programId: string; memberNumber: string }> {
+  const value = objectValue(item);
+  if (!value || typeof value.id !== "string" || typeof value.memberNumber !== "string") return [];
+  const name = typeof value.programName === "string" ? value.programName : "";
+  const id = typeof value.programId === "string" && value.programId ? value.programId : programId(name);
+  return [{
+    id: value.id,
+    programId: id,
+    ...(name ? { programName: name } : {}),
+    memberNumber: value.memberNumber,
+    ...(typeof value.tier === "string" && value.tier ? { tier: value.tier } : value.tier === null ? { tier: null } : {}),
+    ...(stringArray(value.associatedAirlines).length ? { associatedAirlines: stringArray(value.associatedAirlines) } : {}),
+    ...(stringArray(value.defaultForAirlines).length ? { defaultForAirlines: stringArray(value.defaultForAirlines) } : {}),
+  }];
+}
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function programId(value: string): string {
+  const normalized = value.trim().toLocaleLowerCase();
+  if (["phoenixmiles", "凤凰知音", "鳳凰知音"].includes(normalized)) return "phoenixmiles";
+  const slug = normalized.normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug || "custom";
+}
+
+function uniqueLegacyMembershipId(flightId: string, used: Set<string>): string {
+  const base = `legacy-ff-${flightId.replace(/[^a-zA-Z0-9_-]+/g, "-") || "flight"}`;
+  let candidate = base;
+  let suffix = 2;
+  while (used.has(candidate)) candidate = `${base}-${suffix++}`;
+  return candidate;
 }
 
 export function parseKeeprawFlyJson(text: string): ValidationResult {

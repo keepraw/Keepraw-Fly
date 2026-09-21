@@ -5,6 +5,7 @@ export * from "./airline-reference";
 export * from "./extensions";
 export * from "./entry-history";
 export * from "./formatting";
+export * from "./frequent-flyer-programs";
 export * from "./reference-data";
 export * from "./routes";
 export * from "./search";

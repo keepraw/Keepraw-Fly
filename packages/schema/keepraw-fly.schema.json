@@ -13,6 +13,10 @@
       "type": "array",
       "items": { "$ref": "#/$defs/flight" }
     },
+    "frequentFlyerMemberships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/frequentFlyerMembership" }
+    },
     "extensions": { "$ref": "#/$defs/extensions" }
   },
   "additionalProperties": false,
@@ -86,6 +90,41 @@
       },
       "additionalProperties": true
     },
+    "nullableString": {
+      "anyOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ]
+    },
+    "frequentFlyerMembership": {
+      "type": "object",
+      "required": ["id", "programId", "memberNumber"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "programId": { "type": "string", "minLength": 1 },
+        "programName": { "type": "string", "minLength": 1 },
+        "memberNumber": { "type": "string" },
+        "tier": { "$ref": "#/$defs/nullableString" },
+        "associatedAirlines": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 2, "maxLength": 3 }
+        },
+        "defaultForAirlines": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 2, "maxLength": 3 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "flightFrequentFlyer": {
+      "type": "object",
+      "required": ["membershipId"],
+      "properties": {
+        "membershipId": { "type": "string", "minLength": 1 },
+        "tierAtFlight": { "$ref": "#/$defs/nullableString" }
+      },
+      "additionalProperties": false
+    },
     "flight": {
       "type": "object",
       "required": [
@@ -114,6 +153,10 @@
         "scheduledArrival": { "type": "string", "format": "date-time" },
         "actualDeparture": { "type": "string", "format": "date-time" },
         "actualArrival": { "type": "string", "format": "date-time" },
+        "ticketNumber": { "$ref": "#/$defs/nullableString" },
+        "bookingReference": { "$ref": "#/$defs/nullableString" },
+        "baggageCarousel": { "$ref": "#/$defs/nullableString" },
+        "frequentFlyer": { "$ref": "#/$defs/flightFrequentFlyer" },
         "extensions": { "$ref": "#/$defs/extensions" }
       },
       "additionalProperties": false

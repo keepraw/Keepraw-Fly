@@ -28,60 +28,75 @@ browser-storage boundaries also recognize the former `rawfly` format identifier
 and the early `0.1` version shorthand. They are copied and upgraded in memory,
 validated against the current schema, and saved/exported as canonical 0.1.0.
 Unsupported future versions remain rejected; migration never guesses at flight
-facts or changes timestamps, identifiers, endpoints, profile data or extensions.
+facts or changes timestamps, identifiers, endpoints or profile data. Legacy
+travel extensions are upgraded to their typed metadata equivalents as described
+below.
 
 ## Facts, not derivatives
 
 The document does not store delay minutes, distance, duration, totals, rankings
 or search indexes. Compatible viewers derive those values.
 
-## Extensions
+## Flight metadata and extensions
 
-Advanced facts use namespaced keys:
+Ticket, booking, baggage-carousel and frequent-flyer relationship facts are
+typed flight metadata. Frequent-flyer accounts belong to the archive, while a
+flight stores only the account reference and the historical tier snapshot:
 
 ```json
 {
-  "extensions": {
-    "keepraw-fly.aircraft": {
-      "type": "B789",
-      "registration": "N12345"
-    },
-    "keepraw-fly.seat": {
-      "seat": "14F",
-      "cabin": "economy",
-      "bookingClass": "P"
-    },
-    "keepraw-fly.baggage": {
-      "checkedBaggage": true,
-      "carousel": "8"
-    },
-    "keepraw-fly.ticket": {
-      "number": "7811234567890"
-    },
-    "keepraw-fly.frequent-flyer": {
-      "membershipId": "membership-zh",
-      "programName": "PhoenixMiles",
-      "memberNumber": "ZH123456",
-      "tier": "Gold"
+  "frequentFlyerMemberships": [
+    {
+      "id": "ff_phoenixmiles_01",
+      "programId": "phoenixmiles",
+      "memberNumber": "ZH-88301924",
+      "tier": "silver",
+      "associatedAirlines": ["ZH", "CA"]
     }
-  }
+  ],
+  "flights": [
+    {
+      "ticketNumber": "479-2401988421",
+      "bookingReference": "KY78M9",
+      "baggageCarousel": "D05",
+      "frequentFlyer": {
+        "membershipId": "ff_phoenixmiles_01",
+        "tierAtFlight": "gold"
+      },
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "B789",
+          "registration": "N12345"
+        },
+        "keepraw-fly.seat": {
+          "seat": "14F",
+          "cabin": "economy",
+          "bookingClass": "P"
+        }
+      }
+    }
+  ]
 }
 ```
 
-The document-level `keepraw-fly.frequent-flyer` extension stores a
-`memberships` array with stable IDs, program/member identifiers, current tier,
-associated airline codes and optional airline defaults. A flight-level value
-is an immutable snapshot of the membership facts used for that journey.
-Changing a profile tier does not rewrite historical flight snapshots.
+`tier` is the membership's current tier. `tierAtFlight` is immutable historical
+data: changing the current membership tier does not rewrite earlier flights.
+Program display names and alliance details are resolved from `programId`; a
+custom `programName` may be stored on the membership when no reference exists.
 
 Standard 13-digit ticket numbers are stored as digits and displayed with the
 three-digit airline prefix separated by a hyphen. Non-standard values are
-preserved as entered.
+preserved as entered. Ticket number and booking reference/PNR are separate
+nullable string facts.
 
 `bookingClass` stores the airline's single-letter booking class independently
-from the broader cabin class. `checkedBaggage` distinguishes an explicit
-carry-on-only journey (`false`) from an unrecorded baggage fact. `carousel` is
-optional and is only recorded when the user had checked baggage.
+from the broader cabin class. `baggageCarousel` is a nullable string because
+real carousel identifiers may be alphanumeric. It does not indicate whether
+the passenger checked baggage.
+
+Older `keepraw-fly.baggage`, `keepraw-fly.ticket`, and flight-level
+`keepraw-fly.frequent-flyer` extensions are migrated on import. Their canonical
+replacement is emitted on the next save/export; `checkedBaggage` is discarded.
 
 Unknown extension values may be ignored for display but must be retained through
 normal import/edit/export operations.

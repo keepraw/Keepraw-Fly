@@ -5,6 +5,13 @@ import { resolve } from "node:path";
 const outputDirectory = resolve("artifacts/visual-review");
 const baseUrl = process.env.KEEPRAW_BASE_URL ?? "http://127.0.0.1:5173/";
 const archive = JSON.parse(await readFile(resolve("examples/basic.keepraw-fly.json"), "utf8"));
+archive.frequentFlyerMemberships = [{
+  id: "ff_phoenixmiles_01",
+  programId: "phoenixmiles",
+  memberNumber: "ZH-88301924",
+  tier: "Gold",
+  associatedAirlines: ["ZH"],
+}];
 
 archive.flights = [{
   id: "visual-review-zh9911-20260917",
@@ -17,16 +24,13 @@ archive.flights = [{
   scheduledArrival: "2026-09-18T00:05:00+08:00",
   actualDeparture: "2026-09-17T20:33:00+08:00",
   actualArrival: "2026-09-17T23:37:00+08:00",
+  ticketNumber: "4792401988421",
+  bookingReference: "KY78M9",
+  baggageCarousel: "10",
+  frequentFlyer: { membershipId: "ff_phoenixmiles_01", tierAtFlight: "Gold" },
   extensions: {
     "keepraw-fly.aircraft": { type: "Airbus A320neo", registration: "B-1234" },
     "keepraw-fly.seat": { seat: "2A", cabin: "business", bookingClass: "J" },
-    "keepraw-fly.baggage": { checkedBaggage: true, carousel: "10" },
-    "keepraw-fly.ticket": { number: "4792401988421" },
-    "keepraw-fly.frequent-flyer": {
-      programName: "PhoenixMiles",
-      memberNumber: "ZH-88301924",
-      tier: "Gold",
-    },
   },
 }];
 
