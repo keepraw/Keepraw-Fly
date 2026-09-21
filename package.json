@@ -16,6 +16,7 @@
     "update:airport-locales": "node scripts/update-airport-locales.mjs",
     "update:zh-tw": "node scripts/update-zh-tw-locale.mjs",
     "update:world-map": "node scripts/update-world-map.mjs",
+    "check:docs": "node scripts/check-doc-consistency.mjs",
     "test": "pnpm -r test",
     "test:e2e": "playwright test",
     "typecheck": "pnpm -r typecheck"

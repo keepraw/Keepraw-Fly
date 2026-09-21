@@ -74,6 +74,7 @@ IndexedDB，因此生产文件应通过上面的本地 HTTP 服务器打开。
 运行全部检查：
 
 ```bash
+pnpm check:docs
 pnpm typecheck
 pnpm test
 pnpm test:e2e
@@ -81,7 +82,8 @@ pnpm build
 ```
 
 GitHub Actions 会在每个 pull request 和每次推送到 `main` 时，使用冻结的
-lockfile 重新安装依赖，并执行相同的类型检查、单元测试、Chromium 用户流程和生产构建。
+lockfile 重新安装依赖，并执行相同的文档一致性检查、类型检查、单元测试、Chromium
+用户流程和生产构建。
 
 静态网站会生成在 `apps/web/dist/`；可手动发布到静态托管服务，或通过仓库外部配置的托管流程部署。详见[部署指南](docs/deployment.md)。
 
