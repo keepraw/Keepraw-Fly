@@ -1,22 +1,142 @@
 [
-  ["3U","CSC","Sichuan Airlines","四川航空"],
-  ["6E","IGO","IndiGo","靛蓝航空"],
-  ["9C","CQH","Spring Airlines","春秋航空"],
-  ["AA","AAL","American Airlines","美国航空"],
-  ["AC","ACA","Air Canada","加拿大航空"],
-  ["AF","AFR","Air France","法国航空"],
-  ["BA","BAW","British Airways","英国航空"],
-  ["CA","CCA","Air China","中国国际航空"],
-  ["CX","CPA","Cathay Pacific","国泰航空"],
-  ["CZ","CSN","China Southern Airlines","中国南方航空"],
-  ["DL","DAL","Delta Air Lines","达美航空"],
-  ["JL","JAL","Japan Airlines","日本航空"],
-  ["KE","KAL","Korean Air","大韩航空"],
-  ["LH","DLH","Lufthansa","汉莎航空"],
-  ["MU","CES","China Eastern Airlines","中国东方航空"],
-  ["NH","ANA","All Nippon Airways","全日空"],
-  ["QF","QFA","Qantas","澳洲航空"],
-  ["SQ","SIA","Singapore Airlines","新加坡航空"],
-  ["UA","UAL","United Airlines","美国联合航空"],
-  ["ZH","CSZ","Shenzhen Airlines","深圳航空"]
+  [
+    "3U",
+    "CSC",
+    "Sichuan Airlines",
+    "四川航空",
+    "四川航空"
+  ],
+  [
+    "6E",
+    "IGO",
+    "IndiGo",
+    "靛蓝航空",
+    "靛藍航空"
+  ],
+  [
+    "9C",
+    "CQH",
+    "Spring Airlines",
+    "春秋航空",
+    "春秋航空"
+  ],
+  [
+    "AA",
+    "AAL",
+    "American Airlines",
+    "美国航空",
+    "美國航空"
+  ],
+  [
+    "AC",
+    "ACA",
+    "Air Canada",
+    "加拿大航空",
+    "加拿大航空"
+  ],
+  [
+    "AF",
+    "AFR",
+    "Air France",
+    "法国航空",
+    "法國航空"
+  ],
+  [
+    "BA",
+    "BAW",
+    "British Airways",
+    "英国航空",
+    "英國航空"
+  ],
+  [
+    "CA",
+    "CCA",
+    "Air China",
+    "中国国际航空",
+    "中國國際航空"
+  ],
+  [
+    "CX",
+    "CPA",
+    "Cathay Pacific",
+    "国泰航空",
+    "國泰航空"
+  ],
+  [
+    "CZ",
+    "CSN",
+    "China Southern Airlines",
+    "中国南方航空",
+    "中國南方航空"
+  ],
+  [
+    "DL",
+    "DAL",
+    "Delta Air Lines",
+    "达美航空",
+    "達美航空"
+  ],
+  [
+    "JL",
+    "JAL",
+    "Japan Airlines",
+    "日本航空",
+    "日本航空"
+  ],
+  [
+    "KE",
+    "KAL",
+    "Korean Air",
+    "大韩航空",
+    "大韓航空"
+  ],
+  [
+    "LH",
+    "DLH",
+    "Lufthansa",
+    "汉莎航空",
+    "漢莎航空"
+  ],
+  [
+    "MU",
+    "CES",
+    "China Eastern Airlines",
+    "中国东方航空",
+    "中國東方航空"
+  ],
+  [
+    "NH",
+    "ANA",
+    "All Nippon Airways",
+    "全日空",
+    "全日空"
+  ],
+  [
+    "QF",
+    "QFA",
+    "Qantas",
+    "澳洲航空",
+    "澳洲航空"
+  ],
+  [
+    "SQ",
+    "SIA",
+    "Singapore Airlines",
+    "新加坡航空",
+    "新加坡航空"
+  ],
+  [
+    "UA",
+    "UAL",
+    "United Airlines",
+    "美国联合航空",
+    "美國聯合航空"
+  ],
+  [
+    "ZH",
+    "CSZ",
+    "Shenzhen Airlines",
+    "深圳航空",
+    "深圳航空"
+  ]
 ]

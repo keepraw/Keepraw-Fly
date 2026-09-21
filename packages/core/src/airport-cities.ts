@@ -1,5 +1,5 @@
 import cityGroupRows from "../data/airport-city-groups.json";
-import type { LocalizedText, SupportedLocale } from "./reference-data";
+import { localizedText, type LocalizedText, type SupportedLocale } from "./reference-data";
 
 type CompactCityGroupRow = [string, string, string, string[]];
 
@@ -11,14 +11,14 @@ export interface AirportCityGroup {
 }
 
 const localizedCityNames: Record<string, LocalizedText> = {
-  BJS: { en: "Beijing", "zh-CN": "北京" },
-  CTU: { en: "Chengdu", "zh-CN": "成都" },
-  LON: { en: "London", "zh-CN": "伦敦" },
-  NYC: { en: "New York", "zh-CN": "纽约" },
-  PAR: { en: "Paris", "zh-CN": "巴黎" },
-  SEL: { en: "Seoul", "zh-CN": "首尔" },
-  SHA: { en: "Shanghai", "zh-CN": "上海" },
-  TYO: { en: "Tokyo", "zh-CN": "东京" },
+  BJS: { en: "Beijing", "zh-CN": "北京", "zh-TW": "北京" },
+  CTU: { en: "Chengdu", "zh-CN": "成都", "zh-TW": "成都" },
+  LON: { en: "London", "zh-CN": "伦敦", "zh-TW": "倫敦" },
+  NYC: { en: "New York", "zh-CN": "纽约", "zh-TW": "紐約" },
+  PAR: { en: "Paris", "zh-CN": "巴黎", "zh-TW": "巴黎" },
+  SEL: { en: "Seoul", "zh-CN": "首尔", "zh-TW": "首爾" },
+  SHA: { en: "Shanghai", "zh-CN": "上海", "zh-TW": "上海" },
+  TYO: { en: "Tokyo", "zh-CN": "东京", "zh-TW": "東京" },
 };
 
 const maintainedGroups: CompactCityGroupRow[] = [
@@ -53,5 +53,5 @@ export function airportCityGroupForAirport(iata: string): AirportCityGroup | und
 }
 
 export function airportCityGroupName(group: AirportCityGroup, locale: SupportedLocale): string {
-  return group.name[locale];
+  return localizedText(group.name, locale);
 }

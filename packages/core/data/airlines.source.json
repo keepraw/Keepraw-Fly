@@ -3,5 +3,7 @@
   "endpoint": "https://query.wikidata.org/sparql",
   "retrievedAt": "2026-09-19T04:05:48.293Z",
   "license": "CC0-1.0",
-  "count": 859
+  "count": 859,
+  "normalizedAt": "2026-09-21T05:42:05.413Z",
+  "normalization": "OpenCC Taiwan Traditional Chinese generated from zh-CN at update time"
 }

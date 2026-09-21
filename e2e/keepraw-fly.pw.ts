@@ -551,7 +551,13 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     scheduledArrival: "2026-09-18T00:05:00+08:00",
     actualDeparture: "2026-09-17T20:56:00+08:00",
     actualArrival: "2026-09-17T23:30:00+08:00",
-    extensions: {},
+    extensions: {
+      "keepraw-fly.aircraft": { type: "Airbus A320neo", registration: "B-1234" },
+      "keepraw-fly.seat": { seat: "2A", cabin: "business", bookingClass: "J" },
+      "keepraw-fly.baggage": { checkedBaggage: true, carousel: "10" },
+      "keepraw-fly.ticket": { number: "4792401988421" },
+      "keepraw-fly.frequent-flyer": { programName: "PhoenixMiles", memberNumber: "ZH-88301924", tier: "Gold" },
+    },
   };
 
   await page.goto("/");
@@ -579,6 +585,16 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expect(page.locator(".route-origin-airport")).toHaveText("深圳宝安国际机场");
   await expect(page.locator(".route-arrival-city")).toHaveText("青岛");
   await expect(page.locator(".route-arrival-airport")).toHaveText("青岛胶东国际机场");
+  await expect(page.locator(".detail-heading-eyebrow")).toContainText("深圳航空");
+  await expect(page.locator(".detail-heading-eyebrow time")).toHaveText("2026年9月17日周四");
+  await expect(page.getByRole("heading", { name: "深圳 飞往 青岛" })).toBeVisible();
+  await expect(page.locator(".detail-heading-summary")).toContainText("已到达");
+  await expect(page.locator(".detail-heading-summary")).toContainText("提前 35 分钟");
+  await expect(page.locator(".detail-heading-summary")).toContainText("英里");
+  await expect(page.locator(".detail-metadata-column").first()).toContainText("商务舱");
+  await expect(page.locator(".detail-metadata-column").first()).not.toContainText("business");
+  await expect(page.getByRole("button", { name: "复制为新航班" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "编辑航班" })).toBeVisible();
 
   const stopHierarchy = await page.locator(".detail-stops").evaluate((hero) => {
     const cities = [...hero.querySelectorAll<HTMLElement>(".detail-stop-place > div > span")];
@@ -606,6 +622,16 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
 
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+
+  await page.getByRole("button", { name: "航班", exact: true }).click();
+  await page.getByRole("link", { name: "设置" }).click();
+  await page.getByLabel("语言").selectOption("zh-TW");
+  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("button", { name: /打開 ZH9911/ }).click();
+  await expect(page.locator(".route-arrival-city")).toHaveText("青島");
+  await expect(page.locator(".route-arrival-airport")).toHaveText("青島膠東國際機場");
+  await expect(page.locator(".detail-heading-eyebrow")).toContainText("深圳航空");
+  await expect(page.locator(".detail-metadata-column").first()).toContainText("商務艙");
 });
 
 test("keeps every page aligned to the shared responsive shell", async ({ page }) => {

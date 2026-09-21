@@ -1,6 +1,6 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { distanceKilometers, flightDuration } from "./calculations";
-import { airportByIata } from "./reference-data";
+import { airportByIata, type SupportedLocale } from "./reference-data";
 import { airlineNames, resolveAirline } from "./airline-reference";
 
 export interface RankedCode {
@@ -144,7 +144,7 @@ export function calculateYearStatistics(
     .sort((a, b) => b.year - a.year);
 }
 
-export function airlineDisplayName(code: string, locale: "en" | "zh-CN"): string {
+export function airlineDisplayName(code: string, locale: SupportedLocale): string {
   const airline = resolveAirline(code);
   return airline ? airlineNames(airline, locale)[0] : code;
 }

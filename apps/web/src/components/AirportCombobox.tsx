@@ -4,6 +4,7 @@ import {
   airportByIata,
   airportCityGroupForAirport,
   airportCityGroupName,
+  localizedText,
   searchAirports,
   type AirportReference,
   type SupportedLocale,
@@ -90,7 +91,7 @@ export function AirportCombobox({ label, locale, value, onChange, preferredCodes
       />
       <small className="editor-field-hint">
         {selectedAirport
-          ? `${selectedAirport.iata} · ${selectedAirport.name[locale]} · ${selectedCityGroup ? airportCityGroupName(selectedCityGroup, locale) : selectedAirport.city[locale]}`
+          ? `${selectedAirport.iata} · ${localizedText(selectedAirport.name, locale)} · ${selectedCityGroup ? airportCityGroupName(selectedCityGroup, locale) : localizedText(selectedAirport.city, locale)}`
           : preferredCodes.length
             ? t("flightEditor.airportRecentHint")
             : t("flightEditor.airportSearchHint")}
@@ -101,7 +102,7 @@ export function AirportCombobox({ label, locale, value, onChange, preferredCodes
             const cityGroup = airportCityGroupForAirport(airport.iata);
             const cityName = cityGroup
               ? airportCityGroupName(cityGroup, locale)
-              : airport.city[locale];
+              : localizedText(airport.city, locale);
             return (
             <button
               id={`${listId}-${airport.iata}`}
@@ -115,11 +116,11 @@ export function AirportCombobox({ label, locale, value, onChange, preferredCodes
               }}
             >
               <strong>{airport.iata}</strong>
-              <span>{airport.name[locale]}</span>
+              <span>{localizedText(airport.name, locale)}</span>
               <small>
                 {cityName}
                 {cityGroup ? ` · ${t("flightEditor.multiAirportCount", { count: cityGroup.airportCodes.length })}` : ""}
-                {` · ${airport.countryName[locale]}`}
+                {` · ${localizedText(airport.countryName, locale)}`}
               </small>
             </button>
             );

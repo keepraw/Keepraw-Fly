@@ -3,6 +3,7 @@ import {
   airportByIata,
   airportDirectoryVersion,
   airports,
+  localizedText,
   type AirportReference,
   type SupportedLocale,
 } from "./reference-data";
@@ -74,7 +75,7 @@ export function searchAirports(
     .sort((left, right) => {
       const scoreDifference = scoreAirport(left, normalizedQuery) - scoreAirport(right, normalizedQuery);
       if (scoreDifference) return scoreDifference;
-      const cityDifference = left.airport.city[locale].localeCompare(right.airport.city[locale], locale);
+      const cityDifference = localizedText(left.airport.city, locale).localeCompare(localizedText(right.airport.city, locale), locale);
       return cityDifference || left.airport.iata.localeCompare(right.airport.iata);
     })
     .slice(0, limit)

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   airportByIata,
   distanceKilometers,
+  localizedText,
+  type SupportedLocale,
   type RoutePoint,
   type RouteSegment,
 } from "@keepraw-fly/core";
@@ -53,7 +55,11 @@ export function PassportRouteMap({
   onSelectRoute,
 }: PassportRouteMapProps) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage === "zh-CN" ? "zh-CN" : "en";
+  const locale: SupportedLocale = i18n.resolvedLanguage === "zh-TW"
+    ? "zh-TW"
+    : i18n.resolvedLanguage === "zh-CN"
+      ? "zh-CN"
+      : "en";
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
   const countryVisits = useMemo(() => collectCountryVisits(flights), [flights]);
   const airports = useMemo(() => collectAirports(flights, locale), [flights, locale]);
@@ -259,7 +265,7 @@ function MapTooltip({ tooltip, camera }: { tooltip: MapTooltipData; camera: MapC
   </g>;
 }
 
-function collectAirports(flights: KeeprawFlight[], locale: "en" | "zh-CN"): AirportMapPoint[] {
+function collectAirports(flights: KeeprawFlight[], locale: SupportedLocale): AirportMapPoint[] {
   const points = new Map<string, AirportMapPoint>();
   for (const flight of flights) {
     const year = flight.serviceDate.slice(0, 4);
@@ -276,8 +282,8 @@ function collectAirports(flights: KeeprawFlight[], locale: "en" | "zh-CN"): Airp
           iata,
           latitude: reference.latitude,
           longitude: reference.longitude,
-          name: reference.name[locale],
-          city: reference.city[locale],
+          name: localizedText(reference.name, locale),
+          city: localizedText(reference.city, locale),
           flightCount: 1,
           firstYear: year,
           lastYear: year,
