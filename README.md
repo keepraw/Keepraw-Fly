@@ -16,19 +16,22 @@ search results, delays, distances and passport statistics in the viewer.
 - Keepraw Fly 0.1 JSON Schema and Ajv validator with useful error paths
 - a 24-flight fictional demo archive spanning multiple countries and timezones
 - first-run archive creation with no JSON file required and a clearly labelled demo mode
-- a single-field flight-number form with offline IATA/ICAO airline resolution, plus scheduled/actual local times, ticket, loyalty, airport, aircraft and seat facts
+- a single-field flight-number form with offline IATA/ICAO airline resolution, plus scheduled/actual local times, separate ticket-number and booking-reference fields, baggage-carousel, loyalty, airport, aircraft and seat facts
 - faster repeat entry with recent-airport suggestions and a duplicate-as-new action that never reuses the original record ID
 - an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones, shipped as a separately cached static asset
-- offline bilingual airline references and a Wikidata CC0 Chinese airport-localization overlay
+- offline English, Simplified Chinese and Traditional Chinese airline references, plus a Wikidata CC0 Chinese airport-localization overlay
 - multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
 - premium, searchable trip cards with airport cities, local times and operational status
-- responsive flight detail with a high-contrast route panel, local-time hierarchy and layered fact cards
+- a responsive, Stitch-aligned Flight Detail page that preserves the real route map, live data binding, editor and navigation behavior
+- locale-aware Flight Detail copy, dates, airline/airport names and explicit Simplified/Traditional Chinese UI font stacks while retaining Inter for Latin codes, numbers and times
+- user-level frequent-flyer memberships referenced by flights through `membershipId`, with an immutable `tierAtFlight` historical snapshot
+- searchable multi-select airline associations with removable chips, canonical airline codes and a default airline constrained to the selected set
 - lifetime and yearly Flight Passport statistics
 - a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
 - local IndexedDB persistence through a storage adapter
 - validated JSON import preview, explicit replacement confirmation and portable export
 - CSV bulk import with automatic/manual column mapping, five-row preview, strict timezone validation and append-only confirmation
-- explicit migration of former `rawfly` / `0.1` archives to canonical Keepraw Fly 0.1.0 without changing flight facts
+- explicit migration of former `rawfly` / `0.1` archives and legacy ticket, baggage and frequent-flyer extensions to canonical Keepraw Fly 0.1.0 without losing flight facts
 - independent language, appearance, distance-unit and time-format preferences
 - native and romanized profile names with a selectable primary name
 - shared premium visual tokens plus reusable airport-code, flight-status and aviation-icon primitives
