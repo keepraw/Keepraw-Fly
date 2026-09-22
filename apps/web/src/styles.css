@@ -1619,6 +1619,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page {
   display: block;
   max-width: calc(var(--layout-content-max) + var(--layout-gutter) + var(--layout-gutter));
+  --passport-label-size: 0.7rem;
+  --passport-label-weight: var(--font-weight-regular);
+  --passport-label-leading: 1.35;
+  --passport-label-family: var(--font-family-mono);
+  --passport-primary-value-size: clamp(1.55rem, 2.2vw, 2.05rem);
+  --passport-primary-value-weight: var(--font-weight-semibold);
+  --passport-primary-value-leading: 1.08;
+  --passport-detail-value-size: var(--type-size-label);
+  --passport-detail-value-weight: var(--font-weight-semibold);
+  --passport-detail-value-leading: 1.35;
 }
 
 .passport-layout {
@@ -1636,7 +1646,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   display: grid;
   gap: 13px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-line-strong);
 }
 
 .archive-controls {
@@ -1649,30 +1658,44 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .archive-controls .view-switcher {
   min-width: 0;
-  max-width: none;
-  flex: 1 1 auto;
+  width: max-content;
+  max-width: 100%;
+  flex: 0 1 auto;
+  margin-right: auto;
+  gap: 2px;
+  padding: 2px;
 }
 
+.archive-controls .view-switcher button { padding: 5px 8px; }
+
 .archive-controls .add-flight-button {
-  min-height: 36px;
+  min-height: 34px;
   flex: 0 0 auto;
-  padding: 7px 11px;
+  padding: 6px 10px;
 }
 
 .passport-search-field {
   width: 100%;
   min-height: 34px;
   margin: 0;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--line);
   border-radius: 0;
   background: transparent;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
 }
 
 .passport-search-field svg { width: 15px; height: 15px; }
-.passport-search-field input { min-width: 0; padding: 7px 30px 7px 8px; font-size: var(--type-size-caption); }
-.passport-search-field .clear-search { right: -7px; width: 30px; height: 30px; font-size: 1.15rem; }
+.passport-search-field input { min-width: 0; padding: 7px 30px 7px 8px; border: 0; outline: 0; box-shadow: none; font-size: var(--type-size-caption); }
+.passport-search-field .clear-search { right: 2px; width: 28px; height: 28px; font-size: 1.15rem; }
+.passport-search-field:hover { border-bottom-color: var(--color-line-strong); }
+.passport-search-field:focus-within {
+  border-color: color-mix(in srgb, var(--green) 58%, var(--line));
+  background: color-mix(in srgb, var(--green-soft) 28%, transparent);
+}
+.passport-search-field input:focus,
+.passport-search-field input:focus-visible { outline: 0; box-shadow: none; }
 
 .passport-archive .flight-year { margin-top: 34px; }
 .passport-archive .flight-year:first-child { margin-top: 18px; }
@@ -1692,13 +1715,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive .flight-list { display: grid; grid-template-columns: 1fr; gap: 0; }
 
 .passport-archive .flight-row {
-  display: block;
+  display: grid;
   min-height: 0;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
   padding: 18px 0 17px;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
+}
+
+.passport-archive .flight-row-content { min-width: 0; }
+.passport-archive .airline-logo {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  margin-top: 1px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  background: var(--color-surface-sunken);
+  font-family: var(--font-family-data);
+  font-size: 0.65rem;
+  font-feature-settings: var(--numeric-features);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.035em;
+  line-height: 1;
 }
 
 .passport-archive .flight-row:hover {
@@ -1799,8 +1844,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page .primary-stats > div:first-child { padding-left: 0; }
 .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
 .passport-archive-page .primary-stats > div + div { border-left: 1px solid var(--line); }
-.passport-archive-page .primary-stats strong { font-size: clamp(1.65rem, 2.5vw, 2.25rem); font-weight: var(--font-weight-semibold); }
-.passport-archive-page .primary-stats span { order: initial; margin-bottom: 6px; font-size: 0.68rem; }
+.passport-archive-page .primary-stats strong {
+  font-size: var(--passport-primary-value-size);
+  font-weight: var(--passport-primary-value-weight);
+  line-height: var(--passport-primary-value-leading);
+}
+.passport-archive-page .primary-stats span {
+  order: initial;
+  margin-bottom: 6px;
+  font-family: var(--passport-label-family);
+  font-size: var(--passport-label-size);
+  font-weight: var(--passport-label-weight);
+  letter-spacing: 0.04em;
+  line-height: var(--passport-label-leading);
+  text-transform: uppercase;
+}
 
 .passport-archive-page .passport-counts {
   display: grid;
@@ -1816,7 +1874,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page .passport-counts > div:first-child { padding-left: 0; }
 .passport-archive-page .passport-counts > div:last-child { padding-right: 0; }
 .passport-archive-page .passport-counts > div + div { border-left: 1px solid var(--line); }
-.passport-archive-page .passport-counts span { font-size: 0.68rem; }
+.passport-archive-page .passport-counts span {
+  color: var(--faint);
+  font-family: var(--passport-label-family);
+  font-size: var(--passport-label-size);
+  font-weight: var(--passport-label-weight);
+  letter-spacing: 0.04em;
+  line-height: var(--passport-label-leading);
+  text-transform: uppercase;
+}
+.passport-archive-page .passport-counts strong {
+  font-family: var(--font-family-data);
+  font-size: var(--passport-detail-value-size);
+  font-weight: var(--passport-detail-value-weight);
+  line-height: var(--passport-detail-value-leading);
+}
 
 .passport-archive-page .passport-highlights {
   display: block;
@@ -1855,8 +1927,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page button.passport-highlight:hover,
 .passport-archive-page button.passport-highlight:focus-visible { color: var(--green); }
 .passport-archive-page .passport-highlight > span,
-.passport-archive-page .passport-highlight > small { color: var(--faint); font-size: 0.7rem; font-weight: var(--font-weight-regular); line-height: 1.35; }
-.passport-archive-page .passport-highlight > strong { min-width: 0; max-width: 100%; color: var(--ink); font-size: var(--type-size-label); line-height: 1.35; overflow-wrap: anywhere; }
+.passport-archive-page .passport-highlight > small {
+  color: var(--faint);
+  font-family: var(--passport-label-family);
+  font-size: var(--passport-label-size);
+  font-weight: var(--passport-label-weight);
+  letter-spacing: 0.04em;
+  line-height: var(--passport-label-leading);
+  text-transform: uppercase;
+}
+.passport-archive-page .passport-highlight > strong {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--ink);
+  font-size: var(--passport-detail-value-size);
+  font-weight: var(--passport-detail-value-weight);
+  line-height: var(--passport-detail-value-leading);
+  overflow-wrap: anywhere;
+}
 .passport-archive-page button.passport-highlight:hover > strong,
 .passport-archive-page button.passport-highlight:focus-visible > strong { color: inherit; }
 .passport-archive-page .highlight-route { white-space: nowrap; }
@@ -1955,7 +2043,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .primary-stats > div + div { padding: 11px 14px 10px; }
   .passport-archive-page .primary-stats > div:first-child { padding-left: 0; }
   .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
-  .passport-archive-page .primary-stats strong { font-size: clamp(1.55rem, 2.2vw, 2.05rem); }
   .passport-archive-page .primary-stats span { margin-bottom: 5px; }
 
   .passport-archive-page .passport-counts > div,
@@ -1966,6 +2053,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (max-width: 1040px) and (min-width: 761px) {
   .passport-layout { grid-template-columns: minmax(330px, 0.42fr) minmax(0, 0.58fr); gap: 30px; }
+  .passport-archive .flight-row { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+  .passport-archive .airline-logo { width: 28px; height: 28px; font-size: 0.625rem; }
   .flight-row-primary,
   .flight-row-secondary { grid-template-columns: 72px minmax(0, 1fr) 84px; gap: 10px; }
   .flight-row .flight-route .airport-code-display { font-size: 1.2rem; }
@@ -1982,6 +2071,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive { display: contents; }
   .archive-heading { order: 0; margin-bottom: 18px; }
   .passport-archive-scroll { order: 5; margin-top: 46px; }
+  .passport-archive .flight-row { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+  .passport-archive .airline-logo { width: 28px; height: 28px; font-size: 0.625rem; }
   .passport-archive-page .route-map { padding: 0 0 20px; }
   .passport-archive-page .route-map-canvas { margin: 0; aspect-ratio: 1.55; }
   .passport-archive-page .primary-stats { grid-template-columns: 1fr 1fr; }

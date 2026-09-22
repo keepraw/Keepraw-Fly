@@ -30,6 +30,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
+  const airlineMark = airlineCode.slice(0, 2).toUpperCase() || "--";
   const airline = resolveAirline(flight.airline);
   const airlineName = airline ? airlineNames(airline, locale)[0] : undefined;
   const origin = airportByIata.get(flight.origin.iata);
@@ -66,34 +67,37 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
         destination: flight.destination.iata,
       })}
     >
-      <div className="flight-row-primary">
-        <div className="flight-number">
-          <strong>{flight.flightNumber}</strong>
-          <span>{airlineName ?? airlineCode}</span>
-        </div>
-        <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
-          <div className="flight-route-codes">
-            <AirportCode code={flight.origin.iata} />
-            <span className="route-direction" aria-hidden="true">→</span>
-            <AirportCode code={flight.destination.iata} />
+      <span className="airline-logo airline-logo--fallback" aria-hidden="true">{airlineMark}</span>
+      <div className="flight-row-content">
+        <div className="flight-row-primary">
+          <div className="flight-number">
+            <strong>{flight.flightNumber}</strong>
+            <span>{airlineName ?? airlineCode}</span>
           </div>
-          <p>
-            <span>{origin ? localizedText(origin.city, locale) : flight.origin.iata}</span>
-            <span aria-hidden="true">—</span>
-            <span>{destination ? localizedText(destination.city, locale) : flight.destination.iata}</span>
-          </p>
+          <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
+            <div className="flight-route-codes">
+              <AirportCode code={flight.origin.iata} />
+              <span className="route-direction" aria-hidden="true">→</span>
+              <AirportCode code={flight.destination.iata} />
+            </div>
+            <p>
+              <span>{origin ? localizedText(origin.city, locale) : flight.origin.iata}</span>
+              <span aria-hidden="true">—</span>
+              <span>{destination ? localizedText(destination.city, locale) : flight.destination.iata}</span>
+            </p>
+          </div>
+          <time className="flight-date" dateTime={flight.serviceDate}>
+            {formatServiceDate(flight.serviceDate, locale)}
+          </time>
         </div>
-        <time className="flight-date" dateTime={flight.serviceDate}>
-          {formatServiceDate(flight.serviceDate, locale)}
-        </time>
-      </div>
-      <div className="flight-row-secondary">
-        <span className="flight-times">
-          <time dateTime={departureTimestamp}>{departureTime}</time>
-          <span aria-hidden="true">—</span>
-          <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
-        </span>
-        <span className={`flight-status detail-operational-status is-${operationalStatus}`}>{delayLabel}</span>
+        <div className="flight-row-secondary">
+          <span className="flight-times">
+            <time dateTime={departureTimestamp}>{departureTime}</time>
+            <span aria-hidden="true">—</span>
+            <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
+          </span>
+          <span className={`flight-status detail-operational-status is-${operationalStatus}`}>{delayLabel}</span>
+        </div>
       </div>
     </button>
   );

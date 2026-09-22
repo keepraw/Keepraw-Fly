@@ -159,22 +159,53 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       const archiveScroll = document.querySelector<HTMLElement>(".passport-archive-scroll");
       const visual = document.querySelector<HTMLElement>(".passport-visual");
       const highlights = Array.from(document.querySelectorAll<HTMLElement>(".passport-highlight"));
+      const flightRows = Array.from(document.querySelectorAll<HTMLElement>(".flight-row"));
+      const airlineLogos = Array.from(document.querySelectorAll<HTMLElement>(".flight-row .airline-logo"));
+      const periodSelector = document.querySelector<HTMLElement>(".archive-controls .view-switcher");
+      const addFlight = document.querySelector<HTMLElement>(".archive-controls .add-flight-button");
       if (!archive || !archiveScroll || !visual || highlights.length !== 4) {
         throw new Error("Passport workspace landmarks are missing");
+      }
+      if (!periodSelector || !addFlight || airlineLogos.length !== flightRows.length) {
+        throw new Error("Passport archive controls or airline marks are missing");
       }
       const highlightBounds = highlights.map((item) => item.getBoundingClientRect());
       const highlightRowTops = ["span", "strong", "small"].map((selector) => new Set(
         highlights.map((item) => Math.round(item.querySelector<HTMLElement>(selector)!.getBoundingClientRect().top)),
       ).size === 1);
+      const typography = (selector: string) => new Set(
+        Array.from(document.querySelectorAll<HTMLElement>(selector)).map((element) => {
+          const style = getComputedStyle(element);
+          return [style.fontFamily, style.fontSize, style.fontWeight, style.lineHeight].join("|");
+        }),
+      ).size;
+      const logoBounds = airlineLogos.map((item) => item.getBoundingClientRect());
+      const logoStarts = airlineLogos.map((item) => {
+        const logoBounds = item.getBoundingClientRect();
+        const rowBounds = item.closest<HTMLElement>(".flight-row")!.getBoundingClientRect();
+        return Math.round(logoBounds.left - rowBounds.left);
+      });
       return {
         archiveScrollsInternally: getComputedStyle(archiveScroll).overflowY === "auto",
         bodyFitsViewport: document.documentElement.scrollHeight <= window.innerHeight,
+        highlightLabelTypographyCount: typography(".passport-highlight > span"),
+        highlightMetadataTypographyCount: typography(".passport-highlight > small"),
         highlightTopAligned: new Set(highlightBounds.map((bounds) => Math.round(bounds.top))).size === 1,
         highlightRowsAligned: highlightRowTops.every(Boolean),
+        highlightValueTypographyCount: typography(".passport-highlight > strong"),
         highlightWidths: highlightBounds.map((bounds) => Math.round(bounds.width)),
+        labelsShareTypography: typography(".primary-stats span, .passport-counts span, .passport-highlight > span, .passport-highlight > small"),
+        logoMarksPresent: airlineLogos.every((logo) => Boolean(logo.textContent?.trim())),
+        logoSizes: logoBounds.map((bounds) => `${Math.round(bounds.width)}x${Math.round(bounds.height)}`),
+        logoStarts,
         mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.getBoundingClientRect().height,
         primaryStats: document.querySelectorAll(".primary-stats > div").length,
+        primaryValueTypographyCount: typography(".primary-stats strong"),
         secondaryStats: document.querySelectorAll(".passport-counts > div").length,
+        secondaryValueTypographyCount: typography(".passport-counts strong"),
+        selectorFlexGrow: getComputedStyle(periodSelector).flexGrow,
+        selectorPrecedesAddFlight: periodSelector.getBoundingClientRect().right <= addFlight.getBoundingClientRect().left,
+        selectorUsesAvailableContentWidth: periodSelector.getBoundingClientRect().width < archive.getBoundingClientRect().width,
         visualFitsViewport: visual.getBoundingClientRect().bottom <= window.innerHeight + 0.5,
       };
     });
@@ -183,12 +214,43 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(workspace.bodyFitsViewport).toBe(true);
     expect(workspace.highlightTopAligned).toBe(true);
     expect(workspace.highlightRowsAligned).toBe(true);
+    expect(workspace.highlightLabelTypographyCount).toBe(1);
+    expect(workspace.highlightValueTypographyCount).toBe(1);
+    expect(workspace.highlightMetadataTypographyCount).toBe(1);
+    expect(workspace.labelsShareTypography).toBe(1);
     expect(new Set(workspace.highlightWidths).size).toBe(1);
+    expect(workspace.logoMarksPresent).toBe(true);
+    expect(new Set(workspace.logoSizes).size).toBe(1);
+    expect(new Set(workspace.logoStarts).size).toBe(1);
     expect(workspace.mapHeight).toBeGreaterThanOrEqual(240);
     expect(workspace.primaryStats).toBe(3);
+    expect(workspace.primaryValueTypographyCount).toBe(1);
     expect(workspace.secondaryStats).toBe(4);
+    expect(workspace.secondaryValueTypographyCount).toBe(1);
+    expect(workspace.selectorFlexGrow).toBe("0");
+    expect(workspace.selectorPrecedesAddFlight).toBe(true);
+    expect(workspace.selectorUsesAvailableContentWidth).toBe(true);
     expect(workspace.visualFitsViewport).toBe(true);
   }
+
+  const search = page.locator(".passport-search-field");
+  const searchInput = page.locator("#passport-flight-search");
+  const searchBoundsBeforeFocus = await search.boundingBox();
+  await searchInput.focus();
+  const searchFocus = await search.evaluate((control) => {
+    const controlBounds = control.getBoundingClientRect();
+    const iconBounds = control.querySelector("svg")!.getBoundingClientRect();
+    const inputStyle = getComputedStyle(control.querySelector("input")!);
+    return {
+      borderWidth: getComputedStyle(control).borderWidth,
+      iconInside: iconBounds.left >= controlBounds.left && iconBounds.right <= controlBounds.right,
+      inputOutline: inputStyle.outlineStyle,
+    };
+  });
+  expect(await search.boundingBox()).toEqual(searchBoundsBeforeFocus);
+  expect(searchFocus.borderWidth).toBe("1px");
+  expect(searchFocus.iconInside).toBe(true);
+  expect(searchFocus.inputOutline).toBe("none");
 
   await expect(page.locator(".passport-heading, .route-map-heading, .route-map-legend, .passport-highlights .section-heading")).toHaveCount(0);
   await expect(page.locator(".passport-archive").getByRole("button", { name: "Add flight" })).toBeVisible();
