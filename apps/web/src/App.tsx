@@ -35,6 +35,7 @@ export function App() {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [detailReturnPage, setDetailReturnPage] = useState<Page>("passport");
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
   const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
@@ -217,7 +218,12 @@ export function App() {
           setSelectedFlightId(null);
         }}
         detailActions={page === "flights" && selectedFlight ? {
-          onBack: () => setSelectedFlightId(null),
+          backLabel: t(detailReturnPage === "passport" ? "nav.passport" : "nav.flights"),
+          onBack: () => {
+            setSelectedFlightId(null);
+            setPage(detailReturnPage);
+            window.location.hash = detailReturnPage;
+          },
           onDuplicate: () => {
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(selectedFlight);
@@ -268,8 +274,12 @@ export function App() {
           document={document}
           locale={locale}
           timeFormat={settings.timeFormat}
-          onOpenFlight={setSelectedFlightId}
+          onOpenFlight={(flightId) => {
+            setDetailReturnPage("flights");
+            setSelectedFlightId(flightId);
+          }}
           onAddFlight={() => {
+            setDetailReturnPage("flights");
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);
             setEditorFlightId("new");
@@ -280,12 +290,15 @@ export function App() {
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
+          timeFormat={settings.timeFormat}
           onOpenFlight={(flightId) => {
+            setDetailReturnPage("passport");
             window.history.replaceState(null, "", "#flights");
             setPage("flights");
             setSelectedFlightId(flightId);
           }}
           onAddFlight={() => {
+            setDetailReturnPage("passport");
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);
             setEditorFlightId("new");
@@ -330,7 +343,7 @@ function documentElementLanguage(language: ViewerSettings["language"]) {
 }
 
 function pageFromHash(): Page {
-  return pageFromLocationHash() ?? "flights";
+  return pageFromLocationHash() ?? "passport";
 }
 
 function pageFromLocationHash(): Page | null {

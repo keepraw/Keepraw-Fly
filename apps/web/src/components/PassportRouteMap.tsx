@@ -25,6 +25,7 @@ interface PassportRouteMapProps {
   flights: KeeprawFlight[];
   selectedAirport?: string;
   selectedRoute?: { origin: string; destination: string };
+  highlightedRoute?: { origin: string; destination: string };
   onSelectAirport: (code: string) => void;
   onSelectRoute: (origin: string, destination: string) => void;
 }
@@ -51,6 +52,7 @@ export function PassportRouteMap({
   flights,
   selectedAirport,
   selectedRoute,
+  highlightedRoute,
   onSelectAirport,
   onSelectRoute,
 }: PassportRouteMapProps) {
@@ -179,13 +181,15 @@ export function PassportRouteMap({
             countryName={(code, fallback) => code.length === 2 ? regionNames.of(code) ?? fallback : fallback}
             countryLabel={(name, visited) => t(visited ? "passport.mapCountryVisited" : "passport.mapCountryUnvisited", { country: name })}
           />
-          <g className="map-routes">
+          <g className={highlightedRoute ? "map-routes has-highlight" : "map-routes"}>
             {routeItems.map((route) => {
               const selected = selectedRoute?.origin === route.origin.iata
                 && selectedRoute.destination === route.destination.iata;
+              const highlighted = highlightedRoute?.origin === route.origin.iata
+                && highlightedRoute.destination === route.destination.iata;
               return <g
                 key={route.key}
-                className={selected ? "map-route is-selected" : "map-route"}
+                className={["map-route", selected ? "is-selected" : "", highlighted ? "is-highlighted" : ""].filter(Boolean).join(" ")}
                 role="button"
                 tabIndex={0}
                 aria-label={route.label}

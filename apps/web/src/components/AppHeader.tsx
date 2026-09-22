@@ -6,6 +6,7 @@ interface AppHeaderProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
   detailActions?: {
+    backLabel: string;
     onBack: () => void;
     onDuplicate: () => void;
     onEdit: () => void;
@@ -15,7 +16,6 @@ interface AppHeaderProps {
 export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderProps) {
   const { t } = useTranslation();
   const links: Array<{ page: Page; label: string }> = [
-    { page: "flights", label: t("nav.flights") },
     { page: "passport", label: t("nav.passport") },
     { page: "settings", label: t("nav.settings") },
   ];
@@ -26,7 +26,7 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
         {detailActions ? <>
           <button className="detail-header-back" type="button" onClick={detailActions.onBack}>
             <HeaderIcon kind="back" />
-            <span>{t("nav.flights")}</span>
+            <span>{detailActions.backLabel}</span>
           </button>
           <div className="detail-header-actions">
             <button className="detail-header-action" type="button" onClick={detailActions.onDuplicate}>
@@ -41,9 +41,9 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
         </> : <>
           <a
             className="wordmark"
-            href="#flights"
+            href="#passport"
             aria-label={t("app.homeLabel")}
-            onClick={() => onNavigate("flights")}
+            onClick={() => onNavigate("passport")}
           >
             <span className="wordmark-name">KEEPRAW FLY</span>
             <span className="wordmark-context" aria-hidden="true">LOGBOOK</span>
