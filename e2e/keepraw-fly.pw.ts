@@ -107,10 +107,11 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
 
   await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
   await page.getByRole("link", { name: "Passport" }).click();
-  await expect(page.getByRole("heading", { name: "Passport" })).toBeVisible();
-  await expect(page.getByText("张鸿川", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Flight archive · 1 flight" })).toBeVisible();
+  await expect(page.getByText("张鸿川", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("group", { name: /World map showing 1 flight/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Highlights" })).toBeVisible();
+  await expect(page.getByText("Your world")).toHaveCount(0);
+  await expect(page.getByText("Highlights")).toHaveCount(0);
 });
 
 test("explores personal airport, airline and route history from Passport", async ({ page }) => {
@@ -127,7 +128,7 @@ test("explores personal airport, airline and route history from Passport", async
   await expect(exploration.getByText("First visited")).toBeVisible();
   await expect(exploration.getByRole("button")).not.toHaveCount(0);
 
-  await page.locator(".passport-highlights dd button").first().click();
+  await page.locator("button.passport-highlight").first().click();
   await expect(exploration.getByText("Airline history")).toBeVisible();
 
   const route = page.locator(".map-route").first();
@@ -141,6 +142,82 @@ test("explores personal airport, airline and route history from Passport", async
 
   await exploration.locator(".passport-related-flights button").first().click();
   await expect(page.locator(".detail-flight-card")).toBeVisible();
+});
+
+test("keeps Passport as a complete desktop workspace and a mobile document", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo" }).click();
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1366, height: 768 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const workspace = await page.evaluate(() => {
+      const archive = document.querySelector<HTMLElement>(".passport-archive");
+      const archiveScroll = document.querySelector<HTMLElement>(".passport-archive-scroll");
+      const visual = document.querySelector<HTMLElement>(".passport-visual");
+      const highlights = Array.from(document.querySelectorAll<HTMLElement>(".passport-highlight"));
+      if (!archive || !archiveScroll || !visual || highlights.length !== 4) {
+        throw new Error("Passport workspace landmarks are missing");
+      }
+      const highlightBounds = highlights.map((item) => item.getBoundingClientRect());
+      const highlightRowTops = ["span", "strong", "small"].map((selector) => new Set(
+        highlights.map((item) => Math.round(item.querySelector<HTMLElement>(selector)!.getBoundingClientRect().top)),
+      ).size === 1);
+      return {
+        archiveScrollsInternally: getComputedStyle(archiveScroll).overflowY === "auto",
+        bodyFitsViewport: document.documentElement.scrollHeight <= window.innerHeight,
+        highlightTopAligned: new Set(highlightBounds.map((bounds) => Math.round(bounds.top))).size === 1,
+        highlightRowsAligned: highlightRowTops.every(Boolean),
+        highlightWidths: highlightBounds.map((bounds) => Math.round(bounds.width)),
+        mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.getBoundingClientRect().height,
+        primaryStats: document.querySelectorAll(".primary-stats > div").length,
+        secondaryStats: document.querySelectorAll(".passport-counts > div").length,
+        visualFitsViewport: visual.getBoundingClientRect().bottom <= window.innerHeight + 0.5,
+      };
+    });
+
+    expect(workspace.archiveScrollsInternally).toBe(true);
+    expect(workspace.bodyFitsViewport).toBe(true);
+    expect(workspace.highlightTopAligned).toBe(true);
+    expect(workspace.highlightRowsAligned).toBe(true);
+    expect(new Set(workspace.highlightWidths).size).toBe(1);
+    expect(workspace.mapHeight).toBeGreaterThanOrEqual(240);
+    expect(workspace.primaryStats).toBe(3);
+    expect(workspace.secondaryStats).toBe(4);
+    expect(workspace.visualFitsViewport).toBe(true);
+  }
+
+  await expect(page.locator(".passport-heading, .route-map-heading, .route-map-legend, .passport-highlights .section-heading")).toHaveCount(0);
+  await expect(page.locator(".passport-archive").getByRole("button", { name: "Add flight" })).toBeVisible();
+  await expect(page.locator('.passport-visual .view-switcher[aria-label="Passport period"]')).toBeVisible();
+
+  for (const locale of ["zh-CN", "zh-TW", "en"]) {
+    await page.locator('a[href="#settings"]').click();
+    await page.locator(".settings-fields select").first().selectOption(locale);
+    await page.locator('.site-navigation a[href="#passport"]').click();
+    await expect(page.locator(".passport-highlight")).toHaveCount(4);
+    expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await page.evaluate(() => {
+    const archiveScroll = document.querySelector<HTMLElement>(".passport-archive-scroll");
+    const pageShell = document.querySelector<HTMLElement>(".passport-archive-page");
+    if (!archiveScroll || !pageShell) throw new Error("Mobile Passport landmarks are missing");
+    return {
+      archiveUsesDocumentFlow: getComputedStyle(archiveScroll).overflowY === "visible",
+      pageOverflow: getComputedStyle(pageShell).overflow,
+      pageScrolls: document.documentElement.scrollHeight > window.innerHeight,
+      fitsWidth: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    };
+  });
+  expect(mobile.archiveUsesDocumentFlow).toBe(true);
+  expect(mobile.pageOverflow).toBe("visible");
+  expect(mobile.pageScrolls).toBe(true);
+  expect(mobile.fitsWidth).toBe(true);
 });
 
 test("keeps the operational summary inside the flight header at desktop and mobile widths", async ({ page }) => {
@@ -214,11 +291,11 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     expect(layout.fitsViewport).toBe(true);
   }
 
-  await page.getByRole("button", { name: "Flights" }).click();
+  await page.getByRole("button", { name: "Passport" }).click();
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByLabel("Appearance").selectOption("light");
   await page.getByLabel("Language").selectOption("zh-CN");
-  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("link", { name: "飞行护照" }).click();
   await page.getByRole("button", { name: /打开 UA123/ }).click();
   await expect(page.locator(".route-origin-city")).toHaveText("旧金山");
   await expect(page.locator(".route-origin-airport")).toHaveText("旧金山国际机场");
@@ -237,7 +314,7 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
   await expect(preview.getByText("MU589")).toBeVisible();
   await preview.getByRole("button", { name: "Add 1 flight" }).click();
 
-  await page.getByRole("link", { name: "Flights" }).click();
+  await page.getByRole("link", { name: "Passport" }).click();
   await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
 });
 
@@ -305,7 +382,7 @@ test("skips an exact JSON duplicate without replacing the existing archive", asy
   await possiblePreview.getByRole("checkbox", { name: /Also import 1 possible duplicate/ }).check();
   await possiblePreview.getByRole("button", { name: "Import 1 selected flight" }).click();
 
-  await page.getByRole("link", { name: "Flights" }).click();
+  await page.getByRole("link", { name: "Passport" }).click();
   await expect(page.getByRole("button", { name: /Open UA123/ })).toHaveCount(2);
 });
 
@@ -343,7 +420,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   await clearConfirmation.getByRole("button", { name: "Cancel" }).click();
   await expect(clearButton).toBeFocused();
 
-  await page.getByRole("link", { name: "Flights" }).click();
+  await page.getByRole("link", { name: "Passport" }).click();
   const reducedMotionDurations = await page.locator(".flight-row").first().evaluate((element) => {
     const style = getComputedStyle(element);
     return {
@@ -415,12 +492,12 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   expect(chineseHeadingMetrics.tracking).toBe("normal");
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("link", { name: "飞行护照" }).click();
   const fitsViewport = await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth);
   expect(fitsViewport).toBe(true);
 });
 
-test("presents the flight archive as a route-first open ledger", async ({ page }) => {
+test("presents the flight archive as a single-column open ledger", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
 
@@ -451,20 +528,18 @@ test("presents the flight archive as a route-first open ledger", async ({ page }
         rowBorderRadius: rowStyle.borderRadius,
         rowBoxShadow: rowStyle.boxShadow,
         routeCodeSize: Number.parseFloat(getComputedStyle(routeCode).fontSize),
-        routeComesFirst: row.firstElementChild?.classList.contains("flight-route") ?? false,
         searchBorderRadius: searchStyle.borderRadius,
         searchBoxShadow: searchStyle.boxShadow,
       };
     });
 
-    expect(presentation.routeComesFirst).toBe(true);
     expect(presentation.routeCodeSize).toBeGreaterThan(presentation.flightNumberSize);
     expect(presentation.flightNumberSize).toBeGreaterThan(presentation.dateSize);
     expect(presentation.listDisplay).toBe("grid");
-    expect(presentation.listColumns).toBe(viewport.width > 760 ? 2 : 1);
-    expect(presentation.rowBorderRadius).toBe("4px");
+    expect(presentation.listColumns).toBe(1);
+    expect(presentation.rowBorderRadius).toBe("0px");
     expect(presentation.rowBoxShadow).toBe("none");
-    expect(presentation.searchBorderRadius).toBe("3px");
+    expect(presentation.searchBorderRadius).toBe("0px");
     expect(presentation.searchBoxShadow).toBe("none");
   }
 });
@@ -514,7 +589,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     timelineBoxShadow: "none",
   });
 
-  await page.getByRole("button", { name: "Flights" }).click();
+  await page.getByRole("button", { name: "Passport" }).click();
   await page.getByRole("link", { name: "Passport" }).click();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   const passportPresentation = await page.evaluate(() => {
@@ -522,8 +597,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     const canvas = document.querySelector<HTMLElement>(".route-map-canvas");
     const switcher = document.querySelector<HTMLElement>(".view-switcher");
     const highlights = document.querySelector<HTMLElement>(".passport-highlights");
-    const yearHistory = document.querySelector<HTMLElement>(".year-history");
-    if (!map || !canvas || !switcher || !highlights || !yearHistory) {
+    if (!map || !canvas || !switcher || !highlights) {
       throw new Error("Passport presentation landmarks are missing");
     }
     const mapStyle = getComputedStyle(map);
@@ -543,7 +617,6 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
       worldSilhouettes: map.querySelectorAll(".map-world > .map-sphere").length,
       switcherBorderRadius: switcherStyle.borderRadius,
       switcherBackgroundImage: switcherStyle.backgroundImage,
-      yearHistoryDisplay: getComputedStyle(yearHistory).display,
     };
   });
   expect(passportPresentation).toEqual({
@@ -551,7 +624,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     countryPaths: 177,
     graticules: 0,
     highlightsDisplay: "block",
-    mapBorderRadius: "4px",
+    mapBorderRadius: "0px",
     mapBoxShadow: "none",
     permanentAirportLabels: 1,
     routeFilter: "none",
@@ -561,7 +634,6 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     visitedCountries: 9,
     worldSilhouettes: 1,
     zoomControls: 3,
-    yearHistoryDisplay: "block",
   });
 
   await page.getByRole("button", { name: "Zoom in" }).click();
@@ -644,11 +716,11 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     .toHaveText("Shenzhen Bao'an International Airport");
   await expect(page.locator(".detail-stop--departure .operation-badge")).toContainText("338");
 
-  await page.getByRole("button", { name: "Flights" }).click();
+  await page.getByRole("button", { name: "Passport" }).click();
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByLabel("Appearance").selectOption("light");
   await page.getByLabel("Language").selectOption("zh-CN");
-  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("link", { name: "飞行护照" }).click();
   await page.getByRole("button", { name: /打开 ZH9911/ }).click();
 
   await expect(page.locator(".route-origin-city")).toHaveText("深圳");
@@ -712,10 +784,10 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 
-  await page.getByRole("button", { name: "航班", exact: true }).click();
+  await page.getByRole("button", { name: "飞行护照", exact: true }).click();
   await page.getByRole("link", { name: "设置" }).click();
   await page.getByLabel("语言").selectOption("zh-TW");
-  await page.getByRole("link", { name: "航班" }).click();
+  await page.getByRole("link", { name: "飛行護照" }).click();
   await page.getByRole("button", { name: /打開 ZH9911/ }).click();
   await expect(page.locator(".route-arrival-city")).toHaveText("青島");
   await expect(page.locator(".route-arrival-airport")).toHaveText("青島膠東國際機場");
@@ -745,7 +817,7 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
   for (const width of [320, 760, 761, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
 
-    for (const pageName of ["Flights", "Passport", "Settings"]) {
+    for (const pageName of ["Passport", "Settings"]) {
       await page.getByRole("link", { name: pageName }).click();
 
       const layout = await page.evaluate(() => {
@@ -775,8 +847,13 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
       expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);
       expect(Math.abs(layout.header.right - layout.main.right)).toBeLessThan(1);
       expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1280);
-      expect(layout.mainPaddingTop).toBe(width <= 760 ? 24 : 32);
-      expect(layout.mainPaddingBottom).toBe(width <= 760 ? 64 : 120);
+      if (pageName === "Passport" && width > 760) {
+        expect(layout.mainPaddingTop).toBeLessThanOrEqual(22);
+        expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
+      } else {
+        expect(layout.mainPaddingTop).toBe(width <= 760 ? 24 : 32);
+        expect(layout.mainPaddingBottom).toBe(width <= 760 ? 64 : 120);
+      }
     }
   }
 });
@@ -791,9 +868,9 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", { name: "Flights" });
+    const detailBack = page.getByRole("button", { name: "Passport" });
     if (await detailBack.isVisible()) await detailBack.click();
-    else await page.getByRole("link", { name: "Flights" }).click();
+    else await page.getByRole("link", { name: "Passport" }).click();
 
     const archive = await page.evaluate(() => {
       window.scrollTo(0, 0);
@@ -812,12 +889,12 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
           return bounds.left < -0.5 || bounds.right > window.innerWidth + 0.5;
         }).length;
       const atomicValues = Array.from(row.querySelectorAll<HTMLElement>(
-        ".flight-number strong, .flight-route time, .airport-code-display",
+        ".flight-number strong, .flight-times time, .airport-code-display",
       )).filter(visible);
       const routeValues = Array.from(row.querySelectorAll<HTMLElement>(
-        ".flight-route .airport-code-display, .flight-route time",
+        ".flight-route .airport-code-display, .flight-times time",
       )).filter(visible);
-      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-airport small"));
+      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-route p span:not([aria-hidden='true'])"));
       const list = row.closest<HTMLElement>(".flight-list");
       const headerBounds = header.getBoundingClientRect();
       const mainBounds = main.getBoundingClientRect();
@@ -852,7 +929,7 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     expect(archive.routeValues).toBe(4);
     expect(archive.statusVisible).toBe(true);
 
-    expect(archive.listColumns).toBe(viewport.width <= 760 ? 1 : 2);
+    expect(archive.listColumns).toBe(1);
     expect(archive.airportNamesVisible).toBe(true);
 
     await page.locator(".flight-row").first().click();
@@ -877,9 +954,9 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", { name: "Flights" });
+    const detailBack = page.getByRole("button", { name: "Passport" });
     if (await detailBack.isVisible()) await detailBack.click();
-    else await page.getByRole("link", { name: "Flights" }).click();
+    else await page.getByRole("link", { name: "Passport" }).click();
     await page.getByRole("button", { name: "Add flight" }).click();
 
     const dialog = await page.getByRole("dialog", { name: "Add a flight" }).evaluate((element) => {

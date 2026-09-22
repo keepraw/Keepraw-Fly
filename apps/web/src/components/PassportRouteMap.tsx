@@ -148,16 +148,7 @@ export function PassportRouteMap({
   const totalFlights = routes.reduce((sum, route) => sum + route.flightCount, 0);
 
   return (
-    <section className="route-map" aria-labelledby="map-title">
-      <header className="route-map-heading">
-        <div>
-          <p className="eyebrow">{t("passport.routes")}</p>
-          <h2 id="map-title">{t("passport.map")}</h2>
-          <p>{t("passport.mapDescription")}</p>
-        </div>
-        <span>{t("passport.mapSummary", { routes: routes.length, airports: airports.length })}</span>
-      </header>
-
+    <section className="route-map">
       <MapViewport
         className="route-map-canvas"
         ariaLabel={t("passport.mapPreviewLabel", { flights: totalFlights })}
@@ -245,7 +236,6 @@ export function PassportRouteMap({
           {tooltip ? <MapTooltip tooltip={tooltip} camera={camera} /> : null}
         </>}
       </MapViewport>
-      <p className="route-map-legend">{t("passport.mapLegend")}</p>
     </section>
   );
 }
