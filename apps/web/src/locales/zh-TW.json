@@ -46,7 +46,6 @@
     "clearData": "清除本地數據"
   },
   "flights": {
-    "archiveTitle": "飛行檔案 · {{count}} 個航班",
     "count": "{{count}} 個航班",
     "searchLabel": "搜索航班",
     "searchPlaceholder": "搜索航班、機場、航空公司…",

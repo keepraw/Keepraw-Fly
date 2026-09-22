@@ -29,10 +29,7 @@ describe("i18n resources", () => {
     expect(normalizedKeys(zhTW[section])).toEqual(expected);
   });
 
-  it("keeps the archive count and distance values interpolated in every locale", () => {
-    expect(en.flights.archiveTitle_one).toContain("{{count}}");
-    expect(en.flights.archiveTitle_other).toContain("{{count}}");
-    for (const locale of [zhCN, zhTW]) expect(locale.flights.archiveTitle).toContain("{{count}}");
+  it("keeps distance values interpolated in every locale", () => {
     for (const locale of [en, zhCN, zhTW]) {
       expect(locale.passport.distanceMiles).toContain("{{value}}");
       expect(locale.passport.distanceKilometers).toContain("{{value}}");
