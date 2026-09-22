@@ -12,6 +12,7 @@ import {
   type SupportedLocale,
 } from "@keepraw-fly/core";
 import { AirportCombobox } from "./AirportCombobox";
+import { ConfirmationDialog } from "./ConfirmationDialog";
 import {
   createDefaultDraft,
   flightFromDraft,
@@ -40,6 +41,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const errorId = useId();
   const dialogRef = useRef<HTMLElement>(null);
 
@@ -277,9 +279,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
           {error ? <p className="editor-error" id={errorId} role="alert">{error}</p> : null}
 
           <footer className="editor-actions">
-            {flight && onDelete ? <button className="editor-delete" type="button" onClick={() => {
-              if (window.confirm(t("flightEditor.deleteConfirmation"))) void onDelete();
-            }}>{t("actions.deleteFlight")}</button> : <span />}
+            {flight && onDelete ? <button className="editor-delete" type="button" onClick={() => setConfirmingDelete(true)}>{t("actions.deleteFlight")}</button> : <span />}
             <div>
               <button className="button-secondary" type="button" onClick={onCancel}>{t("actions.cancel")}</button>
               <button className="button-primary" type="submit" disabled={busy}>{busy ? t("actions.saving") : t("actions.saveFlight")}</button>
@@ -287,6 +287,20 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
           </footer>
         </form>
       </section>
+      {confirmingDelete ? (
+        <ConfirmationDialog
+          title={t("actions.deleteFlight")}
+          description={t("flightEditor.deleteConfirmation")}
+          confirmLabel={t("actions.deleteFlight")}
+          cancelLabel={t("actions.cancel")}
+          tone="danger"
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            setConfirmingDelete(false);
+            void onDelete?.();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

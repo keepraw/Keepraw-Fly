@@ -23,6 +23,7 @@
     "label": "示例档案",
     "description": "你正在体验虚构的示例航班，这不是你的个人飞行历史。",
     "createPersonal": "创建我的档案",
+    "exportTitle": "导出演示档案？",
     "exportConfirmation": "这是虚构的示例数据，仍然导出吗？"
   },
   "actions": {

@@ -6,6 +6,7 @@ import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
 import { DemoBanner } from "./components/DemoBanner";
 import { FlightEditor } from "./components/FlightEditor";
+import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightsPage } from "./pages/FlightsPage";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
@@ -36,6 +37,7 @@ export function App() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
   const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
+  const [confirmDemoExport, setConfirmDemoExport] = useState(false);
   const editorReturnFocusRef = useRef<HTMLElement | null>(null);
 
   const locale = useMemo(() => settings.language, [settings.language]);
@@ -194,7 +196,10 @@ export function App() {
 
   function exportDocument() {
     if (!document) return;
-    if (archiveKind === "demo" && !window.confirm(t("demo.exportConfirmation"))) return;
+    if (archiveKind === "demo") {
+      setConfirmDemoExport(true);
+      return;
+    }
     downloadKeeprawFly(document);
   }
 
@@ -301,6 +306,19 @@ export function App() {
           onSave={saveFlight}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
           onCancel={() => { setEditorFlightId(null); setDuplicateTemplate(null); }}
+        />
+      ) : null}
+      {confirmDemoExport ? (
+        <ConfirmationDialog
+          title={t("demo.exportTitle")}
+          description={t("demo.exportConfirmation")}
+          confirmLabel={t("actions.export")}
+          cancelLabel={t("actions.cancel")}
+          onCancel={() => setConfirmDemoExport(false)}
+          onConfirm={() => {
+            setConfirmDemoExport(false);
+            if (document) downloadKeeprawFly(document);
+          }}
         />
       ) : null}
     </div>
