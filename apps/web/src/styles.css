@@ -1639,26 +1639,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-bottom: 1px solid var(--color-line-strong);
 }
 
-.archive-title-row {
+.archive-controls {
   display: flex;
   min-width: 0;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
 }
 
-.archive-title-row h1 {
+.archive-controls .view-switcher {
   min-width: 0;
-  margin: 0;
-  font-family: var(--font-family-display);
-  font-size: 1.05rem;
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--tracking-tight);
-  line-height: var(--type-leading-heading);
+  max-width: none;
+  flex: 1 1 auto;
 }
 
-.archive-title-row .add-flight-button {
-  min-height: 34px;
+.archive-controls .add-flight-button {
+  min-height: 36px;
   flex: 0 0 auto;
   padding: 7px 11px;
 }
@@ -1679,9 +1675,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-search-field .clear-search { right: -7px; width: 30px; height: 30px; font-size: 1.15rem; }
 
 .passport-archive .flight-year { margin-top: 34px; }
-.passport-archive .flight-year:first-child { margin-top: 24px; }
+.passport-archive .flight-year:first-child { margin-top: 18px; }
 .passport-archive .year-heading { padding: 0 0 9px; border-bottom: 1px solid var(--line); }
 .year-heading h3,
+.passport-archive .year-heading h1,
 .passport-archive .year-heading h2 {
   margin: 0;
   font-family: var(--font-family-data);
@@ -1784,14 +1781,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: transparent;
 }
 .passport-archive-page .route-map-canvas { margin: 0; aspect-ratio: 2.45; }
-
-.passport-period-toolbar {
-  display: flex;
-  min-width: 0;
-  justify-content: flex-end;
-  padding-bottom: 10px;
-}
-.passport-period-toolbar .view-switcher { max-width: 100%; }
 
 .passport-archive-page .primary-stats {
   display: grid;
@@ -1939,22 +1928,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: grid;
     height: 100%;
     min-height: 0;
-    grid-template-rows: auto minmax(180px, 1fr) auto auto auto;
+    grid-template-rows: minmax(180px, 1fr) auto auto auto;
   }
-
-  .passport-period-toolbar { grid-column: 1; grid-row: 1; }
 
   .passport-archive-page .route-map {
     display: grid;
     min-height: 0;
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
     grid-template-rows: minmax(0, 1fr);
   }
 
-  .passport-archive-page .primary-stats { grid-column: 1; grid-row: 3; }
-  .passport-archive-page .passport-counts { grid-column: 1; grid-row: 4; }
-  .passport-archive-page .passport-highlights { grid-column: 1; grid-row: 5; }
+  .passport-archive-page .primary-stats { grid-column: 1; grid-row: 2; }
+  .passport-archive-page .passport-counts { grid-column: 1; grid-row: 3; }
+  .passport-archive-page .passport-highlights { grid-column: 1; grid-row: 4; }
 
   .passport-archive-page .route-map-canvas {
     width: 100%;
@@ -1988,13 +1975,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-layout { display: flex; flex-direction: column; gap: 0; }
   .passport-visual { display: contents; }
   .passport-visual-sticky { display: contents; position: static; }
-  .passport-period-toolbar { order: 0; padding-bottom: 14px; }
-  .passport-period-toolbar .view-switcher { width: 100%; max-width: none; }
   .passport-archive-page .route-map { order: 1; }
   .passport-archive-page .primary-stats { order: 2; }
   .passport-archive-page .passport-counts { order: 3; }
   .passport-archive-page .passport-highlights { order: 4; }
-  .passport-archive { order: 5; margin-top: 46px; }
+  .passport-archive { display: contents; }
+  .archive-heading { order: 0; margin-bottom: 18px; }
+  .passport-archive-scroll { order: 5; margin-top: 46px; }
   .passport-archive-page .route-map { padding: 0 0 20px; }
   .passport-archive-page .route-map-canvas { margin: 0; aspect-ratio: 1.55; }
   .passport-archive-page .primary-stats { grid-template-columns: 1fr 1fr; }
@@ -2030,8 +2017,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 @media (max-width: 420px) {
-  .archive-title-row { gap: 10px; }
-  .archive-title-row h1 { font-size: var(--type-size-body); }
+  .archive-controls { gap: 10px; }
   .flight-row-primary,
   .flight-row-secondary { grid-template-columns: 64px minmax(0, 1fr) 74px; gap: 8px; }
   .flight-row .flight-number span { display: none; }

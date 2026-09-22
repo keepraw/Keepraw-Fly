@@ -107,7 +107,7 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
 
   await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
   await page.getByRole("link", { name: "Passport" }).click();
-  await expect(page.getByRole("heading", { name: "Flight archive · 1 flight" })).toBeVisible();
+  await expect(page.getByText("Flight archive · 1 flight")).toHaveCount(0);
   await expect(page.getByText("张鸿川", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("group", { name: /World map showing 1 flight/ })).toBeVisible();
   await expect(page.getByText("Your world")).toHaveCount(0);
@@ -192,7 +192,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
   await expect(page.locator(".passport-heading, .route-map-heading, .route-map-legend, .passport-highlights .section-heading")).toHaveCount(0);
   await expect(page.locator(".passport-archive").getByRole("button", { name: "Add flight" })).toBeVisible();
-  await expect(page.locator('.passport-visual .view-switcher[aria-label="Passport period"]')).toBeVisible();
+  await expect(page.locator('.passport-archive .view-switcher[aria-label="Passport period"]')).toBeVisible();
 
   for (const locale of ["zh-CN", "zh-TW", "en"]) {
     await page.locator('a[href="#settings"]').click();

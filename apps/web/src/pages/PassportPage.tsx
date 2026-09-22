@@ -100,15 +100,6 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
       <div className="passport-layout">
         <aside className="passport-visual" aria-label={t("passport.primaryStats")}>
           <div className="passport-visual-sticky">
-            <div className="passport-period-toolbar">
-              <div className="view-switcher" role="group" aria-label={t("passport.periodLabel")}>
-                <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
-                {years.map((year) => (
-                  <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>
-                ))}
-              </div>
-            </div>
-
             <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
               <PassportRouteMap
                 key={`map-${selectedYear}`}
@@ -162,10 +153,15 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
           </div>
         </aside>
 
-        <section className="passport-archive" aria-labelledby="archive-title">
+        <section className="passport-archive">
           <header className="archive-heading">
-            <div className="archive-title-row">
-              <h1 id="archive-title">{t("flights.archiveTitle", { count: flights.length })}</h1>
+            <div className="archive-controls">
+              <div className="view-switcher" role="group" aria-label={t("passport.periodLabel")}>
+                <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
+                {years.map((year) => (
+                  <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>
+                ))}
+              </div>
               <button className="add-flight-button" type="button" onClick={onAddFlight}><span aria-hidden="true">＋</span>{t("actions.addFlight")}</button>
             </div>
             <div className="search-field passport-search-field">
@@ -202,9 +198,12 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
             {groups.length ? (
               <div className="flight-groups" aria-live="polite">
-              {groups.map((group) => (
+              {groups.map((group, groupIndex) => (
                 <section className="flight-year" key={group.year}>
-                  <div className="year-heading"><h2>{group.year}</h2><span>{t("flights.count", { count: group.flights.length })}</span></div>
+                  <div className="year-heading">
+                    {groupIndex === 0 ? <h1>{group.year}</h1> : <h2>{group.year}</h2>}
+                    <span>{t("flights.count", { count: group.flights.length })}</span>
+                  </div>
                   <div className="flight-list">
                     {group.flights.map((flight, index) => (
                       <FlightRow key={flight.id} flight={flight} locale={locale} timeFormat={timeFormat} onOpen={() => onOpenFlight(flight.id)} onHoverChange={setHoveredFlight} revealIndex={index} />

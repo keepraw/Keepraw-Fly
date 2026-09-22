@@ -46,8 +46,6 @@
     "clearData": "Clear local data"
   },
   "flights": {
-    "archiveTitle_one": "Flight archive · {{count}} flight",
-    "archiveTitle_other": "Flight archive · {{count}} flights",
     "count_one": "{{count}} flight",
     "count_other": "{{count}} flights",
     "searchLabel": "Search flights",
