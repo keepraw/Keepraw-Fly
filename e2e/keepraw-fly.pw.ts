@@ -195,7 +195,13 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         highlightValueTypographyCount: typography(".passport-highlight > strong"),
         highlightWidths: highlightBounds.map((bounds) => Math.round(bounds.width)),
         labelsShareTypography: typography(".primary-stats span, .passport-counts span, .passport-highlight > span, .passport-highlight > small"),
-        logoMarksPresent: airlineLogos.every((logo) => Boolean(logo.textContent?.trim())),
+        brandedLogoCount: airlineLogos.filter((logo) => logo.querySelector("img")).length,
+        fallbackLogoCount: airlineLogos.filter((logo) => logo.classList.contains("airline-logo--fallback")).length,
+        logoContentPresent: airlineLogos.every((logo) => Boolean(logo.querySelector("img") || logo.textContent?.trim())),
+        logoSourcesAreLocal: airlineLogos.every((logo) => {
+          const source = logo.querySelector<HTMLImageElement>("img")?.currentSrc;
+          return !source || source.startsWith("data:") || new URL(source).origin === window.location.origin;
+        }),
         logoSizes: logoBounds.map((bounds) => `${Math.round(bounds.width)}x${Math.round(bounds.height)}`),
         logoStarts,
         mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.getBoundingClientRect().height,
@@ -219,7 +225,10 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(workspace.highlightMetadataTypographyCount).toBe(1);
     expect(workspace.labelsShareTypography).toBe(1);
     expect(new Set(workspace.highlightWidths).size).toBe(1);
-    expect(workspace.logoMarksPresent).toBe(true);
+    expect(workspace.brandedLogoCount).toBeGreaterThan(0);
+    expect(workspace.fallbackLogoCount).toBeGreaterThan(0);
+    expect(workspace.logoContentPresent).toBe(true);
+    expect(workspace.logoSourcesAreLocal).toBe(true);
     expect(new Set(workspace.logoSizes).size).toBe(1);
     expect(new Set(workspace.logoStarts).size).toBe(1);
     expect(workspace.mapHeight).toBeGreaterThanOrEqual(240);

@@ -29,6 +29,21 @@ historic operator or branded service; it is applied after the generated data.
 Run `pnpm update:airlines` and `pnpm update:airport-locales` to refresh these
 checked-in runtime datasets. The application never queries Wikidata at runtime.
 
+## Soaring Symbols
+
+Keepraw Fly bundles airline SVG icons from
+[soaring-symbols/soaring-symbols](https://github.com/soaring-symbols/soaring-symbols),
+version 0.1.0-alpha.12, as local build assets. The library is distributed under
+the MIT License; its license text is included in
+`apps/web/src/data/LICENSE.soaring-symbols`.
+
+Airline names, logos and trademarks remain the property of their respective
+owners. The icons are used for airline identification, and the application
+falls back to the airline designator when no icon is available.
+
+Run `pnpm update:airline-icons` after updating the dependency to refresh the
+generated IATA/ICAO-to-asset registry.
+
 ## OpenCC.js
 
 Keepraw Fly uses [OpenCC.js](https://github.com/nk2028/opencc-js), version

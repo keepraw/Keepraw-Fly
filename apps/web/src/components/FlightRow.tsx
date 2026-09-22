@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -15,6 +15,7 @@ import {
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { AirportCode } from "./AviationPrimitives";
+import { airlineLogoByCode, type AirlineLogoAsset } from "../generated/airline-icons";
 
 interface FlightRowProps {
   flight: KeeprawFlight;
@@ -25,12 +26,34 @@ interface FlightRowProps {
   revealIndex?: number;
 }
 
+interface AirlineLogoProps {
+  code: string;
+  fallback: string;
+  asset?: AirlineLogoAsset;
+}
+
+function AirlineLogo({ code, fallback, asset }: AirlineLogoProps) {
+  const [failed, setFailed] = useState(false);
+
+  if (!asset || failed) {
+    return <span className="airline-logo airline-logo--fallback" aria-hidden="true">{fallback}</span>;
+  }
+
+  return (
+    <span className={`airline-logo airline-logo--image airline-logo--${asset.variant}`} aria-hidden="true">
+      <img src={asset.src} alt="" onError={() => setFailed(true)} data-airline-code={code} />
+    </span>
+  );
+}
+
 export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, revealIndex = 0 }: FlightRowProps) {
   const { t } = useTranslation();
   const delay = arrivalDelayMinutes(flight) ?? departureDelayMinutes(flight);
   const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
   const airlineMark = airlineCode.slice(0, 2).toUpperCase() || "--";
+  const airlineLogo = airlineLogoByCode[flight.airline.iata?.toUpperCase() ?? ""]
+    ?? airlineLogoByCode[flight.airline.icao?.toUpperCase() ?? ""];
   const airline = resolveAirline(flight.airline);
   const airlineName = airline ? airlineNames(airline, locale)[0] : undefined;
   const origin = airportByIata.get(flight.origin.iata);
@@ -67,7 +90,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
         destination: flight.destination.iata,
       })}
     >
-      <span className="airline-logo airline-logo--fallback" aria-hidden="true">{airlineMark}</span>
+      <AirlineLogo key={airlineLogo?.src ?? airlineMark} code={airlineCode} fallback={airlineMark} asset={airlineLogo} />
       <div className="flight-row-content">
         <div className="flight-row-primary">
           <div className="flight-number">

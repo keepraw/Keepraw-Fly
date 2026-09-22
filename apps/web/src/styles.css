@@ -1745,6 +1745,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   letter-spacing: 0.035em;
   line-height: 1;
 }
+.passport-archive .airline-logo--image { overflow: hidden; border-color: transparent; background: transparent; }
+.passport-archive .airline-logo img { display: block; width: 24px; height: 24px; object-fit: contain; }
+.passport-archive .airline-logo--logo img { width: 28px; height: 22px; }
 
 .passport-archive .flight-row:hover {
   border-color: var(--color-line-strong);
