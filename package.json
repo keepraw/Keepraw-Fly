@@ -13,6 +13,7 @@
     "preview": "pnpm --filter @keepraw-fly/web preview",
     "update:airports": "node scripts/update-airports.mjs",
     "update:airlines": "node scripts/update-airlines.mjs",
+    "update:airline-icons": "node scripts/generate-airline-icons.mjs",
     "update:airport-locales": "node scripts/update-airport-locales.mjs",
     "update:zh-tw": "node scripts/update-zh-tw-locale.mjs",
     "update:world-map": "node scripts/update-world-map.mjs",
