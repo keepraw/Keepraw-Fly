@@ -34,17 +34,6 @@ interface PassportPageProps {
   onOpenFlight: (flightId: string) => void;
 }
 
-function profileNames(document: KeeprawFlyDocument, locale: SupportedLocale, fallbackName: string) {
-  const name = document.profile.name;
-  if (!name) return { primary: fallbackName, secondary: undefined };
-  const preferred = name.primary ?? (locale.startsWith("zh") ? "native" : "romanized");
-  const alternate = preferred === "native" ? "romanized" : "native";
-  return {
-    primary: name[preferred] ?? name[alternate] ?? fallbackName,
-    secondary: name[alternate],
-  };
-}
-
 export function PassportPage({ document, locale, distanceUnit, timeFormat, onAddFlight, onOpenFlight }: PassportPageProps) {
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number | "lifetime">("lifetime");
@@ -65,10 +54,9 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
     () => selection ? explorePassportFlights(flights, selection) : undefined,
     [flights, selection],
   );
-  const names = profileNames(document, locale, t("passport.anonymousFlyer"));
   const longest = flights.find((flight) => flight.id === stats.longestFlight?.flightId);
   const shortest = flights.find((flight) => flight.id === stats.shortestFlight?.flightId);
-  const distanceSuffix = distanceUnit === "miles" ? "mi" : "km";
+  const distanceKey = distanceUnit === "miles" ? "passport.distanceMiles" : "passport.distanceKilometers";
   const highlightedRoute = hoveredFlight
     ? { origin: hoveredFlight.origin.iata, destination: hoveredFlight.destination.iata }
     : undefined;
@@ -94,14 +82,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
   if (!document.flights.length) {
     return (
-      <PageShell className="passport-page">
-        <header className="passport-heading">
-          <div>
-            <p className="eyebrow">{t("passport.flightHistory")}</p>
-            <h1>{t("nav.passport")}</h1>
-            <p className="passport-holder-name">{names.primary}</p>
-          </div>
-        </header>
+      <PageShell className="passport-page passport-empty-page">
         <section className="passport-empty" aria-labelledby="passport-empty-title">
           <div>
             <p className="eyebrow">{t("passport.emptyEyebrow")}</p>
@@ -116,29 +97,18 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
   return (
     <PageShell className="passport-page passport-archive-page">
-      <header className="passport-heading">
-        <div>
-          <p className="eyebrow">{selectedYear === "lifetime" ? t("passport.flightHistory") : t("passport.yearPassport", { year: selectedYear })}</p>
-          <h1>{t("nav.passport")}</h1>
-          <p className="passport-holder-name">
-            {names.primary}
-            {names.secondary && names.secondary !== names.primary ? <span> / {names.secondary}</span> : null}
-          </p>
-        </div>
-        <div className="passport-heading-actions">
-          <div className="view-switcher" aria-label={t("passport.periodLabel")}>
-            <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
-            {years.map((year) => (
-              <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>
-            ))}
-          </div>
-          <button className="add-flight-button" type="button" onClick={onAddFlight}><span aria-hidden="true">＋</span>{t("actions.addFlight")}</button>
-        </div>
-      </header>
-
       <div className="passport-layout">
         <aside className="passport-visual" aria-label={t("passport.primaryStats")}>
           <div className="passport-visual-sticky">
+            <div className="passport-period-toolbar">
+              <div className="view-switcher" role="group" aria-label={t("passport.periodLabel")}>
+                <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
+                {years.map((year) => (
+                  <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>
+                ))}
+              </div>
+            </div>
+
             <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
               <PassportRouteMap
                 key={`map-${selectedYear}`}
@@ -153,9 +123,9 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
             </Suspense>
 
             <section className="primary-stats" key={`primary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
-              <div><strong>{stats.flights}</strong><span>{t("passport.flights")}</span></div>
-              <div><strong>{formatDistance(stats.distanceKilometers, locale, distanceUnit)}</strong><span>{t(distanceUnit === "miles" ? "passport.distanceMiles" : "passport.distanceKilometers")}</span></div>
-              <div><strong>{formatDuration(stats.durationMinutes, locale)}</strong><span>{t("passport.timeInAir")}</span></div>
+              <div><span>{t("passport.flights")}</span><strong>{stats.flights.toLocaleString(locale)}</strong></div>
+              <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
+              <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
             </section>
 
             <section className="passport-counts" key={`counts-${selectedYear}`} aria-label={t("passport.collectionStats")}>
@@ -165,36 +135,39 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
             </section>
 
-            <section className="passport-highlights" key={`highlights-${selectedYear}`} aria-labelledby="highlights-title">
-              <div className="section-heading">
-                <p className="eyebrow">{t("passport.patterns")}</p>
-                <h2 id="highlights-title">{t("passport.highlights")}</h2>
+            <div className="passport-highlights" key={`highlights-${selectedYear}`}>
+              <div className="highlight-list">
+                {stats.mostFlownAirline ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}>
+                  <span>{t("passport.mostFlownAirline")}</span>
+                  <strong>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</strong>
+                  <small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small>
+                </button> : <div className="passport-highlight"><span>{t("passport.mostFlownAirline")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
+                {stats.mostVisitedAirport ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}>
+                  <span>{t("passport.mostVisitedAirport")}</span>
+                  <strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong>
+                  <small>{t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small>
+                </button> : <div className="passport-highlight"><span>{t("passport.mostVisitedAirport")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
+                {longest ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}>
+                  <span>{t("passport.longestFlight")}</span>
+                  <strong className="highlight-route">{routeLabel(longest)}</strong>
+                  <small>{distanceForFlight(longest) ? t(distanceKey, { value: formatDistance(distanceForFlight(longest)!, locale, distanceUnit) }) : ""}</small>
+                </button> : <div className="passport-highlight"><span>{t("passport.longestFlight")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
+                {shortest ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}>
+                  <span>{t("passport.shortestFlight")}</span>
+                  <strong className="highlight-route">{routeLabel(shortest)}</strong>
+                  <small>{distanceForFlight(shortest) ? t(distanceKey, { value: formatDistance(distanceForFlight(shortest)!, locale, distanceUnit) }) : ""}</small>
+                </button> : <div className="passport-highlight"><span>{t("passport.shortestFlight")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
               </div>
-              <dl className="highlight-list">
-                <div>
-                  <dt>{t("passport.mostFlownAirline")}</dt>
-                  <dd>{stats.mostFlownAirline ? <button type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}><strong>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</strong><small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small></button> : <strong>—</strong>}</dd>
-                </div>
-                <div>
-                  <dt>{t("passport.mostVisitedAirport")}</dt>
-                  <dd>{stats.mostVisitedAirport ? <button type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}><strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong><small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small></button> : <strong>—</strong>}</dd>
-                </div>
-                <div>
-                  <dt>{t("passport.longestFlight")}</dt>
-                  <dd>{longest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}><strong className="highlight-route">{routeLabel(longest)}</strong><small>{distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></button> : <strong>—</strong>}</dd>
-                </div>
-                <div>
-                  <dt>{t("passport.shortestFlight")}</dt>
-                  <dd>{shortest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}><strong className="highlight-route">{routeLabel(shortest)}</strong><small>{distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></button> : <strong>—</strong>}</dd>
-                </div>
-              </dl>
-            </section>
+            </div>
           </div>
         </aside>
 
         <section className="passport-archive" aria-labelledby="archive-title">
           <header className="archive-heading">
-            <div><p className="eyebrow">{t("flights.archive")}</p><h2 id="archive-title">{t("flights.count", { count: flights.length })}</h2></div>
+            <div className="archive-title-row">
+              <h1 id="archive-title">{t("flights.archiveTitle", { count: flights.length })}</h1>
+              <button className="add-flight-button" type="button" onClick={onAddFlight}><span aria-hidden="true">＋</span>{t("actions.addFlight")}</button>
+            </div>
             <div className="search-field passport-search-field">
               <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>
               <label className="sr-only" htmlFor="passport-flight-search">{t("flights.searchLabel")}</label>
@@ -231,7 +204,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               <div className="flight-groups" aria-live="polite">
               {groups.map((group) => (
                 <section className="flight-year" key={group.year}>
-                  <div className="year-heading"><h3>{group.year}</h3><span>{t("flights.count", { count: group.flights.length })}</span></div>
+                  <div className="year-heading"><h2>{group.year}</h2><span>{t("flights.count", { count: group.flights.length })}</span></div>
                   <div className="flight-list">
                     {group.flights.map((flight, index) => (
                       <FlightRow key={flight.id} flight={flight} locale={locale} timeFormat={timeFormat} onOpen={() => onOpenFlight(flight.id)} onHoverChange={setHoveredFlight} revealIndex={index} />
