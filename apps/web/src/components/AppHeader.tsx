@@ -1,12 +1,11 @@
 import { useTranslation } from "react-i18next";
 
-export type Page = "flights" | "passport" | "settings";
+export type Page = "passport" | "settings";
 
 interface AppHeaderProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
   detailActions?: {
-    backLabel: string;
     onBack: () => void;
     onDuplicate: () => void;
     onEdit: () => void;
@@ -26,7 +25,7 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
         {detailActions ? <>
           <button className="detail-header-back" type="button" onClick={detailActions.onBack}>
             <HeaderIcon kind="back" />
-            <span>{detailActions.backLabel}</span>
+            <span>{t("nav.passport")}</span>
           </button>
           <div className="detail-header-actions">
             <button className="detail-header-action" type="button" onClick={detailActions.onDuplicate}>

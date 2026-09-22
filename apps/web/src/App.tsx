@@ -7,7 +7,6 @@ import { EmptyState } from "./components/EmptyState";
 import { DemoBanner } from "./components/DemoBanner";
 import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
-import { FlightsPage } from "./pages/FlightsPage";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -35,7 +34,6 @@ export function App() {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
-  const [detailReturnPage, setDetailReturnPage] = useState<Page>("passport");
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
   const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
@@ -100,9 +98,15 @@ export function App() {
   }, [page, selectedFlightId]);
 
   useEffect(() => {
+    if (window.location.hash === "#flights") {
+      window.history.replaceState(null, "", "#passport");
+    }
     const handleHashChange = () => {
       const nextPage = pageFromLocationHash();
       if (nextPage) {
+        if (window.location.hash === "#flights") {
+          window.history.replaceState(null, "", "#passport");
+        }
         setPage(nextPage);
         setSelectedFlightId(null);
       }
@@ -153,8 +157,8 @@ export function App() {
       await browserStorage.clearDocument();
       setDocument(null);
       setArchiveKind(null);
-      setPage("flights");
-      window.location.hash = "flights";
+      setPage("passport");
+      window.location.hash = "passport";
       setSelectedFlightId(null);
       setStorageError(null);
     } catch {
@@ -167,11 +171,25 @@ export function App() {
       ? window.document.activeElement
       : null;
     await storeDocument(createEmptyDocument(), "personal");
-    setPage("flights");
+    setPage("passport");
     setSelectedFlightId(null);
     setEditorFlightId("new");
     setDuplicateTemplate(null);
-    window.location.hash = "flights";
+    window.location.hash = "passport";
+  }
+
+  async function importArchive(nextDocument: KeeprawFlyDocument) {
+    await storeDocument(nextDocument, "personal");
+    setPage("passport");
+    setSelectedFlightId(null);
+    window.location.hash = "passport";
+  }
+
+  async function openDemoArchive() {
+    await storeDocument(structuredClone(demoDocument), "demo");
+    setPage("passport");
+    setSelectedFlightId(null);
+    window.location.hash = "passport";
   }
 
   async function saveFlight(flight: KeeprawFlight) {
@@ -184,7 +202,8 @@ export function App() {
     setEditorFlightId(null);
     setDuplicateTemplate(null);
     setSelectedFlightId(flight.id);
-    setPage("flights");
+    setPage("passport");
+    window.history.replaceState(null, "", "#passport");
   }
 
   async function deleteEditedFlight() {
@@ -217,12 +236,11 @@ export function App() {
           setPage(nextPage);
           setSelectedFlightId(null);
         }}
-        detailActions={page === "flights" && selectedFlight ? {
-          backLabel: t(detailReturnPage === "passport" ? "nav.passport" : "nav.flights"),
+        detailActions={selectedFlight ? {
           onBack: () => {
             setSelectedFlightId(null);
-            setPage(detailReturnPage);
-            window.location.hash = detailReturnPage;
+            setPage("passport");
+            window.location.hash = "passport";
           },
           onDuplicate: () => {
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
@@ -239,7 +257,7 @@ export function App() {
         <div className="page-notices">
           {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
           {document && archiveKind === "demo" ? (
-            <DemoBanner compact={page === "flights" && Boolean(selectedFlight)} onCreateArchive={createArchive} />
+            <DemoBanner compact={Boolean(selectedFlight)} onCreateArchive={createArchive} />
           ) : null}
         </div>
       ) : null}
@@ -248,7 +266,7 @@ export function App() {
           document={document}
           isDemo={archiveKind === "demo"}
           settings={settings}
-          onImport={(nextDocument) => storeDocument(nextDocument, "personal")}
+          onImport={importArchive}
           onExport={document ? exportDocument : undefined}
           onClear={document ? clearDocument : undefined}
           onSettingsChange={storeSettings}
@@ -258,32 +276,16 @@ export function App() {
       ) : !document ? (
         <EmptyState
           onCreateArchive={createArchive}
-          onTryDemo={() => storeDocument(structuredClone(demoDocument), "demo")}
-          onImport={(nextDocument) => storeDocument(nextDocument, "personal")}
+          onTryDemo={openDemoArchive}
+          onImport={importArchive}
         />
-      ) : page === "flights" && selectedFlight ? (
+      ) : selectedFlight ? (
         <FlightDetailPage
           flight={selectedFlight}
           memberships={memberships}
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-        />
-      ) : page === "flights" ? (
-        <FlightsPage
-          document={document}
-          locale={locale}
-          timeFormat={settings.timeFormat}
-          onOpenFlight={(flightId) => {
-            setDetailReturnPage("flights");
-            setSelectedFlightId(flightId);
-          }}
-          onAddFlight={() => {
-            setDetailReturnPage("flights");
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
-            setDuplicateTemplate(null);
-            setEditorFlightId("new");
-          }}
         />
       ) : page === "passport" ? (
         <PassportPage
@@ -292,13 +294,9 @@ export function App() {
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
           onOpenFlight={(flightId) => {
-            setDetailReturnPage("passport");
-            window.history.replaceState(null, "", "#flights");
-            setPage("flights");
             setSelectedFlightId(flightId);
           }}
           onAddFlight={() => {
-            setDetailReturnPage("passport");
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);
             setEditorFlightId("new");
@@ -348,7 +346,6 @@ function pageFromHash(): Page {
 
 function pageFromLocationHash(): Page | null {
   const hash = window.location.hash.slice(1);
-  return hash === "flights" || hash === "passport" || hash === "settings"
-    ? hash
-    : null;
+  if (hash === "flights") return "passport";
+  return hash === "passport" || hash === "settings" ? hash : null;
 }

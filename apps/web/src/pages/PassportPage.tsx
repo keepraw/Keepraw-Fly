@@ -166,12 +166,27 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
             </section>
 
             <section className="passport-highlights" key={`highlights-${selectedYear}`} aria-labelledby="highlights-title">
-              <div className="section-heading"><p className="eyebrow">{t("passport.patterns")}</p><h2 id="highlights-title">{t("passport.highlights")}</h2></div>
+              <div className="section-heading">
+                <p className="eyebrow">{t("passport.patterns")}</p>
+                <h2 id="highlights-title">{t("passport.highlights")}</h2>
+              </div>
               <dl className="highlight-list">
-                <div><dt>{t("passport.mostFlownAirline")}</dt><dd>{stats.mostFlownAirline ? <button type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}><span>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</span><small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
-                <div><dt>{t("passport.mostVisitedAirport")}</dt><dd>{stats.mostVisitedAirport ? <button type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}><span>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</span><small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
-                <div><dt>{t("passport.longestFlight")}</dt><dd>{longest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}><span>{routeLabel(longest)}</span><small>{distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
-                <div><dt>{t("passport.shortestFlight")}</dt><dd>{shortest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}><span>{routeLabel(shortest)}</span><small>{distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small><span aria-hidden="true">→</span></button> : "—"}</dd></div>
+                <div>
+                  <dt>{t("passport.mostFlownAirline")}</dt>
+                  <dd>{stats.mostFlownAirline ? <button type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}><strong>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</strong><small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small></button> : <strong>—</strong>}</dd>
+                </div>
+                <div>
+                  <dt>{t("passport.mostVisitedAirport")}</dt>
+                  <dd>{stats.mostVisitedAirport ? <button type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}><strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong><small>{stats.mostVisitedAirport.code} · {t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small></button> : <strong>—</strong>}</dd>
+                </div>
+                <div>
+                  <dt>{t("passport.longestFlight")}</dt>
+                  <dd>{longest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}><strong className="highlight-route">{routeLabel(longest)}</strong><small>{distanceForFlight(longest) ? `${formatDistance(distanceForFlight(longest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></button> : <strong>—</strong>}</dd>
+                </div>
+                <div>
+                  <dt>{t("passport.shortestFlight")}</dt>
+                  <dd>{shortest ? <button type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}><strong className="highlight-route">{routeLabel(shortest)}</strong><small>{distanceForFlight(shortest) ? `${formatDistance(distanceForFlight(shortest)!, locale, distanceUnit)} ${distanceSuffix}` : ""}</small></button> : <strong>—</strong>}</dd>
+                </div>
               </dl>
             </section>
           </div>
@@ -188,8 +203,32 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
             </div>
           </header>
 
-          {groups.length ? (
-            <div className="flight-groups" aria-live="polite">
+          <div className="passport-archive-scroll">
+            {selection && exploration ? (
+              <section className="passport-exploration" aria-labelledby="passport-exploration-title" aria-live="polite">
+                <header className="passport-exploration-heading">
+                  <div><p className="eyebrow">{t(`passport.explore.${selection.kind}`)}</p><h2 id="passport-exploration-title">{explorationTitle(selection)}</h2></div>
+                  <button className="passport-exploration-close" type="button" onClick={() => setSelection(null)}>{t("passport.closeExploration")}</button>
+                </header>
+                <dl className="passport-exploration-summary">
+                  <div><dt>{t("passport.relatedFlights")}</dt><dd>{t("flights.count", { count: exploration.flights.length })}</dd></div>
+                  <div><dt>{t(selection.kind === "airport" ? "passport.firstVisited" : "passport.firstFlown")}</dt><dd>{exploration.firstServiceDate.slice(0, 4)}</dd></div>
+                  <div><dt>{t(selection.kind === "airport" ? "passport.lastVisited" : "passport.lastFlown")}</dt><dd>{exploration.lastServiceDate.slice(0, 4)}</dd></div>
+                </dl>
+                <div className="passport-related-flights" aria-label={t("passport.relatedFlightRecords")}>
+                  {exploration.flights.map((flight) => (
+                    <button type="button" key={flight.id} onClick={() => onOpenFlight(flight.id)}>
+                      <time dateTime={flight.serviceDate}>{formatServiceDate(flight.serviceDate, locale, { year: "numeric", month: "short", day: "numeric" })}</time>
+                      <strong>{flight.origin.iata}<span aria-hidden="true"> → </span>{flight.destination.iata}</strong>
+                      <span>{flight.flightNumber}</span><span aria-hidden="true">→</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {groups.length ? (
+              <div className="flight-groups" aria-live="polite">
               {groups.map((group) => (
                 <section className="flight-year" key={group.year}>
                   <div className="year-heading"><h3>{group.year}</h3><span>{t("flights.count", { count: group.flights.length })}</span></div>
@@ -200,35 +239,13 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
                   </div>
                 </section>
               ))}
-            </div>
-          ) : (
-            <div className="no-results" role="status"><h2>{t("flights.noResultsTitle")}</h2><p>{t("flights.noResultsDescription", { query })}</p></div>
-          )}
-        </section>
-      </div>
-
-      {selection && exploration ? (
-        <section className="passport-exploration" aria-labelledby="passport-exploration-title" aria-live="polite">
-          <header className="passport-exploration-heading">
-            <div><p className="eyebrow">{t(`passport.explore.${selection.kind}`)}</p><h2 id="passport-exploration-title">{explorationTitle(selection)}</h2></div>
-            <button className="passport-exploration-close" type="button" onClick={() => setSelection(null)}>{t("passport.closeExploration")}</button>
-          </header>
-          <dl className="passport-exploration-summary">
-            <div><dt>{t("passport.relatedFlights")}</dt><dd>{t("flights.count", { count: exploration.flights.length })}</dd></div>
-            <div><dt>{t(selection.kind === "airport" ? "passport.firstVisited" : "passport.firstFlown")}</dt><dd>{exploration.firstServiceDate.slice(0, 4)}</dd></div>
-            <div><dt>{t(selection.kind === "airport" ? "passport.lastVisited" : "passport.lastFlown")}</dt><dd>{exploration.lastServiceDate.slice(0, 4)}</dd></div>
-          </dl>
-          <div className="passport-related-flights" aria-label={t("passport.relatedFlightRecords")}>
-            {exploration.flights.map((flight) => (
-              <button type="button" key={flight.id} onClick={() => onOpenFlight(flight.id)}>
-                <time dateTime={flight.serviceDate}>{formatServiceDate(flight.serviceDate, locale, { year: "numeric", month: "short", day: "numeric" })}</time>
-                <strong>{flight.origin.iata}<span aria-hidden="true"> → </span>{flight.destination.iata}</strong>
-                <span>{flight.flightNumber}</span><span aria-hidden="true">→</span>
-              </button>
-            ))}
+              </div>
+            ) : (
+              <div className="no-results" role="status"><h2>{t("flights.noResultsTitle")}</h2><p>{t("flights.noResultsDescription", { query })}</p></div>
+            )}
           </div>
         </section>
-      ) : null}
+      </div>
     </PageShell>
   );
 }
