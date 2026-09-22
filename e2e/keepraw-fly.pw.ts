@@ -30,9 +30,9 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await expect(page.locator(".detail-metadata-column").first()).toContainText("P");
   await expect(page.locator(".detail-stop--arrival .operation-badge")).toContainText("D05");
   await page.getByRole("button", { name: "Edit flight" }).click();
-  const editDialog = page.getByRole("dialog", { name: "Edit flight" });
-  await editDialog.getByLabel("Flight number").fill("UA124");
-  await editDialog.getByRole("button", { name: "Save flight" }).click();
+  const editFormDialog = page.getByRole("dialog", { name: "Edit flight" });
+  await editFormDialog.getByLabel("Flight number").fill("UA124");
+  await editFormDialog.getByRole("button", { name: "Save flight" }).click();
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA124");
 
   await page.getByRole("button", { name: "Duplicate as new" }).click();
@@ -42,10 +42,20 @@ test("creates, edits and deletes a personal flight without a JSON file", async (
   await duplicateDialog.getByRole("button", { name: "Save flight" }).click();
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA125");
 
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Edit flight" }).click();
-  await page.getByRole("dialog", { name: "Edit flight" })
-    .getByRole("button", { name: "Delete flight" }).click();
+  const editDialog = page.getByRole("dialog", { name: "Edit flight" });
+  const deleteButton = editDialog.getByRole("button", { name: "Delete flight" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await deleteButton.click();
+  const deleteConfirmation = page.getByRole("alertdialog", { name: "Delete flight" });
+  await expect(deleteConfirmation).toBeVisible();
+  await expect(deleteConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(deleteConfirmation).toHaveCount(0);
+  await expect(deleteButton).toBeFocused();
+  await deleteButton.click();
+  await deleteConfirmation.getByRole("button", { name: "Delete flight" }).click();
   await expect(page.getByRole("button", { name: /Open UA124/ })).toBeVisible();
 });
 
@@ -316,6 +326,22 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
+
+  const exportButton = page.getByRole("button", { name: "Export Keepraw Fly JSON" });
+  await exportButton.click();
+  const exportConfirmation = page.getByRole("dialog", { name: "Export demo archive?" });
+  await expect(exportConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+  const confirmationAudit = await new AxeBuilder({ page }).include(".confirmation-dialog").analyze();
+  expect(confirmationAudit.violations).toEqual([]);
+  await page.keyboard.press("Escape");
+  await expect(exportButton).toBeFocused();
+
+  const clearButton = page.getByRole("button", { name: "Clear local data" });
+  await clearButton.click();
+  const clearConfirmation = page.getByRole("alertdialog", { name: "Clear local data" });
+  await expect(clearConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await clearConfirmation.getByRole("button", { name: "Cancel" }).click();
+  await expect(clearButton).toBeFocused();
 
   await page.getByRole("link", { name: "Flights" }).click();
   const reducedMotionDurations = await page.locator(".flight-row").first().evaluate((element) => {

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
 import {
@@ -15,6 +16,7 @@ import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
+import { ConfirmationDialog } from "../components/ConfirmationDialog";
 
 interface SettingsPageProps {
   document: KeeprawFlyDocument | null;
@@ -59,6 +61,7 @@ export function SettingsPage({
   onMembershipsChange,
 }: SettingsPageProps) {
   const { t } = useTranslation();
+  const [confirmClear, setConfirmClear] = useState(false);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
 
@@ -136,9 +139,7 @@ export function SettingsPage({
             <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
             <div><span>{t("settings.csvImportTitle")}</span><small>{t("settings.csvImportDescription")}</small><CsvImportControl document={document} onImport={onImport} /></div>
             <div><span>{t("settings.exportTitle")}</span><small>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
-            <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => {
-              if (onClear && window.confirm(t("settings.clearConfirmation"))) void onClear();
-            }}>{t("actions.clearData")}</button></div>
+            <div><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => setConfirmClear(true)}>{t("actions.clearData")}</button></div>
           </div>
         </section>
 
@@ -218,6 +219,20 @@ export function SettingsPage({
           </div>
         </section>
       </div>
+      {confirmClear ? (
+        <ConfirmationDialog
+          title={t("settings.clearTitle")}
+          description={t("settings.clearConfirmation")}
+          confirmLabel={t("actions.clearData")}
+          cancelLabel={t("actions.cancel")}
+          tone="danger"
+          onCancel={() => setConfirmClear(false)}
+          onConfirm={() => {
+            setConfirmClear(false);
+            void onClear?.();
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }

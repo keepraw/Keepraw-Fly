@@ -23,6 +23,7 @@
     "label": "Demo archive",
     "description": "You are exploring fictional sample flights. This is not your personal history.",
     "createPersonal": "Create my archive",
+    "exportTitle": "Export demo archive?",
     "exportConfirmation": "This is fictional demo data. Export it anyway?"
   },
   "actions": {
