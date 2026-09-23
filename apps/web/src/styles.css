@@ -721,7 +721,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .view-switcher button { min-width: 0; padding: 7px 10px; border: 0; border-radius: var(--radius-control); color: var(--muted); background: transparent; font-family: var(--font-family-mono); font-size: var(--font-size-caption); letter-spacing: 0.03em; white-space: nowrap; }
 .view-switcher button[aria-pressed="true"] { color: var(--green); background: var(--color-surface-raised); }
 
-.primary-stats { display: grid; grid-column: 1 / -1; grid-template-columns: 0.72fr 1.25fr 1fr; gap: 12px; margin-top: 20px; }
+.primary-stats { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
 .primary-stats > div { display: flex; min-width: 0; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
 .primary-stats > div + div { padding-left: 20px; border-left: 1px solid var(--line); }
 .primary-stats strong { overflow: hidden; font-family: var(--font-family-data); font-size: clamp(2rem, 3vw, 2.7rem); font-feature-settings: var(--numeric-features); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-data); font-variant-numeric: tabular-nums; line-height: var(--type-leading-data); text-overflow: ellipsis; white-space: nowrap; }
@@ -1835,7 +1835,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .passport-archive-page .primary-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   margin-top: 0;
   border-bottom: 1px solid var(--line);
@@ -1851,10 +1851,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
 .passport-archive-page .primary-stats > div + div { border-left: 1px solid var(--line); }
 .passport-archive-page .primary-stats strong {
+  display: flex;
+  min-height: 2.4em;
+  align-items: baseline;
+  overflow: hidden;
   font-size: var(--passport-primary-value-size);
   font-weight: var(--passport-primary-value-weight);
   line-height: var(--passport-primary-value-leading);
 }
+.passport-archive-page .primary-stats small { min-height: 2.8em; margin-top: 5px; color: var(--faint); font-size: var(--passport-label-size); line-height: var(--passport-label-leading); }
 .passport-archive-page .primary-stats span {
   order: initial;
   margin-bottom: 6px;
@@ -2048,7 +2053,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .primary-stats > div,
   .passport-archive-page .primary-stats > div + div { padding: 11px 14px 10px; }
   .passport-archive-page .primary-stats > div:first-child { padding-left: 0; }
-  .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
+  .passport-archive-page .primary-stats > div:last-child { grid-column: auto; padding-right: 0; }
   .passport-archive-page .primary-stats span { margin-bottom: 5px; }
 
   .passport-archive-page .passport-counts > div,
@@ -2085,7 +2090,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .primary-stats > div,
   .passport-archive-page .primary-stats > div + div { padding: 18px 13px 16px; border: 0; border-left: 1px solid var(--line); }
   .passport-archive-page .primary-stats > div:first-child { padding-left: 0; border-left: 0; }
-  .passport-archive-page .primary-stats > div:last-child { grid-column: 1 / -1; padding-left: 0; border-top: 1px solid var(--line); border-left: 0; }
+  .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
   .passport-archive-page .passport-counts { grid-template-columns: 1fr 1fr; }
   .passport-archive-page .passport-counts > div,
   .passport-archive-page .passport-counts > div + div { padding: 12px 10px; border: 0; }
