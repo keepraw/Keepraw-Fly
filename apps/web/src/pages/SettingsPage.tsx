@@ -87,6 +87,10 @@ export function SettingsPage({
     void onSettingsChange({ ...settings, [key]: value });
   }
 
+  const lastBackup = settings.lastBackupAt
+    ? new Intl.DateTimeFormat(settings.language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(settings.lastBackupAt))
+    : null;
+
   function updateName(field: "native" | "romanized", value: string) {
     if (!document) return;
     const native = field === "native" ? value.trimStart() : profileName?.native;
@@ -151,6 +155,7 @@ export function SettingsPage({
         <section className="settings-section" aria-labelledby="settings-data">
           <SectionHeading icon="data" number="01" title={t("settings.data")} titleId="settings-data" />
           <div className="settings-panel data-actions">
+            <div><span>{t("settings.backupReminderTitle")}</span><small>{t("settings.backupReminderDescription")}</small><strong className="settings-backup-status">{lastBackup ? t("settings.lastBackup", { date: lastBackup }) : t("settings.noBackupYet")}</strong></div>
             <div><span>{t("settings.storageProtectionTitle")}</span><small>{t(`settings.storageProtection.${persistentState}`)}</small>{persistentState === "available" ? <button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button> : null}</div>
             <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
             <div><span>{t("settings.csvImportTitle")}</span><small>{t("settings.csvImportDescription")}</small><CsvImportControl document={document} onImport={onImport} /></div>

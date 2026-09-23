@@ -214,13 +214,14 @@ export function App() {
     await storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
-  function exportDocument() {
+  async function exportDocument() {
     if (!document) return;
     if (archiveKind === "demo") {
       setConfirmDemoExport(true);
       return;
     }
-    downloadKeeprawFly(document);
+    await downloadKeeprawFly(document);
+    await storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
   }
 
   if (!loaded) {
@@ -326,9 +327,9 @@ export function App() {
           confirmLabel={t("actions.export")}
           cancelLabel={t("actions.cancel")}
           onCancel={() => setConfirmDemoExport(false)}
-          onConfirm={() => {
+          onConfirm={async () => {
             setConfirmDemoExport(false);
-            if (document) downloadKeeprawFly(document);
+            if (document) await downloadKeeprawFly(document);
           }}
         />
       ) : null}
