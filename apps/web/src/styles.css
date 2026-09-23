@@ -1853,12 +1853,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page .primary-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(94px, auto);
   gap: 0;
   margin-top: 0;
   border-bottom: 1px solid var(--line);
 }
 .passport-archive-page .primary-stats > div,
 .passport-archive-page .primary-stats > div + div {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: start;
+  min-width: 0;
   padding: 13px 15px 12px;
   border: 0;
   border-radius: 0;
@@ -1876,7 +1881,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   font-weight: var(--passport-primary-value-weight);
   line-height: var(--passport-primary-value-leading);
 }
-.passport-archive-page .primary-stats small { min-height: 2.8em; margin-top: 5px; color: var(--faint); font-size: var(--passport-label-size); line-height: var(--passport-label-leading); }
 .passport-archive-page .primary-stats span {
   order: initial;
   margin-bottom: 6px;
@@ -1891,6 +1895,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .passport-archive-page .passport-counts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(72px, auto);
   margin: 0;
   border: 0;
   border-bottom: 1px solid var(--line);
@@ -1898,7 +1903,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: transparent;
 }
 .passport-archive-page .passport-counts > div,
-.passport-archive-page .passport-counts > div + div { display: grid; gap: 4px; padding: 10px 12px; border: 0; }
+.passport-archive-page .passport-counts > div + div { display: grid; grid-template-rows: auto 1fr; align-content: start; min-width: 0; gap: 4px; padding: 10px 12px; border: 0; }
 .passport-archive-page .passport-counts > div:first-child { padding-left: 0; }
 .passport-archive-page .passport-counts > div:last-child { padding-right: 0; }
 .passport-archive-page .passport-counts > div + div { border-left: 1px solid var(--line); }

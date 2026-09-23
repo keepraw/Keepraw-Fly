@@ -117,7 +117,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               <div><span>{t("passport.flights")}</span><strong>{stats.flights.toLocaleString(locale)}</strong></div>
               <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
               <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
-              <div><span>{t("passport.totalDelay")}</span><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong><small>{stats.totalDelayMinutes === null ? t("passport.delayUnavailable") : t("passport.delayBasedOnArrivals")}</small></div>
+              <div><span>{t("passport.totalDelay")}</span><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong></div>
             </section>
 
             <section className="passport-counts" key={`counts-${selectedYear}`} aria-label={t("passport.collectionStats")}>
