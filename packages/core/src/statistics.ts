@@ -1,5 +1,5 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { distanceKilometers, flightDuration } from "./calculations";
+import { arrivalDelayMinutes, distanceKilometers, flightDuration } from "./calculations";
 import { airportByIata, type SupportedLocale } from "./reference-data";
 import { airlineNames, resolveAirline } from "./airline-reference";
 
@@ -17,6 +17,7 @@ export interface PassportStatistics {
   flights: number;
   distanceKilometers: number;
   durationMinutes: number;
+  totalDelayMinutes: number | null;
   countries: number;
   airports: number;
   airlines: number;
@@ -72,6 +73,8 @@ export function calculatePassportStatistics(
   const aircraftTypes = new Set<string>();
   const distances: FlightDistanceRecord[] = [];
   let durationMinutes = 0;
+  let totalDelayMinutes = 0;
+  let delayCoverage = 0;
 
   for (const flight of flights) {
     const airlineCode = flight.airline.iata ?? flight.airline.icao;
@@ -85,6 +88,11 @@ export function calculatePassportStatistics(
     const kilometers = distanceForFlight(flight);
     if (kilometers !== null) distances.push({ flightId: flight.id, kilometers });
     durationMinutes += flightDuration(flight).minutes;
+    const arrivalDelay = arrivalDelayMinutes(flight);
+    if (arrivalDelay !== null) {
+      delayCoverage += 1;
+      totalDelayMinutes += Math.max(0, arrivalDelay);
+    }
   }
 
   const rankedDistances = [...distances].sort((a, b) => a.kilometers - b.kilometers);
@@ -93,6 +101,7 @@ export function calculatePassportStatistics(
     flights: flights.length,
     distanceKilometers: distances.reduce((sum, item) => sum + item.kilometers, 0),
     durationMinutes,
+    totalDelayMinutes: delayCoverage ? totalDelayMinutes : null,
     countries: countryCodes.size,
     airports: airportCounts.size,
     airlines: airlineCounts.size,
