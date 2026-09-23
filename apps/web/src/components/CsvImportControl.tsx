@@ -24,9 +24,8 @@ interface PendingCsv {
 }
 
 const csvTemplate = [
-  "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival",
-  "MU510,2025-04-12,PVG,HKG,2025-04-12T09:00:00+08:00,2025-04-12T11:45:00+08:00",
-  "UA198,2025-06-03,SFO,NRT,2025-06-03T12:20:00-07:00,2025-06-04T15:20:00+09:00",
+  "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival,actualDeparture,actualArrival,originTerminal,originGate,destinationTerminal,ticketNumber,bookingReference,baggageCarousel,aircraftType,aircraftRegistration,seat,bookingClass,cabin",
+  "MU510,2025-04-12,PVG,HKG,2025-04-12T09:00:00+08:00,2025-04-12T11:45:00+08:00,2025-04-12T09:12:00+08:00,2025-04-12T11:50:00+08:00,1, D45,1,781-1234567890,ABC123,12,B789,B-1234,12A,Y,economy",
 ].join("\r\n");
 
 function downloadCsvTemplate() {
@@ -107,8 +106,10 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
           event.target.value = "";
         }}
       />
-      <label className="settings-action" htmlFor={inputId}>{t("csvImport.openFile")}</label>
-      <button className="button-secondary csv-template-button" type="button" onClick={downloadCsvTemplate}>{t("csvImport.downloadTemplate")}</button>
+      <div className="csv-action-group">
+        <label className="settings-action" htmlFor={inputId}>{t("csvImport.openFile")}</label>
+        <button className="button-secondary" type="button" onClick={downloadCsvTemplate}>{t("csvImport.downloadTemplate")}</button>
+      </div>
       <p className="csv-import-workflow">{t("csvImport.workflow")}</p>
       {pending ? (
         <section className="csv-preview" aria-live="polite" aria-labelledby={`${inputId}-title`}>
