@@ -130,9 +130,9 @@ export function parseCsv(text: string): ParsedCsv {
 }
 
 export function detectCsvMapping(headers: readonly string[]): CsvColumnMapping {
-  return Object.fromEntries(csvFlightFields.map((field) => {
+  return Object.fromEntries(requiredCsvFlightFields.concat(csvFlightFields.filter((field) => !requiredCsvFlightFields.includes(field))).flatMap((field) => {
     const index = headers.findIndex((header) => aliases[field].includes(normalizeHeader(header)));
-    return [field, index === -1 ? null : index];
+    return index === -1 && !requiredCsvFlightFields.includes(field) ? [] : [[field, index === -1 ? null : index]];
   })) as CsvColumnMapping;
 }
 
@@ -218,11 +218,14 @@ function flightFromCsvRow(
 ): KeeprawFlight {
   const value = (field: CsvFlightField) => (row[mapping[field]!] ?? "").trim();
   const flightNumber = value("flightNumber");
+  const normalizedFlightNumber = flightNumber.trim().toUpperCase().replace(/[\s-]+/g, "");
   const serviceDate = value("serviceDate");
   const originIata = value("originIata");
   const destinationIata = value("destinationIata");
   const scheduledDeparture = value("scheduledDeparture");
   const scheduledArrival = value("scheduledArrival");
+
+  if (normalizedFlightNumber !== flightNumber) throw new Error(`line-${lineNumber}:invalid-flight-number`);
 
   if (!isCalendarDate(serviceDate)) throw new Error(`line-${lineNumber}:invalid-date`);
   if (!airportByIata.has(originIata) || !airportByIata.has(destinationIata)) {
