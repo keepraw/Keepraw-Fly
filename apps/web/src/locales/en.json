@@ -323,6 +323,8 @@
   },
   "csvImport": {
     "openFile": "Open CSV file",
+    "downloadTemplate": "Download CSV template",
+    "workflow": "Download the template, fill it in, upload it, then map and preview the rows before importing.",
     "previewEyebrow": "Column mapping",
     "previewTitle": "Review CSV import",
     "rowCount_one": "{{count}} row",

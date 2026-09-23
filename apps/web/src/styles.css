@@ -886,6 +886,8 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .data-actions .csv-import-control { display: contents; }
 .data-actions .import-control > label { grid-area: action; }
 .data-actions .csv-import-control > label { grid-area: action; }
+.data-actions .csv-import-control > .csv-template-button { grid-area: action; margin-top: 38px; }
+.data-actions .csv-import-control > .csv-import-workflow { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: var(--font-size-caption); line-height: 1.45; }
 .data-actions .validation-errors { grid-area: error; }
 .data-actions .import-preview { grid-area: error; }
 .data-actions .csv-preview, .data-actions .csv-import-error { grid-area: error; }
