@@ -23,6 +23,24 @@ interface PendingCsv {
   mapping: CsvColumnMapping;
 }
 
+const csvTemplate = [
+  "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival",
+  "MU510,2025-04-12,PVG,HKG,2025-04-12T09:00:00+08:00,2025-04-12T11:45:00+08:00",
+  "UA198,2025-06-03,SFO,NRT,2025-06-03T12:20:00-07:00,2025-06-04T15:20:00+09:00",
+].join("\r\n");
+
+function downloadCsvTemplate() {
+  const blob = new Blob([`\uFEFF${csvTemplate}\r\n`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = window.document.createElement("a");
+  link.href = url;
+  link.download = "keepraw-fly-import-template.csv";
+  window.document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export function CsvImportControl({ document, onImport }: CsvImportControlProps) {
   const { t } = useTranslation();
   const inputId = useId();
@@ -90,6 +108,8 @@ export function CsvImportControl({ document, onImport }: CsvImportControlProps) 
         }}
       />
       <label className="settings-action" htmlFor={inputId}>{t("csvImport.openFile")}</label>
+      <button className="button-secondary csv-template-button" type="button" onClick={downloadCsvTemplate}>{t("csvImport.downloadTemplate")}</button>
+      <p className="csv-import-workflow">{t("csvImport.workflow")}</p>
       {pending ? (
         <section className="csv-preview" aria-live="polite" aria-labelledby={`${inputId}-title`}>
           <header className="import-preview-heading">

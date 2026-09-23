@@ -310,6 +310,8 @@
   },
   "csvImport": {
     "openFile": "打開 CSV 文件",
+    "downloadTemplate": "下載 CSV 模板",
+    "workflow": "下載模板並填寫，上傳後進行欄位映射與預覽，確認無誤後再匯入。",
     "previewEyebrow": "列映射",
     "previewTitle": "檢查 CSV 導入",
     "rowCount": "{{count}} 行",
