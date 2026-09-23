@@ -9,6 +9,7 @@ export interface ViewerSettings {
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   powerUserMode: boolean;
+  lastBackupAt?: string;
 }
 
 export function defaultViewerSettings(): ViewerSettings {
