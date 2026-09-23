@@ -348,7 +348,20 @@
       "originIata": "出發機場 IATA",
       "destinationIata": "到達機場 IATA",
       "scheduledDeparture": "計劃出發時間",
-      "scheduledArrival": "計劃到達時間"
+      "scheduledArrival": "計劃到達時間",
+      "actualDeparture": "實際出發時間",
+      "actualArrival": "實際到達時間",
+      "originTerminal": "出發航站樓",
+      "originGate": "出發登機口",
+      "destinationTerminal": "到達航站樓",
+      "ticketNumber": "票號",
+      "bookingReference": "PNR / 訂位記錄",
+      "baggageCarousel": "行李轉盤",
+      "aircraftType": "機型",
+      "aircraftRegistration": "飛機註冊號",
+      "seat": "座位",
+      "bookingClass": "訂位艙等",
+      "cabin": "客艙等級"
     }
   },
   "settings": {

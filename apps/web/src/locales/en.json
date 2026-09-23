@@ -363,7 +363,20 @@
       "originIata": "Origin IATA",
       "destinationIata": "Destination IATA",
       "scheduledDeparture": "Scheduled departure",
-      "scheduledArrival": "Scheduled arrival"
+      "scheduledArrival": "Scheduled arrival",
+      "actualDeparture": "Actual departure",
+      "actualArrival": "Actual arrival",
+      "originTerminal": "Origin terminal",
+      "originGate": "Origin gate",
+      "destinationTerminal": "Destination terminal",
+      "ticketNumber": "Ticket number",
+      "bookingReference": "PNR / booking reference",
+      "baggageCarousel": "Baggage carousel",
+      "aircraftType": "Aircraft type",
+      "aircraftRegistration": "Aircraft registration",
+      "seat": "Seat",
+      "bookingClass": "Booking class",
+      "cabin": "Cabin"
     }
   },
   "settings": {

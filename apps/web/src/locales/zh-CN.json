@@ -348,7 +348,20 @@
       "originIata": "出发机场 IATA",
       "destinationIata": "到达机场 IATA",
       "scheduledDeparture": "计划出发时间",
-      "scheduledArrival": "计划到达时间"
+      "scheduledArrival": "计划到达时间",
+      "actualDeparture": "实际出发时间",
+      "actualArrival": "实际到达时间",
+      "originTerminal": "出发航站楼",
+      "originGate": "出发登机口",
+      "destinationTerminal": "到达航站楼",
+      "ticketNumber": "票号",
+      "bookingReference": "PNR / 订座记录",
+      "baggageCarousel": "行李转盘",
+      "aircraftType": "机型",
+      "aircraftRegistration": "飞机注册号",
+      "seat": "座位",
+      "bookingClass": "订座舱位",
+      "cabin": "客舱等级"
     }
   },
   "settings": {
