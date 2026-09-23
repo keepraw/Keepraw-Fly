@@ -1,7 +1,7 @@
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import { airportByIata } from "@keepraw-fly/core";
-import { splitFlightNumberInput } from "./flight-editor";
+import { flightFromDraft, localPartsAtAirport, type FlightDraft } from "./flight-editor";
 import {
   assessFlightImports,
   countFlightImportAssessments,
@@ -16,7 +16,10 @@ export type CsvFlightField =
   | "originIata"
   | "destinationIata"
   | "scheduledDeparture"
-  | "scheduledArrival";
+  | "scheduledArrival"
+  | "actualDeparture" | "actualArrival" | "originTerminal" | "originGate" | "destinationTerminal"
+  | "ticketNumber" | "bookingReference" | "baggageCarousel" | "aircraftType" | "aircraftRegistration"
+  | "seat" | "bookingClass" | "cabin";
 
 export const csvFlightFields: CsvFlightField[] = [
   "flightNumber",
@@ -25,6 +28,12 @@ export const csvFlightFields: CsvFlightField[] = [
   "destinationIata",
   "scheduledDeparture",
   "scheduledArrival",
+  "actualDeparture", "actualArrival", "originTerminal", "originGate", "destinationTerminal",
+  "ticketNumber", "bookingReference", "baggageCarousel", "aircraftType", "aircraftRegistration", "seat", "bookingClass", "cabin",
+];
+
+export const requiredCsvFlightFields: CsvFlightField[] = [
+  "flightNumber", "serviceDate", "originIata", "destinationIata", "scheduledDeparture", "scheduledArrival",
 ];
 
 export type CsvColumnMapping = Record<CsvFlightField, number | null>;
@@ -63,6 +72,19 @@ const aliases: Record<CsvFlightField, string[]> = {
   destinationIata: ["destinationiata", "destination", "to", "arrivalairport", "到达机场"],
   scheduledDeparture: ["scheduleddeparture", "departuretime", "scheduleddepartureiso", "计划出发时间"],
   scheduledArrival: ["scheduledarrival", "arrivaltime", "scheduledarrivaliso", "计划到达时间"],
+  actualDeparture: ["actualdeparture", "actualdepartureiso", "实际出发时间"],
+  actualArrival: ["actualarrival", "actualarrivaliso", "实际到达时间"],
+  originTerminal: ["originterminal", "departureterminal", "出发航站楼"],
+  originGate: ["origingate", "departuregate", "出发登机口"],
+  destinationTerminal: ["destinationterminal", "arrivalterminal", "到达航站楼"],
+  ticketNumber: ["ticketnumber", "ticket", "票号"],
+  bookingReference: ["bookingreference", "pnr", "bookingcode"],
+  baggageCarousel: ["baggagecarousel", "baggagebelt"],
+  aircraftType: ["aircrafttype", "aircraft"],
+  aircraftRegistration: ["aircraftregistration", "registration"],
+  seat: ["seat"],
+  bookingClass: ["bookingclass"],
+  cabin: ["cabin", "cabinclass"],
 };
 
 export function parseCsv(text: string): ParsedCsv {
@@ -148,7 +170,7 @@ export function preflightCsvImport(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
 ): CsvImportPreflight {
-  if (csvFlightFields.some((field) => mapping[field] === null)) {
+  if (requiredCsvFlightFields.some((field) => mapping[field] === null)) {
     return {
       totalRecords: parsed.rows.length,
       validRecords: 0,
@@ -196,16 +218,12 @@ function flightFromCsvRow(
 ): KeeprawFlight {
   const value = (field: CsvFlightField) => (row[mapping[field]!] ?? "").trim();
   const flightNumber = value("flightNumber");
-  const identity = splitFlightNumberInput(flightNumber);
   const serviceDate = value("serviceDate");
   const originIata = value("originIata");
   const destinationIata = value("destinationIata");
   const scheduledDeparture = value("scheduledDeparture");
   const scheduledArrival = value("scheduledArrival");
 
-  if (!identity || `${identity.airlineCode}${identity.serviceNumber}` !== flightNumber) {
-    throw new Error(`line-${lineNumber}:invalid-flight-number`);
-  }
   if (!isCalendarDate(serviceDate)) throw new Error(`line-${lineNumber}:invalid-date`);
   if (!airportByIata.has(originIata) || !airportByIata.has(destinationIata)) {
     throw new Error(`line-${lineNumber}:unknown-airport`);
@@ -224,16 +242,32 @@ function flightFromCsvRow(
     throw new Error(`line-${lineNumber}:chronology`);
   }
 
-  return {
-    id: `flight-${idFactory()}`,
-    flightNumber: `${identity.airlineCode}${identity.serviceNumber}`,
-    serviceDate,
-    airline: identity.airline,
-    origin: { iata: originIata },
-    destination: { iata: destinationIata },
-    scheduledDeparture,
-    scheduledArrival,
+  const origin = airportByIata.get(originIata)!;
+  const destination = airportByIata.get(destinationIata)!;
+  const departure = localPartsAtAirport(scheduledDeparture, origin.timezone);
+  const arrival = localPartsAtAirport(scheduledArrival, destination.timezone);
+  const actual = (field: "actualDeparture" | "actualArrival", timezone: string) => {
+    const raw = value(field);
+    if (!raw) return { date: "", time: "" };
+    if (!hasExplicitOffset(raw) || !Number.isFinite(Date.parse(raw))) throw new Error(`line-${lineNumber}:invalid-time`);
+    return localPartsAtAirport(raw, timezone);
   };
+  const actualDeparture = actual("actualDeparture", origin.timezone);
+  const actualArrival = actual("actualArrival", destination.timezone);
+  const draft: FlightDraft = {
+    flightNumber, serviceDate, originIata, destinationIata,
+    departureTime: departure.time, arrivalDate: arrival.date, arrivalTime: arrival.time,
+    actualDepartureDate: actualDeparture.date, actualDepartureTime: actualDeparture.time,
+    actualArrivalDate: actualArrival.date, actualArrivalTime: actualArrival.time,
+    originTerminal: value("originTerminal"), originGate: value("originGate"), destinationTerminal: value("destinationTerminal"),
+    aircraftType: value("aircraftType"), aircraftRegistration: value("aircraftRegistration"), seat: value("seat"),
+    cabin: value("cabin"), bookingClass: value("bookingClass"), baggageCarousel: value("baggageCarousel"),
+    ticketNumber: value("ticketNumber"), bookingReference: value("bookingReference"),
+    frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
+  };
+  const flight = flightFromDraft(draft);
+  flight.id = `flight-${idFactory()}`;
+  return flight;
 }
 
 function csvIssueFromError(error: unknown, fallbackLineNumber: number): CsvImportIssue {
