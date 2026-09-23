@@ -1571,6 +1571,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .frequent-flyer-card-footer { padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--color-warning) 15%, var(--line)); color: var(--muted); font-size: 0.6875rem; }
 .frequent-flyer-card-footer strong { font-family: var(--font-family-data); font-variant-numeric: tabular-nums; font-weight: var(--font-weight-medium); }
 
+@media (min-width: 761px) {
+  .detail-page { padding-top: 24px; padding-bottom: 40px; }
+  .detail-heading h1 { margin-top: 14px; margin-bottom: 10px; }
+  .detail-operational-grid { margin-top: 28px; margin-bottom: 32px; }
+  .detail-stops { min-height: clamp(300px, 42vh, 380px); }
+  .detail-route-map { height: clamp(300px, 42vh, 380px); }
+  .detail-route-map-loading { min-height: clamp(300px, 42vh, 380px); }
+  .detail-metadata-shelf { gap: 32px; padding-top: 28px; }
+  .detail-metadata-column,
+  .frequent-flyer-card { min-height: 120px; }
+  .detail-metadata-column h2 { margin-bottom: 12px; }
+  .detail-metadata-footer { margin-top: 14px; }
+  .detail-record-item + .detail-record-item { margin-top: 12px; }
+  .frequent-flyer-card { padding: 0 0 0 28px; border: 0; border-left: 1px solid var(--line); border-radius: 0; background: transparent; box-shadow: none; }
+  .frequent-flyer-card-main { margin-block: 12px; }
+}
+
 @media (max-width: 940px) {
   .detail-operational-grid { grid-template-columns: minmax(280px, 0.88fr) minmax(0, 1.12fr); gap: 28px; }
   .detail-metadata-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
