@@ -40,7 +40,7 @@ function AirlineLogo({ code, fallback, asset }: AirlineLogoProps) {
   }
 
   return (
-    <span className={`airline-logo airline-logo--image airline-logo--${asset.variant}`} aria-hidden="true">
+    <span className="airline-logo airline-logo--image" aria-hidden="true">
       <img src={asset.src} alt="" onError={() => setFailed(true)} data-airline-code={code} />
     </span>
   );
@@ -52,8 +52,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
   const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
   const airlineMark = airlineCode.slice(0, 2).toUpperCase() || "--";
-  const airlineLogo = airlineLogoByCode[flight.airline.iata?.toUpperCase() ?? ""]
-    ?? airlineLogoByCode[flight.airline.icao?.toUpperCase() ?? ""];
+  const airlineLogo = airlineLogoByCode[flight.airline.iata?.toUpperCase() ?? ""];
   const airline = resolveAirline(flight.airline);
   const airlineName = airline ? airlineNames(airline, locale)[0] : undefined;
   const origin = airportByIata.get(flight.origin.iata);

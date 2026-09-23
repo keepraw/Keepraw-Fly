@@ -44,6 +44,20 @@ falls back to the airline designator when no icon is available.
 Run `pnpm update:airline-icons` after updating the dependency to refresh the
 generated IATA/ICAO-to-asset registry.
 
+## Airline logo PNG supplements
+
+Keepraw Fly also bundles only the PNG logos needed by the local airline dataset
+from [imgmongelli/airlines-logos-dataset](https://github.com/imgmongelli/airlines-logos-dataset),
+at revision `7b001fb8d5d0a2f875d57b2b5a8a8056b2fbc63a`. The upstream README
+declares the repository MIT-licensed and credits publicly available IATA/ICAO
+sources. The selected files are copied into `assets/airlines/` and renamed to
+their IATA codes; the application never requests the upstream repository at
+runtime. The upstream notice is retained in
+`apps/web/src/data/NOTICE.airlines-logos-dataset.md`.
+
+Airline logos and trademarks remain the property of their respective rights
+holders and are used only to identify the airline.
+
 ## OpenCC.js
 
 Keepraw Fly uses [OpenCC.js](https://github.com/nk2028/opencc-js), version
