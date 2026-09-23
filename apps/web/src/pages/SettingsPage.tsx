@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
 import {
@@ -17,6 +17,7 @@ import { CsvImportControl } from "../components/CsvImportControl";
 import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
+import { persistentStorageState, requestPersistentStorage, type PersistentStorageState } from "../storage/browser";
 
 interface SettingsPageProps {
   document: KeeprawFlyDocument | null;
@@ -62,8 +63,22 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const { t } = useTranslation();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [persistentState, setPersistentState] = useState<PersistentStorageState>("checking");
+  const persistRequestAttempted = useRef(false);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
+
+  useEffect(() => {
+    let active = true;
+    void persistentStorageState().then((state) => { if (active) setPersistentState(state); });
+    return () => { active = false; };
+  }, []);
+
+  async function protectLocalData() {
+    if (persistRequestAttempted.current || persistentState === "granted") return;
+    persistRequestAttempted.current = true;
+    setPersistentState(await requestPersistentStorage());
+  }
 
   function updateSetting<Key extends keyof ViewerSettings>(
     key: Key,
@@ -136,6 +151,7 @@ export function SettingsPage({
         <section className="settings-section" aria-labelledby="settings-data">
           <SectionHeading icon="data" number="01" title={t("settings.data")} titleId="settings-data" />
           <div className="settings-panel data-actions">
+            <div><span>{t("settings.storageProtectionTitle")}</span><small>{t(`settings.storageProtection.${persistentState}`)}</small>{persistentState === "available" ? <button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button> : null}</div>
             <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
             <div><span>{t("settings.csvImportTitle")}</span><small>{t("settings.csvImportDescription")}</small><CsvImportControl document={document} onImport={onImport} /></div>
             <div><span>{t("settings.exportTitle")}</span><small>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>

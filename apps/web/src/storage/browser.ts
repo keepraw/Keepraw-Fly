@@ -3,6 +3,40 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import type { ArchiveKind, SettingsStore, StorageAdapter } from "./adapter";
 import type { ViewerSettings } from "./types";
 
+export type PersistentStorageState = "checking" | "granted" | "available" | "unsupported" | "failed";
+
+function storageManager(): StorageManager | undefined {
+  return typeof navigator !== "undefined" ? navigator.storage : undefined;
+}
+
+type PersistentStorageManager = StorageManager & {
+  persist?: () => Promise<boolean>;
+  persisted?: () => Promise<boolean>;
+};
+
+export async function persistentStorageState(): Promise<Exclude<PersistentStorageState, "checking">> {
+  const storage = storageManager();
+  const persistent = storage as PersistentStorageManager | undefined;
+  if (!persistent?.persisted) return "unsupported";
+  try {
+    return await persistent.persisted() ? "granted" : typeof persistent.persist === "function" ? "available" : "unsupported";
+  } catch {
+    return "failed";
+  }
+}
+
+export async function requestPersistentStorage(): Promise<Exclude<PersistentStorageState, "checking">> {
+  const storage = storageManager();
+  const persistent = storage as PersistentStorageManager | undefined;
+  if (typeof persistent?.persist !== "function" || typeof persistent.persisted !== "function") return "unsupported";
+  try {
+    if (await persistent.persisted()) return "granted";
+    return await persistent.persist() ? "granted" : "available";
+  } catch {
+    return "failed";
+  }
+}
+
 interface DocumentRecord {
   key: "active";
   document: unknown;
