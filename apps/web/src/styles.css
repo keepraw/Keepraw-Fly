@@ -1914,9 +1914,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .passport-archive-page .passport-counts strong {
   font-family: var(--font-family-data);
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  font-weight: var(--passport-primary-value-weight);
+  line-height: var(--passport-primary-value-leading);
 }
 
 .passport-archive-page .passport-highlights {
