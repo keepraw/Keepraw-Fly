@@ -580,11 +580,12 @@ test("presents the flight archive as a single-column open ledger", async ({ page
 
     const presentation = await page.locator(".flight-row").first().evaluate((row) => {
       const list = row.closest<HTMLElement>(".flight-list");
-      const routeCode = row.querySelector<HTMLElement>(".airport-code-display");
+      const routeCity = row.querySelector<HTMLElement>(".flight-route-cities");
+      const routeCode = row.querySelector<HTMLElement>(".flight-route-codes .airport-code-display");
       const flightNumber = row.querySelector<HTMLElement>(".flight-number strong");
       const serviceDate = row.querySelector<HTMLElement>(".flight-date");
       const search = document.querySelector<HTMLElement>(".search-field");
-      if (!list || !routeCode || !flightNumber || !serviceDate || !search) {
+      if (!list || !routeCity || !routeCode || !flightNumber || !serviceDate || !search) {
         throw new Error("Flight archive presentation landmarks are missing");
       }
 
@@ -598,13 +599,14 @@ test("presents the flight archive as a single-column open ledger", async ({ page
         listDisplay: listStyle.display,
         rowBorderRadius: rowStyle.borderRadius,
         rowBoxShadow: rowStyle.boxShadow,
+        routeCitySize: Number.parseFloat(getComputedStyle(routeCity).fontSize),
         routeCodeSize: Number.parseFloat(getComputedStyle(routeCode).fontSize),
         searchBorderRadius: searchStyle.borderRadius,
         searchBoxShadow: searchStyle.boxShadow,
       };
     });
 
-    expect(presentation.routeCodeSize).toBeGreaterThan(presentation.flightNumberSize);
+    expect(presentation.routeCitySize).toBeGreaterThan(presentation.routeCodeSize);
     expect(presentation.flightNumberSize).toBeGreaterThan(presentation.dateSize);
     expect(presentation.listDisplay).toBe("grid");
     expect(presentation.listColumns).toBe(1);
@@ -965,7 +967,7 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
       const routeValues = Array.from(row.querySelectorAll<HTMLElement>(
         ".flight-route .airport-code-display, .flight-times time",
       )).filter(visible);
-      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-route p span:not([aria-hidden='true'])"));
+      const airportNames = Array.from(row.querySelectorAll<HTMLElement>(".flight-route-cities > span:not(.route-direction)"));
       const list = row.closest<HTMLElement>(".flight-list");
       const headerBounds = header.getBoundingClientRect();
       const mainBounds = main.getBoundingClientRect();
