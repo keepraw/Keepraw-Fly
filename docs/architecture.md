@@ -3,7 +3,7 @@
 ## Boundaries
 
 ```text
-Guided flight editor / Keepraw Fly JSON import / mapped CSV import
+Guided flight editor / Keepraw Fly JSON import / Keepraw Fly CSV import / Flighty CSV import
   → typed document creation / @keepraw-fly/validator
   → StorageAdapter
   → BrowserStorageAdapter / IndexedDB
@@ -41,10 +41,13 @@ Import parses JSON, validates the 0.1 schema and semantic invariants, then
 replaces the active local archive. The whole validated document is stored, so
 unrecognized namespaced extensions survive an import/edit/export round trip.
 
-CSV import maps six required columns, validates every row and previews the first
-five rows before confirmation. It converts valid rows to canonical flight
-records and appends them to the active archive; it never replaces existing
-flights. CSV local times are resolved using the corresponding airport timezone; explicit RFC3339 offsets remain supported.
+Keepraw Fly mapped CSV import maps six required columns, validates every row and
+previews the first five rows before confirmation. Flighty CSV import first maps
+Flighty's native headers and values into the same canonical CSV boundary. Both
+workflows convert valid rows to canonical flight records and append them to the
+active archive; they never replace existing flights. CSV local times are
+resolved using the corresponding airport timezone; explicit RFC3339 offsets
+remain supported.
 
 Export validates again before creating a readable, indented JSON download. It
 does not include search indexes, statistics, Viewer preferences or temporary UI
