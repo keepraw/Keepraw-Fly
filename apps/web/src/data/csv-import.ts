@@ -161,11 +161,11 @@ export function buildDocumentFromCsvPreflight(
   const importedFlights = selectFlightsForImport(preflight.assessments, includePossibleDuplicates);
 
   return {
+    ...(existing ?? {}),
     format: KEEPRAW_FLY_FORMAT,
     formatVersion: KEEPRAW_FLY_FORMAT_VERSION,
     profile: existing?.profile ?? {},
     flights: [...(existing?.flights ?? []), ...importedFlights],
-    ...(existing?.extensions ? { extensions: existing.extensions } : {}),
   };
 }
 
