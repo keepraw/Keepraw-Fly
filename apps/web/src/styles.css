@@ -827,33 +827,6 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .year-list strong { font-size: 1.15rem; }
 .year-list span { color: var(--muted); font-size: var(--font-size-label); }
 
-.settings-heading {
-  position: relative;
-  display: grid;
-  min-height: 286px;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.78fr);
-  overflow: hidden;
-  align-items: center;
-  gap: 36px;
-  padding: 44px 50px;
-  border: 1px solid rgb(255 255 255 / 8%);
-  border-radius: var(--radius-hero);
-  color: var(--color-on-inverted);
-  background: var(--gradient-aviation-hero);
-  box-shadow: var(--shadow-floating);
-}
-.settings-heading::after { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(112deg, rgb(255 255 255 / 5%), transparent 42%); content: ""; pointer-events: none; }
-.settings-heading-copy { position: relative; z-index: 2; max-width: 560px; }
-.settings-heading .eyebrow { color: #79dbb8; }
-.settings-heading h1 { margin: 12px 0 13px; font-family: var(--font-family-display); font-size: var(--type-size-page); font-weight: var(--font-weight-display); letter-spacing: var(--tracking-display); line-height: var(--type-leading-display); }
-.settings-heading-copy > p:not(.eyebrow) { max-width: 520px; margin: 0; color: var(--color-on-inverted-muted); font-size: var(--type-size-body); line-height: var(--type-leading-body); }
-.settings-route-mark { position: relative; z-index: 1; min-height: 190px; }
-.settings-route-mark svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.settings-route-grid { fill: none; stroke: rgb(255 255 255 / 5%); stroke-width: 1; }
-.settings-route-line { fill: none; stroke: #67ceaa; stroke-linecap: round; stroke-width: 2; }
-.settings-route-mark circle { fill: #b9f4de; stroke: #17211d; stroke-width: 4; }
-.settings-route-glow { position: absolute; top: 22%; right: 8%; width: 120px; height: 120px; border-radius: 50%; background: rgb(67 204 157 / 16%); filter: blur(28px); }
-
 .settings-sections { display: grid; gap: 18px; margin-top: 22px; }
 .settings-section {
   position: relative;
@@ -1012,11 +985,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes settings-route-arrive {
-  from { opacity: 0; stroke-dashoffset: 420; }
-  to { opacity: 1; stroke-dashoffset: 0; }
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .button-primary,
   .button-secondary,
@@ -1051,8 +1019,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
   .page-heading,
   .passport-heading,
-  .passport-empty,
-  .settings-heading {
+  .passport-empty {
     animation: content-enter var(--duration-slow) var(--ease-out) both;
   }
 
@@ -1100,21 +1067,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     animation-delay: calc(360ms + var(--map-item-index, 0) * 16ms);
   }
 
-  .settings-route-line {
-    stroke-dasharray: 420;
-    stroke-dashoffset: 420;
-    animation: settings-route-arrive 820ms 160ms var(--ease-out) both;
-  }
-
-  .settings-route-mark circle {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: map-airport-arrive 320ms var(--ease-emphasized) both;
-  }
-
-  .settings-route-mark circle:nth-of-type(1) { animation-delay: 260ms; }
-  .settings-route-mark circle:nth-of-type(2) { animation-delay: 420ms; }
-  .settings-route-mark circle:nth-of-type(3) { animation-delay: 600ms; }
   .settings-section:nth-child(2) { animation-delay: 150ms; }
   .settings-section:nth-child(3) { animation-delay: 190ms; }
   .settings-section:nth-child(4) { animation-delay: 230ms; }
@@ -1288,10 +1240,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-related-flights button > span:not(:last-child) { grid-column: 2; grid-row: 1; }
   .passport-related-flights button > span:last-child { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
   .year-list button { grid-template-columns: 0.7fr 1fr auto; gap: 4px 8px; }
-  .settings-heading { min-height: 250px; grid-template-columns: 1fr; padding: 32px 28px; border-radius: 20px; }
-  .settings-heading-copy { max-width: 88%; }
-  .settings-heading h1 { margin: 12px 0; font-size: var(--type-size-page); }
-  .settings-route-mark { position: absolute; right: -42px; bottom: -48px; width: 290px; min-height: 170px; opacity: 0.48; }
   .settings-sections { gap: 14px; margin-top: 14px; }
   .settings-section { grid-template-columns: 1fr; gap: 25px; padding: 24px 20px; border-radius: 16px; }
   .settings-section-heading { align-items: center; }

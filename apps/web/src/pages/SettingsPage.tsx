@@ -134,24 +134,6 @@ export function SettingsPage({
 
   return (
     <PageShell className="settings-page">
-      <header className="settings-heading">
-        <div className="settings-heading-copy">
-          <p className="eyebrow">{t("settings.viewerPreferences")}</p>
-          <h1>{t("nav.settings")}</h1>
-          <p>{t("settings.description")}</p>
-        </div>
-        <div className="settings-route-mark" aria-hidden="true">
-          <span className="settings-route-glow" />
-          <svg viewBox="0 0 320 160">
-            <path className="settings-route-grid" d="M20 40h280M20 80h280M20 120h280M80 12v136M160 12v136M240 12v136" />
-            <path className="settings-route-line" d="M29 121C81 36 138 142 201 70c31-35 58-22 91-42" />
-            <circle cx="29" cy="121" r="5" />
-            <circle cx="201" cy="70" r="5" />
-            <circle cx="292" cy="28" r="5" />
-          </svg>
-        </div>
-      </header>
-
       <div className="settings-sections">
         <section className="settings-section" aria-labelledby="settings-data">
           <SectionHeading icon="data" number="01" title={t("settings.data")} titleId="settings-data" />
