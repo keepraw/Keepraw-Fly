@@ -39,6 +39,20 @@ describe("Keepraw Fly validator", () => {
     if (result.valid) expect(result.data.flights).toHaveLength(24);
   });
 
+  it("accepts optional destination terminal and gate fields", () => {
+    const withGate = structuredClone(validDocument) as { flights: KeeprawFlight[] };
+    withGate.flights[0]!.destination = { iata: "HKG", terminal: "1", gate: "33" };
+    const result = validateKeeprawFly(withGate);
+    expect(result.valid).toBe(true);
+    const roundTripped = parseKeeprawFlyJson(JSON.stringify(withGate));
+    expect(roundTripped.valid).toBe(true);
+    if (roundTripped.valid) expect(roundTripped.data.flights[0]!.destination).toEqual({ iata: "HKG", terminal: "1", gate: "33" });
+
+    const withoutGate = structuredClone(withGate) as { flights: KeeprawFlight[] };
+    delete withoutGate.flights[0]!.destination.gate;
+    expect(validateKeeprawFly(withoutGate).valid).toBe(true);
+  });
+
   it("accepts a valid document and preserves unknown extensions", () => {
     const result = validateKeeprawFly(validDocument);
 

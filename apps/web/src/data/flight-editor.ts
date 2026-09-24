@@ -1,4 +1,4 @@
-import type { ExtensionMap, JsonValue, KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
+import type { AirportEndpoint, ExtensionMap, JsonValue, KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import {
   aircraftFacts, airportByIata, baggageFacts,
@@ -10,7 +10,7 @@ export interface FlightDraft {
   flightNumber: string; serviceDate: string; originIata: string; destinationIata: string;
   departureTime: string; arrivalDate: string; arrivalTime: string;
   actualDepartureDate: string; actualDepartureTime: string; actualArrivalDate: string; actualArrivalTime: string;
-  originTerminal: string; originGate: string; destinationTerminal: string;
+  originTerminal: string; originGate: string; destinationTerminal: string; destinationGate: string;
   aircraftType: string; aircraftRegistration: string; seat: string; cabin: string; bookingClass: string;
   baggageCarousel: string; ticketNumber: string; bookingReference: string;
   frequentFlyerMembershipId: string; frequentFlyerTierAtFlight: string;
@@ -26,7 +26,7 @@ export function createDefaultDraft(today = localDateString(new Date())): FlightD
     flightNumber: "", serviceDate: today, originIata: "", destinationIata: "",
     departureTime: "09:00", arrivalDate: today, arrivalTime: "11:00",
     actualDepartureDate: "", actualDepartureTime: "", actualArrivalDate: "", actualArrivalTime: "",
-    originTerminal: "", originGate: "", destinationTerminal: "", aircraftType: "",
+    originTerminal: "", originGate: "", destinationTerminal: "", destinationGate: "", aircraftType: "",
     aircraftRegistration: "", seat: "", cabin: "", bookingClass: "",
     baggageCarousel: "", ticketNumber: "", bookingReference: "",
     frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
@@ -61,7 +61,7 @@ export function flightToDraft(
     actualArrivalDate: options.duplicate ? "" : actualArrival?.date ?? "",
     actualArrivalTime: options.duplicate ? "" : actualArrival?.time ?? "",
     originTerminal: flight.origin.terminal ?? "", originGate: options.duplicate ? "" : flight.origin.gate ?? "",
-    destinationTerminal: flight.destination.terminal ?? "", aircraftType: aircraft?.type ?? "",
+    destinationTerminal: flight.destination.terminal ?? "", destinationGate: options.duplicate ? "" : flight.destination.gate ?? "", aircraftType: aircraft?.type ?? "",
     aircraftRegistration: options.duplicate ? "" : aircraft?.registration ?? "",
     seat: options.duplicate ? "" : seat?.seat ?? "", cabin: seat?.cabin ?? "", bookingClass: seat?.bookingClass ?? "",
     baggageCarousel: options.duplicate ? "" : baggage?.carousel ?? "",
@@ -119,7 +119,7 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
     ...existing, id: existing?.id ?? `flight-${crypto.randomUUID()}`, flightNumber: identity.canonical,
     serviceDate: draft.serviceDate, airline: airlineReference(existing?.airline, identity),
     origin: endpointWithOptionalFacts(existing?.origin, draft.originIata, draft.originTerminal, draft.originGate),
-    destination: endpointWithOptionalTerminal(existing?.destination, draft.destinationIata, draft.destinationTerminal),
+    destination: endpointWithOptionalFacts(existing?.destination, draft.destinationIata, draft.destinationTerminal, draft.destinationGate),
     ...(divertedTo ? { divertedTo: { iata: divertedTo.iata } } : {}),
     ...(draft.cancelled ? { cancelled: true } : {}),
     scheduledDeparture, scheduledArrival,
@@ -154,17 +154,12 @@ function optionalZonedDateTime(date: string, time: string, timezone: string): st
   return zonedDateTimeToIso(date, time, timezone);
 }
 
-function endpointWithOptionalFacts(existing: KeeprawFlight["origin"] | undefined, iata: string, terminal: string, gate: string): KeeprawFlight["origin"] {
+function endpointWithOptionalFacts(existing: AirportEndpoint | undefined, iata: string, terminal: string, gate: string): AirportEndpoint {
   const sameAirport = existing?.iata === iata ? existing : { iata };
   const { terminal: _terminal, gate: _gate, ...preserved } = sameAirport;
   return { ...preserved, iata, ...(terminal.trim() ? { terminal: terminal.trim() } : {}), ...(gate.trim() ? { gate: gate.trim() } : {}) };
 }
 
-function endpointWithOptionalTerminal(existing: KeeprawFlight["destination"] | undefined, iata: string, terminal: string): KeeprawFlight["destination"] {
-  const sameAirport = existing?.iata === iata ? existing : { iata };
-  const { terminal: _terminal, ...preserved } = sameAirport;
-  return { ...preserved, iata, ...(terminal.trim() ? { terminal: terminal.trim() } : {}) };
-}
 
 function updateKnownExtensions(existing: ExtensionMap | undefined, draft: FlightDraft, bookingClass: string): ExtensionMap | undefined {
   const extensions: ExtensionMap = structuredClone(existing ?? {});

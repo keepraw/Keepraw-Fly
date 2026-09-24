@@ -260,7 +260,7 @@ function flightFromCsvRow(
     departureTime: departure.time, arrivalDate: arrival.date, arrivalTime: arrival.time,
     actualDepartureDate: actualDeparture.date, actualDepartureTime: actualDeparture.time,
     actualArrivalDate: actualArrival.date, actualArrivalTime: actualArrival.time,
-    originTerminal: value("originTerminal"), originGate: value("originGate"), destinationTerminal: value("destinationTerminal"),
+    originTerminal: value("originTerminal"), originGate: value("originGate"), destinationTerminal: value("destinationTerminal"), destinationGate: "",
     aircraftType: value("aircraftType"), aircraftRegistration: value("aircraftRegistration"), seat: value("seat"),
     cabin: value("cabin"), bookingClass: value("bookingClass"), baggageCarousel: value("baggageCarousel"),
     ticketNumber: value("ticketNumber"), bookingReference: value("bookingReference"),

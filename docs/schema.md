@@ -13,7 +13,9 @@ The canonical schema is
 ```
 
 Every core flight has a stable `id`, flight number, service date, airline,
-origin/destination IATA codes and scheduled departure/arrival timestamps.
+origin/destination IATA codes and scheduled departure/arrival timestamps. The
+`origin` and `destination` endpoints share the same optional `terminal` and
+`gate` fields.
 Actual timestamps are optional. Datetimes follow ISO 8601/RFC 3339 and include
 an explicit UTC offset or `Z`. Optional flight facts include `cancelled: true` and
 `divertedTo`, which preserves the planned `destination` while recording the

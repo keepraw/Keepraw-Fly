@@ -243,6 +243,7 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
               <label><span>{t("flightEditor.originTerminal")}</span><input value={draft.originTerminal} onChange={(event) => update("originTerminal", event.target.value)} /></label>
               <label><span>{t("flightEditor.originGate")}</span><input value={draft.originGate} onChange={(event) => update("originGate", event.target.value)} /></label>
               <label><span>{t("flightEditor.destinationTerminal")}</span><input value={draft.destinationTerminal} onChange={(event) => update("destinationTerminal", event.target.value)} /></label>
+              <label><span>{t("flightEditor.destinationGate")}</span><input value={draft.destinationGate} onChange={(event) => update("destinationGate", event.target.value)} /></label>
             </fieldset>
 
             <fieldset className="editor-facts-grid editor-baggage-grid">
