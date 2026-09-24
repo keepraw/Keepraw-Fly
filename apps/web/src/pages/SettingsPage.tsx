@@ -134,6 +134,7 @@ export function SettingsPage({
 
   return (
     <PageShell className="settings-page">
+      <h1 className="sr-only">{t("nav.settings")}</h1>
       <div className="settings-sections">
         <section className="settings-section" aria-labelledby="settings-data">
           <SectionHeading icon="data" number="01" title={t("settings.data")} titleId="settings-data" />
