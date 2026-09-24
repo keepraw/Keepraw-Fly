@@ -231,7 +231,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(new Set(workspace.logoSizes).size).toBe(1);
     expect(new Set(workspace.logoStarts).size).toBe(1);
     expect(workspace.mapHeight).toBeGreaterThanOrEqual(240);
-    expect(workspace.primaryStats).toBe(3);
+    expect(workspace.primaryStats).toBe(4);
     expect(workspace.primaryValueTypographyCount).toBe(1);
     expect(workspace.secondaryStats).toBe(4);
     expect(workspace.secondaryValueTypographyCount).toBe(1);
