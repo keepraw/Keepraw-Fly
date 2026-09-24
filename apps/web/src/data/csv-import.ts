@@ -17,9 +17,9 @@ export type CsvFlightField =
   | "destinationIata"
   | "scheduledDeparture"
   | "scheduledArrival"
-  | "actualDeparture" | "actualArrival" | "originTerminal" | "originGate" | "destinationTerminal"
+  | "actualDeparture" | "actualArrival" | "originTerminal" | "originGate" | "destinationTerminal" | "destinationGate"
   | "divertedToIata" | "cancelled"
-  | "ticketNumber" | "bookingReference" | "baggageCarousel" | "aircraftType" | "aircraftRegistration"
+  | "ticketNumber" | "bookingReference" | "aircraftType" | "aircraftRegistration"
   | "seat" | "bookingClass" | "cabin";
 
 export const csvFlightFields: CsvFlightField[] = [
@@ -29,9 +29,9 @@ export const csvFlightFields: CsvFlightField[] = [
   "destinationIata",
   "scheduledDeparture",
   "scheduledArrival",
-  "actualDeparture", "actualArrival", "originTerminal", "originGate", "destinationTerminal",
-  "divertedToIata", "cancelled",
-  "ticketNumber", "bookingReference", "baggageCarousel", "aircraftType", "aircraftRegistration", "seat", "bookingClass", "cabin",
+  "actualDeparture", "actualArrival", "originTerminal", "originGate", "destinationTerminal", "destinationGate",
+  "cancelled", "divertedToIata",
+  "ticketNumber", "bookingReference", "aircraftType", "aircraftRegistration", "seat", "bookingClass", "cabin",
 ];
 
 export const requiredCsvFlightFields: CsvFlightField[] = [
@@ -82,9 +82,9 @@ const aliases: Record<CsvFlightField, string[]> = {
   originTerminal: ["originterminal", "departureterminal", "出发航站楼"],
   originGate: ["origingate", "departuregate", "出发登机口"],
   destinationTerminal: ["destinationterminal", "arrivalterminal", "到达航站楼"],
+  destinationGate: ["destinationgate", "arrivalgate", "到达登机口"],
   ticketNumber: ["ticketnumber", "ticket", "票号"],
   bookingReference: ["bookingreference", "pnr", "bookingcode"],
-  baggageCarousel: ["baggagecarousel", "baggagebelt"],
   aircraftType: ["aircrafttype", "aircraft"],
   aircraftRegistration: ["aircraftregistration", "registration"],
   seat: ["seat"],
@@ -260,15 +260,17 @@ function flightFromCsvRow(
     departureTime: departure.time, arrivalDate: arrival.date, arrivalTime: arrival.time,
     actualDepartureDate: actualDeparture.date, actualDepartureTime: actualDeparture.time,
     actualArrivalDate: actualArrival.date, actualArrivalTime: actualArrival.time,
-    originTerminal: value("originTerminal"), originGate: value("originGate"), destinationTerminal: value("destinationTerminal"), destinationGate: "",
+    originTerminal: value("originTerminal"), originGate: value("originGate"), destinationTerminal: value("destinationTerminal"), destinationGate: value("destinationGate"),
     aircraftType: value("aircraftType"), aircraftRegistration: value("aircraftRegistration"), seat: value("seat"),
-    cabin: value("cabin"), bookingClass: value("bookingClass"), baggageCarousel: value("baggageCarousel"),
+    cabin: value("cabin"), bookingClass: value("bookingClass"), baggageCarousel: "",
     ticketNumber: value("ticketNumber"), bookingReference: value("bookingReference"),
     frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
     cancelled: /^(true|1|yes)$/i.test(value("cancelled")),
     divertedToIata: divertedTo?.iata ?? "",
   };
-  const flight = flightFromDraft(draft);
+  // Let the canonical validator report cancelled/diverted conflicts after import preview.
+  const flight = flightFromDraft({ ...draft, cancelled: false });
+  if (draft.cancelled) flight.cancelled = true;
   flight.id = `flight-${idFactory()}`;
   return flight;
 }

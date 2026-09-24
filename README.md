@@ -138,7 +138,7 @@ confirmation, with a backup export offered in the same flow.
 CSV import is available under Settings → Data. It maps six required columns
 (flight number, service date, origin IATA, destination IATA, scheduled departure
 and scheduled arrival), previews up to five rows and appends only after
-confirmation. Scheduled timestamps must contain an explicit timezone offset.
+confirmation. Enter all times in the corresponding airport local time, without a timezone; explicit RFC3339 offsets remain supported.
 See [`examples/flights.csv`](examples/flights.csv).
 
 Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md),

@@ -1,2 +1,2 @@
-Flight Number,Date,From,To,Departure Time,Arrival Time
-MU589,2026-09-02,PVG,SFO,2026-09-02T13:00:00+08:00,2026-09-02T09:20:00-07:00
+flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival,actualDeparture,actualArrival,originTerminal,originGate,destinationTerminal,destinationGate,cancelled,divertedToIata,ticketNumber,bookingReference,aircraftType,aircraftRegistration,seat,bookingClass,cabin
+MU589,2026-09-02,PVG,SFO,2026-09-02T13:00,2026-09-02T09:20,2026-09-02T13:12,2026-09-02T09:35,2,D45,1,,false,,781-1234567890,ABC123,B789,B-1234,12A,Y,economy
