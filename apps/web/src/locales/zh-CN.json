@@ -373,6 +373,35 @@
       "cabin": "客舱等级"
     }
   },
+  "flightyImport": {
+    "openFile": "打开 Flighty CSV",
+    "workflow": "直接导入 Flighty 导出文件。文件会在本地映射、校验并预览，确认后才会添加记录。",
+    "previewEyebrow": "Flighty 映射",
+    "previewTitle": "检查 Flighty 导入",
+    "rowCount": "{{count}} 行",
+    "lineNumber": "Flighty CSV 第 {{number}} 行：",
+    "fileLabel": "Flighty CSV：",
+    "warningTitle": "{{count}} 个警告",
+    "importing": "正在添加航班…",
+    "appendFlights": "添加 {{count}} 个航班",
+    "importFailed": "未导入 Flighty CSV。{{detail}}",
+    "invalidFile": "这不是可识别的 Flighty CSV 导出文件。",
+    "fileErrors": {
+      "not-flighty-file": "CSV 缺少 Flighty 的 Date、Airline、Flight、From、To 或计划登机时间列。",
+      "missing-rows": "没有找到 Flighty 航班记录。",
+      "unterminated-quote": "Flighty CSV 中有未闭合的引号字段，请检查引号后重试。",
+      "empty-header": "Flighty CSV 中存在没有名称的列。",
+      "invalid-file": "无法读取这个 Flighty CSV 文件。"
+    },
+    "issues": {
+      "missing-required-header": "缺少必需的 Flighty 表头：{{value}}。",
+      "missing-value": "缺少必需值：{{value}}。",
+      "unknown-airline": "无法识别航空公司 ICAO 代码 {{value}}。",
+      "invalid-flight": "Flight 值 {{value}} 为空或包含不支持的字符。",
+      "invalid-cancelled": "Canceled 值 {{value}} 不是支持的布尔值。",
+      "unknown-cabin": "Cabin Class 值 {{value}} 不受支持，已忽略。"
+    }
+  },
   "settings": {
     "viewerPreferences": "查看器偏好",
     "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
@@ -388,6 +417,8 @@
     "importDescription": "先验证并预览 Keepraw Fly JSON；确认后只新增航班，不覆盖已有记录。",
     "csvImportTitle": "从 CSV 导入航班",
     "csvImportDescription": "映射、验证并预览 CSV 列；只有所有记录通过预检后才会追加。",
+    "flightyImportTitle": "从 Flighty CSV 导入航班",
+    "flightyImportDescription": "直接导入 Flighty 导出文件，未知的 Flighty 列会被忽略。",
     "exportTitle": "导出档案",
     "exportDescription": "下载完整、通过验证且可移植的航班事实副本。",
     "exportDescriptionDemo": "当前档案包含虚构的示例航班，仅在需要示例文件时导出。",

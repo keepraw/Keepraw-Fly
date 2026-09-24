@@ -388,6 +388,38 @@
       "cabin": "Cabin"
     }
   },
+  "flightyImport": {
+    "openFile": "Open Flighty CSV",
+    "workflow": "Import a Flighty export directly. The file is mapped locally, validated and previewed before anything is added.",
+    "previewEyebrow": "Flighty mapping",
+    "previewTitle": "Review Flighty import",
+    "rowCount_one": "{{count}} row",
+    "rowCount_other": "{{count}} rows",
+    "lineNumber": "Flighty CSV line {{number}}: ",
+    "fileLabel": "Flighty CSV: ",
+    "warningTitle_one": "{{count}} warning",
+    "warningTitle_other": "{{count}} warnings",
+    "importing": "Adding flights…",
+    "appendFlights_one": "Add {{count}} flight",
+    "appendFlights_other": "Add {{count}} flights",
+    "importFailed": "The Flighty CSV was not imported. {{detail}}",
+    "invalidFile": "This is not a recognized Flighty CSV export.",
+    "fileErrors": {
+      "not-flighty-file": "This CSV is missing the Flighty Date, Airline, Flight, From, To and scheduled gate-time columns.",
+      "missing-rows": "No Flighty flight rows were found.",
+      "unterminated-quote": "A quoted Flighty CSV field is not closed. Check the quotation marks and try again.",
+      "empty-header": "One or more Flighty CSV columns have an empty header.",
+      "invalid-file": "This Flighty CSV could not be read."
+    },
+    "issues": {
+      "missing-required-header": "Missing required Flighty header: {{value}}.",
+      "missing-value": "Missing required value: {{value}}.",
+      "unknown-airline": "Cannot resolve airline ICAO code {{value}}.",
+      "invalid-flight": "Flight value {{value}} is empty or contains unsupported characters.",
+      "invalid-cancelled": "Canceled value {{value}} is not a supported boolean.",
+      "unknown-cabin": "Cabin class {{value}} was ignored because it is not supported."
+    }
+  },
   "settings": {
     "viewerPreferences": "Viewer preferences",
     "description": "Display preferences stay local. Profile names travel with your Keepraw Fly archive.",
@@ -403,6 +435,8 @@
     "importDescription": "Validate and preview a Keepraw Fly JSON file. New flights are added after confirmation; existing flights are never overwritten.",
     "csvImportTitle": "Import flights from CSV",
     "csvImportDescription": "Map, validate and preview CSV columns. Flights are appended only after every row passes preflight.",
+    "flightyImportTitle": "Import flights from Flighty CSV",
+    "flightyImportDescription": "Directly import a Flighty export. Unknown Flighty columns are ignored.",
     "exportTitle": "Export archive",
     "exportDescription": "Download a complete, validated and portable copy of your facts.",
     "exportDescriptionDemo": "This archive contains fictional demo flights. Export only if you need the sample file.",
