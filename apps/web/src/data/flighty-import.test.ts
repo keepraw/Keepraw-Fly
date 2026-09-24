@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { installAirportDirectory, type CompactAirportRow } from "@keepraw-fly/core";
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   buildDocumentFromFlightyPreflight,
   flightyIgnoredFields,
@@ -53,6 +54,47 @@ describe("Flighty CSV import", () => {
       "keepraw-fly.seat": { seat: "12A", cabin: "economy" },
     });
     expect(validateKeeprawFly(document).valid).toBe(true);
+  });
+
+  it("preserves memberships and existing references when appending Flighty flights", () => {
+    const membership = {
+      id: "ff-1",
+      programId: "mileageplus",
+      memberNumber: "UA001",
+      tier: "gold",
+      associatedAirlines: ["UA"],
+      defaultAirline: "UA",
+    };
+    const existing: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: { name: { romanized: "Existing traveler" } },
+      extensions: { "keepraw-fly.test": { preserved: true } },
+      frequentFlyerMemberships: [membership],
+      flights: [{
+        id: "existing-flight",
+        flightNumber: "UA123",
+        serviceDate: "2026-08-19",
+        airline: { iata: "UA", icao: "UAL" },
+        origin: { iata: "SFO" },
+        destination: { iata: "LAX" },
+        scheduledDeparture: "2026-08-19T10:20:00-07:00",
+        scheduledArrival: "2026-08-19T11:50:00-07:00",
+        frequentFlyer: { membershipId: "ff-1", tierAtFlight: "gold" },
+      }],
+    };
+    const membershipBefore = structuredClone(existing.frequentFlyerMemberships);
+    const parsed = parseFlightyCsv(flightyCsv([
+      "2026-09-23,CES,5243,TAO,SHA,1,12,2,33,false,,2026-09-23T14:30,2026-09-23T14:40,2026-09-23T16:20,2026-09-23T16:35,Airbus A321,,,12A,ECONOMY",
+    ]));
+    const preflight = preflightFlightyImport(parsed, existing, ids("flighty-append"));
+    const appended = buildDocumentFromFlightyPreflight(preflight, existing);
+
+    expect(appended.frequentFlyerMemberships).toEqual(membershipBefore);
+    expect(appended.flights[0]?.frequentFlyer).toEqual({ membershipId: "ff-1", tierAtFlight: "gold" });
+    expect(appended.flights[1]?.frequentFlyer).toBeUndefined();
+    expect(appended.extensions).toEqual(existing.extensions);
+    expect(validateKeeprawFly(appended).valid).toBe(true);
   });
 
   it("resolves all sample ICAO codes through the shared airline database", () => {

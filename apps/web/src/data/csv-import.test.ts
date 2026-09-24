@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { installAirportDirectory, type CompactAirportRow } from "@keepraw-fly/core";
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   buildDocumentFromCsv,
   csvFlightFields,
@@ -204,6 +205,47 @@ describe("CSV flight import", () => {
       destination: { iata: "HKG", terminal: "1", gate: "33" },
       ticketNumber: "781-123",
     });
+  });
+
+  it("preserves memberships and existing references when appending", () => {
+    const membership = {
+      id: "ff-1",
+      programId: "mileageplus",
+      memberNumber: "UA001",
+      tier: "gold",
+      associatedAirlines: ["UA"],
+      defaultAirline: "UA",
+    };
+    const existing: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: { name: { romanized: "Existing traveler" } },
+      extensions: { "keepraw-fly.test": { preserved: true } },
+      frequentFlyerMemberships: [membership],
+      flights: [{
+        id: "existing-flight",
+        flightNumber: "UA123",
+        serviceDate: "2026-08-19",
+        airline: { iata: "UA", icao: "UAL" },
+        origin: { iata: "SFO" },
+        destination: { iata: "LAX" },
+        scheduledDeparture: "2026-08-19T10:20:00-07:00",
+        scheduledArrival: "2026-08-19T11:50:00-07:00",
+        frequentFlyer: { membershipId: "ff-1", tierAtFlight: "gold" },
+      }],
+    };
+    const membershipBefore = structuredClone(existing.frequentFlyerMemberships);
+    const parsed = parseCsv([
+      csvFlightFields.join(","),
+      "CX124,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,2026-09-23T14:40,2026-09-23T17:55,1,12,1,33,false,,781-124,ABC124,A321,B-1234,12B,Y,economy",
+    ].join("\n"));
+    const appended = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), existing, () => "csv-append");
+
+    expect(appended.frequentFlyerMemberships).toEqual(membershipBefore);
+    expect(appended.flights[0]?.frequentFlyer).toEqual({ membershipId: "ff-1", tierAtFlight: "gold" });
+    expect(appended.flights[1]?.frequentFlyer).toBeUndefined();
+    expect(appended.extensions).toEqual(existing.extensions);
+    expect(validateKeeprawFly(appended).valid).toBe(true);
   });
 
   it("imports cancelled flights with empty actual times and treats empty cancelled as false", () => {
