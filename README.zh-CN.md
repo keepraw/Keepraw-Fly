@@ -123,7 +123,7 @@ docs/                  架构、数据格式与部署说明
 
 CSV 导入位于“设置 → 数据”。它会映射六个必填列（航班号、航班日期、出发机场
 IATA、到达机场 IATA、计划出发和计划到达），预览最多五行，并仅在确认后追加。
-计划时间必须包含明确的时区偏移。示例见 [`examples/flights.csv`](examples/flights.csv)。
+所有时间填写对应机场当地时间，无需填写时区；仍兼容带偏移的 RFC3339 时间。示例见 [`examples/flights.csv`](examples/flights.csv)。
 
 更多细节请阅读[架构说明](docs/architecture.md)、[数据格式说明](docs/schema.md)、[视觉系统](docs/design-system.md)和[部署指南](docs/deployment.md)。
 

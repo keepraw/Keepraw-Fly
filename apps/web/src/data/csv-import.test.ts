@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { installAirportDirectory, type CompactAirportRow } from "@keepraw-fly/core";
 import {
   buildDocumentFromCsv,
+  csvFlightFields,
   detectCsvMapping,
   parseCsv,
   preflightCsvImport,
@@ -182,5 +184,62 @@ describe("CSV flight import", () => {
   it("rejects empty and malformed CSV files before preview", () => {
     expect(() => parseCsv("")).toThrow("missing-rows");
     expect(() => parseCsv('Flight Number,Date\n"UA123,2026-08-19')).toThrow("unterminated-quote");
+  });
+  it("uses the canonical CSV field order and maps endpoint facts symmetrically", () => {
+    expect(csvFlightFields).toEqual([
+      "flightNumber", "serviceDate", "originIata", "destinationIata", "scheduledDeparture", "scheduledArrival",
+      "actualDeparture", "actualArrival", "originTerminal", "originGate", "destinationTerminal", "destinationGate",
+      "cancelled", "divertedToIata", "ticketNumber", "bookingReference", "aircraftType", "aircraftRegistration",
+      "seat", "bookingClass", "cabin",
+    ]);
+
+    const parsed = parseCsv([
+      csvFlightFields.join(","),
+      "CX123,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,2026-09-23T14:40,2026-09-23T17:55,1,12,1,33,false,,781-123,ABC123,A321,B-1234,12A,Y,economy",
+    ].join("\n"));
+    const document = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null, () => "target");
+
+    expect(document.flights[0]).toMatchObject({
+      origin: { iata: "TAO", terminal: "1", gate: "12" },
+      destination: { iata: "HKG", terminal: "1", gate: "33" },
+      ticketNumber: "781-123",
+    });
+  });
+
+  it("imports cancelled flights with empty actual times and treats empty cancelled as false", () => {
+    const cancelled = parseCsv([
+      csvFlightFields.join(","),
+      "CX124,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,,,1,12,1,33,true,,781-124,ABC124,A321,B-1234,12B,Y,economy",
+    ].join("\n"));
+    const cancelledDocument = buildDocumentFromCsv(cancelled, detectCsvMapping(cancelled.headers), null, () => "cancelled");
+
+    expect(cancelledDocument.flights[0]).toMatchObject({ cancelled: true });
+    expect(cancelledDocument.flights[0]).not.toHaveProperty("actualDeparture");
+    expect(cancelledDocument.flights[0]).not.toHaveProperty("actualArrival");
+
+    const empty = parseCsv([
+      csvFlightFields.join(","),
+      "CX125,2026-09-24,TAO,HKG,2026-09-24T14:30,2026-09-24T18:00,,,1,12,1,34,,,781-125,ABC125,A321,B-1234,12C,Y,economy",
+    ].join("\n"));
+    const emptyDocument = buildDocumentFromCsv(empty, detectCsvMapping(empty.headers), null, () => "empty");
+    expect(emptyDocument.flights[0]).not.toHaveProperty("cancelled");
+  });
+  it("imports divertedToIata and leaves the conflict to the canonical validator", () => {
+    const parsed = parseCsv([
+      csvFlightFields.join(","),
+      "CX126,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,,2026-09-23T19:00,1,12,1,33,false,KIX,,,,,,,,",
+    ].join("\n"));
+    const document = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null, () => "diverted");
+    expect(document.flights[0]).toMatchObject({ divertedTo: { iata: "KIX" } });
+    expect(validateKeeprawFly(document).valid).toBe(true);
+
+    const conflict = parseCsv([
+      csvFlightFields.join(","),
+      "CX127,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,,,1,12,1,33,true,KIX,,,,,,,,",
+    ].join("\n"));
+    const conflictDocument = buildDocumentFromCsv(conflict, detectCsvMapping(conflict.headers), null, () => "conflict");
+    const result = validateKeeprawFly(conflictDocument);
+    expect(result.valid).toBe(false);
+    if (!result.valid) expect(result.issues).toContainEqual(expect.objectContaining({ keyword: "cancelledDivertedConflict" }));
   });
 });

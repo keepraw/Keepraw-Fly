@@ -44,7 +44,7 @@ unrecognized namespaced extensions survive an import/edit/export round trip.
 CSV import maps six required columns, validates every row and previews the first
 five rows before confirmation. It converts valid rows to canonical flight
 records and appends them to the active archive; it never replaces existing
-flights or accepts scheduled timestamps without an explicit timezone offset.
+flights. CSV local times are resolved using the corresponding airport timezone; explicit RFC3339 offsets remain supported.
 
 Export validates again before creating a readable, indented JSON download. It
 does not include search indexes, statistics, Viewer preferences or temporary UI
