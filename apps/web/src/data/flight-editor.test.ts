@@ -91,6 +91,7 @@ describe("flight editor data", () => {
       originTerminal: "",
       originGate: "",
       destinationTerminal: "",
+      destinationGate: "",
       aircraftType: "",
       aircraftRegistration: "",
       seat: "",
@@ -131,6 +132,7 @@ describe("flight editor data", () => {
       originTerminal: "",
       originGate: "",
       destinationTerminal: "",
+      destinationGate: "",
       aircraftType: "",
       aircraftRegistration: "",
       seat: "",
@@ -155,6 +157,7 @@ describe("flight editor data", () => {
       originTerminal: "1",
       originGate: "18",
       destinationTerminal: "B",
+      destinationGate: "8",
       aircraftType: "B773",
       aircraftRegistration: "B-7883",
       seat: "31L",
@@ -172,6 +175,7 @@ describe("flight editor data", () => {
     expect(flight.actualDeparture).toBe("2026-08-21T13:17:00+08:00");
     expect(flight.actualArrival).toBe("2026-08-21T09:22:00-07:00");
     expect(flight.origin).toMatchObject({ iata: "PVG", terminal: "1", gate: "18" });
+    expect(flight.destination).toMatchObject({ iata: "SFO", terminal: "B", gate: "8" });
     expect(flight.extensions?.["example.unknown"]).toEqual({ preserved: true });
     expect(flight.extensions?.["keepraw-fly.aircraft"]).toEqual({
       source: "manual",
@@ -282,17 +286,18 @@ describe("flight editor data", () => {
     vi.unstubAllGlobals();
   });
 
-  it("does not expose a legacy destination gate while preserving imported data", () => {
-    vi.stubGlobal("crypto", { randomUUID: () => "legacy-gate-id" });
+  it("round-trips destination terminal and gate, and removes a cleared gate", () => {
+    vi.stubGlobal("crypto", { randomUUID: () => "destination-gate-id" });
     const existing = {
-      ...flightFromDraft(baseDraft()),
-      destination: { iata: "SFO", terminal: "I", gate: "72A" },
+      ...flightFromDraft({ ...baseDraft(), destinationTerminal: "I", destinationGate: "72A" }),
     };
     const draft = flightToDraft(existing);
+    expect(draft).toMatchObject({ destinationTerminal: "I", destinationGate: "72A" });
     const edited = flightFromDraft(draft, existing);
-
-    expect(draft).not.toHaveProperty("destinationGate");
     expect(edited.destination).toEqual({ iata: "SFO", terminal: "I", gate: "72A" });
+
+    const cleared = flightFromDraft({ ...draft, destinationGate: "" }, edited);
+    expect(cleared.destination).toEqual({ iata: "SFO", terminal: "I" });
     vi.unstubAllGlobals();
   });
 
@@ -344,6 +349,7 @@ function baseDraft(): FlightDraft {
     originTerminal: "",
     originGate: "",
     destinationTerminal: "",
+      destinationGate: "",
     aircraftType: "",
     aircraftRegistration: "",
     seat: "",

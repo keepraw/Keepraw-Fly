@@ -110,6 +110,7 @@
     "originTerminal": "Origin terminal",
     "originGate": "Origin gate",
     "destinationTerminal": "Destination terminal",
+    "destinationGate": "Destination gate",
     "baggageFacts": "Baggage",
     "baggageCarousel": "Baggage carousel",
     "onboardFacts": "Aircraft and seat",

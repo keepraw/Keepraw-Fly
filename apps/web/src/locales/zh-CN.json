@@ -108,6 +108,7 @@
     "originTerminal": "出发航站楼",
     "originGate": "出发登机口",
     "destinationTerminal": "到达航站楼",
+    "destinationGate": "到达登机口",
     "baggageFacts": "行李信息",
     "baggageCarousel": "行李转盘",
     "onboardFacts": "机型与座位",
