@@ -2,164 +2,89 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-**An open flight-history data format and a local-first web viewer and editor.**
+**An open-source, local-first flight log and Flight Passport for people who want to own their travel history.**
 
-Keepraw Fly keeps portable flight facts in a readable JSON document and derives
-search results, delays, distances and passport statistics in the viewer.
+Keepraw Fly records your flights in a portable JSON archive, then turns those facts into a searchable flight list, flight details, maps and Passport statistics. It is designed for personal use: no account is required, and the default build has no backend for storing your flight data.
 
 > The data outlives the app.
 
-> Keepraw Fly stores facts. The viewer derives meaning.
+## What you can do
 
-## What works in 0.1
+- Add, edit, duplicate and delete flight records.
+- Keep scheduled and actual local times, cancellation and diversion facts, terminals and gates.
+- Record ticket numbers, booking references, aircraft, registration, seat, cabin, booking class and frequent-flyer memberships.
+- Search by flight, airport, city, airline, aircraft and year.
+- Review flight details with local times, operational status, route maps and derived distance/duration.
+- Explore a Flight Passport with lifetime and yearly totals for flights, distance, time, airports, airlines, countries and routes.
+- Use English, Simplified Chinese or Traditional Chinese, with light, dark or system appearance and responsive desktop/mobile layouts.
 
-- Keepraw Fly 0.1 JSON Schema and Ajv validator with useful error paths
-- a 24-flight fictional demo archive spanning multiple countries and timezones
-- first-run archive creation with no JSON file required and a clearly labelled demo mode
-- a single-field flight-number form with offline IATA/ICAO airline resolution, plus scheduled/actual local times, separate ticket-number and booking-reference fields, baggage-carousel, loyalty, airport, aircraft and seat facts
-- faster repeat entry with recent-airport suggestions and a duplicate-as-new action that never reuses the original record ID
-- an offline directory of 7,800+ IATA airports with searchable codes, cities, names, coordinates and timezones, shipped as a separately cached static asset
-- offline English, Simplified Chinese and Traditional Chinese airline references, plus a Wikidata CC0 Chinese airport-localization overlay
-- multi-airport city aliases that surface every candidate while always saving a specific airport IATA code
-- premium, searchable trip cards with airport cities, local times and operational status
-- a responsive, Stitch-aligned Flight Detail page that preserves the real route map, live data binding, editor and navigation behavior
-- locale-aware Flight Detail copy, dates, airline/airport names and explicit Simplified/Traditional Chinese UI font stacks while retaining Inter for Latin codes, numbers and times
-- user-level frequent-flyer memberships referenced by flights through `membershipId`, with an immutable `tierAtFlight` historical snapshot
-- searchable multi-select airline associations with removable chips, canonical airline codes and a default airline constrained to the selected set
-- lifetime and yearly Flight Passport statistics
-- a bundled Natural Earth world map with real airport coordinates, a cartographic projection and great-circle routes
-- local IndexedDB persistence through a storage adapter
-- validated JSON import preview, explicit replacement confirmation and portable export
-- CSV bulk import with automatic/manual column mapping, five-row preview, strict timezone validation and append-only confirmation
-- explicit migration of former `rawfly` / `0.1` archives and legacy ticket, baggage and frequent-flyer extensions to canonical Keepraw Fly 0.1.0 without losing flight facts
-- independent language, appearance, distance-unit and time-format preferences
-- native and romanized profile names with a selectable primary name
-- shared premium visual tokens plus reusable airport-code, flight-status and aviation-icon primitives
-- restrained CSS-only page, card and route transitions with complete reduced-motion fallback
-- system/light/dark themes plus automated WCAG checks and a focus-trapped, Escape-dismissable flight editor
-- static production output with no backend and no user-data upload
+## Import your existing flights
 
-## Run locally
+Open **Settings → Data** to review an import before it changes your archive.
+
+- **Flighty CSV:** import a native Flighty export directly. Flighty airline codes and flight numbers are normalized locally, and supported Flighty fields are mapped into the canonical Keepraw Fly model.
+- **Keepraw Fly CSV bulk import:** batch-import rows using the documented Keepraw Fly columns, with automatic or manual column mapping.
+- **JSON archive:** import or export the portable Keepraw Fly archive for backups and moving data between browsers.
+
+Both CSV workflows validate the complete file and show a preview before confirmation. CSV timestamps are entered as airport local time, without an offset; Keepraw Fly resolves them with the airport's IANA timezone, including daylight-saving transitions. Existing RFC 3339 timestamps with an offset or `Z` remain supported.
+
+## Your data stays yours
+
+- Flight archives are stored in the browser's IndexedDB by default.
+- There is no account system, cloud sync or Keepraw Fly backend storing user flight data.
+- The default build is static and does not upload flight records to a server or use analytics SDKs.
+- Export a portable JSON archive regularly. Clearing browser data can remove the local archive.
+- Viewer preferences are kept separately from the portable flight document.
+
+Airport, airline and map reference assets are bundled with the application. They are reference data, not a live flight-status service. See [third-party notices](THIRD_PARTY_NOTICES.md) for source and license information.
+
+## Quick start
+
+### Use the application
+
+There is no public hosted demo configured in this repository. Run the application locally or publish the static build using the [deployment guide](docs/deployment.md).
+
+### Run locally
 
 Requirements: Node.js 20.19 or newer and pnpm.
 
-Install the dependencies once from the repository root:
-
 ```bash
 pnpm install
-```
-
-For development, start Vite with live reload:
-
-```bash
 pnpm dev
 ```
 
-Open the URL printed in the terminal, normally <http://localhost:5173>.
+Open the URL printed by Vite, normally <http://localhost:5173>.
 
-### Open the production build locally
-
-`pnpm build` only creates the static files; it does not start a website. Build
-and serve those files with:
+To inspect the production build locally:
 
 ```bash
 pnpm build
 pnpm preview
 ```
 
-Then open <http://127.0.0.1:4173>. If that port is already in use, open the
-alternative URL printed by Vite. Press `Ctrl+C` in the terminal to stop the
-preview server.
+Open the URL printed by Vite, normally <http://127.0.0.1:4173>. Do not open `apps/web/dist/index.html` directly; the production build expects to be served over HTTP so browser modules and IndexedDB work correctly.
 
-Do not double-click `apps/web/dist/index.html`. Keepraw Fly uses browser modules
-and IndexedDB, so the production files should be opened through the local HTTP
-server above.
+## Data format
 
-Run all checks with:
+Keepraw Fly archives use the portable `keepraw-fly` JSON format, currently at format version `0.1.0`. The validator preserves supported canonical data and namespaced extensions through normal import, edit and export flows.
 
-```bash
-pnpm check:docs
-pnpm typecheck
-pnpm test
-pnpm test:e2e
-pnpm build
-```
+See the [schema notes](docs/schema.md) and the canonical [JSON Schema](packages/schema/keepraw-fly.schema.json) for the data contract. The [architecture notes](docs/architecture.md) describe the storage and import boundaries.
 
-The same frozen install, documentation consistency check, type check, unit
-suite, Chromium user journeys and production build run on every pull request
-and every push to `main` through GitHub Actions.
+## 0.1.0
 
-The static site is written to `apps/web/dist/`; that directory can be published
-manually or through a hosting service configured outside this repository. See
-[deployment guidance](docs/deployment.md).
+Keepraw Fly 0.1.0 is the first release focused on a dependable local flight archive: guided editing, Flight Passport views, portable JSON, Keepraw Fly CSV and native Flighty CSV import, airport-local time handling, cancellation/diversion facts, and responsive multilingual viewing.
 
-## Repository layout
+Backend accounts, synchronization, live flight services, booking integrations and native apps are intentionally outside this release. See [deferred scope](docs/not-implemented.md).
 
-```text
-apps/
-  web/                 React, Vite, IndexedDB and user interaction
-packages/
-  schema/              Keepraw Fly types and JSON Schema
-  validator/           Ajv validation and friendly issues
-  core/                Search, calculations, statistics and reference data
-examples/              Small portable example documents
-docs/                  Architecture, schema and deployment notes
-```
+## Documentation
 
-The UI never talks to Dexie directly. It uses `StorageAdapter`, whose first
-implementation is `BrowserStorageAdapter`. Viewer preferences are stored
-separately from the portable document.
-
-## Data and privacy
-
-The default build is entirely static. Flight data remains in the browser's
-IndexedDB unless the user explicitly exports a file. Keepraw Fly has no server,
-account system, analytics SDK or flight-status API.
-
-Airport reference data is generated from the MIT-licensed
-[airportsdata](https://github.com/mborsetti/airportsdata) project and bundled
-with the static viewer as a separate local asset. It is reference data only—not a live schedule or flight
-status service. See [third-party notices](THIRD_PARTY_NOTICES.md) and run
-`pnpm update:airports` when intentionally refreshing the pinned snapshot.
-Run `pnpm update:airlines` or `pnpm update:airport-locales` to refresh the
-checked-in Wikidata CC0 reference overlays; the viewer never fetches them at runtime.
-
-The Passport basemap is generated from pinned, public-domain Natural Earth
-vector data with the ISC-licensed `d3-geo` projection library. The optimized
-SVG paths are bundled locally and loaded on demand with the Passport; no map
-tiles or location requests are made at runtime. See
-[third-party notices](THIRD_PARTY_NOTICES.md) and run
-`pnpm update:world-map` only when intentionally refreshing the pinned source.
-
-Import validates the file and previews its owner, flight count and date range
-before anything changes. Replacing an existing archive requires an explicit
-confirmation, with a backup export offered in the same flow.
-
-CSV import is available under Settings → Data. It maps six required columns
-(flight number, service date, origin IATA, destination IATA, scheduled departure
-and scheduled arrival), previews up to five rows and appends only after
-confirmation. Enter all times in the corresponding airport local time, without a timezone; explicit RFC3339 offsets remain supported.
-See [`examples/flights.csv`](examples/flights.csv).
-
-Read [the architecture](docs/architecture.md), [the schema notes](docs/schema.md),
-[the visual system](docs/design-system.md) and
-[deployment guidance](docs/deployment.md) for details.
-
-For external UI exploration, the [Google Stitch design brief](docs/stitch-ui-brief.md)
-contains a ready-to-paste master prompt, screen-generation sequence, fictional
-sample data, originality and licensing constraints, and integration acceptance
-criteria. Generated code is reference material—not a replacement for the
-application's tested behavior.
-
-## Status and scope
-
-This repository implements the first-stage local viewer. The explicitly deferred
-features are listed in [docs/not-implemented.md](docs/not-implemented.md).
-
-See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the completed-work
-checklist, verification results and milestone commit history.
+- [Schema](docs/schema.md)
+- [Architecture](docs/architecture.md)
+- [Deployment](docs/deployment.md)
+- [Deferred scope](docs/not-implemented.md)
+- [Implementation status](IMPLEMENTATION_STATUS.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## License
 
-Source code is available under the [MIT License](LICENSE). The license does not
-grant rights to project names or identifying marks; see [TRADEMARK.md](TRADEMARK.md).
+Source code is available under the [MIT License](LICENSE). The license does not grant rights to project names, logos or identifying marks; see [TRADEMARK.md](TRADEMARK.md).

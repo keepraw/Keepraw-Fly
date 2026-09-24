@@ -4,12 +4,17 @@
 
 - Product: Keepraw Fly
 - Version: 0.1.0
-- Last updated: 2026-09-21
-- Current milestone: localized Stitch-aligned Flight Detail, corrected flight metadata relationships and frequent-flyer airline multi-select complete
+- Last updated: 2026-09-24
+- Current milestone: Keepraw Fly 0.1.0 release documentation and import pipeline complete
 
 ## English
 
-### Recent development progress — 2026-09-21
+### Recent development progress — 2026-09-24
+
+- Added native Flighty CSV import, including Flighty header mapping, ICAO airline to IATA flight-number normalization, cabin-class normalization and append-only preflight validation.
+- Completed the canonical CSV field set for terminal, gate, cancellation and diversion data, with airport-local timestamp parsing and continued RFC 3339 offset compatibility.
+- Preserved existing canonical document fields during CSV and Flighty append imports, including frequent-flyer memberships and their flight references.
+- Removed the settings-page Hero so the data controls begin directly below the shared navigation.
 
 - Reworked Flight Detail against the Stitch export as a visual source of truth while preserving the real map, existing data binding, editor, copy action, routing and business fields.
 - Completed the English, Simplified Chinese and Traditional Chinese i18n audit for Flight Detail, including locale-aware dates, dynamic early/late status text and localized airline, city and airport names from the data layer.
@@ -78,11 +83,11 @@
 7. **Local data and preferences**
    - Added IndexedDB persistence behind `StorageAdapter` and `BrowserStorageAdapter`.
    - Added validated JSON file import, drag-and-drop import and export.
-   - Added CSV bulk import with automatic/manual column mapping, preview, canonical conversion, timezone checks and append-only confirmation.
+   - Added Keepraw Fly CSV and native Flighty CSV import with automatic/manual mapping, preview, canonical conversion, airport-local timezone checks and append-only confirmation.
    - Added an import summary, explicit archive-replacement confirmation and an in-flow backup action.
    - Added language, theme, distance-unit, clock-format and primary-name settings.
    - Kept viewer preferences separate from the portable archive document.
-   - Rebuilt settings as a compact, layered control surface with an aviation route hero, lightweight inline icons and responsive cards.
+   - Rebuilt settings as a compact, layered control surface with lightweight inline icons and responsive cards.
 
 8. **Release readiness and documentation**
    - Added English and Simplified Chinese interfaces.
@@ -111,8 +116,8 @@
 ### Verification completed
 
 - TypeScript type checking passes across the workspace.
-- All 145 unit/integration tests pass: 57 core, 11 validator and 77 web tests.
-- All 16 Playwright Chromium journeys pass, including Flight Detail localization and responsive layout, frequent-flyer airline multi-select behavior, route-first archive constraints and WCAG audits.
+- All 166 unit/integration tests pass: 58 core, 13 validator and 95 web tests.
+- Playwright coverage includes Flight Detail localization and responsive layout, import workflows, frequent-flyer behavior, route-first archive constraints and WCAG audits; the release-preparation run uses the locally available system Chrome when the bundled browser is unavailable.
 - The Vite production build completes successfully.
 - Browser checks cover first-run archive creation, import migration, guided flight editing, global airport/airline search, the world route map, localized Flight Detail layouts at desktop and 390 px mobile widths, frequent-flyer membership editing, responsive archive and Passport views, themes, modal behavior and hash deep links.
 - Airline and airport reference data remains offline; the Chinese typography update adds no remote font, bundled CJK font, UI library or runtime lookup.
@@ -182,7 +187,12 @@ Backend accounts and sync, live flight services, third-party booking integration
 
 ## 简体中文
 
-### 近期开发进度 — 2026-09-21
+### 近期开发进度 — 2026-09-24
+
+- 增加 Flighty 原生 CSV 导入，包括 Flighty 表头映射、ICAO 航司代码到 IATA 航班号规范化、舱位规范化以及追加前预检。
+- 完成 canonical CSV 字段中的航站楼、登机口、取消和备降支持；机场当地时间解析继续兼容带 offset 的 RFC 3339 时间。
+- 修复 CSV 与 Flighty 追加导入时的 canonical 顶层字段保留，包含常旅客会员及航班引用。
+- 删除设置页 Hero，使数据设置直接从共享导航下方开始。
 
 - 以 Stitch 导出稿作为视觉 source of truth 重构 Flight Detail，同时保留真实地图、现有数据绑定、编辑、复制、路由和业务字段。
 - 完成 Flight Detail 的英文、简体中文和繁体中文 i18n 审计，包括按 locale 格式化日期、动态生成提前/延误状态，以及从数据层取得本地化航司、城市和机场名称。
@@ -251,11 +261,11 @@ Backend accounts and sync, live flight services, third-party booking integration
 7. **本地数据与偏好设置**
    - 在 `StorageAdapter` 和 `BrowserStorageAdapter` 抽象后实现 IndexedDB 持久化。
    - 添加经过校验的 JSON 文件导入、拖放导入和导出。
-   - 添加 CSV 批量导入，支持自动/手动列映射、预览、规范格式转换、时区检查和确认后追加。
+   - 添加 Keepraw Fly CSV 与 Flighty 原生 CSV 导入，支持自动/手动列映射、预览、规范格式转换、机场当地时区检查和确认后追加。
    - 添加导入摘要、明确的档案替换确认和流程内备份入口。
    - 添加语言、主题、距离单位、时间格式和主要姓名设置。
    - 将查看器偏好与可迁移的飞行档案分开保存。
-   - 将设置页重构为紧凑且有层次的控制界面，加入航空航线主视觉、轻量内联图标和响应式卡片。
+   - 将设置页重构为紧凑且有层次的控制界面，使用轻量内联图标和响应式卡片。
 
 8. **发布准备与文档**
    - 添加英文和简体中文界面。
@@ -284,8 +294,8 @@ Backend accounts and sync, live flight services, third-party booking integration
 ### 已完成验证
 
 - 整个 workspace 的 TypeScript 类型检查通过。
-- 145 项单元/集成测试全部通过：核心逻辑 57 项、校验器 11 项、Web 端 77 项。
-- 16 条 Playwright Chromium 用户旅程全部通过，覆盖 Flight Detail 本地化与响应式布局、常旅客关联航司多选、航线优先档案约束和 WCAG 审计。
+- 166 项单元/集成测试全部通过：核心逻辑 58 项、校验器 13 项、Web 端 95 项。
+- Playwright 覆盖 Flight Detail 本地化与响应式布局、导入流程、常旅客行为、航线优先档案约束和 WCAG 审计；发布准备时在 bundled browser 不可用的环境中使用本机 Chrome 验证。
 - Vite 生产构建成功完成。
 - 浏览器检查覆盖首次建档、导入迁移、引导式航班编辑、全球机场/航司搜索、世界航线地图、桌面及 390 px 移动端的本地化 Flight Detail、常旅客账户编辑、响应式档案与护照页面、主题、弹窗行为和 hash 深链接。
 - 航司与机场参考数据继续离线提供；中文字体更新没有引入远程字体、打包 CJK 字体、UI 库或运行时查询。
