@@ -97,19 +97,18 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
             <span>{airlineName ?? airlineCode}</span>
           </div>
           <div className="flight-route" aria-label={t("flights.routeLabel", { origin: flight.origin.iata, destination: flight.destination.iata })}>
-            <div className="flight-route-codes">
-              <AirportCode code={flight.origin.iata} />
-              <span className="route-direction" aria-hidden="true">→</span>
-              <AirportCode code={flight.destination.iata} />
-            </div>
-            <p>
+            <div className="flight-route-cities">
               <span>{origin ? localizedText(origin.city, locale) : flight.origin.iata}</span>
-              <span aria-hidden="true">—</span>
+              <span className="route-direction" aria-hidden="true">→</span>
               <span>{destination ? localizedText(destination.city, locale) : flight.destination.iata}</span>
-            </p>
+            </div>
+            <div className="flight-route-codes">
+              <AirportCode code={flight.origin.iata} size="compact" />
+              <AirportCode code={flight.destination.iata} size="compact" />
+            </div>
           </div>
           <time className="flight-date" dateTime={flight.serviceDate}>
-            {formatServiceDate(flight.serviceDate, locale)}
+            {formatServiceDate(flight.serviceDate, locale, { year: "numeric", month: "short", day: "numeric" })}
           </time>
         </div>
         <div className="flight-row-secondary">
