@@ -40,6 +40,8 @@ describe("flight editor data", () => {
       .toBe("2026-08-21T09:00:00+08:00");
     expect(zonedDateTimeToIso("2026-08-21", "09:00", "America/Los_Angeles"))
       .toBe("2026-08-21T09:00:00-07:00");
+    expect(zonedDateTimeToIso("2026-12-20", "09:00", "America/Los_Angeles"))
+      .toBe("2026-12-20T09:00:00-08:00");
   });
 
   it("creates a HKG to TAO flight from the offline airport directory", () => {

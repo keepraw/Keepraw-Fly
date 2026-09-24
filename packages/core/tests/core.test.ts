@@ -132,6 +132,8 @@ describe("flight calculations", () => {
       actualDeparture: undefined,
       actualArrival: undefined,
     })).toBe("scheduled");
+    expect(flightOperationalStatus({ ...flight, cancelled: true })).toBe("cancelled");
+    expect(flightOperationalStatus({ ...flight, divertedTo: { iata: "SFO" } })).toBe("diverted");
   });
 });
 
@@ -394,6 +396,16 @@ describe("passport statistics", () => {
     expect(stats.mostVisitedAirport).toEqual({ code: "SFO", count: 2 });
     expect(stats.longestFlight?.flightId).toBe("mu589");
     expect(stats.shortestFlight?.flightId).toBe("ua123");
+  });
+
+  it("excludes cancelled flights from passport statistics and uses diverted airports for flown distance", () => {
+    const cancelled = { ...flight, id: "cancelled", cancelled: true, actualDeparture: undefined, actualArrival: undefined };
+    const diverted = { ...flight, id: "diverted", destination: { iata: "HND" }, divertedTo: { iata: "KIX" }, actualDeparture: "2026-08-19T10:57:00-07:00", actualArrival: "2026-08-20T13:21:00+09:00" };
+    const stats = calculatePassportStatistics([cancelled, diverted]);
+    expect(stats.flights).toBe(1);
+    expect(stats.durationMinutes).toBe(624);
+    expect(stats.longestFlight?.flightId).toBe("diverted");
+    expect(stats.airports).toBe(2);
   });
 
   it("builds yearly summaries and map-ready route interfaces", () => {

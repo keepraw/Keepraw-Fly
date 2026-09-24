@@ -1,7 +1,7 @@
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT, KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import { airportByIata } from "@keepraw-fly/core";
-import { flightFromDraft, localPartsAtAirport, type FlightDraft } from "./flight-editor";
+import { flightFromDraft, localPartsAtAirport, zonedDateTimeToIso, type FlightDraft } from "./flight-editor";
 import {
   assessFlightImports,
   countFlightImportAssessments,
@@ -18,6 +18,7 @@ export type CsvFlightField =
   | "scheduledDeparture"
   | "scheduledArrival"
   | "actualDeparture" | "actualArrival" | "originTerminal" | "originGate" | "destinationTerminal"
+  | "divertedToIata" | "cancelled"
   | "ticketNumber" | "bookingReference" | "baggageCarousel" | "aircraftType" | "aircraftRegistration"
   | "seat" | "bookingClass" | "cabin";
 
@@ -29,6 +30,7 @@ export const csvFlightFields: CsvFlightField[] = [
   "scheduledDeparture",
   "scheduledArrival",
   "actualDeparture", "actualArrival", "originTerminal", "originGate", "destinationTerminal",
+  "divertedToIata", "cancelled",
   "ticketNumber", "bookingReference", "baggageCarousel", "aircraftType", "aircraftRegistration", "seat", "bookingClass", "cabin",
 ];
 
@@ -49,7 +51,8 @@ export type CsvImportIssueCode =
   | "invalid-date"
   | "unknown-airport"
   | "same-airport"
-  | "timezone-required"
+  | "ambiguous-time"
+  | "nonexistent-time"
   | "invalid-time"
   | "date-mismatch"
   | "chronology";
@@ -74,6 +77,8 @@ const aliases: Record<CsvFlightField, string[]> = {
   scheduledArrival: ["scheduledarrival", "arrivaltime", "scheduledarrivaliso", "计划到达时间"],
   actualDeparture: ["actualdeparture", "actualdepartureiso", "实际出发时间"],
   actualArrival: ["actualarrival", "actualarrivaliso", "实际到达时间"],
+  divertedToIata: ["divertedtoiata", "divertedto", "divertedairport", "备降机场"],
+  cancelled: ["cancelled", "canceled", "取消"],
   originTerminal: ["originterminal", "departureterminal", "出发航站楼"],
   originGate: ["origingate", "departuregate", "出发登机口"],
   destinationTerminal: ["destinationterminal", "arrivalterminal", "到达航站楼"],
@@ -232,31 +237,24 @@ function flightFromCsvRow(
     throw new Error(`line-${lineNumber}:unknown-airport`);
   }
   if (originIata === destinationIata) throw new Error(`line-${lineNumber}:same-airport`);
-  if (!hasExplicitOffset(scheduledDeparture) || !hasExplicitOffset(scheduledArrival)) {
-    throw new Error(`line-${lineNumber}:timezone-required`);
-  }
-  if (!Number.isFinite(Date.parse(scheduledDeparture)) || !Number.isFinite(Date.parse(scheduledArrival))) {
-    throw new Error(`line-${lineNumber}:invalid-time`);
-  }
-  if (scheduledDeparture.slice(0, 10) !== serviceDate) {
-    throw new Error(`line-${lineNumber}:date-mismatch`);
-  }
-  if (Date.parse(scheduledArrival) <= Date.parse(scheduledDeparture)) {
-    throw new Error(`line-${lineNumber}:chronology`);
-  }
-
   const origin = airportByIata.get(originIata)!;
   const destination = airportByIata.get(destinationIata)!;
-  const departure = localPartsAtAirport(scheduledDeparture, origin.timezone);
-  const arrival = localPartsAtAirport(scheduledArrival, destination.timezone);
+  const departureIso = parseImportTime(scheduledDeparture, origin.timezone, lineNumber);
+  const arrivalIso = parseImportTime(scheduledArrival, destination.timezone, lineNumber);
+  if (localPartsAtAirport(departureIso, origin.timezone).date !== serviceDate) throw new Error(`line-${lineNumber}:date-mismatch`);
+  if (Date.parse(arrivalIso) <= Date.parse(departureIso)) throw new Error(`line-${lineNumber}:chronology`);
+  const departure = localPartsAtAirport(departureIso, origin.timezone);
+  const arrival = localPartsAtAirport(arrivalIso, destination.timezone);
   const actual = (field: "actualDeparture" | "actualArrival", timezone: string) => {
     const raw = value(field);
     if (!raw) return { date: "", time: "" };
-    if (!hasExplicitOffset(raw) || !Number.isFinite(Date.parse(raw))) throw new Error(`line-${lineNumber}:invalid-time`);
-    return localPartsAtAirport(raw, timezone);
+    return localPartsAtAirport(parseImportTime(raw, timezone, lineNumber), timezone);
   };
   const actualDeparture = actual("actualDeparture", origin.timezone);
-  const actualArrival = actual("actualArrival", destination.timezone);
+  const divertedToIata = value("divertedToIata");
+  const divertedTo = divertedToIata ? airportByIata.get(divertedToIata) : undefined;
+  if (divertedToIata && !divertedTo) throw new Error(`line-${lineNumber}:unknown-airport`);
+  const actualArrival = actual("actualArrival", (divertedTo ?? destination).timezone);
   const draft: FlightDraft = {
     flightNumber, serviceDate, originIata, destinationIata,
     departureTime: departure.time, arrivalDate: arrival.date, arrivalTime: arrival.time,
@@ -267,6 +265,8 @@ function flightFromCsvRow(
     cabin: value("cabin"), bookingClass: value("bookingClass"), baggageCarousel: value("baggageCarousel"),
     ticketNumber: value("ticketNumber"), bookingReference: value("bookingReference"),
     frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
+    cancelled: /^(true|1|yes)$/i.test(value("cancelled")),
+    divertedToIata: divertedTo?.iata ?? "",
   };
   const flight = flightFromDraft(draft);
   flight.id = `flight-${idFactory()}`;
@@ -294,7 +294,8 @@ function isCsvIssueCode(value: string): value is CsvImportIssueCode {
     "invalid-date",
     "unknown-airport",
     "same-airport",
-    "timezone-required",
+    "ambiguous-time",
+    "nonexistent-time",
     "invalid-time",
     "date-mismatch",
     "chronology",
@@ -307,6 +308,29 @@ function normalizeHeader(value: string): string {
 
 function hasExplicitOffset(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value);
+}
+
+function parseImportTime(value: string, timezone: string, lineNumber: number): string {
+  if (hasExplicitOffset(value)) {
+    const explicitTime = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}(?::\d{2})?)(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
+    if (!explicitTime || !isCalendarDate(explicitTime[1]!) || !isValidClockTime(explicitTime[2]!)) throw new Error(`line-${lineNumber}:invalid-time`);
+    if (!Number.isFinite(Date.parse(value))) throw new Error(`line-${lineNumber}:invalid-time`);
+    return value;
+  }
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(value)) throw new Error(`line-${lineNumber}:invalid-time`);
+  const [date, time] = value.split("T");
+  try { return zonedDateTimeToIso(date!, time!, timezone); } catch (error) {
+    throw new Error(`line-${lineNumber}:${error instanceof Error && error.message === "ambiguous-local-time" ? "ambiguous-time" : error instanceof Error && error.message === "nonexistent-local-time" ? "nonexistent-time" : "invalid-time"}`);
+  }
+}
+
+function isValidClockTime(value: string): boolean {
+  const match = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value);
+  if (!match) return false;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const second = match[3] ? Number(match[3]) : 0;
+  return hour <= 23 && minute <= 59 && second <= 59;
 }
 
 function isCalendarDate(value: string): boolean {

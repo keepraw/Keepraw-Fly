@@ -143,6 +143,8 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
           ? t("flightEditor.actualArrivalBeforeDeparture")
           : message === "incomplete-actual-time"
           ? t("flightEditor.incompleteActualTime")
+          : message === "cancelled-diverted-conflict"
+          ? t("flightEditor.invalidFlight")
           : message === "invalid-flight-number"
             ? t("flightEditor.invalidFlightNumber")
               : message === "invalid-booking-class"
@@ -189,6 +191,8 @@ export function FlightEditor({ flight, locale, onSave, onDelete, onCancel, isDup
             <p className="editor-group-title">{t("flightEditor.routeSection")}</p>
             <AirportCombobox label={t("flightEditor.origin")} locale={locale} value={draft.originIata} onChange={(iata) => update("originIata", iata)} preferredCodes={preferredAirportCodes} />
             <AirportCombobox label={t("flightEditor.destination")} locale={locale} value={draft.destinationIata} onChange={(iata) => update("destinationIata", iata)} preferredCodes={preferredAirportCodes} />
+            <label><span>{t("status.cancelled")}</span><input type="checkbox" checked={draft.cancelled} onChange={(event) => update("cancelled", event.target.checked)} /></label>
+            <AirportCombobox label={t("status.diverted")} locale={locale} value={draft.divertedToIata ?? ""} onChange={(iata) => update("divertedToIata", iata)} preferredCodes={preferredAirportCodes} />
           </div>
 
           <fieldset className="editor-schedule">

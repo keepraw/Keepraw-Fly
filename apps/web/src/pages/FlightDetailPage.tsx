@@ -147,6 +147,7 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
   const { t } = useTranslation();
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
+  const actualDestination = airportByIata.get(flight.divertedTo?.iata ?? flight.destination.iata);
   const airline = resolveAirline(flight.airline);
   const airlineNamePair = airline ? airlineNames(airline, locale) : null;
   const airlineName = airlineNamePair?.[0] ?? flight.airline.iata ?? flight.airline.icao;
@@ -163,18 +164,18 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
   const departureTimestamp = flight.actualDeparture ?? flight.scheduledDeparture;
   const arrivalTimestamp = flight.actualArrival ?? flight.scheduledArrival;
   const departureTime = formatTimeAtAirport(departureTimestamp, flight.origin.iata, locale, timeFormat);
-  const arrivalTime = formatTimeAtAirport(arrivalTimestamp, flight.destination.iata, locale, timeFormat);
+  const arrivalTime = formatTimeAtAirport(arrivalTimestamp, flight.actualArrival && flight.divertedTo ? flight.divertedTo.iata : flight.destination.iata, locale, timeFormat);
   const scheduledDepartureTime = flight.actualDeparture
     ? formatTimeAtAirport(flight.scheduledDeparture, flight.origin.iata, locale, timeFormat) : undefined;
   const scheduledArrivalTime = flight.actualArrival
     ? formatTimeAtAirport(flight.scheduledArrival, flight.destination.iata, locale, timeFormat) : undefined;
   const activeDelay = arrivalDelay ?? departureDelay;
-  const performance = activeDelay === null
+  const performance = flight.cancelled ? t("status.cancelled") : flight.divertedTo ? t("status.diverted") : activeDelay === null
     ? t("status.scheduled")
     : activeDelay === 0
       ? t("status.onTime")
       : t(activeDelay < 0 ? "flightDetail.earlyShort" : "flightDetail.lateShort", { count: Math.abs(activeDelay) });
-  const phase = flight.actualArrival
+  const phase = flight.cancelled ? t("status.cancelled") : flight.divertedTo ? t("status.diverted") : flight.actualArrival
     ? t("flightDetail.arrived")
     : flight.actualDeparture
       ? t("flightDetail.departed")
@@ -207,9 +208,10 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             <time dateTime={flight.serviceDate}>{formatServiceDate(flight.serviceDate, locale, { weekday: "short", year: "numeric", month: "short", day: "2-digit" })}</time>
           </div>
           <h1 id="flight-detail-title">{origin ? localizedText(origin.city, locale) : flight.origin.iata} <span>{t("flightDetail.to")}</span> {destination ? localizedText(destination.city, locale) : flight.destination.iata}</h1>
+          {flight.divertedTo ? <p className="detail-diversion-note">{t("flightDetail.divertedTo", { airport: flight.divertedTo.iata })}</p> : null}
           <div className="detail-heading-summary">
             <strong>{phase}</strong>
-            {activeDelay !== null ? <span className={`detail-operational-status is-${operationalStatus}`}>{performance}</span> : null}
+            <span className={`detail-operational-status is-${operationalStatus}`}>{performance}</span>
             <i aria-hidden="true">·</i>
             <span>{t("flightDetail.total")} {routeSummary}</span>
           </div>
@@ -235,9 +237,9 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             </div>
             <AirportStop
               kind="arrival"
-              iata={flight.destination.iata}
-              city={destination ? localizedText(destination.city, locale) : flight.destination.iata}
-              airport={airportNameLabel(destination, flight.destination.iata, locale)}
+              iata={flight.divertedTo?.iata ?? flight.destination.iata}
+              city={actualDestination ? localizedText(actualDestination.city, locale) : (flight.divertedTo?.iata ?? flight.destination.iata)}
+              airport={airportNameLabel(actualDestination, flight.divertedTo?.iata ?? flight.destination.iata, locale)}
               terminal={flight.destination.terminal}
               gate={flight.destination.gate}
               baggageCarousel={baggage?.carousel}
