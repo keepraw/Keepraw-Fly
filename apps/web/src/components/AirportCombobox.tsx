@@ -15,10 +15,11 @@ interface AirportComboboxProps {
   locale: SupportedLocale;
   value: string;
   onChange: (iata: string) => void;
+  required?: boolean;
   preferredCodes?: readonly string[];
 }
 
-export function AirportCombobox({ label, locale, value, onChange, preferredCodes = [] }: AirportComboboxProps) {
+export function AirportCombobox({ label, locale, value, onChange, required = true, preferredCodes = [] }: AirportComboboxProps) {
   const { t } = useTranslation();
   const inputId = useId();
   const listId = useId();
@@ -60,7 +61,7 @@ export function AirportCombobox({ label, locale, value, onChange, preferredCodes
       <label htmlFor={inputId}>{label}</label>
       <input
         id={inputId}
-        required
+        required={required}
         role="combobox"
         aria-autocomplete="list"
         aria-controls={listId}
