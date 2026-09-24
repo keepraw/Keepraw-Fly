@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { parseKeeprawFlyJson, validateAndMigrateKeeprawFly, validateKeeprawFly } from "../src";
 import demoDocument from "../../core/data/demo.keepraw-fly.json";
 
@@ -142,6 +143,20 @@ describe("Keepraw Fly validator", () => {
 
     const result = validateKeeprawFly(input);
     expect(result.valid).toBe(true);
+  });
+
+  it("accepts cancelled flights without actual timestamps and rejects cancelled diversions", () => {
+    const cancelled = structuredClone(validDocument) as { flights: KeeprawFlight[] };
+    cancelled.flights[0]!.cancelled = true;
+    delete cancelled.flights[0]!.actualDeparture;
+    delete cancelled.flights[0]!.actualArrival;
+    expect(validateKeeprawFly(cancelled).valid).toBe(true);
+
+    const conflict = structuredClone(cancelled) as { flights: KeeprawFlight[] };
+    conflict.flights[0]!.divertedTo = { iata: "KIX" };
+    const result = validateKeeprawFly(conflict);
+    expect(result.valid).toBe(false);
+    if (!result.valid) expect(result.issues).toContainEqual(expect.objectContaining({ keyword: "cancelledDivertedConflict", flightIndex: 0 }));
   });
 
   it("reports the flight and path for a datetime without a timezone", () => {

@@ -43,10 +43,32 @@ describe("CSV flight import", () => {
     });
   });
 
-  it("requires explicit timezone offsets", () => {
-    const parsed = parseCsv(csv.replace("2026-09-02T13:00:00+08:00", "2026-09-02T13:00:00"));
-    expect(() => buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null))
-      .toThrow("line-2:timezone-required");
+  it("resolves naive times in each airport timezone", () => {
+    const parsed = parseCsv(csv.replace("2026-09-02T13:00:00+08:00", "2026-09-02T13:00"));
+    const document = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null);
+    expect(document.flights[0]).toMatchObject({
+      scheduledDeparture: "2026-09-02T13:00:00+08:00",
+      scheduledArrival: "2026-09-02T09:20:00-07:00",
+    });
+  });
+
+  it("uses origin and destination airport timezones independently", () => {
+    const parsed = parseCsv("Flight Number,Date,From,To,Departure Time,Arrival Time\nCX123,2026-04-27,HKG,BOM,2026-04-27T20:15,2026-04-28T00:20");
+    const document = buildDocumentFromCsv(parsed, detectCsvMapping(parsed.headers), null);
+    expect(document.flights[0]).toMatchObject({
+      scheduledDeparture: "2026-04-27T20:15:00+08:00",
+      scheduledArrival: "2026-04-28T00:20:00+05:30",
+      serviceDate: "2026-04-27",
+    });
+  });
+
+  it("rejects DST gap and ambiguous local times", () => {
+    const gap = parseCsv(csv.replace("2026-09-02,PVG,SFO", "2026-03-08,LAX,SFO").replace("2026-09-02T13:00:00+08:00", "2026-03-08T02:30"));
+    const gapMapping = detectCsvMapping(gap.headers);
+    expect(() => buildDocumentFromCsv(gap, gapMapping, null)).toThrow("line-2:nonexistent-time");
+    const ambiguous = parseCsv(csv.replace("2026-09-02,PVG,SFO", "2026-11-01,LAX,SFO").replace("2026-09-02T13:00:00+08:00", "2026-11-01T01:30"));
+    const ambiguousMapping = detectCsvMapping(ambiguous.headers);
+    expect(() => buildDocumentFromCsv(ambiguous, ambiguousMapping, null)).toThrow("line-2:ambiguous-time");
   });
 
   it("reports impossible calendar dates and timestamps during preflight", () => {
@@ -133,8 +155,8 @@ describe("CSV flight import", () => {
       problemRecords: 1,
       canImport: false,
     });
-    expect(preflight.issues).toEqual([{ code: "timezone-required", lineNumber: 3 }]);
-    expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow("line-3:timezone-required");
+    expect(preflight.issues).toEqual([{ code: "invalid-time", lineNumber: 3 }]);
+    expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow("line-3:invalid-time");
   });
 
   it("does not silently normalize flight numbers or airport codes", () => {

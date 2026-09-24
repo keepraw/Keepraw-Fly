@@ -56,6 +56,8 @@ export interface KeeprawFlight {
   airline: AirlineReference;
   origin: AirportEndpoint;
   destination: AirportEndpoint;
+  divertedTo?: AirportEndpoint;
+  cancelled?: boolean;
   scheduledDeparture: string;
   scheduledArrival: string;
   actualDeparture?: string;

@@ -45,6 +45,8 @@ const operationalStatusTone: Record<FlightOperationalStatus, AviationStatusTone>
   early: "positive",
   onTime: "positive",
   scheduled: "neutral",
+  cancelled: "critical",
+  diverted: "attention",
 };
 
 export function FlightStatusBadge({

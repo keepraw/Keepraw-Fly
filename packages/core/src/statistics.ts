@@ -60,7 +60,7 @@ function aircraftType(flight: KeeprawFlight): string | null {
 
 export function distanceForFlight(flight: KeeprawFlight): number | null {
   const origin = airportByIata.get(flight.origin.iata);
-  const destination = airportByIata.get(flight.destination.iata);
+  const destination = airportByIata.get((flight.divertedTo ?? flight.destination).iata);
   return origin && destination ? distanceKilometers(origin, destination) : null;
 }
 
@@ -77,10 +77,11 @@ export function calculatePassportStatistics(
   let delayCoverage = 0;
 
   for (const flight of flights) {
+    if (flight.cancelled) continue;
     const airlineCode = flight.airline.iata ?? flight.airline.icao;
     if (airlineCode) increment(airlineCounts, airlineCode);
     increment(airportCounts, flight.origin.iata);
-    increment(airportCounts, flight.destination.iata);
+    increment(airportCounts, (flight.divertedTo ?? flight.destination).iata);
 
     const type = aircraftType(flight);
     if (type) aircraftTypes.add(type);
@@ -98,7 +99,7 @@ export function calculatePassportStatistics(
   const rankedDistances = [...distances].sort((a, b) => a.kilometers - b.kilometers);
 
   return {
-    flights: flights.length,
+    flights: flights.filter((flight) => !flight.cancelled).length,
     distanceKilometers: distances.reduce((sum, item) => sum + item.kilometers, 0),
     durationMinutes,
     totalDelayMinutes: delayCoverage ? totalDelayMinutes : null,
@@ -116,7 +117,8 @@ export function calculatePassportStatistics(
 export function collectVisitedCountryCodes(flights: KeeprawFlight[]): Set<string> {
   const countryCodes = new Set<string>();
   for (const flight of flights) {
-    for (const iata of [flight.origin.iata, flight.destination.iata]) {
+    if (flight.cancelled) continue;
+    for (const iata of [flight.origin.iata, (flight.divertedTo ?? flight.destination).iata]) {
       const country = airportByIata.get(iata)?.country;
       if (country) countryCodes.add(country);
     }
@@ -144,7 +146,7 @@ export function calculateYearStatistics(
         airlines: stats.airlines,
         airports: stats.airports,
         routes: new Set(
-          yearFlights.map(
+          yearFlights.filter((flight) => !flight.cancelled).map(
             (flight) => `${flight.origin.iata}-${flight.destination.iata}`,
           ),
         ).size,

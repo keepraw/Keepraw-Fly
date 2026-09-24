@@ -152,6 +152,8 @@
         "airline": { "$ref": "#/$defs/airline" },
         "origin": { "$ref": "#/$defs/airportEndpoint" },
         "destination": { "$ref": "#/$defs/airportEndpoint" },
+        "divertedTo": { "$ref": "#/$defs/airportEndpoint" },
+        "cancelled": { "type": "boolean" },
         "scheduledDeparture": { "type": "string", "format": "date-time" },
         "scheduledArrival": { "type": "string", "format": "date-time" },
         "actualDeparture": { "type": "string", "format": "date-time" },

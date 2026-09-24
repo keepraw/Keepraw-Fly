@@ -14,6 +14,7 @@ export interface FlightDraft {
   aircraftType: string; aircraftRegistration: string; seat: string; cabin: string; bookingClass: string;
   baggageCarousel: string; ticketNumber: string; bookingReference: string;
   frequentFlyerMembershipId: string; frequentFlyerTierAtFlight: string;
+  cancelled?: boolean; divertedToIata?: string;
 }
 
 export function createEmptyDocument(): KeeprawFlyDocument {
@@ -29,6 +30,7 @@ export function createDefaultDraft(today = localDateString(new Date())): FlightD
     aircraftRegistration: "", seat: "", cabin: "", bookingClass: "",
     baggageCarousel: "", ticketNumber: "", bookingReference: "",
     frequentFlyerMembershipId: "", frequentFlyerTierAtFlight: "",
+    cancelled: false, divertedToIata: "",
   };
 }
 
@@ -38,10 +40,11 @@ export function flightToDraft(
 ): FlightDraft {
   const originTimezone = airportByIata.get(flight.origin.iata)?.timezone ?? "UTC";
   const destinationTimezone = airportByIata.get(flight.destination.iata)?.timezone ?? "UTC";
+  const actualArrivalTimezone = airportByIata.get(flight.divertedTo?.iata ?? flight.destination.iata)?.timezone ?? "UTC";
   const departure = localPartsAtAirport(flight.scheduledDeparture, originTimezone);
   const arrival = localPartsAtAirport(flight.scheduledArrival, destinationTimezone);
   const actualDeparture = flight.actualDeparture ? localPartsAtAirport(flight.actualDeparture, originTimezone) : null;
-  const actualArrival = flight.actualArrival ? localPartsAtAirport(flight.actualArrival, destinationTimezone) : null;
+  const actualArrival = flight.actualArrival ? localPartsAtAirport(flight.actualArrival, actualArrivalTimezone) : null;
   const aircraft = aircraftFacts(flight);
   const seat = seatFacts(flight);
   const baggage = baggageFacts(flight);
@@ -68,6 +71,7 @@ export function flightToDraft(
     frequentFlyerTierAtFlight: options.duplicate
       ? currentMembership?.tier ?? ""
       : reference?.tierAtFlight ?? currentMembership?.tier ?? "",
+    cancelled: Boolean(flight.cancelled), divertedToIata: flight.divertedTo?.iata ?? "",
   };
 }
 
@@ -97,13 +101,16 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
   const origin = airportByIata.get(draft.originIata);
   const destination = airportByIata.get(draft.destinationIata);
   if (!origin || !destination) throw new Error("unknown-airport");
+  if (draft.cancelled && draft.divertedToIata) throw new Error("cancelled-diverted-conflict");
   const identity = splitFlightNumberInput(draft.flightNumber);
   if (!identity) throw new Error("invalid-flight-number");
   const scheduledDeparture = zonedDateTimeToIso(draft.serviceDate, draft.departureTime, origin.timezone);
   const scheduledArrival = zonedDateTimeToIso(draft.arrivalDate, draft.arrivalTime, destination.timezone);
   if (Date.parse(scheduledArrival) <= Date.parse(scheduledDeparture)) throw new Error("arrival-before-departure");
   const actualDeparture = optionalZonedDateTime(draft.actualDepartureDate, draft.actualDepartureTime, origin.timezone);
-  const actualArrival = optionalZonedDateTime(draft.actualArrivalDate, draft.actualArrivalTime, destination.timezone);
+  const divertedTo = draft.divertedToIata ? airportByIata.get(draft.divertedToIata) : undefined;
+  if (draft.divertedToIata && !divertedTo) throw new Error("unknown-airport");
+  const actualArrival = optionalZonedDateTime(draft.actualArrivalDate, draft.actualArrivalTime, (divertedTo ?? destination).timezone);
   if (actualDeparture && actualArrival && Date.parse(actualArrival) <= Date.parse(actualDeparture)) throw new Error("actual-arrival-before-departure");
   const bookingClass = draft.bookingClass.trim().toUpperCase();
   if (bookingClass && !/^[A-Z]$/.test(bookingClass)) throw new Error("invalid-booking-class");
@@ -113,11 +120,15 @@ export function flightFromDraft(draft: FlightDraft, existing?: KeeprawFlight): K
     serviceDate: draft.serviceDate, airline: airlineReference(existing?.airline, identity),
     origin: endpointWithOptionalFacts(existing?.origin, draft.originIata, draft.originTerminal, draft.originGate),
     destination: endpointWithOptionalTerminal(existing?.destination, draft.destinationIata, draft.destinationTerminal),
+    ...(divertedTo ? { divertedTo: { iata: divertedTo.iata } } : {}),
+    ...(draft.cancelled ? { cancelled: true } : {}),
     scheduledDeparture, scheduledArrival,
     ticketNumber: draft.ticketNumber.trim() ? normalizeTicketNumber(draft.ticketNumber) : null,
     bookingReference: draft.bookingReference.trim() || null,
     baggageCarousel: draft.baggageCarousel.trim() || null,
   };
+  if (!draft.cancelled && !divertedTo) delete nextFlight.cancelled;
+  if (!divertedTo) delete nextFlight.divertedTo;
   if (draft.frequentFlyerMembershipId.trim()) {
     nextFlight.frequentFlyer = {
       membershipId: draft.frequentFlyerMembershipId.trim(),
@@ -179,11 +190,15 @@ export function zonedDateTimeToIso(date: string, time: string, timezone: string)
   const [hour, minute] = time.split(":").map(Number);
   if ([year, month, day, hour, minute].some((part) => !Number.isFinite(part))) throw new Error("invalid-local-time");
   const wallTime = Date.UTC(year!, month! - 1, day!, hour!, minute!);
-  let instant = wallTime;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  const candidates: number[] = [];
+  for (let offset = -14 * 60; offset <= 14 * 60; offset += 15) {
+    const instant = wallTime - offset * 60_000;
     const observed = partsAtInstant(new Date(instant), timezone);
-    instant += wallTime - Date.UTC(observed.year, observed.month - 1, observed.day, observed.hour, observed.minute);
+    if (Date.UTC(observed.year, observed.month - 1, observed.day, observed.hour, observed.minute) === wallTime) candidates.push(instant);
   }
+  if (candidates.length === 0) throw new Error("nonexistent-local-time");
+  if (candidates.length > 1) throw new Error("ambiguous-local-time");
+  const instant = candidates[0]!;
   const offsetMinutes = Math.round((wallTime - instant) / 60_000);
   const sign = offsetMinutes >= 0 ? "+" : "-";
   const absoluteOffset = Math.abs(offsetMinutes);

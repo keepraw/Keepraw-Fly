@@ -167,6 +167,16 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
         flightIndex,
       });
     }
+
+    if (flight.cancelled && flight.divertedTo) {
+      issues.push({
+        path: `/flights/${flightIndex}`,
+        keyword: "cancelledDivertedConflict",
+        message: "A flight cannot be both cancelled and diverted.",
+        received: flight,
+        flightIndex,
+      });
+    }
   });
 
   return issues;

@@ -15,7 +15,10 @@ The canonical schema is
 Every core flight has a stable `id`, flight number, service date, airline,
 origin/destination IATA codes and scheduled departure/arrival timestamps.
 Actual timestamps are optional. Datetimes follow ISO 8601/RFC 3339 and include
-an explicit UTC offset or `Z`.
+an explicit UTC offset or `Z`. Optional flight facts include `cancelled: true` and
+`divertedTo`, which preserves the planned `destination` while recording the
+actual diversion airport. Cancelled records remain in the archive but are excluded
+from flown-flight statistics.
 
 The validator also requires unique flight IDs, a service date matching the
 scheduled departure's local date, and arrival instants later than departure

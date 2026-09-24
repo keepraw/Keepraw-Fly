@@ -142,7 +142,10 @@
     "scheduled": "Scheduled",
     "onTime": "On time",
     "delayed": "Delayed",
-    "early": "Early"
+    "early": "Early",
+    "cancelled": "Cancelled",
+    "diverted": "Diverted",
+    "divertedTo": "Diverted to {{airport}}"
   },
   "mapControls": {
     "zoomIn": "Zoom in",
@@ -202,6 +205,7 @@
     "arrivedLate": "Arrived {{count}} min late",
     "departedEarly": "Departed {{count}} min early",
     "departedLate": "Departed {{count}} min late",
+    "divertedTo": "Diverted to {{airport}}",
     "durationSource": {
       "actual": "Actual flight time",
       "scheduled": "Scheduled flight time"
@@ -337,7 +341,7 @@
     "sampleRecords": "Recognized records",
     "lineNumber": "CSV line {{number}}",
     "mappingIssue": "Column mapping",
-    "timezoneNote": "Scheduled times must be ISO 8601 values with an explicit offset, for example 2026-09-02T13:00:00+08:00. Flights are appended only after confirmation.",
+    "timezoneNote": "Enter airport-local times as 2026-09-02T13:00 or explicit RFC3339 times such as 2026-09-02T13:00:00+08:00. Local times use each airport’s IANA timezone.",
     "invalidFile": "This CSV could not be read. Include one header row and at least one flight row.",
     "importFailed": "The CSV was not imported. {{detail}}",
     "importing": "Adding flights…",
@@ -355,7 +359,8 @@
       "invalid-date": "The service date must use YYYY-MM-DD.",
       "unknown-airport": "The origin or destination is not an exact IATA code in the offline airport directory.",
       "same-airport": "Origin and destination must be different airports.",
-      "timezone-required": "Scheduled times must include an explicit timezone offset.",
+      "ambiguous-time": "This local time occurs twice because of daylight saving time. Add an explicit UTC offset.",
+      "nonexistent-time": "This local time does not exist because of daylight saving time.",
       "invalid-time": "A scheduled time is not a real calendar date and time.",
       "date-mismatch": "The service date must match the scheduled departure date.",
       "chronology": "Scheduled arrival must be later than scheduled departure."

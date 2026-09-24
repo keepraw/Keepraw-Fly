@@ -139,7 +139,10 @@
     "scheduled": "計劃",
     "onTime": "準點",
     "delayed": "延誤",
-    "early": "提前"
+    "early": "提前",
+    "cancelled": "已取消",
+    "diverted": "備降",
+    "divertedTo": "備降至 {{airport}}"
   },
   "mapControls": {
     "zoomIn": "放大地圖",
@@ -199,6 +202,7 @@
     "arrivedLate": "晚到 {{count}} 分鐘",
     "departedEarly": "提前 {{count}} 分鐘出發",
     "departedLate": "晚出發 {{count}} 分鐘",
+    "divertedTo": "備降至 {{airport}}",
     "durationSource": {
       "actual": "實際飛行時間",
       "scheduled": "計劃飛行時間"
@@ -323,7 +327,7 @@
     "sampleRecords": "已識別記錄",
     "lineNumber": "CSV 第 {{number}} 行",
     "mappingIssue": "列映射",
-    "timezoneNote": "計劃時間必須是帶明確時區偏移的 ISO 8601 值，例如 2026-09-02T13:00:00+08:00。只有確認後才會追加航班。",
+    "timezoneNote": "可輸入機場當地時間 2026-09-02T13:00，也可輸入帶明確偏移的 RFC3339 時間。無偏移時間會按對應機場的 IANA 時區解析。",
     "invalidFile": "無法讀取這個 CSV。文件需包含一行表頭和至少一行航班。",
     "importFailed": "未導入 CSV。{{detail}}",
     "importing": "正在添加航班…",
@@ -340,7 +344,8 @@
       "invalid-date": "航班日期必須使用 YYYY-MM-DD。",
       "unknown-airport": "出發或到達機場不是離線機場目錄中的精確 IATA 代碼。",
       "same-airport": "出發機場與到達機場必須不同。",
-      "timezone-required": "計劃時間必須包含明確的時區偏移。",
+      "ambiguous-time": "該當地時間因夏令時回撥而存在歧義，請輸入明確的 UTC 偏移。",
+      "nonexistent-time": "該當地時間因夏令時跳躍而不存在。",
       "invalid-time": "計劃時間不是有效的日期和時間。",
       "date-mismatch": "航班日期必須與計劃出發日期一致。",
       "chronology": "計劃到達時間必須晚於計劃出發時間。"

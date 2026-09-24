@@ -60,10 +60,10 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
   const departureTimestamp = flight.actualDeparture ?? flight.scheduledDeparture;
   const arrivalTimestamp = flight.actualArrival ?? flight.scheduledArrival;
   const departureTime = formatTimeAtAirport(departureTimestamp, flight.origin.iata, locale, timeFormat);
-  const arrivalTime = formatTimeAtAirport(arrivalTimestamp, flight.destination.iata, locale, timeFormat);
+  const arrivalTime = formatTimeAtAirport(arrivalTimestamp, flight.actualArrival && flight.divertedTo ? flight.divertedTo.iata : flight.destination.iata, locale, timeFormat);
 
-  let delayLabel = t("status.scheduled");
-  if (delay !== null) {
+  let delayLabel = flight.cancelled ? t("status.cancelled") : flight.divertedTo ? t("status.diverted") : t("status.scheduled");
+  if (!flight.cancelled && !flight.divertedTo && delay !== null) {
     if (delay > 0) {
       delayLabel = t("flightDetail.lateShort", { count: delay });
     } else if (delay < 0) {
@@ -119,6 +119,7 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onHoverChange, r
             <time dateTime={arrivalTimestamp}>{arrivalTime}</time>
           </span>
           <span className={`flight-status detail-operational-status is-${operationalStatus}`}>{delayLabel}</span>
+          {flight.divertedTo ? <small className="flight-diverted-note">{t("status.divertedTo", { airport: flight.divertedTo.iata })}</small> : null}
         </div>
       </div>
     </button>
