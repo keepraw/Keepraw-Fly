@@ -1,3 +1,4 @@
+import { useEffect, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export type Page = "passport" | "settings";
@@ -14,54 +15,109 @@ interface AppHeaderProps {
 
 export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderProps) {
   const { t } = useTranslation();
+  const [mobileDestination, setMobileDestination] = useState<"flights" | Page>(
+    currentPage === "settings" ? "settings" : "passport",
+  );
   const links: Array<{ page: Page; label: string }> = [
     { page: "passport", label: t("nav.passport") },
     { page: "settings", label: t("nav.settings") },
   ];
 
+  useEffect(() => {
+    setMobileDestination((current) => currentPage === "settings"
+      ? "settings"
+      : current === "settings" ? "passport" : current);
+  }, [currentPage]);
+
+  function navigateToPassportSection(
+    event: MouseEvent<HTMLAnchorElement>,
+    destination: "flights" | "passport",
+  ) {
+    event.preventDefault();
+    setMobileDestination(destination);
+    onNavigate("passport");
+    window.history.replaceState(null, "", "#passport");
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const selector = destination === "flights" ? "#flight-archive" : "#passport-visual";
+        document.querySelector(selector)?.scrollIntoView({ block: "start", behavior: "auto" });
+      });
+    });
+  }
+
   return (
-    <header className={`site-header${detailActions ? " site-header--detail" : ""}`}>
-      <div className="site-header-inner">
-        {detailActions ? <>
-          <button className="detail-header-back" type="button" onClick={detailActions.onBack}>
-            <HeaderIcon kind="back" />
-            <span>{t("nav.passport")}</span>
-          </button>
-          <div className="detail-header-actions">
-            <button className="detail-header-action" type="button" onClick={detailActions.onDuplicate}>
-              <HeaderIcon kind="duplicate" />
-              <span>{t("actions.duplicateFlight")}</span>
+    <>
+      <header className={`site-header${detailActions ? " site-header--detail" : ""}`}>
+        <div className="site-header-inner">
+          {detailActions ? <>
+            <button className="detail-header-back" type="button" onClick={detailActions.onBack}>
+              <HeaderIcon kind="back" />
+              <span>{t("nav.passport")}</span>
             </button>
-            <button className="detail-header-action" type="button" onClick={detailActions.onEdit}>
-              <HeaderIcon kind="edit" />
-              <span>{t("actions.editFlight")}</span>
-            </button>
-          </div>
-        </> : <>
+            <div className="detail-header-actions">
+              <button className="detail-header-action" type="button" onClick={detailActions.onDuplicate}>
+                <HeaderIcon kind="duplicate" />
+                <span>{t("actions.duplicateFlight")}</span>
+              </button>
+              <button className="detail-header-action" type="button" onClick={detailActions.onEdit}>
+                <HeaderIcon kind="edit" />
+                <span>{t("actions.editFlight")}</span>
+              </button>
+            </div>
+          </> : <>
+            <a
+              className="wordmark"
+              href="#passport"
+              aria-label={t("app.homeLabel")}
+              onClick={() => onNavigate("passport")}
+            >
+              <span className="wordmark-name">KEEPRAW FLY</span>
+              <span className="wordmark-context" aria-hidden="true">LOGBOOK</span>
+            </a>
+            <nav className="site-navigation" aria-label={t("nav.label")}>
+              {links.map(({ page, label }) => (
+                <a
+                  key={page}
+                  href={`#${page}`}
+                  aria-current={currentPage === page ? "page" : undefined}
+                  onClick={() => onNavigate(page)}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
+          </>}
+        </div>
+      </header>
+      {!detailActions ? (
+        <nav className="mobile-navigation" aria-label={t("nav.label")}>
           <a
-            className="wordmark"
-            href="#passport"
-            aria-label={t("app.homeLabel")}
-            onClick={() => onNavigate("passport")}
+            href="#flights"
+            aria-current={currentPage === "passport" && mobileDestination === "flights" ? "page" : undefined}
+            onClick={(event) => navigateToPassportSection(event, "flights")}
           >
-            <span className="wordmark-name">KEEPRAW FLY</span>
-            <span className="wordmark-context" aria-hidden="true">LOGBOOK</span>
+            {t("nav.flights")}
           </a>
-          <nav className="site-navigation" aria-label={t("nav.label")}>
-            {links.map(({ page, label }) => (
-              <a
-                key={page}
-                href={`#${page}`}
-                aria-current={currentPage === page ? "page" : undefined}
-                onClick={() => onNavigate(page)}
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-        </>}
-      </div>
-    </header>
+          <a
+            href="#passport"
+            aria-current={currentPage === "passport" && mobileDestination === "passport" ? "page" : undefined}
+            onClick={(event) => navigateToPassportSection(event, "passport")}
+          >
+            {t("nav.passport")}
+          </a>
+          <a
+            href="#settings"
+            aria-current={currentPage === "settings" ? "page" : undefined}
+            onClick={() => {
+              setMobileDestination("settings");
+              onNavigate("settings");
+            }}
+          >
+            {t("nav.settings")}
+          </a>
+        </nav>
+      ) : null}
+    </>
   );
 }
 

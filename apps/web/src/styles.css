@@ -186,6 +186,8 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .site-navigation a[aria-current="page"] { border-bottom-color: var(--green); color: var(--green); background: var(--color-surface-raised); }
 .site-navigation a:hover { color: var(--ink); background: var(--color-surface-raised); }
 
+.mobile-navigation { display: none; }
+
 .eyebrow {
   margin: 0;
   color: var(--green);
@@ -1095,8 +1097,39 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .site-header-inner { gap: 8px; }
   .wordmark-name { font-size: 1.08rem; }
   .wordmark > span:last-child { display: none; }
-  .site-navigation { gap: 2px; }
-  .site-navigation a { padding-inline: 8px; font-size: var(--type-size-label); }
+  .site-navigation { display: none; }
+  .mobile-navigation {
+    position: fixed;
+    z-index: 30;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    min-height: calc(54px + env(safe-area-inset-bottom));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 0 max(8px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px, env(safe-area-inset-left));
+    border-top: 1px solid var(--line);
+    background: var(--color-surface);
+  }
+  .mobile-navigation a {
+    display: grid;
+    min-width: 0;
+    min-height: 54px;
+    place-items: center;
+    border-top: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--type-size-label);
+    letter-spacing: 0.04em;
+    line-height: var(--type-leading-label);
+    text-align: center;
+    text-decoration: none;
+  }
+  .mobile-navigation a[aria-current="page"] { border-top-color: var(--green); color: var(--green); }
+  .mobile-navigation a:hover { color: var(--ink); }
+  .app-shell:has(> .mobile-navigation) > .page-shell {
+    padding-bottom: calc(var(--layout-page-end) + 54px + env(safe-area-inset-bottom));
+  }
   .welcome-actions { align-items: stretch; flex-direction: column; }
   .demo-banner { align-items: flex-start; flex-direction: column; gap: 12px; }
   .demo-banner > div { align-items: flex-start; flex-direction: column; gap: 3px; }
@@ -1205,41 +1238,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-route-map-canvas { margin-top: 18px; aspect-ratio: 1.45; }
   .facts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 22px; row-gap: 21px; }
   .detail-item dd { font-size: 1rem; }
-  .passport-page { display: block; }
-  .passport-heading { align-items: flex-start; flex-direction: column; }
-  .passport-heading h1 { font-size: var(--type-size-page); }
+  .passport-empty-page { display: block; }
   .passport-empty { padding: 48px 0; }
-  .view-switcher { width: 100%; max-width: 100%; }
-  .primary-stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; padding: 0; }
-  .primary-stats > div, .primary-stats > div + div { padding: 16px; border: 1px solid var(--line); }
-  .primary-stats > div:last-child { grid-column: 1 / -1; }
-  .primary-stats strong { font-size: var(--type-size-stat); }
-  .passport-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 12px; padding-top: 0; }
-  .passport-counts > div, .passport-counts > div + div { padding: 12px; border: 0; }
-  .passport-counts > div:nth-child(even) { border-left: 1px solid var(--line); }
-  .passport-counts > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
-  .route-map { margin-top: 20px; padding: 28px 20px 22px; }
-  .route-map-heading { align-items: flex-start; flex-direction: column; gap: 15px; }
-  .route-map-heading h2 { font-size: var(--font-size-section); }
-  .route-map-heading > span { margin: 0; }
-  .route-map-canvas { width: 100%; margin: 24px 0 0; aspect-ratio: 1.7; }
-  .map-airports .map-airport-label { font-size: 0.75rem; }
-  .map-airports .map-airport-label.is-secondary { display: none; }
-  .passport-highlights, .year-history { margin-top: 16px; padding: 20px; }
-  .passport-highlights > .section-heading, .year-history > .section-heading { margin-bottom: 18px; }
-  .highlight-list > div { grid-template-columns: 1fr; gap: 8px; }
-  .highlight-list dd { text-align: left; }
-  .passport-exploration { grid-template-columns: 1fr; gap: 22px; margin-top: 24px; padding-top: 24px; }
-  .passport-exploration-heading, .passport-exploration-summary, .passport-related-flights { grid-column: 1; grid-row: auto; }
-  .passport-exploration-heading { gap: 18px; }
-  .passport-exploration-heading h2 { font-size: var(--type-size-data-heading); overflow-wrap: anywhere; }
-  .passport-exploration-summary { gap: 8px; }
-  .passport-related-flights button { grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 12px; }
-  .passport-related-flights time { grid-column: 1; grid-row: 1; }
-  .passport-related-flights strong { grid-column: 1 / span 2; grid-row: 2; }
-  .passport-related-flights button > span:not(:last-child) { grid-column: 2; grid-row: 1; }
-  .passport-related-flights button > span:last-child { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
-  .year-list button { grid-template-columns: 0.7fr 1fr auto; gap: 4px 8px; }
   .settings-sections { gap: 14px; margin-top: 14px; }
   .settings-section { grid-template-columns: 1fr; gap: 25px; padding: 24px 20px; border-radius: 16px; }
   .settings-section-heading { align-items: center; }
@@ -1254,7 +1254,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (max-width: 370px) {
   .site-header-inner { gap: var(--space-3); }
-  .site-navigation { gap: 11px; }
   .page-heading h1 { font-size: var(--font-size-page); }
 }
 
@@ -2041,18 +2040,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive { display: contents; }
   .archive-heading { order: 0; margin-bottom: 18px; }
   .passport-archive-scroll { order: 5; margin-top: 46px; }
+  #passport-visual,
+  #flight-archive { scroll-margin-top: calc(var(--layout-header-height) + 12px); }
   .passport-archive .flight-row { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
   .passport-archive .airline-logo { width: 28px; height: 28px; font-size: 0.625rem; }
   .passport-archive-page .route-map { padding: 0 0 20px; }
   .passport-archive-page .route-map-canvas { margin: 0; aspect-ratio: 1.55; }
-  .passport-archive-page .primary-stats { grid-template-columns: 1fr 1fr; }
+  .passport-archive-page .map-airport-label { font-size: 0.75rem; }
+  .passport-archive-page .map-airport-label.is-secondary { display: none; }
+  .passport-archive-page .primary-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 104px;
+  }
   .passport-archive-page .primary-stats > div,
-  .passport-archive-page .primary-stats > div + div { padding: 18px 13px 16px; border: 0; border-left: 1px solid var(--line); }
-  .passport-archive-page .primary-stats > div:first-child { padding-left: 0; border-left: 0; }
-  .passport-archive-page .primary-stats > div:last-child { padding-right: 0; }
-  .passport-archive-page .passport-counts { grid-template-columns: 1fr 1fr; }
+  .passport-archive-page .primary-stats > div + div {
+    grid-column: auto;
+    padding: 17px 12px 15px;
+    border: 0;
+  }
+  .passport-archive-page .primary-stats > div:nth-child(even) { border-left: 1px solid var(--line); }
+  .passport-archive-page .primary-stats > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .passport-archive-page .primary-stats strong {
+    overflow: visible;
+    font-size: clamp(1.15rem, 5.2vw, 1.35rem);
+    text-overflow: clip;
+  }
+  .passport-archive-page .passport-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 104px;
+  }
   .passport-archive-page .passport-counts > div,
-  .passport-archive-page .passport-counts > div + div { padding: 12px 10px; border: 0; }
+  .passport-archive-page .passport-counts > div + div { padding: 12px; border: 0; }
   .passport-archive-page .passport-counts > div:nth-child(even) { border-left: 1px solid var(--line); }
   .passport-archive-page .passport-counts > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
   .passport-archive-page .highlight-list { display: block; }
@@ -2070,6 +2088,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .passport-highlight > span { grid-column: 1; grid-row: 1 / span 2; }
   .passport-archive-page .passport-highlight > strong { grid-column: 2; grid-row: 1; }
   .passport-archive-page .passport-highlight > small { grid-column: 2; grid-row: 2; }
+  .passport-archive .passport-exploration { margin-top: 24px; padding-top: 24px; }
+  .passport-archive .passport-exploration-heading { gap: 18px; }
+  .passport-archive .passport-exploration-heading h2 { font-size: var(--type-size-data-heading); overflow-wrap: anywhere; }
+  .passport-archive .passport-exploration-summary { gap: 8px; }
+  .passport-archive .passport-related-flights button { grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px 12px; }
+  .passport-archive .passport-related-flights time { grid-column: 1; grid-row: 1; }
+  .passport-archive .passport-related-flights strong { grid-column: 1 / span 2; grid-row: 2; }
+  .passport-archive .passport-related-flights button > span:not(:last-child) { grid-column: 2; grid-row: 1; }
+  .passport-archive .passport-related-flights button > span:last-child { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
   .flight-row-primary,
   .flight-row-secondary { grid-template-columns: 72px minmax(0, 1fr) 82px; gap: 9px; }
   .flight-route-cities { font-size: var(--type-size-body); }
