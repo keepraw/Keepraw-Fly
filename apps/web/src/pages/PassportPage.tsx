@@ -155,7 +155,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
         </aside>
 
         <section className="passport-archive">
-          <header className="archive-heading">
+          <header className="archive-heading" id="flight-archive">
             <div className="archive-controls">
               <div className="view-switcher" role="group" aria-label={t("passport.periodLabel")}>
                 <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>

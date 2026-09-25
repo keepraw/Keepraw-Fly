@@ -148,7 +148,7 @@ export function PassportRouteMap({
   const totalFlights = routes.reduce((sum, route) => sum + route.flightCount, 0);
 
   return (
-    <section className="route-map">
+    <section className="route-map" id="passport-visual">
       <MapViewport
         className="route-map-canvas"
         ariaLabel={t("passport.mapPreviewLabel", { flights: totalFlights })}
