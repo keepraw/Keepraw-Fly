@@ -155,18 +155,17 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
             </section>
 
             <section className="passport-mobile-panel passport-delay-panel" aria-labelledby="passport-delay-title">
-              <h2 id="passport-delay-title">{t("passport.delayPanelTitle")}</h2>
-              <div className="passport-delay-main"><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong><span>{t("passport.totalDelay")}</span></div>
+              <h2 id="passport-delay-title">{t("passport.totalDelay")}</h2>
+              <div className="passport-delay-main"><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong></div>
               {stats.totalDelayMinutes === null ? <p>{t("passport.delayUnavailable")}</p> : <>
-                <div className="passport-delay-facts"><span>{t("passport.delayedFlights", { count: delays.length })}</span>{delays.length ? <span>{t("passport.averageDelay", { duration: formatDuration(Math.round(stats.totalDelayMinutes / delays.length), locale) })}</span> : null}</div>
-                {worstDelay ? <p>{t("passport.longestDelay")}: {worstDelay.flight.flightNumber} · {formatDuration(worstDelay.minutes, locale)}</p> : null}
+                {worstDelay ? <p className="passport-delay-longest"><span>{t("passport.longestDelay")}</span><strong>{worstDelay.flight.flightNumber} · {formatDuration(worstDelay.minutes, locale)}</strong></p> : null}
               </>}
             </section>
 
             <section className="passport-mobile-panel passport-network-panel" aria-labelledby="passport-network-title">
               <h2 id="passport-network-title">{t("passport.networkPanelTitle")}</h2>
               <div className="passport-network-facts"><div><strong>{stats.countries.toLocaleString(locale)}</strong><span>{t("passport.countries")}</span></div><div><strong>{stats.airports.toLocaleString(locale)}</strong><span>{t("passport.airports")}</span></div></div>
-              {stats.mostVisitedAirport ? <p>{t("passport.mostVisitedAirport")} <strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong></p> : null}
+              {stats.mostVisitedAirport ? <p><span>{t("passport.mostVisitedAirport")}</span><strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong></p> : null}
             </section>
 
             <div className="passport-highlights" key={`highlights-${selectedYear}`}>
