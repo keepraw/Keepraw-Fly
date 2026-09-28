@@ -315,6 +315,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     { width: 390, height: 844 },
     { width: 430, height: 932 },
     { width: 760, height: 900 },
+    { width: 768, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
     await page.evaluate(async () => {
@@ -372,10 +373,6 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
       });
     }
   }
-
-  await page.setViewportSize({ width: 768, height: 900 });
-  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await expect(page.locator(".passport-mobile-summary")).toBeHidden();
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Settings" }).click();
@@ -450,9 +447,9 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       };
     });
 
-    expect(layout.gridColumns).toBe(viewport.width <= 760 ? 1 : 2);
+    expect(layout.gridColumns).toBe(viewport.width <= 900 ? 1 : 2);
     const expectedMapHeight =
-      viewport.width <= 760
+      viewport.width <= 900
           ? 300
               : Math.min(380, Math.max(300, viewport.height * 0.42));
     expect(layout.mapHeight).toBeCloseTo(expectedMapHeight, 1);
@@ -992,7 +989,7 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
 
-  for (const width of [320, 760, 761, 1024, 1440]) {
+  for (const width of [320, 760, 768, 900, 901, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
 
     for (const pageName of ["Passport", "Settings"] as const) {
@@ -1022,15 +1019,21 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
       });
 
       expect(layout.fitsViewport).toBe(true);
-      expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);
-      expect(Math.abs(layout.header.right - layout.main.right)).toBeLessThan(1);
+      if (pageName === "Passport" && width > 760 && width <= 900) {
+        expect(layout.main.left).toBeGreaterThanOrEqual(layout.header.left);
+        expect(layout.main.right).toBeLessThanOrEqual(layout.header.right);
+        expect(Math.abs(layout.main.left - layout.header.left - (layout.header.right - layout.main.right))).toBeLessThan(1);
+      } else {
+        expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);
+        expect(Math.abs(layout.header.right - layout.main.right)).toBeLessThan(1);
+      }
       expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1280);
-      if (pageName === "Passport" && width > 760) {
+      if (pageName === "Passport" && width > 900) {
         expect(layout.mainPaddingTop).toBeLessThanOrEqual(22);
         expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
       } else {
-        expect(layout.mainPaddingTop).toBe(width <= 760 ? 16 : 32);
-        expect(layout.mainPaddingBottom).toBe(width <= 760 ? 48 : 120);
+        expect(layout.mainPaddingTop).toBe(width <= 900 ? 16 : 32);
+        expect(layout.mainPaddingBottom).toBe(width <= 900 ? 48 : 120);
       }
     }
   }
@@ -1097,7 +1100,7 @@ test("enforces the static responsive UI acceptance constraints", async ({ page }
 
     expect(archive.fitsViewport).toBe(true);
     expect(archive.overflowingButtons).toBe(0);
-    expect(archive.headerIsSticky).toBe(viewport.width > 760);
+    expect(archive.headerIsSticky).toBe(viewport.width > 900);
     expect(archive.headerClearsContent).toBe(true);
     expect(archive.rowIsActionable).toBe(true);
     expect(archive.atomicValues).toBeGreaterThanOrEqual(5);
