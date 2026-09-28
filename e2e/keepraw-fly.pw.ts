@@ -111,7 +111,7 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await expect(page.getByText("张鸿川", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("group", { name: /World map showing 1 flight/ })).toBeVisible();
   await expect(page.getByText("Your world")).toHaveCount(0);
-  await expect(page.getByText("Highlights")).toHaveCount(0);
+  await expect(page.getByText("Highlights")).toBeHidden();
 });
 
 test("explores personal airport, airline and route history from Passport", async ({ page }) => {
@@ -292,10 +292,11 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
 test("keeps the mobile Passport composition visually stable", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
-  await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator(".route-map-loading")).toHaveCount(0);
 
   for (const viewport of [
     { width: 390, height: 844 },
@@ -303,14 +304,23 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     { width: 760, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
+    await page.evaluate(async () => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      await document.fonts.ready;
+      await Promise.all(Array.from(document.images, (image) => image.decode().catch(() => undefined)));
+    });
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await page.mouse.move(0, 0);
 
     const composition = await page.evaluate(() => {
-      const primary = Array.from(document.querySelectorAll<HTMLElement>(".primary-stats > div"));
-      const collection = Array.from(document.querySelectorAll<HTMLElement>(".passport-counts > div"));
+      const summary = document.querySelector<HTMLElement>(".passport-mobile-summary");
+      const flights = document.querySelector<HTMLElement>(".passport-mobile-flights strong");
+      const journey = document.querySelector<HTMLElement>(".passport-mobile-journey strong");
+      const facts = Array.from(document.querySelectorAll<HTMLElement>(".passport-mobile-facts > div"));
       const highlights = document.querySelector<HTMLElement>(".passport-highlights");
       const mobileNavigation = document.querySelector<HTMLElement>(".mobile-navigation");
       const desktopNavigation = document.querySelector<HTMLElement>(".site-navigation");
-      if (primary.length !== 4 || collection.length !== 4 || !highlights || !mobileNavigation || !desktopNavigation) {
+      if (!summary || !flights || !journey || facts.length !== 4 || !highlights || !mobileNavigation || !desktopNavigation) {
         throw new Error("Mobile Passport composition landmarks are missing");
       }
 
@@ -325,13 +335,13 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
       };
       const navBounds = mobileNavigation.getBoundingClientRect();
       const navLinks = Array.from(mobileNavigation.querySelectorAll<HTMLElement>("a"));
-      const values = Array.from(document.querySelectorAll<HTMLElement>(".primary-stats strong"));
       const highlightStyle = getComputedStyle(highlights);
 
       return {
-        collection: gridGeometry(collection),
+        facts: gridGeometry(facts),
         desktopNavigationHidden: getComputedStyle(desktopNavigation).display === "none",
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        flightsArePrimary: Number.parseFloat(getComputedStyle(flights).fontSize) > Number.parseFloat(getComputedStyle(journey).fontSize) * 3,
         highlightsAreOpen: highlightStyle.borderRadius === "0px"
           && highlightStyle.boxShadow === "none"
           && highlightStyle.backgroundImage === "none",
@@ -341,8 +351,8 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
           const bounds = link.getBoundingClientRect();
           return bounds.left >= 0 && bounds.right <= window.innerWidth;
         }),
-        primary: gridGeometry(primary),
-        valuesFit: values.every((value) => value.scrollWidth <= value.clientWidth + 0.5),
+        summaryVisible: getComputedStyle(summary).display !== "none",
+        navigationTouchTargets: navLinks.every((link) => link.getBoundingClientRect().height >= 44),
       };
     });
 
@@ -350,23 +360,17 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.desktopNavigationHidden).toBe(true);
     expect(composition.mobileNavigationFixed).toBe(true);
     expect(composition.navigationLinksVisible).toBe(true);
+    expect(composition.navigationTouchTargets).toBe(true);
     expect(composition.highlightsAreOpen).toBe(true);
-    expect(composition.valuesFit).toBe(true);
-    expect(composition.primary.columns).toBe(2);
-    expect(composition.primary.rows).toBe(2);
-    expect(new Set(composition.primary.widths).size).toBe(1);
-    expect(new Set(composition.primary.heights).size).toBe(1);
-    expect(composition.collection.columns).toBe(2);
-    expect(composition.collection.rows).toBe(2);
-    expect(new Set(composition.collection.widths).size).toBe(1);
-    expect(new Set(composition.collection.heights).size).toBe(1);
+    expect(composition.summaryVisible).toBe(true);
+    expect(composition.flightsArePrimary).toBe(true);
+    expect(composition.facts.columns).toBe(2);
+    expect(composition.facts.rows).toBe(2);
+    expect(new Set(composition.facts.widths).size).toBe(1);
+    expect(new Set(composition.facts.heights).size).toBe(1);
+    expect(composition.facts.heights[0]).toBeLessThan(80);
 
     if (viewport.width < 760) {
-      await page.evaluate(() => {
-        const stats = document.querySelector<HTMLElement>(".primary-stats")!;
-        const header = document.querySelector<HTMLElement>(".site-header")!;
-        window.scrollTo(0, window.scrollY + stats.getBoundingClientRect().top - header.getBoundingClientRect().bottom - 12);
-      });
       await expect(page).toHaveScreenshot(`passport-mobile-${viewport.width}x${viewport.height}.png`, {
         animations: "disabled",
         caret: "hide",
@@ -387,9 +391,14 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     const header = document.querySelector<HTMLElement>(".site-header")!;
     return Math.round(element.getBoundingClientRect().top - header.getBoundingClientRect().bottom);
   })).toBeLessThanOrEqual(13);
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+  await expect.poll(() => page.locator(".flight-row").last().evaluate((row) => {
+    const navigation = document.querySelector<HTMLElement>(".mobile-navigation")!;
+    return row.getBoundingClientRect().bottom <= navigation.getBoundingClientRect().top;
+  })).toBe(true);
   await mobileNavigation.getByRole("link", { name: "Passport" }).click();
   await expect(mobileNavigation.getByRole("link", { name: "Passport" })).toHaveAttribute("aria-current", "page");
-  await expect.poll(() => page.locator("#passport-visual").evaluate((element) => {
+  await expect.poll(() => page.locator("#passport-summary").evaluate((element) => {
     const header = document.querySelector<HTMLElement>(".site-header")!;
     return Math.round(element.getBoundingClientRect().top - header.getBoundingClientRect().bottom);
   })).toBeLessThanOrEqual(13);
@@ -1033,7 +1042,7 @@ test("keeps every page aligned to the shared responsive shell", async ({ page })
         expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
       } else {
         expect(layout.mainPaddingTop).toBe(width <= 760 ? 24 : 32);
-        expect(layout.mainPaddingBottom).toBe(width <= 760 ? 118 : 120);
+        expect(layout.mainPaddingBottom).toBe(width <= 760 ? 122 : 120);
       }
     }
   }

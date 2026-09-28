@@ -226,6 +226,7 @@
     "airports": "机场",
     "airlines": "航空公司",
     "aircraftTypes": "机型",
+    "highlights": "飞行亮点",
     "mapPreviewLabel": "世界地图，显示已记录机场之间的 {{flights}} 段航班",
     "mapAirportData": "{{airport}} · 到访 {{count}} 次 · 首次到访 {{first}} · 最近到访 {{last}}",
     "mapRouteData": "{{origin}} 至 {{destination}} · {{count}} 个航班 · 首次飞行 {{first}} · 最近飞行 {{last}}",

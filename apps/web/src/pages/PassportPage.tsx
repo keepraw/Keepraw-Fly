@@ -127,7 +127,28 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
             </section>
 
+            <section className="passport-mobile-summary" id="passport-summary" key={`mobile-summary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
+              <div className="passport-mobile-hero">
+                <div className="passport-mobile-flights">
+                  <strong>{stats.flights.toLocaleString(locale)}</strong>
+                  <span>{t("passport.flights")}</span>
+                </div>
+                <div className="passport-mobile-journey">
+                  <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
+                  <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
+                </div>
+              </div>
+              <div className="passport-mobile-facts" aria-label={t("passport.collectionStats")}>
+                <div><span>{t("passport.totalDelay")}</span><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong></div>
+                <div><span>{t("passport.countries")}</span><strong>{stats.countries}</strong></div>
+                <div><span>{t("passport.airports")}</span><strong>{stats.airports}</strong></div>
+                <div><span>{t("passport.airlines")}</span><strong>{stats.airlines}</strong></div>
+              </div>
+              <p className="passport-mobile-aircraft"><strong>{stats.aircraftTypes}</strong> {t("passport.aircraftTypes")}</p>
+            </section>
+
             <div className="passport-highlights" key={`highlights-${selectedYear}`}>
+              <h2 className="passport-mobile-section-title">{t("passport.highlights")}</h2>
               <div className="highlight-list">
                 {stats.mostFlownAirline ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}>
                   <span>{t("passport.mostFlownAirline")}</span>

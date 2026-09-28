@@ -39,7 +39,7 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
     window.history.replaceState(null, "", "#passport");
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        const selector = destination === "flights" ? "#flight-archive" : "#passport-visual";
+        const selector = destination === "flights" ? "#flight-archive" : "#passport-summary";
         document.querySelector(selector)?.scrollIntoView({ block: "start", behavior: "auto" });
       });
     });
