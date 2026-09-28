@@ -160,7 +160,6 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               {stats.totalDelayMinutes === null ? <p>{t("passport.delayUnavailable")}</p> : <>
                 <div className="passport-delay-facts"><span>{t("passport.delayedFlights", { count: delays.length })}</span>{delays.length ? <span>{t("passport.averageDelay", { duration: formatDuration(Math.round(stats.totalDelayMinutes / delays.length), locale) })}</span> : null}</div>
                 {worstDelay ? <p>{t("passport.longestDelay")}: {worstDelay.flight.flightNumber} · {formatDuration(worstDelay.minutes, locale)}</p> : null}
-                <small>{t("passport.delayBasedOnArrivals")}</small>
               </>}
             </section>
 

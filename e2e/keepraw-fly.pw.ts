@@ -343,6 +343,8 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
       const network = document.querySelector<HTMLElement>(".passport-network-panel")!;
       const highlights = document.querySelector<HTMLElement>(".passport-highlights")!;
       const archive = document.querySelector<HTMLElement>(".archive-heading")!;
+      const firstFlightYear = document.querySelector<HTMLElement>(".flight-year")!;
+      const map = document.querySelector<HTMLElement>(".route-map")!;
       const header = document.querySelector<HTMLElement>(".site-header")!;
       const settings = document.querySelector<HTMLElement>(".mobile-settings-button")!;
       const panels = [summary, delay, network];
@@ -364,10 +366,9 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
         }),
         panelsOrdered: summary.getBoundingClientRect().top < delay.getBoundingClientRect().top
           && delay.getBoundingClientRect().top < network.getBoundingClientRect().top
-          && network.getBoundingClientRect().top < highlights.getBoundingClientRect().top
-          && highlights.getBoundingClientRect().top < archive.getBoundingClientRect().top,
-        highlightsOpen: getComputedStyle(highlights).backgroundColor === "rgba(0, 0, 0, 0)"
-          && getComputedStyle(highlights).boxShadow === "none",
+          && network.getBoundingClientRect().top < archive.getBoundingClientRect().top,
+        archiveEntriesBeforeMap: firstFlightYear.getBoundingClientRect().top < map.getBoundingClientRect().top,
+        highlightsHidden: getComputedStyle(highlights).display === "none",
         periodYears: Array.from(document.querySelectorAll(".passport-mobile-period button")).map((button) => button.textContent),
         pastFlightsTitle: archive.querySelector(".passport-mobile-section-title")?.textContent?.trim(),
         archiveActions: ["Add flight", "Import flights"].every((label) => Array.from(archive.querySelectorAll("button")).some((button) => button.textContent?.includes(label))),
@@ -382,7 +383,8 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.panelsDistinct).toBe(true);
     expect(composition.panelContentsFit).toBe(true);
     expect(composition.panelsOrdered).toBe(true);
-    expect(composition.highlightsOpen).toBe(true);
+    expect(composition.archiveEntriesBeforeMap).toBe(true);
+    expect(composition.highlightsHidden).toBe(true);
     expect(composition.periodYears).toEqual(["Lifetime", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
     expect(composition.archiveActions).toBe(true);
