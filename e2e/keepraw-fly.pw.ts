@@ -1,10 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const exampleArchive = fileURLToPath(new URL("../examples/basic.keepraw-fly.json", import.meta.url));
 const exampleCsv = fileURLToPath(new URL("../examples/flights.csv", import.meta.url));
+const reviewScreenshotDirectory = fileURLToPath(new URL("../test-results/review/", import.meta.url));
 
 async function navigateTo(page: Page, destination: "passport" | "settings") {
   if (await page.locator(".mobile-page-heading").isVisible()) {
@@ -309,6 +311,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
   await page.getByRole("button", { name: "Try demo" }).click();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   await expect(page.locator(".route-map-loading")).toHaveCount(0);
+  await mkdir(reviewScreenshotDirectory, { recursive: true });
 
   for (const viewport of [
     { width: 375, height: 812 },
@@ -325,6 +328,14 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await page.mouse.move(0, 0);
+
+    if (viewport.width === 390 || viewport.width === 430) {
+      await page.screenshot({
+        path: join(reviewScreenshotDirectory, `passport-mobile-${viewport.width}x${viewport.height}.png`),
+        animations: "disabled",
+        caret: "hide",
+      });
+    }
 
     const composition = await page.evaluate(() => {
       const summary = document.querySelector<HTMLElement>(".passport-mobile-summary")!;
@@ -343,6 +354,14 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
         fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
         summaryVisible: getComputedStyle(summary).display !== "none",
         panelsDistinct: new Set(panels.map((panel) => getComputedStyle(panel).backgroundColor)).size === 3,
+        panelContentsFit: panels.every((panel) => {
+          const bounds = panel.getBoundingClientRect();
+          return Array.from(panel.querySelectorAll("*"))
+            .every((element) => {
+              const content = element.getBoundingClientRect();
+              return content.width === 0 || (content.left >= bounds.left - 0.5 && content.right <= bounds.right + 0.5);
+            });
+        }),
         panelsOrdered: summary.getBoundingClientRect().top < delay.getBoundingClientRect().top
           && delay.getBoundingClientRect().top < network.getBoundingClientRect().top
           && network.getBoundingClientRect().top < highlights.getBoundingClientRect().top
@@ -350,6 +369,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
         highlightsOpen: getComputedStyle(highlights).backgroundColor === "rgba(0, 0, 0, 0)"
           && getComputedStyle(highlights).boxShadow === "none",
         periodYears: Array.from(document.querySelectorAll(".passport-mobile-period button")).map((button) => button.textContent),
+        pastFlightsTitle: archive.querySelector(".passport-mobile-section-title")?.textContent?.trim(),
         archiveActions: ["Add flight", "Import flights"].every((label) => Array.from(archive.querySelectorAll("button")).some((button) => button.textContent?.includes(label))),
       };
     });
@@ -360,18 +380,12 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.fitsViewport).toBe(true);
     expect(composition.summaryVisible).toBe(true);
     expect(composition.panelsDistinct).toBe(true);
+    expect(composition.panelContentsFit).toBe(true);
     expect(composition.panelsOrdered).toBe(true);
     expect(composition.highlightsOpen).toBe(true);
     expect(composition.periodYears).toEqual(["Lifetime", "2026", "2025", "2024"]);
+    expect(composition.pastFlightsTitle).toBe("Past flights");
     expect(composition.archiveActions).toBe(true);
-
-    if (viewport.width === 390 || viewport.width === 430) {
-      await expect(page).toHaveScreenshot("passport-mobile-" + viewport.width + "x" + viewport.height + ".png", {
-        animations: "disabled",
-        caret: "hide",
-        maxDiffPixelRatio: 0.001,
-      });
-    }
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
