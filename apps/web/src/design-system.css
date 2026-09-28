@@ -47,6 +47,15 @@
   --color-brand-mark: #f8f7f2;
   --color-on-inverted: #f2f6f3;
   --color-on-inverted-muted: rgb(229 238 232 / 68%);
+  --passport-surface: #182e49;
+  --passport-surface-text: #f7f9f7;
+  --passport-surface-muted: #bdcede;
+  --delay-surface: #673843;
+  --delay-surface-text: #fff5f3;
+  --delay-surface-muted: #e8c8c8;
+  --network-surface: #315e60;
+  --network-surface-text: #f4fbf8;
+  --network-surface-muted: #c4ded8;
   --gradient-aviation-hero:
     radial-gradient(circle at 82% 12%, rgb(53 142 111 / 34%), transparent 34%),
     radial-gradient(circle at 18% 108%, rgb(40 88 112 / 32%), transparent 42%),
@@ -247,6 +256,15 @@
     --color-header: rgb(9 11 14 / 92%);
     --color-focus: #6ffbbe;
     --color-brand-mark: #090b0e;
+    --passport-surface: #293f60;
+    --passport-surface-text: #f7f9ff;
+    --passport-surface-muted: #c6d5e7;
+    --delay-surface: #603541;
+    --delay-surface-text: #fff7f5;
+    --delay-surface-muted: #e7c6ce;
+    --network-surface: #295958;
+    --network-surface-text: #f2fbf8;
+    --network-surface-muted: #c3ddd9;
     --color-map-surface: #111718;
     --color-map-ocean: #151c1d;
     --color-map-land: #252d2d;
@@ -296,6 +314,15 @@
   --color-header: rgb(245 244 239 / 90%);
   --color-focus: #46a988;
   --color-brand-mark: #f8f7f2;
+  --passport-surface: #182e49;
+  --passport-surface-text: #f7f9f7;
+  --passport-surface-muted: #bdcede;
+  --delay-surface: #673843;
+  --delay-surface-text: #fff5f3;
+  --delay-surface-muted: #e8c8c8;
+  --network-surface: #315e60;
+  --network-surface-text: #f4fbf8;
+  --network-surface-muted: #c4ded8;
   --color-map-surface: #eef2f6;
   --color-map-ocean: #eaf1f6;
   --color-map-land: #f5f3ed;
@@ -345,6 +372,15 @@
   --color-header: rgb(9 11 14 / 92%);
   --color-focus: #6ffbbe;
   --color-brand-mark: #090b0e;
+  --passport-surface: #293f60;
+  --passport-surface-text: #f7f9ff;
+  --passport-surface-muted: #c6d5e7;
+  --delay-surface: #603541;
+  --delay-surface-text: #fff7f5;
+  --delay-surface-muted: #e7c6ce;
+  --network-surface: #295958;
+  --network-surface-text: #f2fbf8;
+  --network-surface-muted: #c3ddd9;
   --color-map-surface: #111718;
   --color-map-ocean: #151c1d;
   --color-map-land: #252d2d;

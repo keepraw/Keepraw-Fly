@@ -11,7 +11,8 @@
     "label": "主导航",
     "flights": "航班",
     "passport": "飞行护照",
-    "settings": "设置"
+    "settings": "设置",
+    "backToPassport": "返回飞行护照"
   },
   "welcome": {
     "eyebrow": "你的飞行历史，由你掌握",
@@ -31,6 +32,7 @@
     "openFile": "打开 Keepraw Fly 文件",
     "createArchive": "创建我的飞行档案",
     "addFlight": "添加航班",
+    "importFlights": "导入航班",
     "addFirstFlight": "添加我的第一段航班",
     "editFlight": "编辑航班",
     "duplicateFlight": "复制为新航班",
@@ -212,6 +214,13 @@
   "passport": {
     "periodLabel": "飞行护照统计期间",
     "lifetime": "全部",
+    "panelTitle": "飞行档案",
+    "delayPanelTitle": "延误记录",
+    "delayedFlights": "{{count}} 个延误航班",
+    "averageDelay": "平均 {{duration}}",
+    "longestDelay": "最长延误",
+    "networkPanelTitle": "飞过的地方",
+    "pastFlights": "航班记录",
     "primaryStats": "主要飞行统计",
     "collectionStats": "飞行档案统计",
     "flights": "航班",
@@ -226,6 +235,7 @@
     "airports": "机场",
     "airlines": "航空公司",
     "aircraftTypes": "机型",
+    "highlights": "飞行亮点",
     "mapPreviewLabel": "世界地图，显示已记录机场之间的 {{flights}} 段航班",
     "mapAirportData": "{{airport}} · 到访 {{count}} 次 · 首次到访 {{first}} · 最近到访 {{last}}",
     "mapRouteData": "{{origin}} 至 {{destination}} · {{count}} 个航班 · 首次飞行 {{first}} · 最近飞行 {{last}}",
