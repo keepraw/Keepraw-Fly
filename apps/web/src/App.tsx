@@ -258,7 +258,7 @@ export function App() {
         <div className="page-notices">
           {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
           {document && archiveKind === "demo" ? (
-            <DemoBanner compact={Boolean(selectedFlight)} onCreateArchive={createArchive} />
+            <DemoBanner compact={Boolean(selectedFlight) || page === "passport"} onCreateArchive={createArchive} />
           ) : null}
         </div>
       ) : null}
@@ -301,6 +301,11 @@ export function App() {
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);
             setEditorFlightId("new");
+          }}
+          onOpenImport={() => {
+            setPage("settings");
+            window.location.hash = "settings";
+            window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.document.getElementById("settings-import")?.scrollIntoView({ block: "start" })));
           }}
         />
       ) : null}

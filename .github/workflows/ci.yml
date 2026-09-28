@@ -50,6 +50,14 @@ jobs:
       - name: Run browser journeys
         run: pnpm test:e2e
 
+      - name: Upload Passport mobile review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: passport-mobile-review
+          path: test-results/review/passport-mobile-*.png
+          if-no-files-found: warn
+
       - name: Build production site
         run: pnpm build
 
