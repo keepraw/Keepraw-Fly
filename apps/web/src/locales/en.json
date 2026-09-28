@@ -11,7 +11,8 @@
     "label": "Primary navigation",
     "flights": "Flights",
     "passport": "Passport",
-    "settings": "Settings"
+    "settings": "Settings",
+    "backToPassport": "Back to Passport"
   },
   "welcome": {
     "eyebrow": "Your flight history, in your hands",
@@ -31,6 +32,7 @@
     "openFile": "Open Keepraw Fly file",
     "createArchive": "Create my archive",
     "addFlight": "Add flight",
+    "importFlights": "Import flights",
     "addFirstFlight": "Add my first flight",
     "editFlight": "Edit flight",
     "duplicateFlight": "Duplicate as new",
@@ -215,6 +217,14 @@
   "passport": {
     "periodLabel": "Passport period",
     "lifetime": "Lifetime",
+    "panelTitle": "Flight passport",
+    "delayPanelTitle": "Delays",
+    "delayedFlights_one": "{{count}} delayed flight",
+    "delayedFlights_other": "{{count}} delayed flights",
+    "averageDelay": "Average {{duration}}",
+    "longestDelay": "Longest delay",
+    "networkPanelTitle": "Places flown",
+    "pastFlights": "Past flights",
     "primaryStats": "Primary flight statistics",
     "collectionStats": "Flight collection statistics",
     "flights": "Flights",

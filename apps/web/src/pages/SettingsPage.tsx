@@ -141,7 +141,7 @@ export function SettingsPage({
           <div className="settings-panel data-actions">
             <div><span>{t("settings.backupReminderTitle")}</span><small>{t("settings.backupReminderDescription")}</small><strong className="settings-backup-status">{lastBackup ? t("settings.lastBackup", { date: lastBackup }) : t("settings.noBackupYet")}</strong></div>
             <div><span>{t("settings.storageProtectionTitle")}</span><small>{t(`settings.storageProtection.${persistentState}`)}</small>{persistentState === "available" ? <button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button> : null}</div>
-            <div><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
+            <div id="settings-import"><span>{t("settings.importTitle")}</span><small>{t("settings.importDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
             <div><span>{t("settings.csvImportTitle")}</span><small>{t("settings.csvImportDescription")}</small><CsvImportControl document={document} onImport={onImport} /></div>
             <div><span>{t("settings.flightyImportTitle")}</span><small>{t("settings.flightyImportDescription")}</small><FlightyImportControl document={document} onImport={onImport} /></div>
             <div><span>{t("settings.exportTitle")}</span><small>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>

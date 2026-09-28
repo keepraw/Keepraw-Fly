@@ -186,8 +186,12 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .site-navigation a[aria-current="page"] { border-bottom-color: var(--green); color: var(--green); background: var(--color-surface-raised); }
 .site-navigation a:hover { color: var(--ink); background: var(--color-surface-raised); }
 
-.mobile-navigation { display: none; }
-.passport-mobile-summary, .passport-mobile-section-title { display: none; }
+.mobile-page-heading,
+.passport-mobile-summary,
+.passport-mobile-panel,
+.passport-mobile-section-title,
+.passport-import-button { display: none; }
+.passport-visual .passport-mobile-period { display: none; }
 
 .eyebrow {
   margin: 0;
@@ -1064,48 +1068,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (max-width: 760px) {
   :root {
-    --layout-page-start: 24px;
-    --layout-page-end: var(--space-8);
-    --layout-header-height: 56px;
+    --layout-page-start: 16px;
+    --layout-page-end: var(--space-7);
+    --layout-header-height: 72px;
   }
-  .site-header-inner { gap: 8px; }
-  .wordmark-name { font-size: 1.08rem; }
-  .wordmark > span:last-child { display: none; }
+  .site-header { position: relative; border: 0; background: var(--color-canvas); backdrop-filter: none; }
+  .site-header-inner { min-height: var(--layout-header-height); gap: 8px; }
+  .site-header:not(.site-header--detail) .wordmark { display: none; }
   .site-navigation { display: none; }
-  .mobile-navigation {
-    position: fixed;
-    z-index: 30;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: grid;
-    min-height: calc(58px + env(safe-area-inset-bottom));
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    padding: 0 max(8px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px, env(safe-area-inset-left));
-    border-top: 1px solid var(--line);
-    background: var(--color-surface);
-  }
-  .mobile-navigation a {
-    position: relative;
-    display: grid;
-    min-width: 0;
-    min-height: 58px;
-    place-items: center;
-    color: var(--muted);
-    font-family: var(--font-family-ui);
-    font-size: 0.8125rem;
-    font-weight: var(--font-weight-medium);
-    letter-spacing: 0;
-    line-height: var(--type-leading-label);
-    text-align: center;
-    text-decoration: none;
-  }
-  .mobile-navigation a[aria-current="page"] { color: var(--green); font-weight: var(--font-weight-semibold); }
-  .mobile-navigation a[aria-current="page"]::before { position: absolute; top: 0; left: 50%; width: 24px; height: 2px; background: var(--green); content: ""; transform: translateX(-50%); }
-  .mobile-navigation a:hover { color: var(--ink); }
-  .app-shell:has(> .mobile-navigation) > .page-shell {
-    padding-bottom: calc(var(--layout-page-end) + 58px + env(safe-area-inset-bottom));
-  }
+  .mobile-page-heading { display: flex; width: 100%; align-items: center; justify-content: flex-start; gap: 12px; padding-top: 16px; }
+  .mobile-page-heading h1 { min-width: 0; margin: 0; font-family: var(--font-family-display); font-size: clamp(2rem, 8vw, 2.5rem); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.2; }
+  .mobile-page-heading button { display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; border: 1px solid var(--color-line-strong); border-radius: 50%; color: var(--color-text); background: transparent; }
+  .mobile-page-heading button:hover { background: var(--color-surface-sunken); }
+  .mobile-page-heading svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-page-back { margin-right: 2px; }
+  .mobile-settings-button { margin-left: auto; }
+  .site-header--detail { border-bottom: 1px solid var(--line); }
+  .settings-page > h1 { display: none; }
+  #settings-import { scroll-margin-top: 18px; }
   .welcome-actions { align-items: stretch; flex-direction: column; }
   .demo-banner { align-items: flex-start; flex-direction: column; gap: 12px; }
   .demo-banner > div { align-items: flex-start; flex-direction: column; gap: 3px; }
@@ -2018,32 +1998,55 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-visual-sticky { display: contents; position: static; }
   .passport-archive-page .primary-stats,
   .passport-archive-page .passport-counts { display: none; }
-  .passport-mobile-summary { display: block; order: 0; }
-  .passport-archive-page .passport-highlights { order: 1; }
-  .passport-archive-page .route-map { order: 2; }
+  .passport-visual .passport-mobile-period { display: flex; order: 0; width: 100%; max-width: 100%; margin: 0 0 22px; gap: 18px; padding: 0; overflow-x: auto; border: 0; border-radius: 0; background: transparent; scrollbar-width: none; }
+  .passport-mobile-period::-webkit-scrollbar { display: none; }
+  .passport-mobile-period button { min-height: 44px; flex: 0 0 auto; padding: 0 5px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--color-text-muted); background: transparent; font-family: var(--font-family-ui); font-size: 0.9375rem; font-weight: var(--font-weight-medium); letter-spacing: 0; }
+  .passport-mobile-period button[aria-pressed="true"] { border-bottom-color: var(--color-accent); color: var(--color-text); background: transparent; font-weight: var(--font-weight-semibold); }
+  .passport-mobile-summary,
+  .passport-mobile-panel { display: block; min-width: 0; padding: 25px 24px; border-radius: 20px; }
+  .passport-mobile-summary { order: 1; color: var(--passport-surface-text); background: var(--passport-surface); }
+  .passport-mobile-panel { margin-top: 12px; }
+  .passport-delay-panel { order: 2; color: var(--delay-surface-text); background: var(--delay-surface); }
+  .passport-network-panel { order: 3; color: var(--network-surface-text); background: var(--network-surface); }
+  .passport-archive-page .route-map { order: 4; }
+  .passport-archive-page .passport-highlights { order: 5; }
   .passport-archive { display: contents; }
-  .archive-heading { order: 3; margin-top: 34px; padding-top: 18px; padding-bottom: 10px; border-top: 1px solid var(--color-line-strong); }
-  .passport-archive-scroll { order: 4; }
+  .archive-heading { order: 6; margin-top: 30px; padding-top: 22px; padding-bottom: 10px; border-top: 1px solid var(--color-line-strong); }
+  .passport-archive-scroll { order: 7; }
   #passport-summary,
-  #flight-archive { scroll-margin-top: calc(var(--layout-header-height) + 12px); }
+  #flight-archive { scroll-margin-top: 12px; }
   .passport-archive .flight-row { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
   .passport-archive .airline-logo { width: 28px; height: 28px; font-size: 0.625rem; }
-  .passport-mobile-hero { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 20px; align-items: end; padding: 0 0 24px; border-bottom: 1px solid var(--color-line-strong); }
-  .passport-mobile-flights { display: flex; min-width: 0; flex-direction: column; }
-  .passport-mobile-flights strong { color: var(--ink); font-family: var(--font-family-display); font-size: clamp(4.5rem, 18vw, 5.75rem); font-weight: var(--font-weight-semibold); letter-spacing: -0.075em; line-height: 0.9; font-variant-numeric: tabular-nums; }
-  .passport-mobile-flights span { margin-top: 10px; color: var(--ink); font-family: var(--font-family-ui); font-size: 1.0625rem; font-weight: var(--font-weight-medium); line-height: 1.2; }
-  .passport-mobile-journey { display: grid; gap: 14px; padding-bottom: 2px; }
-  .passport-mobile-journey > div { display: grid; gap: 3px; min-width: 0; }
+  .passport-panel-kicker { margin: 0 0 15px; color: var(--passport-surface-muted); font-size: 0.75rem; font-weight: var(--font-weight-medium); letter-spacing: 0.05em; line-height: 1.4; }
+  .passport-panel-kicker span { margin: 0 4px; opacity: 0.65; }
+  .passport-mobile-hero { display: flex; align-items: baseline; gap: 12px; }
+  .passport-mobile-hero strong { min-width: 0; font-family: var(--font-family-display); font-size: clamp(4rem, 15vw, 5.6rem); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; letter-spacing: -0.07em; line-height: 1; overflow-wrap: anywhere; }
+  .passport-mobile-hero span { font-size: 1.125rem; font-weight: var(--font-weight-medium); }
+  .passport-mobile-journey { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+  .passport-mobile-journey > div { display: grid; min-width: 0; align-content: start; gap: 5px; }
   .passport-mobile-journey span,
-  .passport-mobile-facts span { color: var(--muted); font-family: var(--font-family-ui); font-size: 0.6875rem; font-weight: var(--font-weight-medium); letter-spacing: 0.055em; line-height: 1.3; text-transform: uppercase; }
-  .passport-mobile-journey strong { color: var(--ink); font-family: var(--font-family-ui); font-size: 1.125rem; font-weight: var(--font-weight-semibold); letter-spacing: -0.025em; line-height: 1.2; white-space: nowrap; }
-  .passport-mobile-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 67px; margin-top: 5px; }
-  .passport-mobile-facts > div { display: flex; min-width: 0; flex-direction: column; justify-content: center; gap: 3px; padding: 6px 0; border-bottom: 1px solid var(--line); }
-  .passport-mobile-facts > div:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--line); }
-  .passport-mobile-facts strong { color: var(--ink); font-family: var(--font-family-ui); font-size: 1.25rem; font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; letter-spacing: -0.025em; line-height: 1.1; }
-  .passport-mobile-aircraft { margin: 12px 0 0; color: var(--muted); font-family: var(--font-family-ui); font-size: 0.8125rem; line-height: 1.3; }
-  .passport-mobile-aircraft strong { color: var(--ink); font-weight: var(--font-weight-semibold); }
-  .passport-mobile-section-title { display: block; margin: 30px 0 8px; color: var(--ink); font-family: var(--font-family-ui); font-size: 1.2rem; font-weight: var(--font-weight-semibold); letter-spacing: -0.025em; line-height: 1.2; }
+  .passport-mobile-support { color: var(--passport-surface-muted); font-size: 0.8125rem; line-height: 1.4; }
+  .passport-mobile-journey strong { font-family: var(--font-family-ui); font-size: clamp(1rem, 4vw, 1.25rem); font-weight: var(--font-weight-semibold); line-height: 1.2; overflow-wrap: anywhere; }
+  .passport-mobile-support { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 24px; padding-top: 14px; border-top: 1px solid rgb(255 255 255 / 20%); }
+  .passport-mobile-panel h2 { margin: 0; font-size: 0.9375rem; font-weight: var(--font-weight-semibold); line-height: 1.35; }
+  .passport-delay-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; margin-top: 13px; }
+  .passport-delay-main strong { font-size: clamp(2.25rem, 8vw, 3.25rem); font-weight: var(--font-weight-semibold); letter-spacing: -0.045em; line-height: 1.1; }
+  .passport-delay-main span { font-size: 0.875rem; }
+  .passport-delay-facts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 0.875rem; }
+  .passport-delay-panel p { margin: 12px 0 0; color: var(--delay-surface-muted); font-size: 0.8125rem; line-height: 1.5; }
+  .passport-delay-panel small { display: block; margin-top: 13px; color: var(--delay-surface-muted); font-size: 0.75rem; }
+  .passport-network-facts { display: flex; gap: 30px; margin-top: 13px; }
+  .passport-network-facts div { display: flex; align-items: baseline; gap: 7px; }
+  .passport-network-facts strong { font-size: 2.125rem; font-weight: var(--font-weight-semibold); line-height: 1.2; }
+  .passport-network-facts span { color: var(--network-surface-muted); font-size: 0.8125rem; }
+  .passport-network-panel p { display: grid; gap: 2px; margin: 15px 0 0; color: var(--network-surface-muted); font-size: 0.75rem; line-height: 1.5; }
+  .passport-network-panel p strong { color: var(--network-surface-text); font-size: 0.9375rem; font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+  .passport-mobile-section-title { display: block; margin: 30px 0 8px; color: var(--ink); font-family: var(--font-family-ui); font-size: 1.25rem; font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.25; }
+  .archive-heading > .passport-mobile-section-title { margin: 0; }
+  .archive-controls .view-switcher { display: none; }
+  .archive-controls { justify-content: flex-start; flex-wrap: wrap; gap: 8px; }
+  .archive-controls .add-flight-button,
+  .passport-import-button { display: inline-flex; min-height: 44px; align-items: center; padding: 8px 12px; border: 1px solid var(--color-line-strong); border-radius: var(--radius-control); color: var(--color-text); background: var(--color-surface); font-size: 0.8125rem; font-weight: var(--font-weight-medium); }
   .passport-archive-page .highlight-list { display: block; min-height: 0; grid-template-rows: none; border-top: 1px solid var(--line); }
   .passport-archive-page .passport-highlight,
   .passport-archive-page .passport-highlight:nth-child(n) { display: grid; width: 100%; min-height: 0; grid-column: auto; grid-row: auto; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 4px 12px; padding: 13px 0 14px; border: 0; border-bottom: 1px solid var(--line); }

@@ -11,7 +11,8 @@
     "label": "主導航",
     "flights": "航班",
     "passport": "飛行護照",
-    "settings": "設置"
+    "settings": "設置",
+    "backToPassport": "返回飛行護照"
   },
   "welcome": {
     "eyebrow": "你的飛行歷史，由你掌握",
@@ -31,6 +32,7 @@
     "openFile": "打開 Keepraw Fly 文件",
     "createArchive": "創建我的飛行檔案",
     "addFlight": "添加航班",
+    "importFlights": "導入航班",
     "addFirstFlight": "添加我的第一段航班",
     "editFlight": "編輯航班",
     "duplicateFlight": "複製為新航班",
@@ -212,6 +214,13 @@
   "passport": {
     "periodLabel": "飛行護照統計期間",
     "lifetime": "全部",
+    "panelTitle": "飛行檔案",
+    "delayPanelTitle": "延誤記錄",
+    "delayedFlights": "{{count}} 個延誤航班",
+    "averageDelay": "平均 {{duration}}",
+    "longestDelay": "最長延誤",
+    "networkPanelTitle": "飛過的地方",
+    "pastFlights": "航班記錄",
     "primaryStats": "主要飛行統計",
     "collectionStats": "飛行檔案統計",
     "flights": "航班",

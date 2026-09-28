@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   airlineDisplayName,
+  arrivalDelayMinutes,
   airportByIata,
   buildRouteSegments,
   calculatePassportStatistics,
@@ -31,10 +32,11 @@ interface PassportPageProps {
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   onAddFlight: () => void;
+  onOpenImport: () => void;
   onOpenFlight: (flightId: string) => void;
 }
 
-export function PassportPage({ document, locale, distanceUnit, timeFormat, onAddFlight, onOpenFlight }: PassportPageProps) {
+export function PassportPage({ document, locale, distanceUnit, timeFormat, onAddFlight, onOpenImport, onOpenFlight }: PassportPageProps) {
   const { t } = useTranslation();
   const [selectedYear, setSelectedYear] = useState<number | "lifetime">("lifetime");
   const [query, setQuery] = useState("");
@@ -49,6 +51,12 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   );
   const groups = useMemo(() => groupFlightsByYear(searchFlights(flights, query)), [flights, query]);
   const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
+  const delays = useMemo(() => flights.flatMap((flight) => {
+    if (flight.cancelled) return [];
+    const minutes = arrivalDelayMinutes(flight);
+    return minutes !== null && minutes > 0 ? [{ flight, minutes }] : [];
+  }), [flights]);
+  const worstDelay = delays.reduce<(typeof delays)[number] | null>((worst, item) => !worst || item.minutes > worst.minutes ? item : worst, null);
   const routes = useMemo(() => buildRouteSegments(flights), [flights]);
   const exploration = useMemo(
     () => selection ? explorePassportFlights(flights, selection) : undefined,
@@ -100,6 +108,10 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
       <div className="passport-layout">
         <aside className="passport-visual" aria-label={t("passport.primaryStats")}>
           <div className="passport-visual-sticky">
+            <div className="passport-mobile-period view-switcher" role="group" aria-label={t("passport.periodLabel")}>
+              <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
+              {years.map((year) => <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>)}
+            </div>
             <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
               <PassportRouteMap
                 key={`map-${selectedYear}`}
@@ -128,23 +140,34 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
             </section>
 
             <section className="passport-mobile-summary" id="passport-summary" key={`mobile-summary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
-              <div className="passport-mobile-hero">
-                <div className="passport-mobile-flights">
-                  <strong>{stats.flights.toLocaleString(locale)}</strong>
-                  <span>{t("passport.flights")}</span>
-                </div>
-                <div className="passport-mobile-journey">
-                  <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
-                  <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
-                </div>
+              <p className="passport-panel-kicker">KEEPRAW FLY <span> / </span> {t("passport.panelTitle")}</p>
+              <div className="passport-mobile-hero"><strong>{stats.flights.toLocaleString(locale)}</strong><span>{t("passport.flights")}</span></div>
+              <div className="passport-mobile-journey">
+                <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
+                <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
               </div>
-              <div className="passport-mobile-facts" aria-label={t("passport.collectionStats")}>
-                <div><span>{t("passport.totalDelay")}</span><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong></div>
-                <div><span>{t("passport.countries")}</span><strong>{stats.countries}</strong></div>
-                <div><span>{t("passport.airports")}</span><strong>{stats.airports}</strong></div>
-                <div><span>{t("passport.airlines")}</span><strong>{stats.airlines}</strong></div>
+              <div className="passport-mobile-support" aria-label={t("passport.collectionStats")}>
+                <span>{t("passport.countries")}: {stats.countries.toLocaleString(locale)}</span>
+                <span>{t("passport.airports")}: {stats.airports.toLocaleString(locale)}</span>
+                <span>{t("passport.airlines")}: {stats.airlines.toLocaleString(locale)}</span>
+                <span>{t("passport.aircraftTypes")}: {stats.aircraftTypes.toLocaleString(locale)}</span>
               </div>
-              <p className="passport-mobile-aircraft"><strong>{stats.aircraftTypes}</strong> {t("passport.aircraftTypes")}</p>
+            </section>
+
+            <section className="passport-mobile-panel passport-delay-panel" aria-labelledby="passport-delay-title">
+              <h2 id="passport-delay-title">{t("passport.delayPanelTitle")}</h2>
+              <div className="passport-delay-main"><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong><span>{t("passport.totalDelay")}</span></div>
+              {stats.totalDelayMinutes === null ? <p>{t("passport.delayUnavailable")}</p> : <>
+                <div className="passport-delay-facts"><span>{t("passport.delayedFlights", { count: delays.length })}</span>{delays.length ? <span>{t("passport.averageDelay", { duration: formatDuration(Math.round(stats.totalDelayMinutes / delays.length), locale) })}</span> : null}</div>
+                {worstDelay ? <p>{t("passport.longestDelay")}: {worstDelay.flight.flightNumber} · {formatDuration(worstDelay.minutes, locale)}</p> : null}
+                <small>{t("passport.delayBasedOnArrivals")}</small>
+              </>}
+            </section>
+
+            <section className="passport-mobile-panel passport-network-panel" aria-labelledby="passport-network-title">
+              <h2 id="passport-network-title">{t("passport.networkPanelTitle")}</h2>
+              <div className="passport-network-facts"><div><strong>{stats.countries.toLocaleString(locale)}</strong><span>{t("passport.countries")}</span></div><div><strong>{stats.airports.toLocaleString(locale)}</strong><span>{t("passport.airports")}</span></div></div>
+              {stats.mostVisitedAirport ? <p>{t("passport.mostVisitedAirport")} <strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong></p> : null}
             </section>
 
             <div className="passport-highlights" key={`highlights-${selectedYear}`}>
@@ -177,6 +200,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
         <section className="passport-archive">
           <header className="archive-heading" id="flight-archive">
+            <h2 className="passport-mobile-section-title">{t("passport.pastFlights")}</h2>
             <div className="archive-controls">
               <div className="view-switcher" role="group" aria-label={t("passport.periodLabel")}>
                 <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
@@ -185,6 +209,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
                 ))}
               </div>
               <button className="add-flight-button" type="button" onClick={onAddFlight}><span aria-hidden="true">＋</span>{t("actions.addFlight")}</button>
+              <button className="passport-import-button" type="button" onClick={onOpenImport}>{t("actions.importFlights")}</button>
             </div>
             <div className="search-field passport-search-field">
               <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>

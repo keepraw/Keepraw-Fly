@@ -1,4 +1,3 @@
-import { useEffect, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export type Page = "passport" | "settings";
@@ -15,34 +14,14 @@ interface AppHeaderProps {
 
 export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderProps) {
   const { t } = useTranslation();
-  const [mobileDestination, setMobileDestination] = useState<"flights" | Page>(
-    currentPage === "settings" ? "settings" : "passport",
-  );
   const links: Array<{ page: Page; label: string }> = [
     { page: "passport", label: t("nav.passport") },
     { page: "settings", label: t("nav.settings") },
   ];
 
-  useEffect(() => {
-    setMobileDestination((current) => currentPage === "settings"
-      ? "settings"
-      : current === "settings" ? "passport" : current);
-  }, [currentPage]);
-
-  function navigateToPassportSection(
-    event: MouseEvent<HTMLAnchorElement>,
-    destination: "flights" | "passport",
-  ) {
-    event.preventDefault();
-    setMobileDestination(destination);
-    onNavigate("passport");
-    window.history.replaceState(null, "", "#passport");
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        const selector = destination === "flights" ? "#flight-archive" : "#passport-summary";
-        document.querySelector(selector)?.scrollIntoView({ block: "start", behavior: "auto" });
-      });
-    });
+  function navigate(page: Page) {
+    onNavigate(page);
+    window.location.hash = page;
   }
 
   return (
@@ -87,46 +66,26 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
               ))}
             </nav>
           </>}
+          {!detailActions ? <div className="mobile-page-heading">
+            {currentPage === "settings" ? <button className="mobile-page-back" type="button" onClick={() => navigate("passport")} aria-label={t("nav.backToPassport")}><HeaderIcon kind="back" /></button> : null}
+            <h1>{t(`nav.${currentPage}`)}</h1>
+            {currentPage === "passport" ? <button className="mobile-settings-button" type="button" onClick={() => navigate("settings")} aria-label={t("nav.settings")}><HeaderIcon kind="settings" /></button> : null}
+          </div> : null}
         </div>
       </header>
-      {!detailActions ? (
-        <nav className="mobile-navigation" aria-label={t("nav.label")}>
-          <a
-            href="#flights"
-            aria-current={currentPage === "passport" && mobileDestination === "flights" ? "page" : undefined}
-            onClick={(event) => navigateToPassportSection(event, "flights")}
-          >
-            {t("nav.flights")}
-          </a>
-          <a
-            href="#passport"
-            aria-current={currentPage === "passport" && mobileDestination === "passport" ? "page" : undefined}
-            onClick={(event) => navigateToPassportSection(event, "passport")}
-          >
-            {t("nav.passport")}
-          </a>
-          <a
-            href="#settings"
-            aria-current={currentPage === "settings" ? "page" : undefined}
-            onClick={() => {
-              setMobileDestination("settings");
-              onNavigate("settings");
-            }}
-          >
-            {t("nav.settings")}
-          </a>
-        </nav>
-      ) : null}
     </>
   );
 }
 
-function HeaderIcon({ kind }: { kind: "back" | "duplicate" | "edit" }) {
+function HeaderIcon({ kind }: { kind: "back" | "duplicate" | "edit" | "settings" }) {
   if (kind === "back") {
     return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>;
   }
   if (kind === "duplicate") {
     return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7v8a2 2 0 0 0 2 2h6M8 7V5a2 2 0 0 1 2-2h4.6a1 1 0 0 1 .7.3l4.4 4.4a1 1 0 0 1 .3.7V15a2 2 0 0 1-2 2h-2M8 7H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2" /></svg>;
+  }
+  if (kind === "settings") {
+    return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.8 2.8h4.4l.5 2.3a7.5 7.5 0 0 1 1.5.9l2.2-.7 2.2 3.8-1.7 1.6a7.7 7.7 0 0 1 0 1.7l1.7 1.6-2.2 3.8-2.2-.7a7.5 7.5 0 0 1-1.5.9l-.5 2.3H9.8l-.5-2.3a7.5 7.5 0 0 1-1.5-.9l-2.2.7-2.2-3.8 1.7-1.6a7.7 7.7 0 0 1 0-1.7L3.4 9.1l2.2-3.8 2.2.7a7.5 7.5 0 0 1 1.5-.9l.5-2.3Z" /><circle cx="12" cy="11.5" r="2.6" /></svg>;
   }
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15.2 5.2 3.6 3.6m-2.1-5.1a2.5 2.5 0 1 1 3.6 3.6L6.5 21H3v-3.5L16.7 3.7Z" /></svg>;
 }
