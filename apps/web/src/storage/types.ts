@@ -22,7 +22,7 @@ export function defaultViewerSettings(): ViewerSettings {
   return {
     language,
     appearance: "system",
-    distanceUnit: "miles",
+    distanceUnit: language === "en" ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
   };
