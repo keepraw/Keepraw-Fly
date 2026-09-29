@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -43,11 +43,12 @@ function DetailIcon({ kind }: { kind: IconKind }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19h19m-2.2-7.9-3.4-2.6L9 10.4 4.5 7.8l-1.3.7 3.2 5.5L2 15.2v1.5l16.1-4.3c.7-.2 1.1-.9.9-1.6-.1-.5-.7-1-1.2-1Z" /></svg>;
 }
 
-function OperationBadge({ icon, value, meta }: { icon: "baggage" | "gate"; value: string; meta?: string }) {
+function OperationBadge({ icon, label, value, meta }: { icon: "baggage" | "gate"; label: string; value: string; meta?: string }) {
   return (
     <div className="operation-badge-group">
       <div className="operation-badge">
         <DetailIcon kind={icon} />
+        <span className="operation-badge-label">{label}</span>
         <strong>{value}</strong>
       </div>
       {meta ? <span>{meta}</span> : null}
@@ -102,17 +103,19 @@ function AirportStop({
           </div>
           {airport ? <p className={kind === "departure" ? "route-origin-airport" : "route-arrival-airport"}>{airport}</p> : null}
         </div>
-        {operationValue ? <OperationBadge icon={operationIcon} value={operationValue} meta={operationMeta} /> : null}
+        {operationValue ? <OperationBadge icon={operationIcon} label={t(operationIcon === "baggage" ? "flightDetail.baggageCarousel" : "flightDetail.gate")} value={operationValue} meta={operationMeta} /> : null}
       </div>
 
-      <div className="detail-stop-times">
-        <time className="detail-airport-time" dateTime={timestamp}>{actualTime}</time>
-        {scheduledTime ? <time className="detail-scheduled-time" dateTime={timestamp}>{scheduledTime}</time> : null}
-      </div>
-      <div className="detail-stop-meta">
-        {delayLabel ? <strong className={delay === 0 ? "is-on-time" : delay! < 0 ? "is-early" : "is-delayed"}>{delayLabel}</strong> : null}
-        {!operationValue && terminal ? <span>{operationMeta}</span> : null}
-        {kind === "arrival" && baggageCarousel && gate ? <span>{t("flightDetail.gate")} {gate}</span> : null}
+      <div className="detail-stop-timing">
+        <div className="detail-stop-times">
+          <time className="detail-airport-time" dateTime={timestamp}>{actualTime}</time>
+          {scheduledTime ? <time className="detail-scheduled-time" dateTime={timestamp}>{scheduledTime}</time> : null}
+        </div>
+        <div className="detail-stop-meta">
+          {delayLabel ? <strong className={delay === 0 ? "is-on-time" : delay! < 0 ? "is-early" : "is-delayed"}>{delayLabel}</strong> : null}
+          {!operationValue && terminal ? <span>{operationMeta}</span> : null}
+          {kind === "arrival" && baggageCarousel && gate ? <span>{t("flightDetail.gate")} {gate}</span> : null}
+        </div>
       </div>
     </section>
   );
@@ -130,6 +133,10 @@ function MetadataColumn({ title, children, footer }: { title: string; children: 
   );
 }
 
+function MobileFact({ label, value }: { label: string; value: string }) {
+  return <div className="detail-mobile-fact"><span>{label}</span><strong>{value}</strong></div>;
+}
+
 function airportNameLabel(airport: ReturnType<typeof airportByIata.get>, iata: string, locale: SupportedLocale): string | undefined {
   if (!airport) return undefined;
   return localizedText(airport.name, locale) || iata;
@@ -145,6 +152,16 @@ function cabinTranslationKey(cabin: string): string | undefined {
 
 export function FlightDetailPage({ flight, memberships, locale, distanceUnit, timeFormat }: FlightDetailPageProps) {
   const { t } = useTranslation();
+  const [showDesktopMap, setShowDesktopMap] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.matchMedia?.("(min-width: 901px)").matches));
+  useEffect(() => {
+    const media = window.matchMedia?.("(min-width: 901px)");
+    if (!media) return;
+    const update = () => setShowDesktopMap(media.matches);
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, []);
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
   const actualDestination = airportByIata.get(flight.divertedTo?.iata ?? flight.destination.iata);
@@ -213,7 +230,7 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             <strong>{phase}</strong>
             <span className={`detail-operational-status is-${operationalStatus}`}>{performance}</span>
             <i aria-hidden="true">·</i>
-            <span>{t("flightDetail.total")} {routeSummary}</span>
+            <span className="detail-heading-route-summary">{t("flightDetail.total")} {routeSummary}</span>
           </div>
         </header>
 
@@ -233,6 +250,7 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             />
             <div className="detail-journey-summary">
               <DetailIcon kind="flight" />
+              <span className="detail-journey-label">{t("flightDetail.totalFlightTime")}</span>
               <span>{routeSummary}</span>
             </div>
             <AirportStop
@@ -250,9 +268,9 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             />
           </div>
 
-          <Suspense fallback={<section className="detail-route-map detail-route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
+          {showDesktopMap ? <Suspense fallback={<section className="detail-route-map detail-route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
             <FlightRouteMap flight={flight} />
-          </Suspense>
+          </Suspense> : null}
         </div>
 
         {hasExperience || hasTripRecord || frequentFlyer ? <div className="detail-metadata-shelf">
@@ -262,8 +280,16 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
               {aircraft?.registration ? <span>{t("flightDetail.registration")} {aircraft.registration}</span> : null}
             </>}
           >
-            {aircraft?.type ? <strong className="detail-metadata-primary">{aircraft.type}</strong> : null}
-            {experienceLine ? <p>{experienceLine}</p> : null}
+            <div className="detail-metadata-desktop">
+              {aircraft?.type ? <strong className="detail-metadata-primary">{aircraft.type}</strong> : null}
+              {experienceLine ? <p>{experienceLine}</p> : null}
+            </div>
+            <div className="detail-mobile-facts">
+              {aircraft?.type ? <MobileFact label={t("flightDetail.aircraft")} value={aircraft.type} /> : null}
+              {seat?.seat ? <MobileFact label={t("flightDetail.seat")} value={seat.seat} /> : null}
+              {cabinLabel ? <MobileFact label={t("flightDetail.cabinClass")} value={cabinLabel} /> : null}
+              {seat?.bookingClass ? <MobileFact label={t("flightDetail.bookingClass")} value={seat.bookingClass} /> : null}
+            </div>
           </MetadataColumn> : null}
 
           {hasTripRecord ? <MetadataColumn title={t("flightDetail.tripRecord")}>
@@ -273,6 +299,7 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
           </MetadataColumn> : null}
 
           {frequentFlyer ? <section className="frequent-flyer-card">
+            <h2 className="detail-mobile-section-title">{t("flightDetail.frequentFlyer")}</h2>
             <div className="frequent-flyer-card-heading">
               <span><DetailIcon kind="star" />{t("flightDetail.frequentFlyer")}</span>
               {frequentFlyer.tierAtFlight ? <strong>{frequentFlyer.tierAtFlight}</strong> : null}
@@ -283,6 +310,11 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             <div className="frequent-flyer-card-footer">
               <span>{t("flightDetail.memberNumber")}</span>
               <strong>{frequentFlyer.memberNumber}</strong>
+            </div>
+            <div className="detail-mobile-facts">
+              <MobileFact label={t("flightDetail.frequentFlyerProgram")} value={frequentFlyer.programName} />
+              {frequentFlyer.tierAtFlight ? <MobileFact label={t("flightDetail.tier")} value={frequentFlyer.tierAtFlight} /> : null}
+              <MobileFact label={t("flightDetail.memberNumber")} value={frequentFlyer.memberNumber} />
             </div>
           </section> : null}
         </div> : null}
