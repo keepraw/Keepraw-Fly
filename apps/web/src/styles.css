@@ -828,6 +828,8 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .settings-section-icon { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb, var(--green) 22%, var(--line)); border-radius: var(--radius-icon); color: var(--green); background: var(--green-soft); }
 .settings-section-icon .aviation-icon { width: 20px; height: 20px; }
 .settings-panel { min-width: 0; }
+.settings-mobile-copy,
+.settings-row-value { display: none; }
 
 .data-actions { display: grid; }
 .data-actions > div { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "title action" "description action" "error error"; gap: 5px 24px; align-items: center; min-height: 70px; padding: 14px 0; border-bottom: 1px solid var(--line); }
@@ -1085,6 +1087,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .mobile-settings-button { margin-left: auto; }
   .site-header--detail { border-bottom: 1px solid var(--line); }
   .settings-page > h1 { display: none; }
+  .app-shell:has(.settings-page) > .site-header .site-header-inner { min-height: 58px; }
+  .app-shell:has(.settings-page) .mobile-page-heading { gap: 8px; padding-top: 0; }
+  .app-shell:has(.settings-page) .mobile-page-heading h1 { font-size: 1.625rem; }
   #settings-import { scroll-margin-top: 18px; }
   .welcome-actions { align-items: stretch; flex-direction: column; }
   .demo-banner { align-items: flex-start; flex-direction: column; gap: 12px; }
@@ -1196,16 +1201,57 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-item dd { font-size: 1rem; }
   .passport-empty-page { display: block; }
   .passport-empty { padding: 48px 0; }
-  .settings-sections { gap: 14px; margin-top: 14px; }
-  .settings-section { grid-template-columns: 1fr; gap: 25px; padding: 24px 20px; border-radius: 16px; }
-  .settings-section-heading { align-items: center; }
-  .data-actions > div { grid-template-columns: 1fr; grid-template-areas: "title" "description" "action" "error"; }
-  .data-actions .import-control > label, .data-actions .settings-action { justify-self: start; margin-top: 12px; }
-  .data-actions .csv-action-group { justify-self: start; width: min(100%, 280px); margin-top: 12px; }
+  .settings-sections { gap: 0; margin-top: 0; }
+  .settings-section { grid-template-columns: minmax(0, 1fr); gap: 11px; overflow: visible; padding: 17px 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; box-shadow: none; }
+  .settings-section:first-child { padding-top: 8px; }
+  .settings-section:last-child { border-bottom: 0; }
+  .settings-section::before, .settings-section-heading .eyebrow { display: none; }
+  .settings-section-heading { align-items: center; gap: 9px; }
+  .settings-section-heading > div { padding-top: 0; }
+  .settings-section-heading h2 { margin: 0; font-size: 1.125rem; line-height: 1.35; }
+  .settings-section-icon { width: 21px; height: 21px; border: 0; border-radius: 0; background: transparent; }
+  .settings-section-icon .aviation-icon { width: 18px; height: 18px; }
+  .settings-desktop-copy { display: none; }
+  .settings-mobile-copy { display: block; }
+  .data-actions > div { display: flex; min-width: 0; min-height: 0; flex-direction: column; align-items: flex-start; gap: 4px; padding: 9px 0; border-bottom: 0; }
+  .data-actions > div:first-child { padding-top: 0; }
+  .data-actions > div > span { font-size: 0.9375rem; }
+  .data-actions > div > small { max-width: none; font-size: 0.8125rem; line-height: 1.4; }
+  .data-actions .settings-backup-status { color: var(--muted); font-size: 0.8125rem; font-weight: var(--font-weight-medium); }
+  .data-actions .settings-data-overview, .data-actions .settings-data-export { padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+  .data-actions .settings-data-export, .data-actions .settings-data-import { padding-top: 13px; }
+  .data-actions .settings-data-csv, .data-actions .settings-data-flighty { padding-top: 1px; padding-bottom: 5px; }
+  .data-actions .settings-data-csv > span, .data-actions .settings-data-csv > small,
+  .data-actions .settings-data-flighty > span, .data-actions .settings-data-flighty > small,
+  .data-actions .csv-import-workflow { display: none; }
+  .data-actions .settings-data-storage { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .data-actions .settings-data-clear { padding-top: 12px; border-top: 1px solid var(--line); }
+  .data-actions .import-control > label, .data-actions .settings-action { justify-self: start; min-height: 44px; margin-top: 3px; }
+  .data-actions .import-preview, .data-actions .csv-preview, .data-actions .validation-errors { width: 100%; min-width: 0; }
+  .data-actions .settings-data-export .settings-action,
+  .data-actions .settings-data-import .settings-action,
+  .data-actions .settings-data-csv .settings-action,
+  .data-actions .settings-data-flighty .settings-action { width: min(100%, 320px); justify-items: center; }
+  .data-actions .csv-action-group { justify-self: start; width: min(100%, 320px); margin-top: 0; gap: 0; }
   .data-actions .csv-action-group .settings-action { margin-top: 0; }
-  .settings-fields > label, .settings-fields fieldset { grid-template-columns: 1fr; gap: 9px; padding: 15px 0; }
-  .membership-row { grid-template-columns: 1fr; }
-  .settings-fields fieldset { display: flex; align-items: flex-start; flex-direction: column; }
+  .data-actions .csv-action-group .button-secondary { width: auto; justify-self: start; min-height: 44px; padding: 0 2px; border: 0; color: var(--green); background: transparent; text-align: left; }
+  .settings-display-fields > label, .settings-display-fields > label:first-child { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto) 12px; gap: 9px; min-height: 48px; align-items: center; padding: 0 2px; cursor: pointer; }
+  .settings-display-fields > label::after { grid-column: 3; color: var(--muted); content: "›"; font-size: 1.375rem; font-weight: var(--font-weight-normal); line-height: 1; }
+  .settings-display-fields > label > span:first-child { min-width: 0; }
+  .settings-display-fields .settings-row-value { display: block; max-width: min(48vw, 190px); overflow: hidden; color: var(--muted); font-weight: var(--font-weight-normal); text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+  .settings-display-fields > label select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 44px; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+  .settings-display-fields > label:focus-within { outline: var(--focus-ring); outline-offset: 2px; }
+  .settings-profile-fields > label, .settings-profile-fields > label:first-child { grid-template-columns: minmax(0, 1fr); gap: 5px; min-height: 0; padding: 8px 0 10px; }
+  .settings-profile-fields > label > input { min-height: 44px; }
+  .settings-profile-fields fieldset { display: flex; align-items: flex-start; flex-direction: column; gap: 7px; min-height: 0; padding: 10px 0 0; }
+  .settings-profile-fields .radio-row { flex-wrap: wrap; gap: 12px; }
+  .settings-profile-fields .radio-row label { min-height: 44px; }
+  .membership-editor { gap: 10px; }
+  .membership-row { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 12px 0; }
+  .membership-row legend { padding-bottom: 8px; }
+  .membership-row label { gap: 4px; }
+  .membership-row input, .membership-row select, .membership-delete { min-height: 44px; }
+  .toggle-row { min-height: 52px; gap: 12px; }
 }
 
 @media (max-width: 370px) {
