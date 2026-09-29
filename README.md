@@ -2,39 +2,41 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-**An open-source, local-first flight log and Flight Passport for people who want to own their travel history.**
+**An open-source, local-first personal flight archive and Flight Passport.**
 
-Keepraw Fly records your flights in a portable JSON archive, then turns those facts into a searchable flight list, flight details, maps and Passport statistics. It is designed for personal use: no account is required, and the default build has no backend for storing your flight data.
+Keepraw Fly keeps your flight history in a portable JSON archive. The Flight Passport is the main mobile entry point for exploring that history, with flight records and details close at hand. No account is required, and the default build has no backend for storing your flights.
 
 > The data outlives the app.
 
-## What you can do
+## Flight Passport
 
-- Add, edit, duplicate and delete flight records.
-- Keep scheduled and actual local times, cancellation and diversion facts, terminals and gates.
-- Record ticket numbers, booking references, aircraft, registration, seat, cabin, booking class and frequent-flyer memberships.
-- Search by flight, airport, city, airline, aircraft and year.
-- Review flight details with local times, operational status, route maps and derived distance/duration.
-- Explore a Flight Passport with lifetime and yearly totals for flights, distance, time, airports, airlines, countries and routes.
-- Use English, Simplified Chinese or Traditional Chinese, with light, dark or system appearance and responsive desktop/mobile layouts.
+Passport brings together lifetime or selected-year totals for flights, distance, time in the air and recorded delay. It also counts countries, airports, airlines and aircraft types. On mobile, the summary, delay and network panels lead into flight highlights and the searchable flight history. Select an airport, airline or route highlight to explore related records; the Passport route map provides another way to explore flights.
 
-## Import your existing flights
+## Flight archive and detail
+
+- Search the flight history and filter it by year. Add, edit, duplicate or delete a flight.
+- Keep scheduled and actual local times, cancellation and diversion facts, departure and arrival gates and terminals, and optional baggage carousel information.
+- Review arrival delay or early arrival, flight duration and distance alongside aircraft, seat, cabin, ticket number, booking reference (PNR), registration and frequent-flyer information when recorded.
+- On desktop, Flight Detail pairs the itinerary with a route map and archive fields. On mobile, it uses a compact itinerary and archive layout without the detail map.
+
+## Import and backup
 
 Open **Settings → Data** to review an import before it changes your archive.
 
-- **Flighty CSV:** import a native Flighty export directly. Flighty airline codes and flight numbers are normalized locally, and supported Flighty fields are mapped into the canonical Keepraw Fly model.
+- **Flighty CSV:** import supported fields from a Flighty CSV export. Airline codes and flight numbers are normalized locally; this is a one-way import, not full Flighty format compatibility or synchronization.
 - **Keepraw Fly CSV bulk import:** batch-import rows using the documented Keepraw Fly columns, with automatic or manual column mapping.
 - **JSON archive:** import or export the portable Keepraw Fly archive for backups and moving data between browsers.
 
-Both CSV workflows validate the complete file and show a preview before confirmation. CSV timestamps are entered as airport local time, without an offset; Keepraw Fly resolves them with the airport's IANA timezone, including daylight-saving transitions. Existing RFC 3339 timestamps with an offset or `Z` remain supported.
+Imports are previewed before confirmation. New flights are added to the existing archive; exact duplicates are skipped, and possible duplicates can be reviewed before inclusion. Both CSV workflows validate the file before writing. CSV timestamps can use airport local time without an offset; Keepraw Fly resolves them with the airport's IANA timezone, including daylight-saving transitions. RFC 3339 timestamps with an offset or `Z` are also supported.
 
-## Your data stays yours
+## Local data, languages and appearance
 
 - Flight archives are stored in the browser's IndexedDB by default.
 - There is no account system, cloud sync or Keepraw Fly backend storing user flight data.
 - The default build is static and does not upload flight records to a server or use analytics SDKs.
 - Export a portable JSON archive regularly. Clearing browser data can remove the local archive.
 - Viewer preferences are kept separately from the portable flight document.
+- The interface supports English, Simplified Chinese and Traditional Chinese, light, dark or system appearance, and responsive desktop and mobile layouts.
 
 Airport, airline and map reference assets are bundled with the application. They are reference data, not a live flight-status service. See [third-party notices](THIRD_PARTY_NOTICES.md) for source and license information.
 
@@ -64,17 +66,25 @@ pnpm preview
 
 Open the URL printed by Vite, normally <http://127.0.0.1:4173>. Do not open `apps/web/dist/index.html` directly; the production build expects to be served over HTTP so browser modules and IndexedDB work correctly.
 
+## Development and verification
+
+The repository provides documentation checks, TypeScript checks, unit tests, a production build and Playwright end-to-end tests, including responsive flows. GitHub Actions runs these checks for pull requests and the main branch.
+
+```bash
+pnpm check:docs
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:e2e
+```
+
+Install the Playwright browser with `pnpm exec playwright install chromium` before running the end-to-end suite locally.
+
 ## Data format
 
 Keepraw Fly archives use the portable `keepraw-fly` JSON format, currently at format version `0.1.0`. The validator preserves supported canonical data and namespaced extensions through normal import, edit and export flows.
 
 See the [schema notes](docs/schema.md) and the canonical [JSON Schema](packages/schema/keepraw-fly.schema.json) for the data contract. The [architecture notes](docs/architecture.md) describe the storage and import boundaries.
-
-## 0.1.0
-
-Keepraw Fly 0.1.0 is the first release focused on a dependable local flight archive: guided editing, Flight Passport views, portable JSON, Keepraw Fly CSV and native Flighty CSV import, airport-local time handling, cancellation/diversion facts, and responsive multilingual viewing.
-
-Backend accounts, synchronization, live flight services, booking integrations and native apps are intentionally outside this release. See [deferred scope](docs/not-implemented.md).
 
 ## Documentation
 
