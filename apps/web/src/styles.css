@@ -1539,10 +1539,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .operation-badge-group,
   .detail-desktop-only { display: none; }
   .mobile-gate-signage { display: flex; min-width: 0; max-width: min(42vw, 160px); flex-direction: column; align-items: flex-start; justify-self: end; gap: 4px; }
-  .mobile-gate-sign { display: inline-flex; min-width: 0; min-height: 29px; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 6px; color: var(--color-on-gate-sign); background: var(--color-gate-sign); box-shadow: 0 1px 2px rgb(0 0 0 / 5%); }
-  .mobile-gate-sign svg { width: 14px; height: 14px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
-  .mobile-gate-sign span { font-size: 0.6875rem; font-weight: var(--font-weight-semibold); white-space: nowrap; }
-  .mobile-gate-sign strong { min-width: 0; font-family: var(--font-family-data); font-size: 1.0625rem; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-bold); line-height: 1; overflow-wrap: anywhere; }
+  .mobile-gate-sign { display: inline-flex; min-width: 90px; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 6px 10px; border-radius: 10px; color: var(--color-on-gate-sign); background: var(--color-gate-sign); }
+  .mobile-gate-sign svg { width: 17px; height: 17px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+  .mobile-gate-sign strong { min-width: 0; font-family: var(--font-family-data); font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-bold); line-height: 1; overflow-wrap: anywhere; }
   .mobile-gate-terminal { color: var(--muted); font-size: 0.6875rem; line-height: 1.25; overflow-wrap: anywhere; }
   .detail-mobile-baggage { display: inline; }
   .detail-mobile-baggage::before { display: none; }

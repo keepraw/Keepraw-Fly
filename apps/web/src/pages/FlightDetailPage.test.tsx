@@ -38,9 +38,11 @@ describe("Flight Detail operational signage", () => {
     const departure = stopMarkup(flight, "departure");
     const arrival = stopMarkup(flight, "arrival");
 
-    expect(departure).toMatch(/class="mobile-gate-sign"[\s\S]*?F12/);
+    expect(departure).toMatch(/class="mobile-gate-sign" role="img" aria-label="登机口 F12"><svg[\s\S]*?<strong>F12<\/strong><\/div>/);
+    expect(departure).not.toContain("<span>登机口</span>");
     expect(departure).toContain("航站楼 3");
-    expect(arrival).toMatch(/class="mobile-gate-sign"[\s\S]*?A7/);
+    expect(arrival).toMatch(/class="mobile-gate-sign" role="img" aria-label="登机口 A7"><svg[\s\S]*?<strong>A7<\/strong><\/div>/);
+    expect(arrival).not.toContain("<span>登机口</span>");
     expect(arrival).toContain("航站楼 7");
     expect(arrival).toContain("行李转盘 4");
     expect(arrival).toMatch(/class="operation-badge-group"[\s\S]*?4/);

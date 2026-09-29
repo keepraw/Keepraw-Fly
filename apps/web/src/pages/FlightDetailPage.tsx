@@ -61,9 +61,8 @@ function MobileGateSignage({ gate, terminal }: { gate?: string; terminal?: strin
 
   return (
     <div className="mobile-gate-signage">
-      {gate ? <div className="mobile-gate-sign">
+      {gate ? <div className="mobile-gate-sign" role="img" aria-label={`${t("flightDetail.gate")} ${gate}`}>
         <DetailIcon kind="gate" />
-        <span>{t("flightDetail.gate")}</span>
         <strong>{gate}</strong>
       </div> : null}
       {terminal ? <span className="mobile-gate-terminal">{t("flightDetail.terminal")} {terminal}</span> : null}
