@@ -43,15 +43,30 @@ function DetailIcon({ kind }: { kind: IconKind }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19h19m-2.2-7.9-3.4-2.6L9 10.4 4.5 7.8l-1.3.7 3.2 5.5L2 15.2v1.5l16.1-4.3c.7-.2 1.1-.9.9-1.6-.1-.5-.7-1-1.2-1Z" /></svg>;
 }
 
-function OperationBadge({ icon, label, value, meta }: { icon: "baggage" | "gate"; label: string; value: string; meta?: string }) {
+function OperationBadge({ icon, value, meta }: { icon: "baggage" | "gate"; value: string; meta?: string }) {
   return (
     <div className="operation-badge-group">
       <div className="operation-badge">
         <DetailIcon kind={icon} />
-        <span className="operation-badge-label">{label}</span>
         <strong>{value}</strong>
       </div>
       {meta ? <span>{meta}</span> : null}
+    </div>
+  );
+}
+
+function MobileGateSignage({ gate, terminal }: { gate?: string; terminal?: string }) {
+  const { t } = useTranslation();
+  if (!gate && !terminal) return null;
+
+  return (
+    <div className="mobile-gate-signage">
+      {gate ? <div className="mobile-gate-sign">
+        <DetailIcon kind="gate" />
+        <span>{t("flightDetail.gate")}</span>
+        <strong>{gate}</strong>
+      </div> : null}
+      {terminal ? <span className="mobile-gate-terminal">{t("flightDetail.terminal")} {terminal}</span> : null}
     </div>
   );
 }
@@ -103,7 +118,8 @@ function AirportStop({
           </div>
           {airport ? <p className={kind === "departure" ? "route-origin-airport" : "route-arrival-airport"}>{airport}</p> : null}
         </div>
-        {operationValue ? <OperationBadge icon={operationIcon} label={t(operationIcon === "baggage" ? "flightDetail.baggageCarousel" : "flightDetail.gate")} value={operationValue} meta={operationMeta} /> : null}
+        {operationValue ? <OperationBadge icon={operationIcon} value={operationValue} meta={operationMeta} /> : null}
+        <MobileGateSignage gate={gate} terminal={terminal} />
       </div>
 
       <div className="detail-stop-timing">
@@ -113,8 +129,9 @@ function AirportStop({
         </div>
         <div className="detail-stop-meta">
           {delayLabel ? <strong className={delay === 0 ? "is-on-time" : delay! < 0 ? "is-early" : "is-delayed"}>{delayLabel}</strong> : null}
-          {!operationValue && terminal ? <span>{operationMeta}</span> : null}
-          {kind === "arrival" && baggageCarousel && gate ? <span>{t("flightDetail.gate")} {gate}</span> : null}
+          {!operationValue && terminal ? <span className="detail-desktop-only">{operationMeta}</span> : null}
+          {kind === "arrival" && baggageCarousel && gate ? <span className="detail-desktop-only">{t("flightDetail.gate")} {gate}</span> : null}
+          {kind === "arrival" && baggageCarousel ? <span className="detail-mobile-baggage">{t("flightDetail.baggageCarousel")} {baggageCarousel}</span> : null}
         </div>
       </div>
     </section>

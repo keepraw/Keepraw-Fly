@@ -1384,9 +1384,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
 }
 .operation-badge svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
-.operation-badge-label { display: none; }
 .operation-badge strong { max-width: 92px; overflow: hidden; font-family: var(--font-family-data); font-size: 2rem; font-feature-settings: var(--numeric-features); font-variant-numeric: tabular-nums; font-weight: 750; letter-spacing: -0.04em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
 .operation-badge-group > span { padding-right: 2px; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-medium); line-height: 1.2; }
+.mobile-gate-signage,
+.detail-mobile-baggage { display: none; }
 
 .detail-stop-times { display: flex; align-items: baseline; gap: 13px; margin-top: 17px; }
 .detail-stop-timing { display: contents; }
@@ -1535,12 +1536,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-stop-place { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding-top: 0; }
   .detail-stop-place > div { justify-content: flex-start; width: 100%; }
   .detail-stop-place p { justify-self: start; width: 100%; max-width: none; margin-top: 3px; overflow: visible; text-align: left; text-overflow: clip; white-space: normal; }
-  .operation-badge-group { justify-self: end; align-items: flex-start; gap: 2px; padding-left: 8px; border-left: 2px solid var(--color-gate-sign); }
-  .operation-badge { min-width: 0; min-height: 0; gap: 5px; padding: 0; border-radius: 0; color: var(--ink); background: transparent; box-shadow: none; }
-  .operation-badge svg { display: none; }
-  .operation-badge-label { display: inline; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-medium); white-space: nowrap; }
-  .operation-badge strong { max-width: 70px; font-size: 1rem; font-weight: var(--font-weight-bold); letter-spacing: 0; }
-  .operation-badge-group > span { padding-right: 0; font-size: 0.6875rem; }
+  .operation-badge-group,
+  .detail-desktop-only { display: none; }
+  .mobile-gate-signage { display: flex; min-width: 0; max-width: min(42vw, 160px); flex-direction: column; align-items: flex-start; justify-self: end; gap: 4px; }
+  .mobile-gate-sign { display: inline-flex; min-width: 0; min-height: 29px; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 6px; color: var(--color-on-gate-sign); background: var(--color-gate-sign); box-shadow: 0 1px 2px rgb(0 0 0 / 5%); }
+  .mobile-gate-sign svg { width: 14px; height: 14px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+  .mobile-gate-sign span { font-size: 0.6875rem; font-weight: var(--font-weight-semibold); white-space: nowrap; }
+  .mobile-gate-sign strong { min-width: 0; font-family: var(--font-family-data); font-size: 1.0625rem; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-bold); line-height: 1; overflow-wrap: anywhere; }
+  .mobile-gate-terminal { color: var(--muted); font-size: 0.6875rem; line-height: 1.25; overflow-wrap: anywhere; }
+  .detail-mobile-baggage { display: inline; }
+  .detail-mobile-baggage::before { display: none; }
   .detail-stop-timing { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; margin-top: 8px; }
   .detail-stop-times { gap: 8px; margin-top: 0; }
   .detail-airport-time { font-size: clamp(1.5rem, 6vw, 1.625rem); font-weight: var(--font-weight-semibold); letter-spacing: -0.03em; }
