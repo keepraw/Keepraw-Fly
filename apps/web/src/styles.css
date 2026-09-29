@@ -1535,7 +1535,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-stop-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .detail-stop-place { padding-top: 0; }
   .detail-stop-place p { max-width: none; margin-top: 3px; }
-  .detail-stop-place p { overflow: visible; text-overflow: clip; white-space: normal; }
+  .detail-stop-place p { overflow: visible; text-align: left; text-overflow: clip; white-space: normal; }
   .operation-badge-group { gap: 3px; }
   .operation-badge { min-width: 0; min-height: 0; gap: 5px; padding: 5px 7px; border-radius: 5px; color: var(--ink); background: color-mix(in srgb, var(--color-gate-sign) 24%, transparent); box-shadow: none; }
   .operation-badge svg { display: none; }
