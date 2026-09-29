@@ -300,6 +300,9 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
   expect(mobile.pageOverflow).toBe("visible");
   expect(mobile.pageScrolls).toBe(true);
   expect(mobile.fitsWidth).toBe(true);
+  await expect(page.locator(".route-map-canvas, .route-map-loading")).toHaveCount(0);
+  await page.setViewportSize({ width: 901, height: 900 });
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
 });
 
 test("keeps the mobile Passport composition visually stable", async ({ page }) => {
@@ -309,8 +312,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
   await expect(page.locator(".mobile-page-heading h1")).toHaveText("Passport");
   await expect(page.locator(".mobile-navigation")).toHaveCount(0);
   await page.getByRole("button", { name: "Try demo" }).click();
-  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
-  await expect(page.locator(".route-map-loading")).toHaveCount(0);
+  await expect(page.locator(".route-map-canvas, .route-map-loading")).toHaveCount(0);
   await mkdir(reviewScreenshotDirectory, { recursive: true });
 
   for (const viewport of [
@@ -321,6 +323,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     { width: 768, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
+    await expect(page.locator(".route-map-canvas, .route-map-loading")).toHaveCount(0);
     await page.evaluate(async () => {
       window.scrollTo({ top: 0, behavior: "instant" });
       await document.fonts.ready;
@@ -344,7 +347,6 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
       const highlights = document.querySelector<HTMLElement>(".passport-highlights")!;
       const archive = document.querySelector<HTMLElement>(".archive-heading")!;
       const firstFlightYear = document.querySelector<HTMLElement>(".flight-year")!;
-      const map = document.querySelector<HTMLElement>(".route-map")!;
       const header = document.querySelector<HTMLElement>(".site-header")!;
       const settings = document.querySelector<HTMLElement>(".mobile-settings-button")!;
       const panels = [summary, delay, network];
@@ -367,7 +369,8 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
         panelsOrdered: summary.getBoundingClientRect().top < delay.getBoundingClientRect().top
           && delay.getBoundingClientRect().top < network.getBoundingClientRect().top
           && network.getBoundingClientRect().top < archive.getBoundingClientRect().top,
-        archiveEntriesBeforeMap: firstFlightYear.getBoundingClientRect().top < map.getBoundingClientRect().top,
+        archiveFollowsPanels: firstFlightYear.getBoundingClientRect().top > network.getBoundingClientRect().bottom,
+        noMapPlaceholder: document.querySelector(".route-map, .route-map-loading") === null,
         highlightsHidden: getComputedStyle(highlights).display === "none",
         periodYears: Array.from(document.querySelectorAll(".passport-mobile-period button")).map((button) => button.textContent),
         pastFlightsTitle: archive.querySelector(".passport-mobile-section-title")?.textContent?.trim(),
@@ -383,7 +386,8 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.panelsDistinct).toBe(true);
     expect(composition.panelContentsFit).toBe(true);
     expect(composition.panelsOrdered).toBe(true);
-    expect(composition.archiveEntriesBeforeMap).toBe(true);
+    expect(composition.archiveFollowsPanels).toBe(true);
+    expect(composition.noMapPlaceholder).toBe(true);
     expect(composition.highlightsHidden).toBe(true);
     expect(composition.periodYears).toEqual(["Lifetime", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
@@ -403,6 +407,28 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
   await expect.poll(() => page.locator(".flight-row").last().evaluate((row) => row.getBoundingClientRect().bottom <= window.innerHeight)).toBe(true);
   await page.getByRole("button", { name: /Open / }).last().click();
   await expect(page.locator(".detail-header-back")).toBeVisible();
+});
+
+test.describe("Chinese distance defaults", () => {
+  test.use({ locale: "zh-CN" });
+
+  test("starts in kilometers and keeps an explicit miles choice", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".welcome-actions .button-secondary").click();
+    await expect(page.locator(".primary-stats")).toContainText("公里");
+    await page.locator(".flight-row").first().click();
+    await expect(page.locator(".detail-heading-route-summary")).toContainText("公里");
+
+    await page.locator(".detail-header-back").click();
+    await page.locator('.site-navigation a[href="#settings"]').click();
+    const distanceSelect = page.locator(".settings-display-fields label").nth(2).locator("select");
+    await expect(distanceSelect).toHaveValue("kilometers");
+    await distanceSelect.selectOption("miles");
+    await page.locator('.site-navigation a[href="#passport"]').click();
+    await expect(page.locator(".primary-stats")).toContainText("英里");
+    await page.locator(".flight-row").first().click();
+    await expect(page.locator(".detail-heading-route-summary")).toContainText("英里");
+  });
 });
 
 test("keeps the operational summary inside the flight header at desktop and mobile widths", async ({ page }) => {
@@ -438,10 +464,11 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 1024, height: 900 },
+    { width: 901, height: 900 },
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    await expect(page.locator(".detail-route-map")).toHaveCount(viewport.width <= 900 ? 0 : 1);
+    await expect(page.locator(".detail-route-map, .detail-route-map-loading")).toHaveCount(viewport.width <= 900 ? 0 : 1);
     const layout = await page.evaluate(() => {
       const style = (selector: string) => getComputedStyle(document.querySelector<HTMLElement>(selector)!);
       const grid = document.querySelector<HTMLElement>(".detail-operational-grid")!;
@@ -468,13 +495,15 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     if (viewport.width <= 900) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
+      await expect(page.locator(".detail-heading-route-summary")).toBeVisible();
+      await expect(page.locator(".detail-route-map-canvas")).toHaveCount(0);
     } else {
       expect(layout.mapHeight).toBeCloseTo(Math.min(380, Math.max(300, viewport.height * 0.42)), 1);
       expect(layout.mapRadius).toBe("16px");
     }
     expect(layout.actualDominatesSchedule).toBe(true);
     expect(layout.operationBadges).toBeGreaterThanOrEqual(1);
-    expect(layout.metadataColumns).toBe(2);
+    expect(layout.metadataColumns).toBe(1);
     expect(layout.cardShadow).toBe("none");
     expect(layout.cardRadius).toBe("0px");
     expect(layout.gridWidth).toBeGreaterThan(0);
@@ -926,8 +955,12 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expect(page.locator(".detail-heading-summary")).toContainText("已到达");
   await expect(page.locator(".detail-heading-summary")).toContainText("提前 35 分钟");
   await expect(page.locator(".detail-heading-summary")).toContainText("英里");
+  await expect(page.locator(".detail-heading-route-summary")).toHaveCount(1);
+  await expect(page.locator(".detail-journey-summary")).toHaveCount(0);
   await expect(page.locator(".detail-metadata-column").first()).toContainText("商务舱");
   await expect(page.locator(".detail-metadata-column").first()).not.toContainText("business");
+  await expect(page.locator(".detail-metadata-column").first()).toContainText("B-1234");
+  await expect(page.locator(".detail-metadata-column").nth(1)).not.toContainText("B-1234");
   await expect(page.getByRole("button", { name: "复制为新航班" })).toBeVisible();
   await expect(page.getByRole("button", { name: "编辑航班" })).toBeVisible();
 
@@ -975,6 +1008,8 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expect(page.locator(".detail-map-route")).toHaveCount(1);
 
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".detail-route-map-canvas, .detail-route-map-loading")).toHaveCount(0);
+  await expect(page.locator(".detail-metadata-column").first()).toContainText("B-1234");
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 
   await page.getByRole("button", { name: "飞行护照", exact: true }).click();

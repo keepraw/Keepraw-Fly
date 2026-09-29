@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -42,6 +42,16 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   const [query, setQuery] = useState("");
   const [selection, setSelection] = useState<PassportSelection | null>(null);
   const [hoveredFlight, setHoveredFlight] = useState<KeeprawFlight | null>(null);
+  const [showDesktopMap, setShowDesktopMap] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.matchMedia?.("(min-width: 901px)").matches));
+  useEffect(() => {
+    const media = window.matchMedia?.("(min-width: 901px)");
+    if (!media) return;
+    const update = () => setShowDesktopMap(media.matches);
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, []);
   const years = useMemo(() => calculateYearStatistics(document.flights), [document.flights]);
   const flights = useMemo(
     () => selectedYear === "lifetime"
@@ -112,7 +122,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               <button type="button" aria-pressed={selectedYear === "lifetime"} onClick={() => selectYear("lifetime")}>{t("passport.lifetime")}</button>
               {years.map((year) => <button key={year.year} type="button" aria-pressed={selectedYear === year.year} onClick={() => selectYear(year.year)}>{year.year}</button>)}
             </div>
-            <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
+            {showDesktopMap ? <Suspense fallback={<section className="route-map route-map-loading" aria-busy="true"><span>{t("app.loading")}</span></section>}>
               <PassportRouteMap
                 key={`map-${selectedYear}`}
                 routes={routes}
@@ -123,7 +133,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
                 onSelectAirport={(code) => setSelection({ kind: "airport", code })}
                 onSelectRoute={(origin, destination) => setSelection({ kind: "route", origin, destination })}
               />
-            </Suspense>
+            </Suspense> : null}
 
             <section className="primary-stats" key={`primary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
               <div><span>{t("passport.flights")}</span><strong>{stats.flights.toLocaleString(locale)}</strong></div>

@@ -1418,19 +1418,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .operation-badge-group { display: flex; flex: 0 0 auto; align-items: flex-end; flex-direction: column; gap: 5px; }
 .operation-badge {
   display: inline-flex;
-  min-width: 102px;
-  min-height: 46px;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 6px 14px;
-  border-radius: 12px;
-  color: var(--color-on-gate-sign);
-  background: var(--color-gate-sign);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  gap: 6px;
+  color: var(--muted);
 }
-.operation-badge svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
-.operation-badge strong { max-width: 92px; overflow: hidden; font-family: var(--font-family-data); font-size: 2rem; font-feature-settings: var(--numeric-features); font-variant-numeric: tabular-nums; font-weight: 750; letter-spacing: -0.04em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+.operation-badge svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+.operation-badge strong { max-width: 92px; overflow: hidden; color: var(--ink); font-family: var(--font-family-data); font-size: 0.9375rem; font-feature-settings: var(--numeric-features); font-variant-numeric: tabular-nums; font-weight: var(--font-weight-semibold); line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
 .operation-badge-group > span { padding-right: 2px; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-medium); line-height: 1.2; }
 .mobile-gate-signage,
 .detail-mobile-baggage { display: none; }
@@ -1455,9 +1448,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .detail-stop-meta .is-early,
 .detail-stop-meta .is-on-time { color: var(--color-positive); }
 .detail-stop-meta .is-delayed { color: var(--color-warning); }
-
-.detail-journey-summary { display: flex; align-items: center; gap: 10px; padding-block: 15px; color: var(--muted); font-size: 0.8125rem; font-weight: var(--font-weight-medium); }
-.detail-journey-summary svg { width: 17px; height: 17px; fill: currentColor; transform: rotate(90deg); opacity: 0.55; }
 
 .detail-route-map {
   height: 380px;
@@ -1574,8 +1564,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-heading-summary { gap: 6px 9px; font-size: 0.8125rem; }
   .detail-heading-summary > strong,
   .detail-operational-status { font-size: 0.875rem; }
-  .detail-heading-summary > i,
-  .detail-heading-route-summary { display: none; }
+  .detail-heading-summary > i { display: none; }
+  .detail-heading-route-summary { flex-basis: 100%; font-size: 0.75rem; }
   .detail-operational-grid { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 22px; margin-bottom: 18px; }
   .detail-stops { min-height: 0; gap: 0; padding-top: 0; }
   .detail-stop-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
@@ -1585,9 +1575,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .operation-badge-group,
   .detail-desktop-only { display: none; }
   .mobile-gate-signage { display: flex; min-width: 0; max-width: min(42vw, 160px); flex-direction: column; align-items: flex-start; justify-self: end; gap: 4px; }
-  .mobile-gate-sign { display: inline-flex; min-width: 90px; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 6px 10px; border-radius: 10px; color: var(--color-on-gate-sign); background: var(--color-gate-sign); }
-  .mobile-gate-sign svg { width: 17px; height: 17px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
-  .mobile-gate-sign strong { min-width: 0; font-family: var(--font-family-data); font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-bold); line-height: 1; overflow-wrap: anywhere; }
+  .mobile-gate-sign { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  .mobile-gate-sign svg { width: 14px; height: 14px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+  .mobile-gate-sign strong { min-width: 0; color: var(--ink); font-family: var(--font-family-data); font-size: 0.875rem; font-variant-numeric: tabular-nums; font-weight: var(--font-weight-semibold); line-height: 1.3; overflow-wrap: anywhere; }
   .mobile-gate-terminal { color: var(--muted); font-size: 0.6875rem; line-height: 1.25; overflow-wrap: anywhere; }
   .detail-mobile-baggage { display: inline; }
   .detail-mobile-baggage::before { display: none; }
@@ -1597,8 +1587,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-scheduled-time { font-size: 0.875rem; }
   .detail-stop-meta { min-height: 0; gap: 5px; margin-top: 0; font-size: 0.75rem; }
   .detail-stop-meta > * + *::before { margin-right: 5px; }
-  .detail-journey-summary { gap: 0; padding-block: 9px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 0.75rem; }
-  .detail-journey-summary svg { display: none; }
   .detail-stop--departure { padding-bottom: 10px; }
   .detail-stop--arrival { padding-top: 10px; }
   .detail-route-map,
@@ -1608,8 +1596,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-metadata-column:nth-of-type(2) { padding: 18px 0; border-left: 0; }
   .detail-metadata-column h2,
   .detail-mobile-section-title { display: block; margin: 0 0 11px; color: var(--muted); font-size: 0.75rem; font-weight: var(--font-weight-bold); letter-spacing: 0.04em; line-height: 1.3; }
-  .detail-metadata-desktop,
-  .detail-metadata-footer { display: none; }
+  .detail-metadata-desktop { display: none; }
+  .detail-metadata-footer { margin-top: 12px; font-size: 0.75rem; }
   .detail-mobile-facts,
   .detail-record-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 18px; }
   .detail-mobile-fact,
@@ -2113,7 +2101,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-mobile-panel { margin-top: var(--passport-mobile-panel-gap); }
   .passport-delay-panel { order: 2; color: var(--delay-surface-text); background: var(--delay-surface); }
   .passport-network-panel { order: 3; color: var(--network-surface-text); background: var(--network-surface); }
-  .passport-archive-page .route-map { order: 6; }
   .passport-archive-page .passport-highlights { display: none; }
   .passport-archive { display: contents; }
   .archive-heading { order: 4; margin-top: 30px; padding-top: 22px; padding-bottom: 10px; border-top: 1px solid var(--color-line-strong); }
@@ -2164,10 +2151,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .passport-highlight:nth-child(-n + 2) { grid-template-columns: minmax(0, 1fr); }
   .passport-archive-page .passport-highlight:nth-child(-n + 2) > small { grid-column: 1; grid-row: 3; text-align: left; }
   .passport-archive-page .highlight-route { font-family: var(--font-family-mono); }
-  .passport-archive-page .route-map { margin-top: 28px; padding: 16px 0 20px; border-top: 1px solid var(--color-line-strong); }
-  .passport-archive-page .route-map-canvas { margin: 0; aspect-ratio: 1.55; }
-  .passport-archive-page .map-airport-label { font-size: 0.75rem; }
-  .passport-archive-page .map-airport-label.is-secondary { display: none; }
   .passport-archive .flight-year:first-child { margin-top: 12px; }
   .passport-archive .year-heading h1,
   .passport-archive .year-heading h2 { font-family: var(--font-family-ui); font-size: 1.625rem; font-weight: var(--font-weight-semibold); letter-spacing: -0.04em; }
