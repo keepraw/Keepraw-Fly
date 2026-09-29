@@ -197,7 +197,6 @@
     "departed": "Departed",
     "to": "to",
     "total": "Total",
-    "totalFlightTime": "Total flight time",
     "earlyShort": "{{count}}m Early",
     "lateShort": "{{count}}m Late",
     "durationHoursMinutes": "{{hours}}h {{minutes}}m",

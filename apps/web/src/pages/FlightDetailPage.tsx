@@ -133,8 +133,8 @@ function MetadataColumn({ title, children, footer }: { title: string; children: 
   );
 }
 
-function MobileFact({ label, value }: { label: string; value: string }) {
-  return <div className="detail-mobile-fact"><span>{label}</span><strong>{value}</strong></div>;
+function MobileFact({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
+  return <div className={`detail-mobile-fact${wide ? " detail-mobile-fact--wide" : ""}`}><span>{label}</span><strong>{value}</strong></div>;
 }
 
 function airportNameLabel(airport: ReturnType<typeof airportByIata.get>, iata: string, locale: SupportedLocale): string | undefined {
@@ -250,7 +250,6 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             />
             <div className="detail-journey-summary">
               <DetailIcon kind="flight" />
-              <span className="detail-journey-label">{t("flightDetail.totalFlightTime")}</span>
               <span>{routeSummary}</span>
             </div>
             <AirportStop
@@ -293,9 +292,11 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
           </MetadataColumn> : null}
 
           {hasTripRecord ? <MetadataColumn title={t("flightDetail.tripRecord")}>
-            {ticket ? <div className="detail-record-item"><span>{t("flightDetail.ticketNumber")}</span><strong>{formatTicketNumber(ticket.number)}</strong></div> : null}
-            {flight.bookingReference ? <div className="detail-record-item"><span>{t("flightDetail.bookingReference")}</span><strong>{flight.bookingReference}</strong></div> : null}
-            {aircraft?.registration ? <div className="detail-record-item"><span>{t("flightDetail.registration")}</span><strong>{aircraft.registration}</strong></div> : null}
+            <div className="detail-record-facts">
+              {ticket ? <div className="detail-record-item detail-record-item--wide"><span>{t("flightDetail.ticketNumber")}</span><strong>{formatTicketNumber(ticket.number)}</strong></div> : null}
+              {flight.bookingReference ? <div className={`detail-record-item${flight.bookingReference.length > 12 ? " detail-record-item--wide" : ""}`}><span>{t("flightDetail.bookingReference")}</span><strong>{flight.bookingReference}</strong></div> : null}
+              {aircraft?.registration ? <div className={`detail-record-item${aircraft.registration.length > 12 ? " detail-record-item--wide" : ""}`}><span>{t("flightDetail.registration")}</span><strong>{aircraft.registration}</strong></div> : null}
+            </div>
           </MetadataColumn> : null}
 
           {frequentFlyer ? <section className="frequent-flyer-card">
@@ -312,9 +313,9 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
               <strong>{frequentFlyer.memberNumber}</strong>
             </div>
             <div className="detail-mobile-facts">
-              <MobileFact label={t("flightDetail.frequentFlyerProgram")} value={frequentFlyer.programName} />
+              <MobileFact label={t("flightDetail.frequentFlyerProgram")} value={frequentFlyer.programName} wide={frequentFlyer.programName.length > 12} />
               {frequentFlyer.tierAtFlight ? <MobileFact label={t("flightDetail.tier")} value={frequentFlyer.tierAtFlight} /> : null}
-              <MobileFact label={t("flightDetail.memberNumber")} value={frequentFlyer.memberNumber} />
+              <MobileFact label={t("flightDetail.memberNumber")} value={frequentFlyer.memberNumber} wide />
             </div>
           </section> : null}
         </div> : null}

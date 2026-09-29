@@ -194,7 +194,6 @@
     "departed": "已出發",
     "to": "飛往",
     "total": "全程",
-    "totalFlightTime": "總飛行時間",
     "earlyShort": "提前 {{count}} 分鐘",
     "lateShort": "晚點 {{count}} 分鐘",
     "durationHoursMinutes": "{{hours}} 小時 {{minutes}} 分鐘",

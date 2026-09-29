@@ -441,17 +441,18 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
+    await expect(page.locator(".detail-route-map")).toHaveCount(viewport.width <= 900 ? 0 : 1);
     const layout = await page.evaluate(() => {
       const style = (selector: string) => getComputedStyle(document.querySelector<HTMLElement>(selector)!);
       const grid = document.querySelector<HTMLElement>(".detail-operational-grid")!;
-      const map = document.querySelector<HTMLElement>(".detail-route-map")!;
+      const map = document.querySelector<HTMLElement>(".detail-route-map");
       const actual = document.querySelector<HTMLElement>(".detail-airport-time")!;
       const scheduled = document.querySelector<HTMLElement>(".detail-scheduled-time")!;
       const card = document.querySelector<HTMLElement>(".detail-flight-card")!;
       return {
         gridColumns: style(".detail-operational-grid").gridTemplateColumns.split(" ").length,
-        mapHeight: map.getBoundingClientRect().height,
-        mapRadius: style(".detail-route-map").borderRadius,
+        mapHeight: map?.getBoundingClientRect().height ?? 0,
+        mapRadius: map ? getComputedStyle(map).borderRadius : null,
         actualDominatesSchedule: Number.parseFloat(getComputedStyle(actual).fontSize) > Number.parseFloat(getComputedStyle(scheduled).fontSize),
         operationBadges: document.querySelectorAll(".operation-badge").length,
         metadataColumns: document.querySelectorAll(".detail-metadata-column").length,
@@ -464,12 +465,13 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     });
 
     expect(layout.gridColumns).toBe(viewport.width <= 900 ? 1 : 2);
-    const expectedMapHeight =
-      viewport.width <= 900
-          ? 300
-              : Math.min(380, Math.max(300, viewport.height * 0.42));
-    expect(layout.mapHeight).toBeCloseTo(expectedMapHeight, 1);
-    expect(layout.mapRadius).toBe("16px");
+    if (viewport.width <= 900) {
+      expect(layout.mapHeight).toBe(0);
+      expect(layout.mapRadius).toBeNull();
+    } else {
+      expect(layout.mapHeight).toBeCloseTo(Math.min(380, Math.max(300, viewport.height * 0.42)), 1);
+      expect(layout.mapRadius).toBe("16px");
+    }
     expect(layout.actualDominatesSchedule).toBe(true);
     expect(layout.operationBadges).toBeGreaterThanOrEqual(1);
     expect(layout.metadataColumns).toBe(2);

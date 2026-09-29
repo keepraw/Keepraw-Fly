@@ -1411,7 +1411,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .detail-journey-summary { display: flex; align-items: center; gap: 10px; padding-block: 15px; color: var(--muted); font-size: 0.8125rem; font-weight: var(--font-weight-medium); }
 .detail-journey-summary svg { width: 17px; height: 17px; fill: currentColor; transform: rotate(90deg); opacity: 0.55; }
-.detail-journey-label { display: none; }
 
 .detail-route-map {
   height: 380px;
@@ -1524,7 +1523,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-heading { padding: 0; }
   .detail-heading-eyebrow { flex-wrap: wrap; gap: 5px 7px; font-size: 0.6875rem; letter-spacing: 0.02em; }
   .detail-heading-eyebrow .detail-airline-name { max-width: min(36vw, 150px); }
-  .detail-heading h1 { margin: 10px 0 8px; font-size: clamp(1.6rem, 7vw, 1.875rem); line-height: 1.18; }
+  .detail-heading h1 { margin: 10px 0 8px; font-size: clamp(1.55rem, 6.5vw, 1.75rem); line-height: 1.2; }
   .detail-heading-summary { gap: 6px 9px; font-size: 0.8125rem; }
   .detail-heading-summary > strong,
   .detail-operational-status { font-size: 0.875rem; }
@@ -1532,44 +1531,46 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .detail-heading-route-summary { display: none; }
   .detail-operational-grid { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 22px; margin-bottom: 18px; }
   .detail-stops { min-height: 0; gap: 0; padding-top: 0; }
-  .detail-stop-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-  .detail-stop-place { padding-top: 0; }
-  .detail-stop-place p { max-width: none; margin-top: 3px; }
-  .detail-stop-place p { overflow: visible; text-align: left; text-overflow: clip; white-space: normal; }
-  .operation-badge-group { gap: 3px; }
-  .operation-badge { min-width: 0; min-height: 0; gap: 5px; padding: 5px 7px; border-radius: 5px; color: var(--ink); background: color-mix(in srgb, var(--color-gate-sign) 24%, transparent); box-shadow: none; }
+  .detail-stop-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
+  .detail-stop-place { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding-top: 0; }
+  .detail-stop-place > div { justify-content: flex-start; width: 100%; }
+  .detail-stop-place p { justify-self: start; width: 100%; max-width: none; margin-top: 3px; overflow: visible; text-align: left; text-overflow: clip; white-space: normal; }
+  .operation-badge-group { justify-self: end; align-items: flex-start; gap: 2px; padding-left: 8px; border-left: 2px solid var(--color-gate-sign); }
+  .operation-badge { min-width: 0; min-height: 0; gap: 5px; padding: 0; border-radius: 0; color: var(--ink); background: transparent; box-shadow: none; }
   .operation-badge svg { display: none; }
   .operation-badge-label { display: inline; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-medium); white-space: nowrap; }
   .operation-badge strong { max-width: 70px; font-size: 1rem; font-weight: var(--font-weight-bold); letter-spacing: 0; }
   .operation-badge-group > span { padding-right: 0; font-size: 0.6875rem; }
   .detail-stop-timing { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; margin-top: 8px; }
   .detail-stop-times { gap: 8px; margin-top: 0; }
-  .detail-airport-time { font-size: clamp(1.875rem, 8vw, 2.125rem); }
+  .detail-airport-time { font-size: clamp(1.5rem, 6vw, 1.625rem); font-weight: var(--font-weight-semibold); letter-spacing: -0.03em; }
   .detail-scheduled-time { font-size: 0.875rem; }
   .detail-stop-meta { min-height: 0; gap: 5px; margin-top: 0; font-size: 0.75rem; }
   .detail-stop-meta > * + *::before { margin-right: 5px; }
-  .detail-journey-summary { flex-wrap: wrap; gap: 5px 7px; padding-block: 8px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 0.75rem; }
-  .detail-journey-summary svg { width: 14px; height: 14px; }
-  .detail-journey-label { display: inline; color: var(--muted); }
+  .detail-journey-summary { gap: 0; padding-block: 9px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 0.75rem; }
+  .detail-journey-summary svg { display: none; }
   .detail-stop--departure { padding-bottom: 10px; }
   .detail-stop--arrival { padding-top: 10px; }
   .detail-route-map,
   .detail-route-map-loading { display: none; }
   .detail-metadata-shelf { grid-template-columns: 1fr; gap: 0; padding-top: 0; }
-  .detail-metadata-column { min-height: 0; padding: 16px 0; border-bottom: 1px solid var(--line); }
-  .detail-metadata-column:nth-of-type(2) { padding: 16px 0; border-left: 0; }
+  .detail-metadata-column { min-height: 0; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .detail-metadata-column:nth-of-type(2) { padding: 18px 0; border-left: 0; }
   .detail-metadata-column h2,
   .detail-mobile-section-title { display: block; margin: 0 0 11px; color: var(--muted); font-size: 0.75rem; font-weight: var(--font-weight-bold); letter-spacing: 0.04em; line-height: 1.3; }
   .detail-metadata-desktop,
   .detail-metadata-footer { display: none; }
-  .detail-mobile-facts { display: grid; gap: 8px; }
+  .detail-mobile-facts,
+  .detail-record-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 18px; }
   .detail-mobile-fact,
-  .detail-record-item { display: grid; min-width: 0; grid-template-columns: minmax(96px, 33%) minmax(0, 1fr); align-items: baseline; gap: 8px; }
+  .detail-record-item { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .detail-mobile-fact--wide,
+  .detail-record-item--wide { grid-column: 1 / -1; }
   .detail-mobile-fact span,
-  .detail-record-item span { min-width: 0; margin: 0; color: var(--muted); font-size: 0.75rem; font-weight: var(--font-weight-regular); letter-spacing: 0; line-height: 1.35; text-transform: none; }
+  .detail-record-item span { min-width: 0; margin: 0; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-medium); letter-spacing: 0; line-height: 1.3; text-transform: none; }
   .detail-mobile-fact strong,
-  .detail-record-item strong { min-width: 0; font-size: 0.875rem; font-weight: var(--font-weight-semibold); line-height: 1.35; overflow-wrap: anywhere; }
-  .detail-record-item + .detail-record-item { margin-top: 8px; }
+  .detail-record-item strong { min-width: 0; max-width: 100%; font-size: 0.875rem; font-weight: var(--font-weight-semibold); line-height: 1.35; overflow-wrap: anywhere; }
+  .detail-record-item + .detail-record-item { margin-top: 0; }
   .frequent-flyer-card { display: block; min-height: 0; margin: 0; padding: 16px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
   .frequent-flyer-card-heading,
   .frequent-flyer-card-main,
@@ -1579,6 +1580,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 420px) {
   .detail-stop-place > div { gap: 6px; }
   .detail-stop-place span { max-width: 92px; }
+  .detail-mobile-facts,
+  .detail-record-facts { column-gap: 12px; }
 }
 
 /* Unified flight archive and passport composition. */
