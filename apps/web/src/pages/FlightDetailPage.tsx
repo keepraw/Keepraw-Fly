@@ -226,8 +226,8 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
   const cabinKey = seat?.cabin ? cabinTranslationKey(seat.cabin) : undefined;
   const cabinLabel = cabinKey ? t(cabinKey) : seat?.cabin;
   const experienceLine = [seat?.seat, cabinLabel, seat?.bookingClass].filter(Boolean).join(" · ");
-  const hasExperience = Boolean(aircraft?.type || seat);
-  const hasTripRecord = Boolean(ticket || flight.bookingReference || aircraft?.registration);
+  const hasExperience = Boolean(aircraft?.type || aircraft?.registration || seat);
+  const hasTripRecord = Boolean(ticket || flight.bookingReference);
 
   return (
     <PageShell className="detail-page">
@@ -264,10 +264,6 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
               delay={departureDelay}
               timestamp={departureTimestamp}
             />
-            <div className="detail-journey-summary">
-              <DetailIcon kind="flight" />
-              <span>{routeSummary}</span>
-            </div>
             <AirportStop
               kind="arrival"
               iata={flight.divertedTo?.iata ?? flight.destination.iata}
@@ -291,9 +287,7 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
         {hasExperience || hasTripRecord || frequentFlyer ? <div className="detail-metadata-shelf">
           {hasExperience ? <MetadataColumn
             title={t("flightDetail.flightExperience")}
-            footer={<>
-              {aircraft?.registration ? <span>{t("flightDetail.registration")} {aircraft.registration}</span> : null}
-            </>}
+            footer={aircraft?.registration ? <span>{t("flightDetail.registration")} {aircraft.registration}</span> : undefined}
           >
             <div className="detail-metadata-desktop">
               {aircraft?.type ? <strong className="detail-metadata-primary">{aircraft.type}</strong> : null}
@@ -311,7 +305,6 @@ export function FlightDetailPage({ flight, memberships, locale, distanceUnit, ti
             <div className="detail-record-facts">
               {ticket ? <div className="detail-record-item detail-record-item--wide"><span>{t("flightDetail.ticketNumber")}</span><strong>{formatTicketNumber(ticket.number)}</strong></div> : null}
               {flight.bookingReference ? <div className={`detail-record-item${flight.bookingReference.length > 12 ? " detail-record-item--wide" : ""}`}><span>{t("flightDetail.bookingReference")}</span><strong>{flight.bookingReference}</strong></div> : null}
-              {aircraft?.registration ? <div className={`detail-record-item${aircraft.registration.length > 12 ? " detail-record-item--wide" : ""}`}><span>{t("flightDetail.registration")}</span><strong>{aircraft.registration}</strong></div> : null}
             </div>
           </MetadataColumn> : null}
 
