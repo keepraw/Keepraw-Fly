@@ -252,6 +252,8 @@
     "mapRouteData_one": "{{origin}} to {{destination}} · {{count}} flight · First flown {{first}} · Last flown {{last}}",
     "mapRouteData_other": "{{origin}} to {{destination}} · {{count}} flights · First flown {{first}} · Last flown {{last}}",
     "mapRouteDistance": "{{distance}} km",
+    "mapRouteFrequency": "Flights per route",
+    "mapRouteFrequencyHint": "More flights on a route give its line stronger contrast and a thicker stroke",
     "mapCountryVisited": "{{country}} · Visited",
     "mapCountryUnvisited": "{{country}} · Not yet visited",
     "mostFlownAirline": "Most flown airline",

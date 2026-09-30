@@ -18,6 +18,7 @@ import {
 } from "../data/map-geometry";
 import { passportMapCamera, type MapCamera } from "../data/map-camera";
 import { airportLabelPositions } from "../data/map-labels";
+import { routeVisuals } from "../data/map-route-visuals";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
 
@@ -70,7 +71,7 @@ export function PassportRouteMap({
   const initialCamera = useMemo(() => passportMapCamera(routes, airports), [airports, routes]);
   const routeYears = useMemo(() => collectRouteYears(flights), [flights]);
   const regionNames = useMemo(() => new Intl.DisplayNames([locale], { type: "region" }), [locale]);
-  const routeItems = useMemo(() => routes.map((route, index) => {
+  const routeItems = useMemo(() => [...routes].sort((a, b) => a.flightCount - b.flightCount).map((route, index) => {
     const key = `route:${route.origin.iata}-${route.destination.iata}`;
     const years = routeYears.get(`${route.origin.iata}-${route.destination.iata}`);
     const midpoint = greatCircleMidpoint(route.origin, route.destination, centerLongitude);
@@ -98,8 +99,9 @@ export function PassportRouteMap({
       } satisfies MapTooltipData,
       style: {
         "--map-item-index": index,
-        "--map-route-opacity": visuals.opacity,
-        "--map-route-width": visuals.width,
+        "--map-route-opacity": 1,
+        "--map-route-strength": `${visuals.strength}%`,
+        "--map-route-width": `${visuals.width}px`,
       } as CSSProperties,
     };
   }), [locale, routeYears, routes, t, centerLongitude]);
@@ -175,6 +177,7 @@ export function PassportRouteMap({
               return <g
                 key={route.key}
                 className={["map-route", selected ? "is-selected" : "", highlighted ? "is-highlighted" : ""].filter(Boolean).join(" ")}
+                style={route.style}
                 role="button"
                 tabIndex={0}
                 aria-label={route.label}
@@ -188,7 +191,7 @@ export function PassportRouteMap({
               >
                 <path className="map-route-hit" d={route.path} />
                 <path className="map-route-underlay" d={route.path} />
-                <path className="map-route-line" d={route.path} pathLength={1} style={route.style} />
+                <path className="map-route-line" d={route.path} pathLength={1} />
                 <title>{route.label}</title>
               </g>;
             })}
@@ -226,6 +229,21 @@ export function PassportRouteMap({
         </>;
         }}
       </MapViewport>
+      <div className="passport-map-frequency-legend" role="group" aria-label={t("passport.mapRouteFrequencyHint")}>
+        <span>{t("passport.mapRouteFrequency")}</span>
+        {[1, 4, 8].map((count) => {
+          const visuals = routeVisuals(count);
+          return <span className="passport-map-frequency-sample" key={count}>
+            <svg width="24" height="10" viewBox="0 0 24 10" aria-hidden="true" style={{
+              "--map-route-width": `${visuals.width}px`,
+              "--map-route-strength": `${visuals.strength}%`,
+            } as CSSProperties}>
+              <line x1="3" x2="21" y1="5" y2="5" />
+            </svg>
+            {count}
+          </span>;
+        })}
+      </div>
     </section>
   );
 }
@@ -311,13 +329,6 @@ function updateYearRange(
     if (year < current.firstYear) current.firstYear = year;
     if (year > current.lastYear) current.lastYear = year;
   }
-}
-
-function routeVisuals(count: number) {
-  if (count === 1) return { opacity: 0.7, width: 1.25 };
-  if (count <= 3) return { opacity: 0.79, width: 1.38 };
-  if (count <= 9) return { opacity: 0.88, width: 1.56 };
-  return { opacity: 0.95, width: 1.74 };
 }
 
 function compactAirportName(name: string): string {

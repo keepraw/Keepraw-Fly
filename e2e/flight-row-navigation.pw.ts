@@ -11,7 +11,7 @@ test("opens details from every row area and from keyboard focus", async ({ page 
   await expect(row).toBeVisible();
   await expect(page.locator(".flight-record").getByRole("button")).toHaveCount(1);
   await expect(row.locator("button, a")).toHaveCount(0);
-  await expect(row.locator(".flight-row-open")).toHaveAttribute("aria-hidden", "true");
+  await expect(row.locator(".flight-row-open")).toHaveCount(0);
   const restingBackground = await row.evaluate(element => getComputedStyle(element).backgroundColor);
   await row.hover();
   expect(await row.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(restingBackground);
@@ -29,13 +29,6 @@ test("opens details from every row area and from keyboard focus", async ({ page 
     await row.click({ position: { x: bounds.width / 2, y: bounds.height - 5 } });
     await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA123");
     await page.locator(".detail-header-back").click();
-    if (width > 760) {
-      const hint = await row.locator(".flight-row-open").boundingBox();
-      if (!hint) throw new Error("Visual detail cue missing");
-      await page.mouse.click(hint.x + hint.width / 2, hint.y + hint.height / 2);
-      await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA123");
-      await page.locator(".detail-header-back").click();
-    }
   }
 
   await mkdir("test-results/flight-row-navigation", { recursive: true });

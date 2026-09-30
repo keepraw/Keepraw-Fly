@@ -68,7 +68,7 @@
   --color-map-land-line: #e4e0d6;
   --color-map-grid: #e0e7ee;
   --color-map-outline: rgb(70 84 79 / 21%);
-  --color-map-route: #2f7076;
+  --color-map-route: #1e5359;
   --color-map-route-warm: #377b78;
   --color-map-route-cool: #486f8a;
   --color-map-route-underlay: rgb(255 253 247 / 48%);
@@ -271,7 +271,7 @@
     --color-map-land-line: rgb(176 190 186 / 6%);
     --color-map-grid: rgb(176 190 186 / 4%);
     --color-map-outline: rgb(177 195 190 / 16%);
-    --color-map-route: #82b3b0;
+    --color-map-route: #94cbc4;
     --color-map-route-warm: #7fb2ac;
     --color-map-route-cool: #829eb7;
     --color-map-route-underlay: rgb(7 12 13 / 64%);
@@ -329,7 +329,7 @@
   --color-map-land-line: #e4e0d6;
   --color-map-grid: #e0e7ee;
   --color-map-outline: rgb(70 84 79 / 21%);
-  --color-map-route: #2f7076;
+  --color-map-route: #1e5359;
   --color-map-route-warm: #377b78;
   --color-map-route-cool: #486f8a;
   --color-map-route-underlay: rgb(255 253 247 / 48%);
@@ -387,7 +387,7 @@
   --color-map-land-line: rgb(176 190 186 / 6%);
   --color-map-grid: rgb(176 190 186 / 4%);
   --color-map-outline: rgb(177 195 190 / 16%);
-  --color-map-route: #82b3b0;
+  --color-map-route: #94cbc4;
   --color-map-route-warm: #7fb2ac;
   --color-map-route-cool: #829eb7;
   --color-map-route-underlay: rgb(7 12 13 / 64%);

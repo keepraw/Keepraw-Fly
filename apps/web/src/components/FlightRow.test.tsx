@@ -21,7 +21,8 @@ describe("FlightRow", () => {
     const markup = renderToStaticMarkup(<I18nextProvider i18n={i18n}><FlightRow flight={flight} locale={locale} timeFormat="24-hour" selected onOpen={() => {}} /></I18nextProvider>);
     expect(markup).toContain('aria-current="true"');
     expect(markup.match(/<button/g)).toHaveLength(1);
-    expect(markup).toContain(`<span class="flight-row-open" aria-hidden="true">`);
+    expect(markup).not.toContain("flight-row-open");
+    expect(markup).not.toContain(i18n.t("flights.details"));
     expect(markup).toContain(i18n.t("flights.openFlight", { flightNumber: flight.flightNumber, origin: flight.origin.iata, destination: flight.destination.iata }));
     expect(markup).toContain('data-flight-id="overnight"');
     expect(markup).toContain("+1");

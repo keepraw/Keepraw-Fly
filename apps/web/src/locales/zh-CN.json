@@ -246,6 +246,8 @@
     "mapAirportData": "{{airport}} · 到访 {{count}} 次 · 首次到访 {{first}} · 最近到访 {{last}}",
     "mapRouteData": "{{origin}} 至 {{destination}} · {{count}} 个航班 · 首次飞行 {{first}} · 最近飞行 {{last}}",
     "mapRouteDistance": "{{distance}} 公里",
+    "mapRouteFrequency": "航线飞行次数",
+    "mapRouteFrequencyHint": "同一航线飞得越多，线条对比越强、越粗",
     "mapCountryVisited": "{{country}} · 已到访",
     "mapCountryUnvisited": "{{country}} · 尚未到访",
     "mostFlownAirline": "最常乘坐的航空公司",

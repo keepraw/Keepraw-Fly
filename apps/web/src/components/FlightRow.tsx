@@ -128,9 +128,6 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, selected, onHove
             {flight.divertedTo ? <small className="flight-diverted-note">{t("status.divertedTo", { airport: flight.divertedTo.iata })}</small> : null}
           </div>
         </div>
-        <span className="flight-row-open" aria-hidden="true">
-          {t("flights.details")} <span aria-hidden="true">→</span>
-        </span>
       </button>
     </div>
   );
