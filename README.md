@@ -58,7 +58,7 @@ pnpm install
 pnpm dev
 ```
 
-Open the URL printed by Vite, normally <http://localhost:5173>.
+Open <http://localhost:5173>. The development server uses this fixed port and exits if it is already occupied. Stop the existing development server before starting another one. Browser data and storage protection permissions belong to an origin, so a different hostname or port uses separate data and permissions.
 
 To inspect the production build locally:
 
