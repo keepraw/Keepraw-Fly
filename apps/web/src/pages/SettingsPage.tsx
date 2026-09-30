@@ -91,9 +91,8 @@ export function SettingsPage({
     setProtectionFeedback(null);
     try {
       const result = await requestPersistentStorage();
-      const actualState = result === "failed" ? await persistentStorageState() : result;
-      setPersistentState(actualState);
-      setProtectionFeedback(actualState === "granted" ? "granted" : result);
+      setPersistentState(result);
+      setProtectionFeedback(result);
     } finally {
       persistRequestInFlight.current = false;
       setProtectingLocalData(false);
@@ -344,7 +343,7 @@ export function SettingsPage({
                           ? "settings.requestingStorageProtection"
                           : "settings.enableStorageProtection")}
                   </button>
-                  {persistentState !== "granted" && (canInstallApp || installingApp) && (protectionFeedback !== null || installingApp) ? (
+                  {(persistentState === "available" || persistentState === "failed") && (canInstallApp || installingApp) && (protectionFeedback !== null || installingApp) ? (
                     <button
                       className="settings-action"
                       type="button"
