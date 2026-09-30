@@ -43,8 +43,8 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     await page.goto("/#settings");
     await page.locator(".settings-display-fields select").nth(1).selectOption(theme);
     await page.goto("/#passport");
-    await context.setOffline(true);
     await expect(page.locator(".map-route-line")).toHaveCount(12);
+    await context.setOffline(true);
     await expect(page.locator(".passport-map-frequency-legend")).toBeVisible();
     await expect(page.locator(".passport-map-frequency-legend")).toContainText("Flights per route");
     await expect(page.locator(".passport-map-frequency-sample")).toHaveText(["1", "4", "8"]);

@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-test("reads Passport statistics as a map caption and preserves all spotlight filters", async ({ page }) => {
+test("reads Passport statistics as a map caption without a flight-highlights section", async ({ page }) => {
   test.setTimeout(90_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
@@ -30,28 +30,13 @@ test("reads Passport statistics as a map caption and preserves all spotlight fil
   await expect(page.locator(".primary-stats, .passport-counts, .highlight-list")).toHaveCount(0);
   await expect(page.locator(".passport-network-line")).toContainText("3 countries · 5 airports · 3 airlines · 1 aircraft type");
 
-  const airport = page.getByRole("button", { name: /Filter flights visiting .*TAO/ });
-  await expect(airport).toContainText("8 visits");
-  await airport.focus();
-  await page.keyboard.press("Enter");
+  await expect(page.locator(".passport-highlights, .passport-highlight, .passport-spotlight")).toHaveCount(0);
+  await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(8);
-  await expect(airport).toHaveAttribute("aria-pressed", "true");
-  await airport.click();
+  await expect(page.locator(".passport-legend-support")).toContainText("8 flights");
+  await page.locator("#passport-flight-search").fill("");
   await expect(page.locator(".flight-row")).toHaveCount(9);
   await expect(page.locator(".passport-exploration")).toHaveCount(0);
-
-  const airline = page.getByRole("button", { name: /Filter flights flown with Cathay Pacific/ });
-  await airline.click();
-  await expect(page.locator(".flight-row")).toHaveCount(4);
-  await expect(airline).toHaveAttribute("aria-pressed", "true");
-  await page.locator(".passport-exploration-close").click();
-  await page.getByRole("button", { name: /Longest flight: filter flights from HKG to BOM/ }).click();
-  await expect(page.locator(".flight-row")).toHaveCount(1);
-  await expect(page.locator('.passport-spotlight-routes button[aria-pressed="true"]')).toHaveCount(2);
-  await page.locator(".passport-exploration-close").click();
-  await page.getByRole("button", { name: /Shortest flight: filter flights from SHA to TAO/ }).click();
-  await expect(page.locator(".flight-row")).toHaveCount(4);
-  await page.locator(".passport-exploration-close").click();
 
   await mkdir("test-results/passport-legend", { recursive: true });
   for (const locale of ["en", "zh-CN", "zh-TW"]) {
@@ -65,6 +50,7 @@ test("reads Passport statistics as a map caption and preserves all spotlight fil
       for (const width of [1440, 1280, 390]) {
         await page.setViewportSize({ width, height: 720 });
         expect(await page.locator("html").evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+        await expect(page.locator(".passport-highlights, .passport-highlight, .passport-spotlight")).toHaveCount(0);
         if (width > 760) {
           await expect(page.locator(".passport-legend")).toBeVisible();
           expect(await page.locator(".passport-visual-sticky").evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
@@ -76,9 +62,6 @@ test("reads Passport statistics as a map caption and preserves all spotlight fil
           await expect(page.locator(".passport-mobile-summary")).toBeVisible();
           await expect(page.locator(".passport-delay-panel")).toBeVisible();
           await expect(page.locator(".passport-network-panel")).toBeVisible();
-          await expect(page.locator(".passport-highlight")).toHaveCount(4);
-          await expect(page.locator(".passport-highlights")).toBeVisible();
-          expect(await page.locator(".passport-spotlight-copy strong").first().evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeLessThan(20);
         }
         await page.screenshot({ path: `test-results/passport-legend/${locale}-${theme}-${width}.png`, fullPage: true });
       }

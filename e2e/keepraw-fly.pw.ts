@@ -126,20 +126,20 @@ test("previews a JSON import and renders its Passport route map", async ({ page 
   await expect(page.getByText("Highlights")).toBeHidden();
 });
 
-test("selects map records and filters the main ledger through highlights", async ({ page }) => {
+test("selects map records and filters the main ledger through search", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.locator(".map-airport").first().focus();
   await page.keyboard.press("Enter");
   await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
   const count = await page.locator(".flight-row").count();
-  await page.getByRole("button", { name: /Filter flights flown with/ }).click();
-  await expect(page.locator(".passport-exploration")).toContainText("Airline history");
+  const routeCode = await page.locator('.flight-row[aria-current="true"] .airport-code-display').first().textContent();
+  await page.locator("#passport-flight-search").fill(routeCode!.trim());
   expect(await page.locator(".flight-row").count()).toBeLessThan(count);
   await page.locator(".map-route").first().focus();
   await page.keyboard.press("Enter");
   await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
-  await page.locator(".passport-exploration-close").click();
+  await page.locator("#passport-flight-search").fill("");
   await expect(page.locator(".flight-row")).toHaveCount(count);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: /Open / }).first().click();
@@ -160,18 +160,16 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       const archive = document.querySelector<HTMLElement>(".passport-archive");
       const archiveScroll = document.querySelector<HTMLElement>(".passport-archive-scroll");
       const visual = document.querySelector<HTMLElement>(".passport-visual");
-      const highlights = Array.from(document.querySelectorAll<HTMLElement>(".passport-highlight"));
       const flightRows = Array.from(document.querySelectorAll<HTMLElement>(".flight-row"));
       const airlineLogos = Array.from(document.querySelectorAll<HTMLElement>(".flight-row .airline-logo"));
       const periodSelector = document.querySelector<HTMLElement>(".passport-period");
       const addFlight = document.querySelector<HTMLElement>(".archive-controls .add-flight-button");
-      if (!archive || !archiveScroll || !visual || highlights.length !== 4) {
+      if (!archive || !archiveScroll || !visual) {
         throw new Error("Passport workspace landmarks are missing");
       }
       if (!periodSelector || !addFlight || airlineLogos.length !== flightRows.length) {
         throw new Error("Passport archive controls or airline marks are missing");
       }
-      const highlightBounds = highlights.map((item) => item.getBoundingClientRect());
       const hero = document.querySelector<HTMLElement>(".passport-legend-hero strong")!;
       const support = document.querySelector<HTMLElement>(".passport-legend-support")!;
       const delay = document.querySelector<HTMLElement>(".passport-legend-delay")!;
@@ -186,8 +184,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       return {
         archiveScrollsInternally: getComputedStyle(archiveScroll).overflowY === "auto",
         bodyFitsViewport: document.documentElement.scrollHeight <= window.innerHeight,
-        highlightsStacked: highlightBounds.every((bounds, index) => index === 0 || bounds.top >= highlightBounds[index - 1]!.bottom - 0.5),
-        highlightEndsAligned: highlightBounds.every(bounds => Math.abs(bounds.right - highlightBounds[0]!.right) < 1),
+        highlightsAbsent: document.querySelector(".passport-highlights, .passport-highlight") === null,
         distanceLeads: parseFloat(getComputedStyle(hero).fontSize) > parseFloat(getComputedStyle(support).fontSize)
           && parseFloat(getComputedStyle(support).fontSize) > parseFloat(getComputedStyle(delay).fontSize),
         legendIsNarrative: getComputedStyle(legend).display === "block",
@@ -212,8 +209,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
     expect(workspace.archiveScrollsInternally).toBe(true);
     expect(workspace.bodyFitsViewport).toBe(true);
-    expect(workspace.highlightsStacked).toBe(true);
-    expect(workspace.highlightEndsAligned).toBe(true);
+    expect(workspace.highlightsAbsent).toBe(true);
     expect(workspace.distanceLeads).toBe(true);
     expect(workspace.legendIsNarrative).toBe(true);
     expect(workspace.networkIsSentence).toBe(true);
@@ -257,7 +253,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     await page.locator('.site-navigation a[href="#settings"]').click();
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#passport"]').click();
-    await expect(page.locator(".passport-highlight")).toHaveCount(4);
+    await expect(page.locator(".passport-highlights, .passport-highlight")).toHaveCount(0);
     expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   }
 
@@ -320,7 +316,6 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
       const summary = document.querySelector<HTMLElement>(".passport-mobile-summary")!;
       const delay = document.querySelector<HTMLElement>(".passport-delay-panel")!;
       const network = document.querySelector<HTMLElement>(".passport-network-panel")!;
-      const highlights = document.querySelector<HTMLElement>(".passport-highlights")!;
       const archive = document.querySelector<HTMLElement>(".archive-heading")!;
       const firstFlightYear = document.querySelector<HTMLElement>(".flight-year")!;
       const header = document.querySelector<HTMLElement>(".site-header")!;
@@ -347,7 +342,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
           && network.getBoundingClientRect().top < archive.getBoundingClientRect().top,
         archiveFollowsPanels: firstFlightYear.getBoundingClientRect().top > network.getBoundingClientRect().bottom,
         noMapPlaceholder: document.querySelector(".route-map, .route-map-loading") === null,
-        highlightsVisible: getComputedStyle(highlights).display !== "none",
+        highlightsAbsent: document.querySelector(".passport-highlights, .passport-highlight") === null,
         periodYears: Array.from(document.querySelectorAll(".passport-period button")).map((button) => button.textContent),
         pastFlightsTitle: archive.querySelector(".passport-mobile-section-title")?.textContent?.trim(),
         archiveActions: ["Add flight", "Import flights"].every((label) => Array.from(archive.querySelectorAll("button")).some((button) => button.textContent?.includes(label))),
@@ -364,7 +359,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.panelsOrdered).toBe(true);
     expect(composition.archiveFollowsPanels).toBe(true);
     expect(composition.noMapPlaceholder).toBe(true);
-    expect(composition.highlightsVisible).toBe(true);
+    expect(composition.highlightsAbsent).toBe(true);
     expect(composition.periodYears).toEqual(["All", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
     expect(composition.archiveActions).toBe(true);
@@ -795,15 +790,14 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     const map = document.querySelector<HTMLElement>(".route-map");
     const canvas = document.querySelector<HTMLElement>(".route-map-canvas");
     const switcher = document.querySelector<HTMLElement>(".view-switcher");
-    const highlights = document.querySelector<HTMLElement>(".passport-highlights");
-    if (!map || !canvas || !switcher || !highlights) {
+    if (!map || !canvas || !switcher) {
       throw new Error("Passport presentation landmarks are missing");
     }
     const mapStyle = getComputedStyle(map);
     const switcherStyle = getComputedStyle(switcher);
     return {
       canvasHasDepth: getComputedStyle(canvas).backgroundImage !== "none",
-      highlightsDisplay: getComputedStyle(highlights).display,
+      highlightsAbsent: document.querySelector(".passport-highlights, .passport-highlight") === null,
       mapBorderRadius: mapStyle.borderRadius,
       mapBoxShadow: mapStyle.boxShadow,
       countryPaths: map.querySelectorAll(".map-country").length,
@@ -822,7 +816,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     canvasHasDepth: false,
     countryPaths: 177,
     graticules: 0,
-    highlightsDisplay: "block",
+    highlightsAbsent: true,
     mapBorderRadius: "0px",
     mapBoxShadow: "none",
     permanentAirportLabels: expect.any(Number),

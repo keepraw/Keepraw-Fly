@@ -76,8 +76,7 @@ function DetailAirport({
 }) {
   return <g className={`detail-map-airport is-${variant}`} transform={`translate(${x} ${y})`}>
     <g transform={`scale(${inverseZoom})`}>
-      <circle className="detail-map-airport-ring" r="7" />
-      <circle className="detail-map-airport-point" r="3" />
+      <circle className="detail-map-airport-point" r="3.5" />
       <g className="detail-map-airport-label" transform="translate(8 -23)">
         <rect width="34" height="19" rx="4" />
         <text x="17" y="13" textAnchor="middle">{code}</text>

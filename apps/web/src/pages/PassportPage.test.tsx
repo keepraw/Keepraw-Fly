@@ -23,7 +23,7 @@ async function render(locale: "en" | "zh-CN" | "zh-TW", view = initialPassportVi
   return { markup, i18n };
 }
 
-describe("Passport narrative and spotlights", () => {
+describe("Passport statistics and archive", () => {
   it.each(["en", "zh-CN", "zh-TW"] as const)("keeps %s summaries complete and the delay hint out of visible copy", async locale => {
     const { markup, i18n } = await render(locale);
     expect(markup).toContain('class="passport-legend-hero"');
@@ -36,6 +36,8 @@ describe("Passport narrative and spotlights", () => {
     expect(markup).not.toContain('class="primary-stats"');
     expect(markup).not.toContain('class="passport-counts"');
     expect(markup).not.toContain('class="highlight-list"');
+    expect(markup).not.toContain('passport-highlights');
+    expect(markup).not.toContain(i18n.t("passport.highlights"));
     expect(markup).toContain(`title="${i18n.t("passport.delayBasedOnArrivals")}"`);
     expect(markup.replace(/<[^>]+>/g, "")).not.toContain(i18n.t("passport.delayBasedOnArrivals"));
   });
@@ -44,27 +46,26 @@ describe("Passport narrative and spotlights", () => {
     { kind: "airport", code: "TAO" },
     { kind: "airline", code: "CX" },
     { kind: "route", origin: "HKG", destination: "TAO" },
-  ] satisfies PassportViewState["selection"][])("keeps the active $kind spotlight pressed, including tied airports", async selection => {
-    const { markup } = await render("en", { ...initialPassportView, selection });
-    const buttons = markup.match(/<button[^>]*class="passport-highlight[^>]*>[\s\S]*?<\/button>/g) ?? [];
-    const selected = buttons.filter(button => button.includes('aria-pressed="true"'));
-    expect(selected.length).toBeGreaterThan(0);
-    expect(selected[0]).toContain(selection.kind === "airport" ? "TAO" : selection.kind === "airline" ? "Cathay Pacific" : "HKG to TAO");
-    expect(buttons.every(button => /aria-label="[^"]*[Ff]ilter flights/.test(button))).toBe(true);
+  ] satisfies PassportViewState["selection"][])("keeps a restored $kind filter visible and clearable without highlights", async selection => {
+    const { markup, i18n } = await render("en", { ...initialPassportView, selection });
+    const chip = markup.match(/<section class="passport-exploration"[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(chip).toContain(selection.kind === "airport" ? "TAO" : selection.kind === "airline" ? "Cathay Pacific" : "HKG → TAO");
+    expect(chip).toContain(i18n.t("passport.closeExploration"));
+    expect(markup).not.toContain("passport-highlight");
   });
 
-  it("uses plain unavailable rows when no flown highlights exist", async () => {
-    const { markup } = await render("en", initialPassportView, { ...flight, cancelled: true });
-    expect(markup.match(/class="passport-highlight passport-spotlight-item is-unavailable"/g)).toHaveLength(4);
-    expect(markup).not.toMatch(/<button[^>]*class="passport-highlight/);
+  it("keeps cancelled records in the archive without an empty highlights block", async () => {
+    const { markup, i18n } = await render("en", initialPassportView, { ...flight, cancelled: true });
+    expect(markup).toContain('data-flight-id="tao"');
+    expect(markup).toContain(i18n.t("status.cancelled"));
+    expect(markup).not.toContain("passport-highlight");
   });
 
-  it("filters a diverted highlight by its recorded destination", async () => {
+  it("describes a restored diverted-route filter with its recorded destination", async () => {
     const { markup } = await render("en", { ...initialPassportView, selection: { kind: "route", origin: "HKG", destination: "TAO" } },
       { ...flight, destination: { iata: "PEK" }, divertedTo: { iata: "TAO" } });
-    const routes = markup.match(/<div class="passport-spotlight-routes"[\s\S]*?<\/section>/)?.[0] ?? "";
-    expect(routes).toContain('aria-pressed="true"');
-    expect(routes).toContain("filter flights from HKG to TAO");
-    expect(routes).not.toContain("HKG to PEK");
+    const chip = markup.match(/<section class="passport-exploration"[\s\S]*?<\/section>/)?.[0] ?? "";
+    expect(chip).toContain("HKG → TAO");
+    expect(chip).not.toContain("HKG → PEK");
   });
 });

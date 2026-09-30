@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { readFile, mkdir } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-test("shares scope, highlight filtering, map selection and adjacent detail navigation", async ({ page }) => {
+test("shares search and year scope, map selection and adjacent detail navigation", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
   const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
@@ -45,8 +45,7 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
   await page.locator(".map-route").filter({ hasText: "SZX to TAO" }).click();
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toHaveAttribute("aria-current", "true");
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toBeFocused();
-  await page.locator(".passport-spotlight > button").first().click();
-  await expect(page.locator(".passport-exploration")).toContainText("TAO");
+  await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(2);
   await page.getByRole("button", { name: /Open ZH9911/ }).click();
   await expect(page.getByRole("button", { name: "Previous", exact: true })).toBeDisabled();
@@ -70,8 +69,7 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.locator(".detail-header-back").click();
   await expect(page.locator(".passport-period button[aria-pressed=true]")).toHaveText("2026");
-  await expect(page.locator(".passport-exploration")).toContainText("TAO");
-  await page.locator(".passport-exploration-close").click();
+  await expect(page.locator("#passport-flight-search")).toHaveValue("TAO");
   await page.locator("#passport-flight-search").fill("ZH9911");
   await expect(page.locator(".flight-row")).toHaveCount(1);
   expect(Number(await page.locator(".route-map-canvas").getAttribute("data-zoom"))).toBeGreaterThan(2.5);
