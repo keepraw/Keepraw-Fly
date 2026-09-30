@@ -2,6 +2,7 @@ import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
 import {
   projectPoint,
   sampleGreatCircle,
+  regionalCenterLongitude,
   WORLD_HEIGHT,
   WORLD_WIDTH,
   type GeographicPoint,
@@ -27,24 +28,29 @@ export const WORLD_CAMERA: MapCamera = {
 export function passportMapCamera(
   routes: RouteSegment[],
   airports: GeographicPoint[],
+  viewportHeight = WORLD_HEIGHT,
 ): MapCamera {
+  if (routes.some((route) => Math.abs(route.origin.longitude - route.destination.longitude) > 180)) return WORLD_CAMERA;
+  const centerLongitude = regionalCenterLongitude(airports);
   const points = [
-    ...airports.map(projectPoint),
-    ...routes.flatMap((route) => sampleGreatCircle(route.origin, route.destination, 48)),
+    ...airports.map(airport => projectPoint(airport, centerLongitude)),
+    ...routes.flatMap((route) => sampleGreatCircle(route.origin, route.destination, 48, centerLongitude)),
   ];
-  return fitProjectedPoints(points, { maxZoom: 2.5, padding: 0.14 });
+  return fitProjectedPoints(points, { maxZoom: 8, padding: 0.12, viewportHeight });
 }
 
-export function flightRouteCamera(origin: RoutePoint, destination: RoutePoint): MapCamera {
-  return fitProjectedPoints(sampleGreatCircle(origin, destination, 72), {
-    maxZoom: 7.5,
-    padding: 0.18,
+export function flightRouteCamera(origin: RoutePoint, destination: RoutePoint, viewportHeight = WORLD_HEIGHT): MapCamera {
+  if (Math.abs(origin.longitude - destination.longitude) > 180) return WORLD_CAMERA;
+  return fitProjectedPoints(sampleGreatCircle(origin, destination, 72, regionalCenterLongitude([origin, destination])), {
+    maxZoom: 12,
+    padding: 0.09,
+    viewportHeight,
   });
 }
 
 export function fitProjectedPoints(
   points: ProjectedPoint[],
-  options: { maxZoom: number; padding: number },
+  options: { maxZoom: number; padding: number; viewportHeight?: number },
 ): MapCamera {
   if (points.length === 0) return WORLD_CAMERA;
 
@@ -57,10 +63,12 @@ export function fitProjectedPoints(
   const spanX = Math.max(maxX - minX, 1);
   const spanY = Math.max(maxY - minY, 1);
   const availableWidth = WORLD_WIDTH * (1 - options.padding * 2);
-  const availableHeight = WORLD_HEIGHT * (1 - options.padding * 2);
+  const availableHeight = (options.viewportHeight ?? WORLD_HEIGHT) * (1 - options.padding * 2);
   const zoom = Math.min(options.maxZoom, availableWidth / spanX, availableHeight / spanY);
 
-  if (zoom <= 1.04) return WORLD_CAMERA;
+  // Truly global/date-line-spanning geometry needs the full world. Regional
+  // bounds retain their center even when the fit is only slightly above 1.
+  if (spanX >= WORLD_WIDTH * 0.9 || zoom < 1) return WORLD_CAMERA;
 
   return {
     centerX: (minX + maxX) / 2,

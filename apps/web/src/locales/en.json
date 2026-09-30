@@ -10,9 +10,9 @@
   "nav": {
     "label": "Primary navigation",
     "flights": "Flights",
-    "passport": "Passport",
+    "passport": "Flight Passport",
     "settings": "Settings",
-    "backToPassport": "Back to Passport"
+    "backToPassport": "Back to Flight Passport"
   },
   "welcome": {
     "eyebrow": "Your flight history, in your hands",
@@ -46,7 +46,10 @@
     "backToFlights": "Back to flights",
     "validating": "Validating…",
     "export": "Export Keepraw Fly JSON",
-    "clearData": "Clear local data"
+    "clearData": "Clear local data",
+    "previousFlight": "Previous",
+    "nextFlight": "Next",
+    "adjacentFlights": "Adjacent flights"
   },
   "flights": {
     "count_one": "{{count}} flight",
@@ -59,7 +62,9 @@
     "noResultsDescription": "Nothing in this archive matches “{{query}}”.",
     "emptyEyebrow": "Ready for takeoff",
     "emptyTitle": "Add your first flight",
-    "emptyDescription": "Use the guided form to start your archive. Keepraw Fly handles the JSON format for you."
+    "emptyDescription": "Use the guided form to start your archive. Keepraw Fly handles the JSON format for you.",
+    "selectFlight": "Select {{flightNumber}}, {{origin}} to {{destination}}",
+    "details": "Details"
   },
   "flightEditor": {
     "eyebrow": "Flight record",
@@ -154,7 +159,7 @@
   "mapControls": {
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "reset": "Show the whole world"
+    "reset": "Fit recorded routes"
   },
   "flightDetail": {
     "routeLabel": "Flight route",
@@ -196,7 +201,7 @@
     "arrived": "Arrived",
     "departed": "Departed",
     "to": "to",
-    "total": "Total",
+    "total": "Flight duration",
     "earlyShort": "{{count}}m Early",
     "lateShort": "{{count}}m Late",
     "durationHoursMinutes": "{{hours}}h {{minutes}}m",
@@ -217,7 +222,7 @@
   },
   "passport": {
     "periodLabel": "Passport period",
-    "lifetime": "Lifetime",
+    "lifetime": "All",
     "panelTitle": "Flight passport",
     "delayPanelTitle": "Delays",
     "delayedFlights_one": "{{count}} delayed flight",
@@ -232,10 +237,10 @@
     "distance": "Distance",
     "distanceMiles": "{{value}} mi",
     "distanceKilometers": "{{value}} km",
-    "timeInAir": "Time in the air",
-    "totalDelay": "Total delay",
+    "timeInAir": "Flight duration",
+    "totalDelay": "Total arrival delay",
     "delayUnavailable": "Not enough actual arrival data",
-    "delayBasedOnArrivals": "Positive arrival delays",
+    "delayBasedOnArrivals": "Early arrivals do not offset delays",
     "countries": "Countries",
     "airports": "Airports",
     "airlines": "Airlines",
@@ -247,6 +252,8 @@
     "mapRouteData_one": "{{origin}} to {{destination}} · {{count}} flight · First flown {{first}} · Last flown {{last}}",
     "mapRouteData_other": "{{origin}} to {{destination}} · {{count}} flights · First flown {{first}} · Last flown {{last}}",
     "mapRouteDistance": "{{distance}} km",
+    "mapRouteFrequency": "Flights per route",
+    "mapRouteFrequencyHint": "More flights on a route give its line stronger contrast and a thicker stroke",
     "mapCountryVisited": "{{country}} · Visited",
     "mapCountryUnvisited": "{{country}} · Not yet visited",
     "mostFlownAirline": "Most flown airline",
@@ -273,7 +280,27 @@
     "closeExploration": "Close",
     "emptyEyebrow": "No journeys yet",
     "emptyTitle": "Your passport starts with one flight.",
-    "emptyDescription": "Add your first record and Keepraw Fly will build this passport from your own flight facts."
+    "emptyDescription": "Add your first record and Keepraw Fly will build this passport from your own flight facts.",
+    "scopeAll": "All flights · {{count}} records",
+    "scopeYear": "{{year}} · {{count}} records",
+    "heroSupport_one": "{{flights}} flight · {{duration}}",
+    "heroSupport_other": "{{flights}} flights · {{duration}}",
+    "arrivalDelayTotal": "{{duration}} total arrival delay",
+    "networkSentence": "{{countries}} · {{airports}} · {{airlines}} · {{types}}",
+    "networkCountries_one": "{{count}} country",
+    "networkCountries_other": "{{count}} countries",
+    "networkAirports_one": "{{count}} airport",
+    "networkAirports_other": "{{count}} airports",
+    "networkAirlines_one": "{{count}} airline",
+    "networkAirlines_other": "{{count}} airlines",
+    "networkTypes_one": "{{count}} aircraft type",
+    "networkTypes_other": "{{count}} aircraft types",
+    "highlightBeen": "Most visited",
+    "highlightFlown": "Most flown",
+    "highlightRoutes": "Routes",
+    "filterAirport": "Filter flights visiting {{airport}} ({{code}})",
+    "filterAirline": "Filter flights flown with {{airline}}",
+    "filterRoute": "{{context}}: filter flights from {{origin}} to {{destination}}"
   },
   "import": {
     "failed": "This file cannot be imported",
@@ -447,7 +474,13 @@
     "lastBackup": "Last backup: {{date}}",
     "storageProtectionTitle": "Local data protection",
     "enableStorageProtection": "Protect local data",
-    "storageProtection": { "checking": "Checking browser storage protection…", "granted": "Protected from automatic storage eviction by this browser.", "available": "This browser can request protection for this site.", "unsupported": "This browser does not expose persistent storage protection.", "failed": "Protection could not be enabled. Local data remains available." },
+    "storageProtection": {
+      "checking": "Checking browser storage protection…",
+      "granted": "Protected from automatic storage eviction by this browser.",
+      "available": "This browser can request protection for this site.",
+      "unsupported": "This browser does not expose persistent storage protection.",
+      "failed": "Protection could not be enabled. Local data remains available."
+    },
     "importTitle": "Import archive",
     "importDescription": "Validate and preview a Keepraw Fly JSON file. New flights are added after confirmation; existing flights are never overwritten.",
     "csvImportTitle": "Import flights from CSV",
@@ -502,5 +535,21 @@
     "powerUserMode": "Power User Mode",
     "powerUserDescription": "Enable only if you understand the Keepraw Fly data model.",
     "advancedPlaceholder": "Advanced editing is reserved for a future release. No raw editor is enabled yet."
+  },
+  "flightTiming": {
+    "actual": "Actual",
+    "scheduled": "Sched.",
+    "overnight": "Overnight",
+    "daysLater": "{{count}} days later",
+    "departure": {
+      "early": "Departed {{count}} min early",
+      "late": "Departure delayed {{count}} min",
+      "onTime": "Departure on time"
+    },
+    "arrival": {
+      "early": "Arrived {{count}} min early",
+      "late": "Arrival delayed {{count}} min",
+      "onTime": "Arrival on time"
+    }
   }
 }

@@ -3,7 +3,7 @@ import en from "./locales/en.json";
 import zhCN from "./locales/zh-CN.json";
 import zhTW from "./locales/zh-TW.json";
 
-const auditedSections = ["nav", "actions", "status", "flightDetail"] as const;
+const auditedSections = ["nav", "actions", "status", "flightDetail", "flightTiming"] as const;
 const normalizedKeys = (section: Record<string, unknown>) => [...new Set(
   Object.keys(section).map((key) => key.replace(/_(one|other)$/, "")),
 )].sort();

@@ -10,7 +10,7 @@ Keepraw Fly keeps your flight history in a portable JSON archive. The Flight Pas
 
 ## Flight Passport
 
-Passport brings together lifetime or selected-year totals for flights, distance, time in the air and recorded delay. It also counts countries, airports, airlines and aircraft types. On mobile, the summary, delay and network panels lead into flight highlights and the searchable flight history. Select an airport, airline or route highlight to explore related records; the Passport route map provides another way to explore flights.
+Passport brings together lifetime or selected-year totals for flights, distance, time in the air and recorded delay. It also counts countries, airports, airlines and aircraft types. On mobile, the summary, delay and network panels lead into the searchable flight history. On desktop, airport, airline and route highlights filter related records, and the Passport route map can select a flight in the archive.
 
 ## Flight archive and detail
 
