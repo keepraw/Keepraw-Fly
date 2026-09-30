@@ -3,7 +3,7 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import type { ArchiveKind, SettingsStore, StorageAdapter } from "./adapter";
 import type { ViewerSettings } from "./types";
 
-export type PersistentStorageState = "checking" | "granted" | "available" | "unsupported" | "failed";
+export type PersistentStorageState = "checking" | "granted" | "available" | "denied" | "unsupported" | "failed";
 
 function storageManager(): StorageManager | undefined {
   return typeof navigator !== "undefined" ? navigator.storage : undefined;
@@ -31,7 +31,7 @@ export async function requestPersistentStorage(): Promise<Exclude<PersistentStor
   if (typeof persistent?.persist !== "function" || typeof persistent.persisted !== "function") return "unsupported";
   try {
     if (await persistent.persisted()) return "granted";
-    return await persistent.persist() ? "granted" : "available";
+    return await persistent.persist() ? "granted" : "denied";
   } catch {
     return "failed";
   }

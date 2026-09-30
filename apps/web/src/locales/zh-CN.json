@@ -454,10 +454,12 @@
     "lastBackup": "最近备份：{{date}}",
     "storageProtectionTitle": "本地数据保护",
     "enableStorageProtection": "保护本地数据",
+    "requestingStorageProtection": "正在申请保护…",
     "storageProtection": {
       "checking": "正在检查浏览器存储保护状态…",
       "granted": "此浏览器已避免自动清理本站存储。",
       "available": "此浏览器支持为本站申请存储保护。",
+      "denied": "浏览器未授予存储保护。可以重试，请继续定期导出备份。",
       "unsupported": "此浏览器不提供持久化存储保护接口。",
       "failed": "无法启用存储保护，本地数据仍可正常使用。"
     },

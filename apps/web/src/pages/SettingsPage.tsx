@@ -45,7 +45,8 @@ export function SettingsPage({
   const { t } = useTranslation();
   const [confirmClear, setConfirmClear] = useState(false);
   const [persistentState, setPersistentState] = useState<PersistentStorageState>("checking");
-  const persistRequestAttempted = useRef(false);
+  const [protectingLocalData, setProtectingLocalData] = useState(false);
+  const persistRequestInFlight = useRef(false);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
 
@@ -56,9 +57,15 @@ export function SettingsPage({
   }, []);
 
   async function protectLocalData() {
-    if (persistRequestAttempted.current || persistentState === "granted") return;
-    persistRequestAttempted.current = true;
-    setPersistentState(await requestPersistentStorage());
+    if (persistRequestInFlight.current || persistentState === "granted") return;
+    persistRequestInFlight.current = true;
+    setProtectingLocalData(true);
+    try {
+      setPersistentState(await requestPersistentStorage());
+    } finally {
+      persistRequestInFlight.current = false;
+      setProtectingLocalData(false);
+    }
   }
 
   function updateSetting<Key extends keyof ViewerSettings>(
@@ -265,9 +272,15 @@ export function SettingsPage({
               <div className="settings-row">
                 <div className="settings-row-copy">
                   <span className="settings-row-label">{t("settings.storageProtectionTitle")}</span>
-                  <small>{t(`settings.storageProtection.${persistentState}`)}</small>
+                  <small role="status" aria-live="polite">{t(`settings.storageProtection.${persistentState}`)}</small>
                 </div>
-                {persistentState === "available" ? <div className="settings-row-control"><button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button></div> : null}
+                {persistentState === "available" || persistentState === "denied" || persistentState === "failed" ? (
+                  <div className="settings-row-control">
+                    <button className="settings-action" type="button" disabled={protectingLocalData} onClick={() => void protectLocalData()}>
+                      {t(protectingLocalData ? "settings.requestingStorageProtection" : "settings.enableStorageProtection")}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>

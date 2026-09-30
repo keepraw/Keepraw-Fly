@@ -478,10 +478,12 @@
     "lastBackup": "Last backup: {{date}}",
     "storageProtectionTitle": "Local data protection",
     "enableStorageProtection": "Protect local data",
+    "requestingStorageProtection": "Requesting protection…",
     "storageProtection": {
       "checking": "Checking browser storage protection…",
       "granted": "Protected from automatic storage eviction by this browser.",
       "available": "This browser can request protection for this site.",
+      "denied": "The browser did not grant storage protection. You can try again; keep exporting backups regularly.",
       "unsupported": "This browser does not expose persistent storage protection.",
       "failed": "Protection could not be enabled. Local data remains available."
     },

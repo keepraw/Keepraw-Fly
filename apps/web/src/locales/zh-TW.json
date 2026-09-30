@@ -454,10 +454,12 @@
     "lastBackup": "最近備份：{{date}}",
     "storageProtectionTitle": "本地數據保護",
     "enableStorageProtection": "保護本地數據",
+    "requestingStorageProtection": "正在申請保護…",
     "storageProtection": {
       "checking": "正在檢查瀏覽器儲存保護狀態…",
       "granted": "此瀏覽器已避免自動清理本站儲存空間。",
       "available": "此瀏覽器支援為本站申請儲存保護。",
+      "denied": "瀏覽器未授予儲存保護。可重試，請繼續定期導出備份。",
       "unsupported": "此瀏覽器不提供持久化儲存保護介面。",
       "failed": "無法啟用儲存保護，本地數據仍可正常使用。"
     },
