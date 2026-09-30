@@ -15,10 +15,9 @@ type PersistentStorageManager = StorageManager & {
 };
 
 export async function persistentStorageState(): Promise<Exclude<PersistentStorageState, "checking">> {
-  const storage = storageManager();
-  const persistent = storage as PersistentStorageManager | undefined;
-  if (!persistent?.persisted) return "unsupported";
   try {
+    const persistent = storageManager() as PersistentStorageManager | undefined;
+    if (typeof persistent?.persisted !== "function") return "unsupported";
     return await persistent.persisted() ? "granted" : typeof persistent.persist === "function" ? "available" : "unsupported";
   } catch {
     return "failed";
@@ -26,11 +25,11 @@ export async function persistentStorageState(): Promise<Exclude<PersistentStorag
 }
 
 export async function requestPersistentStorage(): Promise<Exclude<PersistentStorageState, "checking">> {
-  const storage = storageManager();
-  const persistent = storage as PersistentStorageManager | undefined;
-  if (typeof persistent?.persist !== "function" || typeof persistent.persisted !== "function") return "unsupported";
   try {
+    const persistent = storageManager() as PersistentStorageManager | undefined;
+    if (typeof persistent?.persisted !== "function") return "unsupported";
     if (await persistent.persisted()) return "granted";
+    if (typeof persistent.persist !== "function") return "unsupported";
     return await persistent.persist() ? "granted" : "available";
   } catch {
     return "failed";
