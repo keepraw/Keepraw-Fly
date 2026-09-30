@@ -184,7 +184,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       return {
         archiveScrollsInternally: getComputedStyle(archiveScroll).overflowY === "auto",
         bodyFitsViewport: document.documentElement.scrollHeight <= window.innerHeight,
-        highlightsAbsent: document.querySelector(".passport-highlights, .passport-highlight") === null,
+        highlightsVisible: document.querySelectorAll(".passport-highlight").length === 4
+          && getComputedStyle(document.querySelector(".passport-highlights")!).display !== "none",
         distanceLeads: parseFloat(getComputedStyle(hero).fontSize) > parseFloat(getComputedStyle(support).fontSize)
           && parseFloat(getComputedStyle(support).fontSize) > parseFloat(getComputedStyle(delay).fontSize),
         legendIsNarrative: getComputedStyle(legend).display === "block",
@@ -209,7 +210,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
     expect(workspace.archiveScrollsInternally).toBe(true);
     expect(workspace.bodyFitsViewport).toBe(true);
-    expect(workspace.highlightsAbsent).toBe(true);
+    expect(workspace.highlightsVisible).toBe(true);
     expect(workspace.distanceLeads).toBe(true);
     expect(workspace.legendIsNarrative).toBe(true);
     expect(workspace.networkIsSentence).toBe(true);
@@ -253,7 +254,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     await page.locator('.site-navigation a[href="#settings"]').click();
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#passport"]').click();
-    await expect(page.locator(".passport-highlights, .passport-highlight")).toHaveCount(0);
+    await expect(page.locator(".passport-highlights")).toBeVisible();
+    await expect(page.locator(".passport-highlight")).toHaveCount(4);
     expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   }
 
@@ -797,7 +799,8 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     const switcherStyle = getComputedStyle(switcher);
     return {
       canvasHasDepth: getComputedStyle(canvas).backgroundImage !== "none",
-      highlightsAbsent: document.querySelector(".passport-highlights, .passport-highlight") === null,
+      highlightsVisible: document.querySelectorAll(".passport-highlight").length === 4
+        && getComputedStyle(document.querySelector(".passport-highlights")!).display !== "none",
       mapBorderRadius: mapStyle.borderRadius,
       mapBoxShadow: mapStyle.boxShadow,
       countryPaths: map.querySelectorAll(".map-country").length,
@@ -816,7 +819,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     canvasHasDepth: false,
     countryPaths: 177,
     graticules: 0,
-    highlightsAbsent: true,
+    highlightsVisible: true,
     mapBorderRadius: "0px",
     mapBoxShadow: "none",
     permanentAirportLabels: expect.any(Number),

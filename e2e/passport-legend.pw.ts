@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-test("reads Passport statistics as a map caption without a flight-highlights section", async ({ page }) => {
+test("preserves desktop flight highlights and removes them only on mobile", async ({ page }) => {
   test.setTimeout(90_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
@@ -30,13 +30,34 @@ test("reads Passport statistics as a map caption without a flight-highlights sec
   await expect(page.locator(".primary-stats, .passport-counts, .highlight-list")).toHaveCount(0);
   await expect(page.locator(".passport-network-line")).toContainText("3 countries · 5 airports · 3 airlines · 1 aircraft type");
 
-  await expect(page.locator(".passport-highlights, .passport-highlight, .passport-spotlight")).toHaveCount(0);
+  await expect(page.locator(".passport-highlights")).toBeVisible();
+  await expect(page.locator(".passport-highlight")).toHaveCount(4);
   await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(8);
   await expect(page.locator(".passport-legend-support")).toContainText("8 flights");
   await page.locator("#passport-flight-search").fill("");
   await expect(page.locator(".flight-row")).toHaveCount(9);
   await expect(page.locator(".passport-exploration")).toHaveCount(0);
+
+  const airport = page.getByRole("button", { name: /Filter flights visiting .*TAO/ });
+  await expect(airport).toContainText("8 visits");
+  await airport.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".flight-row")).toHaveCount(8);
+  await expect(airport).toHaveAttribute("aria-pressed", "true");
+  await airport.click();
+  await expect(page.locator(".flight-row")).toHaveCount(9);
+  const airline = page.getByRole("button", { name: /Filter flights flown with Cathay Pacific/ });
+  await airline.click();
+  await expect(page.locator(".flight-row")).toHaveCount(4);
+  await expect(airline).toHaveAttribute("aria-pressed", "true");
+  await page.locator(".passport-exploration-close").click();
+  await page.getByRole("button", { name: /Longest flight: filter flights from HKG to BOM/ }).click();
+  await expect(page.locator(".flight-row")).toHaveCount(1);
+  await page.locator(".passport-exploration-close").click();
+  await page.getByRole("button", { name: /Shortest flight: filter flights from SHA to TAO/ }).click();
+  await expect(page.locator(".flight-row")).toHaveCount(4);
+  await page.locator(".passport-exploration-close").click();
 
   await mkdir("test-results/passport-legend", { recursive: true });
   for (const locale of ["en", "zh-CN", "zh-TW"]) {
@@ -50,14 +71,16 @@ test("reads Passport statistics as a map caption without a flight-highlights sec
       for (const width of [1440, 1280, 390]) {
         await page.setViewportSize({ width, height: 720 });
         expect(await page.locator("html").evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
-        await expect(page.locator(".passport-highlights, .passport-highlight, .passport-spotlight")).toHaveCount(0);
         if (width > 760) {
+          await expect(page.locator(".passport-highlights")).toBeVisible();
+          await expect(page.locator(".passport-highlight")).toHaveCount(4);
           await expect(page.locator(".passport-legend")).toBeVisible();
           expect(await page.locator(".passport-visual-sticky").evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
           const sizes = await page.locator(".passport-legend").evaluate(element => [".passport-legend-hero strong", ".passport-legend-support", ".passport-legend-delay"].map(selector => parseFloat(getComputedStyle(element.querySelector(selector)!).fontSize)));
           expect(sizes[0]).toBeGreaterThan(sizes[1]!);
           expect(sizes[1]).toBeGreaterThan(sizes[2]!);
         } else {
+          await expect(page.locator(".passport-highlights, .passport-highlight, .passport-spotlight")).toHaveCount(0);
           await expect(page.locator(".passport-legend")).toBeHidden();
           await expect(page.locator(".passport-mobile-summary")).toBeVisible();
           await expect(page.locator(".passport-delay-panel")).toBeVisible();
@@ -66,6 +89,19 @@ test("reads Passport statistics as a map caption without a flight-highlights sec
         await page.screenshot({ path: `test-results/passport-legend/${locale}-${theme}-${width}.png`, fullPage: true });
       }
       expect((await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze()).violations).toEqual([]);
+    }
+  }
+
+  for (const width of [760, 761, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    if (width > 760) {
+      await expect(page.locator(".passport-highlights")).toBeVisible();
+      await expect(page.locator(".passport-highlight")).toHaveCount(4);
+    } else {
+      await expect(page.locator(".passport-highlights")).toHaveCount(0);
+      const highlightsInTabOrder = await page.locator("button").evaluateAll(buttons =>
+        buttons.some(button => button.closest(".passport-highlights") !== null));
+      expect(highlightsInTabOrder).toBe(false);
     }
   }
 });
