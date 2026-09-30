@@ -173,7 +173,12 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     { width: 390, height: 844, name: "mobile-390" },
   ]) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await page.evaluate(async () => { window.scrollTo(0, 0); await document.fonts.ready; });
+    await page.evaluate(async () => {
+      window.scrollTo(0, 0);
+      await document.fonts.ready;
+      // Let the resized viewport apply its media-query styles before measuring controls.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    });
     const layout = await page.evaluate(() => {
       const content = document.querySelector<HTMLElement>(".settings-content")!;
       const controlElements = Array.from(document.querySelectorAll<HTMLElement>(
@@ -198,7 +203,15 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
           const bounds = element.getBoundingClientRect();
           return bounds.left >= -0.5 && bounds.right <= window.innerWidth + 0.5 && element.scrollWidth <= element.clientWidth + 1;
         }),
-        touchTargets: actionableElements.every((element) => element.getBoundingClientRect().height >= 44),
+        undersizedTouchTargets: actionableElements
+          .filter((element) => element.getBoundingClientRect().height < 44)
+          .map((element) => ({
+            tag: element.tagName,
+            className: element.className,
+            label: element.getAttribute("aria-label") || element.getAttribute("placeholder") || element.textContent?.trim(),
+            parentClassName: element.parentElement?.className,
+            height: element.getBoundingClientRect().height,
+          })),
         membershipColumns: getComputedStyle(document.querySelector(".settings-membership-grid")!).gridTemplateColumns.split(" ").length,
       };
     });
@@ -219,7 +232,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     }
     if (viewport.width === 390) {
       expect(layout.controls.every((control) => control.top >= control.labelBottom)).toBe(true);
-      expect(layout.touchTargets).toBe(true);
+      expect(layout.undersizedTouchTargets).toEqual([]);
     }
     expect(layout.membershipColumns).toBe(viewport.width === 390 ? 1 : 2);
     await page.screenshot({ path: join(screenshotDirectory, `${viewport.name}.png`), fullPage: true, animations: "disabled" });
