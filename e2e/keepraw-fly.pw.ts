@@ -76,7 +76,7 @@ test("manages associated airlines as searchable chips with a constrained default
   await page.getByRole("button", { name: "Create my archive" }).click();
   await page.getByRole("dialog", { name: "Add a flight" }).locator(".button-secondary").click();
   await navigateTo(page, "settings");
-  await page.getByRole("button", { name: "Add membership" }).click();
+  await page.getByRole("button", { name: "Add frequent flyer program" }).click();
 
   const membership = page.locator(".membership-row").last();
   const airlineSearch = membership.getByRole("combobox", { name: "Associated airlines" });
@@ -104,6 +104,185 @@ test("manages associated airlines as searchable chips with a constrained default
   await airlineSearch.fill("CA");
   await membership.getByRole("option", { name: /CA.*Air China/ }).click();
   await expect(membership.locator(".airline-chip")).toHaveCount(2);
+});
+
+test("keeps grouped Settings readable and operable at desktop, tablet and mobile widths", async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  archive.frequentFlyerMemberships = [{
+    id: "settings-phoenixmiles",
+    programId: "phoenixmiles",
+    memberNumber: "ZH-88301924",
+    tier: "Gold",
+    associatedAirlines: ["ZH", "CA"],
+    defaultAirline: "ZH",
+  }];
+  archive.flights[0].frequentFlyer = { membershipId: "settings-phoenixmiles", tierAtFlight: "Gold" };
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "settings.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+  await page.getByRole("button", { name: "Import this archive" }).click();
+  await page.goto("/#settings");
+  await expect(page.locator(".settings-page")).toBeVisible();
+  await expect(page.locator(".settings-section-title")).toHaveText([
+    "General", "Profile", "Frequent flyer profiles", "Data and backup", "Advanced", "Danger zone",
+  ]);
+  await expect(page.locator(".settings-section-icon, .settings-section-heading .eyebrow, .settings-row-value")).toHaveCount(0);
+
+  const membership = page.locator(".membership-row").first();
+  await expect(membership.getByRole("button", { name: "Remove membership" })).toBeDisabled();
+  await expect(membership.getByLabel("Default airline")).toHaveValue("ZH");
+  await page.getByRole("button", { name: "Add frequent flyer program" }).click();
+  const addedMembership = page.locator(".membership-row").last();
+  await addedMembership.getByLabel("Program name").fill("Settings test program");
+  await addedMembership.getByLabel("Member number").fill("KF-2026");
+  await expect(addedMembership.locator("legend")).toHaveText("Settings test program");
+  await addedMembership.getByRole("button", { name: "Remove membership" }).click();
+  await expect(page.locator(".membership-row")).toHaveCount(1);
+
+  await page.getByLabel("Native name", { exact: true }).fill("  张鸿川");
+  await expect(page.getByLabel("Native name", { exact: true })).toHaveValue("张鸿川");
+  await page.getByLabel("Romanized name", { exact: true }).fill("Zhang Hongchuan");
+  const primaryName = page.getByRole("group", { name: "Primary name", exact: true });
+  await primaryName.getByRole("radio", { name: "Romanized", exact: true }).check();
+  await expect(primaryName.getByRole("radio", { name: "Romanized", exact: true })).toBeChecked();
+  await primaryName.getByRole("radio", { name: "Native", exact: true }).check();
+  const powerUserMode = page.getByRole("switch", { name: /Power User Mode/ });
+  await powerUserMode.check();
+  await expect(powerUserMode).toBeChecked();
+  await powerUserMode.uncheck();
+  await page.reload();
+  await expect(page.getByLabel("Romanized name", { exact: true })).toHaveValue("Zhang Hongchuan");
+  await expect(powerUserMode).not.toBeChecked();
+
+  await page.getByRole("combobox", { name: "Appearance", exact: true }).selectOption("light");
+  await page.getByRole("combobox", { name: "Language", exact: true }).selectOption("zh-CN");
+  await expect(page.locator(".settings-section-title")).toHaveText([
+    "常规", "个人资料", "常旅客资料", "数据与备份", "高级", "危险操作",
+  ]);
+  const screenshotDirectory = fileURLToPath(new URL("../test-results/settings-review/", import.meta.url));
+  await mkdir(screenshotDirectory, { recursive: true });
+
+  for (const viewport of [
+    { width: 1440, height: 900, name: "desktop-1440" },
+    { width: 1024, height: 900, name: "tablet-1024" },
+    { width: 390, height: 844, name: "mobile-390" },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.evaluate(async () => {
+      window.scrollTo(0, 0);
+      await document.fonts.ready;
+      // Let the resized viewport apply its media-query styles before measuring controls.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    });
+    const layout = await page.evaluate(() => {
+      const content = document.querySelector<HTMLElement>(".settings-content")!;
+      const controlElements = Array.from(document.querySelectorAll<HTMLElement>(
+        ".settings-display-fields select, .settings-profile-fields > .settings-row > .settings-row-control",
+      ));
+      const controls = controlElements.map((element) => {
+        const bounds = element.getBoundingClientRect();
+        const label = element.closest(".settings-row")!.querySelector(".settings-row-label")!.getBoundingClientRect();
+        return { left: bounds.left, right: bounds.right, width: bounds.width, height: bounds.height, top: bounds.top, labelBottom: label.bottom };
+      });
+      const actionableElements = Array.from(content.querySelectorAll<HTMLElement>(
+        'button, select, input:not([type="file"]):not([type="radio"]):not([role="switch"]), .settings-action, .radio-row label, .settings-toggle-row',
+      )).filter((element) => getComputedStyle(element).display !== "none" && element.getBoundingClientRect().width);
+      const contentBounds = content.getBoundingClientRect();
+      return {
+        fitsViewport: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        content: { left: contentBounds.left, right: contentBounds.right, width: contentBounds.width },
+        controls,
+        selectsVisible: Array.from(document.querySelectorAll<HTMLSelectElement>(".settings-display-fields select"))
+          .every((element) => getComputedStyle(element).opacity === "1" && getComputedStyle(element).position !== "absolute"),
+        actionableElementsFit: actionableElements.every((element) => {
+          const bounds = element.getBoundingClientRect();
+          return bounds.left >= -0.5 && bounds.right <= window.innerWidth + 0.5 && element.scrollWidth <= element.clientWidth + 1;
+        }),
+        undersizedTouchTargets: actionableElements
+          .filter((element) => element.getBoundingClientRect().height < 44)
+          .map((element) => ({
+            tag: element.tagName,
+            className: element.className,
+            label: element.getAttribute("aria-label") || element.getAttribute("placeholder") || element.textContent?.trim(),
+            parentClassName: element.parentElement?.className,
+            height: element.getBoundingClientRect().height,
+          })),
+        membershipColumns: getComputedStyle(document.querySelector(".settings-membership-grid")!).gridTemplateColumns.split(" ").length,
+      };
+    });
+    expect(layout.fitsViewport).toBe(true);
+    expect(layout.actionableElementsFit).toBe(true);
+    expect(layout.selectsVisible).toBe(true);
+    expect(layout.controls).toHaveLength(7);
+    expect(Math.max(...layout.controls.map((control) => control.left)) - Math.min(...layout.controls.map((control) => control.left))).toBeLessThan(1);
+    expect(Math.max(...layout.controls.map((control) => control.width)) - Math.min(...layout.controls.map((control) => control.width))).toBeLessThan(1);
+    expect(layout.controls.every((control) => control.height >= 44)).toBe(true);
+    if (viewport.width === 1440) {
+      expect(layout.content.width).toBeGreaterThanOrEqual(960);
+      expect(layout.content.width).toBeLessThanOrEqual(1000);
+      expect(Math.abs(layout.content.left - (viewport.width - layout.content.right))).toBeLessThan(1);
+      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(300);
+      expect(layout.controls[0]!.width).toBeLessThanOrEqual(320);
+      await expect(page.locator(".settings-page-heading h1")).toBeVisible();
+    }
+    if (viewport.width === 390) {
+      expect(layout.controls.every((control) => control.top >= control.labelBottom)).toBe(true);
+      expect(layout.undersizedTouchTargets).toEqual([]);
+    }
+    expect(layout.membershipColumns).toBe(viewport.width === 390 ? 1 : 2);
+    await page.screenshot({ path: join(screenshotDirectory, `${viewport.name}.png`), fullPage: true, animations: "disabled" });
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole("combobox", { name: "语言", exact: true }).selectOption("en");
+  await page.locator('#settings-import input[type="file"]').setInputFiles(exampleArchive);
+  const jsonPreview = page.getByRole("region", { name: "Review before importing" });
+  await expect(jsonPreview).toBeVisible();
+  await expect(jsonPreview.getByRole("button", { name: "No new flights to import" })).toBeDisabled();
+  for (const width of [1440, 1024, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const previewWidth = await jsonPreview.evaluate((element) => {
+      const row = element.closest(".settings-import-row")!;
+      const style = getComputedStyle(row);
+      return { actual: element.getBoundingClientRect().width, available: row.getBoundingClientRect().width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight), fits: document.documentElement.scrollWidth <= document.documentElement.clientWidth };
+    });
+    expect(Math.abs(previewWidth.actual - previewWidth.available)).toBeLessThan(2);
+    expect(previewWidth.fits).toBe(true);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.screenshot({ path: join(screenshotDirectory, "desktop-preview.png"), fullPage: true, animations: "disabled" });
+  await jsonPreview.getByRole("button", { name: "Cancel" }).click();
+  await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
+  const csvPreview = page.getByRole("region", { name: "Review CSV import" });
+  await expect(csvPreview.getByLabel("Flight number", { exact: true })).toHaveValue("0");
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await csvPreview.evaluate((element) => {
+      const row = element.closest(".settings-import-row")!;
+      return element.getBoundingClientRect().width > row.getBoundingClientRect().width * 0.9
+        && document.documentElement.scrollWidth <= document.documentElement.clientWidth;
+    })).toBe(true);
+  }
+  await csvPreview.getByRole("button", { name: "Cancel" }).click();
+  const clearButton = page.locator(".settings-danger-zone").getByRole("button", { name: "Clear local data", exact: true });
+  await expect(page.locator(".settings-data-panel").getByRole("button", { name: "Clear local data", exact: true })).toHaveCount(0);
+  await clearButton.click();
+  const confirmation = page.getByRole("alertdialog", { name: "Clear local data", exact: true });
+  await expect(confirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(confirmation).toHaveCount(0);
+  await expect(clearButton).toBeFocused();
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.getByRole("combobox", { name: "Appearance", exact: true }).selectOption("dark");
+  await page.getByRole("combobox", { name: "Language", exact: true }).selectOption("zh-TW");
+  await expect(page.locator(".settings-section-title").first()).toHaveText("常規");
+  expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
 test("previews a JSON import and renders its Passport route map", async ({ page }) => {
@@ -664,7 +843,7 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   expect(flightDataMetrics.features).toContain("tnum");
 
   await navigateTo(page, "settings");
-  const englishTitleSize = await page.locator(".settings-section-heading h2").first().evaluate((element) =>
+  const englishTitleSize = await page.locator(".settings-section-title").first().evaluate((element) =>
     Number.parseFloat(getComputedStyle(element).fontSize),
   );
   await page.getByLabel("Language").selectOption("zh-CN");
@@ -672,7 +851,7 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
-  const chineseHeadingMetrics = await page.locator(".settings-section-heading h2").first().evaluate((element) => {
+  const chineseHeadingMetrics = await page.locator(".settings-section-title").first().evaluate((element) => {
     const style = getComputedStyle(element);
     return {
       family: style.fontFamily,
