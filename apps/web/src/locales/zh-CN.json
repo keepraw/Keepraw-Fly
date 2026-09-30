@@ -272,7 +272,20 @@
     "emptyTitle": "飞行护照从第一段航班开始。",
     "emptyDescription": "添加第一条记录，Keepraw Fly 会根据你自己的航班事实生成这本护照。",
     "scopeAll": "全部航班 · {{count}} 段",
-    "scopeYear": "{{year}} 年 · {{count}} 段"
+    "scopeYear": "{{year}} 年 · {{count}} 段",
+    "heroSupport": "{{flights}} 次飞行 · {{duration}}",
+    "arrivalDelayTotal": "到达晚点合计 {{duration}}",
+    "networkSentence": "{{countries}} · {{airports}} · {{airlines}} · {{types}}",
+    "networkCountries": "{{count}} 个国家",
+    "networkAirports": "{{count}} 个机场",
+    "networkAirlines": "{{count}} 家航司",
+    "networkTypes": "{{count}} 种机型",
+    "highlightBeen": "常去",
+    "highlightFlown": "常坐",
+    "highlightRoutes": "航段",
+    "filterAirport": "筛选到访 {{airport}}（{{code}}）的航班",
+    "filterAirline": "筛选乘坐 {{airline}} 的航班",
+    "filterRoute": "筛选{{context}}，{{origin}} 至 {{destination}} 的航班"
   },
   "import": {
     "failed": "无法导入这个文件",

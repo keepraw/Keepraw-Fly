@@ -32,12 +32,12 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
   await expect(page.locator(".passport-period")).toHaveCount(1);
   await page.locator(".passport-period").getByRole("button", { name: "2026" }).click();
   await expect(page.locator(".passport-scope")).toHaveText("2026 · 3 records");
-  await expect(page.locator(".primary-stats > div").first()).toContainText("3");
+  await expect(page.locator(".passport-legend-support")).toContainText("3");
   await expect(page.locator(".flight-row")).toHaveCount(3);
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-times')).toHaveText("20:56—23:30");
   await expect(page.locator('.flight-record[data-flight-id="cz3964"] .flight-times')).toContainText("+1");
   await expect(page.locator('.flight-record[data-flight-id="cx696"] .flight-times')).toContainText("+1");
-  await expect(page.locator(".primary-stats > div").last()).toContainText("0h 11m");
+  await expect(page.locator(".passport-legend-delay")).toContainText("0h 11m");
 
   await page.locator('.flight-record[data-flight-id="zh9911"] .flight-row').click();
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toHaveAttribute("aria-pressed", "true");
@@ -45,7 +45,7 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
   await expect(page.locator(".map-airport.is-selected .map-airport-label")).toHaveText(["SZX", "TAO"]);
   await page.locator(".map-route").filter({ hasText: "SZX to TAO" }).click();
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toBeFocused();
-  await page.locator(".passport-highlight").nth(1).click();
+  await page.locator(".passport-spotlight > button").first().click();
   await expect(page.locator(".passport-exploration")).toContainText("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(2);
   await page.getByRole("button", { name: /Open ZH9911/ }).click();

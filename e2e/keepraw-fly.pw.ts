@@ -133,7 +133,7 @@ test("selects map records and filters the main ledger through highlights", async
   await page.keyboard.press("Enter");
   await expect(page.locator('.flight-row[aria-pressed="true"]')).toHaveCount(1);
   const count = await page.locator(".flight-row").count();
-  await page.locator("button.passport-highlight").first().click();
+  await page.getByRole("button", { name: /Filter flights flown with/ }).click();
   await expect(page.locator(".passport-exploration")).toContainText("Airline history");
   expect(await page.locator(".flight-row").count()).toBeLessThan(count);
   await page.locator(".map-route").first().focus();
@@ -172,15 +172,11 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         throw new Error("Passport archive controls or airline marks are missing");
       }
       const highlightBounds = highlights.map((item) => item.getBoundingClientRect());
-      const highlightRowTops = ["span", "strong", "small"].map((selector) => [0, 2].every((index) =>
-        Math.abs(highlights[index].querySelector<HTMLElement>(selector)!.getBoundingClientRect().top
-          - highlights[index + 1].querySelector<HTMLElement>(selector)!.getBoundingClientRect().top) < 1));
-      const typography = (selector: string) => new Set(
-        Array.from(document.querySelectorAll<HTMLElement>(selector)).map((element) => {
-          const style = getComputedStyle(element);
-          return [style.fontFamily, style.fontSize, style.fontWeight, style.lineHeight].join("|");
-        }),
-      ).size;
+      const hero = document.querySelector<HTMLElement>(".passport-legend-hero strong")!;
+      const support = document.querySelector<HTMLElement>(".passport-legend-support")!;
+      const delay = document.querySelector<HTMLElement>(".passport-legend-delay")!;
+      const legend = document.querySelector<HTMLElement>(".passport-legend")!;
+      const network = document.querySelector<HTMLElement>(".passport-network-line")!;
       const logoBounds = airlineLogos.map((item) => item.getBoundingClientRect());
       const logoStarts = airlineLogos.map((item) => {
         const logoBounds = item.getBoundingClientRect();
@@ -190,13 +186,13 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       return {
         archiveScrollsInternally: getComputedStyle(archiveScroll).overflowY === "auto",
         bodyFitsViewport: document.documentElement.scrollHeight <= window.innerHeight,
-        highlightLabelTypographyCount: typography(".passport-highlight > span"),
-        highlightMetadataTypographyCount: typography(".passport-highlight > small"),
-        highlightTopAligned: highlightBounds[0].top === highlightBounds[1].top && highlightBounds[2].top === highlightBounds[3].top,
-        highlightRowsAligned: highlightRowTops.every(Boolean),
-        highlightValueTypographyCount: typography(".passport-highlight > strong"),
-        highlightWidths: highlightBounds.map((bounds) => Math.round(bounds.width)),
-        labelsShareTypography: typography(".primary-stats span, .passport-counts span, .passport-highlight > span, .passport-highlight > small"),
+        highlightsStacked: highlightBounds.every((bounds, index) => index === 0 || bounds.top >= highlightBounds[index - 1]!.bottom - 0.5),
+        highlightEndsAligned: highlightBounds.every(bounds => Math.abs(bounds.right - highlightBounds[0]!.right) < 1),
+        distanceLeads: parseFloat(getComputedStyle(hero).fontSize) > parseFloat(getComputedStyle(support).fontSize)
+          && parseFloat(getComputedStyle(support).fontSize) > parseFloat(getComputedStyle(delay).fontSize),
+        legendIsNarrative: getComputedStyle(legend).display === "block",
+        networkIsSentence: network.tagName === "P" && getComputedStyle(network).display === "block",
+        noLegacyStatGrids: document.querySelectorAll(".primary-stats, .passport-counts, .highlight-list").length === 0,
         brandedLogoCount: airlineLogos.filter((logo) => logo.querySelector("img")).length,
         fallbackLogoCount: airlineLogos.filter((logo) => logo.classList.contains("airline-logo--fallback")).length,
         logoContentPresent: airlineLogos.every((logo) => Boolean(logo.querySelector("img") || logo.textContent?.trim())),
@@ -207,10 +203,6 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         logoSizes: logoBounds.map((bounds) => `${Math.round(bounds.width)}x${Math.round(bounds.height)}`),
         logoStarts,
         mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.getBoundingClientRect().height,
-        primaryStats: document.querySelectorAll(".primary-stats > div").length,
-        primaryValueTypographyCount: typography(".primary-stats strong"),
-        secondaryStats: document.querySelectorAll(".passport-counts > div").length,
-        secondaryValueTypographyCount: typography(".passport-counts strong"),
         selectorFlexGrow: getComputedStyle(periodSelector).flexGrow,
         selectorPrecedesAddFlight: periodSelector.getBoundingClientRect().bottom <= addFlight.getBoundingClientRect().top,
         selectorUsesAvailableContentWidth: periodSelector.getBoundingClientRect().width <= archive.getBoundingClientRect().width + 0.5,
@@ -220,23 +212,18 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
     expect(workspace.archiveScrollsInternally).toBe(true);
     expect(workspace.bodyFitsViewport).toBe(true);
-    expect(workspace.highlightTopAligned).toBe(true);
-    expect(workspace.highlightRowsAligned).toBe(true);
-    expect(workspace.highlightLabelTypographyCount).toBe(1);
-    expect(workspace.highlightValueTypographyCount).toBe(1);
-    expect(workspace.highlightMetadataTypographyCount).toBe(1);
-    expect(workspace.labelsShareTypography).toBe(1);
-    expect(new Set(workspace.highlightWidths).size).toBe(1);
+    expect(workspace.highlightsStacked).toBe(true);
+    expect(workspace.highlightEndsAligned).toBe(true);
+    expect(workspace.distanceLeads).toBe(true);
+    expect(workspace.legendIsNarrative).toBe(true);
+    expect(workspace.networkIsSentence).toBe(true);
+    expect(workspace.noLegacyStatGrids).toBe(true);
     expect(workspace.brandedLogoCount).toBeGreaterThan(0); 
     expect(workspace.logoContentPresent).toBe(true);
     expect(workspace.logoSourcesAreLocal).toBe(true);
     expect(new Set(workspace.logoSizes).size).toBe(1);
     expect(new Set(workspace.logoStarts).size).toBe(1);
     expect(workspace.mapHeight).toBeGreaterThanOrEqual(180);
-    expect(workspace.primaryStats).toBe(4);
-    expect(workspace.primaryValueTypographyCount).toBe(1);
-    expect(workspace.secondaryStats).toBe(4);
-    expect(workspace.secondaryValueTypographyCount).toBe(1);
     expect(workspace.selectorFlexGrow).toBe("0");
     expect(workspace.selectorPrecedesAddFlight).toBe(true);
     expect(workspace.selectorUsesAvailableContentWidth).toBe(true);
@@ -360,7 +347,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
           && network.getBoundingClientRect().top < archive.getBoundingClientRect().top,
         archiveFollowsPanels: firstFlightYear.getBoundingClientRect().top > network.getBoundingClientRect().bottom,
         noMapPlaceholder: document.querySelector(".route-map, .route-map-loading") === null,
-        highlightsHidden: getComputedStyle(highlights).display === "none",
+        highlightsVisible: getComputedStyle(highlights).display !== "none",
         periodYears: Array.from(document.querySelectorAll(".passport-period button")).map((button) => button.textContent),
         pastFlightsTitle: archive.querySelector(".passport-mobile-section-title")?.textContent?.trim(),
         archiveActions: ["Add flight", "Import flights"].every((label) => Array.from(archive.querySelectorAll("button")).some((button) => button.textContent?.includes(label))),
@@ -377,7 +364,7 @@ test("keeps the mobile Passport composition visually stable", async ({ page }) =
     expect(composition.panelsOrdered).toBe(true);
     expect(composition.archiveFollowsPanels).toBe(true);
     expect(composition.noMapPlaceholder).toBe(true);
-    expect(composition.highlightsHidden).toBe(true);
+    expect(composition.highlightsVisible).toBe(true);
     expect(composition.periodYears).toEqual(["All", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
     expect(composition.archiveActions).toBe(true);
@@ -404,7 +391,7 @@ test.describe("Chinese distance defaults", () => {
   test("starts in kilometers and keeps an explicit miles choice", async ({ page }) => {
     await page.goto("/");
     await page.locator(".welcome-actions .button-secondary").click();
-    await expect(page.locator(".primary-stats")).toContainText("公里");
+    await expect(page.locator(".passport-legend")).toContainText("公里");
     await page.getByRole("button", { name: /Open |打开 |打開 / }).first().click();
     await expect(page.locator(".detail-heading-route-summary")).toContainText("公里");
 
@@ -414,7 +401,7 @@ test.describe("Chinese distance defaults", () => {
     await expect(distanceSelect).toHaveValue("kilometers");
     await distanceSelect.selectOption("miles");
     await page.locator('.site-navigation a[href="#passport"]').click();
-    await expect(page.locator(".primary-stats")).toContainText("英里");
+    await expect(page.locator(".passport-legend")).toContainText("英里");
     await page.getByRole("button", { name: /Open |打开 |打開 / }).first().click();
     await expect(page.locator(".detail-heading-route-summary")).toContainText("英里");
   });

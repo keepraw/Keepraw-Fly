@@ -24,6 +24,29 @@ import { passportVisibleFlights, type PassportSelection, type PassportViewState 
 const PassportRouteMap = lazy(() => import("../components/PassportRouteMap")
   .then((module) => ({ default: module.PassportRouteMap })));
 
+function SpotlightItem({ label, value, code, context, metadata, ariaLabel, selected, onSelect }: {
+  label?: string;
+  value: string;
+  code?: string;
+  context?: string;
+  metadata?: string;
+  ariaLabel?: string;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
+  const content = <>
+    {label ? <span className="passport-spotlight-label">{label}</span> : null}
+    <span className="passport-spotlight-copy">
+      {context ? <span className="passport-spotlight-context">{context}</span> : null}
+      <strong>{value}</strong>{code ? <span className="passport-spotlight-code">{code}</span> : null}
+    </span>
+    {metadata ? <small>{metadata}</small> : null}
+    {onSelect ? <span className="passport-spotlight-arrow" aria-hidden="true">→</span> : null}
+  </>;
+  return onSelect ? <button type="button" className="passport-highlight passport-spotlight-item" aria-label={ariaLabel} aria-pressed={Boolean(selected)} onClick={onSelect}>{content}</button>
+    : <div className="passport-highlight passport-spotlight-item is-unavailable">{content}</div>;
+}
+
 interface PassportPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
@@ -65,6 +88,14 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   const routes = useMemo(() => buildRouteSegments(flights), [flights]);
   const longest = flights.find((flight) => flight.id === stats.longestFlight?.flightId);
   const shortest = flights.find((flight) => flight.id === stats.shortestFlight?.flightId);
+  // An airport filter can tie with its sole opposite endpoint; keep the active
+  // airport visible as that tied leader so its pressed state remains available.
+  const mostVisited = selection?.kind === "airport" && stats.mostVisitedAirport
+    ? { ...stats.mostVisitedAirport, code: selection.code } : stats.mostVisitedAirport;
+  const mostVisitedName = mostVisited ? (airportByIata.get(mostVisited.code)
+    ? localizedText(airportByIata.get(mostVisited.code)!.name, locale) : mostVisited.code) : "—";
+  const duration = formatDuration(stats.durationMinutes, locale);
+  const arrivalDelay = stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale);
   const distanceKey = distanceUnit === "miles" ? "passport.distanceMiles" : "passport.distanceKilometers";
   const selectedFlight = flights.find((flight) => flight.id === view.flightId);
   const highlightedFlight = selectedFlight ?? hoveredFlight;
@@ -88,7 +119,26 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   }, []);
 
   function routeLabel(flight: typeof longest): string {
-    return flight ? `${flight.origin.iata} → ${flight.destination.iata}` : "—";
+    return flight ? `${flight.origin.iata} → ${(flight.divertedTo ?? flight.destination).iata}` : "—";
+  }
+
+  function isSelected(target: PassportSelection): boolean {
+    if (!selection || selection.kind !== target.kind) return false;
+    if (target.kind === "route") return selection.kind === "route" && selection.origin === target.origin && selection.destination === target.destination;
+    return selection.kind !== "route" && selection.code === target.code;
+  }
+
+  function toggleHighlight(target: PassportSelection) {
+    setSelection(isSelected(target) ? null : target);
+  }
+
+  function routeHighlight(flight: typeof longest, context: string) {
+    const target: PassportSelection | undefined = flight ? { kind: "route", origin: flight.origin.iata, destination: (flight.divertedTo ?? flight.destination).iata } : undefined;
+    const distance = flight ? distanceForFlight(flight) : null;
+    return <SpotlightItem context={context} value={routeLabel(flight)}
+      metadata={distance === null ? undefined : t(distanceKey, { value: formatDistance(distance, locale, distanceUnit) })}
+      ariaLabel={target ? t("passport.filterRoute", { context, origin: target.origin, destination: target.destination }) : undefined}
+      selected={target ? isSelected(target) : false} onSelect={target ? () => toggleHighlight(target) : undefined} />;
   }
 
   function selectYear(year: number | "lifetime") {
@@ -149,19 +199,16 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
               />
             </Suspense> : null}
 
-            <section className="primary-stats" key={`primary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
-              <div><span>{t("passport.flights")}</span><strong>{stats.flights.toLocaleString(locale)}</strong></div>
-              <div><span>{t("passport.distance")}</span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></div>
-              <div><span>{t("passport.timeInAir")}</span><strong>{formatDuration(stats.durationMinutes, locale)}</strong></div>
-              <div><span>{t("passport.totalDelay")}</span><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong><small>{t("passport.delayBasedOnArrivals")}</small></div>
+            <section className="passport-legend" key={`primary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
+              <p className="passport-legend-hero"><span className="sr-only">{t("passport.distance")} </span><strong>{t(distanceKey, { value: formatDistance(stats.distanceKilometers, locale, distanceUnit) })}</strong></p>
+              <p className="passport-legend-support">{t("passport.heroSupport", { count: stats.flights, flights: stats.flights.toLocaleString(locale), duration })}</p>
+              <p className="passport-legend-delay" title={t("passport.delayBasedOnArrivals")} aria-description={t("passport.delayBasedOnArrivals")}>{t("passport.arrivalDelayTotal", { duration: arrivalDelay })}</p>
             </section>
 
-            <section className="passport-counts" key={`counts-${selectedYear}`} aria-label={t("passport.collectionStats")}>
-              <div><span>{t("passport.countries")}</span><strong>{stats.countries}</strong></div>
-              <div><span>{t("passport.airports")}</span><strong>{stats.airports}</strong></div>
-              <div><span>{t("passport.airlines")}</span><strong>{stats.airlines}</strong></div>
-              <div><span>{t("passport.aircraftTypes")}</span><strong>{stats.aircraftTypes}</strong></div>
-            </section>
+            <p className="passport-network-line" aria-label={t("passport.collectionStats")}>{t("passport.networkSentence", {
+              countries: t("passport.networkCountries", { count: stats.countries }), airports: t("passport.networkAirports", { count: stats.airports }),
+              airlines: t("passport.networkAirlines", { count: stats.airlines }), types: t("passport.networkTypes", { count: stats.aircraftTypes }),
+            })}</p>
 
             <section className="passport-mobile-summary" id="passport-summary" key={`mobile-summary-${selectedYear}`} aria-label={t("passport.primaryStats")}>
               <p className="passport-panel-kicker">KEEPRAW FLY <span> / </span> {t("passport.panelTitle")}</p>
@@ -180,8 +227,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
             <section className="passport-mobile-panel passport-delay-panel" aria-labelledby="passport-delay-title">
               <h2 id="passport-delay-title">{t("passport.totalDelay")}</h2>
-              <div className="passport-delay-main"><strong>{stats.totalDelayMinutes === null ? "—" : formatDuration(stats.totalDelayMinutes, locale)}</strong></div>
-              <p>{t("passport.delayBasedOnArrivals")}</p>
+              <div className="passport-delay-main" title={t("passport.delayBasedOnArrivals")} aria-description={t("passport.delayBasedOnArrivals")}><strong>{arrivalDelay}</strong></div>
               {stats.totalDelayMinutes === null ? <p>{t("passport.delayUnavailable")}</p> : <>
                 {worstDelay ? <p className="passport-delay-longest"><span>{t("passport.longestDelay")}</span><strong>{worstDelay.flight.flightNumber} · {formatDuration(worstDelay.minutes, locale)}</strong></p> : null}
               </>}
@@ -195,27 +241,21 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
 
             <div className="passport-highlights" key={`highlights-${selectedYear}`}>
               <h2 className="passport-mobile-section-title">{t("passport.highlights")}</h2>
-              <div className="highlight-list">
-                {stats.mostFlownAirline ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "airline", code: stats.mostFlownAirline!.code })}>
-                  <span>{t("passport.mostFlownAirline")}</span>
-                  <strong>{airlineDisplayName(stats.mostFlownAirline.code, locale)}</strong>
-                  <small>{t("passport.flightFrequency", { count: stats.mostFlownAirline.count })}</small>
-                </button> : <div className="passport-highlight"><span>{t("passport.mostFlownAirline")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
-                {stats.mostVisitedAirport ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "airport", code: stats.mostVisitedAirport!.code })}>
-                  <span>{t("passport.mostVisitedAirport")}</span>
-                  <strong>{airportByIata.get(stats.mostVisitedAirport.code) ? localizedText(airportByIata.get(stats.mostVisitedAirport.code)!.name, locale) : stats.mostVisitedAirport.code}</strong>
-                  <small>{t("passport.visitFrequency", { count: stats.mostVisitedAirport.count })}</small>
-                </button> : <div className="passport-highlight"><span>{t("passport.mostVisitedAirport")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
-                {longest ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "route", origin: longest.origin.iata, destination: longest.destination.iata })}>
-                  <span>{t("passport.longestFlight")}</span>
-                  <strong className="highlight-route">{routeLabel(longest)}</strong>
-                  <small>{distanceForFlight(longest) ? t(distanceKey, { value: formatDistance(distanceForFlight(longest)!, locale, distanceUnit) }) : ""}</small>
-                </button> : <div className="passport-highlight"><span>{t("passport.longestFlight")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
-                {shortest ? <button className="passport-highlight" type="button" onClick={() => setSelection({ kind: "route", origin: shortest.origin.iata, destination: shortest.destination.iata })}>
-                  <span>{t("passport.shortestFlight")}</span>
-                  <strong className="highlight-route">{routeLabel(shortest)}</strong>
-                  <small>{distanceForFlight(shortest) ? t(distanceKey, { value: formatDistance(distanceForFlight(shortest)!, locale, distanceUnit) }) : ""}</small>
-                </button> : <div className="passport-highlight"><span>{t("passport.shortestFlight")}</span><strong>—</strong><small aria-hidden="true">&nbsp;</small></div>}
+              <div className="passport-spotlight">
+                <SpotlightItem label={t("passport.highlightBeen")} value={mostVisitedName} code={mostVisited?.code}
+                  metadata={mostVisited ? t("passport.visitFrequency", { count: mostVisited.count }) : undefined}
+                  ariaLabel={mostVisited ? t("passport.filterAirport", { airport: mostVisitedName, code: mostVisited.code }) : undefined}
+                  selected={mostVisited ? isSelected({ kind: "airport", code: mostVisited.code }) : false}
+                  onSelect={mostVisited ? () => toggleHighlight({ kind: "airport", code: mostVisited.code }) : undefined} />
+                <SpotlightItem label={t("passport.highlightFlown")} value={stats.mostFlownAirline ? airlineDisplayName(stats.mostFlownAirline.code, locale) : "—"}
+                  metadata={stats.mostFlownAirline ? t("passport.flightFrequency", { count: stats.mostFlownAirline.count }) : undefined}
+                  ariaLabel={stats.mostFlownAirline ? t("passport.filterAirline", { airline: airlineDisplayName(stats.mostFlownAirline.code, locale) }) : undefined}
+                  selected={stats.mostFlownAirline ? isSelected({ kind: "airline", code: stats.mostFlownAirline.code }) : false}
+                  onSelect={stats.mostFlownAirline ? () => toggleHighlight({ kind: "airline", code: stats.mostFlownAirline!.code }) : undefined} />
+                <div className="passport-spotlight-routes" role="group" aria-labelledby="passport-spotlight-routes-label">
+                  <span className="passport-spotlight-label" id="passport-spotlight-routes-label">{t("passport.highlightRoutes")}</span>
+                  <div>{routeHighlight(longest, t("passport.longestFlight"))}{routeHighlight(shortest, t("passport.shortestFlight"))}</div>
+                </div>
               </div>
             </div>
           </div>
