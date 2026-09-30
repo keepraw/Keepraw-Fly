@@ -11,7 +11,6 @@ import {
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
-import { AviationIcon, type AviationIconName } from "../components/AviationPrimitives";
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { FlightyImportControl } from "../components/FlightyImportControl";
@@ -30,25 +29,6 @@ interface SettingsPageProps {
   onSettingsChange: (settings: ViewerSettings) => void | Promise<void>;
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
   onMembershipsChange: (memberships: readonly FrequentFlyerMembership[]) => void | Promise<void>;
-}
-
-function SectionHeading({
-  icon,
-  number,
-  title,
-  titleId,
-}: {
-  icon: AviationIconName;
-  number: string;
-  title: string;
-  titleId: string;
-}) {
-  return (
-    <div className="settings-section-heading">
-      <span className="settings-section-icon"><AviationIcon name={icon} /></span>
-      <div><p className="eyebrow">{number}</p><h2 id={titleId}>{title}</h2></div>
-    </div>
-  );
 }
 
 export function SettingsPage({
@@ -134,96 +114,188 @@ export function SettingsPage({
 
   return (
     <PageShell className="settings-page">
-      <h1 className="sr-only">{t("nav.settings")}</h1>
-      <div className="settings-sections">
-        <section className="settings-section" aria-labelledby="settings-data">
-          <SectionHeading icon="data" number="01" title={t("settings.data")} titleId="settings-data" />
-          <div className="settings-panel data-actions">
-            <div className="settings-data-overview"><span className="settings-desktop-copy">{t("settings.backupReminderTitle")}</span><span className="settings-mobile-copy">{t("settings.localDataTitle")}</span><small className="settings-desktop-copy">{t("settings.backupReminderDescription")}</small><small className="settings-mobile-copy">{t("settings.localDataDescription")}</small><strong className="settings-backup-status">{lastBackup ? t("settings.lastBackup", { date: lastBackup }) : t("settings.noBackupYet")}</strong></div>
-            <div className="settings-data-export"><span className="settings-desktop-copy">{t("settings.exportTitle")}</span><span className="settings-mobile-copy">{t("settings.backupGroupTitle")}</span><small className={isDemo ? undefined : "settings-desktop-copy"}>{t(isDemo ? "settings.exportDescriptionDemo" : "settings.exportDescription")}</small><button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("actions.export")}</button></div>
-            <div className="settings-data-import" id="settings-import"><span className="settings-desktop-copy">{t("settings.importTitle")}</span><span className="settings-mobile-copy">{t("settings.importGroupTitle")}</span><small className="settings-desktop-copy">{t("settings.importDescription")}</small><small className="settings-mobile-copy">{t("settings.importGroupDescription")}</small><ImportControl existingDocument={document} onImport={onImport} variant="settings" /></div>
-            <div className="settings-data-csv"><span>{t("settings.csvImportTitle")}</span><small>{t("settings.csvImportDescription")}</small><CsvImportControl document={document} onImport={onImport} /></div>
-            <div className="settings-data-flighty"><span>{t("settings.flightyImportTitle")}</span><small>{t("settings.flightyImportDescription")}</small><FlightyImportControl document={document} onImport={onImport} /></div>
-            <div className="settings-data-storage"><span>{t("settings.storageProtectionTitle")}</span><small>{t(`settings.storageProtection.${persistentState}`)}</small>{persistentState === "available" ? <button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button> : null}</div>
-            <div className="settings-data-clear"><span>{t("settings.clearTitle")}</span><small>{t("settings.clearDescription")}</small><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => setConfirmClear(true)}>{t("actions.clearData")}</button></div>
-          </div>
-        </section>
+      <div className="settings-content">
+        <header className="settings-page-heading">
+          <h1>{t("nav.settings")}</h1>
+        </header>
+        <div className="settings-sections">
+          <section className="settings-section" aria-labelledby="settings-display">
+            <h2 className="settings-section-title" id="settings-display">{t("settings.general")}</h2>
+            <div className="settings-panel settings-fields settings-display-fields">
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.language")}</span>
+                <select className="settings-row-control" value={settings.language} onChange={(event) => updateSetting("language", event.target.value as ViewerSettings["language"])}>
+                  <option value="en">{t("settings.languages.en")}</option>
+                  <option value="zh-CN">{t("settings.languages.zhCN")}</option>
+                  <option value="zh-TW">{t("settings.languages.zhTW")}</option>
+                </select>
+              </label>
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.appearance")}</span>
+                <select className="settings-row-control" value={settings.appearance} onChange={(event) => updateSetting("appearance", event.target.value as ViewerSettings["appearance"])}>
+                  <option value="system">{t("settings.system")}</option>
+                  <option value="light">{t("settings.light")}</option>
+                  <option value="dark">{t("settings.dark")}</option>
+                </select>
+              </label>
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.distance")}</span>
+                <select className="settings-row-control" value={settings.distanceUnit} onChange={(event) => updateSetting("distanceUnit", event.target.value as ViewerSettings["distanceUnit"])}>
+                  <option value="miles">{t("settings.miles")}</option>
+                  <option value="kilometers">{t("settings.kilometers")}</option>
+                </select>
+              </label>
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.timeFormat")}</span>
+                <select className="settings-row-control" value={settings.timeFormat} onChange={(event) => updateSetting("timeFormat", event.target.value as ViewerSettings["timeFormat"])}>
+                  <option value="24-hour">{t("settings.twentyFourHour")}</option>
+                  <option value="12-hour">{t("settings.twelveHour")}</option>
+                </select>
+              </label>
+            </div>
+          </section>
 
-        <section className="settings-section" aria-labelledby="settings-display">
-          <SectionHeading icon="display" number="02" title={t("settings.display")} titleId="settings-display" />
-          <div className="settings-panel settings-fields settings-display-fields">
-            <label><span>{t("settings.language")}</span><span className="settings-row-value" aria-hidden="true">{t(`settings.languages.${settings.language === "zh-CN" ? "zhCN" : settings.language === "zh-TW" ? "zhTW" : "en"}`)}</span><select value={settings.language} onChange={(event) => updateSetting("language", event.target.value as ViewerSettings["language"])}><option value="en">{t("settings.languages.en")}</option><option value="zh-CN">{t("settings.languages.zhCN")}</option><option value="zh-TW">{t("settings.languages.zhTW")}</option></select></label>
-            <label><span>{t("settings.appearance")}</span><span className="settings-row-value" aria-hidden="true">{t(`settings.${settings.appearance}`)}</span><select value={settings.appearance} onChange={(event) => updateSetting("appearance", event.target.value as ViewerSettings["appearance"])}><option value="system">{t("settings.system")}</option><option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option></select></label>
-            <label><span>{t("settings.distance")}</span><span className="settings-row-value" aria-hidden="true">{t(`settings.${settings.distanceUnit}`)}</span><select value={settings.distanceUnit} onChange={(event) => updateSetting("distanceUnit", event.target.value as ViewerSettings["distanceUnit"])}><option value="miles">{t("settings.miles")}</option><option value="kilometers">{t("settings.kilometers")}</option></select></label>
-            <label><span>{t("settings.timeFormat")}</span><span className="settings-row-value" aria-hidden="true">{t(settings.timeFormat === "24-hour" ? "settings.twentyFourHour" : "settings.twelveHour")}</span><select value={settings.timeFormat} onChange={(event) => updateSetting("timeFormat", event.target.value as ViewerSettings["timeFormat"])}><option value="24-hour">{t("settings.twentyFourHour")}</option><option value="12-hour">{t("settings.twelveHour")}</option></select></label>
-          </div>
-        </section>
-
-        <section className="settings-section" aria-labelledby="settings-profile">
-          <SectionHeading icon="profile" number="03" title={t("settings.profile")} titleId="settings-profile" />
-          <div className="settings-panel settings-fields settings-profile-fields">
-            <label><span>{t("settings.nativeName")}</span><input type="text" disabled={!document} value={profileName?.native ?? ""} onChange={(event) => updateName("native", event.target.value)} /></label>
-            <label><span>{t("settings.romanizedName")}</span><input type="text" disabled={!document} value={profileName?.romanized ?? ""} onChange={(event) => updateName("romanized", event.target.value)} /></label>
-            <fieldset>
-              <legend>{t("settings.primaryName")}</legend>
-              <div className="radio-row">
-                <label><input type="radio" name="primary-name" value="native" checked={profileName?.primary === "native"} disabled={!profileName?.native} onChange={() => void onProfileChange({ ...profileName!, primary: "native" })} />{t("settings.native")}</label>
-                <label><input type="radio" name="primary-name" value="romanized" checked={profileName?.primary === "romanized"} disabled={!profileName?.romanized} onChange={() => void onProfileChange({ ...profileName!, primary: "romanized" })} />{t("settings.romanized")}</label>
+          <section className="settings-section" aria-labelledby="settings-profile">
+            <h2 className="settings-section-title" id="settings-profile">{t("settings.profile")}</h2>
+            <div className="settings-panel settings-fields settings-profile-fields">
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.nativeName")}</span>
+                <input className="settings-row-control" type="text" disabled={!document} value={profileName?.native ?? ""} onChange={(event) => updateName("native", event.target.value)} />
+              </label>
+              <label className="settings-row">
+                <span className="settings-row-label">{t("settings.romanizedName")}</span>
+                <input className="settings-row-control" type="text" disabled={!document} value={profileName?.romanized ?? ""} onChange={(event) => updateName("romanized", event.target.value)} />
+              </label>
+              <div className="settings-row">
+                <span className="settings-row-label" aria-hidden="true">{t("settings.primaryName")}</span>
+                <fieldset className="settings-name-choice settings-row-control">
+                  <legend className="sr-only">{t("settings.primaryName")}</legend>
+                  <div className="radio-row">
+                    <label><input type="radio" name="primary-name" value="native" checked={profileName?.primary === "native"} disabled={!profileName?.native} onChange={() => void onProfileChange({ ...profileName!, primary: "native" })} />{t("settings.native")}</label>
+                    <label><input type="radio" name="primary-name" value="romanized" checked={profileName?.primary === "romanized"} disabled={!profileName?.romanized} onChange={() => void onProfileChange({ ...profileName!, primary: "romanized" })} />{t("settings.romanized")}</label>
+                  </div>
+                </fieldset>
               </div>
-            </fieldset>
-          </div>
-        </section>
+            </div>
+          </section>
 
-        <section className="settings-section" aria-labelledby="settings-loyalty">
-          <SectionHeading icon="profile" number="04" title={t("settings.frequentFlyerProfiles")} titleId="settings-loyalty" />
-          <div className="settings-panel membership-editor">
-            <p className="settings-helper">{t("settings.frequentFlyerDescription")}</p>
-            {memberships.map((membership) => (
-              <fieldset className="membership-row" key={membership.id}>
-                <legend>{frequentFlyerProgramName(membership, settings.language) || t("settings.newMembership")}</legend>
-                <label><span>{t("settings.programName")}</span><input value={membership.programName ?? frequentFlyerProgramName(membership, settings.language)} onChange={(event) => updateMembership(membership.id, {
-                  programId: frequentFlyerProgramId(event.target.value),
-                  programName: event.target.value || undefined,
-                })} /></label>
-                <label><span>{t("settings.memberNumber")}</span><input value={membership.memberNumber} onChange={(event) => updateMembership(membership.id, { memberNumber: event.target.value })} /></label>
-                <label><span>{t("settings.tier")}</span><input value={membership.tier ?? ""} onChange={(event) => updateMembership(membership.id, { tier: event.target.value })} /></label>
-                <AirlineMultiSelect
-                  label={t("settings.associatedAirlines")}
-                  locale={settings.language}
-                  value={membership.associatedAirlines}
-                  onChange={(codes) => updateAssociatedAirlines(membership, codes)}
-                />
-                <label><span>{t("settings.defaultAirline")}</span><select
-                  disabled={!membership.associatedAirlines.length}
-                  value={membership.defaultAirline ?? ""}
-                  onChange={(event) => updateMembership(membership.id, normalizeMembershipAirlines(membership.associatedAirlines, event.target.value || null))}
-                >
-                  {membership.associatedAirlines.length !== 1 ? <option value="">{t("settings.noDefaultAirline")}</option> : null}
-                  {membership.associatedAirlines.map((code) => <option value={code} key={code}>{airlineOptionLabel(code)}</option>)}
-                </select></label>
-                <button
-                  className="button-secondary membership-delete"
-                  type="button"
-                  disabled={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id)}
-                  title={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id) ? t("settings.membershipInUse") : undefined}
-                  onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}
-                >{t("settings.removeMembership")}</button>
-              </fieldset>
-            ))}
-            <button className="button-secondary" type="button" disabled={!document} onClick={addMembership}>{t("settings.addMembership")}</button>
-          </div>
-        </section>
+          <section className="settings-section" aria-labelledby="settings-loyalty">
+            <h2 className="settings-section-title" id="settings-loyalty">{t("settings.frequentFlyerProfiles")}</h2>
+            <div className="settings-panel membership-editor">
+              <p className="settings-helper">{t("settings.frequentFlyerDescription")}</p>
+              {memberships.map((membership) => (
+                <fieldset className="settings-membership membership-row" key={membership.id}>
+                  <legend>{frequentFlyerProgramName(membership, settings.language) || t("settings.newMembership")}</legend>
+                  <div className="settings-membership-grid">
+                    <label><span>{t("settings.programName")}</span><input value={membership.programName ?? frequentFlyerProgramName(membership, settings.language)} onChange={(event) => updateMembership(membership.id, {
+                      programId: frequentFlyerProgramId(event.target.value),
+                      programName: event.target.value || undefined,
+                    })} /></label>
+                    <label><span>{t("settings.memberNumber")}</span><input value={membership.memberNumber} onChange={(event) => updateMembership(membership.id, { memberNumber: event.target.value })} /></label>
+                    <label><span>{t("settings.tier")}</span><input value={membership.tier ?? ""} onChange={(event) => updateMembership(membership.id, { tier: event.target.value })} /></label>
+                    <label><span>{t("settings.defaultAirline")}</span><select
+                      disabled={!membership.associatedAirlines.length}
+                      value={membership.defaultAirline ?? ""}
+                      onChange={(event) => updateMembership(membership.id, normalizeMembershipAirlines(membership.associatedAirlines, event.target.value || null))}
+                    >
+                      {membership.associatedAirlines.length !== 1 ? <option value="">{t("settings.noDefaultAirline")}</option> : null}
+                      {membership.associatedAirlines.map((code) => <option value={code} key={code}>{airlineOptionLabel(code)}</option>)}
+                    </select></label>
+                    <div className="settings-membership-airlines">
+                      <AirlineMultiSelect
+                        label={t("settings.associatedAirlines")}
+                        locale={settings.language}
+                        value={membership.associatedAirlines}
+                        onChange={(codes) => updateAssociatedAirlines(membership, codes)}
+                      />
+                    </div>
+                  </div>
+                  <div className="settings-membership-actions">
+                    <button
+                      className="button-secondary membership-delete"
+                      type="button"
+                      disabled={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id)}
+                      title={document?.flights.some((flight) => flight.frequentFlyer?.membershipId === membership.id) ? t("settings.membershipInUse") : undefined}
+                      onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}
+                    >{t("settings.removeMembership")}</button>
+                  </div>
+                </fieldset>
+              ))}
+              <div className="settings-membership-add">
+                <button className="button-secondary" type="button" disabled={!document} onClick={addMembership}>{t("settings.addMembership")}</button>
+              </div>
+            </div>
+          </section>
 
-        <section className="settings-section" aria-labelledby="settings-advanced">
-          <SectionHeading icon="advanced" number="05" title={t("settings.advanced")} titleId="settings-advanced" />
-          <div className="settings-panel">
-            <label className="toggle-row">
-              <span><strong>{t("settings.powerUserMode")}</strong><small>{t("settings.powerUserDescription")}</small></span>
-              <input type="checkbox" role="switch" checked={settings.powerUserMode} onChange={(event) => updateSetting("powerUserMode", event.target.checked)} />
-            </label>
-            {settings.powerUserMode ? <p className="advanced-note">{t("settings.advancedPlaceholder")}</p> : null}
-          </div>
-        </section>
+          <section className="settings-section" aria-labelledby="settings-data">
+            <h2 className="settings-section-title" id="settings-data">{t("settings.dataAndBackup")}</h2>
+            <div className="settings-panel settings-data-panel">
+              <div className="settings-backup-summary">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.localDataTitle")}</span>
+                  <small>{t("settings.localDataDescription")}</small>
+                  <strong className="settings-backup-status">{lastBackup ? t("settings.lastBackup", { date: lastBackup }) : t("settings.noBackupYet")}</strong>
+                </div>
+                <div className="settings-row-control">
+                  <button className="settings-action" type="button" disabled={!onExport} onClick={() => void onExport?.()}>{t("settings.exportJson")}</button>
+                  {isDemo ? <small className="settings-export-note">{t("settings.exportDescriptionDemo")}</small> : null}
+                </div>
+              </div>
+              <div className="settings-import-row" id="settings-import">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.importTitle")}</span>
+                  <small>{t("settings.importDescription")}</small>
+                </div>
+                <ImportControl existingDocument={document} onImport={onImport} variant="settings" />
+              </div>
+              <div className="settings-import-row">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.csvImportTitle")}</span>
+                  <small>{t("settings.csvImportDescription")}</small>
+                </div>
+                <CsvImportControl document={document} onImport={onImport} />
+              </div>
+              <div className="settings-import-row">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.flightyImportTitle")}</span>
+                  <small>{t("settings.flightyImportDescription")}</small>
+                </div>
+                <FlightyImportControl document={document} onImport={onImport} />
+              </div>
+              <div className="settings-row">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.storageProtectionTitle")}</span>
+                  <small>{t(`settings.storageProtection.${persistentState}`)}</small>
+                </div>
+                {persistentState === "available" ? <div className="settings-row-control"><button className="settings-action" type="button" onClick={() => void protectLocalData()}>{t("settings.enableStorageProtection")}</button></div> : null}
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="settings-advanced">
+            <h2 className="settings-section-title" id="settings-advanced">{t("settings.advanced")}</h2>
+            <div className="settings-panel">
+              <label className="settings-row settings-toggle-row">
+                <span className="settings-row-copy"><strong className="settings-row-label">{t("settings.powerUserMode")}</strong><small>{t("settings.powerUserDescription")}</small></span>
+                <span className="settings-row-control settings-switch-control"><input type="checkbox" role="switch" checked={settings.powerUserMode} onChange={(event) => updateSetting("powerUserMode", event.target.checked)} /></span>
+              </label>
+              {settings.powerUserMode ? <p className="settings-advanced-note">{t("settings.advancedPlaceholder")}</p> : null}
+            </div>
+          </section>
+
+          <section className="settings-section settings-danger-zone" aria-labelledby="settings-danger">
+            <h2 className="settings-section-title" id="settings-danger">{t("settings.dangerZone")}</h2>
+            <div className="settings-panel">
+              <div className="settings-row">
+                <div className="settings-row-copy">
+                  <span className="settings-row-label">{t("settings.clearTitle")}</span>
+                  <small>{t("settings.clearDescription")}</small>
+                </div>
+                <div className="settings-row-control"><button className="settings-action danger-action" type="button" disabled={!onClear} onClick={() => setConfirmClear(true)}>{t("actions.clearData")}</button></div>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
       {confirmClear ? (
         <ConfirmationDialog

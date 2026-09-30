@@ -21,7 +21,7 @@ Passport brings together lifetime or selected-year totals for flights, distance,
 
 ## Import and backup
 
-Open **Settings → Data** to review an import before it changes your archive.
+Open **Settings → Data and backup** to review an import before it changes your archive.
 
 - **Flighty CSV:** import supported fields from a Flighty CSV export. Airline codes and flight numbers are normalized locally; this is a one-way import, not full Flighty format compatibility or synchronization.
 - **Keepraw Fly CSV bulk import:** batch-import rows using the documented Keepraw Fly columns, with automatic or manual column mapping.
@@ -34,7 +34,8 @@ Imports are previewed before confirmation. New flights are added to the existing
 - Flight archives are stored in the browser's IndexedDB by default.
 - There is no account system, cloud sync or Keepraw Fly backend storing user flight data.
 - The default build is static and does not upload flight records to a server or use analytics SDKs.
-- Export a portable JSON archive regularly. Clearing browser data can remove the local archive.
+- Your flight records stay in the current browser. Export a portable JSON archive regularly, and back up before switching browsers or clearing browser data.
+- Enable **Local data protection** in Settings when your browser supports it to reduce automatic storage eviction. Storage protection does not replace backups or prevent data loss when browser data is cleared.
 - Viewer preferences are kept separately from the portable flight document.
 - The interface supports English, Simplified Chinese and Traditional Chinese, light, dark or system appearance, and responsive desktop and mobile layouts.
 
@@ -44,7 +45,9 @@ Airport, airline and map reference assets are bundled with the application. They
 
 ### Use the application
 
-There is no public hosted demo configured in this repository. Run the application locally or publish the static build using the [deployment guide](docs/deployment.md).
+Try the [online demo](https://fly.keepraw.com). If you use it for your own flights, protect your data: records are saved only in the current browser, so export JSON backups regularly and before switching browsers or clearing browser data. Local data protection cannot replace a backup.
+
+You can also run the application locally or publish the static build using the [deployment guide](docs/deployment.md).
 
 ### Run locally
 
