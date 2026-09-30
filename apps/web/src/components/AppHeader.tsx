@@ -9,6 +9,8 @@ interface AppHeaderProps {
     onBack: () => void;
     onDuplicate: () => void;
     onEdit: () => void;
+    onPrevious?: () => void;
+    onNext?: () => void;
   };
 }
 
@@ -34,7 +36,11 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
               <span>{t("nav.passport")}</span>
             </button>
             <div className="detail-header-actions">
-              <button className="detail-header-action" type="button" onClick={detailActions.onDuplicate}>
+              <div className="detail-adjacent-navigation" role="group" aria-label={t("actions.adjacentFlights")}>
+                <button className="detail-header-action" type="button" disabled={!detailActions.onPrevious} onClick={detailActions.onPrevious}>{t("actions.previousFlight")}</button>
+                <button className="detail-header-action" type="button" disabled={!detailActions.onNext} onClick={detailActions.onNext}>{t("actions.nextFlight")}</button>
+              </div>
+              <button className="detail-header-action detail-header-duplicate" type="button" onClick={detailActions.onDuplicate}>
                 <HeaderIcon kind="duplicate" />
                 <span>{t("actions.duplicateFlight")}</span>
               </button>
@@ -72,7 +78,6 @@ export function AppHeader({ currentPage, onNavigate, detailActions }: AppHeaderP
               onClick={() => onNavigate("passport")}
             >
               <span className="wordmark-name">KEEPRAW FLY</span>
-              <span className="wordmark-context" aria-hidden="true">LOGBOOK</span>
             </a>
             <nav className="site-navigation" aria-label={t("nav.label")}>
               {links.map(({ page, label }) => (

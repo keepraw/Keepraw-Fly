@@ -3,6 +3,8 @@ import {
   greatCirclePath,
   greatCircleMidpoint,
   projectPoint,
+  regionalCenterLongitude,
+  regionalWorldPaths,
   WORLD_COUNTRIES,
   WORLD_GRATICULE_PATH,
   WORLD_HEIGHT,
@@ -12,6 +14,22 @@ import {
 } from "./map-geometry";
 
 describe("passport map geometry", () => {
+  it("centers regional geography without collapsing a northeast route into a meridian", () => {
+    const origin = { latitude: 22.6393, longitude: 113.8107 };
+    const destination = { latitude: 36.2661, longitude: 120.3744 };
+    const center = regionalCenterLongitude([origin, destination]);
+    const start = projectPoint(origin, center);
+    const end = projectPoint(destination, center);
+    expect(end.x - start.x).toBeGreaterThan(Math.abs(end.y - start.y) * 0.25);
+    const paths = regionalWorldPaths(center);
+    expect(paths.countries).toHaveLength(WORLD_COUNTRIES.length);
+    expect(paths.countries.find(country => country.code === "CN")?.path).not.toBe(WORLD_COUNTRIES.find(country => country.code === "CN")?.path);
+    const antarctica = paths.countries.find(country => country.code === "AQ")!.path;
+    const numbers = antarctica.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+    const ys = numbers.filter((_, index) => index % 2 === 1);
+    expect(Math.min(...ys)).toBeGreaterThan(400);
+    expect(regionalCenterLongitude([{ latitude: 30, longitude: -122 }, { latitude: 35, longitude: 140 }])).toBe(0);
+  });
   it("projects geographic coordinates onto the world canvas", () => {
     expect(projectPoint({ latitude: 0, longitude: 0 })).toEqual({
       x: WORLD_WIDTH / 2,

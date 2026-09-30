@@ -46,7 +46,10 @@
     "backToFlights": "返回航班",
     "validating": "正在验证…",
     "export": "导出 Keepraw Fly JSON",
-    "clearData": "清除本地数据"
+    "clearData": "清除本地数据",
+    "previousFlight": "上一条",
+    "nextFlight": "下一条",
+    "adjacentFlights": "相邻航班"
   },
   "flights": {
     "count": "{{count}} 个航班",
@@ -58,7 +61,9 @@
     "noResultsDescription": "飞行档案中没有与“{{query}}”匹配的记录。",
     "emptyEyebrow": "准备起飞",
     "emptyTitle": "添加你的第一段航班",
-    "emptyDescription": "使用引导表单开始记录，Keepraw Fly 会在后台为你处理 JSON 格式。"
+    "emptyDescription": "使用引导表单开始记录，Keepraw Fly 会在后台为你处理 JSON 格式。",
+    "selectFlight": "选择 {{flightNumber}}，{{origin}} 至 {{destination}}",
+    "details": "详情"
   },
   "flightEditor": {
     "eyebrow": "航班记录",
@@ -151,7 +156,7 @@
   "mapControls": {
     "zoomIn": "放大地图",
     "zoomOut": "缩小地图",
-    "reset": "查看完整世界地图"
+    "reset": "适配当前航线"
   },
   "flightDetail": {
     "routeLabel": "航线路径",
@@ -193,7 +198,7 @@
     "arrived": "已到达",
     "departed": "已出发",
     "to": "飞往",
-    "total": "全程",
+    "total": "飞行时长",
     "earlyShort": "提前 {{count}} 分钟",
     "lateShort": "晚点 {{count}} 分钟",
     "durationHoursMinutes": "{{hours}} 小时 {{minutes}} 分钟",
@@ -228,10 +233,10 @@
     "distance": "距离",
     "distanceMiles": "{{value}} 英里",
     "distanceKilometers": "{{value}} 公里",
-    "timeInAir": "空中时间",
-    "totalDelay": "总延误时长",
+    "timeInAir": "飞行时长",
+    "totalDelay": "到达晚点合计",
     "delayUnavailable": "实际到达数据不足",
-    "delayBasedOnArrivals": "按实际到达延误统计",
+    "delayBasedOnArrivals": "提前到达不抵消",
     "countries": "国家与地区",
     "airports": "机场",
     "airlines": "航空公司",
@@ -265,7 +270,9 @@
     "closeExploration": "关闭",
     "emptyEyebrow": "尚无旅程",
     "emptyTitle": "飞行护照从第一段航班开始。",
-    "emptyDescription": "添加第一条记录，Keepraw Fly 会根据你自己的航班事实生成这本护照。"
+    "emptyDescription": "添加第一条记录，Keepraw Fly 会根据你自己的航班事实生成这本护照。",
+    "scopeAll": "全部航班 · {{count}} 段",
+    "scopeYear": "{{year}} 年 · {{count}} 段"
   },
   "import": {
     "failed": "无法导入这个文件",
@@ -428,7 +435,13 @@
     "lastBackup": "最近备份：{{date}}",
     "storageProtectionTitle": "本地数据保护",
     "enableStorageProtection": "保护本地数据",
-    "storageProtection": { "checking": "正在检查浏览器存储保护状态…", "granted": "此浏览器已避免自动清理本站存储。", "available": "此浏览器支持为本站申请存储保护。", "unsupported": "此浏览器不提供持久化存储保护接口。", "failed": "无法启用存储保护，本地数据仍可正常使用。" },
+    "storageProtection": {
+      "checking": "正在检查浏览器存储保护状态…",
+      "granted": "此浏览器已避免自动清理本站存储。",
+      "available": "此浏览器支持为本站申请存储保护。",
+      "unsupported": "此浏览器不提供持久化存储保护接口。",
+      "failed": "无法启用存储保护，本地数据仍可正常使用。"
+    },
     "importTitle": "导入档案",
     "importDescription": "先验证并预览 Keepraw Fly JSON；确认后只新增航班，不覆盖已有记录。",
     "csvImportTitle": "从 CSV 导入航班",
@@ -483,5 +496,21 @@
     "powerUserMode": "高级用户模式",
     "powerUserDescription": "仅在了解 Keepraw Fly 数据模型时启用。",
     "advancedPlaceholder": "高级编辑功能预留至未来版本，当前不会启用原始 JSON 编辑器。"
+  },
+  "flightTiming": {
+    "actual": "实际",
+    "scheduled": "计划",
+    "overnight": "过夜航班",
+    "daysLater": "{{count}} 天后",
+    "departure": {
+      "early": "出发提前 {{count}} 分",
+      "late": "出发晚点 {{count}} 分",
+      "onTime": "出发准点"
+    },
+    "arrival": {
+      "early": "到达提前 {{count}} 分",
+      "late": "到达晚点 {{count}} 分",
+      "onTime": "到达准点"
+    }
   }
 }
