@@ -18,8 +18,11 @@ import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { persistentStorageState, requestPersistentStorage, type PersistentStorageState } from "../storage/browser";
+import type { AppInstallationResult } from "../hooks/useAppInstallation";
 
 interface SettingsPageProps {
+  canInstallApp?: boolean;
+  onInstallApp?: () => Promise<AppInstallationResult>;
   document: KeeprawFlyDocument | null;
   isDemo: boolean;
   settings: ViewerSettings;
@@ -32,6 +35,8 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({
+  canInstallApp = false,
+  onInstallApp,
   document,
   isDemo,
   settings,
@@ -46,19 +51,41 @@ export function SettingsPage({
   const [confirmClear, setConfirmClear] = useState(false);
   const [persistentState, setPersistentState] = useState<PersistentStorageState>("checking");
   const [protectingLocalData, setProtectingLocalData] = useState(false);
-  const [protectionFeedback, setProtectionFeedback] = useState<Exclude<PersistentStorageState, "checking"> | null>(null);
+  const [installingApp, setInstallingApp] = useState(false);
+  const [protectionFeedback, setProtectionFeedback] = useState<Exclude<PersistentStorageState, "checking"> | "installDismissed" | "installFailed" | null>(null);
   const persistRequestInFlight = useRef(false);
+  const installRequestInFlight = useRef(false);
+  const protectionReadVersion = useRef(0);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
 
   useEffect(() => {
     let active = true;
-    void persistentStorageState().then((state) => { if (active) setPersistentState(state); });
-    return () => { active = false; };
+    function refreshProtection() {
+      if (persistRequestInFlight.current || installRequestInFlight.current) return;
+      const version = ++protectionReadVersion.current;
+      void persistentStorageState().then((state) => {
+        if (!active || version !== protectionReadVersion.current) return;
+        setPersistentState(state);
+        if (state === "granted") setProtectionFeedback(null);
+      });
+    }
+    function visible() {
+      if (window.document.visibilityState === "visible") refreshProtection();
+    }
+    refreshProtection();
+    window.addEventListener("focus", refreshProtection);
+    window.document.addEventListener("visibilitychange", visible);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refreshProtection);
+      window.document.removeEventListener("visibilitychange", visible);
+    };
   }, []);
 
   async function protectLocalData() {
     if (persistRequestInFlight.current || persistentState === "granted") return;
+    ++protectionReadVersion.current;
     persistRequestInFlight.current = true;
     setProtectingLocalData(true);
     setProtectionFeedback(null);
@@ -70,6 +97,26 @@ export function SettingsPage({
     } finally {
       persistRequestInFlight.current = false;
       setProtectingLocalData(false);
+    }
+  }
+
+  async function installAndProtectLocalData() {
+    if (!onInstallApp || persistentState === "granted" || installRequestInFlight.current || persistRequestInFlight.current) return;
+    installRequestInFlight.current = true;
+    setInstallingApp(true);
+    setProtectionFeedback(null);
+    try {
+      const result = await onInstallApp();
+      if (result === "installed") {
+        await protectLocalData();
+      } else {
+        setProtectionFeedback(result === "dismissed" ? "installDismissed" : "installFailed");
+      }
+    } catch {
+      setProtectionFeedback("installFailed");
+    } finally {
+      installRequestInFlight.current = false;
+      setInstallingApp(false);
     }
   }
 
@@ -282,11 +329,11 @@ export function SettingsPage({
                   </strong>
                   {protectionFeedback ? <small role="status" aria-live="polite">{t(`settings.storageProtectionRequest.${protectionFeedback}`)}</small> : null}
                 </div>
-                <div className="settings-row-control">
+                <div className="settings-row-control settings-protection-actions">
                   <button
                     className="settings-action"
                     type="button"
-                    disabled={protectingLocalData || persistentState === "granted" || persistentState === "checking" || persistentState === "unsupported"}
+                    disabled={protectingLocalData || installingApp || persistentState === "granted" || persistentState === "checking" || persistentState === "unsupported"}
                     onClick={() => void protectLocalData()}
                   >
                     {t(persistentState === "granted"
@@ -297,6 +344,16 @@ export function SettingsPage({
                           ? "settings.requestingStorageProtection"
                           : "settings.enableStorageProtection")}
                   </button>
+                  {persistentState !== "granted" && (canInstallApp || installingApp) && (protectionFeedback !== null || installingApp) ? (
+                    <button
+                      className="settings-action"
+                      type="button"
+                      disabled={installingApp || protectingLocalData}
+                      onClick={() => void installAndProtectLocalData()}
+                    >
+                      {t(installingApp ? "settings.installingForStorageProtection" : "settings.installForStorageProtection")}
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </div>

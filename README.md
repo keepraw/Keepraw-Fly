@@ -47,6 +47,8 @@ Airport, airline and map reference assets are bundled with the application. They
 
 Try the [online demo](https://fly.keepraw.com). If you use it for your own flights, protect your data: records are saved only in the current browser, so export JSON backups regularly and before switching browsers or clearing browser data. Local data protection cannot replace a backup.
 
+Chrome decides whether to grant local data protection without showing a permission prompt. If the request is not granted, Settings can offer to install Keepraw Fly as an app and request protection again after installation. If that action is unavailable, install from the browser menu and then request protection again. Installing keeps the same site's browser data; the status changes to Protected only when the browser actually grants protection.
+
 You can also run the application locally or publish the static build using the [deployment guide](docs/deployment.md).
 
 ### Run locally

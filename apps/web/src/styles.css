@@ -857,6 +857,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .settings-backup-status { margin-top: var(--space-1); color: var(--muted); font-size: var(--type-size-caption); font-weight: var(--font-weight-medium); line-height: var(--type-leading-caption); overflow-wrap: anywhere; }
 .settings-storage-status { color: var(--ink); font-size: var(--type-size-label); font-weight: var(--font-weight-semibold); line-height: var(--type-leading-label); }
 .settings-storage-status.is-protected { color: var(--green); }
+.settings-protection-actions { display: grid; gap: var(--space-2); }
 .settings-page .settings-action { display: inline-flex; width: 100%; min-width: 0; min-height: var(--control-height-md); align-items: center; justify-content: center; padding: 8px var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--ink); background: var(--color-canvas); cursor: pointer; font-size: var(--type-size-label); font-weight: var(--font-weight-medium); line-height: var(--type-leading-label); text-align: center; white-space: normal; overflow-wrap: anywhere; }
 .settings-page .settings-action:hover:not(:disabled) { border-color: var(--green); color: var(--green); background: var(--green-soft); }
 .settings-page .settings-action.danger-action { border-color: var(--red); color: var(--red); background: transparent; }

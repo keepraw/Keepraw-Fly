@@ -455,6 +455,8 @@
     "storageProtectionTitle": "本地數據保護",
     "enableStorageProtection": "申請保護",
     "requestingStorageProtection": "正在申請保護…",
+    "installForStorageProtection": "安裝 Keepraw Fly 並申請保護",
+    "installingForStorageProtection": "正在等待安裝完成…",
     "storageProtection": {
       "checking": "正在檢查保護狀態…",
       "granted": "已保護",
@@ -464,7 +466,9 @@
     },
     "storageProtectionRequest": {
       "granted": "瀏覽器已啟用儲存保護。",
-      "available": "申請已送出，但瀏覽器未批准，目前仍未保護。部分瀏覽器會自動決定，不顯示權限提示。",
+      "available": "瀏覽器尚未啟用防自動清理保護。Chrome 不顯示權限提示，可嘗試將 Keepraw Fly 安裝為應用後重新申請。仍無法啟用時，請定期導出 JSON 備份。",
+      "installDismissed": "已取消安裝，目前仍未保護。你可以重新申請保護，並導出 JSON 備份。",
+      "installFailed": "安裝未完成，目前仍未保護。請從瀏覽器選單安裝 Keepraw Fly 後重新申請保護。",
       "unsupported": "此瀏覽器不支援申請儲存保護。",
       "failed": "保護申請失敗，請重試。"
     },
