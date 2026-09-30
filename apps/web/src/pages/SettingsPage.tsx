@@ -272,15 +272,26 @@ export function SettingsPage({
               <div className="settings-row">
                 <div className="settings-row-copy">
                   <span className="settings-row-label">{t("settings.storageProtectionTitle")}</span>
-                  <small role="status" aria-live="polite">{t(`settings.storageProtection.${persistentState}`)}</small>
+                  <strong className={`settings-storage-status${persistentState === "granted" ? " is-protected" : ""}`} role="status" aria-live="polite">
+                    {t(`settings.storageProtection.${persistentState}`)}
+                  </strong>
                 </div>
-                {persistentState === "available" || persistentState === "denied" || persistentState === "failed" ? (
-                  <div className="settings-row-control">
-                    <button className="settings-action" type="button" disabled={protectingLocalData} onClick={() => void protectLocalData()}>
-                      {t(protectingLocalData ? "settings.requestingStorageProtection" : "settings.enableStorageProtection")}
-                    </button>
-                  </div>
-                ) : null}
+                <div className="settings-row-control">
+                  <button
+                    className="settings-action"
+                    type="button"
+                    disabled={protectingLocalData || persistentState === "granted" || persistentState === "checking" || persistentState === "unsupported"}
+                    onClick={() => void protectLocalData()}
+                  >
+                    {t(persistentState === "granted"
+                      ? "settings.storageProtection.granted"
+                      : persistentState === "checking"
+                        ? "settings.storageProtection.checking"
+                        : protectingLocalData
+                          ? "settings.requestingStorageProtection"
+                          : "settings.enableStorageProtection")}
+                  </button>
+                </div>
               </div>
             </div>
           </section>
