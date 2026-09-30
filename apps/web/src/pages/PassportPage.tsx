@@ -296,7 +296,6 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
                     {group.flights.map((flight, index) => (
                       <FlightRow key={flight.id} flight={flight} locale={locale} timeFormat={timeFormat}
                         onOpen={() => { onViewChange({ ...view, flightId: flight.id }); onOpenFlight(flight.id); }}
-                        onSelect={showDesktopMap ? () => selectFlight(flight) : undefined}
                         selected={view.flightId === flight.id} onHoverChange={setHoveredFlight} revealIndex={index} />
                     ))}
                   </div>

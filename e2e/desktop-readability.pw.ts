@@ -39,11 +39,11 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
   await expect(page.locator('.flight-record[data-flight-id="cx696"] .flight-times')).toContainText("+1");
   await expect(page.locator(".passport-legend-delay")).toContainText("0h 11m");
 
-  await page.locator('.flight-record[data-flight-id="zh9911"] .flight-row').click();
-  await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toHaveAttribute("aria-pressed", "true");
+  await page.locator('.flight-record[data-flight-id="zh9911"] .flight-row').hover();
   await expect(page.locator(".map-route.is-highlighted")).toHaveCount(1);
   await expect(page.locator(".map-airport.is-selected .map-airport-label")).toHaveText(["SZX", "TAO"]);
   await page.locator(".map-route").filter({ hasText: "SZX to TAO" }).click();
+  await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toHaveAttribute("aria-current", "true");
   await expect(page.locator('.flight-record[data-flight-id="zh9911"] .flight-row')).toBeFocused();
   await page.locator(".passport-spotlight > button").first().click();
   await expect(page.locator(".passport-exploration")).toContainText("TAO");
@@ -92,7 +92,7 @@ test("shares scope, highlight filtering, map selection and adjacent detail navig
     await page.goto("/#passport");
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await page.setViewportSize({ width: 1280, height: 720 });
-    await page.locator('.flight-record[data-flight-id="zh9911"] .flight-row-open').click();
+    await page.locator('.flight-record[data-flight-id="zh9911"] .flight-row').click();
     await expect(page.locator(".detail-heading-summary")).toContainText(locale === "en" ? "Departure delayed 11 min" : locale === "zh-CN" ? "出发晚点 11 分" : "出發延誤 11 分");
     for (const width of [1280, 390]) {
       await page.setViewportSize({ width, height: 720 });

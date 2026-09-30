@@ -131,14 +131,14 @@ test("selects map records and filters the main ledger through highlights", async
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.locator(".map-airport").first().focus();
   await page.keyboard.press("Enter");
-  await expect(page.locator('.flight-row[aria-pressed="true"]')).toHaveCount(1);
+  await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
   const count = await page.locator(".flight-row").count();
   await page.getByRole("button", { name: /Filter flights flown with/ }).click();
   await expect(page.locator(".passport-exploration")).toContainText("Airline history");
   expect(await page.locator(".flight-row").count()).toBeLessThan(count);
   await page.locator(".map-route").first().focus();
   await page.keyboard.press("Enter");
-  await expect(page.locator('.flight-row[aria-pressed="true"]')).toHaveCount(1);
+  await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
   await page.locator(".passport-exploration-close").click();
   await expect(page.locator(".flight-row")).toHaveCount(count);
   await page.setViewportSize({ width: 390, height: 844 });

@@ -18,8 +18,11 @@ describe("FlightRow", () => {
   it.each(["en", "zh-CN", "zh-TW"] as const)("renders selection, labelled schedule and overnight text in %s", async locale => {
     const i18n = createInstance();
     await i18n.init({ resources: { en: { translation: en }, "zh-CN": { translation: zhCN }, "zh-TW": { translation: zhTW } }, lng: locale });
-    const markup = renderToStaticMarkup(<I18nextProvider i18n={i18n}><FlightRow flight={flight} locale={locale} timeFormat="24-hour" selected onSelect={() => {}} onOpen={() => {}} /></I18nextProvider>);
-    expect(markup).toContain('aria-pressed="true"');
+    const markup = renderToStaticMarkup(<I18nextProvider i18n={i18n}><FlightRow flight={flight} locale={locale} timeFormat="24-hour" selected onOpen={() => {}} /></I18nextProvider>);
+    expect(markup).toContain('aria-current="true"');
+    expect(markup.match(/<button/g)).toHaveLength(1);
+    expect(markup).toContain(`<span class="flight-row-open" aria-hidden="true">`);
+    expect(markup).toContain(i18n.t("flights.openFlight", { flightNumber: flight.flightNumber, origin: flight.origin.iata, destination: flight.destination.iata }));
     expect(markup).toContain('data-flight-id="overnight"');
     expect(markup).toContain("+1");
     expect(markup).toContain(i18n.t("flightTiming.scheduled"));

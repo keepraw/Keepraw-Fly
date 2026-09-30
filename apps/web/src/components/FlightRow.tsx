@@ -21,7 +21,6 @@ interface FlightRowProps {
   locale: SupportedLocale;
   timeFormat: TimeFormat;
   onOpen: () => void;
-  onSelect?: () => void;
   selected?: boolean;
   onHoverChange?: (flight: KeeprawFlight | null) => void;
   revealIndex?: number;
@@ -47,7 +46,7 @@ function AirlineLogo({ code, fallback, asset }: AirlineLogoProps) {
   );
 }
 
-export function FlightRow({ flight, locale, timeFormat, onOpen, onSelect, selected, onHoverChange, revealIndex = 0 }: FlightRowProps) {
+export function FlightRow({ flight, locale, timeFormat, onOpen, selected, onHoverChange, revealIndex = 0 }: FlightRowProps) {
   const { t } = useTranslation();
   const times = flightTimeDisplay(flight, locale, timeFormat);
   const operationalStatus = flightOperationalStatus(flight);
@@ -65,14 +64,14 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onSelect, select
       <button
         className={`flight-row${selected ? " is-selected" : ""}`}
         type="button"
-        onClick={onSelect ?? onOpen}
-        aria-pressed={onSelect ? Boolean(selected) : undefined}
+        onClick={onOpen}
+        aria-current={selected ? "true" : undefined}
         onPointerEnter={() => onHoverChange?.(flight)}
         onPointerLeave={() => onHoverChange?.(null)}
         onFocus={() => onHoverChange?.(flight)}
         onBlur={() => onHoverChange?.(null)}
         style={{ "--flight-row-index": revealIndex } as CSSProperties}
-        aria-label={t(onSelect ? "flights.selectFlight" : "flights.openFlight", {
+        aria-label={t("flights.openFlight", {
           flightNumber: flight.flightNumber,
           origin: flight.origin.iata,
           destination: flight.destination.iata,
@@ -129,11 +128,10 @@ export function FlightRow({ flight, locale, timeFormat, onOpen, onSelect, select
             {flight.divertedTo ? <small className="flight-diverted-note">{t("status.divertedTo", { airport: flight.divertedTo.iata })}</small> : null}
           </div>
         </div>
+        <span className="flight-row-open" aria-hidden="true">
+          {t("flights.details")} <span aria-hidden="true">→</span>
+        </span>
       </button>
-      {onSelect ? <button className="flight-row-open" type="button" onClick={onOpen}
-        aria-label={t("flights.openFlight", { flightNumber: flight.flightNumber, origin: flight.origin.iata, destination: flight.destination.iata })}>
-        {t("flights.details")} <span aria-hidden="true">→</span>
-      </button> : null}
     </div>
   );
 }
