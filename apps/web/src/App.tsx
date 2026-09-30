@@ -9,6 +9,7 @@ import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
+import { initialPassportView, passportVisibleFlights, type PassportViewState } from "./data/passport-exploration";
 import { SettingsPage } from "./pages/SettingsPage";
 import { downloadKeeprawFly } from "./data/export";
 import { documentWithoutFlight, flightById } from "./data/archive";
@@ -34,6 +35,7 @@ export function App() {
   const [storageError, setStorageError] = useState<string | null>(null);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [passportView, setPassportView] = useState<PassportViewState>(initialPassportView);
   const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
   const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
@@ -55,6 +57,16 @@ export function App() {
     [document?.flights],
   );
   const memberships = useMemo(() => document ? frequentFlyerMemberships(document) : [], [document]);
+  const visibleFlights = useMemo(() => passportVisibleFlights(document?.flights ?? [], passportView), [document?.flights, passportView]);
+  const flightIndex = visibleFlights.findIndex((flight) => flight.id === selectedFlightId);
+  const previousFlight = flightIndex > 0 ? visibleFlights[flightIndex - 1] : undefined;
+  const nextFlight = flightIndex >= 0 ? visibleFlights[flightIndex + 1] : undefined;
+
+  function openAdjacentFlight(flight: KeeprawFlight | undefined) {
+    if (!flight) return;
+    setPassportView((view) => ({ ...view, flightId: flight.id }));
+    setSelectedFlightId(flight.id);
+  }
 
   useEffect(() => {
     let active = true;
@@ -167,6 +179,7 @@ export function App() {
   }
 
   async function createArchive() {
+    setPassportView(initialPassportView);
     editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement
       ? window.document.activeElement
       : null;
@@ -179,6 +192,7 @@ export function App() {
   }
 
   async function importArchive(nextDocument: KeeprawFlyDocument) {
+    setPassportView(initialPassportView);
     await storeDocument(nextDocument, "personal");
     setPage("passport");
     setSelectedFlightId(null);
@@ -186,6 +200,7 @@ export function App() {
   }
 
   async function openDemoArchive() {
+    setPassportView(initialPassportView);
     await storeDocument(structuredClone(demoDocument), "demo");
     setPage("passport");
     setSelectedFlightId(null);
@@ -238,6 +253,8 @@ export function App() {
           setSelectedFlightId(null);
         }}
         detailActions={selectedFlight ? {
+          onPrevious: previousFlight ? () => openAdjacentFlight(previousFlight) : undefined,
+          onNext: nextFlight ? () => openAdjacentFlight(nextFlight) : undefined,
           onBack: () => {
             setSelectedFlightId(null);
             setPage("passport");
@@ -290,6 +307,8 @@ export function App() {
         />
       ) : page === "passport" ? (
         <PassportPage
+          view={passportView}
+          onViewChange={setPassportView}
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}

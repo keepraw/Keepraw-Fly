@@ -1,19 +1,22 @@
-import { WORLD_COUNTRIES, WORLD_LAND_PATH, WORLD_SPHERE_PATH } from "../data/map-geometry";
+import { regionalWorldPaths } from "../data/map-geometry";
+import { useMemo } from "react";
 
 interface MapWorldProps {
   countryVisits?: ReadonlyMap<string, number>;
   countryName?: (code: string, fallback: string) => string;
   countryLabel?: (name: string, visited: boolean) => string;
   showOutline?: boolean;
+  centerLongitude?: number;
 }
 
-export function MapWorld({ countryVisits, countryName, countryLabel, showOutline = true }: MapWorldProps) {
+export function MapWorld({ countryVisits, countryName, countryLabel, showOutline = true, centerLongitude = 0 }: MapWorldProps) {
+  const paths = useMemo(() => regionalWorldPaths(centerLongitude), [centerLongitude]);
   const maximumVisits = Math.max(1, ...(countryVisits ? [...countryVisits.values()] : []));
 
   return <g className="map-world" aria-hidden="true">
-    <path className={showOutline ? "map-sphere" : "map-sphere is-outline-hidden"} d={WORLD_SPHERE_PATH} />
+    <path className={showOutline ? "map-sphere" : "map-sphere is-outline-hidden"} d={paths.sphere} />
     <g className="map-countries">
-      {WORLD_COUNTRIES.map((country) => {
+      {paths.countries.map((country) => {
         const visits = countryVisits?.get(country.code) ?? 0;
         const visited = visits > 0;
         const intensity = visits / maximumVisits;
@@ -26,6 +29,6 @@ export function MapWorld({ countryVisits, countryName, countryLabel, showOutline
         </path>;
       })}
     </g>
-    <path className="map-coastline" d={WORLD_LAND_PATH} />
+    <path className="map-coastline" d={paths.land} />
   </g>;
 }

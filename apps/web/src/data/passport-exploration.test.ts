@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { explorePassportFlights } from "./passport-exploration";
+import { explorePassportFlights, initialPassportView, passportVisibleFlights } from "./passport-exploration";
 
 describe("passport exploration", () => {
+  it("shares period, search and exploration filtering with detail navigation", () => {
+    expect(passportVisibleFlights(flights, { ...initialPassportView, year: 2026 }).map(f => f.id)).toEqual(["recent"]);
+    expect(passportVisibleFlights(flights, { ...initialPassportView, selection: { kind: "airline", code: "UA" } }).map(f => f.id)).toEqual(["recent", "first"]);
+    expect(passportVisibleFlights(flights, { ...initialPassportView, query: "UA123" }).map(f => f.id)).toEqual(["first"]);
+    expect(passportVisibleFlights(flights, { ...initialPassportView, year: 2025, selection: { kind: "airline", code: "UA" } })).toEqual([]);
+  });
   it("collects an airport's arrivals and departures once per flight", () => {
     const result = explorePassportFlights(flights, { kind: "airport", code: "SFO" });
 

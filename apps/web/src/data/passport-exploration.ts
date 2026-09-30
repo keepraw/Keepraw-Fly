@@ -1,9 +1,26 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { searchFlights, sortFlightsNewestFirst } from "@keepraw-fly/core";
 
 export type PassportSelection =
   | { kind: "airport"; code: string }
   | { kind: "airline"; code: string }
   | { kind: "route"; origin: string; destination: string };
+
+export interface PassportViewState {
+  year: number | "lifetime";
+  query: string;
+  selection: PassportSelection | null;
+  flightId: string | null;
+}
+
+export const initialPassportView: PassportViewState = { year: "lifetime", query: "", selection: null, flightId: null };
+
+export function passportVisibleFlights(flights: KeeprawFlight[], view: PassportViewState): KeeprawFlight[] {
+  const period = view.year === "lifetime" ? flights : flights.filter((flight) => flight.serviceDate.startsWith(String(view.year)));
+  const selection = view.selection;
+  const selected = selection ? period.filter((flight) => matchesSelection(flight, selection)) : period;
+  return sortFlightsNewestFirst(searchFlights(selected, view.query));
+}
 
 export interface PassportExploration {
   selection: PassportSelection;
@@ -16,9 +33,7 @@ export function explorePassportFlights(
   flights: KeeprawFlight[],
   selection: PassportSelection,
 ): PassportExploration | undefined {
-  const matches = flights
-    .filter((flight) => matchesSelection(flight, selection))
-    .sort((left, right) => right.scheduledDeparture.localeCompare(left.scheduledDeparture));
+  const matches = sortFlightsNewestFirst(flights.filter((flight) => matchesSelection(flight, selection)));
 
   if (!matches.length) return undefined;
 
@@ -37,8 +52,8 @@ export function airlineCode(flight: KeeprawFlight): string {
 
 function matchesSelection(flight: KeeprawFlight, selection: PassportSelection): boolean {
   if (selection.kind === "airport") {
-    return flight.origin.iata === selection.code || flight.destination.iata === selection.code;
+    return flight.origin.iata === selection.code || (flight.divertedTo ?? flight.destination).iata === selection.code;
   }
   if (selection.kind === "airline") return airlineCode(flight) === selection.code;
-  return flight.origin.iata === selection.origin && flight.destination.iata === selection.destination;
+  return flight.origin.iata === selection.origin && (flight.divertedTo ?? flight.destination).iata === selection.destination;
 }

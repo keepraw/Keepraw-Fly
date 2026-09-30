@@ -16,7 +16,8 @@ export interface RouteSegment {
 export function buildRouteSegments(flights: KeeprawFlight[]): RouteSegment[] {
   const counts = new Map<string, number>();
   for (const flight of flights) {
-    const key = `${flight.origin.iata}-${flight.destination.iata}`;
+    if (flight.cancelled) continue;
+    const key = `${flight.origin.iata}-${(flight.divertedTo ?? flight.destination).iata}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
@@ -44,4 +45,3 @@ export function buildRouteSegments(flights: KeeprawFlight[]): RouteSegment[] {
     })
     .filter((route): route is RouteSegment => route !== null);
 }
-

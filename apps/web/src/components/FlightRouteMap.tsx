@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { buildRouteSegments } from "@keepraw-fly/core";
 import { flightRouteCamera } from "../data/map-camera";
-import { greatCirclePath, projectPoint, WORLD_WIDTH } from "../data/map-geometry";
+import { greatCirclePath, projectPoint, regionalCenterLongitude } from "../data/map-geometry";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
 
@@ -21,9 +21,10 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
 
   if (!route || !camera) return null;
 
-  const origin = projectPoint(route.origin);
-  const destination = projectPoint(route.destination);
-  const routePath = greatCirclePath(route.origin, route.destination);
+  const centerLongitude = regionalCenterLongitude([route.origin, route.destination]);
+  const origin = projectPoint(route.origin, centerLongitude);
+  const destination = projectPoint(route.destination, centerLongitude);
+  const routePath = greatCirclePath(route.origin, route.destination, 40, centerLongitude);
 
   return (
     <section className="detail-route-map" aria-labelledby="detail-route-map-title">
@@ -35,23 +36,18 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
           destination: flight.destination.iata,
         })}
         initialCamera={camera}
-        maxZoom={8}
+        cameraForViewport={(height) => flightRouteCamera(route.origin, route.destination, height)}
+        maxZoom={12}
         labels={{
           zoomIn: t("mapControls.zoomIn"),
           zoomOut: t("mapControls.zoomOut"),
           reset: t("mapControls.reset"),
         }}
       >
-        {(viewport) => {
-          const inverseZoom = 1 / viewport.zoom;
+        {(viewport, _height, pixelScale) => {
+          const inverseZoom = pixelScale / viewport.zoom;
           return <>
-            <defs>
-              <linearGradient id="detail-route-gradient" x1="0" y1="0" x2={WORLD_WIDTH} y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="var(--color-map-route-warm)" />
-                <stop offset="1" stopColor="var(--color-map-route-cool)" />
-              </linearGradient>
-            </defs>
-            <MapWorld showOutline={false} />
+            <MapWorld showOutline={false} centerLongitude={centerLongitude} />
             <g className="detail-map-route-group">
               <path className="detail-map-route-underlay" d={routePath} />
               <path className="detail-map-route" d={routePath} />
@@ -80,8 +76,7 @@ function DetailAirport({
 }) {
   return <g className={`detail-map-airport is-${variant}`} transform={`translate(${x} ${y})`}>
     <g transform={`scale(${inverseZoom})`}>
-      <circle className="detail-map-airport-ring" r="7" />
-      <circle className="detail-map-airport-point" r="3" />
+      <circle className="detail-map-airport-point" r="3.5" />
       <g className="detail-map-airport-label" transform="translate(8 -23)">
         <rect width="34" height="19" rx="4" />
         <text x="17" y="13" textAnchor="middle">{code}</text>

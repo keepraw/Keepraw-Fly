@@ -6,7 +6,7 @@ import {
   passportMapCamera,
   WORLD_CAMERA,
 } from "./map-camera";
-import { greatCirclePath } from "./map-geometry";
+import { greatCirclePath, sampleGreatCircle, regionalCenterLongitude } from "./map-geometry";
 
 const SZX: RoutePoint = { iata: "SZX", latitude: 22.6393, longitude: 113.8107 };
 const TAO: RoutePoint = { iata: "TAO", latitude: 36.2661, longitude: 120.3744 };
@@ -25,7 +25,8 @@ describe("map camera", () => {
     const camera = passportMapCamera(routes, [SZX, TAO, HKG]);
 
     expect(camera.zoom).toBeGreaterThan(1);
-    expect(camera.zoom).toBeLessThanOrEqual(2.5);
+    expect(camera.zoom).toBeGreaterThan(2.5);
+    expect(camera.zoom).toBeLessThanOrEqual(8);
   });
 
   it("frames a short flight more tightly than a passport", () => {
@@ -36,7 +37,7 @@ describe("map camera", () => {
     );
 
     expect(detail.zoom).toBeGreaterThan(passport.zoom);
-    expect(detail.zoom).toBeLessThanOrEqual(7.5);
+    expect(detail.zoom).toBeLessThanOrEqual(12);
   });
 
   it("fits a long-haul route with surrounding geography", () => {
@@ -44,6 +45,27 @@ describe("map camera", () => {
 
     expect(camera.zoom).toBeGreaterThan(1);
     expect(camera.zoom).toBeLessThan(4);
+  });
+
+  it("fits every sampled short-route point inside equal horizontal and vertical padding", () => {
+    for (const height of [320, 480, 720]) {
+      const camera = flightRouteCamera(SZX, TAO, height);
+      expect(camera.zoom).toBeGreaterThan(2.5);
+      for (const point of sampleGreatCircle(SZX, TAO, 72, regionalCenterLongitude([SZX, TAO]))) {
+        const x = (point.x - camera.centerX) * camera.zoom + 480;
+        const y = (point.y - camera.centerY) * camera.zoom + height / 2;
+        expect(x).toBeGreaterThanOrEqual(960 * 0.09 - 0.1);
+        expect(x).toBeLessThanOrEqual(960 * 0.91 + 0.1);
+        expect(y).toBeGreaterThanOrEqual(height * 0.09 - 0.1);
+        expect(y).toBeLessThanOrEqual(height * 0.91 + 0.1);
+      }
+    }
+  });
+
+  it("retains a regional center when fit zoom is just above world scale", () => {
+    const camera = fitProjectedPoints([{ x: 120, y: 60 }, { x: 780, y: 396 }], { maxZoom: 8, padding: 0.14 });
+    expect(camera.zoom).toBeGreaterThan(1);
+    expect(camera.centerX).toBe(450);
   });
 
   it.each([
