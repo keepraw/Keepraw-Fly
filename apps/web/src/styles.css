@@ -1940,7 +1940,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: grid;
     height: 100%;
     min-height: 0;
-    grid-template-rows: minmax(180px, 1fr) auto auto auto;
+    /* Reserve 180px for the canvas plus 12px bottom padding and its 1px border. */
+    grid-template-rows: minmax(193px, 1fr) auto auto auto;
   }
 
   .passport-archive-page .route-map {
@@ -1954,7 +1955,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .passport-archive-page .route-map-canvas {
     width: 100%;
     height: 100%;
-    min-height: 0;
+    min-height: 180px;
     margin: 0;
     aspect-ratio: auto;
   }
@@ -2115,7 +2116,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .flight-diverted-note { grid-column: 3 / span 3; font-size: 0.6875rem; }
   .passport-archive .airline-logo { width: 28px; height: 28px; }
   .passport-archive .airline-logo img { width: 24px; height: 24px; }
-  .passport-visual-sticky { display: grid; grid-template-rows: auto minmax(180px, 1fr) auto auto auto; overflow-y: auto; }
+  .passport-visual-sticky { display: grid; grid-template-rows: auto minmax(193px, 1fr) auto auto auto; overflow-y: auto; }
   .passport-scope { grid-column: 1; grid-row: 1; }
   .passport-archive-page .route-map { grid-row: 2; }
   .passport-legend { grid-column: 1; grid-row: 3; }

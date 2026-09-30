@@ -154,6 +154,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 1366, height: 768 },
+    { width: 1366, height: 600 },
   ]) {
     await page.setViewportSize(viewport);
     const workspace = await page.evaluate(() => {
@@ -200,7 +201,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         }),
         logoSizes: logoBounds.map((bounds) => `${Math.round(bounds.width)}x${Math.round(bounds.height)}`),
         logoStarts,
-        mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.getBoundingClientRect().height,
+        // Layout height avoids fractional DOMRect rounding during entrance transforms.
+        mapHeight: document.querySelector<HTMLElement>(".route-map-canvas")!.clientHeight,
         selectorFlexGrow: getComputedStyle(periodSelector).flexGrow,
         selectorPrecedesAddFlight: periodSelector.getBoundingClientRect().bottom <= addFlight.getBoundingClientRect().top,
         selectorUsesAvailableContentWidth: periodSelector.getBoundingClientRect().width <= archive.getBoundingClientRect().width + 0.5,
