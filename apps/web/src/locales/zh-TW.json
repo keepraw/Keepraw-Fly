@@ -453,7 +453,7 @@
     "noBackupYet": "尚未備份",
     "lastBackup": "最近備份：{{date}}",
     "storageProtectionTitle": "本地數據保護",
-    "enableStorageProtection": "保護本地數據",
+    "enableStorageProtection": "申請保護",
     "requestingStorageProtection": "正在申請保護…",
     "storageProtection": {
       "checking": "正在檢查保護狀態…",
@@ -461,6 +461,12 @@
       "available": "未保護",
       "unsupported": "未保護（此瀏覽器不支援）",
       "failed": "無法讀取保護狀態"
+    },
+    "storageProtectionRequest": {
+      "granted": "瀏覽器已啟用儲存保護。",
+      "available": "申請已送出，但瀏覽器未批准，目前仍未保護。部分瀏覽器會自動決定，不顯示權限提示。",
+      "unsupported": "此瀏覽器不支援申請儲存保護。",
+      "failed": "保護申請失敗，請重試。"
     },
     "importTitle": "導入 Keepraw Fly",
     "importDescription": "先驗證並預覽 Keepraw Fly JSON；確認後只新增航班，不覆蓋已有記錄。",

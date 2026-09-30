@@ -46,6 +46,7 @@ export function SettingsPage({
   const [confirmClear, setConfirmClear] = useState(false);
   const [persistentState, setPersistentState] = useState<PersistentStorageState>("checking");
   const [protectingLocalData, setProtectingLocalData] = useState(false);
+  const [protectionFeedback, setProtectionFeedback] = useState<Exclude<PersistentStorageState, "checking"> | null>(null);
   const persistRequestInFlight = useRef(false);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
@@ -60,8 +61,12 @@ export function SettingsPage({
     if (persistRequestInFlight.current || persistentState === "granted") return;
     persistRequestInFlight.current = true;
     setProtectingLocalData(true);
+    setProtectionFeedback(null);
     try {
-      setPersistentState(await requestPersistentStorage());
+      const result = await requestPersistentStorage();
+      const actualState = result === "failed" ? await persistentStorageState() : result;
+      setPersistentState(actualState);
+      setProtectionFeedback(actualState === "granted" ? "granted" : result);
     } finally {
       persistRequestInFlight.current = false;
       setProtectingLocalData(false);
@@ -275,6 +280,7 @@ export function SettingsPage({
                   <strong className={`settings-storage-status${persistentState === "granted" ? " is-protected" : ""}`} role="status" aria-live="polite">
                     {t(`settings.storageProtection.${persistentState}`)}
                   </strong>
+                  {protectionFeedback ? <small role="status" aria-live="polite">{t(`settings.storageProtectionRequest.${protectionFeedback}`)}</small> : null}
                 </div>
                 <div className="settings-row-control">
                   <button

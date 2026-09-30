@@ -477,7 +477,7 @@
     "noBackupYet": "No backup yet",
     "lastBackup": "Last backup: {{date}}",
     "storageProtectionTitle": "Local data protection",
-    "enableStorageProtection": "Protect local data",
+    "enableStorageProtection": "Request protection",
     "requestingStorageProtection": "Requesting protection…",
     "storageProtection": {
       "checking": "Checking protection status…",
@@ -485,6 +485,12 @@
       "available": "Not protected",
       "unsupported": "Not protected — unsupported by this browser",
       "failed": "Unable to read protection status"
+    },
+    "storageProtectionRequest": {
+      "granted": "Storage protection is now enabled.",
+      "available": "The request was sent, but the browser did not grant protection. Data remains unprotected. Some browsers decide without showing a permission prompt.",
+      "unsupported": "This browser does not support requesting storage protection.",
+      "failed": "The protection request failed. Please try again."
     },
     "importTitle": "Import Keepraw Fly",
     "importDescription": "Validate and preview a Keepraw Fly JSON file. New flights are added after confirmation; existing flights are never overwritten.",

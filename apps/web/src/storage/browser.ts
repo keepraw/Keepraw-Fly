@@ -30,11 +30,11 @@ export async function requestPersistentStorage(): Promise<Exclude<PersistentStor
   const persistent = storage as PersistentStorageManager | undefined;
   if (typeof persistent?.persist !== "function" || typeof persistent.persisted !== "function") return "unsupported";
   try {
-    if (await persistent.persisted()) return "granted";
+    // Request directly from the click's user activation, before any asynchronous checks.
     await persistent.persist();
     return await persistentStorageState();
   } catch {
-    return await persistentStorageState();
+    return "failed";
   }
 }
 
