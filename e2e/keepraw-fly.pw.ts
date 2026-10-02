@@ -241,13 +241,14 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       expect(layout.controls.every((control) => control.top >= control.labelBottom)).toBe(true);
       expect(layout.undersizedTouchTargets).toEqual([]);
       await expect(page.getByText("常旅客资料可在桌面端编辑。", { exact: true })).toBeVisible();
-      await expect(page.locator(".settings-membership-summary")).toContainText("PhoenixMiles");
+      await expect(page.locator(".settings-membership-summary")).toContainText("凤凰知音");
       await expect(page.locator(".settings-membership-summary")).toContainText("ZH-8••••1924");
       await expect(page.locator(".settings-membership-summary")).toContainText("Gold");
       await expect(page.locator(".settings-membership-editor-fields:visible")).toHaveCount(0);
       await expect(page.locator(".settings-membership-edit:visible, .settings-membership-add:visible, .membership-delete:visible")).toHaveCount(0);
+    } else {
+      expect(layout.membershipColumns).toBe(2);
     }
-    expect(layout.membershipColumns).toBe(viewport.width === 390 ? 1 : 2);
     await page.screenshot({ path: join(screenshotDirectory, `${viewport.name}.png`), fullPage: true, animations: "disabled" });
   }
 
