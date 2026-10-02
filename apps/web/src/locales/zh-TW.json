@@ -455,8 +455,6 @@
     "storageProtectionTitle": "本地數據保護",
     "enableStorageProtection": "申請保護",
     "requestingStorageProtection": "正在申請保護…",
-    "installForStorageProtection": "安裝 Keepraw Fly 並申請保護",
-    "installingForStorageProtection": "正在等待安裝完成…",
     "storageProtection": {
       "checking": "正在檢查保護狀態…",
       "granted": "已保護",
@@ -466,9 +464,7 @@
     },
     "storageProtectionRequest": {
       "granted": "瀏覽器已啟用儲存保護。",
-      "available": "瀏覽器尚未啟用防自動清理保護。Chrome 不顯示權限提示，可嘗試將 Keepraw Fly 安裝為應用後重新申請。仍無法啟用時，請定期導出 JSON 備份。",
-      "installDismissed": "已取消安裝，目前仍未保護。你可以重新申請保護，並導出 JSON 備份。",
-      "installFailed": "安裝未完成，目前仍未保護。請從瀏覽器選單安裝 Keepraw Fly 後重新申請保護。",
+      "available": "瀏覽器尚未授予防自動清理保護。你仍可繼續使用 Keepraw Fly，請定期匯出 JSON 備份。",
       "unsupported": "此瀏覽器不支援申請儲存保護。",
       "failed": "保護申請失敗，請重試。"
     },
@@ -525,7 +521,12 @@
     "advanced": "高級",
     "powerUserMode": "高級用戶模式",
     "powerUserDescription": "僅在瞭解 Keepraw Fly 數據模型時啟用。",
-    "advancedPlaceholder": "高級編輯功能預留至未來版本，當前不會啟用原始 JSON 編輯器。"
+    "advancedPlaceholder": "高級編輯功能預留至未來版本，當前不會啟用原始 JSON 編輯器。",
+    "frequentFlyerDesktopNote": "常旅客資料可在桌面端編輯。",
+    "editMembership": "編輯",
+    "collapseMembership": "收起",
+    "memberNumberSummary": "會員號 {{number}}",
+    "defaultAirlineSummary": "預設：{{airline}}"
   },
   "flightTiming": {
     "actual": "實際",

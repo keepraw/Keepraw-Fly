@@ -11,7 +11,6 @@ import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
 import { initialPassportView, passportVisibleFlights, type PassportViewState } from "./data/passport-exploration";
 import { SettingsPage } from "./pages/SettingsPage";
-import type { AppInstallationResult } from "./hooks/useAppInstallation";
 import { downloadKeeprawFly } from "./data/export";
 import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
@@ -27,12 +26,7 @@ import {
 
 const demoDocument = demoData as KeeprawFlyDocument;
 
-interface AppProps {
-  canInstallApp?: boolean;
-  onInstallApp?: () => Promise<AppInstallationResult>;
-}
-
-export function App({ canInstallApp = false, onInstallApp }: AppProps) {
+export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
   const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
@@ -287,8 +281,6 @@ export function App({ canInstallApp = false, onInstallApp }: AppProps) {
       ) : null}
       {page === "settings" ? (
         <SettingsPage
-          canInstallApp={canInstallApp}
-          onInstallApp={onInstallApp}
           document={document}
           isDemo={archiveKind === "demo"}
           settings={settings}

@@ -78,7 +78,7 @@ test("manages associated airlines as searchable chips with a constrained default
   await navigateTo(page, "settings");
   await page.getByRole("button", { name: "Add frequent flyer program" }).click();
 
-  const membership = page.locator(".membership-row").last();
+  const membership = page.locator(".settings-membership").last();
   const airlineSearch = membership.getByRole("combobox", { name: "Associated airlines" });
   const defaultAirline = membership.getByLabel("Default airline");
 
@@ -133,16 +133,20 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   ]);
   await expect(page.locator(".settings-section-icon, .settings-section-heading .eyebrow, .settings-row-value")).toHaveCount(0);
 
-  const membership = page.locator(".membership-row").first();
+  const membership = page.locator(".settings-membership").first();
+  await expect(membership.locator(".settings-membership-summary")).toContainText("ZH-8••••1924");
+  await expect(membership.getByLabel("Default airline")).toHaveCount(0);
+  await membership.getByRole("button", { name: "Edit" }).click();
   await expect(membership.getByRole("button", { name: "Remove membership" })).toBeDisabled();
   await expect(membership.getByLabel("Default airline")).toHaveValue("ZH");
   await page.getByRole("button", { name: "Add frequent flyer program" }).click();
-  const addedMembership = page.locator(".membership-row").last();
+  const addedMembership = page.locator(".settings-membership").last();
+  await expect(membership.getByLabel("Default airline")).toHaveCount(0);
   await addedMembership.getByLabel("Program name").fill("Settings test program");
   await addedMembership.getByLabel("Member number").fill("KF-2026");
-  await expect(addedMembership.locator("legend")).toHaveText("Settings test program");
+  await expect(addedMembership.locator(".settings-membership-summary strong")).toHaveText("Settings test program");
   await addedMembership.getByRole("button", { name: "Remove membership" }).click();
-  await expect(page.locator(".membership-row")).toHaveCount(1);
+  await expect(page.locator(".settings-membership")).toHaveCount(1);
 
   await page.getByLabel("Native name", { exact: true }).fill("  张鸿川");
   await expect(page.getByLabel("Native name", { exact: true })).toHaveValue("张鸿川");
@@ -164,6 +168,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(page.locator(".settings-section-title")).toHaveText([
     "常规", "个人资料", "常旅客资料", "数据与备份", "高级", "危险操作",
   ]);
+  await page.locator(".settings-membership-edit").click();
   const screenshotDirectory = fileURLToPath(new URL("../test-results/settings-review/", import.meta.url));
   await mkdir(screenshotDirectory, { recursive: true });
 
@@ -212,7 +217,9 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
             parentClassName: element.parentElement?.className,
             height: element.getBoundingClientRect().height,
           })),
-        membershipColumns: getComputedStyle(document.querySelector(".settings-membership-grid")!).gridTemplateColumns.split(" ").length,
+        membershipColumns: document.querySelector(".settings-membership-grid")
+          ? getComputedStyle(document.querySelector(".settings-membership-grid")!).gridTemplateColumns.split(" ").length
+          : 0,
       };
     });
     expect(layout.fitsViewport).toBe(true);
@@ -233,6 +240,12 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     if (viewport.width === 390) {
       expect(layout.controls.every((control) => control.top >= control.labelBottom)).toBe(true);
       expect(layout.undersizedTouchTargets).toEqual([]);
+      await expect(page.getByText("常旅客资料可在桌面端编辑。", { exact: true })).toBeVisible();
+      await expect(page.locator(".settings-membership-summary")).toContainText("PhoenixMiles");
+      await expect(page.locator(".settings-membership-summary")).toContainText("ZH-8••••1924");
+      await expect(page.locator(".settings-membership-summary")).toContainText("Gold");
+      await expect(page.locator(".settings-membership-editor-fields:visible")).toHaveCount(0);
+      await expect(page.locator(".settings-membership-edit:visible, .settings-membership-add:visible, .membership-delete:visible")).toHaveCount(0);
     }
     expect(layout.membershipColumns).toBe(viewport.width === 390 ? 1 : 2);
     await page.screenshot({ path: join(screenshotDirectory, `${viewport.name}.png`), fullPage: true, animations: "disabled" });

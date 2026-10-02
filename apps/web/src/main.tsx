@@ -2,7 +2,6 @@ import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation } from "react-i18next";
 import { App } from "./App";
-import { useAppInstallation } from "./hooks/useAppInstallation";
 import { loadAirportDirectory } from "./data/airport-directory";
 import "./i18n";
 import "./design-system.css";
@@ -16,7 +15,6 @@ if (!root) {
 
 function Bootstrap() {
   const { t } = useTranslation();
-  const { canInstallApp, installApp } = useAppInstallation();
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
 
   useEffect(() => {
@@ -27,7 +25,7 @@ function Bootstrap() {
     return () => { active = false; };
   }, []);
 
-  if (status === "ready") return <App canInstallApp={canInstallApp} onInstallApp={installApp} />;
+  if (status === "ready") return <App />;
 
   return (
     <main className="bootstrap-screen" aria-live="polite">

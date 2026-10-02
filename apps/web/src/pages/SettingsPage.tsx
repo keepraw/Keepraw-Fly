@@ -18,11 +18,8 @@ import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { persistentStorageState, requestPersistentStorage, type PersistentStorageState } from "../storage/browser";
-import type { AppInstallationResult } from "../hooks/useAppInstallation";
 
 interface SettingsPageProps {
-  canInstallApp?: boolean;
-  onInstallApp?: () => Promise<AppInstallationResult>;
   document: KeeprawFlyDocument | null;
   isDemo: boolean;
   settings: ViewerSettings;
@@ -35,8 +32,6 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({
-  canInstallApp = false,
-  onInstallApp,
   document,
   isDemo,
   settings,
@@ -51,10 +46,9 @@ export function SettingsPage({
   const [confirmClear, setConfirmClear] = useState(false);
   const [persistentState, setPersistentState] = useState<PersistentStorageState>("checking");
   const [protectingLocalData, setProtectingLocalData] = useState(false);
-  const [installingApp, setInstallingApp] = useState(false);
-  const [protectionFeedback, setProtectionFeedback] = useState<Exclude<PersistentStorageState, "checking"> | "installDismissed" | "installFailed" | null>(null);
+  const [protectionFeedback, setProtectionFeedback] = useState<Exclude<PersistentStorageState, "checking"> | null>(null);
+  const [expandedMembershipId, setExpandedMembershipId] = useState<string | null>(null);
   const persistRequestInFlight = useRef(false);
-  const installRequestInFlight = useRef(false);
   const protectionReadVersion = useRef(0);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
@@ -62,7 +56,7 @@ export function SettingsPage({
   useEffect(() => {
     let active = true;
     function refreshProtection() {
-      if (persistRequestInFlight.current || installRequestInFlight.current) return;
+      if (persistRequestInFlight.current) return;
       const version = ++protectionReadVersion.current;
       void persistentStorageState().then((state) => {
         if (!active || version !== protectionReadVersion.current) return;
@@ -96,26 +90,6 @@ export function SettingsPage({
     } finally {
       persistRequestInFlight.current = false;
       setProtectingLocalData(false);
-    }
-  }
-
-  async function installAndProtectLocalData() {
-    if (!onInstallApp || persistentState === "granted" || installRequestInFlight.current || persistRequestInFlight.current) return;
-    installRequestInFlight.current = true;
-    setInstallingApp(true);
-    setProtectionFeedback(null);
-    try {
-      const result = await onInstallApp();
-      if (result === "installed") {
-        await protectLocalData();
-      } else {
-        setProtectionFeedback(result === "dismissed" ? "installDismissed" : "installFailed");
-      }
-    } catch {
-      setProtectionFeedback("installFailed");
-    } finally {
-      installRequestInFlight.current = false;
-      setInstallingApp(false);
     }
   }
 
@@ -153,12 +127,14 @@ export function SettingsPage({
   }
 
   function addMembership() {
+    const id = `membership-${crypto.randomUUID()}`;
     void onMembershipsChange([...memberships, {
-      id: `membership-${crypto.randomUUID()}`,
+      id,
       programId: "custom",
       memberNumber: "",
       associatedAirlines: [],
     }]);
+    setExpandedMembershipId(id);
   }
 
   function updateAssociatedAirlines(membership: FrequentFlyerMembership, codes: string[]) {
@@ -168,6 +144,11 @@ export function SettingsPage({
   function airlineOptionLabel(code: string): string {
     const airline = resolveAirline(code);
     return airline ? `${code} · ${airlineNames(airline, settings.language)[0]}` : code;
+  }
+
+  function maskMemberNumber(memberNumber: string): string {
+    if (memberNumber.length <= 8) return memberNumber;
+    return `${memberNumber.slice(0, 4)}••••${memberNumber.slice(-4)}`;
   }
 
   return (
@@ -241,10 +222,25 @@ export function SettingsPage({
             <h2 className="settings-section-title" id="settings-loyalty">{t("settings.frequentFlyerProfiles")}</h2>
             <div className="settings-panel membership-editor">
               <p className="settings-helper">{t("settings.frequentFlyerDescription")}</p>
-              {memberships.map((membership) => (
-                <fieldset className="settings-membership membership-row" key={membership.id}>
-                  <legend>{frequentFlyerProgramName(membership, settings.language) || t("settings.newMembership")}</legend>
-                  <div className="settings-membership-grid">
+              <p className="settings-helper settings-membership-mobile-note">{t("settings.frequentFlyerDesktopNote")}</p>
+              {memberships.map((membership) => {
+                const programName = frequentFlyerProgramName(membership, settings.language) || t("settings.newMembership");
+                const expanded = expandedMembershipId === membership.id;
+                return (
+                  <div className={`settings-membership${expanded ? " is-expanded" : ""}`} key={membership.id}>
+                  <div className="settings-membership-summary">
+                    <div className="settings-membership-summary-copy">
+                      <strong>{programName}</strong>
+                      <span>{t("settings.memberNumberSummary", { number: maskMemberNumber(membership.memberNumber) })}</span>
+                      {membership.tier ? <span>{membership.tier}</span> : null}
+                      <span>{t("settings.defaultAirlineSummary", { airline: membership.defaultAirline ? airlineOptionLabel(membership.defaultAirline) : t("settings.noDefaultAirline") })}</span>
+                      {membership.associatedAirlines.length ? <span className="settings-membership-airline-summary">{membership.associatedAirlines.map(airlineOptionLabel).join(" · ")}</span> : null}
+                    </div>
+                    <button className="button-secondary settings-membership-edit" type="button" aria-expanded={expanded} onClick={() => setExpandedMembershipId(expanded ? null : membership.id)}>{t(expanded ? "settings.collapseMembership" : "settings.editMembership")}</button>
+                  </div>
+                  {expanded ? <fieldset className="settings-membership-editor-fields">
+                    <legend className="sr-only">{programName}</legend>
+                    <div className="settings-membership-grid">
                     <label><span>{t("settings.programName")}</span><input value={membership.programName ?? frequentFlyerProgramName(membership, settings.language)} onChange={(event) => updateMembership(membership.id, {
                       programId: frequentFlyerProgramId(event.target.value),
                       programName: event.target.value || undefined,
@@ -277,8 +273,10 @@ export function SettingsPage({
                       onClick={() => void onMembershipsChange(memberships.filter((item) => item.id !== membership.id))}
                     >{t("settings.removeMembership")}</button>
                   </div>
-                </fieldset>
-              ))}
+                  </fieldset> : null}
+                  </div>
+                );
+              })}
               <div className="settings-membership-add">
                 <button className="button-secondary" type="button" disabled={!document} onClick={addMembership}>{t("settings.addMembership")}</button>
               </div>
@@ -332,7 +330,7 @@ export function SettingsPage({
                   <button
                     className="settings-action"
                     type="button"
-                    disabled={protectingLocalData || installingApp || persistentState === "granted" || persistentState === "checking" || persistentState === "unsupported"}
+                    disabled={protectingLocalData || persistentState === "granted" || persistentState === "checking" || persistentState === "unsupported"}
                     onClick={() => void protectLocalData()}
                   >
                     {t(persistentState === "granted"
@@ -343,16 +341,6 @@ export function SettingsPage({
                           ? "settings.requestingStorageProtection"
                           : "settings.enableStorageProtection")}
                   </button>
-                  {(persistentState === "available" || persistentState === "failed") && (canInstallApp || installingApp) && (protectionFeedback !== null || installingApp) ? (
-                    <button
-                      className="settings-action"
-                      type="button"
-                      disabled={installingApp || protectingLocalData}
-                      onClick={() => void installAndProtectLocalData()}
-                    >
-                      {t(installingApp ? "settings.installingForStorageProtection" : "settings.installForStorageProtection")}
-                    </button>
-                  ) : null}
                 </div>
               </div>
             </div>
