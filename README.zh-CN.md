@@ -1,57 +1,64 @@
 # Keepraw Fly
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+**开源、本地优先的个人航班档案与飞行护照。**
 
-**一个开源、本地优先的个人航班档案与飞行护照。**
-
-Keepraw Fly 将飞行历史保存在可迁移的 JSON 档案中。移动端以飞行护照为主要入口，可继续探索航班记录和详情。使用时无需账号，默认构建也没有保存用户航班数据的后端。
+[在线使用 Keepraw Fly](https://fly.keepraw.com) · [English](README.md)
 
 > 数据比应用更长久。
 
-## 飞行护照
+![Keepraw Fly 飞行护照](docs/screenshots/passport-desktop.png)
 
-飞行护照汇总全部或选定年份的航班数、距离、空中时间和已记录的延误时间，也统计国家、机场、航空公司和机型。移动端首先展示概要、延误及航线网络面板，然后是可搜索的航班历史。桌面端保留飞行亮点，可按机场、航司及最长/最短航线筛选相关记录；护照航线地图可以选中档案中的航班。
+## 主要功能
 
-## 航班档案与详情
+- **飞行护照：** 浏览全部或指定年份的航班、距离、空中时间、延误、机场、航司、机型与航线亮点。
+- **航班档案与详情：** 搜索、筛选、新增、编辑、复制航班，并查看完整记录。
+- **航线可视化：** 在桌面端飞行护照和航班详情地图中浏览已记录航线。
+- **可迁移数据：** 导出及迁移经过验证的 Keepraw Fly JSON 档案；写入前预览 JSON、Keepraw Fly CSV 和 Flighty CSV。
+- **常旅客资料：** 将常旅客计划关联至多个航司及航班记录。
+- **本地优先：** 航班历史保存在浏览器中；无需账号，也没有保存航班历史的云端后端。
+- **跨设备设计：** 适配桌面与移动端，支持英文、简体中文和繁體中文。
 
-- 搜索航班历史并按年份筛选；新增、编辑、复制或删除航班。
-- 保存计划与实际当地时间、取消和备降信息、出发和到达的登机口与航站楼，以及可选的行李转盘信息。
-- 查看抵达晚点或提前、飞行时间和距离，以及已记录的机型、座位、舱位、客票号、订座编号（PNR）、注册号和常旅客信息。
-- 桌面端的航班详情将行程、航线地图和档案字段组合展示；移动端使用紧凑的行程和档案布局，不展示详情页地图。
+## 截图
+
+| 飞行护照 | 航班详情 |
+| --- | --- |
+| ![桌面端飞行护照](docs/screenshots/passport-desktop.png) | ![桌面端航班详情](docs/screenshots/flight-detail-desktop.png) |
+
+<p align="center">
+  <img src="docs/screenshots/passport-mobile.png" width="300" alt="移动端飞行护照">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/flight-detail-mobile.png" width="300" alt="移动端航班详情">
+</p>
+
+| 桌面端设置 | 移动端设置 |
+| --- | --- |
+| ![桌面端设置](docs/screenshots/settings-desktop.png) | <img src="docs/screenshots/settings-mobile.png" width="300" alt="移动端设置"> |
+
+## 本地数据与隐私
+
+### 本地数据与备份
+
+航班记录默认保存在当前浏览器的 IndexedDB 中。Keepraw Fly 没有账号系统，也没有保存用户航班历史的云端后端。默认静态构建不会上传航班记录，也不包含分析 SDK。
+
+浏览器支持并授予权限时，Keepraw Fly 可以申请持久存储，以降低浏览器在存储空间紧张时自动清理本地数据的概率。该保护无法防止用户主动清除网站数据，也不能替代备份。
+
+建议定期导出 Keepraw Fly JSON 档案，并在更换浏览器、设备或清除网站数据前备份。
+
+浏览器存储和持久存储权限按当前 origin 隔离。例如 `https://fly.keepraw.com` 与 `http://localhost:5173` 拥有彼此独立的数据和权限。
+
+机场、航司和地图资源是随应用提供的参考数据，并非实时航班状态服务。来源与许可见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
 ## 导入与备份
 
-打开 **设置 → 数据与备份**，在导入真正修改档案前先查看预检结果。
+打开**设置 → 数据与备份**，在导入修改档案之前查看预检结果。
 
-- **Flighty CSV：** 从 Flighty CSV 导出文件导入受支持的字段，并在本地规范化航司代码和航班号。这是单向导入，不代表完全兼容 Flighty 格式或支持同步。
-- **Keepraw Fly CSV 批量导入：** 按正式 Keepraw Fly 字段批量导入航班，支持自动或手动列映射。
-- **JSON 档案：** 导入或导出可迁移的 Keepraw Fly JSON，用于备份或在浏览器之间转移数据。
+- **Keepraw Fly JSON：** 导入或导出完整、可迁移的档案，用于备份及迁移。
+- **Keepraw Fly CSV 批量导入：** 映射并验证文档定义的字段，再添加记录。
+- **Flighty CSV：** 从 Flighty 导出文件导入受支持字段；这是单向导入，不是同步，也不代表完全兼容 Flighty 格式。
 
-导入前会展示预览，确认后将新航班加入现有档案；完全重复的记录会跳过，可能重复的记录可在导入前检查并决定是否纳入。两种 CSV 流程都会在写入前校验文件。CSV 时间可以填写无时区偏移的机场当地时间，Keepraw Fly 会根据机场的 IANA 时区解析并处理夏令时变化；带 offset 或 `Z` 的 RFC 3339 时间也受支持。
+新航班会添加到现有档案而不覆盖记录。完全重复的记录会跳过，可能重复的记录可在导入前检查；两种 CSV 流程都会在写入前验证每一行。机场当地时间使用内置 IANA 时区数据解析；也支持带 offset 或 `Z` 的 RFC 3339 时间。
 
-## 本地数据、语言与外观
-
-- 航班档案默认保存在浏览器 IndexedDB 中。
-- 没有账号系统、云同步，也没有 Keepraw Fly 后端保存用户航班数据。
-- 默认构建是静态网站，不会把航班记录上传到服务器，也不使用分析 SDK。
-- 航班记录仅保存在当前浏览器中。请定期导出可迁移的 JSON 档案作为备份，并在更换浏览器或清除浏览器数据前先备份。
-- 浏览器支持时，可在设置中启用**本地数据保护**，减少存储被自动清理的风险。存储保护不能替代备份，也无法防止主动清除浏览器数据造成的丢失。
-- 查看器偏好与可迁移的航班档案分开保存。
-- 界面支持英文、简体中文和繁體中文，支持浅色、深色及跟随系统的外观，并适配桌面与移动端。
-
-机场、航司和地图参考资源随应用一起打包。它们只提供参考信息，不是实时航班状态服务。来源和许可证见[第三方声明](THIRD_PARTY_NOTICES.md)。
-
-## 快速开始
-
-### 使用应用
-
-体验[在线 Demo](https://fly.keepraw.com)。如果用它记录自己的航班，请保护好自己的数据：记录仅保存在当前浏览器中，请定期导出 JSON 备份，并在更换浏览器或清除浏览器数据前先备份。本地数据保护不能替代备份。
-
-Chrome 会自动决定是否授予本地数据保护，不显示权限弹窗。如果申请未获授权，设置页可提供将 Keepraw Fly 安装为应用的入口，并在安装完成后重新申请保护。若入口不可用，请从浏览器菜单安装后再申请。安装会继续使用同一站点的浏览器数据；只有浏览器真正授予保护后，状态才会变成“已保护”。
-
-你也可以在本地运行应用，或按照[部署指南](docs/deployment.md)发布静态构建。
-
-### 本地运行
+## 本地运行
 
 环境要求：Node.js 20.19 或更高版本，以及 pnpm。
 
@@ -60,20 +67,18 @@ pnpm install
 pnpm dev
 ```
 
-打开 <http://localhost:5173>。开发服务固定使用此端口，端口被占用时会退出；再次启动前，请先停止已有的开发服务。浏览器数据和存储保护权限属于当前来源，更换主机名或端口会使用独立的数据和权限。
+打开 <http://localhost:5173>。开发服务固定使用此端口，端口被占用时会退出。
 
-要在本地检查生产构建：
+通过 HTTP 检查生产构建：
 
 ```bash
 pnpm build
 pnpm preview
 ```
 
-打开 Vite 输出的网址，通常是 <http://127.0.0.1:4173>。不要直接打开 `apps/web/dist/index.html`；生产构建需要通过 HTTP 服务访问，浏览器模块和 IndexedDB 才能正常工作。
+不要直接打开 `apps/web/dist/index.html`；浏览器模块和 IndexedDB 需要通过服务访问。
 
-## 开发与验证
-
-仓库提供文档一致性检查、TypeScript 检查、单元测试、生产构建和 Playwright 端到端测试，其中包含响应式流程检查。GitHub Actions 会针对 Pull Request 和主分支运行这些检查。
+## 开发
 
 ```bash
 pnpm check:docs
@@ -83,19 +88,17 @@ pnpm build
 pnpm test:e2e
 ```
 
-在本地运行端到端测试前，可执行 `pnpm exec playwright install chromium` 安装 Playwright 浏览器。
+需要时先运行 `pnpm exec playwright install chromium`。GitHub Actions 会针对 Pull Request 和 `main` 运行仓库检查。
 
 ## 数据格式
 
-Keepraw Fly 档案使用可迁移的 `keepraw-fly` JSON 格式，当前格式版本为 `0.1.0`。在正常的导入、编辑和导出流程中，校验器会保留规范数据以及命名空间扩展字段。
-
-数据契约请阅读[数据格式说明](docs/schema.md)和规范的 [JSON Schema](packages/schema/keepraw-fly.schema.json)；存储与导入边界见[架构说明](docs/architecture.md)。
+Keepraw Fly 使用可迁移的 `keepraw-fly` JSON 格式。校验器会在导入、编辑和导出过程中保留受支持的规范数据与命名空间扩展。参见[数据格式说明](docs/schema.md)、[JSON Schema](packages/schema/keepraw-fly.schema.json)和[架构说明](docs/architecture.md)。
 
 ## 文档
 
-- [数据格式](docs/schema.md)
 - [架构](docs/architecture.md)
 - [部署](docs/deployment.md)
+- [数据格式](docs/schema.md)
 - [明确推迟的范围](docs/not-implemented.md)
 - [实施状态](IMPLEMENTATION_STATUS.md)
 - [第三方声明](THIRD_PARTY_NOTICES.md)

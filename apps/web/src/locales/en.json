@@ -479,8 +479,6 @@
     "storageProtectionTitle": "Local data protection",
     "enableStorageProtection": "Request protection",
     "requestingStorageProtection": "Requesting protection…",
-    "installForStorageProtection": "Install Keepraw Fly and request protection",
-    "installingForStorageProtection": "Waiting for installation…",
     "storageProtection": {
       "checking": "Checking protection status…",
       "granted": "Protected",
@@ -490,9 +488,7 @@
     },
     "storageProtectionRequest": {
       "granted": "Storage protection is now enabled.",
-      "available": "The browser has not enabled protection against automatic cleanup. Chrome decides without a permission prompt; try installing Keepraw Fly as an app, then request again. Keep exporting JSON backups if protection remains unavailable.",
-      "installDismissed": "Installation was cancelled. Data remains unprotected; you can request protection again and export JSON backups.",
-      "installFailed": "Installation did not complete. Data remains unprotected; install Keepraw Fly from the browser menu, then request protection again.",
+      "available": "The browser has not granted protection against automatic storage eviction. You can continue using Keepraw Fly; export JSON backups regularly.",
       "unsupported": "This browser does not support requesting storage protection.",
       "failed": "The protection request failed. Please try again."
     },
@@ -549,7 +545,12 @@
     "advanced": "Advanced",
     "powerUserMode": "Power User Mode",
     "powerUserDescription": "Enable only if you understand the Keepraw Fly data model.",
-    "advancedPlaceholder": "Advanced editing is reserved for a future release. No raw editor is enabled yet."
+    "advancedPlaceholder": "Advanced editing is reserved for a future release. No raw editor is enabled yet.",
+    "frequentFlyerDesktopNote": "Frequent flyer profiles can be edited on desktop.",
+    "editMembership": "Edit",
+    "collapseMembership": "Collapse",
+    "memberNumberSummary": "Member number {{number}}",
+    "defaultAirlineSummary": "Default: {{airline}}"
   },
   "flightTiming": {
     "actual": "Actual",

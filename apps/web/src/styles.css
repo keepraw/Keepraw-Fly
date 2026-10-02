@@ -842,8 +842,15 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .settings-name-choice input { margin: 0; accent-color: var(--green); }
 .settings-page .membership-editor { padding: var(--space-4) 20px 0; }
 .settings-helper { margin: 0 0 var(--space-4); color: var(--muted); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
-.settings-membership { display: block; min-width: 0; margin: 0; padding: var(--space-4) 0; border: 0; border-top: 1px solid var(--line); }
-.settings-membership > legend { max-width: 100%; padding: 0 var(--space-2) 0 0; color: var(--ink); font-size: var(--type-size-label); font-weight: var(--font-weight-semibold); line-height: var(--type-leading-label); overflow-wrap: anywhere; }
+.settings-membership-mobile-note { display: none; }
+.settings-membership { min-width: 0; border-top: 1px solid var(--line); }
+.settings-membership-summary { display: grid; min-height: 104px; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-3); padding: var(--space-3) 0; }
+.settings-membership-summary-copy { display: flex; min-width: 0; flex-wrap: wrap; gap: 3px var(--space-3); color: var(--muted); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
+.settings-membership-summary-copy > strong { width: 100%; color: var(--ink); font-size: var(--type-size-label); line-height: var(--type-leading-label); overflow-wrap: anywhere; }
+.settings-membership-summary-copy > span { min-width: 0; overflow-wrap: anywhere; }
+.settings-membership-airline-summary { width: 100%; }
+.settings-membership-edit { min-height: var(--control-height-sm); padding: 6px var(--space-3); font-size: var(--type-size-caption); }
+.settings-membership-editor-fields { min-width: 0; margin: 0; padding: var(--space-4) 0; border: 0; border-top: 1px solid var(--line); }
 .settings-membership-grid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); }
 .settings-membership-grid > label { display: grid; min-width: 0; gap: 6px; color: var(--muted); font-size: var(--type-size-caption); line-height: var(--type-leading-caption); }
 .settings-membership-airlines { min-width: 0; grid-column: 1 / -1; }
@@ -1226,17 +1233,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .settings-import-row .csv-preview { padding: var(--space-3); }
   .settings-page .membership-editor { padding: var(--space-3) var(--space-4) 0; }
   .settings-helper { margin-bottom: var(--space-3); }
-  .settings-membership { padding-block: var(--space-3); }
-  .settings-membership-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
-  .settings-membership-grid > label { gap: var(--space-1); }
-  .settings-membership .airline-chip-input { min-height: var(--control-height-md); gap: var(--space-1); padding: var(--space-1) 6px; }
-  .settings-membership .airline-chip-input input { min-height: var(--control-height-md); }
-  .settings-membership .airline-chip { min-height: var(--control-height-md); padding-block: 0; }
-  .settings-membership .airline-chip button { width: var(--control-height-md); height: var(--control-height-md); flex: 0 0 var(--control-height-md); }
-  .settings-membership .airline-options button { min-height: var(--control-height-md); }
-  .settings-page .membership-delete { min-height: var(--control-height-md); }
-  .settings-membership-actions { justify-content: flex-start; }
-  .settings-membership-add { padding-bottom: var(--space-3); }
+  .settings-membership-mobile-note { display: block; }
+  .settings-membership-summary { display: block; min-height: 0; padding-block: var(--space-3); }
+  .settings-membership-summary-copy { gap: 4px var(--space-2); }
+  .settings-membership-edit,
+  .settings-membership-editor-fields,
+  .settings-membership-add { display: none; }
   .settings-toggle-row { grid-template-columns: minmax(0, 1fr) 46px; gap: var(--space-3); }
   .settings-advanced-note { padding: var(--space-3) var(--space-4); }
 }
