@@ -8,3 +8,6 @@ coverage/
 playwright-report/
 test-results/
 blob-report/
+
+# Local visual review output; do not commit generated screenshots.
+/artifacts/
