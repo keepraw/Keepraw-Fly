@@ -3,12 +3,10 @@
 ## Boundaries
 
 ```text
-Guided flight editor / Keepraw Fly JSON import / Keepraw Fly CSV import / Flighty CSV import
-  → typed document creation / @keepraw-fly/validator
-  → StorageAdapter
+Guided flight editor / JSON import / mapped CSV import / Flighty CSV import
+  → document creation, validation and import preflight
   → BrowserStorageAdapter / IndexedDB
-  → @keepraw-fly/core
-  → React viewer
+  → @keepraw-fly/core calculations → React viewer
   → validated Keepraw Fly JSON export
 ```
 
@@ -21,13 +19,15 @@ Guided flight editor / Keepraw Fly JSON import / Keepraw Fly CSV import / Flight
 
 ## Storage abstraction
 
-`StorageAdapter` exposes document load, save and clear operations. The Web app
-uses `BrowserStorageAdapter`, implemented with Dexie over IndexedDB. A future
+`StorageAdapter` exposes document load, save and clear operations, plus the local
+archive kind (`personal` or `demo`). The Web app uses `BrowserStorageAdapter`,
+implemented with Dexie over IndexedDB. A future
 server-backed adapter can implement the same boundary without teaching UI
 components about HTTP or SQLite.
 
 Viewer preferences implement a separate `SettingsStore`. Language, appearance,
-units, time format and Power User Mode are not included in exported flight data.
+units, time format, Power User Mode and the last-backup timestamp are not included
+in exported flight data. Appearance defaults to the system setting.
 Profile names are part of the portable document and therefore travel with it.
 
 ## Import and export
@@ -37,13 +37,23 @@ The editor turns airport-local date/time fields into explicit ISO 8601 timezone
 offsets using bundled airport reference data. JSON remains the portable exchange
 and backup format rather than a first-use requirement.
 
-Import parses JSON, validates the 0.1 schema and semantic invariants, then
-replaces the active local archive. The whole validated document is stored, so
-unrecognized namespaced extensions survive an import/edit/export round trip.
+JSON import parses and migrates supported legacy formats, then validates the
+0.1.0 schema and semantic invariants. All import workflows preview new records,
+exact duplicates, possible duplicates and blocking issues before confirmation.
+Exact duplicates are skipped; possible duplicates require an explicit choice.
+Invalid input blocks the import instead of silently dropping invalid records.
 
-Keepraw Fly mapped CSV import maps six required columns, validates every row and
-previews the first five rows before confirmation. Flighty CSV import first maps
-Flighty's native headers and values into the same canonical CSV boundary. Both
+When no archive is active, JSON import starts an archive from the validated
+document. Otherwise, it appends selected flights and preserves the
+existing profile and document-level extensions. Referenced frequent-flyer
+memberships are merged, with conflicting membership IDs remapped. Imported
+flight extensions are retained; source document-level extensions are not merged
+into an existing archive.
+
+Keepraw Fly mapped CSV import maps six required columns plus optional flight
+facts, validates every row and previews sample records before confirmation.
+Flighty CSV import first maps Flighty's native headers and values into the same
+canonical CSV boundary. Both
 workflows convert valid rows to canonical flight records and append them to the
 active archive; they never replace existing flights. CSV local times are
 resolved using the corresponding airport timezone; explicit RFC3339 offsets
@@ -55,8 +65,9 @@ state.
 
 ## Localization and reference data
 
-React text uses i18next keys. Flight records contain IATA/ICAO identifiers rather
-than localized names. Airport and airline names, coordinates and timezones live
+React text uses i18next keys for English, Simplified Chinese and Traditional
+Chinese. Flight records contain IATA/ICAO identifiers rather than localized names.
+Airport and airline names, coordinates and timezones live
 in replaceable Viewer reference data. Language, distance unit and time format
 are independent settings.
 
@@ -69,16 +80,29 @@ retryable error instead of silently running with partial reference data.
 ## Search and statistics
 
 Core search builds normalized text from flight number, airline identifiers and
-localized names, airport codes/names/cities/countries, year, aircraft type and
+localized names, airport codes/names/cities, service date, year, aircraft type and
 registration. All query terms must match.
 
 Passport statistics are recomputed from the selected flight records. Great-circle
 distance uses airport coordinates; duration uses actual timestamps when both are
 available and otherwise falls back to scheduled timestamps. No derived totals
-are written into Keepraw Fly JSON.
+are written into Keepraw Fly JSON. Cancelled flights are excluded from flown
+statistics, and distance and visited-airport totals use the diversion airport
+when one is recorded.
 
 The Passport route map uses the same airport coordinates. A reproducible update
-script converts pinned Natural Earth 1:110m land data into checked-in SVG paths.
-At runtime, `d3-geo` applies the matching Natural Earth 1 projection to airport
+script converts pinned Natural Earth 1:110m country polygons into checked-in SVG
+paths. At runtime, `d3-geo` applies the matching Equal Earth projection to airport
 points and great-circle routes, including adaptive sampling and date-line
-clipping. No external map tiles, API calls or location data are required.
+clipping. The local SVG viewport supports pan, zoom, reset and route/airport
+selection. No external map tiles, map API calls or device location are required.
+
+## Source entry points
+
+- [Storage contracts](../apps/web/src/storage/adapter.ts) and
+  [browser persistence](../apps/web/src/storage/browser.ts)
+- [JSON import preflight](../apps/web/src/data/import-preview.ts) and
+  [duplicate detection](../apps/web/src/data/duplicate-detection.ts)
+- [Schema and compatibility](schema.md)
+- [Map geometry](../apps/web/src/data/map-geometry.ts) and
+  [pinned map source](../apps/web/src/data/world-map.source.json)

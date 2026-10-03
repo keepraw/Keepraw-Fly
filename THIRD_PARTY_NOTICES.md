@@ -68,7 +68,7 @@ Mainland Simplified Chinese. It is not included in the browser runtime.
 ## Natural Earth Vector
 
 Keepraw Fly bundles optimized SVG paths generated from the Natural Earth Vector
-1:110m land polygons, version 5.1.2. The exact source URL and SHA-256 checksum
+1:110m admin 0 country polygons, version 5.1.2. The exact source URL and SHA-256 checksum
 are recorded in `apps/web/src/data/world-map.source.json`.
 
 Natural Earth map data is in the public domain. The upstream terms and notice
@@ -76,7 +76,7 @@ are included in `apps/web/src/data/LICENSE.natural-earth`.
 
 ## d3-geo
 
-Keepraw Fly uses `d3-geo` version 3.1.1 to generate the Natural Earth 1
+Keepraw Fly uses `d3-geo` version 3.1.1 to generate the Equal Earth
 projection and to project airport points and great-circle routes. The library
 and its bundled `d3-array` 3.2.4 and `internmap` 2.0.3 dependencies are
 distributed under the ISC License. Their license texts are included in
