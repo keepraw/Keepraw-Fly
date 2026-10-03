@@ -1,12 +1,16 @@
 import "fake-indexeddb/auto";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import Dexie from "dexie";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { BrowserStorageAdapter, persistentStorageState, requestPersistentStorage } from "./browser";
 
 const adapters: BrowserStorageAdapter[] = [];
+const databases: Dexie[] = [];
 
 afterEach(async () => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  databases.splice(0).forEach((database) => database.close());
   await Promise.all(adapters.splice(0).map((adapter) => adapter.deleteDatabaseForTests()));
 });
 
@@ -87,6 +91,24 @@ describe("persistent storage", () => {
 });
 
 describe("BrowserStorageAdapter", () => {
+  async function storedArchive(document: unknown, kind?: "personal" | "demo") {
+    const name = `test-${crypto.randomUUID()}`;
+    const adapter = new BrowserStorageAdapter(name);
+    adapters.push(adapter);
+    const database = new Dexie(name);
+    database.version(1).stores({ documents: "&key, updatedAt", preferences: "&key" });
+    databases.push(database);
+    const record = { key: "active", document, ...(kind ? { kind } : {}), updatedAt: "2026-10-01T12:00:00.000Z" };
+    await database.table("documents").put(record);
+    return { adapter, record, readRecord: () => database.table("documents").get("active") };
+  }
+
+  it("distinguishes an empty database from an unreadable archive", async () => {
+    const adapter = new BrowserStorageAdapter(`test-${crypto.randomUUID()}`);
+    adapters.push(adapter);
+    await expect(adapter.loadDocument()).resolves.toEqual({ status: "empty" });
+  });
+
   it("round-trips a document including unknown extensions", async () => {
     const adapter = new BrowserStorageAdapter(`test-${crypto.randomUUID()}`);
     adapters.push(adapter);
@@ -99,10 +121,10 @@ describe("BrowserStorageAdapter", () => {
     };
 
     await adapter.saveDocument(document, "demo");
-    expect(await adapter.loadDocument()).toEqual(document);
+    expect(await adapter.loadDocument()).toEqual({ status: "valid", document, kind: "demo", updatedAt: expect.any(String) });
     expect(await adapter.loadArchiveKind()).toBe("demo");
     await adapter.clearDocument();
-    expect(await adapter.loadDocument()).toBeNull();
+    expect(await adapter.loadDocument()).toEqual({ status: "empty" });
     expect(await adapter.loadArchiveKind()).toBeNull();
   });
 
@@ -119,7 +141,7 @@ describe("BrowserStorageAdapter", () => {
 
     await adapter.saveSettings(settings);
     expect(await adapter.loadSettings()).toEqual(settings);
-    expect(await adapter.loadDocument()).toBeNull();
+    expect(await adapter.loadDocument()).toEqual({ status: "empty" });
   });
 
   it("upgrades a legacy RawFly archive when it is loaded", async () => {
@@ -133,8 +155,93 @@ describe("BrowserStorageAdapter", () => {
     } as unknown as KeeprawFlyDocument);
 
     await expect(adapter.loadDocument()).resolves.toMatchObject({
-      format: "keepraw-fly",
-      formatVersion: "0.1.0",
+      status: "valid",
+      document: { format: "keepraw-fly", formatVersion: "0.1.0" },
     });
+  });
+
+  it("retains raw invalid data and metadata across repeated recovery reads", async () => {
+    const raw = { format: "keepraw-fly", formatVersion: "0.1.0", profile: {}, flights: [{ broken: true }], unknown: { preserved: true } };
+    const { adapter, record, readRecord } = await storedArchive(raw, "demo");
+    const save = vi.spyOn(adapter, "saveDocument");
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const result = await adapter.loadDocument();
+      expect(result).toMatchObject({ status: "invalid", rawDocument: raw, kind: "demo", updatedAt: record.updatedAt, issues: expect.any(Array) });
+      if (result.status !== "invalid") throw new Error("Expected recovery data");
+      expect(result.issues.length).toBeGreaterThan(0);
+      expect(JSON.parse(JSON.stringify(result.rawDocument))).toEqual(raw);
+    }
+    expect(save).not.toHaveBeenCalled();
+    expect(await readRecord()).toEqual(record);
+  });
+
+  it.each(["99.0.0", "experimental"])("retains unsupported format version %s without migrating", async (formatVersion) => {
+    const raw = { format: "keepraw-fly", formatVersion, profile: {}, flights: [], extensions: { "example.future": { extra: true } } };
+    const { adapter, record, readRecord } = await storedArchive(raw);
+    const save = vi.spyOn(adapter, "saveDocument");
+
+    await expect(adapter.loadDocument()).resolves.toEqual({ status: "unsupported-version", rawDocument: raw, kind: "personal", updatedAt: record.updatedAt, formatVersion });
+    expect(save).not.toHaveBeenCalled();
+    expect(await readRecord()).toEqual(record);
+  });
+
+  it("only writes a migration after its output passes validation", async () => {
+    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [], extensions: { "example.unknown": { preserved: true } } };
+    const { adapter, readRecord } = await storedArchive(raw, "demo");
+    const save = vi.spyOn(adapter, "saveDocument");
+    const canonical = { ...raw, format: "keepraw-fly", formatVersion: "0.1.0" };
+
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "valid", document: canonical, kind: "demo" });
+    expect(save).toHaveBeenCalledExactlyOnceWith(canonical, "demo");
+    expect((await readRecord()).document).toEqual(canonical);
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "valid", document: canonical });
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(raw.format).toBe("rawfly");
+  });
+
+  it("keeps the original archive when post-migration validation fails", async () => {
+    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [{ broken: true }] };
+    const { adapter, record, readRecord } = await storedArchive(raw);
+    const save = vi.spyOn(adapter, "saveDocument");
+
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "invalid", rawDocument: raw });
+    expect(save).not.toHaveBeenCalled();
+    expect(await readRecord()).toEqual(record);
+  });
+
+  it("keeps a legacy archive in recovery when the validated migration cannot be saved", async () => {
+    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [] };
+    const { adapter, record, readRecord } = await storedArchive(raw);
+    const save = vi.spyOn(adapter, "saveDocument").mockRejectedValueOnce(new Error("IndexedDB write unavailable"));
+
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "invalid", rawDocument: raw, issues: [{ keyword: "migration" }] });
+    expect(save).toHaveBeenCalledOnce();
+    expect(await readRecord()).toEqual(record);
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "valid", document: { format: "keepraw-fly", formatVersion: "0.1.0" } });
+  });
+
+  it("keeps the original archive when migration throws", async () => {
+    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [] };
+    const { adapter, record, readRecord } = await storedArchive(raw);
+    const clone = globalThis.structuredClone;
+    const cloneFailure = vi.spyOn(globalThis, "structuredClone").mockImplementation((value) => {
+      if (value && typeof value === "object" && "format" in value && value.format === "rawfly") throw new Error("Migration unavailable");
+      return clone(value);
+    });
+    const save = vi.spyOn(adapter, "saveDocument");
+
+    await expect(adapter.loadDocument()).resolves.toMatchObject({ status: "invalid", rawDocument: raw, issues: [{ keyword: "migration" }] });
+    expect(save).not.toHaveBeenCalled();
+    cloneFailure.mockRestore();
+    expect(await readRecord()).toEqual(record);
+  });
+
+  it("lets actual IndexedDB read failures reach storage error handling", async () => {
+    const { adapter } = await storedArchive({ format: "keepraw-fly", formatVersion: "0.1.0", profile: {}, flights: [] });
+    vi.spyOn(IDBObjectStore.prototype, "get").mockImplementationOnce(() => {
+      throw new DOMException("Storage unavailable", "UnknownError");
+    });
+    await expect(adapter.loadDocument()).rejects.toThrow("Storage unavailable");
   });
 });

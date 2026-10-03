@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { parseKeeprawFlyJson, validateAndMigrateKeeprawFly, validateKeeprawFly } from "../src";
+import { migrateKeeprawFly, parseKeeprawFlyJson, validateAndMigrateKeeprawFly, validateKeeprawFly } from "../src";
 import demoDocument from "../../core/data/demo.keepraw-fly.json";
 
 const validDocument = {
@@ -31,6 +31,8 @@ const validDocument = {
     },
   ],
 };
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("Keepraw Fly validator", () => {
   it("validates the complete 24-flight demo dataset", () => {
@@ -76,6 +78,7 @@ describe("Keepraw Fly validator", () => {
       expect(result.data.flights).toEqual(validDocument.flights);
       expect(result.migrations).toEqual(["rawfly-brand"]);
     }
+    expect(legacy.format).toBe("rawfly");
   });
 
   it("migrates the 0.1 shorthand but rejects unsupported future versions", () => {
@@ -92,6 +95,75 @@ describe("Keepraw Fly validator", () => {
       formatVersion: "9.0.0",
     });
     expect(future.valid).toBe(false);
+    expect(future).toMatchObject({ reason: "unsupported-version", formatVersion: "9.0.0" });
+  });
+
+  it.each([
+    ["keepraw-fly", "99.0.0"],
+    ["rawfly", "99.0.0"],
+    ["keepraw-fly", "experimental"],
+  ])("rejects unsupported %s version %s before migration", (format, formatVersion) => {
+    const raw = { ...structuredClone(validDocument), format, formatVersion, futureField: { kept: true } };
+    const clone = vi.spyOn(globalThis, "structuredClone");
+
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "unsupported-version", formatVersion, issues: [{ path: "/formatVersion", keyword: "unsupportedVersion" }] });
+    expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
+    expect(clone).not.toHaveBeenCalled();
+    expect(raw.formatVersion).toBe(formatVersion);
+    expect(raw.futureField).toEqual({ kept: true });
+  });
+
+  it.each([undefined, null, 99])("treats missing or malformed version %s as invalid without guessing a migration", (formatVersion) => {
+    const raw = { ...structuredClone(validDocument), format: "rawfly", formatVersion };
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
+  });
+
+  it("does not identify an unrelated format as an unsupported Keepraw Fly version", () => {
+    const raw = { ...structuredClone(validDocument), format: "another-format", formatVersion: "99.0.0" };
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
+  });
+
+  it("returns a recovery issue if migration throws without mutating its source", () => {
+    const raw = { ...structuredClone(validDocument), format: "rawfly" };
+    vi.spyOn(globalThis, "structuredClone").mockImplementationOnce(() => { throw new Error("Cannot clone archive"); });
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid", issues: [{ path: "/", keyword: "migration" }] });
+    expect(raw.format).toBe("rawfly");
+  });
+
+  it("does not mutate the legacy source when migrated validation fails", () => {
+    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [{ broken: true }], extensions: { "example.unknown": { preserved: true } } };
+    const snapshot = structuredClone(raw);
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    expect(raw).toEqual(snapshot);
+  });
+
+  it.each([
+    { frequentFlyerMemberships: [null] },
+    { frequentFlyerMemberships: [{ broken: true }] },
+    { frequentFlyerMemberships: { broken: true } },
+    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123" }] },
+    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: [7] }] },
+    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: ["UA"], defaultAirline: "CA" }] },
+    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: [], unexpected: true }] },
+    { extensions: null },
+  ])("retains malformed canonical facts rather than silently repairing them: %j", (malformed) => {
+    const raw = { ...structuredClone(validDocument), ...malformed };
+    const snapshot = structuredClone(raw);
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    expect(raw).toEqual(snapshot);
+  });
+
+  it("leaves canonical optional fields intact when no migration is needed", () => {
+    const raw = { ...structuredClone(validDocument), extensions: {}, frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: ["UA"] }] };
+    (raw.flights[0] as KeeprawFlight).extensions = {};
+    const result = validateAndMigrateKeeprawFly(raw);
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.migrations).toEqual([]);
+      expect(result.data).toEqual(raw);
+    }
   });
 
   it("migrates legacy travel extensions into relationship-based flight metadata", () => {

@@ -530,6 +530,26 @@
     "memberNumberSummary": "会员号 {{number}}",
     "defaultAirlineSummary": "默认：{{airline}}"
   },
+  "recovery": {
+    "title": "无法打开本地飞行档案",
+    "description": "Keepraw Fly 在此设备上检测到了现有数据，但当前版本无法正常读取。原始数据尚未被修改或删除。",
+    "unsupportedVersion": "此档案使用了更新或当前不支持的数据格式版本。",
+    "download": "下载恢复副本",
+    "retry": "重新尝试",
+    "importTitle": "导入备份",
+    "importDescription": "打开一份已知正常的 Keepraw Fly JSON 备份。",
+    "importNote": "请先检查备份，再确认替换当前存储的档案。",
+    "replaceTitle": "替换本地档案？",
+    "replaceDescription": "导入此备份会替换当前设备上存储的档案。如需保留原始数据，请先下载恢复副本。",
+    "replaceConfirm": "替换本地档案",
+    "clearDescription": "永久删除此设备上存储的档案。此操作无法撤销。",
+    "clearConfirmation": "永久清空本地档案？此操作无法撤销。如需保留原始数据，请先下载恢复副本。",
+    "downloadError": "无法下载恢复副本。原始存储数据未被修改。",
+    "retryError": "无法读取本地档案。原始存储数据未被修改。",
+    "importReadError": "无法打开备份。原始存储数据未被修改。",
+    "importError": "无法保存备份。原始存储数据未被修改。",
+    "clearError": "无法清空本地档案。原始存储数据未被修改。"
+  },
   "flightTiming": {
     "actual": "实际",
     "scheduled": "计划",

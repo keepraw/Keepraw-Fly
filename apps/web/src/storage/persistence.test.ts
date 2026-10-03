@@ -312,16 +312,18 @@ describe("persistence queue with IndexedDB", () => {
     });
     await expect(queue.save(edited)).resolves.toBe(false);
     expect(onStateChange.mock.lastCall?.[0]).toEqual({ status: "error", error: "storage" });
-    expect(await adapter.loadDocument()).toEqual(original);
+    expect(await adapter.loadDocument()).toMatchObject({ status: "valid", document: original });
     expect(edited.flights).toHaveLength(1);
     expect(edited.flights[0]?.flightNumber).toBe("MU590");
     failedPut.mockRestore();
 
     await expect(queue.retry()).resolves.toBe(true);
-    expect(await adapter.loadDocument()).toEqual(edited);
+    expect(await adapter.loadDocument()).toMatchObject({ status: "valid", document: edited });
     expect(await adapter.loadArchiveKind()).toBe("personal");
     expect(write.mock.calls).toEqual([[original], [edited], [edited]]);
-    expect((await adapter.loadDocument())?.flights).toHaveLength(1);
+    const loaded = await adapter.loadDocument();
+    if (loaded.status !== "valid") throw new Error("Expected the saved archive to be valid");
+    expect(loaded.document.flights).toHaveLength(1);
     expect(onStateChange.mock.lastCall?.[0].status).toBe("saved");
   });
 
@@ -352,7 +354,7 @@ describe("persistence queue with IndexedDB", () => {
     await expect(cleared).resolves.toBe(true);
 
     expect(write.mock.calls).toEqual([[snapshot], [null]]);
-    expect(await adapter.loadDocument()).toBeNull();
+    expect(await adapter.loadDocument()).toEqual({ status: "empty" });
     expect(await adapter.loadArchiveKind()).toBeNull();
     expect(onStateChange.mock.calls.map(([state]) => state.status)).toEqual(["saving", "saving", "saved"]);
   });
@@ -369,10 +371,10 @@ describe("persistence queue with IndexedDB", () => {
     const queue = createPersistenceQueue(write, onStateChange);
 
     await expect(queue.save(null)).resolves.toBe(false);
-    expect(await adapter.loadDocument()).toEqual(original);
+    expect(await adapter.loadDocument()).toMatchObject({ status: "valid", document: original });
     await expect(queue.retry()).resolves.toBe(true);
     expect(write.mock.calls).toEqual([[null], [null]]);
-    expect(await adapter.loadDocument()).toBeNull();
+    expect(await adapter.loadDocument()).toEqual({ status: "empty" });
     expect(await adapter.loadArchiveKind()).toBeNull();
     expect(onStateChange.mock.lastCall?.[0].status).toBe("saved");
   });

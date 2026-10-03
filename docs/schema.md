@@ -1,7 +1,14 @@
-# Keepraw Fly 0.1 Schema
+# Keepraw Fly JSON Format 0.1
 
-The canonical schema is
+Keepraw Fly JSON is Keepraw Fly's canonical portable archive format. JSON
+export is a complete backup of the archive's profile, flights, memberships and
+extensions. The machine-readable specification uses JSON Schema Draft 2020-12
+and lives in
 [`packages/schema/keepraw-fly.schema.json`](../packages/schema/keepraw-fly.schema.json).
+
+The `format` identifier distinguishes a Keepraw Fly archive from other JSON
+documents. `formatVersion` identifies the data format version; it is independent
+of the application version.
 
 ```json
 {
@@ -34,10 +41,21 @@ cannot be both cancelled and diverted.
 browser-storage boundaries also recognize the former `rawfly` format identifier
 and the early `0.1` version shorthand. They are copied and upgraded in memory,
 validated against the current schema, and saved/exported as canonical 0.1.0.
-Unsupported future versions remain rejected; migration never guesses at flight
-facts or changes timestamps, identifiers, endpoints or profile data. Legacy
-travel extensions are upgraded to their typed metadata equivalents as described
-below.
+Only explicitly supported legacy representations may be migrated. Unsupported
+future versions are rejected before migration; readers must not guess at their
+structure or reinterpret them as the current format. Migration never guesses at
+flight facts or changes timestamps, identifiers, endpoints or profile data.
+Legacy travel extensions are upgraded to their typed metadata equivalents as
+described below.
+
+Browser storage distinguishes an absent archive from an existing archive that
+fails validation, migration or version compatibility checks. An unreadable
+archive enters recovery mode while its original stored value remains intact.
+Only a completed migration whose result passes current validation may replace
+the stored archive automatically. Recovery downloads serialize the original
+stored value without validation, migration or canonical export processing;
+they preserve unknown fields as well as supported archive facts. Importing a
+validated backup or clearing local data requires an explicit user confirmation.
 
 ## Facts, not derivatives
 
@@ -125,9 +143,10 @@ Older `keepraw-fly.baggage`, `keepraw-fly.ticket`, and flight-level
 `keepraw-fly.frequent-flyer` extensions are migrated on import. Their canonical
 replacement is emitted on the next save/export; `checkedBaggage` is discarded.
 
-Unknown extension values may be ignored for display but must be retained when
-editing and exporting their owning records. Core objects reject undeclared
-properties; additional data belongs in namespaced `extensions` keys such as
+Unknown namespaced extension values may be ignored for display but must
+round-trip unchanged when editing and exporting their owning records. Core
+objects reject undeclared properties; additional data belongs in namespaced
+`extensions` keys such as
 `example.organization`. The viewer preserves document-level extensions when
 opening an archive, but appending to an existing archive retains that archive's
 document-level extensions rather than merging those from the source file. See

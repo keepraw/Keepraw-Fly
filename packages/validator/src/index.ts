@@ -20,7 +20,8 @@ export type KeeprawFlyMigration = "rawfly-brand" | "version-0.1" | "flight-metad
 
 export type ValidationResult =
   | { valid: true; data: KeeprawFlyDocument; issues: []; migrations: KeeprawFlyMigration[] }
-  | { valid: false; issues: ValidationIssue[] };
+  | { valid: false; reason: "invalid"; issues: ValidationIssue[] }
+  | { valid: false; reason: "unsupported-version"; formatVersion: string; issues: ValidationIssue[] };
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 addFormats(ajv);
@@ -185,20 +186,55 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
 export function validateKeeprawFly(input: unknown): ValidationResult {
   if (validateSchema(input)) {
     const issues = semanticIssues(input);
-    if (issues.length) return { valid: false, issues };
+    if (issues.length) return { valid: false, reason: "invalid", issues };
     return { valid: true, data: input, issues: [], migrations: [] };
   }
 
   return {
     valid: false,
+    reason: "invalid",
     issues: (validateSchema.errors ?? []).map((error) => toIssue(error, input)),
   };
 }
 
 export function validateAndMigrateKeeprawFly(input: unknown): ValidationResult {
-  const { data, migrations } = migrateKeeprawFly(input);
-  const result = validateKeeprawFly(data);
-  return result.valid ? { ...result, migrations } : result;
+  const formatVersion = unsupportedFormatVersion(input);
+  if (formatVersion !== undefined) {
+    return {
+      valid: false,
+      reason: "unsupported-version",
+      formatVersion,
+      issues: [{
+        path: "/formatVersion",
+        keyword: "unsupportedVersion",
+        message: "This archive uses a newer or unsupported Keepraw Fly format version.",
+        received: formatVersion,
+      }],
+    };
+  }
+  try {
+    const { data, migrations } = migrateKeeprawFly(input);
+    const result = validateKeeprawFly(data);
+    return result.valid ? { ...result, migrations } : result;
+  } catch {
+    return {
+      valid: false,
+      reason: "invalid",
+      issues: [{ path: "/", keyword: "migration", message: "The archive could not be safely migrated and validated." }],
+    };
+  }
+}
+
+function supportedArchive(source: Record<string, unknown>): boolean {
+  return (source.format === KEEPRAW_FLY_FORMAT || source.format === "rawfly")
+    && (source.formatVersion === KEEPRAW_FLY_FORMAT_VERSION || source.formatVersion === "0.1");
+}
+
+function unsupportedFormatVersion(input: unknown): string | undefined {
+  const source = objectValue(input);
+  if (!source || (source.format !== KEEPRAW_FLY_FORMAT && source.format !== "rawfly")) return undefined;
+  return typeof source.formatVersion === "string" && !supportedArchive(source)
+    ? source.formatVersion : undefined;
 }
 
 export function migrateKeeprawFly(input: unknown): {
@@ -210,6 +246,8 @@ export function migrateKeeprawFly(input: unknown): {
   }
 
   const source = input as Record<string, unknown>;
+  // Only the explicitly supported format/version pairs may reach migration.
+  if (!supportedArchive(source)) return { data: input, migrations: [] };
   const data = structuredClone(source);
   const migrations: KeeprawFlyMigration[] = [];
 
@@ -233,8 +271,16 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
   const legacyFrequentFlyer = objectValue(documentExtensions?.["keepraw-fly.frequent-flyer"]);
   const sourceMemberships = Array.isArray(document.frequentFlyerMemberships)
     ? document.frequentFlyerMemberships
-    : Array.isArray(legacyFrequentFlyer?.memberships) ? legacyFrequentFlyer.memberships : [];
-  const memberships = sourceMemberships.flatMap((item) => normalizeMembership(item));
+    : !("frequentFlyerMemberships" in document) && Array.isArray(legacyFrequentFlyer?.memberships)
+      ? legacyFrequentFlyer.memberships : [];
+  // Unrecognized/malformed entries must survive until schema validation rejects them.
+  const membershipEntries = sourceMemberships.map((item) => normalizeMembership(item)[0] ?? item);
+  const memberships = membershipEntries.flatMap((item) => {
+    const value = objectValue(item);
+    return value && typeof value.id === "string" && typeof value.programId === "string" && typeof value.memberNumber === "string"
+      ? [value as Record<string, unknown> & { id: string; programId: string; memberNumber: string }] : [];
+  });
+  const originalMembershipCount = memberships.length;
   const membershipIds = new Set(memberships.map((membership) => membership.id));
 
   if ((!Array.isArray(document.frequentFlyerMemberships) && sourceMemberships.length)
@@ -243,8 +289,10 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
       return !value?.programId
         || membershipAirlinesNeedMigration(value);
     })) changed = true;
-  if (legacyFrequentFlyer && documentExtensions) {
-    delete documentExtensions["keepraw-fly.frequent-flyer"];
+  if (legacyFrequentFlyer && Array.isArray(legacyFrequentFlyer.memberships) && documentExtensions
+    && (!("frequentFlyerMemberships" in document) || Array.isArray(document.frequentFlyerMemberships))) {
+    delete legacyFrequentFlyer.memberships;
+    if (!Object.keys(legacyFrequentFlyer).length) delete documentExtensions["keepraw-fly.frequent-flyer"];
     changed = true;
   }
 
@@ -255,6 +303,7 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
       const next = { ...flight };
       const extensions = objectValue(next.extensions);
       if (!extensions) return next;
+      const originalExtensionCount = Object.keys(extensions).length;
 
       const baggage = objectValue(extensions["keepraw-fly.baggage"]);
       if (baggage) {
@@ -311,21 +360,31 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
       }
 
       if (Object.keys(extensions).length) next.extensions = extensions;
-      else delete next.extensions;
+      else if (originalExtensionCount) delete next.extensions;
       return next;
     });
   }
 
-  if (memberships.length) document.frequentFlyerMemberships = memberships;
-  else delete document.frequentFlyerMemberships;
+  if (membershipEntries.length || memberships.length > originalMembershipCount) {
+    document.frequentFlyerMemberships = [...membershipEntries, ...memberships.slice(originalMembershipCount)];
+  }
   if (documentExtensions && Object.keys(documentExtensions).length) document.extensions = documentExtensions;
-  else delete document.extensions;
+  else if (documentExtensions && changed) delete document.extensions;
   return changed;
 }
 
 function normalizeMembership(item: unknown): Array<Record<string, unknown> & { id: string; programId: string; memberNumber: string }> {
   const value = objectValue(item);
   if (!value || typeof value.id !== "string" || typeof value.memberNumber !== "string") return [];
+  if ("programId" in value && (typeof value.programId !== "string" || !value.programId)) return [];
+  if (!("programId" in value) && (typeof value.programName !== "string" || !value.programName)) return [];
+  if ("associatedAirlines" in value && typeof value.associatedAirlines !== "string"
+    && (!Array.isArray(value.associatedAirlines) || !value.associatedAirlines.every((code) => typeof code === "string"))) return [];
+  if ("defaultAirline" in value && value.defaultAirline !== null && typeof value.defaultAirline !== "string") return [];
+  if ("defaultForAirlines" in value && typeof value.defaultForAirlines !== "string"
+    && (!Array.isArray(value.defaultForAirlines) || !value.defaultForAirlines.every((code) => typeof code === "string"))) return [];
+  // A canonical membership is already a core fact, not a legacy migration source.
+  if (typeof value.programId === "string" && !membershipAirlinesNeedMigration(value)) return [value as Record<string, unknown> & { id: string; programId: string; memberNumber: string }];
   const name = typeof value.programName === "string" ? value.programName : "";
   const id = typeof value.programId === "string" && value.programId ? value.programId : programId(name);
   const associatedAirlines = uniqueAirlineCodes(value.associatedAirlines);
@@ -336,7 +395,8 @@ function normalizeMembership(item: unknown): Array<Record<string, unknown> & { i
   const defaultAirline = associatedAirlines.length === 1
     ? associatedAirlines[0]!
     : requestedDefault && associatedAirlines.includes(requestedDefault) ? requestedDefault : null;
-  return [{
+  const normalized: Record<string, unknown> & { id: string; programId: string; memberNumber: string } = {
+    ...value,
     id: value.id,
     programId: id,
     ...(name ? { programName: name } : {}),
@@ -344,7 +404,9 @@ function normalizeMembership(item: unknown): Array<Record<string, unknown> & { i
     ...(typeof value.tier === "string" && value.tier ? { tier: value.tier } : value.tier === null ? { tier: null } : {}),
     associatedAirlines,
     defaultAirline,
-  }];
+  };
+  delete normalized.defaultForAirlines;
+  return [normalized];
 }
 
 function objectValue(value: unknown): Record<string, unknown> | null {
@@ -365,15 +427,14 @@ function uniqueAirlineCodes(value: unknown): string[] {
 }
 
 function membershipAirlinesNeedMigration(value: Record<string, unknown> | null): boolean {
-  if (!value || !Array.isArray(value.associatedAirlines) || "defaultForAirlines" in value) return true;
+  if (!value) return false;
+  if (typeof value.associatedAirlines === "string" || "defaultForAirlines" in value) return true;
+  if (!Array.isArray(value.associatedAirlines) || !value.associatedAirlines.every((code) => typeof code === "string" && code)) return false;
   const canonical = uniqueAirlineCodes(value.associatedAirlines);
   const stored = stringArray(value.associatedAirlines);
-  if (canonical.length !== stored.length || canonical.some((code, index) => code !== stored[index])) return true;
-  const requestedDefault = typeof value.defaultAirline === "string" ? canonicalAirlineCode(value.defaultAirline) : null;
-  const expectedDefault = canonical.length === 1
-    ? canonical[0]!
-    : requestedDefault && canonical.includes(requestedDefault) ? requestedDefault : null;
-  return value.defaultAirline !== expectedDefault;
+  if (canonical.length === stored.length && canonical.every((code) => /^[A-Z0-9]{2,3}$/.test(code))
+    && canonical.some((code, index) => code !== stored[index])) return true;
+  return typeof value.defaultAirline === "string" && canonicalAirlineCode(value.defaultAirline) !== value.defaultAirline;
 }
 
 function programId(value: string): string {
@@ -397,6 +458,7 @@ export function parseKeeprawFlyJson(text: string): ValidationResult {
   } catch (error) {
     return {
       valid: false,
+      reason: "invalid",
       issues: [
         {
           path: "/",
