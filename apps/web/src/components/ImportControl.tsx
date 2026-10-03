@@ -11,6 +11,7 @@ import { ImportPreflightSummary } from "./ImportPreflightSummary";
 
 interface ImportControlProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
+  onError?: (error: unknown) => void;
   existingDocument?: KeeprawFlyDocument | null;
   variant?: "primary" | "settings";
 }
@@ -21,6 +22,7 @@ interface PendingImport extends JsonImportPreflight {
 
 export function ImportControl({
   onImport,
+  onError,
   existingDocument = null,
   variant = "primary",
 }: ImportControlProps) {
@@ -31,27 +33,39 @@ export function ImportControl({
   const [busy, setBusy] = useState(false);
 
   async function importFile(file: File | undefined) {
-    if (!file) return;
+    if (!file || busy) return;
     setBusy(true);
-    const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
-    const text = await file.text();
-    const result = parseKeeprawFlyJson(text);
-    setPending({ fileName: file.name, ...preflightJsonImport(text, result, existingDocument) });
-    setIncludePossibleDuplicates(false);
-    setBusy(false);
+    try {
+      const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
+      const text = await file.text();
+      const result = parseKeeprawFlyJson(text);
+      setPending({ fileName: file.name, ...preflightJsonImport(text, result, existingDocument) });
+      setIncludePossibleDuplicates(false);
+    } catch (error) {
+      setPending(null);
+      setIncludePossibleDuplicates(false);
+      onError?.(error);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function confirmImport() {
     if (!pending?.document) return;
     setBusy(true);
-    await onImport(buildDocumentFromJsonImport(
-      pending,
-      existingDocument,
-      includePossibleDuplicates,
-    ));
-    setPending(null);
-    setIncludePossibleDuplicates(false);
-    setBusy(false);
+    try {
+      await onImport(buildDocumentFromJsonImport(
+        pending,
+        existingDocument,
+        includePossibleDuplicates,
+      ));
+      setPending(null);
+      setIncludePossibleDuplicates(false);
+    } catch (error) {
+      onError?.(error);
+    } finally {
+      setBusy(false);
+    }
   }
 
   const selectedRecords = pending

@@ -30,7 +30,8 @@ async function storedArchive(page: Page): Promise<ArchiveSnapshot | null> {
     // Resolve the same Vite module instance used by App, without a production test hook.
     const modulePath = "/src/storage/browser.ts";
     const { browserStorage } = await import(modulePath);
-    return browserStorage.loadDocument();
+    const result = await browserStorage.loadDocument();
+    return result.status === "valid" ? result.document : null;
   });
 }
 

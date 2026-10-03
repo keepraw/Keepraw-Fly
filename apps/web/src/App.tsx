@@ -11,11 +11,12 @@ import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
 import { initialPassportView, passportVisibleFlights, type PassportViewState } from "./data/passport-exploration";
 import { SettingsPage } from "./pages/SettingsPage";
+import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly } from "./data/export";
 import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
-import type { ArchiveKind } from "./storage/adapter";
+import type { ArchiveKind, ArchiveLoadResult } from "./storage/adapter";
 import { createPersistenceQueue, type PersistenceState } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import {
@@ -27,11 +28,15 @@ import {
 
 const demoDocument = demoData as KeeprawFlyDocument;
 type DocumentSnapshot = { document: KeeprawFlyDocument; kind: ArchiveKind } | null;
+type RecoveryArchive = Extract<ArchiveLoadResult, { status: "invalid" | "unsupported-version" }>;
 
 export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
   const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
+  const [recoveryArchive, setRecoveryArchive] = useState<RecoveryArchive | null>(null);
+  const [recoveryBusy, setRecoveryBusy] = useState(false);
+  const recoveryOperationRef = useRef(false);
   const [settings, setSettings] = useState<ViewerSettings>(defaultViewerSettings);
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -87,19 +92,16 @@ export function App() {
 
   useEffect(() => {
     let active = true;
-    void Promise.all([
+    void Promise.allSettled([
       browserStorage.loadDocument(),
-      browserStorage.loadArchiveKind(),
       browserStorage.loadSettings(),
     ])
-      .then(([storedDocument, storedArchiveKind, storedSettings]) => {
+      .then(([archiveResult, settingsResult]) => {
         if (!active) return;
-        setDocument(storedDocument);
-        setArchiveKind(storedArchiveKind);
-        if (storedSettings) setSettings(storedSettings);
-      })
-      .catch(() => {
-        if (active) setStorageError("storage");
+        // A preferences read failure must not hide an existing unreadable archive.
+        if (archiveResult.status === "fulfilled") applyArchiveLoad(archiveResult.value);
+        if (settingsResult.status === "fulfilled" && settingsResult.value) setSettings(settingsResult.value);
+        if (archiveResult.status === "rejected" || settingsResult.status === "rejected") setStorageError("storage");
       })
       .finally(() => {
         if (active) setLoaded(true);
@@ -108,6 +110,63 @@ export function App() {
       active = false;
     };
   }, []);
+
+  function applyArchiveLoad(result: ArchiveLoadResult) {
+    setDocument(result.status === "valid" ? result.document : null);
+    setArchiveKind(result.status === "empty" ? null : result.kind);
+    setRecoveryArchive(result.status === "invalid" || result.status === "unsupported-version" ? result : null);
+  }
+
+  async function runRecoveryOperation(operation: () => Promise<void>) {
+    if (recoveryOperationRef.current) return;
+    recoveryOperationRef.current = true;
+    setRecoveryBusy(true);
+    try {
+      await operation();
+    } finally {
+      recoveryOperationRef.current = false;
+      setRecoveryBusy(false);
+    }
+  }
+
+  async function retryArchiveLoad() {
+    await runRecoveryOperation(async () => {
+      try {
+        applyArchiveLoad(await browserStorage.loadDocument());
+        setStorageError(null);
+      } catch (error) {
+        setStorageError("storage");
+        throw error;
+      }
+    });
+  }
+
+  async function importRecoveryBackup(nextDocument: KeeprawFlyDocument) {
+    await runRecoveryOperation(async () => {
+      // The recovery UI confirms replacement. Keep the raw source visible until
+      // IndexedDB has committed the explicitly selected, validated backup.
+      await browserStorage.saveDocument(nextDocument, "personal");
+      setDocument(nextDocument);
+      setArchiveKind("personal");
+      setRecoveryArchive(null);
+      setStorageError(null);
+      setPassportView(initialPassportView);
+      setPage("passport");
+      setSelectedFlightId(null);
+      window.location.hash = "passport";
+    });
+  }
+
+  async function clearRecoveryArchive() {
+    await runRecoveryOperation(async () => {
+      await browserStorage.clearDocument();
+      applyArchiveLoad({ status: "empty" });
+      setStorageError(null);
+      setPage("passport");
+      setSelectedFlightId(null);
+      window.location.hash = "passport";
+    });
+  }
 
   useEffect(() => {
     void i18n.changeLanguage(settings.language);
@@ -161,6 +220,7 @@ export function App() {
     nextDocument: KeeprawFlyDocument,
     nextKind: ArchiveKind = archiveKind ?? "personal",
   ) {
+    if (recoveryArchive) return;
     setDocument(nextDocument);
     setArchiveKind(nextKind);
     void documentWrites.save({ document: nextDocument, kind: nextKind });
@@ -311,7 +371,15 @@ export function App() {
           ) : null}
         </div>
       ) : null}
-      {page === "settings" ? (
+      {recoveryArchive ? (
+        <RecoveryPage
+          archive={recoveryArchive}
+          busy={recoveryBusy}
+          onRetry={retryArchiveLoad}
+          onImport={importRecoveryBackup}
+          onClear={clearRecoveryArchive}
+        />
+      ) : page === "settings" ? (
         <SettingsPage
           document={document}
           isDemo={archiveKind === "demo"}

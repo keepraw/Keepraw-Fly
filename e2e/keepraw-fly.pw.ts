@@ -789,6 +789,8 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   expect(lightSettingsAudit.violations).toEqual([]);
   await page.getByLabel("Appearance").selectOption("dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  // Audit the rendered theme after inherited text styles have updated.
+  await expect(page.locator(".settings-page-heading h1")).toHaveCSS("color", "rgb(244, 246, 248)");
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
 
