@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import type { ArchiveKind, SettingsStore, StorageAdapter } from "./adapter";
+import type { ArchiveKind, ArchiveLoadResult, SettingsStore, StorageAdapter } from "./adapter";
 import type { ViewerSettings } from "./types";
 
 export type PersistentStorageState = "checking" | "granted" | "available" | "unsupported" | "failed";
@@ -68,16 +68,32 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     this.database = new KeeprawFlyDatabase(databaseName);
   }
 
-  async loadDocument(): Promise<KeeprawFlyDocument | null> {
+  async loadDocument(): Promise<ArchiveLoadResult> {
     const record = await this.database.documents.get("active");
-    if (!record) return null;
+    if (!record) return { status: "empty" };
+    const kind = record.kind ?? "personal";
     const { validateAndMigrateKeeprawFly } = await import("@keepraw-fly/validator");
     const result = validateAndMigrateKeeprawFly(record.document);
-    if (!result.valid) return null;
-    if (result.migrations.length) {
-      await this.saveDocument(result.data, record.kind ?? "personal");
+    if (!result.valid) {
+      const recoverySource = { rawDocument: record.document, kind, updatedAt: record.updatedAt };
+      return result.reason === "unsupported-version"
+        ? { status: "unsupported-version", ...recoverySource, formatVersion: result.formatVersion }
+        : { status: "invalid", ...recoverySource, issues: result.issues };
     }
-    return result.data;
+    if (result.migrations.length) {
+      try {
+        await this.saveDocument(result.data, kind);
+      } catch {
+        return {
+          status: "invalid",
+          rawDocument: record.document,
+          kind,
+          updatedAt: record.updatedAt,
+          issues: [{ path: "/", keyword: "migration", message: "The migrated archive could not be saved safely." }],
+        };
+      }
+    }
+    return { status: "valid", document: result.data, kind, updatedAt: record.updatedAt };
   }
 
   async loadArchiveKind(): Promise<ArchiveKind | null> {

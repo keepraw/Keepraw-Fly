@@ -554,6 +554,26 @@
     "memberNumberSummary": "Member number {{number}}",
     "defaultAirlineSummary": "Default: {{airline}}"
   },
+  "recovery": {
+    "title": "We couldn't open your local archive",
+    "description": "Keepraw Fly found existing data on this device, but it could not be opened with this version. Your stored data has not been deleted or modified.",
+    "unsupportedVersion": "This archive was created by a newer or unsupported format version.",
+    "download": "Download recovery copy",
+    "retry": "Try again",
+    "importTitle": "Import backup",
+    "importDescription": "Open a known working Keepraw Fly JSON backup.",
+    "importNote": "Review the backup before confirming replacement of the stored archive.",
+    "replaceTitle": "Replace local archive?",
+    "replaceDescription": "Importing this backup will replace the archive currently stored on this device. Download a recovery copy first if you need to keep the original data.",
+    "replaceConfirm": "Replace local archive",
+    "clearDescription": "Permanently delete the archive stored on this device. This cannot be undone.",
+    "clearConfirmation": "Permanently clear the local archive? This cannot be undone. Download a recovery copy first if you need to keep the original data.",
+    "downloadError": "The recovery copy could not be downloaded. Your stored data has not been changed.",
+    "retryError": "The local archive could not be read. Your stored data has not been changed.",
+    "importReadError": "The backup could not be opened. Your stored data has not been changed.",
+    "importError": "The backup could not be saved. Your stored data has not been changed.",
+    "clearError": "The local archive could not be cleared. Your stored data has not been changed."
+  },
   "flightTiming": {
     "actual": "Actual",
     "scheduled": "Sched.",
