@@ -5,6 +5,8 @@
     "homeLabel": "Keepraw Fly home",
     "loading": "Loading Keepraw Fly",
     "storageUnavailable": "Local storage is unavailable. Changes may not persist.",
+    "changesNotSaved": "Changes are not saved on this device.",
+    "settingsNotSaved": "Settings are not saved on this device.",
     "skipToContent": "Skip to content"
   },
   "nav": {

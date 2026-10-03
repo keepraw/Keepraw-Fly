@@ -5,6 +5,8 @@
     "homeLabel": "Keepraw Fly 首页",
     "loading": "正在加载 Keepraw Fly",
     "storageUnavailable": "本地存储不可用，更改可能无法保留。",
+    "changesNotSaved": "更改尚未保存到此设备。",
+    "settingsNotSaved": "设置尚未保存到此设备。",
     "skipToContent": "跳到主要内容"
   },
   "nav": {

@@ -3,12 +3,23 @@ import en from "./locales/en.json";
 import zhCN from "./locales/zh-CN.json";
 import zhTW from "./locales/zh-TW.json";
 
-const auditedSections = ["nav", "actions", "status", "flightDetail", "flightTiming"] as const;
+const auditedSections = ["app", "nav", "actions", "status", "flightDetail", "flightTiming"] as const;
 const normalizedKeys = (section: Record<string, unknown>) => [...new Set(
   Object.keys(section).map((key) => key.replace(/_(one|other)$/, "")),
 )].sort();
 
 describe("i18n resources", () => {
+  it.each([
+    [en, "Changes are not saved on this device.", "Settings are not saved on this device."],
+    [zhCN, "更改尚未保存到此设备。", "设置尚未保存到此设备。"],
+    [zhTW, "變更尚未儲存到此裝置。", "設定尚未儲存到此裝置。"],
+  ])("states explicitly that changes and settings are not saved in every locale", (locale, changes, settings) => {
+    expect(locale.app.changesNotSaved).toBe(changes);
+    expect(locale.app.settingsNotSaved).toBe(settings);
+    expect(locale.actions.saving).toBeTruthy();
+    expect(locale.actions.retry).toBeTruthy();
+  });
+
   it.each(auditedSections)("keeps %s keys aligned across all supported locales", (section) => {
     const expected = Object.keys(en[section]).sort();
     expect(Object.keys(zhCN[section]).sort()).toEqual(expected);
