@@ -16,6 +16,7 @@ import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind } from "./storage/adapter";
+import { createPersistenceQueue, type PersistenceState } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import {
   frequentFlyerMemberships,
@@ -25,6 +26,7 @@ import {
 } from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
+type DocumentSnapshot = { document: KeeprawFlyDocument; kind: ArchiveKind } | null;
 
 export function App() {
   const { i18n, t } = useTranslation();
@@ -33,6 +35,21 @@ export function App() {
   const [settings, setSettings] = useState<ViewerSettings>(defaultViewerSettings);
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [documentPersistence, setDocumentPersistence] = useState<PersistenceState>({ status: "idle" });
+  const [settingsPersistence, setSettingsPersistence] = useState<PersistenceState>({ status: "idle" });
+  const [documentWrites] = useState(() => createPersistenceQueue<DocumentSnapshot>(
+    (snapshot) => snapshot
+      ? browserStorage.saveDocument(snapshot.document, snapshot.kind)
+      : browserStorage.clearDocument(),
+    (state) => {
+      setDocumentPersistence(state);
+      if (state.status === "saved") setStorageError(null);
+    },
+  ));
+  const [settingsWrites] = useState(() => createPersistenceQueue<ViewerSettings>(
+    (snapshot) => browserStorage.saveSettings(snapshot),
+    setSettingsPersistence,
+  ));
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [passportView, setPassportView] = useState<PassportViewState>(initialPassportView);
@@ -127,63 +144,64 @@ export function App() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  async function storeDocument(
+  const hasUnsavedChanges = documentPersistence.status === "saving" || documentPersistence.status === "error"
+    || settingsPersistence.status === "saving" || settingsPersistence.status === "error";
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const preventUnsavedExit = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", preventUnsavedExit);
+    return () => window.removeEventListener("beforeunload", preventUnsavedExit);
+  }, [hasUnsavedChanges]);
+
+  function storeDocument(
     nextDocument: KeeprawFlyDocument,
     nextKind: ArchiveKind = archiveKind ?? "personal",
   ) {
     setDocument(nextDocument);
     setArchiveKind(nextKind);
-    try {
-      await browserStorage.saveDocument(nextDocument, nextKind);
-      setStorageError(null);
-    } catch {
-      setStorageError("storage");
-    }
+    void documentWrites.save({ document: nextDocument, kind: nextKind });
   }
 
-  async function storeSettings(nextSettings: ViewerSettings) {
+  function storeSettings(nextSettings: ViewerSettings) {
     setSettings(nextSettings);
-    try {
-      await browserStorage.saveSettings(nextSettings);
-      setStorageError(null);
-    } catch {
-      setStorageError("storage");
-    }
+    void settingsWrites.save(nextSettings);
   }
 
-  async function updateProfile(name: ProfileName | undefined) {
+  function updateProfile(name: ProfileName | undefined) {
     if (!document) return;
-    await storeDocument({
+    storeDocument({
       ...document,
       profile: name ? { ...document.profile, name } : {},
     });
   }
 
-  async function updateMemberships(nextMemberships: readonly FrequentFlyerMembership[]) {
+  function updateMemberships(nextMemberships: readonly FrequentFlyerMembership[]) {
     if (!document) return;
-    await storeDocument(withFrequentFlyerMemberships(document, nextMemberships));
+    storeDocument(withFrequentFlyerMemberships(document, nextMemberships));
   }
 
-  async function clearDocument() {
-    try {
-      await browserStorage.clearDocument();
-      setDocument(null);
-      setArchiveKind(null);
-      setPage("passport");
-      window.location.hash = "passport";
-      setSelectedFlightId(null);
-      setStorageError(null);
-    } catch {
-      setStorageError("storage");
-    }
+  function clearDocument() {
+    // Deletion shares the write queue so an older save cannot resurrect the archive.
+    setDocument(null);
+    setArchiveKind(null);
+    void documentWrites.save(null);
+    setPage("passport");
+    window.location.hash = "passport";
+    setSelectedFlightId(null);
+    setEditorFlightId(null);
+    setDuplicateTemplate(null);
   }
 
-  async function createArchive() {
+  function createArchive() {
     setPassportView(initialPassportView);
     editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement
       ? window.document.activeElement
       : null;
-    await storeDocument(createEmptyDocument(), "personal");
+    storeDocument(createEmptyDocument(), "personal");
     setPage("passport");
     setSelectedFlightId(null);
     setEditorFlightId("new");
@@ -191,29 +209,29 @@ export function App() {
     window.location.hash = "passport";
   }
 
-  async function importArchive(nextDocument: KeeprawFlyDocument) {
+  function importArchive(nextDocument: KeeprawFlyDocument) {
     setPassportView(initialPassportView);
-    await storeDocument(nextDocument, "personal");
+    storeDocument(nextDocument, "personal");
     setPage("passport");
     setSelectedFlightId(null);
     window.location.hash = "passport";
   }
 
-  async function openDemoArchive() {
+  function openDemoArchive() {
     setPassportView(initialPassportView);
-    await storeDocument(structuredClone(demoDocument), "demo");
+    storeDocument(structuredClone(demoDocument), "demo");
     setPage("passport");
     setSelectedFlightId(null);
     window.location.hash = "passport";
   }
 
-  async function saveFlight(flight: KeeprawFlight) {
+  function saveFlight(flight: KeeprawFlight) {
     if (!document) return;
     const existingIndex = document.flights.findIndex((item) => item.id === flight.id);
     const flights = existingIndex === -1
       ? [...document.flights, flight]
       : document.flights.map((item) => item.id === flight.id ? flight : item);
-    await storeDocument({ ...document, flights });
+    storeDocument({ ...document, flights });
     setEditorFlightId(null);
     setDuplicateTemplate(null);
     setSelectedFlightId(flight.id);
@@ -221,12 +239,12 @@ export function App() {
     window.history.replaceState(null, "", "#passport");
   }
 
-  async function deleteEditedFlight() {
+  function deleteEditedFlight() {
     if (!document || !editorFlightId || editorFlightId === "new") return;
     const deletedFlightId = editorFlightId;
     setEditorFlightId(null);
     if (selectedFlightId === deletedFlightId) setSelectedFlightId(null);
-    await storeDocument(documentWithoutFlight(document, deletedFlightId));
+    storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
   async function exportDocument() {
@@ -236,7 +254,7 @@ export function App() {
       return;
     }
     await downloadKeeprawFly(document);
-    await storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
+    storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
   }
 
   if (!loaded) {
@@ -271,9 +289,23 @@ export function App() {
           },
         } : undefined}
       />
-      {storageError || (document && archiveKind === "demo") ? (
+      <div className="persistence-status" role="status">
+        {documentPersistence.status === "saving" || settingsPersistence.status === "saving" ? t("actions.saving") : null}
+      </div>
+      {storageError || documentPersistence.status === "error" || settingsPersistence.status === "error" || (document && archiveKind === "demo") ? (
         <div className="page-notices">
-          {storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
+          {documentPersistence.status === "error" ? (
+            <div className="storage-warning" role="alert">
+              <span>{t("app.changesNotSaved")}</span>
+              <button type="button" onClick={() => { void documentWrites.retry(); }}>{t("actions.retry")}</button>
+            </div>
+          ) : storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
+          {settingsPersistence.status === "error" ? (
+            <div className="storage-warning" role="alert">
+              <span>{t("app.settingsNotSaved")}</span>
+              <button type="button" onClick={() => { void settingsWrites.retry(); }}>{t("actions.retry")}</button>
+            </div>
+          ) : null}
           {document && archiveKind === "demo" ? (
             <DemoBanner compact={Boolean(selectedFlight) || page === "passport"} onCreateArchive={createArchive} />
           ) : null}
