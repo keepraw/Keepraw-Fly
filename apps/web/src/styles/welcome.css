@@ -1,5 +1,4 @@
-.welcome h1,
-.page-placeholder h1 {
+.welcome h1 {
   max-width: 680px;
   margin: 18px 0;
   font-family: var(--font-family-display);
@@ -26,8 +25,6 @@
   font-size: var(--type-size-label);
   line-height: var(--type-leading-label);
 }
-.page-placeholder { padding: 120px 0; }
-
 
 @media (max-width: 760px) {
   .welcome-actions { align-items: stretch; flex-direction: column; }

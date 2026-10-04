@@ -1,41 +1,51 @@
 # CSS dead code / legacy selector audit
 
-基线：PR #8 合并后的 `15db4b6`。本 PR 只增加本报告和两个只读审计脚本；所有 CSS、React markup、property value、breakpoint 和 `main.tsx` import order 均保持不变。
+当前基线：PR #9 合并后的 `222b3c9`；本轮为 PR #10 confirmed-dead removal。PR #9 的原始调查基线是 PR #8 合并后的 `15db4b6`。除“当前统计”和“本批删除记录”外，下文 occurrence/source 行号及调查细节保留该历史基线，避免抹掉发现和删除依据。本轮只修改7个 feature CSS及本报告；React markup、active declaration value、breakpoint、import order、design-system、测试和两个审计脚本均未改动。
 
-## 口径与结果
+## 口径与结果（当前统计，重新运行脚本）
 
 扫描全部 12 个 feature stylesheet，以及 `pages/`、`components/`、`App.tsx`、`main.tsx`、helpers、core/status 类型、测试、示例和 public HTML/SVG。以下文件名均指 `apps/web/src/styles/`；组件和页面分别指 `apps/web/src/components/`、`apps/web/src/pages/`。行号对应上述基线。
 
 | 指标 | 结果 / 口径 |
 |---|---|
-| Selector 分支 | 1,247 次出现，866 个不同 selector 文本；逗号列表拆分，排除 keyframe steps，保留 media context |
-| Class identifier | 390 个不同名称；以下 B/C/D 数量按名称计，**不是可删除的整条 rule 数量** |
-| B — Confirmed unused | 70；下表穷举，全部未在本次运行时状态出现 |
+| Selector 分支 | 1,018 次出现，706 个不同 selector 文本（PR #9：1,247 / 866）；逗号列表拆分，排除 keyframe steps，保留 media context |
+| Class identifier | 321 个不同名称（PR #9：390）；以下 B/C/D 数量按名称计，**不是可删除的整条 rule 数量** |
+| B — 原70个候选 | 69个名称完全删除；1个仅删除正向规则、保留实际有效的否定分支，见下方更正 |
 | C — Likely legacy | 7；有现存测试引用，因此不满足用户要求的严格 B 标准 |
 | D — Dynamic / unsafe | 32 个状态或变体名称；生成路径见下表，不凭完整字符串搜索删除 |
 | 其余 source-backed class | 281；找到组件/入口字面量，仍须按完整组合 selector 判断是否匹配 |
-| E — Cascade dependency | 与 A/D 正交；同文件重复 selector 文本 253 组，Detail 108、Passport 66 是主要热点 |
+| E — Cascade dependency | 与 A/D 正交；同文件重复 selector 文本193组，Detail 59、Passport 57（PR #9：253 / 108 / 66）；减少来自删除dead分支，未合并规则 |
 | Runtime | Chromium、38 个状态、273 个不同 class；无 page error，无横向溢出 |
 
 字面量搜索仅提供线索。本次另外检查 JSX `className` 的字符串、条件、template、变量 initializer 和 prop 调用点，逐一对照有限 enum/status 返回值。没有外部字符串直接写入 class、HTML 注入或第三方 UI 容器；public airline SVG 的内部 class 与候选不相交。地图 DOM 来自已检查的 React SVG 组件，lazy loading 不改变其 class 来源。`timeline` 只在 locale JSON 中作为翻译 key 出现，不是 DOM class。
 
-## B：Confirmed dead candidates（70）
+## B：Confirmed dead candidates（70，PR #9 历史记录）
 
-表中每个逗号分隔项都表示 `.class`。共同证据：没有 JSX/HTML/SVG class 引用、没有测试 selector 依赖、没有 prop 调用点或动态构造可以生成该名称；运行时也未观察到。置信度 High **限于本 repo 当前入口和数据构造**，不声称浏览器采样能穷尽所有状态。
+**批次状态：removed in PR #10**。下表保留原始70名称及证据；69个已完全移除，`detail-flight-icon` 的正向规则已删，但否定分支必须保留。本轮没有其他未删除候选。
 
-| Selector 名称 | 文件 / 首次位置 | 数量 / 额外证据 |
-|---|---|---|
-| `detail-toolbar`, `back-button`, `detail-action`, `detail-action-primary`, `detail-action-secondary` | flight-detail.css:1–28 | 5；当前动作在 `AppHeader.tsx:31–68`，使用 `detail-header-*` |
-| `airport-role`, `airport-code`, `detail-airport-city`, `route-hero`, `route-origin-role`, `route-arrival-role`, `route-origin-code`, `route-arrival-code`, `route-origin-time`, `route-arrival-time`, `route-time`, `route-airport-name`, `route-track`, `route-track-line` | flight-detail.css:98–137 | 14；`AirportStop` 使用 `detail-stop-*`；**保留**当前仍使用的 `route-origin/arrival-city` 和 `route-origin/arrival-airport` |
-| `timeline`, `timeline-grid`, `timeline-event`, `timeline-dot`, `timeline-place`, `timeline-stem` | flight-detail.css:139–154；motion.css:44 | 6；当前时间在 stop timing 和 segment metadata，locale key 不是引用 |
-| `delay-summary`, `delay-positive`, `flight-facilities`, `flight-facts`, `fact-groups`, `fact-group`, `facility-grid`, `facility-grid--single`, `facility-stop`, `facility-stop-heading`, `facility-values`, `facility-terminal`, `gate-sign`, `facts-grid`, `detail-item` | flight-detail.css:156–205；motion.css:50 | 15；当前 facts、metadata 使用 `detail-stop-facts`、`detail-metadata-*`、`detail-record-item` |
-| `detail-airline-line`, `detail-heading-meta`, `detail-duration`, `detail-flight-icon`, `detail-route-map-heading`, `operation-badge-group`, `operation-badge`, `mobile-gate-signage`, `detail-mobile-baggage`, `detail-desktop-only`, `mobile-gate-sign`, `mobile-gate-terminal` | flight-detail.css:68,71,82,190,351,419,420,429,586,589,592 | 12；当前 heading summary、stop facts 和 responsive metadata 均有不同 class |
-| `flight-record-meta`, `flight-airport`, `flight-airport-arrival`, `passport-holder-name`, `passport-exploration-heading`, `passport-exploration-summary`, `passport-related-flights`, `year-list`, `year-history`, `passport-mobile-period` | passport.css:1,90,98,100,117,138,142,146,154,177 | 10；当前 archive row 及探索条已使用不同子结构；exploration 本身仍活跃 |
-| `edit-flight-button`, `wordmark-context`, `page-placeholder`, `page-heading` | controls.css:35；shell.css:91；welcome.css:1；motion.css:38 | 4；当前按钮、wordmark、welcome、heading 来源均已核对 |
-| `map-land`, `is-secondary` | route-map.css:7,28 | 2；`MapWorld.tsx:18–32` 生成 countries/coastline；`PassportRouteMap.tsx:223` label 不产生 secondary modifier |
-| `is-completed`, `is-on-time` | flight-detail.css:78,449；passport.css:399 | 2；core `FlightOperationalStatus` 没有 completed；`delayDirection()` 返回 `onTime`，不是 `on-time` |
+表中每个逗号分隔项都表示 `.class`。原始共同证据：没有 JSX/HTML/SVG class 引用、没有测试 selector 依赖、没有 prop 调用点或动态构造可以生成该名称；运行时也未观察到。**更正：没有生成某个class，不代表引用它的 `:not()` 分支无效**；`detail-flight-icon` 的例外见下方运行时证据。置信度 High **限于本 repo 当前入口和数据构造**，不声称浏览器采样能穷尽所有状态。
 
-未来删除必须按 selector 分支处理：例如 motion 的 `.search-field, .primary-stats, .timeline` 只能删除 dead 分支，不能连同仍活跃的 `.search-field` 删除；与 B 名称相邻的 active 规则也不能整段删除。
+| Selector 名称 | 文件 / 首次位置 | 数量 / 额外证据 | 删除批次 |
+|---|---|---|---|
+| `detail-toolbar`, `back-button`, `detail-action`, `detail-action-primary`, `detail-action-secondary` | flight-detail.css:1–28 | 5；当前动作在 `AppHeader.tsx:31–68`，使用 `detail-header-*` | removed in PR #10 |
+| `airport-role`, `airport-code`, `detail-airport-city`, `route-hero`, `route-origin-role`, `route-arrival-role`, `route-origin-code`, `route-arrival-code`, `route-origin-time`, `route-arrival-time`, `route-time`, `route-airport-name`, `route-track`, `route-track-line` | flight-detail.css:98–137 | 14；`AirportStop` 使用 `detail-stop-*`；**保留**当前仍使用的 `route-origin/arrival-city` 和 `route-origin/arrival-airport` | removed in PR #10 |
+| `timeline`, `timeline-grid`, `timeline-event`, `timeline-dot`, `timeline-place`, `timeline-stem` | flight-detail.css:139–154；motion.css:44 | 6；当前时间在 stop timing 和 segment metadata，locale key 不是引用 | removed in PR #10 |
+| `delay-summary`, `delay-positive`, `flight-facilities`, `flight-facts`, `fact-groups`, `fact-group`, `facility-grid`, `facility-grid--single`, `facility-stop`, `facility-stop-heading`, `facility-values`, `facility-terminal`, `gate-sign`, `facts-grid`, `detail-item` | flight-detail.css:156–205；motion.css:50 | 15；当前 facts、metadata 使用 `detail-stop-facts`、`detail-metadata-*`、`detail-record-item` | removed in PR #10 |
+| `detail-airline-line`, `detail-heading-meta`, `detail-duration`, `detail-flight-icon`, `detail-route-map-heading`, `operation-badge-group`, `operation-badge`, `mobile-gate-signage`, `detail-mobile-baggage`, `detail-desktop-only`, `mobile-gate-sign`, `mobile-gate-terminal` | flight-detail.css:68,71,82,190,351,419,420,429,586,589,592 | 12；当前 heading summary、stop facts 和 responsive metadata 均有不同 class | PR #10：11个完全删除；icon仅正向规则删除 |
+| `flight-record-meta`, `flight-airport`, `flight-airport-arrival`, `passport-holder-name`, `passport-exploration-heading`, `passport-exploration-summary`, `passport-related-flights`, `year-list`, `year-history`, `passport-mobile-period` | passport.css:1,90,98,100,117,138,142,146,154,177 | 10；当前 archive row 及探索条已使用不同子结构；exploration 本身仍活跃 | removed in PR #10 |
+| `edit-flight-button`, `wordmark-context`, `page-placeholder`, `page-heading` | controls.css:35；shell.css:91；welcome.css:1；motion.css:38 | 4；当前按钮、wordmark、welcome、heading 来源均已核对 | removed in PR #10 |
+| `map-land`, `is-secondary` | route-map.css:7,28 | 2；`MapWorld.tsx:18–32` 生成 countries/coastline；`PassportRouteMap.tsx:223` label 不产生 secondary modifier | removed in PR #10 |
+| `is-completed`, `is-on-time` | flight-detail.css:78,449；passport.css:399 | 2；core `FlightOperationalStatus` 没有 completed；`delayDirection()` 返回 `onTime`，不是 `on-time` | removed in PR #10 |
+
+本轮按 selector 分支处理：motion 的 `.search-field, .primary-stats, .timeline` 只删除 `.timeline`；`.search-field` 仍active，`.primary-stats` 属C类，两者均保留。所有与B名称相邻的active规则均保留。
+
+### 本批删除记录 / hidden dependency
+
+- **69个 class identifiers 完全移除，229个 selector branches 删除，CSS净减325行（全部12个feature文件：2,204→1,879行）**。删除210个完整rule，另9个grouped rule仅去掉dead分支；没有media block变空，没有合并或移动任何media/rule。
+- 文件净减：flight-detail **225行**（672→447）、passport **60行**（701→641）、shell **32行**（226→194）、motion **3行**（56→53）、welcome **3行**（35→32）、route-map **2行**（74→72）、controls **0行**（82→82，删除group分支）。
+- 唯一更正：`.detail-heading-eyebrow > span:not(.detail-flight-icon)` 实际匹配 `FlightDetailPage.tsx` 的 `.detail-airline-name`。当前CSS位置为 `flight-detail.css:161`。浏览器验证 `matches=true`，computed为 `max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap`。这个分支的现有效果依赖“class不存在”，所以保留原selector、声明及顺序；只删旧 `.detail-flight-icon` / `.detail-flight-icon svg` 两个正向分支。后续工具必须区分正向条件与 `:not()`，不能只按class集合删整条selector。
+- 结构核对：保留的每个selector分支、declaration原文、顺序、media context与删除前一致；7个C名称和32个D名称的所有分支均保留。`--color-ink` / `--line-strong` 未修复；duplicate/cascade/media cleanup未进行。
+- 原报告中的B候选不再是待删清单；这个更正后的有效否定分支归入 **Keep**，不是后续dead removal候选。
 
 ## C：Likely legacy（7）
 
@@ -78,7 +88,7 @@ D 合计 32 个 feature CSS 中存在的 modifier/variant 名称。`is-expanded`
 | `.flight-route-cities`：359 base；361 base；632 mobile；642 narrow；679 desktop | 359 display/min-width/align-items 与361 gap/color/font-size/font-weight/line-height 不冲突；679改 gap/color/font-size/weight，仍依赖 display/min-width/align/line-height；632/642 同一 font-size 值 | 359+361 **SAFE TO CONSOLIDATE LATER**（相邻同 scope）；其余 **KEEP BOTH**，narrow 重复值可单独验证 |
 | `.passport-exploration`：137；`.passport-archive .passport-exploration`：465、621 mobile、661 base | 137 grid placement/template 仍保留，但布局从 grid→block→flex；465 margin/padding/border-top 和621的 top override 被661 margin/padding/border shorthand 覆盖 | **NEEDS RUNTIME VERIFICATION**（本次证实8px/10px）；后续整理仍需保留早期未重写的 grid 属性 |
 | `.passport-exploration-close`：140、662 base | 140 flex/padding/border/border-bottom/color/background/font；662只重复同值 flex；字体、padding、hover仍来自140 | **SAFE TO CONSOLIDATE LATER**（仅662冗余 flex）；140不是 dead，未定义变量另案处理 |
-| `.year-list` 等旧子树的重复规则 | B 表对应名称及它们的 mobile、pressed、hover 分支 | **LIKELY LEGACY**（重复规则性质）；使用证明已达到 B，后续删分支，不合并 |
+| `.year-list` 等旧子树的重复规则 | B 表对应名称及它们的 mobile、pressed、hover 分支 | 原判断为 **LIKELY LEGACY**（重复规则性质），使用证明达到B；这些dead分支已在PR #10删除，未合并规则 |
 | `.detail-flight-card`：35 base、209 motion、223 mobile、321 base | 35 overflow/margin-top/border-top/bottom/radius/color/background/shadow；321 overflow visible、margin0、border0、透明background，重写基础box属性；209 animation独立保留 | **SAFE TO CONSOLIDATE LATER**（仅base box两组，保留motion/media及shorthand次序） |
 | `.detail-heading`：46、210 motion、224 mobile、331、561 mobile | 46 flex/align/justify/gap/padding/border-bottom/background；331改 display/block、padding/border/background；align/justify/gap仍有computed值，motion独立；561重复padding0 | **NEEDS RUNTIME VERIFICATION**；将base挪过224会改变mobile gap |
 | `.detail-airport-time`：125、240 mobile、434、597 mobile、642 | 125 margin0保留；434改font-size/weight/tracking/leading，字体/features/nowrap仍相同；597再改mobile字号/weight/tracking；642加display flex/align/gap | **KEEP BOTH**；当前desktop44px/700（1440）、40px/700（1024），mobile24px/600 |
@@ -105,7 +115,7 @@ D 合计 32 个 feature CSS 中存在的 modifier/variant 名称。`is-expanded`
 
 ## Custom properties
 
-扫描 feature + design-system 的全部 `var()`，共156个不同引用名称：140个有 design-system 定义，9个 feature-local，5个由TSX inline style定义，2个无定义。跨 theme、media 与继承 scope 已核对；“有定义”不等同于“任意元素都在定义 scope 内”。
+扫描 feature + design-system 的全部 `var()`，当前共153个不同引用名称：137个有 design-system 定义，9个 feature-local，5个由TSX inline style定义，2个无定义（PR #9 历史统计：156 / 140 / 9 / 5 / 2）。删除旧规则减少了引用名称，没有改token定义或任何保留声明。跨 theme、media 与继承 scope 已核对；“有定义”不等同于“任意元素都在定义 scope 内”。
 
 | 分类 / 变量 | 定义、fallback 与运行时结果 | 影响 |
 |---|---|---|
@@ -138,16 +148,16 @@ node scripts/audit-css-runtime.mjs --json
 | Settings / Import / Editor | expanded membership，settings import variant，CSV new/possible disposition、mobile设置，三个尺寸的editor；完整E2E另覆盖storage protection、confirmation、duplicate/invalid imports和demo |
 | Theme / CSS | light/dark在1440与390实际切换；每次resize等两帧后读computed值并记录innerWidth、matchMedia，避免读到刚resize前的状态 |
 
-38个状态观察到273个class；B表70个均未出现。未观察到的类不自动判dead：例如 low/medium、badge tone、error/recovery、加载fallback仍有明确生成路径。本次是针对高风险候选的运行时审计，没有建立所有selector、所有伪类或所有fixture的穷尽coverage。
+PR #9 的38个状态观察到273个class；原B表70个均未作为DOM class出现。PR #10删除前后再次运行同一38状态，class和全部采样computed value报告完全一致，均为273个class、零page error、零横向溢出。38组full-page截图中37组逐像素一致；1440 Passport搜索的map路线边缘有12个像素差异，最大RGB通道差仅1/255，人工核对未见可见变化。专项probe确认上述否定分支仍匹配当前航空公司名称并保留原截断样式。未观察到的类不自动判dead：例如 low/medium、badge tone、error/recovery、加载fallback仍有明确生成路径。本次是针对高风险候选的运行时审计，没有建立所有selector、所有伪类或所有fixture的穷尽coverage。
 
-验证：`pnpm check:docs`、`pnpm typecheck`、`pnpm test`（275）、`pnpm test:e2e`（60）、`pnpm build`、`git diff --check` 全部通过；两个audit脚本通过。build仍提示已有的大chunk，未改动bundle。提交diff仅本报告和两个脚本。
+验证：`pnpm check:docs`、`pnpm typecheck`、`pnpm test`（275）、`pnpm test:e2e`（60）、`pnpm build`、`git diff --check` 全部通过；两个audit脚本通过。本轮同样全部通过；build仍提示已有的大chunk。PR #10的diff仅7个CSS和本报告，两个audit脚本原样运行，GitHub CI结果见PR检查。
 
 ## Cleanup roadmap
 
 | 风险档 | 后续独立 PR 范围 / 顺序 |
 |---|---|
-| **Safe removal** | ① controls/shell/welcome的孤立 `edit-flight-button`、`wordmark-context`、`page-placeholder`；② 无生成路径的 `is-completed`/`is-on-time`、`map-land`/`is-secondary`；③旧toolbar/actions；④旧timeline/facility/facts子树；⑤旧Passport heading children、year-list/mobile-period/related-flights及旧row子树。每步只删除B分支，保留group中的active分支并跑相关E2E |
+| **Safe removal（PR #10已完成）** | ① controls/shell/welcome的孤立 `edit-flight-button`、`wordmark-context`、`page-placeholder`；② 无生成路径的 `is-completed`/`is-on-time`、`map-land`/`is-secondary`；③旧toolbar/actions；④旧timeline/facility/facts子树；⑤旧Passport heading children、year-list/mobile-period/related-flights及旧row子树。已删除上述B正向dead分支，保留group中的active/C分支；唯一有效否定分支例外见删除记录 |
 | **Needs focused verification** | C的7个名称（保留负断言）；badge-in-row组合规则；Passport exploration mobile→unconditional链；Detail heading/base box consolidation；max420重复值及重复media拼接；undefined token的独立视觉修复。删除前在对应尺寸/主题复测，保留原computed结果 |
-| **Keep** | 当前Passport period/rows/exploration父条、Detail stops/timing/metadata/map、route-city/airport props、32个动态状态/变体、lazy SVG、state/aria/pseudo/:has规则、runtime tokens、依赖早期未覆盖属性的重复规则和现有import顺序 |
+| **Keep** | 当前Passport period/rows/exploration父条、Detail stops/timing/metadata/map、route-city/airport props、32个动态状态/变体、lazy SVG、state/aria/pseudo/:has规则、runtime tokens、依赖早期未覆盖属性的重复规则、有效的icon否定分支和现有import顺序 |
 
-Passport优先删旧探索**子结构**、year-list和旧row子结构；保留探索条/close及整个当前map/legend。Flight Detail优先删toolbar、timeline、facility/facts；保留仍复用的route-city/airport/time和所有metadata/stop规则。先做小范围B removal，再做C针对性验证，最后才整理cascade/media；token修复单独走视觉评审。
+PR #10已删除旧Passport探索**子结构**、year-list、旧row子结构及Detail toolbar、timeline、facility/facts；探索条/close、map/legend、route-city/airport/time、metadata/stop及icon否定分支均保留。接下来只考虑C针对性验证；cascade/media整理与token修复继续留在各自独立PR。
