@@ -88,19 +88,6 @@
   line-height: 1;
 }
 
-.wordmark-context {
-  padding: 3px 5px 2px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  color: var(--faint);
-  background: var(--color-surface-raised);
-  font-family: var(--font-family-mono);
-  font-size: 0.625rem;
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.08em;
-  line-height: 1;
-}
-
 .wordmark-mark {
   display: grid;
   width: 29px;
@@ -175,22 +162,6 @@
 .demo-banner--compact button:hover { color: var(--ink); text-decoration: underline; text-decoration-color: currentColor; }
 .demo-banner--compact button:active { color: var(--green); }
 
-.page-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 34px;
-}
-
-.page-heading h1 {
-  margin: 8px 0 0;
-  font-family: var(--font-family-display);
-  font-size: var(--type-size-page);
-  font-weight: var(--font-weight-display);
-  letter-spacing: var(--tracking-display);
-  line-height: var(--type-leading-display);
-}
-
 
 @media (max-width: 760px) {
   :root {
@@ -216,11 +187,8 @@
   .demo-banner--compact { align-items: center; flex-direction: row; gap: 12px; padding: 4px 0 5px; }
   .demo-banner--compact > div { display: block; }
   .demo-banner--compact button { min-height: 29px; margin-left: auto; }
-  .page-heading { margin-bottom: 30px; }
-  .page-heading h1 { font-size: var(--type-size-page); }
 }
 
 @media (max-width: 370px) {
   .site-header-inner { gap: var(--space-3); }
-  .page-heading h1 { font-size: var(--font-size-page); }
 }
