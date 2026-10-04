@@ -1,0 +1,74 @@
+.map-viewport { position: relative; overflow: hidden; background: var(--color-map-ocean); isolation: isolate; }
+.map-viewport > svg { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; user-select: none; }
+.map-viewport > svg:active { cursor: grabbing; }
+.map-sphere { fill: transparent; stroke: color-mix(in srgb, var(--color-map-outline) 28%, transparent); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
+.map-sphere.is-outline-hidden { fill: transparent; stroke: transparent; }
+.map-graticule { fill: none; stroke: var(--color-map-grid); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
+.map-country { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.28; vector-effect: non-scaling-stroke; transition: filter var(--duration-standard) var(--ease-standard), stroke var(--duration-standard) var(--ease-standard); }
+.map-country.is-visited.is-low { fill: var(--color-map-visited-low); }
+.map-country.is-visited.is-medium { fill: var(--color-map-visited-medium); }
+.map-country.is-visited.is-high { fill: var(--color-map-visited-high); }
+.map-country:hover { filter: brightness(1.025); stroke: color-mix(in srgb, var(--color-map-outline) 72%, transparent); stroke-width: 0.44; }
+.map-coastline { fill: none; stroke: var(--color-map-outline); stroke-linejoin: round; stroke-width: 0.62; vector-effect: non-scaling-stroke; pointer-events: none; }
+.map-route, .map-airport { cursor: pointer; outline: none; }
+.map-routes path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.map-routes .map-route-hit { stroke: transparent; stroke-width: 18; pointer-events: stroke; }
+.map-routes .map-route-underlay { stroke: var(--color-map-route-underlay); stroke-width: calc(var(--map-route-width) + 1px); pointer-events: none; }
+.map-routes .map-route-line { stroke: color-mix(in srgb, var(--color-map-route) var(--map-route-strength), var(--color-map-ocean)); stroke-width: var(--map-route-width); opacity: var(--map-route-opacity); pointer-events: none; }
+.map-route:hover .map-route-line, .map-route:focus-visible .map-route-line, .map-route.is-selected .map-route-line { opacity: 1; stroke-width: calc(var(--map-route-width) + 0.65px); }
+.map-route:focus-visible .map-route-underlay, .map-route.is-selected .map-route-underlay { stroke: color-mix(in srgb, var(--color-map-route-underlay) 84%, var(--color-map-route)); stroke-width: calc(var(--map-route-width) + 2px); }
+.map-airports circle { vector-effect: non-scaling-stroke; }
+.map-airports .map-airport-hit { fill: transparent; stroke: none; pointer-events: all; }
+.map-airports .map-airport-ring { fill: transparent; stroke: color-mix(in srgb, var(--color-map-airport) 15%, transparent); stroke-width: 0.7; pointer-events: none; transition: fill var(--duration-standard) var(--ease-standard), stroke var(--duration-standard) var(--ease-standard); }
+.map-airports .map-airport-point { fill: var(--color-map-airport); stroke: color-mix(in srgb, var(--color-map-ocean) 90%, white); stroke-width: 0.9; pointer-events: none; transition: fill var(--duration-standard) var(--ease-standard), stroke var(--duration-standard) var(--ease-standard); }
+.map-airport:hover .map-airport-point, .map-airport:focus-visible .map-airport-point, .map-airport.is-selected .map-airport-point { fill: var(--color-map-text); stroke: var(--color-map-airport); stroke-width: 1.2; }
+.map-airport:hover .map-airport-ring, .map-airport:focus-visible .map-airport-ring, .map-airport.is-selected .map-airport-ring { fill: color-mix(in srgb, var(--color-map-airport) 7%, transparent); stroke: color-mix(in srgb, var(--color-map-airport) 55%, transparent); }
+.map-airports .map-airport-label { fill: var(--color-map-text); paint-order: stroke; stroke: color-mix(in srgb, var(--color-map-ocean) 94%, transparent); stroke-linejoin: round; stroke-width: 2.1px; font-family: var(--font-family-data); font-size: var(--type-size-map-label); font-weight: var(--font-weight-semibold); letter-spacing: 0.055em; pointer-events: none; transition: opacity var(--duration-standard) var(--ease-standard); }
+.map-airports .map-airport-label.is-secondary { opacity: 0.8; }
+.map-tooltip { pointer-events: none; }
+.map-tooltip rect { fill: var(--color-map-tooltip); stroke: var(--color-map-tooltip-line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.map-tooltip text { fill: var(--color-map-text); stroke: none; font-family: var(--font-family-ui); font-size: 10px; letter-spacing: 0; paint-order: normal; }
+.map-tooltip-title { font-size: 11px; font-weight: var(--font-weight-semibold); }
+.map-tooltip-detail { fill: var(--color-map-muted); font-family: var(--font-family-data); font-weight: var(--font-weight-semibold); }
+.map-tooltip-meta { fill: var(--color-map-faint); font-size: 9px; }
+.map-zoom-controls { position: absolute; right: 11px; bottom: 10px; z-index: 2; display: flex; gap: 5px; opacity: 0.64; transition: opacity var(--duration-standard) var(--ease-standard); }
+.map-zoom-controls:hover, .map-zoom-controls:focus-within { opacity: 1; }
+.map-zoom-controls button { display: grid; width: 29px; height: 29px; padding: 0; place-items: center; border: 1px solid color-mix(in srgb, var(--color-map-outline) 44%, transparent); border-radius: 50%; color: var(--color-map-muted); background: color-mix(in srgb, var(--color-map-surface) 68%, transparent); }
+.map-zoom-controls button:hover:not(:disabled), .map-zoom-controls button:focus-visible { color: var(--color-map-text); border-color: color-mix(in srgb, var(--color-map-outline) 82%, transparent); background: color-mix(in srgb, var(--color-map-surface) 92%, transparent); }
+.map-zoom-controls button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.map-zoom-controls button:disabled { opacity: 0.28; }
+.map-zoom-controls svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.4; }
+.map-zoom-controls button:last-child svg { fill: currentColor; stroke: none; }
+
+@keyframes map-route-arrive {
+  from { opacity: 0; stroke-dashoffset: 1; }
+  to { opacity: var(--map-route-opacity); stroke-dashoffset: 0; }
+}
+
+@keyframes map-airport-arrive {
+  from { opacity: 0; transform: scale(0.35); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .map-routes .map-route-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: map-route-arrive var(--duration-map) var(--ease-out) both;
+    animation-delay: calc(260ms + var(--map-item-index, 0) * 22ms);
+  }
+
+  .map-airports .map-airport-point,
+  .map-airports .map-airport-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-airport-arrive 300ms var(--ease-emphasized) both;
+    animation-delay: calc(360ms + var(--map-item-index, 0) * 16ms);
+  }
+}
+
+.map-routes.has-highlight .map-route:not(.is-highlighted):not(.is-selected) .map-route-line { opacity: 0.85 !important; }
+.map-routes.has-highlight .map-route.is-highlighted .map-route-line { opacity: 1 !important; stroke-width: calc(var(--map-route-width) + 0.65px); }
+.map-routes .map-route-line { transition: opacity var(--duration-standard) var(--ease-standard), stroke-width var(--duration-standard) var(--ease-standard); }

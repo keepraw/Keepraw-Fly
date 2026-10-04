@@ -13,11 +13,38 @@ live in the application; page CSS controls composition.
 | Source | Responsibility |
 | --- | --- |
 | [design-system.css](../apps/web/src/design-system.css) | Semantic colors, typography, spacing, shape, depth, motion and theme tokens |
-| [styles.css](../apps/web/src/styles.css) | Page composition, responsive behavior and shared component styles |
+| [styles/](../apps/web/src/styles/) | Global foundations, shared presentation and feature composition; responsive rules stay with their owner |
+| [main.tsx](../apps/web/src/main.tsx) | Explicit, stable stylesheet import order after design-system tokens |
 | [PageShell](../apps/web/src/components/PageShell.tsx) | Main-content landmark and shared page shell |
 | [AppHeader](../apps/web/src/components/AppHeader.tsx) | Passport/Settings navigation, mobile headings and flight-detail actions |
 | [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | Airport codes, status badges and aviation icons |
 | [MapViewport](../apps/web/src/components/MapViewport.tsx) | Local SVG pan, zoom, reset and camera transitions |
+
+The feature split keeps `design-system.css` responsible for tokens and shared
+design-system definitions. `base.css` owns element foundations and accessibility
+helpers; `shell.css` owns the header, navigation, page shell and loading screen;
+`controls.css` owns shared buttons, form primitives and confirmation dialogs.
+`motion.css` owns the unchanged shared animation selector groups and
+`content-enter` keyframes. `welcome.css` owns the empty-archive landing page;
+`recovery.css` owns the recovery page; `route-map.css` owns shared map primitives,
+effects and controls. `import.css`, `settings.css`, `flight-editor.css`,
+`flight-detail.css` and `passport.css` own their workflows and composition,
+including their responsive rules. Passport also owns the archive and flight-row
+presentation.
+
+After `design-system.css`, the explicit imports in `main.tsx` load `base`, `shell`,
+`controls`, `welcome`, `import`, `settings`, `motion`, `recovery`, `flight-editor`,
+`route-map`, `flight-detail` and `passport`, in that order. Keep that order stable:
+source order is part of the cascade. Shared controls precede Settings so its mobile
+membership-add rule can override the secondary button display; shared motion
+follows Settings interaction rules so hover overrides retain their result where
+specificity ties. Passport flight-deviation colors follow Flight Detail
+stop-status colors for the same reason. Existing grouped motion selectors remain
+in `motion.css`; the combined mobile-hidden rule remains in
+`shell.css`. Repeated selectors and later composition or responsive overrides
+retain their order within their owner;
+this structural split does not consolidate or remove them. When moving a rule,
+check its cross-file dependencies before changing ownership or import order.
 
 ### Tokens, language and themes
 
@@ -105,11 +132,29 @@ Screenshots and Playwright reports are local test outputs, not product assets.
 | 源文件 | 职责 |
 | --- | --- |
 | [design-system.css](../apps/web/src/design-system.css) | 语义颜色、字体、间距、形状、纵深、动效与主题 token |
-| [styles.css](../apps/web/src/styles.css) | 页面构图、响应式行为与共享组件样式 |
+| [styles/](../apps/web/src/styles/) | 全局基础、共享展示与 feature 构图；响应式规则与所属样式共置 |
+| [main.tsx](../apps/web/src/main.tsx) | 在 design-system token 之后，以明确且稳定的顺序导入样式 |
 | [PageShell](../apps/web/src/components/PageShell.tsx) | 主内容 landmark 和共享页面骨架 |
 | [AppHeader](../apps/web/src/components/AppHeader.tsx) | Passport/设置导航、移动端标题和航班详情操作 |
 | [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | 机场代码、状态徽标和航空图标 |
 | [MapViewport](../apps/web/src/components/MapViewport.tsx) | 本地 SVG 地图拖动、缩放、复位与视角过渡 |
+
+拆分后，`design-system.css` 继续负责 token 与共享设计系统定义。`base.css` 负责元素基础
+规则与可访问性辅助类；`shell.css` 负责页头、导航、页面骨架与加载界面；`controls.css`
+负责共享按钮、表单基础控件与确认弹窗。`motion.css` 负责保持不变的共享动画分组 selector
+与 `content-enter` 关键帧。`welcome.css` 负责空档案欢迎页；
+`recovery.css` 负责恢复页；`route-map.css` 负责共享地图基础样式、效果与控件。
+`import.css`、`settings.css`、`flight-editor.css`、`flight-detail.css` 与 `passport.css`
+分别负责各自流程和构图，并包含所属响应式规则。Passport 同时负责档案列表与航班行展示。
+
+`main.tsx` 在 `design-system.css` 后按顺序显式导入：`base`、`shell`、`controls`、`welcome`、
+`import`、`settings`、`motion`、`recovery`、`flight-editor`、`route-map`、`flight-detail`、`passport`。
+保持导入顺序稳定：源码顺序是 cascade 的一部分。共享控件位于设置之前，让移动端会员添加
+规则继续覆盖次级按钮的 display；共享动效位于设置交互规则之后，保留 specificity 相同时的
+悬停覆盖结果。同样，Passport 的航班偏差颜色位于航班详情的状态颜色之后。
+原有分组动效 selector 保留在 `motion.css`，原有分组移动端隐藏规则保留在 `shell.css`。
+同一职责内的重复 selector、后期构图覆盖与响应式覆盖保留原有顺序；本次结构拆分不合并或
+删除这些规则。移动规则时，先检查跨文件依赖，再调整归属或导入顺序。
 
 ### Token、语言与主题
 

@@ -5,7 +5,21 @@ import { App } from "./App";
 import { loadAirportDirectory } from "./data/airport-directory";
 import "./i18n";
 import "./design-system.css";
-import "./styles.css";
+import "./styles/base.css";
+import "./styles/shell.css";
+// Shared defaults must precede feature layout and visibility overrides.
+import "./styles/controls.css";
+import "./styles/welcome.css";
+import "./styles/import.css";
+import "./styles/settings.css";
+// These shared motion states originally followed Settings' equal-specificity states.
+import "./styles/motion.css";
+import "./styles/recovery.css";
+import "./styles/flight-editor.css";
+import "./styles/route-map.css";
+import "./styles/flight-detail.css";
+// Shared flight time/deviation rules here must retain their precedence over Detail.
+import "./styles/passport.css";
 
 const root = document.getElementById("root");
 
