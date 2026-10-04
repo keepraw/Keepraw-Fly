@@ -35,21 +35,18 @@
     transform: translateY(0) scale(0.98);
   }
 
-  .page-heading,
   .passport-heading,
   .passport-empty {
     animation: content-enter var(--duration-slow) var(--ease-out) both;
   }
 
   .search-field,
-  .primary-stats,
-  .timeline {
+  .primary-stats {
     animation: content-enter var(--duration-slow) 60ms var(--ease-out) both;
   }
 
   .flight-year,
   .passport-counts,
-  .delay-summary,
   .settings-section {
     animation: content-enter var(--duration-slow) 110ms var(--ease-out) both;
   }
