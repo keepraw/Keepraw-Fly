@@ -4,7 +4,6 @@
 .map-sphere { fill: transparent; stroke: color-mix(in srgb, var(--color-map-outline) 28%, transparent); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
 .map-sphere.is-outline-hidden { fill: transparent; stroke: transparent; }
 .map-graticule { fill: none; stroke: var(--color-map-grid); stroke-width: 0.65; vector-effect: non-scaling-stroke; }
-.map-land { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.65; vector-effect: non-scaling-stroke; }
 .map-country { fill: var(--color-map-land); stroke: var(--color-map-land-line); stroke-linejoin: round; stroke-width: 0.28; vector-effect: non-scaling-stroke; transition: filter var(--duration-standard) var(--ease-standard), stroke var(--duration-standard) var(--ease-standard); }
 .map-country.is-visited.is-low { fill: var(--color-map-visited-low); }
 .map-country.is-visited.is-medium { fill: var(--color-map-visited-medium); }
@@ -25,7 +24,6 @@
 .map-airport:hover .map-airport-point, .map-airport:focus-visible .map-airport-point, .map-airport.is-selected .map-airport-point { fill: var(--color-map-text); stroke: var(--color-map-airport); stroke-width: 1.2; }
 .map-airport:hover .map-airport-ring, .map-airport:focus-visible .map-airport-ring, .map-airport.is-selected .map-airport-ring { fill: color-mix(in srgb, var(--color-map-airport) 7%, transparent); stroke: color-mix(in srgb, var(--color-map-airport) 55%, transparent); }
 .map-airports .map-airport-label { fill: var(--color-map-text); paint-order: stroke; stroke: color-mix(in srgb, var(--color-map-ocean) 94%, transparent); stroke-linejoin: round; stroke-width: 2.1px; font-family: var(--font-family-data); font-size: var(--type-size-map-label); font-weight: var(--font-weight-semibold); letter-spacing: 0.055em; pointer-events: none; transition: opacity var(--duration-standard) var(--ease-standard); }
-.map-airports .map-airport-label.is-secondary { opacity: 0.8; }
 .map-tooltip { pointer-events: none; }
 .map-tooltip rect { fill: var(--color-map-tooltip); stroke: var(--color-map-tooltip-line); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .map-tooltip text { fill: var(--color-map-text); stroke: none; font-family: var(--font-family-ui); font-size: 10px; letter-spacing: 0; paint-order: normal; }
