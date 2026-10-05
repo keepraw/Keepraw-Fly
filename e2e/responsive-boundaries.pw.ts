@@ -3,11 +3,14 @@ import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
 const viewports = [
-  { width: 768, height: 1024 },
+  { width: 390, height: 844 },
   { width: 844, height: 390 },
   { width: 760, height: 900 },
   { width: 761, height: 900 },
+  { width: 768, height: 1024 },
+  { width: 1024, height: 768 },
   { width: 1366, height: 768 },
+  { width: 1440, height: 900 },
 ];
 
 function collectBrowserErrors(page: Page) {
@@ -70,6 +73,38 @@ async function expectColumns(grid: Locator, count: number) {
   await expect.poll(() => grid.evaluate(element =>
     getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).length),
   { message: `layout must resolve to ${count} grid columns` }).toBe(count);
+}
+
+async function expectUnclipped(element: Locator) {
+  await expect(element).toBeVisible();
+  await expect(element).toBeInViewport({ ratio: 1 });
+  const clipping = await element.evaluate(target => {
+    const rect = target.getBoundingClientRect();
+    const failures: string[] = [];
+    for (let ancestor = target.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      const style = getComputedStyle(ancestor);
+      const bounds = ancestor.getBoundingClientRect();
+      const left = bounds.left + ancestor.clientLeft;
+      const top = bounds.top + ancestor.clientTop;
+      // One CSS pixel allows fractional layout rounding, not missing text.
+      if (/(auto|scroll|hidden|clip)/.test(style.overflowX)
+        && (rect.left < left - 1 || rect.right > left + ancestor.clientWidth + 1)) failures.push(`${ancestor.className}: x`);
+      if (/(auto|scroll|hidden|clip)/.test(style.overflowY)
+        && (rect.top < top - 1 || rect.bottom > top + ancestor.clientHeight + 1)) failures.push(`${ancestor.className}: y`);
+    }
+    return failures;
+  });
+  expect(clipping, "element must fit every clipping ancestor's actual scrollport").toEqual([]);
+}
+
+async function expectSeparateBoxes(first: Locator, second: Locator) {
+  const a = await first.boundingBox();
+  const b = await second.boundingBox();
+  expect(a).not.toBeNull();
+  expect(b).not.toBeNull();
+  expect(a!.x + a!.width <= b!.x || b!.x + b!.width <= a!.x
+    || a!.y + a!.height <= b!.y || b!.y + b!.height <= a!.y,
+  "rendered rectangles must not overlap").toBe(true);
 }
 
 async function expectShell(page: Page, mobile: boolean, current: "passport" | "settings") {
@@ -244,3 +279,174 @@ test("Passport, Flight Detail and Settings switch actual layout and retain state
     }
   });
 });
+
+for (const theme of ["light", "dark"]) {
+  test(`Passport legend and complete flight dates fit their visible containers in ${theme}`, async ({ page }) => {
+    test.setTimeout(60_000);
+    const errors = collectBrowserErrors(page);
+    await importArchive(page);
+    await navigateTo(page, "settings");
+    await page.getByRole("combobox", { name: "Appearance", exact: true }).selectOption(theme);
+    await navigateTo(page, "passport");
+
+    for (const viewport of viewports) {
+      await test.step(`${viewport.width}x${viewport.height}`, async () => {
+        await page.setViewportSize(viewport);
+        await expectPassportLayout(page, viewport.width <= 760);
+        if (viewport.width > 760) {
+          const legend = page.locator(".passport-map-frequency-legend");
+          const controls = page.locator(".route-map .map-zoom-controls");
+          await legend.scrollIntoViewIfNeeded();
+          await expectUnclipped(legend);
+          await expectUnclipped(controls);
+          await expectSeparateBoxes(legend, controls);
+          const camera = page.locator(".route-map .map-viewport-content");
+          const initial = await camera.getAttribute("transform");
+          // A short route can already be fitted at maximum zoom in a tall map.
+          await controls.getByRole("button", { name: "Zoom out", exact: true }).click();
+          await expect(camera).not.toHaveAttribute("transform", initial!);
+          await controls.getByRole("button", { name: "Zoom in", exact: true }).click();
+          await controls.getByRole("button", { name: "Fit recorded routes", exact: true }).click();
+        }
+        // Check every row, including rows initially outside the archive scrollport.
+        for (const row of await page.locator(".flight-row").all()) {
+          const date = row.locator(".flight-date");
+          // Scroll the row vertically, not the date: scrolling a clipped date
+          // itself can silently shift an overflow-x:hidden ancestor sideways.
+          await row.evaluate(element => element.scrollIntoView({ block: "center", inline: "nearest" }));
+          await expectReachable(row);
+          await expect(date).toHaveText("Aug 19");
+          await expectUnclipped(date);
+          if (viewport.width > 760) {
+            expect(await page.locator(".passport-archive-scroll").evaluate(element => element.scrollLeft)).toBe(0);
+          }
+          expect(await date.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+          for (const selector of [".airline-logo", ".flight-number", ".flight-route", ".flight-time-column", ".flight-status"]) {
+            await expectSeparateBoxes(row.locator(selector), date);
+          }
+          await expectSeparateBoxes(row.locator(".flight-route-cities"), row.locator(".flight-number"));
+          await expectSeparateBoxes(row.locator(".flight-route-cities"), row.locator(".flight-time-column"));
+        }
+        await expectHealthyPage(page, errors);
+      });
+    }
+  });
+
+  test(`Short landscape import, editors and confirmations remain scrollable and operable in ${theme}`, async ({ page }) => {
+    test.setTimeout(60_000);
+    const errors = collectBrowserErrors(page);
+    await page.setViewportSize({ width: 844, height: 390 });
+    await importArchive(page);
+    await navigateTo(page, "settings");
+    await page.getByRole("combobox", { name: "Appearance", exact: true }).selectOption(theme);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await navigateTo(page, "passport");
+
+    await page.locator(".route-map .map-route").first().focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator(".flight-row.is-selected")).toHaveCount(1);
+
+    await test.step("Add: header, expanded fields, footer, close and Escape", async () => {
+      const add = page.getByRole("button", { name: "Add flight", exact: true });
+      await add.click();
+      const editor = page.getByRole("dialog", { name: "Add a flight", exact: true });
+      await expectReachable(editor.getByRole("heading", { name: "Add a flight", exact: true }));
+      await editor.locator(".editor-optional summary").click();
+      for (const field of await editor.locator("input:not([readonly]), select").all()) await expectReachable(field);
+      await expectReachable(editor.getByRole("button", { name: "Save flight", exact: true }));
+      await expectHealthyPage(page, errors);
+      const close = editor.locator(".editor-close");
+      await expectReachable(close);
+      await close.click();
+      await expect(editor).toHaveCount(0);
+      await add.click();
+      await page.keyboard.press("Escape");
+      await expect(editor).toHaveCount(0);
+      await expectReachable(page.locator(".flight-row").last());
+    });
+
+    await test.step("Detail and Edit: map, operational data, adjacent navigation, save and delete confirmation", async () => {
+      await page.getByRole("button", { name: "Open UA123, SFO to LAX", exact: true }).click();
+      await expectDetailLayout(page, false);
+      await expect(page.locator(".detail-header-more")).toBeHidden();
+      const controls = page.locator(".detail-route-map .map-zoom-controls");
+      await expectReachable(controls.getByRole("button", { name: "Zoom out", exact: true }));
+      await controls.getByRole("button", { name: "Zoom out", exact: true }).click();
+      await controls.getByRole("button", { name: "Zoom in", exact: true }).click();
+      await controls.getByRole("button", { name: "Fit recorded routes", exact: true }).click();
+      await expectReachable(page.locator(".detail-stop--arrival .detail-airport-time"));
+      await expectReachable(page.getByRole("button", { name: "Next", exact: true }));
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+      await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA124");
+      await page.getByRole("button", { name: "Previous", exact: true }).click();
+      await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA123");
+      await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+      const editor = page.getByRole("dialog", { name: "Edit flight", exact: true });
+      await expectReachable(editor.getByRole("heading", { name: "Edit flight", exact: true }));
+      await editor.getByLabel("Flight number").fill("UA123");
+      await expectReachable(editor.getByRole("button", { name: "Delete flight", exact: true }));
+      await editor.getByRole("button", { name: "Delete flight", exact: true }).click();
+      const confirmation = page.getByRole("alertdialog", { name: "Delete flight", exact: true });
+      await expectReachable(confirmation.getByRole("heading"));
+      await expectReachable(confirmation.getByRole("button", { name: "Delete flight", exact: true }));
+      await expectReachable(confirmation.getByRole("button", { name: "Cancel", exact: true }));
+      await expectHealthyPage(page, errors);
+      await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+      await expect(confirmation).toHaveCount(0);
+      await expectReachable(editor.getByRole("button", { name: "Save flight", exact: true }));
+      await editor.getByRole("button", { name: "Save flight", exact: true }).click();
+      await expect(editor).toHaveCount(0);
+      await expectHealthyPage(page, errors);
+      await expectReachable(page.locator(".detail-header-back"));
+      await page.locator(".detail-header-back").click();
+    });
+
+    await test.step("Settings: profile, backup export, import preview/actions and clear confirmation", async () => {
+      await navigateTo(page, "settings");
+      await expectReachable(page.locator("#settings-profile"));
+      await expectReachable(page.getByRole("textbox", { name: "Native name", exact: true }));
+      await expectReachable(page.getByRole("textbox", { name: "Romanized name", exact: true }));
+      await expectReachable(page.getByRole("button", { name: "Add frequent flyer program", exact: true }));
+      await page.getByRole("button", { name: "Add frequent flyer program", exact: true }).click();
+      for (const field of await page.locator(".settings-membership.is-expanded input:not([disabled]), .settings-membership.is-expanded select:not([disabled])").all()) await expectReachable(field);
+      const backup = page.getByRole("button", { name: "Export Keepraw Fly JSON", exact: true });
+      await expectReachable(backup);
+      const download = page.waitForEvent("download");
+      await backup.click();
+      await download;
+      const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
+      archive.flights[0].id = "landscape-import";
+      archive.flights[0].flightNumber = "UA999";
+      const importer = page.locator(".import-control-settings");
+      await expectReachable(importer.locator(".settings-action"));
+      await importer.locator('input[type="file"]').setInputFiles({ name: "landscape.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(archive)) });
+      await importer.locator(".import-preview-heading").evaluate(element => element.scrollIntoView({ block: "center" }));
+      await expectReachable(importer.locator(".import-preview-heading"));
+      const confirm = importer.getByRole("button", { name: "Import 1 new flight", exact: true });
+      await expectReachable(confirm);
+      await expectHealthyPage(page, errors);
+      await importer.getByRole("button", { name: "Cancel", exact: true }).click();
+      await expect(importer.locator(".import-preview")).toHaveCount(0);
+      await importer.locator('input[type="file"]').setInputFiles({ name: "landscape.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(archive)) });
+      await expectReachable(confirm);
+      await confirm.click();
+      await expect(importer.locator(".import-preview")).toHaveCount(0);
+      await expect(page.locator(".flight-row")).toHaveCount(13);
+      await expectHealthyPage(page, errors);
+      await navigateTo(page, "settings");
+      await page.getByRole("button", { name: "Clear local data", exact: true }).click();
+      const clear = page.getByRole("alertdialog");
+      await expectReachable(clear.getByRole("heading"));
+      await expectReachable(clear.getByRole("button", { name: "Clear local data", exact: true }));
+      await expectReachable(clear.getByRole("button", { name: "Cancel", exact: true }));
+      await expectHealthyPage(page, errors);
+      await page.keyboard.press("Escape");
+      await expect(clear).toHaveCount(0);
+      await expectReachable(page.getByRole("button", { name: "Clear local data", exact: true }));
+      await navigateTo(page, "passport");
+      await expect(page.locator(".flight-row")).toHaveCount(13);
+      await expectReachable(page.locator(".flight-row").last());
+      await expectHealthyPage(page, errors);
+    });
+  });
+}
