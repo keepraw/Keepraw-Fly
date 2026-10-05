@@ -64,8 +64,9 @@ test("keeps a natural long-route arc and round offline detail-map endpoints", as
             offset: Math.hypot(bounds.x + bounds.width / 2 - end.x, bounds.y + bounds.height / 2 - end.y) };
         }, index);
         expect(point.width).toBeGreaterThanOrEqual(6);
-        expect(point.width).toBeLessThanOrEqual(8);
-        expect(point.width).toBeCloseTo(point.height);
+        // SVG bounds can round by a layout unit in different engines.
+        expect(point.width).toBeLessThanOrEqual(8.05);
+        expect(Math.abs(point.width - point.height)).toBeLessThan(0.05);
         expect(point.offset).toBeLessThan(1);
       }
       await expect(page.locator(".detail-map-airport text")).toHaveText([flight.origin.iata, flight.destination.iata]);

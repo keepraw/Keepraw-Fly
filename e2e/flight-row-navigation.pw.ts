@@ -14,7 +14,7 @@ test("opens details from every row area and from keyboard focus", async ({ page 
   await expect(row.locator(".flight-row-open")).toHaveCount(0);
   const restingBackground = await row.evaluate(element => getComputedStyle(element).backgroundColor);
   await row.hover();
-  expect(await row.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(restingBackground);
+  await expect.poll(() => row.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(restingBackground);
 
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 844 });

@@ -62,7 +62,7 @@ async function expectReachable(control: Locator) {
       container.scrollTop += target.top - top - (container.clientHeight - target.height) / 2;
     }
   });
-  await expect(control, "control must be fully inside the viewport and its clipping ancestors").toBeInViewport({ ratio: 1 });
+  await expectUnclipped(control);
   await expect(control).toBeEnabled();
   // A rendered box alone does not prove another element is not covering it.
   await control.click({ trial: true });
@@ -77,10 +77,14 @@ async function expectColumns(grid: Locator, count: number) {
 
 async function expectUnclipped(element: Locator) {
   await expect(element).toBeVisible();
-  await expect(element).toBeInViewport({ ratio: 1 });
-  const clipping = await element.evaluate(target => {
+  // WebKit's IntersectionObserver can snap fractional edges inward (<1px).
+  // Keep a near-full intersection AND check every clipping edge in CSS pixels.
+  await expect(element).toBeInViewport({ ratio: 0.99 });
+  await expect.poll(() => element.evaluate(target => {
     const rect = target.getBoundingClientRect();
     const failures: string[] = [];
+    if (rect.left < -1 || rect.right > innerWidth + 1
+      || rect.top < -1 || rect.bottom > innerHeight + 1) failures.push("viewport");
     for (let ancestor = target.parentElement; ancestor; ancestor = ancestor.parentElement) {
       const style = getComputedStyle(ancestor);
       const bounds = ancestor.getBoundingClientRect();
@@ -93,8 +97,7 @@ async function expectUnclipped(element: Locator) {
         && (rect.top < top - 1 || rect.bottom > top + ancestor.clientHeight + 1)) failures.push(`${ancestor.className}: y`);
     }
     return failures;
-  });
-  expect(clipping, "element must fit every clipping ancestor's actual scrollport").toEqual([]);
+  }), { message: "element must fit the viewport and every clipping ancestor's actual scrollport" }).toEqual([]);
 }
 
 async function expectSeparateBoxes(first: Locator, second: Locator) {
@@ -282,7 +285,9 @@ test("Passport, Flight Detail and Settings switch actual layout and retain state
 
 for (const theme of ["light", "dark"]) {
   test(`Passport legend and complete flight dates fit their visible containers in ${theme}`, async ({ page }) => {
-    test.setTimeout(60_000);
+    // This journey checks 96 rows across eight viewports; WebKit can take
+    // two minutes under parallel load for the same scrolling/hit-testing work.
+    test.setTimeout(180_000);
     const errors = collectBrowserErrors(page);
     await importArchive(page);
     await navigateTo(page, "settings");
@@ -413,13 +418,35 @@ for (const theme of ["light", "dark"]) {
       await expectReachable(backup);
       const download = page.waitForEvent("download");
       await backup.click();
-      await download;
+      const file = await download;
+      expect(await file.failure()).toBeNull();
+      const path = await file.path();
+      expect(path).not.toBeNull();
+      const exported = JSON.parse(await readFile(path!, "utf8"));
+      expect(exported.format).toBe("keepraw-fly");
+      expect(exported.formatVersion).toBe("0.1.0");
+      expect(exported.flights).toHaveLength(12);
+      const stored = await page.evaluate(async () => {
+        const modulePath = "/src/storage/browser.ts";
+        const { browserStorage } = await import(modulePath);
+        const archive = await browserStorage.loadDocument();
+        return archive.status === "valid" ? archive.document : null;
+      });
+      expect(exported).toEqual(stored);
       const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
       archive.flights[0].id = "landscape-import";
       archive.flights[0].flightNumber = "UA999";
       const importer = page.locator(".import-control-settings");
       await expectReachable(importer.locator(".settings-action"));
-      await importer.locator('input[type="file"]').setInputFiles({ name: "landscape.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(archive)) });
+      // Round-trip the actual downloaded bytes through the import validator.
+      await importer.locator('input[type="file"]').setInputFiles(path!);
+      await expect(importer.getByRole("button", { name: "No new flights to import", exact: true })).toBeDisabled();
+      await expect(importer.getByRole("alert")).toHaveCount(0);
+      await importer.getByRole("button", { name: "Cancel", exact: true }).click();
+      // Intercept Playwright's chooser event; never drive the native OS dialog.
+      const chooser = page.waitForEvent("filechooser");
+      await importer.locator(".settings-action").click();
+      await (await chooser).setFiles({ name: "landscape.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(archive)) });
       await importer.locator(".import-preview-heading").evaluate(element => element.scrollIntoView({ block: "center" }));
       await expectReachable(importer.locator(".import-preview-heading"));
       const confirm = importer.getByRole("button", { name: "Import 1 new flight", exact: true });

@@ -214,7 +214,9 @@ test("requires confirmation to clear recovery data and cancellation preserves th
   const record = await seedArchive(page, invalidArchive);
   await expectRecovery(page);
   const clearButton = page.getByRole("button", { name: "Clear local data", exact: true });
-  await clearButton.click();
+  // Focus restoration is a keyboard contract; WebKit mouse clicks do not focus buttons.
+  await clearButton.focus();
+  await clearButton.press("Enter");
   const confirmation = page.getByRole("alertdialog", { name: "Clear local data", exact: true });
   await expect(confirmation).toBeVisible();
   await expect(confirmation).toContainText(/cannot be undone/i);
@@ -233,42 +235,62 @@ test("requires confirmation to clear recovery data and cancellation preserves th
   expect(await readRecord(page)).toBeNull();
 });
 
-test("validates an imported backup and only replaces recovery data after explicit confirmation", async ({ page }) => {
-  const record = await seedArchive(page, invalidArchive);
-  await expectRecovery(page);
-  const input = page.locator('input[type="file"][accept*=".json"]');
-  await input.setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(invalidArchive)) });
-  const preview = page.getByRole("region", { name: "Review before importing", exact: true });
-  await expect(preview.getByRole("button", { name: "Resolve issues to import", exact: true })).toBeDisabled();
-  expect(await readRecord(page)).toEqual(record);
-  await preview.getByRole("button", { name: "Cancel", exact: true }).click();
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 1366, height: 768 },
+  { width: 1440, height: 900 },
+  { width: 761, height: 900 },
+  { width: 768, height: 1024 },
+  { width: 390, height: 844 },
+  { width: 844, height: 390 },
+]) {
+  test(`validates an imported backup and only replaces recovery data after explicit confirmation at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const record = await seedArchive(page, invalidArchive);
+    await expectRecovery(page);
+    const input = page.locator('input[type="file"][accept*=".json"]');
+    await input.setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(invalidArchive)) });
+    const preview = page.getByRole("region", { name: "Review before importing", exact: true });
+    await expect(preview.getByRole("button", { name: "Resolve issues to import", exact: true })).toBeDisabled();
+    const issues = preview.getByRole("alert");
+    await issues.scrollIntoViewIfNeeded();
+    await expect(issues).toBeVisible();
+    expect(await readRecord(page)).toEqual(record);
+    await preview.getByRole("button", { name: "Cancel", exact: true }).click();
 
-  await input.setInputFiles(exampleArchive);
-  await expect(preview).toBeVisible();
-  expect(await readRecord(page)).toEqual(record);
-  await preview.getByRole("button", { name: "Import this archive", exact: true }).click();
-  const confirmation = page.getByRole("dialog", { name: "Replace local archive?", exact: true });
-  await expect(confirmation).toBeVisible();
-  await expect(confirmation.getByRole("button", { name: "Cancel", exact: true })).toBeFocused();
-  expect(await readRecord(page)).toEqual(record);
-  await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
-  await expect(confirmation).toHaveCount(0);
-  await expectRecovery(page);
-  expect(await readRecord(page)).toEqual(record);
+    await input.setInputFiles(exampleArchive);
+    await expect(preview).toBeVisible();
+    await preview.locator(".import-preview-heading").scrollIntoViewIfNeeded();
+    await expect(preview.locator(".import-preview-heading")).toBeInViewport({ ratio: 0.99 });
+    expect(await readRecord(page)).toEqual(record);
+    await preview.getByRole("button", { name: "Import this archive", exact: true }).click();
+    const confirmation = page.getByRole("dialog", { name: "Replace local archive?", exact: true });
+    await expect(confirmation).toBeVisible();
+    await expect(confirmation).toBeInViewport({ ratio: 0.99 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+    await expect(confirmation.getByRole("button", { name: "Cancel", exact: true })).toBeFocused();
+    expect(await readRecord(page)).toEqual(record);
+    await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(confirmation).toHaveCount(0);
+    await expectRecovery(page);
+    expect(await readRecord(page)).toEqual(record);
 
-  await input.setInputFiles(exampleArchive);
-  await preview.getByRole("button", { name: "Import this archive", exact: true }).click();
-  await confirmation.getByRole("button", { name: "Replace local archive", exact: true }).click();
-  await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
-  const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
-  expect((await readRecord(page))?.document).toEqual(archive);
-  expect((await readRecord(page))?.kind).toBe("personal");
-  await page.reload();
-  await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
-  expect((await readRecord(page))?.document).toEqual(archive);
-});
+    await input.setInputFiles(exampleArchive);
+    await preview.getByRole("button", { name: "Import this archive", exact: true }).click();
+    await confirmation.getByRole("button", { name: "Replace local archive", exact: true }).click();
+    await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
+    const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+    expect((await readRecord(page))?.document).toEqual(archive);
+    expect((await readRecord(page))?.kind).toBe("personal");
+    await page.reload();
+    await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
+    expect((await readRecord(page))?.document).toEqual(archive);
+  });
+}
 
 test("keeps recovery data after a backup write failure and allows another confirmed import", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const record = await seedArchive(page, invalidArchive);
   await expectRecovery(page);
   await failNextStorageOperation(page, "saveDocument");
