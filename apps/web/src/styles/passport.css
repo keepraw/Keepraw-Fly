@@ -376,7 +376,8 @@
   left: 12px;
   bottom: 24px;
   display: flex;
-  max-width: calc(100% - 72px);
+  /* Reserve the 97px zoom group, its 11px inset, a 12px gap and our 12px inset. */
+  max-width: calc(100% - 132px);
   align-items: center;
   flex-wrap: wrap;
   gap: 4px 10px;
@@ -452,6 +453,7 @@
   }
 
   .passport-archive {
+    container: passport-archive / inline-size;
     display: flex;
     height: 100%;
     min-height: 0;
@@ -614,7 +616,7 @@
   .flight-row .flight-number { grid-column: 2; grid-row: 1; }
   .flight-row .flight-number strong { font-size: 0.875rem; }
   .flight-row .flight-number span { overflow: hidden; font-size: 0.6875rem; text-overflow: ellipsis; white-space: nowrap; }
-  .flight-row .flight-route { display: flex; grid-column: 3; grid-row: 1; flex-direction: column-reverse; gap: 5px; }
+  .flight-row .flight-route { display: flex; grid-column: 3; grid-row: 1; flex-direction: column-reverse; align-items: stretch; gap: 5px; }
   .flight-route-codes { gap: 5px; margin: 0; color: var(--ink); white-space: nowrap; }
   .flight-row .flight-route .airport-code-display { font-size: 0.9375rem; font-weight: var(--font-weight-semibold); letter-spacing: 0; }
   .flight-route-cities { gap: 4px; color: var(--muted); font-size: 0.6875rem; font-weight: var(--font-weight-regular); }
@@ -631,6 +633,15 @@
   .passport-legend { grid-column: 1; grid-row: 3; }
   .passport-network-line { grid-column: 1; grid-row: 4; }
   .passport-archive-page .passport-highlights { grid-column: 1; grid-row: 5; }
+
+  /* The six-column ledger needs 463px plus scrollport space. Keep the date in
+     the first row and let status use a second row when the archive is narrower. */
+  @container passport-archive (max-width: 480px) {
+    .passport-archive .flight-row { grid-template-columns: 28px minmax(54px, .75fr) minmax(85px, 1fr) minmax(108px, 1.3fr) 58px; }
+    .flight-row .flight-date { grid-column: 5; }
+    .flight-row .flight-status { grid-column: 2 / -1; grid-row: 2; flex-direction: row; flex-wrap: wrap; gap: 4px 12px; }
+    .flight-diverted-note { grid-column: 3 / -1; grid-row: 3; }
+  }
 }
 
 @media (max-width: 760px) {
