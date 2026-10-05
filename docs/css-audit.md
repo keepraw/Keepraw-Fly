@@ -1,6 +1,6 @@
 # CSS dead code / legacy selector audit
 
-当前基线：PR #9 合并后的 `222b3c9`；本轮为 PR #10 confirmed-dead removal。PR #9 的原始调查基线是 PR #8 合并后的 `15db4b6`。除“当前统计”和“本批删除记录”外，下文 occurrence/source 行号及调查细节保留该历史基线，避免抹掉发现和删除依据。本轮只修改7个 feature CSS及本报告；React markup、active declaration value、breakpoint、import order、design-system、测试和两个审计脚本均未改动。
+当前基线：PR #10 合并后的 `c690075`；本轮仅修复两个 undefined CSS token，修改 `passport.css` 与本报告，详见下方 resolved 记录。PR #9 的原始调查基线是 PR #8 合并后的 `15db4b6`；PR #10 confirmed-dead removal 的基线是 `222b3c9`。下文 selector occurrence/source 行号、删除统计及调查细节保留各自历史基线，避免抹掉发现和删除依据。PR #10 只修改7个 feature CSS及本报告；本轮未修改 React markup、breakpoint、import order、design-system、测试或两个审计脚本。
 
 ## 口径与结果（当前统计，重新运行脚本）
 
@@ -44,7 +44,7 @@
 - **69个 class identifiers 完全移除，229个 selector branches 删除，CSS净减325行（全部12个feature文件：2,204→1,879行）**。删除210个完整rule，另9个grouped rule仅去掉dead分支；没有media block变空，没有合并或移动任何media/rule。
 - 文件净减：flight-detail **225行**（672→447）、passport **60行**（701→641）、shell **32行**（226→194）、motion **3行**（56→53）、welcome **3行**（35→32）、route-map **2行**（74→72）、controls **0行**（82→82，删除group分支）。
 - 唯一更正：`.detail-heading-eyebrow > span:not(.detail-flight-icon)` 实际匹配 `FlightDetailPage.tsx` 的 `.detail-airline-name`。当前CSS位置为 `flight-detail.css:161`。浏览器验证 `matches=true`，computed为 `max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap`。这个分支的现有效果依赖“class不存在”，所以保留原selector、声明及顺序；只删旧 `.detail-flight-icon` / `.detail-flight-icon svg` 两个正向分支。后续工具必须区分正向条件与 `:not()`，不能只按class集合删整条selector。
-- 结构核对：保留的每个selector分支、declaration原文、顺序、media context与删除前一致；7个C名称和32个D名称的所有分支均保留。`--color-ink` / `--line-strong` 未修复；duplicate/cascade/media cleanup未进行。
+- PR #10 结构核对：保留的每个selector分支、declaration原文、顺序、media context与删除前一致；7个C名称和32个D名称的所有分支均保留。当时 `--color-ink` / `--line-strong` 未修复（本轮已 resolved，见下方）；duplicate/cascade/media cleanup未进行。
 - 原报告中的B候选不再是待删清单；这个更正后的有效否定分支归入 **Keep**，不是后续dead removal候选。
 
 ## C：Likely legacy（7）
@@ -87,7 +87,7 @@ D 合计 32 个 feature CSS 中存在的 modifier/variant 名称。`is-expanded`
 | `.passport-archive .flight-row`：308 base；582 mobile；671 desktop | base grid、min-height、columns、gap、align、padding、border/border-bottom/radius/background；582改 columns/gap；671改 width/columns/gap/align/padding；基础 border、背景等继续生效 | **KEEP BOTH**；且 `.flight-row` specificity 0,1,0，archive 0,2,0 |
 | `.flight-route-cities`：359 base；361 base；632 mobile；642 narrow；679 desktop | 359 display/min-width/align-items 与361 gap/color/font-size/font-weight/line-height 不冲突；679改 gap/color/font-size/weight，仍依赖 display/min-width/align/line-height；632/642 同一 font-size 值 | 359+361 **SAFE TO CONSOLIDATE LATER**（相邻同 scope）；其余 **KEEP BOTH**，narrow 重复值可单独验证 |
 | `.passport-exploration`：137；`.passport-archive .passport-exploration`：465、621 mobile、661 base | 137 grid placement/template 仍保留，但布局从 grid→block→flex；465 margin/padding/border-top 和621的 top override 被661 margin/padding/border shorthand 覆盖 | **NEEDS RUNTIME VERIFICATION**（本次证实8px/10px）；后续整理仍需保留早期未重写的 grid 属性 |
-| `.passport-exploration-close`：140、662 base | 140 flex/padding/border/border-bottom/color/background/font；662只重复同值 flex；字体、padding、hover仍来自140 | **SAFE TO CONSOLIDATE LATER**（仅662冗余 flex）；140不是 dead，未定义变量另案处理 |
+| `.passport-exploration-close`：140、662 base | 140 flex/padding/border/border-bottom/color/background/font；662只重复同值 flex；字体、padding、hover仍来自140 | **SAFE TO CONSOLIDATE LATER**（仅662冗余 flex）；140不是 dead；本轮仅修复底边 token 并作1px局部尺寸补偿，未合并规则 |
 | `.year-list` 等旧子树的重复规则 | B 表对应名称及它们的 mobile、pressed、hover 分支 | 原判断为 **LIKELY LEGACY**（重复规则性质），使用证明达到B；这些dead分支已在PR #10删除，未合并规则 |
 | `.detail-flight-card`：35 base、209 motion、223 mobile、321 base | 35 overflow/margin-top/border-top/bottom/radius/color/background/shadow；321 overflow visible、margin0、border0、透明background，重写基础box属性；209 animation独立保留 | **SAFE TO CONSOLIDATE LATER**（仅base box两组，保留motion/media及shorthand次序） |
 | `.detail-heading`：46、210 motion、224 mobile、331、561 mobile | 46 flex/align/justify/gap/padding/border-bottom/background；331改 display/block、padding/border/background；align/justify/gap仍有computed值，motion独立；561重复padding0 | **NEEDS RUNTIME VERIFICATION**；将base挪过224会改变mobile gap |
@@ -115,17 +115,39 @@ D 合计 32 个 feature CSS 中存在的 modifier/variant 名称。`is-expanded`
 
 ## Custom properties
 
-扫描 feature + design-system 的全部 `var()`，当前共153个不同引用名称：137个有 design-system 定义，9个 feature-local，5个由TSX inline style定义，2个无定义（PR #9 历史统计：156 / 140 / 9 / 5 / 2）。删除旧规则减少了引用名称，没有改token定义或任何保留声明。跨 theme、media 与继承 scope 已核对；“有定义”不等同于“任意元素都在定义 scope 内”。
+扫描 feature + design-system 的全部 `var()`，当前共151个不同引用名称：137个有 design-system 定义，9个 feature-local，5个由TSX inline style定义，**0个 unresolved undefined token**。历史统计：PR #9 为156 / 140 / 9 / 5 / 2，PR #10 为153 / 137 / 9 / 5 / 2。PR #10 删除旧规则减少了引用名称，没有改token定义或任何保留声明；本轮删除错误的 `--color-ink` 引用，并将 `--line-strong` 改为已存在的 `--color-line-strong`，未新增 alias。跨 theme、media 与继承 scope 已核对；“有定义”不等同于“任意元素都在定义 scope 内”。
 
 | 分类 / 变量 | 定义、fallback 与运行时结果 | 影响 |
 |---|---|---|
 | defined | `design-system.css` 的 root、light/dark、system dark media 定义与 aliases | 保留；theme 切换实际检查 light/dark |
 | feature-local（9） | `--detail-inline`（detail:31,222,315,560）；`--settings-control-width`（settings:2,96）；7个 `--passport-mobile-panel-*` / `--passport-mobile-card-*-size`（passport:554–560） | scope为对应page，mobile tokens在同media消费；不是缺失全局token |
 | runtime-defined（5） | `--flight-row-index`（FlightRow:73）；`--map-item-index`, `--map-route-opacity/strength/width`（PassportRouteMap:101–104,131,238–239） | map path从所属g继承；frequency sample也提供所需width/strength；保留 |
-| possible typo；mobile invalid but currently harmless：`--color-ink` | passport:361 `color:var(--color-ink)`，没有定义/fallback；desktop:679 `var(--muted)`胜出，mobile无valid replacement，因此color继承row | desktop light `rgb(98,103,98)`、dark `rgb(164,171,182)`；390 mobile light `rgb(32,35,31)`、dark `rgb(244,246,248)`。当前符合父级ink，未证明可见颜色bug；命名疑似想用现有ink/text，但不能直接替换 |
-| undefined and declaration becomes invalid；possible typo：`--line-strong` | passport:140 `border-bottom:1px solid var(--line-strong)`，没有定义/fallback；light/dark、desktop/mobile computed变量均空，border-bottom `none / 0px` | 有可见结果：预期声明的1px底边没有绘制。疑似 `--color-line-strong`，但设计意图待确认；后续独立修复，不能混入dead removal |
+| **Resolved：`--color-ink`** | 原 passport:361 `color:var(--color-ink)` 没有定义/fallback；desktop:679 `var(--muted)`胜出，mobile颜色继承row。现已删除该无效 color declaration，保留 desktop 覆盖 | 修复前后均为 desktop light `rgb(98,103,98)`、dark `rgb(164,171,182)`；390 mobile light `rgb(32,35,31)`、dark `rgb(244,246,248)`。mobile应继承父级正文色，desktop城市名应低于机场码层级；无需绑定全局token或新增alias |
+| **Resolved：`--line-strong`** | 原 passport:140 `border-bottom:1px solid var(--line-strong)` 没有定义/fallback；两主题、desktop/mobile变量均空，computed为 `0px / none / currentColor`。现改为 `var(--color-line-strong)` | 两主题、四尺寸均为 `1px / solid`；light `rgba(32,35,31,0.18)`、dark `rgb(55,65,81)`。这是现有 neutral control boundary token；close文字、hover和focus颜色保持原样 |
 
 未解析的 `var()` 是 **invalid at computed-value time**：属性使用 inherited/initial（unset）结果，**不会回退到更早的同属性声明**。因此这里的“被忽略”不能理解为从cascade重新挑一个旧值；`--color-ink` 在desktop则是另一个valid声明先赢得cascade。
+
+### Undefined token 独立修复记录（resolved）
+
+- 原因：`c0ae049`（2026-09-18）首次新增 exploration close 时写入 `--line-strong`，当时已有 `--color-line-strong`；`9e40b3b`（2026-09-24）首次新增 cities 时写入 `--color-ink`，当时已有 `--ink:var(--color-text)`。历史未发现这两个错误名称的定义，属于 semantic `--color-*` 与兼容别名混用，并非 token rename 后漏改；PR #8 仅搬移保留原问题。
+- 底边依据：design-system 在 root、system dark media、显式 light/dark 均定义 `--color-line-strong`；Passport 搜索hover、flight row边界、探索separator、mobile import control和controls confirmation边界也使用此token。close是muted文字的次级动作，底边应沿用neutral边界，hover文字变ink不应连带改变底边色。
+- 城市文字依据：`FlightRow` 中cities是row的子div；row明确 `color:inherit`，body使用 `--color-text`。mobile以城市名为主文字，应继承父级颜色；≥761px以机场码为主、城市为次，后续 `var(--muted)` 继续生效。删除无效声明完整保留这条继承链，而显式绑定ink/text没有必要。
+- 必要尺寸补偿（用户已确认）：仅替换底边token会让close的auto高度从28.796875px增至29.796875px，使desktop探索条增高1px、后续内容下移1px，mobile close上移0.5px。将close的底部padding从4px减为3px，新增1px边框占用原padding预算，保持控件、文字、探索条及后续内容的尺寸和位置；其余spacing/typography/layout均未改。
+
+实测 computed values（before → after；border列为 width / style / color，normal状态）：
+
+| Viewport / theme | Exploration close border-bottom | Flight route cities color |
+|---|---|---|
+| 1440×900 light | `0px / none / rgb(98,103,98)` → `1px / solid / rgba(32,35,31,0.18)` | `rgb(98,103,98)` → 同值 |
+| 1440×900 dark | `0px / none / rgb(164,171,182)` → `1px / solid / rgb(55,65,81)` | `rgb(164,171,182)` → 同值 |
+| 390×844 light | `0px / none / rgb(98,103,98)` → `1px / solid / rgba(32,35,31,0.18)` | `rgb(32,35,31)` → 同值 |
+| 390×844 dark | `0px / none / rgb(164,171,182)` → `1px / solid / rgb(55,65,81)` | `rgb(244,246,248)` → 同值 |
+
+1024×900、768×1024使用同样的desktop muted层级。四尺寸×light/dark覆盖default archive、search、selected flight、exploration active及close hover/keyboard focus，共48状态；原Playwright responsive/visual测试只生成审阅截图，没有自动pixel baseline，因此另用本地临时probe采集before/after的computed、geometry与full-page截图，未修改现有测试。
+
+最终逐像素配对结果：48组中24组（default/search/selected）完全一致，另24组（exploration/hover/focus）仅close底边的1px像素行改变。配对在同一稳定页面恢复原声明/原padding后，再应用最终声明，以消除独立browser context的SVG边缘栅格化噪声；另已实际保存修改source前后的整套截图。所有采样HTML元素的geometry完全一致，page尺寸与overflow不变；computed差异仅close的border-bottom width/style/color以及获授权的padding-bottom `4px→3px`，城市文字和其他元素均无差异。hover文字仍为ink，keyboard focus ring位置/尺寸/颜色不变；48状态均无page error或横向溢出。
+
+本轮验证：`pnpm check:docs`、`pnpm typecheck`、`pnpm test`（275）、`pnpm test:e2e`（60）、`pnpm build`、`git diff --check`、`node scripts/audit-css-selectors.mjs`、`node scripts/audit-css-runtime.mjs` 全部通过。静态selector/重复media统计不变，只有上述两个未定义引用消失；报告剩余5个无CSS定义的变量均有既有TSX inline style来源。原runtime audit的38状态、273个class、零page error/overflow保持；其两帧等待在主题切换/resize的瞬时采样中仍出现跨run时序差异，因此before/after computed结论采用上述稳定页面专项probe。build仍有已有的大chunk提示；GitHub CI结果见本修复PR检查。
 
 ## Runtime evidence / repeat
 
@@ -157,7 +179,7 @@ PR #9 的38个状态观察到273个class；原B表70个均未作为DOM class出�
 | 风险档 | 后续独立 PR 范围 / 顺序 |
 |---|---|
 | **Safe removal（PR #10已完成）** | ① controls/shell/welcome的孤立 `edit-flight-button`、`wordmark-context`、`page-placeholder`；② 无生成路径的 `is-completed`/`is-on-time`、`map-land`/`is-secondary`；③旧toolbar/actions；④旧timeline/facility/facts子树；⑤旧Passport heading children、year-list/mobile-period/related-flights及旧row子树。已删除上述B正向dead分支，保留group中的active/C分支；唯一有效否定分支例外见删除记录 |
-| **Needs focused verification** | C的7个名称（保留负断言）；badge-in-row组合规则；Passport exploration mobile→unconditional链；Detail heading/base box consolidation；max420重复值及重复media拼接；undefined token的独立视觉修复。删除前在对应尺寸/主题复测，保留原computed结果 |
+| **Needs focused verification** | C的7个名称（保留负断言）；badge-in-row组合规则；Passport exploration mobile→unconditional链；Detail heading/base box consolidation；max420重复值及重复media拼接。undefined token已在本轮独立修复。删除前在对应尺寸/主题复测，保留原computed结果 |
 | **Keep** | 当前Passport period/rows/exploration父条、Detail stops/timing/metadata/map、route-city/airport props、32个动态状态/变体、lazy SVG、state/aria/pseudo/:has规则、runtime tokens、依赖早期未覆盖属性的重复规则、有效的icon否定分支和现有import顺序 |
 
-PR #10已删除旧Passport探索**子结构**、year-list、旧row子结构及Detail toolbar、timeline、facility/facts；探索条/close、map/legend、route-city/airport/time、metadata/stop及icon否定分支均保留。接下来只考虑C针对性验证；cascade/media整理与token修复继续留在各自独立PR。
+PR #10已删除旧Passport探索**子结构**、year-list、旧row子结构及Detail toolbar、timeline、facility/facts；探索条/close、map/legend、route-city/airport/time、metadata/stop及icon否定分支均保留。本轮仅完成上述两个undefined token修复；C针对性验证和cascade/media整理仍留在各自独立PR。
