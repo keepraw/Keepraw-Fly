@@ -46,6 +46,19 @@ async function expectHealthyPage(page: Page, errors: string[]) {
 
 async function expectReachable(control: Locator) {
   await control.scrollIntoViewIfNeeded();
+  // Native scrolling honors scroll-padding, whose optimal region can be smaller
+  // than a flight row at short heights. Center in the actual scrollport instead;
+  // a control that cannot fit still fails the full-intersection assertion below.
+  await control.evaluate(element => {
+    for (let container = element.parentElement; container; container = container.parentElement) {
+      if (!/^(auto|scroll)$/.test(getComputedStyle(container).overflowY)
+        || container.scrollHeight <= container.clientHeight) continue;
+      const target = element.getBoundingClientRect();
+      if (target.height > container.clientHeight) continue;
+      const top = container.getBoundingClientRect().top + container.clientTop;
+      container.scrollTop += target.top - top - (container.clientHeight - target.height) / 2;
+    }
+  });
   await expect(control, "control must be fully inside the viewport and its clipping ancestors").toBeInViewport({ ratio: 1 });
   await expect(control).toBeEnabled();
   // A rendered box alone does not prove another element is not covering it.
