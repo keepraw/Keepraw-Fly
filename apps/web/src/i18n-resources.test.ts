@@ -10,6 +10,27 @@ const normalizedKeys = (section: Record<string, unknown>) => [...new Set(
 
 describe("i18n resources", () => {
   it.each([
+    { locale: en, manualClear: /cannot prevent manual clearing/, installation: /not required/, guarantee: /does not guarantee/, usable: /still works normally/ },
+    { locale: zhCN, manualClear: /不能防止手动清除/, installation: /无需安装/, guarantee: /不保证/, usable: /仍可正常使用/ },
+    { locale: zhTW, manualClear: /無法防止手動清除/, installation: /無需安裝/, guarantee: /不保證/, usable: /仍可正常使用/ },
+  ])("describes optional persistent storage separately from installation and backups: $locale.settings.storageProtectionTitle", ({ locale, manualClear, installation, guarantee, usable }) => {
+    const settings = locale.settings;
+    const persistent = /persistent storage|持久存储|持久儲存/i;
+    expect(settings.storageProtectionTitle).toMatch(persistent);
+    expect(settings.storageProtectionDescription).toContain("JSON");
+    expect(settings.storageProtectionDescription).toMatch(manualClear);
+    expect(settings.storageProtectionDescription).toMatch(installation);
+    expect(settings.storageProtectionDescription).toMatch(guarantee);
+    expect(Object.keys(settings.storageProtection).sort()).toEqual(["available", "checking", "failed", "granted", "unsupported"]);
+    for (const state of ["available", "granted", "failed", "unsupported"] as const) {
+      expect(settings.storageProtection[state]).toMatch(persistent);
+      expect(settings.storageProtection[state]).not.toMatch(/protected|已保护|未保护|已保護|未保護/i);
+      expect(settings.storageProtectionRequest[state]).toContain("JSON");
+    }
+    expect(settings.storageProtectionRequest.available).toMatch(usable);
+  });
+
+  it.each([
     [en, "Changes are not saved on this device.", "Settings are not saved on this device."],
     [zhCN, "更改尚未保存到此设备。", "设置尚未保存到此设备。"],
     [zhTW, "變更尚未儲存到此裝置。", "設定尚未儲存到此裝置。"],

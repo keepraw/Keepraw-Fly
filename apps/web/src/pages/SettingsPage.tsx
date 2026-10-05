@@ -321,6 +321,7 @@ export function SettingsPage({
               <div className="settings-row">
                 <div className="settings-row-copy">
                   <span className="settings-row-label">{t("settings.storageProtectionTitle")}</span>
+                  <small>{t("settings.storageProtectionDescription")}</small>
                   <strong className={`settings-storage-status${persistentState === "granted" ? " is-protected" : ""}`} role="status" aria-live="polite">
                     {t(`settings.storageProtection.${persistentState}`)}
                   </strong>
