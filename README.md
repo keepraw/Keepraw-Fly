@@ -24,11 +24,11 @@ You can also [run locally](#run-locally) or [deploy your own instance](docs/depl
 
 ## Data and privacy
 
-Flight records are stored locally in the browser using IndexedDB. Keepraw Fly has no account system or cloud backend that stores your flight history. The default static build does not upload flight records or include analytics SDKs.
+Flight records are stored locally in the current origin's IndexedDB. Keepraw Fly has no account system or cloud backend that stores your flight history. The default static build does not upload flight records or include analytics SDKs.
 
-When supported and granted by the browser, Keepraw Fly can request persistent storage to reduce the chance of automatic storage eviction. This does not protect against manually clearing browser data and does not replace backups.
+Persistent storage is an optional browser capability. When supported and granted, it reduces the risk of automatic eviction under storage pressure. It cannot prevent manually clearing site data or guarantee permanent retention, and does not replace JSON backups. Installing Keepraw Fly as an app is neither required to request it nor a guarantee that it is granted.
 
-Export a Keepraw Fly JSON archive regularly, especially before changing browsers, devices, or clearing site data.
+JSON export is the primary backup and migration method. Export a Keepraw Fly JSON archive regularly, especially before changing browsers, devices, or clearing site data.
 
 Airport, airline and map assets are bundled reference data, not a live flight-status service. See the [third-party notices](THIRD_PARTY_NOTICES.md).
 

@@ -478,21 +478,22 @@
     "backupReminderDescription": "Your flight records are stored only in this browser. Keepraw Fly does not save a copy on a server; export a backup regularly.",
     "noBackupYet": "No backup yet",
     "lastBackup": "Last backup: {{date}}",
-    "storageProtectionTitle": "Local data protection",
-    "enableStorageProtection": "Request protection",
-    "requestingStorageProtection": "Requesting protection…",
+    "storageProtectionTitle": "Persistent storage",
+    "storageProtectionDescription": "An optional browser feature that reduces the risk of automatic cleanup under storage pressure. It cannot prevent manual clearing of site data or replace JSON backups. Installing Keepraw Fly as an app is not required and does not guarantee data retention.",
+    "enableStorageProtection": "Request persistent storage",
+    "requestingStorageProtection": "Requesting persistent storage…",
     "storageProtection": {
-      "checking": "Checking protection status…",
-      "granted": "Protected",
-      "available": "Not protected",
-      "unsupported": "Not protected — unsupported by this browser",
-      "failed": "Unable to read protection status"
+      "checking": "Checking browser storage status…",
+      "granted": "Persistent storage enabled",
+      "available": "Persistent storage can be requested",
+      "unsupported": "This browser does not support persistent storage requests",
+      "failed": "Unable to read persistent storage status"
     },
     "storageProtectionRequest": {
-      "granted": "Storage protection is now enabled.",
-      "available": "The browser has not granted protection against automatic storage eviction. You can continue using Keepraw Fly; export JSON backups regularly.",
-      "unsupported": "This browser does not support requesting storage protection.",
-      "failed": "The protection request failed. Please try again."
+      "granted": "The browser has granted persistent storage. Continue exporting JSON backups regularly.",
+      "available": "The browser has not granted persistent storage. Keepraw Fly still works normally; export JSON backups regularly.",
+      "unsupported": "This browser does not support persistent storage requests. Export JSON backups regularly.",
+      "failed": "The persistent storage request failed. Please try again; keep regular JSON backups."
     },
     "importTitle": "Import Keepraw Fly",
     "importDescription": "Validate and preview a Keepraw Fly JSON file. New flights are added after confirmation; existing flights are never overwritten.",

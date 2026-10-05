@@ -454,21 +454,22 @@
     "backupReminderDescription": "你的航班記錄僅保存在目前瀏覽器中。Keepraw Fly 不會在伺服器保存副本，請定期匯出備份。",
     "noBackupYet": "尚未備份",
     "lastBackup": "最近備份：{{date}}",
-    "storageProtectionTitle": "本地數據保護",
-    "enableStorageProtection": "申請保護",
-    "requestingStorageProtection": "正在申請保護…",
+    "storageProtectionTitle": "瀏覽器持久儲存",
+    "storageProtectionDescription": "持久儲存是瀏覽器提供的可選能力，可降低因儲存空間壓力自動清理 Keepraw Fly 資料的機率。無法防止手動清除網站資料，也不能取代 JSON 備份。無需安裝為應用程式；安裝不保證資料永久保留。",
+    "enableStorageProtection": "申請持久儲存",
+    "requestingStorageProtection": "正在申請持久儲存…",
     "storageProtection": {
-      "checking": "正在檢查保護狀態…",
-      "granted": "已保護",
-      "available": "未保護",
-      "unsupported": "未保護（此瀏覽器不支援）",
-      "failed": "無法讀取保護狀態"
+      "checking": "正在檢查瀏覽器儲存狀態…",
+      "granted": "已啟用持久儲存",
+      "available": "可申請持久儲存",
+      "unsupported": "此瀏覽器不支援持久儲存請求",
+      "failed": "無法讀取持久儲存狀態"
     },
     "storageProtectionRequest": {
-      "granted": "瀏覽器已啟用儲存保護。",
-      "available": "瀏覽器尚未授予防自動清理保護。你仍可繼續使用 Keepraw Fly，請定期匯出 JSON 備份。",
-      "unsupported": "此瀏覽器不支援申請儲存保護。",
-      "failed": "保護申請失敗，請重試。"
+      "granted": "瀏覽器已授予持久儲存。仍建議定期匯出 JSON 備份。",
+      "available": "瀏覽器未授予持久儲存。Keepraw Fly 仍可正常使用，請定期匯出 JSON 備份。",
+      "unsupported": "此瀏覽器不支援持久儲存請求。請定期匯出 JSON 備份。",
+      "failed": "持久儲存請求失敗，請重試；仍請定期匯出 JSON 備份。"
     },
     "importTitle": "導入 Keepraw Fly",
     "importDescription": "先驗證並預覽 Keepraw Fly JSON；確認後只新增航班，不覆蓋已有記錄。",
