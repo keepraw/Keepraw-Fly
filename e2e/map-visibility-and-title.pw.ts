@@ -44,6 +44,11 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     await page.locator(".settings-display-fields select").nth(1).selectOption(theme);
     await page.goto("/#passport");
     await expect(page.locator(".map-route-line")).toHaveCount(12);
+    // Hash navigation can leave the pointer or focus on a flight row. Measure
+    // the resting network before exercising its hover state below.
+    await page.getByRole("searchbox").hover();
+    await page.getByRole("searchbox").focus();
+    await expect(page.locator(".map-routes.has-highlight")).toHaveCount(0);
     await context.setOffline(true);
     await expect(page.locator(".passport-map-frequency-legend")).toBeVisible();
     await expect(page.locator(".passport-map-frequency-legend")).toContainText("Flights per route");
@@ -100,9 +105,10 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     // Row hover retains a clear network, including routes flown just once.
     await page.locator('.flight-record[data-flight-id="layout-0"] .flight-row').hover();
     await expect(page.locator(".map-route.is-highlighted")).toHaveCount(1);
-    const highlightWidth = await page.locator(".map-route.is-highlighted .map-route-line")
-      .evaluate(element => parseFloat(getComputedStyle(element).strokeWidth));
-    expect(highlightWidth).toBeGreaterThan(frequent.width);
+    const highlightedLine = page.locator(".map-route.is-highlighted .map-route-line");
+    await expect.poll(() => highlightedLine
+      .evaluate(element => parseFloat(getComputedStyle(element).strokeWidth))).toBeGreaterThan(frequent.width);
+    const highlightWidth = await highlightedLine.evaluate(element => parseFloat(getComputedStyle(element).strokeWidth));
     expect(await page.locator(".map-route.is-highlighted .map-route-underlay")
       .evaluate(element => parseFloat(getComputedStyle(element).strokeWidth))).toBeGreaterThan(highlightWidth);
     expect(await page.locator(".map-route-line").evaluateAll(elements =>
@@ -170,7 +176,8 @@ test("keeps international title words whole at 390px across locales without chan
           fits: element.scrollWidth <= element.clientWidth,
         }));
         expect(desktop.fontSize).toBe(38);
-        expect(desktop.lineHeight).toBeCloseTo(38 * 1.08);
+        // Firefox resolves line-height in 1/60px layout units.
+        expect(Math.abs(desktop.lineHeight - 38 * 1.08)).toBeLessThan(0.02);
         expect(desktop.textWrap).toBe("wrap");
         expect(desktop.fits).toBe(true);
         await page.screenshot({ path: `test-results/title-wrapping/${locale}-HKG-BOM-1440.png` });

@@ -48,7 +48,7 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run browser journeys
-        run: pnpm test:e2e
+        run: pnpm test:e2e --project=chromium
 
       - name: Upload Passport mobile review screenshots
         if: always()
@@ -67,9 +67,51 @@ jobs:
         with:
           path: apps/web/dist
 
+  cross-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.14.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser and system dependencies
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run full browser journeys
+        run: pnpm test:e2e --project=${{ matrix.browser }}
+
+      - name: Upload failed browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: verify
+    needs: [verify, cross-browser]
     runs-on: ubuntu-latest
 
     permissions:

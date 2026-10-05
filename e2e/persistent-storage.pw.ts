@@ -104,3 +104,41 @@ test("rechecks protection granted elsewhere before requesting", async ({ page })
   await expect(page.locator(".settings-storage-status")).toHaveText("Protected");
   expect(await page.evaluate(() => window.storageProtectionTest.persistCalls)).toBe(0);
 });
+
+test("reads native storage protection without assuming the browser grants it", async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/#settings");
+  const status = page.locator(".settings-storage-status");
+  const settled = /^(Protected|Not protected|Not protected — unsupported by this browser|Unable to read protection status)$/;
+  await expect(status).toHaveText(settled);
+  const capabilities = await page.evaluate(() => ({
+    persist: typeof navigator.storage?.persist === "function",
+    persisted: typeof navigator.storage?.persisted === "function",
+  }));
+  testInfo.annotations.push({ type: "native-storage", description: JSON.stringify(capabilities) });
+  const request = page.getByRole("button", { name: "Request protection", exact: true });
+  if (await status.textContent() === "Protected") {
+    await expect(page.getByRole("button", { name: "Protected", exact: true })).toBeDisabled();
+  } else if (!capabilities.persist || !capabilities.persisted) {
+    await expect(status).toHaveText("Not protected — unsupported by this browser");
+    await expect(request).toBeDisabled();
+  } else {
+    await expect(request).toBeEnabled();
+  }
+  // Native permission prompts are browser UI and can remain pending in headless
+  // Firefox. The shared tests above cover granted/declined/error request outcomes;
+  // this test independently checks the real API and the initial status.
+  const granted = await page.evaluate(async () => {
+    try { return await navigator.storage?.persisted?.() ?? false; }
+    catch { return null; }
+  });
+  if (granted === true) {
+    await expect(status).toHaveText("Protected");
+  } else {
+    await expect(status).not.toHaveText("Protected");
+    await expect(page.getByText("Storage protection is now enabled.", { exact: true })).toHaveCount(0);
+  }
+  testInfo.annotations.push({ type: "native-storage-result", description: await status.innerText() });
+  expect(errors).toEqual([]);
+});

@@ -58,7 +58,8 @@ await expect(editor.getByLabel("Destination gate")).toBeVisible();
   const editDialog = page.getByRole("dialog", { name: "Edit flight" });
   const deleteButton = editDialog.getByRole("button", { name: "Delete flight" });
   await page.setViewportSize({ width: 390, height: 844 });
-  await deleteButton.click();
+  await deleteButton.focus();
+  await deleteButton.press("Enter");
   const deleteConfirmation = page.getByRole("alertdialog", { name: "Delete flight" });
   await expect(deleteConfirmation).toBeVisible();
   await expect(deleteConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
@@ -276,7 +277,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(csvPreview.getByLabel("Flight number", { exact: true })).toHaveValue("0");
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    expect(await csvPreview.evaluate((element) => {
+    await expect.poll(() => csvPreview.evaluate((element) => {
       const row = element.closest(".settings-import-row")!;
       return element.getBoundingClientRect().width > row.getBoundingClientRect().width * 0.9
         && document.documentElement.scrollWidth <= document.documentElement.clientWidth;
@@ -285,7 +286,8 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await csvPreview.getByRole("button", { name: "Cancel" }).click();
   const clearButton = page.locator(".settings-danger-zone").getByRole("button", { name: "Clear local data", exact: true });
   await expect(page.locator(".settings-data-panel").getByRole("button", { name: "Clear local data", exact: true })).toHaveCount(0);
-  await clearButton.click();
+  await clearButton.focus();
+  await clearButton.press("Enter");
   const confirmation = page.getByRole("alertdialog", { name: "Clear local data", exact: true });
   await expect(confirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
   await page.keyboard.press("Escape");
@@ -293,8 +295,14 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(clearButton).toBeFocused();
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.getByRole("combobox", { name: "Appearance", exact: true }).selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.getByRole("combobox", { name: "Language", exact: true }).selectOption("zh-TW");
   await expect(page.locator(".settings-section-title").first()).toHaveText("常規");
+  // After resize/theme changes, audit the heading when it is reachable and
+  // its actual text color has updated, including in WebKit.
+  const settingsHeading = page.locator(".settings-page-heading h1");
+  await settingsHeading.scrollIntoViewIfNeeded();
+  await expect(settingsHeading).toHaveCSS("color", "rgb(244, 246, 248)");
   expect(await page.locator("html").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
@@ -624,6 +632,7 @@ test("keeps the operational summary inside the flight header at desktop and mobi
 });
 
 test("aligns Flight Detail to one grid without dashboard or table patterns", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open UA123/ }).click();
@@ -637,6 +646,13 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
   ]) {
     await page.setViewportSize(viewport);
     await expect(page.locator(".detail-route-map, .detail-route-map-loading")).toHaveCount(viewport.width <= 760 ? 0 : 1);
+    // Viewport metadata can update before the engine's vh/grid layout does.
+    await expect.poll(() => page.locator(".detail-operational-grid").evaluate(element =>
+      getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(viewport.width <= 760 ? 1 : 2);
+    if (viewport.width > 760) {
+      await expect.poll(() => page.locator(".detail-route-map").evaluate(element =>
+        element.getBoundingClientRect().height)).toBeCloseTo(Math.min(440, Math.max(340, viewport.height * 0.48)), 1);
+    }
     const layout = await page.evaluate(() => {
       const style = (selector: string) => getComputedStyle(document.querySelector<HTMLElement>(selector)!);
       const grid = document.querySelector<HTMLElement>(".detail-operational-grid")!;
@@ -691,6 +707,8 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
 });
 
 test("maps and previews CSV columns before appending flights", async ({ page }) => {
+  // Firefox smooth scrolling can move the button between mouse down/up.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#settings");
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const preview = page.getByRole("region", { name: "Review CSV import" });
@@ -701,8 +719,12 @@ test("maps and previews CSV columns before appending flights", async ({ page }) 
   );
   await expect(preview.getByText("MU589")).toBeVisible();
   await preview.getByRole("button", { name: "Add 1 flight" }).click();
-
-  await navigateTo(page, "passport");
+  // Import navigates itself; wait for completion before any subsequent action.
+  await expect(preview).toHaveCount(0);
+  await expect(page).toHaveURL(/#passport$/);
+  await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
+  await expect(page.locator(".persistence-status")).toHaveText("");
+  await page.reload();
   await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
 });
 
@@ -777,6 +799,7 @@ test("skips an exact JSON duplicate without replacing the existing archive", asy
 test("supports dark mode, keyboard modal controls and WCAG checks", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await expect(page.getByRole("heading", { name: "The data outlives the app.", level: 1, exact: true })).toBeVisible();
   await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.+/);
   const welcomeAudit = await new AxeBuilder({ page }).analyze();
   expect(welcomeAudit.violations).toEqual([]);
@@ -795,7 +818,8 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   expect(settingsAudit.violations).toEqual([]);
 
   const exportButton = page.getByRole("button", { name: "Export Keepraw Fly JSON" });
-  await exportButton.click();
+  await exportButton.focus();
+  await exportButton.press("Enter");
   const exportConfirmation = page.getByRole("dialog", { name: "Export demo archive?" });
   await expect(exportConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
   const confirmationAudit = await new AxeBuilder({ page }).include(".confirmation-dialog").analyze();
@@ -804,7 +828,8 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
   await expect(exportButton).toBeFocused();
 
   const clearButton = page.getByRole("button", { name: "Clear local data" });
-  await clearButton.click();
+  await clearButton.focus();
+  await clearButton.press("Enter");
   const clearConfirmation = page.getByRole("alertdialog", { name: "Clear local data" });
   await expect(clearConfirmation.getByRole("button", { name: "Cancel" })).toBeFocused();
   await clearConfirmation.getByRole("button", { name: "Cancel" }).click();
@@ -823,7 +848,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({ pag
 
   const addButton = page.getByRole("button", { name: "Add flight" });
   await addButton.focus();
-  await addButton.click();
+  await addButton.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Add a flight" });
   await expect(dialog).toBeVisible();
   const modalAudit = await new AxeBuilder({ page }).include(".flight-editor").analyze();
@@ -1029,27 +1054,27 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
     zoomControls: 3,
   });
 
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const mapCanvas = page.locator(".route-map-canvas");
+  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
   await page.getByRole("button", { name: "Zoom in" }).click();
-  await page.waitForTimeout(280);
-  expect(Number(await page.locator(".route-map-canvas").getAttribute("data-zoom"))).toBeGreaterThan(1);
+  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.50");
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await page.waitForTimeout(280);
-  expect(await page.locator(".route-map-canvas").getAttribute("data-zoom")).toBe("1.00");
+  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
 
   for (let index = 0; index < 6; index += 1) {
     await page.getByRole("button", { name: "Zoom in" }).click();
-    await page.waitForTimeout(260);
+    await expect(mapCanvas).toHaveAttribute("data-zoom", Math.min(8, 1.5 ** (index + 1)).toFixed(2));
   }
   expect(await page.locator(".route-map-canvas").getAttribute("data-zoom")).toBe("8.00");
   await expect(page.locator(".route-map-canvas .map-world > .map-sphere")).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await page.waitForTimeout(280);
+  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
 
   const mapSvg = page.locator(".route-map-canvas > svg");
   await mapSvg.hover({ position: { x: 220, y: 120 } });
   await page.mouse.wheel(0, -360);
-  await page.waitForTimeout(80);
-  expect(Number(await page.locator(".route-map-canvas").getAttribute("data-zoom"))).toBeGreaterThan(1);
+  await expect.poll(async () => Number(await mapCanvas.getAttribute("data-zoom"))).toBeGreaterThan(1);
   const beforePan = await page.locator(".route-map-canvas .map-viewport-content").getAttribute("transform");
   const mapBounds = await mapSvg.boundingBox();
   if (!mapBounds) throw new Error("Passport map bounds are unavailable");
@@ -1057,10 +1082,10 @@ test("keeps core archive surfaces precise and non-decorative", async ({ page }) 
   await page.mouse.down();
   await page.mouse.move(mapBounds.x + mapBounds.width * 0.42, mapBounds.y + mapBounds.height * 0.48, { steps: 4 });
   await page.mouse.up();
-  expect(await page.locator(".route-map-canvas .map-viewport-content").getAttribute("transform")).not.toBe(beforePan);
+  await expect(page.locator(".route-map-canvas .map-viewport-content")).not.toHaveAttribute("transform", beforePan!);
   await expect(page.locator(".route-map-canvas .map-world > .map-sphere")).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await page.waitForTimeout(280);
+  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
 });
 
 test("localizes airport identity and keeps sparse facility and map layouts legible", async ({ page }) => {
