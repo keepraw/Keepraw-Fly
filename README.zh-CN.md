@@ -76,6 +76,8 @@ pnpm test:e2e --project=chromium
 
 需要时先运行 `pnpm exec playwright install chromium`。Chromium 运行完整 E2E 回归；Firefox 和 WebKit 仅运行带标记的兼容性 smoke，命令为 `pnpm test:e2e --project=firefox --project=webkit`（先安装对应浏览器）。分层和新增测试规则见[测试说明](docs/testing.md)。`pnpm check:docs` 会检查功能说明、Demo 标注及文档中的本地链接。GitHub Actions 会针对 Pull Request 和 `main` 运行仓库检查，并在 `main` 检查通过后部署到 GitHub Pages。配置方式见[部署说明](docs/deployment.md)。
 
+Dependabot 每周检查 pnpm workspace 依赖和 GitHub Actions 的新版本。minor/patch 版本更新按生态分组，major 更新单独提交 PR。更新 PR 由现有 CI 验证，再由维护者人工审查并决定是否 squash merge；依赖更新不会自动合并。继续提交 `pnpm-lock.yaml`，并使用 `pnpm install --frozen-lockfile` 安装依赖。
+
 ## 数据格式
 
 Keepraw Fly 使用可迁移的 `keepraw-fly` JSON 格式，并执行结构与语义校验。命名空间扩展随所属记录保留；向现有档案追加航班时，保留当前档案的文档级元数据。参见[数据格式说明](docs/schema.md)、[JSON Schema](packages/schema/keepraw-fly.schema.json)和[架构说明](docs/architecture.md)。
