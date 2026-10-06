@@ -71,10 +71,10 @@ pnpm check:docs
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm test:e2e
+pnpm test:e2e --project=chromium
 ```
 
-Install Chromium first with `pnpm exec playwright install chromium` when needed. `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. GitHub Actions runs the repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. See [deployment](docs/deployment.md) for setup.
+Install Chromium first with `pnpm exec playwright install chromium` when needed. Chromium runs the full E2E regression suite; Firefox and WebKit run only tagged compatibility smoke tests with `pnpm test:e2e --project=firefox --project=webkit` (install those browsers first). See [test layers and tagging policy](docs/testing.md). `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. GitHub Actions runs the repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. See [deployment](docs/deployment.md) for setup.
 
 ## Data format
 

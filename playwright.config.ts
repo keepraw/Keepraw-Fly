@@ -14,6 +14,8 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
+    // Chromium owns every E2E by default, including the full responsive and
+    // business regression matrices. New tests do not need a tag to run here.
     {
       name: "chromium",
       use: {
@@ -23,8 +25,10 @@ export default defineConfig({
           : undefined,
       },
     },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    // Opt in only tests with engine compatibility value: layout, SVG, native
+    // storage, scrolling and focus. Do not tag entire business/viewport matrices.
+    { name: "firefox", grep: /@cross-browser\b/, use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", grep: /@cross-browser\b/, use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
     command: "pnpm dev",
