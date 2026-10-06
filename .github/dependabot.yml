@@ -16,7 +16,21 @@ updates:
         update-types:
           - minor
           - patch
-    # Major updates remain individual PRs for manual review.
+      vite-major:
+        applies-to: version-updates
+        patterns:
+          - "vite"
+          - "@vitejs/plugin-react"
+        update-types:
+          - major
+      i18next-major:
+        applies-to: version-updates
+        patterns:
+          - "i18next"
+          - "react-i18next"
+        update-types:
+          - major
+    # Other major updates remain individual PRs for manual review.
 
   - package-ecosystem: github-actions
     directory: /
