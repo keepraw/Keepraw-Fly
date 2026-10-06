@@ -15,12 +15,28 @@ export interface PassportViewState {
   scrollFlightId: string | null;
 }
 
-export const initialPassportView: PassportViewState = { year: "lifetime", query: "", selection: null, flightId: null, scrollFlightId: null };
+export const initialPassportView: PassportViewState = {
+  year: "lifetime",
+  query: "",
+  selection: null,
+  flightId: null,
+  scrollFlightId: null,
+};
 
-export function passportVisibleFlights(flights: KeeprawFlight[], view: PassportViewState): KeeprawFlight[] {
-  const period = view.year === "lifetime" ? flights : flights.filter((flight) => flight.serviceDate.startsWith(String(view.year)));
+export function passportVisibleFlights(
+  flights: KeeprawFlight[],
+  view: PassportViewState,
+): KeeprawFlight[] {
+  const period =
+    view.year === "lifetime"
+      ? flights
+      : flights.filter((flight) =>
+          flight.serviceDate.startsWith(String(view.year)),
+        );
   const selection = view.selection;
-  const selected = selection ? period.filter((flight) => matchesSelection(flight, selection)) : period;
+  const selected = selection
+    ? period.filter((flight) => matchesSelection(flight, selection))
+    : period;
   return sortFlightsNewestFirst(searchFlights(selected, view.query));
 }
 
@@ -35,7 +51,9 @@ export function explorePassportFlights(
   flights: KeeprawFlight[],
   selection: PassportSelection,
 ): PassportExploration | undefined {
-  const matches = sortFlightsNewestFirst(flights.filter((flight) => matchesSelection(flight, selection)));
+  const matches = sortFlightsNewestFirst(
+    flights.filter((flight) => matchesSelection(flight, selection)),
+  );
 
   if (!matches.length) return undefined;
 
@@ -52,10 +70,20 @@ export function airlineCode(flight: KeeprawFlight): string {
   return flight.airline.iata ?? flight.airline.icao ?? "";
 }
 
-function matchesSelection(flight: KeeprawFlight, selection: PassportSelection): boolean {
+function matchesSelection(
+  flight: KeeprawFlight,
+  selection: PassportSelection,
+): boolean {
   if (selection.kind === "airport") {
-    return flight.origin.iata === selection.code || (flight.divertedTo ?? flight.destination).iata === selection.code;
+    return (
+      flight.origin.iata === selection.code ||
+      (flight.divertedTo ?? flight.destination).iata === selection.code
+    );
   }
-  if (selection.kind === "airline") return airlineCode(flight) === selection.code;
-  return flight.origin.iata === selection.origin && (flight.divertedTo ?? flight.destination).iata === selection.destination;
+  if (selection.kind === "airline")
+    return airlineCode(flight) === selection.code;
+  return (
+    flight.origin.iata === selection.origin &&
+    (flight.divertedTo ?? flight.destination).iata === selection.destination
+  );
 }

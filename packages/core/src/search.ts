@@ -27,26 +27,26 @@ function airportSearchText(iata: string): string {
 
 export function flightSearchText(flight: KeeprawFlight): string {
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
-  return normalizeSearchValue([
-    flight.flightNumber,
-    flight.flightNumber.replace(/[\s-]+/g, ""),
-    airlineCode,
-    flight.serviceDate,
-    flight.serviceDate.slice(0, 4),
-    airlineSearchText(flight.airline),
-    airportSearchText(flight.origin.iata),
-    airportSearchText(flight.destination.iata),
-    extensionSearchText(flight),
-  ].join(" "));
+  return normalizeSearchValue(
+    [
+      flight.flightNumber,
+      flight.flightNumber.replace(/[\s-]+/g, ""),
+      airlineCode,
+      flight.serviceDate,
+      flight.serviceDate.slice(0, 4),
+      airlineSearchText(flight.airline),
+      airportSearchText(flight.origin.iata),
+      airportSearchText(flight.destination.iata),
+      extensionSearchText(flight),
+    ].join(" "),
+  );
 }
 
 export function searchFlights(
   flights: KeeprawFlight[],
   query: string,
 ): KeeprawFlight[] {
-  const terms = normalizeSearchValue(query.trim())
-    .split(/\s+/)
-    .filter(Boolean);
+  const terms = normalizeSearchValue(query.trim()).split(/\s+/).filter(Boolean);
 
   if (terms.length === 0) return flights;
 

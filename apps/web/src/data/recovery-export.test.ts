@@ -41,9 +41,12 @@ describe("raw recovery export", () => {
     expect(serializeRecoveryCopy(["raw", 42])).toBe('[\n  "raw",\n  42\n]\n');
   });
 
-  it.each([undefined, Symbol("unserializable"), 1n])("rejects a value with no JSON representation: %s", (raw) => {
-    expect(() => serializeRecoveryCopy(raw)).toThrow();
-  });
+  it.each([undefined, Symbol("unserializable"), 1n])(
+    "rejects a value with no JSON representation: %s",
+    (raw) => {
+      expect(() => serializeRecoveryCopy(raw)).toThrow();
+    },
+  );
 
   it("rejects circular raw data without mutating it", () => {
     const circular: { self?: unknown } = {};
@@ -59,7 +62,9 @@ describe("raw recovery export", () => {
     const blob = mocks.createObjectURL.mock.calls[0]![0] as unknown as Blob;
     expect(blob.type).toBe("application/json");
     expect(JSON.parse(await blob.text())).toEqual(rawArchive);
-    expect(mocks.link.download).toMatch(/^keepraw-fly-recovery-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(mocks.link.download).toMatch(
+      /^keepraw-fly-recovery-\d{4}-\d{2}-\d{2}\.json$/,
+    );
     expect(mocks.link.href).toBe("blob:recovery-copy");
     expect(mocks.append).toHaveBeenCalledWith(mocks.link);
     expect(mocks.link.click).toHaveBeenCalledOnce();
@@ -77,7 +82,11 @@ describe("raw recovery export", () => {
   });
 
   it("cleans up the download link and URL when clicking fails", () => {
-    const mocks = mockDownload(vi.fn(() => { throw new Error("Download failed"); }));
+    const mocks = mockDownload(
+      vi.fn(() => {
+        throw new Error("Download failed");
+      }),
+    );
     expect(() => downloadRecoveryCopy(rawArchive)).toThrow("Download failed");
     expect(mocks.link.remove).toHaveBeenCalledOnce();
     const releaseUrl = mocks.setTimeout.mock.calls[0]![0] as () => void;

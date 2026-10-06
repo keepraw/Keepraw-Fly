@@ -27,8 +27,16 @@ export default defineConfig({
     },
     // Opt in only tests with engine compatibility value: layout, SVG, native
     // storage, scrolling and focus. Do not tag entire business/viewport matrices.
-    { name: "firefox", grep: /@cross-browser\b/, use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", grep: /@cross-browser\b/, use: { ...devices["Desktop Safari"] } },
+    {
+      name: "firefox",
+      grep: /@cross-browser\b/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      grep: /@cross-browser\b/,
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
   webServer: {
     command: "pnpm dev",

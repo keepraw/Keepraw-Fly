@@ -13,7 +13,10 @@ const headers = {
 };
 
 const commitResponse = await fetch(apiUrl, { headers });
-if (!commitResponse.ok) throw new Error(`Unable to resolve airport-data revision: ${commitResponse.status}`);
+if (!commitResponse.ok)
+  throw new Error(
+    `Unable to resolve airport-data revision: ${commitResponse.status}`,
+  );
 const commit = await commitResponse.json();
 const revision = commit.sha;
 const rawBase = `https://raw.githubusercontent.com/${repository}/${revision}`;
@@ -26,9 +29,16 @@ const [csvResponse, cityGroupsResponse, licenseResponse] = await Promise.all([
   fetch(cityGroupsUrl, { headers }),
   fetch(licenseUrl, { headers }),
 ]);
-if (!csvResponse.ok) throw new Error(`Unable to download airport data: ${csvResponse.status}`);
-if (!cityGroupsResponse.ok) throw new Error(`Unable to download airport city groups: ${cityGroupsResponse.status}`);
-if (!licenseResponse.ok) throw new Error(`Unable to download airport-data license: ${licenseResponse.status}`);
+if (!csvResponse.ok)
+  throw new Error(`Unable to download airport data: ${csvResponse.status}`);
+if (!cityGroupsResponse.ok)
+  throw new Error(
+    `Unable to download airport city groups: ${cityGroupsResponse.status}`,
+  );
+if (!licenseResponse.ok)
+  throw new Error(
+    `Unable to download airport-data license: ${licenseResponse.status}`,
+  );
 
 const rows = parseCsv(await csvResponse.text());
 const header = rows.shift();
@@ -42,7 +52,13 @@ for (const row of rows) {
   const latitude = Number(value(row, "lat"));
   const longitude = Number(value(row, "lon"));
   const timezone = value(row, "tz").trim();
-  if (!/^[A-Z]{3}$/.test(iata) || !Number.isFinite(latitude) || !Number.isFinite(longitude) || !timezone) continue;
+  if (
+    !/^[A-Z]{3}$/.test(iata) ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    !timezone
+  )
+    continue;
 
   airportsByIata.set(iata, [
     iata,
@@ -55,11 +71,15 @@ for (const row of rows) {
   ]);
 }
 
-const airports = [...airportsByIata.values()].sort((left, right) => left[0].localeCompare(right[0]));
+const airports = [...airportsByIata.values()].sort((left, right) =>
+  left[0].localeCompare(right[0]),
+);
 const cityGroupRows = parseCsv(await cityGroupsResponse.text());
 const cityGroupHeader = cityGroupRows.shift();
 if (!cityGroupHeader) throw new Error("Airport city-group CSV is empty");
-const cityGroupColumns = new Map(cityGroupHeader.map((name, index) => [name, index]));
+const cityGroupColumns = new Map(
+  cityGroupHeader.map((name, index) => [name, index]),
+);
 const cityGroupValue = (row, name) => row[cityGroupColumns.get(name)] ?? "";
 const cityGroupsByCode = new Map();
 
@@ -80,25 +100,52 @@ for (const row of cityGroupRows) {
 const cityGroups = [...cityGroupsByCode.values()]
   .filter((group) => group.airports.length > 1)
   .sort((left, right) => left.code.localeCompare(right.code))
-  .map((group) => [group.code, group.name, group.country, group.airports.sort()]);
+  .map((group) => [
+    group.code,
+    group.name,
+    group.country,
+    group.airports.sort(),
+  ]);
 await mkdir(outputDirectory, { recursive: true });
 await Promise.all([
-  writeFile(path.join(outputDirectory, "airports.iata.json"), `${JSON.stringify(airports)}\n`, "utf8"),
-  writeFile(path.join(outputDirectory, "airport-city-groups.json"), `${JSON.stringify(cityGroups)}\n`, "utf8"),
-  writeFile(path.join(outputDirectory, "LICENSE.airportsdata"), await licenseResponse.text(), "utf8"),
-  writeFile(path.join(outputDirectory, "airports.source.json"), `${JSON.stringify({
-    source: `https://github.com/${repository}`,
-    revision,
-    csv: csvUrl,
-    cityGroupsCsv: cityGroupsUrl,
-    license: "MIT",
-    generatedAt: new Date().toISOString(),
-    airportCount: airports.length,
-    cityGroupCount: cityGroups.length,
-  }, null, 2)}\n`, "utf8"),
+  writeFile(
+    path.join(outputDirectory, "airports.iata.json"),
+    `${JSON.stringify(airports)}\n`,
+    "utf8",
+  ),
+  writeFile(
+    path.join(outputDirectory, "airport-city-groups.json"),
+    `${JSON.stringify(cityGroups)}\n`,
+    "utf8",
+  ),
+  writeFile(
+    path.join(outputDirectory, "LICENSE.airportsdata"),
+    await licenseResponse.text(),
+    "utf8",
+  ),
+  writeFile(
+    path.join(outputDirectory, "airports.source.json"),
+    `${JSON.stringify(
+      {
+        source: `https://github.com/${repository}`,
+        revision,
+        csv: csvUrl,
+        cityGroupsCsv: cityGroupsUrl,
+        license: "MIT",
+        generatedAt: new Date().toISOString(),
+        airportCount: airports.length,
+        cityGroupCount: cityGroups.length,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  ),
 ]);
 
-console.log(`Generated ${airports.length} IATA airports and ${cityGroups.length} multi-airport cities from ${revision.slice(0, 12)}.`);
+console.log(
+  `Generated ${airports.length} IATA airports and ${cityGroups.length} multi-airport cities from ${revision.slice(0, 12)}.`,
+);
 
 function parseCsv(text) {
   const rows = [];

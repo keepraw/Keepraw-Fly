@@ -5,18 +5,30 @@
   font-kerning: normal;
   font-optical-sizing: auto;
   font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
   color-scheme: light;
 
   /* Typography families: Latin-first UI prose plus explicit Simplified/Traditional Chinese glyph stacks. */
   --font-family-latin: "Inter", "Segoe UI Variable Text", "Segoe UI";
-  --font-family-cjk-sc: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
-  --font-family-cjk-tc: "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
-  --font-family-ui: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-family-cjk-sc:
+    "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Source Han Sans SC", sans-serif;
+  --font-family-cjk-tc:
+    "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei",
+    "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
+  --font-family-ui:
+    var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-  --font-family-data: var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  --font-family-mono: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace;
+  --font-family-display:
+    var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-family-data:
+    var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont,
+    Arial, sans-serif;
+  --font-family-mono:
+    "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono",
+    "Microsoft YaHei UI", monospace;
 
   /* Semantic color roles */
   --color-text: #20231f;
@@ -175,7 +187,8 @@
   --control-height-md: 44px;
   --control-height-lg: 46px;
   --shadow-raised: 0 12px 36px rgb(28 37 32 / 5%);
-  --shadow-floating: 0 28px 70px rgb(20 30 25 / 14%), inset 0 1px rgb(255 255 255 / 5%);
+  --shadow-floating:
+    0 28px 70px rgb(20 30 25 / 14%), inset 0 1px rgb(255 255 255 / 5%);
   --shadow-modal: 0 24px 80px rgb(0 0 0 / 25%);
   --focus-ring: 3px solid var(--color-focus);
 
@@ -231,6 +244,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
+
     --color-text: #f4f6f8;
     --color-text-muted: #a4abb6;
     --color-text-faint: #858d9a;
@@ -343,6 +357,7 @@
   --color-map-visited-medium: #c4d4d4;
   --color-map-visited-high: #b5c9cc;
   --shadow-raised: 0 12px 36px rgb(28 37 32 / 5%);
+
   color-scheme: light;
 }
 
@@ -401,6 +416,7 @@
   --color-map-visited-medium: #354b4e;
   --color-map-visited-high: #3c5358;
   --shadow-raised: none;
+
   color-scheme: dark;
 }
 
@@ -411,7 +427,7 @@
   height: 1.25em;
   flex: 0 0 auto;
   fill: none;
-  stroke: currentColor;
+  stroke: currentcolor;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.6;
@@ -420,12 +436,14 @@
 .aviation-status {
   --aviation-status-color: var(--color-text-muted);
   --aviation-status-surface: var(--color-surface-sunken);
+
   display: inline-flex;
   min-height: 24px;
   align-items: center;
   justify-content: center;
   padding: 4px 9px;
-  border: 1px solid color-mix(in srgb, var(--aviation-status-color) 14%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--aviation-status-color) 14%, transparent);
   border-radius: var(--radius-control);
   color: var(--aviation-status-color);
   background: var(--aviation-status-surface);
@@ -468,5 +486,11 @@
   white-space: nowrap;
 }
 
-.airport-code-display--compact { font-size: var(--type-size-airport-compact); font-weight: var(--font-weight-semibold); }
-.airport-code-display--display { font-size: var(--type-size-airport-display); }
+.airport-code-display--compact {
+  font-size: var(--type-size-airport-compact);
+  font-weight: var(--font-weight-semibold);
+}
+
+.airport-code-display--display {
+  font-size: var(--type-size-airport-display);
+}

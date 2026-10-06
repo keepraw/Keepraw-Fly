@@ -5,11 +5,15 @@ import zhCN from "./locales/zh-CN.json";
 import zhTW from "./locales/zh-TW.json";
 
 const browserLanguage = navigator.language.toLowerCase();
-const initialLanguage = browserLanguage === "zh-tw" || browserLanguage === "zh-hk" || browserLanguage === "zh-mo" || browserLanguage.includes("hant")
-  ? "zh-TW"
-  : browserLanguage.startsWith("zh")
-    ? "zh-CN"
-    : "en";
+const initialLanguage =
+  browserLanguage === "zh-tw" ||
+  browserLanguage === "zh-hk" ||
+  browserLanguage === "zh-mo" ||
+  browserLanguage.includes("hant")
+    ? "zh-TW"
+    : browserLanguage.startsWith("zh")
+      ? "zh-CN"
+      : "en";
 
 void i18n.use(initReactI18next).init({
   resources: {

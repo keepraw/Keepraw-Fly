@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { migrateKeeprawFly, parseKeeprawFlyJson, validateAndMigrateKeeprawFly, validateKeeprawFly } from "../src";
+import {
+  migrateKeeprawFly,
+  parseKeeprawFlyJson,
+  validateAndMigrateKeeprawFly,
+  validateKeeprawFly,
+} from "../src";
 import demoDocument from "../../core/data/demo.keepraw-fly.json";
 
 const validDocument = {
@@ -42,15 +47,28 @@ describe("Keepraw Fly validator", () => {
   });
 
   it("accepts optional destination terminal and gate fields", () => {
-    const withGate = structuredClone(validDocument) as { flights: KeeprawFlight[] };
-    withGate.flights[0]!.destination = { iata: "HKG", terminal: "1", gate: "33" };
+    const withGate = structuredClone(validDocument) as {
+      flights: KeeprawFlight[];
+    };
+    withGate.flights[0]!.destination = {
+      iata: "HKG",
+      terminal: "1",
+      gate: "33",
+    };
     const result = validateKeeprawFly(withGate);
     expect(result.valid).toBe(true);
     const roundTripped = parseKeeprawFlyJson(JSON.stringify(withGate));
     expect(roundTripped.valid).toBe(true);
-    if (roundTripped.valid) expect(roundTripped.data.flights[0]!.destination).toEqual({ iata: "HKG", terminal: "1", gate: "33" });
+    if (roundTripped.valid)
+      expect(roundTripped.data.flights[0]!.destination).toEqual({
+        iata: "HKG",
+        terminal: "1",
+        gate: "33",
+      });
 
-    const withoutGate = structuredClone(withGate) as { flights: KeeprawFlight[] };
+    const withoutGate = structuredClone(withGate) as {
+      flights: KeeprawFlight[];
+    };
     delete withoutGate.flights[0]!.destination.gate;
     expect(validateKeeprawFly(withoutGate).valid).toBe(true);
   });
@@ -60,9 +78,9 @@ describe("Keepraw Fly validator", () => {
 
     expect(result.valid).toBe(true);
     if (result.valid) {
-      expect(result.data.flights[0]?.extensions?.["example.thirdparty"]).toEqual(
-        { kept: true, nested: [1, "two"] },
-      );
+      expect(
+        result.data.flights[0]?.extensions?.["example.thirdparty"],
+      ).toEqual({ kept: true, nested: [1, "two"] });
     }
   });
 
@@ -82,7 +100,10 @@ describe("Keepraw Fly validator", () => {
   });
 
   it("migrates the 0.1 shorthand but rejects unsupported future versions", () => {
-    const shorthand = { ...structuredClone(validDocument), formatVersion: "0.1" };
+    const shorthand = {
+      ...structuredClone(validDocument),
+      formatVersion: "0.1",
+    };
     const migrated = validateAndMigrateKeeprawFly(shorthand);
     expect(migrated.valid).toBe(true);
     if (migrated.valid) {
@@ -95,47 +116,95 @@ describe("Keepraw Fly validator", () => {
       formatVersion: "9.0.0",
     });
     expect(future.valid).toBe(false);
-    expect(future).toMatchObject({ reason: "unsupported-version", formatVersion: "9.0.0" });
+    expect(future).toMatchObject({
+      reason: "unsupported-version",
+      formatVersion: "9.0.0",
+    });
   });
 
   it.each([
     ["keepraw-fly", "99.0.0"],
     ["rawfly", "99.0.0"],
     ["keepraw-fly", "experimental"],
-  ])("rejects unsupported %s version %s before migration", (format, formatVersion) => {
-    const raw = { ...structuredClone(validDocument), format, formatVersion, futureField: { kept: true } };
-    const clone = vi.spyOn(globalThis, "structuredClone");
+  ])(
+    "rejects unsupported %s version %s before migration",
+    (format, formatVersion) => {
+      const raw = {
+        ...structuredClone(validDocument),
+        format,
+        formatVersion,
+        futureField: { kept: true },
+      };
+      const clone = vi.spyOn(globalThis, "structuredClone");
 
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "unsupported-version", formatVersion, issues: [{ path: "/formatVersion", keyword: "unsupportedVersion" }] });
-    expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
-    expect(clone).not.toHaveBeenCalled();
-    expect(raw.formatVersion).toBe(formatVersion);
-    expect(raw.futureField).toEqual({ kept: true });
-  });
+      expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+        valid: false,
+        reason: "unsupported-version",
+        formatVersion,
+        issues: [{ path: "/formatVersion", keyword: "unsupportedVersion" }],
+      });
+      expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
+      expect(clone).not.toHaveBeenCalled();
+      expect(raw.formatVersion).toBe(formatVersion);
+      expect(raw.futureField).toEqual({ kept: true });
+    },
+  );
 
-  it.each([undefined, null, 99])("treats missing or malformed version %s as invalid without guessing a migration", (formatVersion) => {
-    const raw = { ...structuredClone(validDocument), format: "rawfly", formatVersion };
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
-    expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
-  });
+  it.each([undefined, null, 99])(
+    "treats missing or malformed version %s as invalid without guessing a migration",
+    (formatVersion) => {
+      const raw = {
+        ...structuredClone(validDocument),
+        format: "rawfly",
+        formatVersion,
+      };
+      expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+        valid: false,
+        reason: "invalid",
+      });
+      expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
+    },
+  );
 
   it("does not identify an unrelated format as an unsupported Keepraw Fly version", () => {
-    const raw = { ...structuredClone(validDocument), format: "another-format", formatVersion: "99.0.0" };
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    const raw = {
+      ...structuredClone(validDocument),
+      format: "another-format",
+      formatVersion: "99.0.0",
+    };
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+      valid: false,
+      reason: "invalid",
+    });
     expect(migrateKeeprawFly(raw)).toEqual({ data: raw, migrations: [] });
   });
 
   it("returns a recovery issue if migration throws without mutating its source", () => {
     const raw = { ...structuredClone(validDocument), format: "rawfly" };
-    vi.spyOn(globalThis, "structuredClone").mockImplementationOnce(() => { throw new Error("Cannot clone archive"); });
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid", issues: [{ path: "/", keyword: "migration" }] });
+    vi.spyOn(globalThis, "structuredClone").mockImplementationOnce(() => {
+      throw new Error("Cannot clone archive");
+    });
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+      valid: false,
+      reason: "invalid",
+      issues: [{ path: "/", keyword: "migration" }],
+    });
     expect(raw.format).toBe("rawfly");
   });
 
   it("does not mutate the legacy source when migrated validation fails", () => {
-    const raw = { format: "rawfly", formatVersion: "0.1", profile: {}, flights: [{ broken: true }], extensions: { "example.unknown": { preserved: true } } };
+    const raw = {
+      format: "rawfly",
+      formatVersion: "0.1",
+      profile: {},
+      flights: [{ broken: true }],
+      extensions: { "example.unknown": { preserved: true } },
+    };
     const snapshot = structuredClone(raw);
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+      valid: false,
+      reason: "invalid",
+    });
     expect(raw).toEqual(snapshot);
   });
 
@@ -143,20 +212,70 @@ describe("Keepraw Fly validator", () => {
     { frequentFlyerMemberships: [null] },
     { frequentFlyerMemberships: [{ broken: true }] },
     { frequentFlyerMemberships: { broken: true } },
-    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123" }] },
-    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: [7] }] },
-    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: ["UA"], defaultAirline: "CA" }] },
-    { frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: [], unexpected: true }] },
+    {
+      frequentFlyerMemberships: [
+        { id: "ff", programId: "custom", memberNumber: "123" },
+      ],
+    },
+    {
+      frequentFlyerMemberships: [
+        {
+          id: "ff",
+          programId: "custom",
+          memberNumber: "123",
+          associatedAirlines: [7],
+        },
+      ],
+    },
+    {
+      frequentFlyerMemberships: [
+        {
+          id: "ff",
+          programId: "custom",
+          memberNumber: "123",
+          associatedAirlines: ["UA"],
+          defaultAirline: "CA",
+        },
+      ],
+    },
+    {
+      frequentFlyerMemberships: [
+        {
+          id: "ff",
+          programId: "custom",
+          memberNumber: "123",
+          associatedAirlines: [],
+          unexpected: true,
+        },
+      ],
+    },
     { extensions: null },
-  ])("retains malformed canonical facts rather than silently repairing them: %j", (malformed) => {
-    const raw = { ...structuredClone(validDocument), ...malformed };
-    const snapshot = structuredClone(raw);
-    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({ valid: false, reason: "invalid" });
-    expect(raw).toEqual(snapshot);
-  });
+  ])(
+    "retains malformed canonical facts rather than silently repairing them: %j",
+    (malformed) => {
+      const raw = { ...structuredClone(validDocument), ...malformed };
+      const snapshot = structuredClone(raw);
+      expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+        valid: false,
+        reason: "invalid",
+      });
+      expect(raw).toEqual(snapshot);
+    },
+  );
 
   it("leaves canonical optional fields intact when no migration is needed", () => {
-    const raw = { ...structuredClone(validDocument), extensions: {}, frequentFlyerMemberships: [{ id: "ff", programId: "custom", memberNumber: "123", associatedAirlines: ["UA"] }] };
+    const raw = {
+      ...structuredClone(validDocument),
+      extensions: {},
+      frequentFlyerMemberships: [
+        {
+          id: "ff",
+          programId: "custom",
+          memberNumber: "123",
+          associatedAirlines: ["UA"],
+        },
+      ],
+    };
     (raw.flights[0] as KeeprawFlight).extensions = {};
     const result = validateAndMigrateKeeprawFly(raw);
     expect(result.valid).toBe(true);
@@ -170,14 +289,16 @@ describe("Keepraw Fly validator", () => {
     const legacy = structuredClone(validDocument) as Record<string, any>;
     legacy.extensions = {
       "keepraw-fly.frequent-flyer": {
-        memberships: [{
-          id: "ff-phoenix-01",
-          programName: "PhoenixMiles",
-          memberNumber: "ZH-88301924",
-          tier: "silver",
-          associatedAirlines: "ZH, CCA",
-          defaultForAirlines: ["CCA"],
-        }],
+        memberships: [
+          {
+            id: "ff-phoenix-01",
+            programName: "PhoenixMiles",
+            memberNumber: "ZH-88301924",
+            tier: "silver",
+            associatedAirlines: "ZH, CCA",
+            defaultForAirlines: ["CCA"],
+          },
+        ],
       },
     };
     legacy.flights[0].extensions = {
@@ -205,7 +326,11 @@ describe("Keepraw Fly validator", () => {
         associatedAirlines: ["ZH", "CA"],
         defaultAirline: "CA",
       });
-      expect(Array.isArray(result.data.frequentFlyerMemberships?.[0]?.associatedAirlines)).toBe(true);
+      expect(
+        Array.isArray(
+          result.data.frequentFlyerMemberships?.[0]?.associatedAirlines,
+        ),
+      ).toBe(true);
       expect(JSON.stringify(result.data)).not.toContain("defaultForAirlines");
       expect(result.data.flights[0]).toMatchObject({
         baggageCarousel: "D05",
@@ -213,9 +338,15 @@ describe("Keepraw Fly validator", () => {
         frequentFlyer: { membershipId: "ff-phoenix-01", tierAtFlight: "gold" },
       });
       expect(JSON.stringify(result.data)).not.toContain("checkedBaggage");
-      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.baggage");
-      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.ticket");
-      expect(result.data.flights[0]?.extensions).not.toHaveProperty("keepraw-fly.frequent-flyer");
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty(
+        "keepraw-fly.baggage",
+      );
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty(
+        "keepraw-fly.ticket",
+      );
+      expect(result.data.flights[0]?.extensions).not.toHaveProperty(
+        "keepraw-fly.frequent-flyer",
+      );
     }
   });
 
@@ -232,7 +363,9 @@ describe("Keepraw Fly validator", () => {
   });
 
   it("accepts cancelled flights without actual timestamps and rejects cancelled diversions", () => {
-    const cancelled = structuredClone(validDocument) as { flights: KeeprawFlight[] };
+    const cancelled = structuredClone(validDocument) as {
+      flights: KeeprawFlight[];
+    };
     cancelled.flights[0]!.cancelled = true;
     delete cancelled.flights[0]!.actualDeparture;
     delete cancelled.flights[0]!.actualArrival;
@@ -242,7 +375,13 @@ describe("Keepraw Fly validator", () => {
     conflict.flights[0]!.divertedTo = { iata: "KIX" };
     const result = validateKeeprawFly(conflict);
     expect(result.valid).toBe(false);
-    if (!result.valid) expect(result.issues).toContainEqual(expect.objectContaining({ keyword: "cancelledDivertedConflict", flightIndex: 0 }));
+    if (!result.valid)
+      expect(result.issues).toContainEqual(
+        expect.objectContaining({
+          keyword: "cancelledDivertedConflict",
+          flightIndex: 0,
+        }),
+      );
   });
 
   it("reports the flight and path for a datetime without a timezone", () => {
@@ -266,9 +405,11 @@ describe("Keepraw Fly validator", () => {
 
   it("rejects derived statistics stored as flight facts", () => {
     const input = structuredClone(validDocument) as typeof validDocument & {
-      flights: Array<(typeof validDocument.flights)[number] & {
-        departureDelayMinutes?: number;
-      }>;
+      flights: Array<
+        (typeof validDocument.flights)[number] & {
+          departureDelayMinutes?: number;
+        }
+      >;
     };
     input.flights[0]!.departureDelayMinutes = 37;
 

@@ -19,19 +19,29 @@ interface AirportComboboxProps {
   preferredCodes?: readonly string[];
 }
 
-export function AirportCombobox({ label, locale, value, onChange, required = true, preferredCodes = [] }: AirportComboboxProps) {
+export function AirportCombobox({
+  label,
+  locale,
+  value,
+  onChange,
+  required = true,
+  preferredCodes = [],
+}: AirportComboboxProps) {
   const { t } = useTranslation();
   const inputId = useId();
   const listId = useId();
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const results = useMemo(() => query.trim()
-    ? searchAirports(query, locale)
-    : preferredCodes
-      .map((code) => airportByIata.get(code))
-      .filter((airport): airport is AirportReference => Boolean(airport)),
-  [query, locale, preferredCodes]);
+  const results = useMemo(
+    () =>
+      query.trim()
+        ? searchAirports(query, locale)
+        : preferredCodes
+            .map((code) => airportByIata.get(code))
+            .filter((airport): airport is AirportReference => Boolean(airport)),
+    [query, locale, preferredCodes],
+  );
   const selectedAirport = airportByIata.get(value);
   const selectedCityGroup = selectedAirport
     ? airportCityGroupForAirport(selectedAirport.iata)
@@ -66,7 +76,11 @@ export function AirportCombobox({ label, locale, value, onChange, required = tru
         aria-autocomplete="list"
         aria-controls={listId}
         aria-expanded={open && Boolean(results.length)}
-        aria-activedescendant={open && results[activeIndex] ? `${listId}-${results[activeIndex].iata}` : undefined}
+        aria-activedescendant={
+          open && results[activeIndex]
+            ? `${listId}-${results[activeIndex].iata}`
+            : undefined
+        }
         autoComplete="off"
         spellCheck={false}
         value={query}
@@ -78,7 +92,9 @@ export function AirportCombobox({ label, locale, value, onChange, required = tru
           if (event.key === "ArrowDown" && results.length) {
             event.preventDefault();
             setOpen(true);
-            setActiveIndex((current) => Math.min(current + 1, results.length - 1));
+            setActiveIndex((current) =>
+              Math.min(current + 1, results.length - 1),
+            );
           } else if (event.key === "ArrowUp" && results.length) {
             event.preventDefault();
             setActiveIndex((current) => Math.max(current - 1, 0));
@@ -99,33 +115,39 @@ export function AirportCombobox({ label, locale, value, onChange, required = tru
       </small>
       {open && results.length ? (
         <div className="airport-options" id={listId} role="listbox">
-          {results.length ? results.map((airport, index) => {
-            const cityGroup = airportCityGroupForAirport(airport.iata);
-            const cityName = cityGroup
-              ? airportCityGroupName(cityGroup, locale)
-              : localizedText(airport.city, locale);
-            return (
-            <button
-              id={`${listId}-${airport.iata}`}
-              key={airport.iata}
-              type="button"
-              role="option"
-              aria-selected={index === activeIndex}
-              onMouseDown={(event) => {
-                event.preventDefault();
-                chooseAirport(airport);
-              }}
-            >
-              <strong>{airport.iata}</strong>
-              <span>{localizedText(airport.name, locale)}</span>
-              <small>
-                {cityName}
-                {cityGroup ? ` · ${t("flightEditor.multiAirportCount", { count: cityGroup.airportCodes.length })}` : ""}
-                {` · ${localizedText(airport.countryName, locale)}`}
-              </small>
-            </button>
-            );
-          }) : <p>{t("flightEditor.noAirportResults")}</p>}
+          {results.length ? (
+            results.map((airport, index) => {
+              const cityGroup = airportCityGroupForAirport(airport.iata);
+              const cityName = cityGroup
+                ? airportCityGroupName(cityGroup, locale)
+                : localizedText(airport.city, locale);
+              return (
+                <button
+                  id={`${listId}-${airport.iata}`}
+                  key={airport.iata}
+                  type="button"
+                  role="option"
+                  aria-selected={index === activeIndex}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    chooseAirport(airport);
+                  }}
+                >
+                  <strong>{airport.iata}</strong>
+                  <span>{localizedText(airport.name, locale)}</span>
+                  <small>
+                    {cityName}
+                    {cityGroup
+                      ? ` · ${t("flightEditor.multiAirportCount", { count: cityGroup.airportCodes.length })}`
+                      : ""}
+                    {` · ${localizedText(airport.countryName, locale)}`}
+                  </small>
+                </button>
+              );
+            })
+          ) : (
+            <p>{t("flightEditor.noAirportResults")}</p>
+          )}
         </div>
       ) : null}
     </div>

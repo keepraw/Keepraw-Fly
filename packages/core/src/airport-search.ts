@@ -7,7 +7,10 @@ import {
   type AirportReference,
   type SupportedLocale,
 } from "./reference-data";
-import { airportCityGroupByCode, airportCityGroupForAirport } from "./airport-cities";
+import {
+  airportCityGroupByCode,
+  airportCityGroupForAirport,
+} from "./airport-cities";
 
 interface AirportSearchEntry {
   airport: AirportReference;
@@ -24,26 +27,34 @@ let searchIndex: AirportSearchEntry[] = [];
 function ensureSearchIndex(): void {
   if (indexedDirectoryVersion === airportDirectoryVersion()) return;
   searchIndex = airports.map((airport) => {
-  const cities = [...new Set(Object.values(airport.city).map(normalizeSearchValue))];
-  const names = [...new Set(Object.values(airport.name).map(normalizeSearchValue))];
-  const cityGroup = airportCityGroupForAirport(airport.iata);
-  const cityGroupAliases = cityGroup
-    ? [cityGroup.code, ...Object.values(cityGroup.name)].map(normalizeSearchValue)
-    : [];
-  return {
-    airport,
-    code: normalizeSearchValue(airport.iata),
-    cities,
-    names,
-    cityGroupAliases,
-    text: normalizeSearchValue([
-      airport.iata,
-      ...Object.values(airport.city),
-      ...Object.values(airport.name),
-      ...Object.values(airport.countryName),
-      ...cityGroupAliases,
-    ].join(" ")),
-  };
+    const cities = [
+      ...new Set(Object.values(airport.city).map(normalizeSearchValue)),
+    ];
+    const names = [
+      ...new Set(Object.values(airport.name).map(normalizeSearchValue)),
+    ];
+    const cityGroup = airportCityGroupForAirport(airport.iata);
+    const cityGroupAliases = cityGroup
+      ? [cityGroup.code, ...Object.values(cityGroup.name)].map(
+          normalizeSearchValue,
+        )
+      : [];
+    return {
+      airport,
+      code: normalizeSearchValue(airport.iata),
+      cities,
+      names,
+      cityGroupAliases,
+      text: normalizeSearchValue(
+        [
+          airport.iata,
+          ...Object.values(airport.city),
+          ...Object.values(airport.name),
+          ...Object.values(airport.countryName),
+          ...cityGroupAliases,
+        ].join(" "),
+      ),
+    };
   });
   indexedDirectoryVersion = airportDirectoryVersion();
 }
@@ -73,10 +84,17 @@ export function searchAirports(
   return searchIndex
     .filter((entry) => terms.every((term) => entry.text.includes(term)))
     .sort((left, right) => {
-      const scoreDifference = scoreAirport(left, normalizedQuery) - scoreAirport(right, normalizedQuery);
+      const scoreDifference =
+        scoreAirport(left, normalizedQuery) -
+        scoreAirport(right, normalizedQuery);
       if (scoreDifference) return scoreDifference;
-      const cityDifference = localizedText(left.airport.city, locale).localeCompare(localizedText(right.airport.city, locale), locale);
-      return cityDifference || left.airport.iata.localeCompare(right.airport.iata);
+      const cityDifference = localizedText(
+        left.airport.city,
+        locale,
+      ).localeCompare(localizedText(right.airport.city, locale), locale);
+      return (
+        cityDifference || left.airport.iata.localeCompare(right.airport.iata)
+      );
     })
     .slice(0, limit)
     .map((entry) => entry.airport);

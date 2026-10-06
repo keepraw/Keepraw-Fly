@@ -18,9 +18,13 @@
     "update:zh-tw": "node scripts/update-zh-tw-locale.mjs",
     "update:world-map": "node scripts/update-world-map.mjs",
     "check:docs": "node scripts/check-doc-consistency.mjs",
-    "test": "pnpm -r test",
+    "test": "node --test scripts/css-tokens.test.mjs && pnpm -r test",
     "test:e2e": "playwright test",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
+    "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\"",
+    "check:css-tokens": "node scripts/check-css-tokens.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -28,6 +32,11 @@
     "@types/node": "^24.3.0",
     "d3-geo": "3.1.1",
     "opencc-js": "1.4.1",
+    "postcss": "8.5.26",
+    "postcss-value-parser": "^4.2.0",
+    "prettier": "^3.9.9",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

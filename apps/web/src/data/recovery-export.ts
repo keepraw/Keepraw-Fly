@@ -8,7 +8,9 @@ export function serializeRecoveryCopy(rawDocument: unknown): string {
 }
 
 export function downloadRecoveryCopy(rawDocument: unknown): void {
-  const blob = new Blob([serializeRecoveryCopy(rawDocument)], { type: "application/json" });
+  const blob = new Blob([serializeRecoveryCopy(rawDocument)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const link = window.document.createElement("a");
   try {

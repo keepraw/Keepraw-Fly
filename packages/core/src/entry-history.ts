@@ -8,7 +8,8 @@ export function recentAirportCodes(
   const codes: string[] = [];
   const seen = new Set<string>();
   const newestFirst = [...flights].sort((left, right) =>
-    right.serviceDate.localeCompare(left.serviceDate));
+    right.serviceDate.localeCompare(left.serviceDate),
+  );
 
   for (const flight of newestFirst) {
     for (const code of [flight.origin.iata, flight.destination.iata]) {
