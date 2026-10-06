@@ -82,6 +82,8 @@ pnpm test:e2e --project=chromium
 
 Install Chromium first with `pnpm exec playwright install chromium` when needed. Chromium runs the full E2E regression suite; Firefox and WebKit run only tagged compatibility smoke tests with `pnpm test:e2e --project=firefox --project=webkit` (install those browsers first). See [test layers and tagging policy](docs/testing.md). `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. GitHub Actions runs the repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. See [deployment](docs/deployment.md) for setup.
 
+Dependabot checks pnpm workspace dependencies and GitHub Actions weekly. Minor and patch version updates are grouped by ecosystem; major updates get individual pull requests. Existing CI validates update PRs, and maintainers review and decide whether to squash merge them; dependency updates are never automatically merged. Keep `pnpm-lock.yaml` committed and install with `pnpm install --frozen-lockfile`.
+
 ## Data format
 
 Keepraw Fly uses the portable `keepraw-fly` JSON format with schema and semantic validation. Namespaced extensions travel with their owning records; appending to an existing archive keeps that archive's document-level metadata. See the [schema notes](docs/schema.md), [JSON Schema](packages/schema/keepraw-fly.schema.json) and [architecture notes](docs/architecture.md).
