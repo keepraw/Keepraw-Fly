@@ -10,10 +10,12 @@ export interface PassportViewState {
   year: number | "lifetime";
   query: string;
   selection: PassportSelection | null;
+  // Explicit list selection from map interactions, independent of detail navigation.
   flightId: string | null;
+  scrollFlightId: string | null;
 }
 
-export const initialPassportView: PassportViewState = { year: "lifetime", query: "", selection: null, flightId: null };
+export const initialPassportView: PassportViewState = { year: "lifetime", query: "", selection: null, flightId: null, scrollFlightId: null };
 
 export function passportVisibleFlights(flights: KeeprawFlight[], view: PassportViewState): KeeprawFlight[] {
   const period = view.year === "lifetime" ? flights : flights.filter((flight) => flight.serviceDate.startsWith(String(view.year)));

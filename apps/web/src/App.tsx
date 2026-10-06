@@ -84,10 +84,9 @@ export function App() {
   const previousFlight = flightIndex > 0 ? visibleFlights[flightIndex - 1] : undefined;
   const nextFlight = flightIndex >= 0 ? visibleFlights[flightIndex + 1] : undefined;
 
-  function openAdjacentFlight(flight: KeeprawFlight | undefined) {
-    if (!flight) return;
-    setPassportView((view) => ({ ...view, flightId: flight.id }));
-    setSelectedFlightId(flight.id);
+  function openFlight(flightId: string) {
+    setPassportView((view) => ({ ...view, flightId: null, scrollFlightId: flightId }));
+    setSelectedFlightId(flightId);
   }
 
   useEffect(() => {
@@ -294,7 +293,7 @@ export function App() {
     storeDocument({ ...document, flights });
     setEditorFlightId(null);
     setDuplicateTemplate(null);
-    setSelectedFlightId(flight.id);
+    openFlight(flight.id);
     setPage("passport");
     window.history.replaceState(null, "", "#passport");
   }
@@ -331,8 +330,8 @@ export function App() {
           setSelectedFlightId(null);
         }}
         detailActions={selectedFlight ? {
-          onPrevious: previousFlight ? () => openAdjacentFlight(previousFlight) : undefined,
-          onNext: nextFlight ? () => openAdjacentFlight(nextFlight) : undefined,
+          onPrevious: previousFlight ? () => openFlight(previousFlight.id) : undefined,
+          onNext: nextFlight ? () => openFlight(nextFlight.id) : undefined,
           onBack: () => {
             setSelectedFlightId(null);
             setPage("passport");
@@ -413,9 +412,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          onOpenFlight={(flightId) => {
-            setSelectedFlightId(flightId);
-          }}
+          onOpenFlight={openFlight}
           onAddFlight={() => {
             editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
             setDuplicateTemplate(null);

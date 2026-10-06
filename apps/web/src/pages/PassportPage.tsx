@@ -62,8 +62,8 @@ interface PassportPageProps {
 export function PassportPage({ document, locale, distanceUnit, timeFormat, onAddFlight, onOpenImport, onOpenFlight, view, onViewChange }: PassportPageProps) {
   const { t } = useTranslation();
   const { year: selectedYear, query, selection } = view;
-  const setSelection = (selection: PassportSelection | null) => onViewChange({ ...view, selection, flightId: null });
-  const setQuery = (query: string) => onViewChange({ ...view, query, flightId: null });
+  const setSelection = (selection: PassportSelection | null) => onViewChange({ ...view, selection, flightId: null, scrollFlightId: null });
+  const setQuery = (query: string) => onViewChange({ ...view, query, flightId: null, scrollFlightId: null });
   const [hoveredFlight, setHoveredFlight] = useState<KeeprawFlight | null>(null);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== "undefined" && Boolean(window.matchMedia?.("(min-width: 761px)").matches));
@@ -104,7 +104,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
     : undefined;
 
   function selectFlight(flight: KeeprawFlight, scroll = false) {
-    onViewChange({ ...view, flightId: flight.id });
+    onViewChange({ ...view, flightId: flight.id, scrollFlightId: flight.id });
     if (scroll) window.requestAnimationFrame(() => {
       const row = [...window.document.querySelectorAll<HTMLElement>(".flight-record")].find((row) => row.dataset.flightId === flight.id);
       row?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -113,9 +113,13 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   }
 
   useEffect(() => {
-    if (!view.flightId) return;
-    const row = [...window.document.querySelectorAll<HTMLElement>(".flight-record")].find((row) => row.dataset.flightId === view.flightId);
-    row?.scrollIntoView({ block: "nearest" });
+    if (!view.scrollFlightId) return;
+    // Run after App's navigation scroll reset, including the mobile document scroll.
+    const frame = window.requestAnimationFrame(() => {
+      const row = [...window.document.querySelectorAll<HTMLElement>(".flight-record")].find((row) => row.dataset.flightId === view.scrollFlightId);
+      row?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function routeLabel(flight: typeof longest): string {
@@ -142,7 +146,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
   }
 
   function selectYear(year: number | "lifetime") {
-    onViewChange({ year, query: "", selection: null, flightId: null });
+    onViewChange({ year, query: "", selection: null, flightId: null, scrollFlightId: null });
     setHoveredFlight(null);
   }
 
@@ -295,7 +299,7 @@ export function PassportPage({ document, locale, distanceUnit, timeFormat, onAdd
                   <div className="flight-list">
                     {group.flights.map((flight, index) => (
                       <FlightRow key={flight.id} flight={flight} locale={locale} timeFormat={timeFormat}
-                        onOpen={() => { onViewChange({ ...view, flightId: flight.id }); onOpenFlight(flight.id); }}
+                        onOpen={() => onOpenFlight(flight.id)}
                         selected={view.flightId === flight.id} onHoverChange={setHoveredFlight} revealIndex={index} />
                     ))}
                   </div>
