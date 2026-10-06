@@ -5,7 +5,10 @@ import type {
   KeeprawFlyDocument,
 } from "@keepraw-fly/schema";
 import type { SupportedLocale } from "./reference-data";
-import { frequentFlyerProgramId, frequentFlyerProgramName } from "./frequent-flyer-programs";
+import {
+  frequentFlyerProgramId,
+  frequentFlyerProgramName,
+} from "./frequent-flyer-programs";
 import { canonicalAirlineCode } from "./airline-reference";
 
 export const TICKET_EXTENSION_KEY = "keepraw-fly.ticket";
@@ -13,7 +16,9 @@ export const FREQUENT_FLYER_EXTENSION_KEY = "keepraw-fly.frequent-flyer";
 
 export type { FrequentFlyerMembership } from "@keepraw-fly/schema";
 
-export interface TicketFacts { number: string }
+export interface TicketFacts {
+  number: string;
+}
 
 export interface FrequentFlyerSnapshot {
   membershipId: string;
@@ -23,12 +28,18 @@ export interface FrequentFlyerSnapshot {
   tierAtFlight?: string;
 }
 
-function objectValue(value: JsonValue | undefined): Record<string, JsonValue> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : null;
+function objectValue(
+  value: JsonValue | undefined,
+): Record<string, JsonValue> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : null;
 }
 
 function strings(value: JsonValue | undefined): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
 function airlineStrings(value: JsonValue | undefined): string[] {
@@ -40,18 +51,28 @@ export function normalizeMembershipAirlines(
   codes: readonly string[],
   requestedDefault?: string | null,
 ): Pick<FrequentFlyerMembership, "associatedAirlines" | "defaultAirline"> {
-  const associatedAirlines = [...new Set(codes.map(canonicalAirlineCode).filter(Boolean))];
-  const canonicalDefault = requestedDefault ? canonicalAirlineCode(requestedDefault) : null;
-  const defaultAirline = associatedAirlines.length === 1
-    ? associatedAirlines[0]!
-    : canonicalDefault && associatedAirlines.includes(canonicalDefault) ? canonicalDefault : null;
+  const associatedAirlines = [
+    ...new Set(codes.map(canonicalAirlineCode).filter(Boolean)),
+  ];
+  const canonicalDefault = requestedDefault
+    ? canonicalAirlineCode(requestedDefault)
+    : null;
+  const defaultAirline =
+    associatedAirlines.length === 1
+      ? associatedAirlines[0]!
+      : canonicalDefault && associatedAirlines.includes(canonicalDefault)
+        ? canonicalDefault
+        : null;
   return { associatedAirlines, defaultAirline };
 }
 
 export function ticketFacts(flight: KeeprawFlight): TicketFacts | null {
-  if (typeof flight.ticketNumber === "string" && flight.ticketNumber) return { number: flight.ticketNumber };
+  if (typeof flight.ticketNumber === "string" && flight.ticketNumber)
+    return { number: flight.ticketNumber };
   const value = objectValue(flight.extensions?.[TICKET_EXTENSION_KEY]);
-  return typeof value?.number === "string" && value.number ? { number: value.number } : null;
+  return typeof value?.number === "string" && value.number
+    ? { number: value.number }
+    : null;
 }
 
 export function normalizeTicketNumber(value: string): string {
@@ -66,7 +87,9 @@ export function isStandardTicketNumber(value: string): boolean {
 
 export function formatTicketNumber(value: string): string {
   const normalized = normalizeTicketNumber(value);
-  return /^\d{13}$/.test(normalized) ? `${normalized.slice(0, 3)}-${normalized.slice(3)}` : normalized;
+  return /^\d{13}$/.test(normalized)
+    ? `${normalized.slice(0, 3)}-${normalized.slice(3)}`
+    : normalized;
 }
 
 export function frequentFlyerMemberships(
@@ -75,27 +98,42 @@ export function frequentFlyerMemberships(
   if (document.frequentFlyerMemberships) {
     return document.frequentFlyerMemberships.map((membership) => ({
       ...membership,
-      ...normalizeMembershipAirlines(membership.associatedAirlines, membership.defaultAirline),
+      ...normalizeMembershipAirlines(
+        membership.associatedAirlines,
+        membership.defaultAirline,
+      ),
     }));
   }
   const root = objectValue(document.extensions?.[FREQUENT_FLYER_EXTENSION_KEY]);
   if (!Array.isArray(root?.memberships)) return [];
   return root.memberships.flatMap((item) => {
     const value = objectValue(item);
-    if (!value || typeof value.id !== "string" || typeof value.programName !== "string" || typeof value.memberNumber !== "string") return [];
+    if (
+      !value ||
+      typeof value.id !== "string" ||
+      typeof value.programName !== "string" ||
+      typeof value.memberNumber !== "string"
+    )
+      return [];
     const associatedAirlines = airlineStrings(value.associatedAirlines);
     const legacyDefaults = airlineStrings(value.defaultForAirlines);
-    return [{
-      id: value.id,
-      programId: frequentFlyerProgramId(value.programName),
-      programName: value.programName,
-      memberNumber: value.memberNumber,
-      ...(typeof value.tier === "string" && value.tier ? { tier: value.tier } : {}),
-      ...normalizeMembershipAirlines(
-        associatedAirlines,
-        typeof value.defaultAirline === "string" ? value.defaultAirline : legacyDefaults[0],
-      ),
-    }];
+    return [
+      {
+        id: value.id,
+        programId: frequentFlyerProgramId(value.programName),
+        programName: value.programName,
+        memberNumber: value.memberNumber,
+        ...(typeof value.tier === "string" && value.tier
+          ? { tier: value.tier }
+          : {}),
+        ...normalizeMembershipAirlines(
+          associatedAirlines,
+          typeof value.defaultAirline === "string"
+            ? value.defaultAirline
+            : legacyDefaults[0],
+        ),
+      },
+    ];
   });
 }
 
@@ -106,7 +144,9 @@ export function frequentFlyerSnapshot(
 ): FrequentFlyerSnapshot | null {
   const reference = flight.frequentFlyer;
   if (!reference) return null;
-  const membership = memberships.find((item) => item.id === reference.membershipId);
+  const membership = memberships.find(
+    (item) => item.id === reference.membershipId,
+  );
   if (!membership) return null;
   return {
     membershipId: membership.id,
@@ -117,16 +157,26 @@ export function frequentFlyerSnapshot(
   };
 }
 
-export function membershipsForAirline(memberships: readonly FrequentFlyerMembership[], airline: { iata?: string; icao?: string }): FrequentFlyerMembership[] {
+export function membershipsForAirline(
+  memberships: readonly FrequentFlyerMembership[],
+  airline: { iata?: string; icao?: string },
+): FrequentFlyerMembership[] {
   const code = canonicalAirlineCode(airline);
-  return memberships.filter((membership) => membership.associatedAirlines.includes(code));
+  return memberships.filter((membership) =>
+    membership.associatedAirlines.includes(code),
+  );
 }
 
-export function autoMatchedMembership(memberships: readonly FrequentFlyerMembership[], airline: { iata?: string; icao?: string }): FrequentFlyerMembership | undefined {
+export function autoMatchedMembership(
+  memberships: readonly FrequentFlyerMembership[],
+  airline: { iata?: string; icao?: string },
+): FrequentFlyerMembership | undefined {
   const matches = membershipsForAirline(memberships, airline);
   if (matches.length === 1) return matches[0];
   const code = canonicalAirlineCode(airline);
-  const defaults = matches.filter((membership) => membership.defaultAirline === code);
+  const defaults = matches.filter(
+    (membership) => membership.defaultAirline === code,
+  );
   return defaults.length === 1 ? defaults[0] : undefined;
 }
 
@@ -135,14 +185,20 @@ export function withFrequentFlyerMemberships(
   memberships: readonly FrequentFlyerMembership[],
 ): KeeprawFlyDocument {
   const next = structuredClone(document);
-  if (memberships.length) next.frequentFlyerMemberships = memberships.map((membership) => ({
-    id: membership.id,
-    programId: membership.programId || "custom",
-    ...(membership.programName?.trim() ? { programName: membership.programName.trim() } : {}),
-    memberNumber: membership.memberNumber.trim(),
-    ...(membership.tier?.trim() ? { tier: membership.tier.trim() } : {}),
-    ...normalizeMembershipAirlines(membership.associatedAirlines, membership.defaultAirline),
-  }));
+  if (memberships.length)
+    next.frequentFlyerMemberships = memberships.map((membership) => ({
+      id: membership.id,
+      programId: membership.programId || "custom",
+      ...(membership.programName?.trim()
+        ? { programName: membership.programName.trim() }
+        : {}),
+      memberNumber: membership.memberNumber.trim(),
+      ...(membership.tier?.trim() ? { tier: membership.tier.trim() } : {}),
+      ...normalizeMembershipAirlines(
+        membership.associatedAirlines,
+        membership.defaultAirline,
+      ),
+    }));
   else delete next.frequentFlyerMemberships;
   const extensions = structuredClone(next.extensions ?? {});
   delete extensions[FREQUENT_FLYER_EXTENSION_KEY];

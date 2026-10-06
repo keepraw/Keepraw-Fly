@@ -22,11 +22,11 @@ Open <http://127.0.0.1:4173> (the default preview address). This serves the exac
 
 Publish `apps/web/dist/` as a static directory. Vite uses a relative asset base, so the same build can be hosted at a domain root or a project subpath. Hash-based navigation requires no rewrite rules, server runtime, environment secrets or database.
 
-| Setting | Value |
-| --- | --- |
-| Install command | `pnpm install --frozen-lockfile` |
-| Build command | `pnpm build` |
-| Output directory | `apps/web/dist` |
+| Setting          | Value                            |
+| ---------------- | -------------------------------- |
+| Install command  | `pnpm install --frozen-lockfile` |
+| Build command    | `pnpm build`                     |
+| Output directory | `apps/web/dist`                  |
 
 Flight archives remain in each browser's IndexedDB. Deploying a new static build does not migrate archives between origins. Export a Keepraw Fly JSON backup before changing domains, browsers or devices, then import it at the destination.
 

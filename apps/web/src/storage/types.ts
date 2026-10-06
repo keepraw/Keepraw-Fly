@@ -14,11 +14,15 @@ export interface ViewerSettings {
 
 export function defaultViewerSettings(): ViewerSettings {
   const browserLanguage = navigator.language.toLowerCase();
-  const language = browserLanguage === "zh-tw" || browserLanguage === "zh-hk" || browserLanguage === "zh-mo" || browserLanguage.includes("hant")
-    ? "zh-TW"
-    : browserLanguage.startsWith("zh")
-      ? "zh-CN"
-      : "en";
+  const language =
+    browserLanguage === "zh-tw" ||
+    browserLanguage === "zh-hk" ||
+    browserLanguage === "zh-mo" ||
+    browserLanguage.includes("hant")
+      ? "zh-TW"
+      : browserLanguage.startsWith("zh")
+        ? "zh-CN"
+        : "en";
   return {
     language,
     appearance: "system",

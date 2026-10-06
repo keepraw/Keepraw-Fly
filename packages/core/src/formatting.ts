@@ -8,9 +8,10 @@ export function formatServiceDate(
   locale: SupportedLocale,
   options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" },
 ): string {
-  return new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" }).format(
-    new Date(`${serviceDate}T00:00:00Z`),
-  );
+  return new Intl.DateTimeFormat(locale, {
+    ...options,
+    timeZone: "UTC",
+  }).format(new Date(`${serviceDate}T00:00:00Z`));
 }
 
 export function formatTimeAtAirport(
@@ -33,10 +34,15 @@ export function formatDistance(
   unit: DistanceUnit,
 ): string {
   const value = unit === "miles" ? kilometers * 0.6213711922 : kilometers;
-  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(
+    value,
+  );
 }
 
-export function formatDuration(minutes: number, locale: SupportedLocale = "en"): string {
+export function formatDuration(
+  minutes: number,
+  locale: SupportedLocale = "en",
+): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = Math.abs(minutes % 60);
   if (locale === "zh-CN") return `${hours}小时 ${remainingMinutes}分`;

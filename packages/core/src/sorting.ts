@@ -1,9 +1,13 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-export function sortFlightsNewestFirst(flights: KeeprawFlight[]): KeeprawFlight[] {
+export function sortFlightsNewestFirst(
+  flights: KeeprawFlight[],
+): KeeprawFlight[] {
   return [...flights].sort((a, b) => {
     const dateOrder = b.serviceDate.localeCompare(a.serviceDate);
-    return dateOrder || b.scheduledDeparture.localeCompare(a.scheduledDeparture);
+    return (
+      dateOrder || b.scheduledDeparture.localeCompare(a.scheduledDeparture)
+    );
   });
 }
 
@@ -12,7 +16,9 @@ export interface FlightYearGroup {
   flights: KeeprawFlight[];
 }
 
-export function groupFlightsByYear(flights: KeeprawFlight[]): FlightYearGroup[] {
+export function groupFlightsByYear(
+  flights: KeeprawFlight[],
+): FlightYearGroup[] {
   const groups = new Map<string, KeeprawFlight[]>();
   for (const flight of sortFlightsNewestFirst(flights)) {
     const year = flight.serviceDate.slice(0, 4);

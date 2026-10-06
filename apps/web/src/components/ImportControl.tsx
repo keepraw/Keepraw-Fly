@@ -29,7 +29,8 @@ export function ImportControl({
   const { i18n, t } = useTranslation();
   const inputId = useId();
   const [pending, setPending] = useState<PendingImport | null>(null);
-  const [includePossibleDuplicates, setIncludePossibleDuplicates] = useState(false);
+  const [includePossibleDuplicates, setIncludePossibleDuplicates] =
+    useState(false);
   const [busy, setBusy] = useState(false);
 
   async function importFile(file: File | undefined) {
@@ -39,7 +40,10 @@ export function ImportControl({
       const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
       const text = await file.text();
       const result = parseKeeprawFlyJson(text);
-      setPending({ fileName: file.name, ...preflightJsonImport(text, result, existingDocument) });
+      setPending({
+        fileName: file.name,
+        ...preflightJsonImport(text, result, existingDocument),
+      });
       setIncludePossibleDuplicates(false);
     } catch (error) {
       setPending(null);
@@ -54,11 +58,13 @@ export function ImportControl({
     if (!pending?.document) return;
     setBusy(true);
     try {
-      await onImport(buildDocumentFromJsonImport(
-        pending,
-        existingDocument,
-        includePossibleDuplicates,
-      ));
+      await onImport(
+        buildDocumentFromJsonImport(
+          pending,
+          existingDocument,
+          includePossibleDuplicates,
+        ),
+      );
       setPending(null);
       setIncludePossibleDuplicates(false);
     } catch (error) {
@@ -69,7 +75,8 @@ export function ImportControl({
   }
 
   const selectedRecords = pending
-    ? pending.newRecords + (includePossibleDuplicates ? pending.possibleDuplicateRecords : 0)
+    ? pending.newRecords +
+      (includePossibleDuplicates ? pending.possibleDuplicateRecords : 0)
     : 0;
   const hasImportableContent = !existingDocument || selectedRecords > 0;
 
@@ -78,14 +85,21 @@ export function ImportControl({
     dateStyle: "medium",
     timeZone: "UTC",
   });
-  const dateRange = summary?.firstServiceDate && summary.lastServiceDate
-    ? summary.firstServiceDate === summary.lastServiceDate
-      ? dateFormatter.format(new Date(`${summary.firstServiceDate}T00:00:00Z`))
-      : t("import.dateRange", {
-        first: dateFormatter.format(new Date(`${summary.firstServiceDate}T00:00:00Z`)),
-        last: dateFormatter.format(new Date(`${summary.lastServiceDate}T00:00:00Z`)),
-      })
-    : t("import.noFlights");
+  const dateRange =
+    summary?.firstServiceDate && summary.lastServiceDate
+      ? summary.firstServiceDate === summary.lastServiceDate
+        ? dateFormatter.format(
+            new Date(`${summary.firstServiceDate}T00:00:00Z`),
+          )
+        : t("import.dateRange", {
+            first: dateFormatter.format(
+              new Date(`${summary.firstServiceDate}T00:00:00Z`),
+            ),
+            last: dateFormatter.format(
+              new Date(`${summary.lastServiceDate}T00:00:00Z`),
+            ),
+          })
+      : t("import.noFlights");
 
   return (
     <div
@@ -107,18 +121,33 @@ export function ImportControl({
           event.target.value = "";
         }}
       />
-      <label className={variant === "primary" ? "import-primary" : "settings-action"} htmlFor={inputId}>
+      <label
+        className={variant === "primary" ? "import-primary" : "settings-action"}
+        htmlFor={inputId}
+      >
         {busy ? t("actions.validating") : t("actions.openFile")}
       </label>
-      {variant === "primary" ? <span className="drop-hint">{t("import.dropHint")}</span> : null}
+      {variant === "primary" ? (
+        <span className="drop-hint">{t("import.dropHint")}</span>
+      ) : null}
       {pending ? (
-        <section className="import-preview" aria-live="polite" aria-labelledby={`${inputId}-preview-title`}>
+        <section
+          className="import-preview"
+          aria-live="polite"
+          aria-labelledby={`${inputId}-preview-title`}
+        >
           <div className="import-preview-heading">
             <div>
               <span className="eyebrow">
-                {t(pending.canImport ? "import.previewEyebrow" : "import.blockedEyebrow")}
+                {t(
+                  pending.canImport
+                    ? "import.previewEyebrow"
+                    : "import.blockedEyebrow",
+                )}
               </span>
-              <strong id={`${inputId}-preview-title`}>{t("import.previewTitle")}</strong>
+              <strong id={`${inputId}-preview-title`}>
+                {t("import.previewTitle")}
+              </strong>
             </div>
             <span className="import-file-name">{pending.fileName}</span>
           </div>
@@ -128,19 +157,36 @@ export function ImportControl({
             onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
           />
           {existingDocument && pending.canImport ? (
-            <p className="import-preservation-note" role="note">{t("import.preserveArchiveNote")}</p>
+            <p className="import-preservation-note" role="note">
+              {t("import.preserveArchiveNote")}
+            </p>
           ) : null}
-          {summary ? <dl className="import-preview-meta">
-            <div><dt>{t(existingDocument ? "import.sourceOwner" : "import.owner")}</dt><dd>{summary.profileName ?? t("import.notRecorded")}</dd></div>
-            <div><dt>{t("import.dates")}</dt><dd>{dateRange}</dd></div>
-          </dl> : null}
+          {summary ? (
+            <dl className="import-preview-meta">
+              <div>
+                <dt>
+                  {t(existingDocument ? "import.sourceOwner" : "import.owner")}
+                </dt>
+                <dd>{summary.profileName ?? t("import.notRecorded")}</dd>
+              </div>
+              <div>
+                <dt>{t("import.dates")}</dt>
+                <dd>{dateRange}</dd>
+              </div>
+            </dl>
+          ) : null}
           {pending.migrations.length ? (
             <p className="import-migration" role="note">
-              {t("import.migratedArchive", { count: pending.migrations.length })}
+              {t("import.migratedArchive", {
+                count: pending.migrations.length,
+              })}
             </p>
           ) : null}
           {pending.issues.length ? (
-            <div className="validation-errors import-blocking-issues" role="alert">
+            <div
+              className="validation-errors import-blocking-issues"
+              role="alert"
+            >
               <strong>{t("import.blockingTitle")}</strong>
               <p>{t("import.blockingDescription")}</p>
               <ul>
@@ -152,29 +198,48 @@ export function ImportControl({
                         : `${t("import.fileIssue")} · `}
                       {issue.path}
                     </span>
-                    {t(`import.issueMessages.${issue.keyword}`, { defaultValue: issue.message })}
+                    {t(`import.issueMessages.${issue.keyword}`, {
+                      defaultValue: issue.message,
+                    })}
                   </li>
                 ))}
               </ul>
               {pending.issues.length > 6 ? (
-                <small>{t("import.moreIssues", { count: pending.issues.length - 6 })}</small>
+                <small>
+                  {t("import.moreIssues", { count: pending.issues.length - 6 })}
+                </small>
               ) : null}
             </div>
           ) : null}
           <div className="import-preview-actions">
-            <button className="button-secondary" type="button" disabled={busy} onClick={() => { setPending(null); setIncludePossibleDuplicates(false); }}>
+            <button
+              className="button-secondary"
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setPending(null);
+                setIncludePossibleDuplicates(false);
+              }}
+            >
               {t("actions.cancel")}
             </button>
-            <button className="button-primary" type="button" disabled={busy || !pending.canImport || !hasImportableContent} onClick={() => void confirmImport()}>
+            <button
+              className="button-primary"
+              type="button"
+              disabled={busy || !pending.canImport || !hasImportableContent}
+              onClick={() => void confirmImport()}
+            >
               {busy
                 ? t("import.importing")
                 : pending.canImport
                   ? existingDocument
                     ? selectedRecords
                       ? t(
-                        includePossibleDuplicates ? "import.importSelectedFlights" : "import.addNewFlights",
-                        { count: selectedRecords },
-                      )
+                          includePossibleDuplicates
+                            ? "import.importSelectedFlights"
+                            : "import.addNewFlights",
+                          { count: selectedRecords },
+                        )
                       : t("import.noNewFlights")
                     : t("import.importArchive")
                   : t("import.resolveIssues")}

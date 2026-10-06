@@ -8,7 +8,10 @@ import { PageShell } from "../components/PageShell";
 import { downloadRecoveryCopy } from "../data/recovery-export";
 
 interface RecoveryPageProps {
-  archive: Extract<ArchiveLoadResult, { status: "invalid" | "unsupported-version" }>;
+  archive: Extract<
+    ArchiveLoadResult,
+    { status: "invalid" | "unsupported-version" }
+  >;
   onRetry: () => Promise<void>;
   onImport: (document: KeeprawFlyDocument) => Promise<void>;
   onClear: () => Promise<void>;
@@ -20,16 +23,32 @@ interface PendingBackup {
   complete: () => void;
 }
 
-type RecoveryError = "downloadError" | "retryError" | "importReadError" | "importError" | "clearError";
+type RecoveryError =
+  | "downloadError"
+  | "retryError"
+  | "importReadError"
+  | "importError"
+  | "clearError";
 
-export function RecoveryPage({ archive, onRetry, onImport, onClear, busy }: RecoveryPageProps) {
+export function RecoveryPage({
+  archive,
+  onRetry,
+  onImport,
+  onClear,
+  busy,
+}: RecoveryPageProps) {
   const { t } = useTranslation();
   const [error, setError] = useState<RecoveryError | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
-  const [pendingBackup, setPendingBackup] = useState<PendingBackup | null>(null);
+  const [pendingBackup, setPendingBackup] = useState<PendingBackup | null>(
+    null,
+  );
   const operationInFlight = useRef(false);
 
-  async function runOperation(operation: () => void | Promise<void>, failure: RecoveryError) {
+  async function runOperation(
+    operation: () => void | Promise<void>,
+    failure: RecoveryError,
+  ) {
     if (busy || operationInFlight.current) return;
     operationInFlight.current = true;
     setError(null);
@@ -45,7 +64,9 @@ export function RecoveryPage({ archive, onRetry, onImport, onClear, busy }: Reco
   function requestBackupImport(document: KeeprawFlyDocument): Promise<void> {
     setError(null);
     // Keep the existing import preview busy until the replacement choice and save finish.
-    return new Promise<void>((complete) => setPendingBackup({ document, complete }));
+    return new Promise<void>((complete) =>
+      setPendingBackup({ document, complete }),
+    );
   }
 
   function cancelBackupImport() {
@@ -72,21 +93,47 @@ export function RecoveryPage({ archive, onRetry, onImport, onClear, busy }: Reco
           <h1>{t("recovery.title")}</h1>
           <p className="recovery-description">{t("recovery.description")}</p>
           {archive.status === "unsupported-version" ? (
-            <p className="recovery-version" role="note">{t("recovery.unsupportedVersion")}</p>
+            <p className="recovery-version" role="note">
+              {t("recovery.unsupportedVersion")}
+            </p>
           ) : null}
         </header>
-        {error ? <p className="storage-warning" role="alert">{t(`recovery.${error}`)}</p> : null}
+        {error ? (
+          <p className="storage-warning" role="alert">
+            {t(`recovery.${error}`)}
+          </p>
+        ) : null}
         <div className="settings-sections">
           <div className="recovery-actions">
-            <button className="button-primary" type="button" disabled={busy} onClick={() => void runOperation(() => downloadRecoveryCopy(archive.rawDocument), "downloadError")}>
+            <button
+              className="button-primary"
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                void runOperation(
+                  () => downloadRecoveryCopy(archive.rawDocument),
+                  "downloadError",
+                )
+              }
+            >
               {t("recovery.download")}
             </button>
-            <button className="button-secondary" type="button" disabled={busy} onClick={() => void runOperation(onRetry, "retryError")}>
+            <button
+              className="button-secondary"
+              type="button"
+              disabled={busy}
+              onClick={() => void runOperation(onRetry, "retryError")}
+            >
               {t("recovery.retry")}
             </button>
           </div>
-          <section className="settings-section" aria-labelledby="recovery-import-title">
-            <h2 className="settings-section-title" id="recovery-import-title">{t("recovery.importTitle")}</h2>
+          <section
+            className="settings-section"
+            aria-labelledby="recovery-import-title"
+          >
+            <h2 className="settings-section-title" id="recovery-import-title">
+              {t("recovery.importTitle")}
+            </h2>
             <fieldset
               className="recovery-import settings-panel"
               disabled={busy}
@@ -100,23 +147,43 @@ export function RecoveryPage({ archive, onRetry, onImport, onClear, busy }: Reco
               <legend className="sr-only">{t("recovery.importTitle")}</legend>
               <div className="settings-import-row">
                 <div className="settings-row-copy">
-                  <span className="settings-row-label">{t("recovery.importDescription")}</span>
+                  <span className="settings-row-label">
+                    {t("recovery.importDescription")}
+                  </span>
                   <small>{t("recovery.importNote")}</small>
                 </div>
-                <ImportControl onImport={requestBackupImport} onError={() => setError("importReadError")} variant="settings" />
+                <ImportControl
+                  onImport={requestBackupImport}
+                  onError={() => setError("importReadError")}
+                  variant="settings"
+                />
               </div>
             </fieldset>
           </section>
-          <section className="settings-section settings-danger-zone" aria-labelledby="recovery-danger-title">
-            <h2 className="settings-section-title" id="recovery-danger-title">{t("settings.dangerZone")}</h2>
+          <section
+            className="settings-section settings-danger-zone"
+            aria-labelledby="recovery-danger-title"
+          >
+            <h2 className="settings-section-title" id="recovery-danger-title">
+              {t("settings.dangerZone")}
+            </h2>
             <div className="settings-panel">
               <div className="settings-row">
                 <div className="settings-row-copy">
-                  <span className="settings-row-label">{t("actions.clearData")}</span>
+                  <span className="settings-row-label">
+                    {t("actions.clearData")}
+                  </span>
                   <small>{t("recovery.clearDescription")}</small>
                 </div>
                 <div className="settings-row-control">
-                  <button className="settings-action danger-action" type="button" disabled={busy} onClick={() => setConfirmClear(true)}>{t("actions.clearData")}</button>
+                  <button
+                    className="settings-action danger-action"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmClear(true)}
+                  >
+                    {t("actions.clearData")}
+                  </button>
                 </div>
               </div>
             </div>

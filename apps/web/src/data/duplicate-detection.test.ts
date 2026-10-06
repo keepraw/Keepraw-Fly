@@ -12,31 +12,37 @@ describe("duplicate flight detection", () => {
   });
 
   it("classifies the same date, flight number and route with a different scheduled time as possible", () => {
-    expect(classify({
-      ...baseFlight,
-      id: "candidate",
-      scheduledDeparture: "2026-08-19T11:20:00-07:00",
-      scheduledArrival: "2026-08-19T12:52:00-07:00",
-    })).toBe("possible");
+    expect(
+      classify({
+        ...baseFlight,
+        id: "candidate",
+        scheduledDeparture: "2026-08-19T11:20:00-07:00",
+        scheduledArrival: "2026-08-19T12:52:00-07:00",
+      }),
+    ).toBe("possible");
   });
 
   it("keeps the same flight number on a different date as new", () => {
-    expect(classify({
-      ...baseFlight,
-      id: "candidate",
-      serviceDate: "2026-08-20",
-      scheduledDeparture: "2026-08-20T10:20:00-07:00",
-      scheduledArrival: "2026-08-20T11:52:00-07:00",
-    })).toBe("new");
+    expect(
+      classify({
+        ...baseFlight,
+        id: "candidate",
+        serviceDate: "2026-08-20",
+        scheduledDeparture: "2026-08-20T10:20:00-07:00",
+        scheduledArrival: "2026-08-20T11:52:00-07:00",
+      }),
+    ).toBe("new");
   });
 
   it("keeps a same-day return flight in the opposite direction as new", () => {
-    expect(classify({
-      ...baseFlight,
-      id: "candidate",
-      origin: { iata: "LAX" },
-      destination: { iata: "SFO" },
-    })).toBe("new");
+    expect(
+      classify({
+        ...baseFlight,
+        id: "candidate",
+        origin: { iata: "LAX" },
+        destination: { iata: "SFO" },
+      }),
+    ).toBe("new");
   });
 
   it("ignores differences in supplementary completeness", () => {
@@ -45,7 +51,12 @@ describe("duplicate flight detection", () => {
       origin: { iata: "SFO", terminal: "3", gate: "F12" },
       extensions: { "keepraw-fly.cabin": { seat: "12A" } },
     };
-    expect(assessFlightImports([{ ...baseFlight, id: "candidate" }], [moreComplete])[0]?.disposition).toBe("exact");
+    expect(
+      assessFlightImports(
+        [{ ...baseFlight, id: "candidate" }],
+        [moreComplete],
+      )[0]?.disposition,
+    ).toBe("exact");
   });
 
   it("does not treat different actual times as a different flight", () => {
@@ -72,7 +83,9 @@ describe("duplicate flight detection", () => {
       id: "candidate",
       actualArrival: "2026-08-20T08:02:00-04:00",
     };
-    expect(assessFlightImports([imported], [overnight])[0]?.disposition).toBe("exact");
+    expect(assessFlightImports([imported], [overnight])[0]?.disposition).toBe(
+      "exact",
+    );
   });
 
   it("imports new records, skips exact duplicates and requires opt-in for possible duplicates", () => {
@@ -89,15 +102,22 @@ describe("duplicate flight detection", () => {
       scheduledDeparture: "2026-08-20T10:20:00-07:00",
       scheduledArrival: "2026-08-20T11:52:00-07:00",
     };
-    const assessments = assessFlightImports([structuredClone(baseFlight), possible, fresh], [baseFlight]);
+    const assessments = assessFlightImports(
+      [structuredClone(baseFlight), possible, fresh],
+      [baseFlight],
+    );
 
     expect(countFlightImportAssessments(assessments)).toEqual({
       newRecords: 1,
       possibleDuplicateRecords: 1,
       exactDuplicateRecords: 1,
     });
-    expect(selectFlightsForImport(assessments).map(({ id }) => id)).toEqual(["fresh"]);
-    expect(selectFlightsForImport(assessments, true).map(({ id }) => id)).toEqual(["possible", "fresh"]);
+    expect(selectFlightsForImport(assessments).map(({ id }) => id)).toEqual([
+      "fresh",
+    ]);
+    expect(
+      selectFlightsForImport(assessments, true).map(({ id }) => id),
+    ).toEqual(["possible", "fresh"]);
   });
 });
 

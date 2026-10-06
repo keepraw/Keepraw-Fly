@@ -91,10 +91,7 @@
       "additionalProperties": true
     },
     "nullableString": {
-      "anyOf": [
-        { "type": "string", "minLength": 1 },
-        { "type": "null" }
-      ]
+      "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
     },
     "frequentFlyerMembership": {
       "type": "object",

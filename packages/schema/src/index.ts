@@ -26,9 +26,7 @@ export interface AirportEndpoint {
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
-  | JsonPrimitive
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export type ExtensionMap = Record<string, JsonValue>;
 

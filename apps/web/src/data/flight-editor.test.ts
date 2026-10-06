@@ -9,16 +9,22 @@ import {
 } from "./flight-editor";
 
 describe("flight editor data", () => {
-  it.each(["ZH9911", "zh9911", "ZH 9911", "ZH-9911"])("normalizes %s as one flight-number field", (value) => {
-    expect(splitFlightNumberInput(value)).toMatchObject({
-      canonical: "ZH9911",
-      airline: { iata: "ZH", icao: "CSZ" },
-    });
-  });
+  it.each(["ZH9911", "zh9911", "ZH 9911", "ZH-9911"])(
+    "normalizes %s as one flight-number field",
+    (value) => {
+      expect(splitFlightNumberInput(value)).toMatchObject({
+        canonical: "ZH9911",
+        airline: { iata: "ZH", icao: "CSZ" },
+      });
+    },
+  );
 
-  it.each(["3U8633", "6E203", "9C8835"])("accepts numeric IATA designators in %s", (value) => {
-    expect(splitFlightNumberInput(value)?.canonical).toBe(value);
-  });
+  it.each(["3U8633", "6E203", "9C8835"])(
+    "accepts numeric IATA designators in %s",
+    (value) => {
+      expect(splitFlightNumberInput(value)?.canonical).toBe(value);
+    },
+  );
 
   it("resolves a known ICAO designator while preserving the entered flight identity", () => {
     expect(splitFlightNumberInput("CCA123")).toMatchObject({
@@ -36,12 +42,15 @@ describe("flight editor data", () => {
   });
 
   it("stores airport-local times with their timezone offsets", () => {
-    expect(zonedDateTimeToIso("2026-08-21", "09:00", "Asia/Shanghai"))
-      .toBe("2026-08-21T09:00:00+08:00");
-    expect(zonedDateTimeToIso("2026-08-21", "09:00", "America/Los_Angeles"))
-      .toBe("2026-08-21T09:00:00-07:00");
-    expect(zonedDateTimeToIso("2026-12-20", "09:00", "America/Los_Angeles"))
-      .toBe("2026-12-20T09:00:00-08:00");
+    expect(zonedDateTimeToIso("2026-08-21", "09:00", "Asia/Shanghai")).toBe(
+      "2026-08-21T09:00:00+08:00",
+    );
+    expect(
+      zonedDateTimeToIso("2026-08-21", "09:00", "America/Los_Angeles"),
+    ).toBe("2026-08-21T09:00:00-07:00");
+    expect(
+      zonedDateTimeToIso("2026-12-20", "09:00", "America/Los_Angeles"),
+    ).toBe("2026-12-20T09:00:00-08:00");
   });
 
   it("creates a HKG to TAO flight from the offline airport directory", () => {
@@ -67,11 +76,13 @@ describe("flight editor data", () => {
   });
 
   it("rejects a metropolitan city code as a flight endpoint", () => {
-    expect(() => flightFromDraft({
-      ...baseDraft(),
-      originIata: "TYO",
-      destinationIata: "SFO",
-    })).toThrow("unknown-airport");
+    expect(() =>
+      flightFromDraft({
+        ...baseDraft(),
+        originIata: "TYO",
+        destinationIata: "SFO",
+      }),
+    ).toThrow("unknown-airport");
   });
 
   it("round-trips editable flight fields", () => {
@@ -117,65 +128,78 @@ describe("flight editor data", () => {
   });
 
   it("rejects an arrival instant before departure", () => {
-    expect(() => flightFromDraft({
-      flightNumber: "MU001",
-      serviceDate: "2026-08-21",
-      originIata: "PVG",
-      destinationIata: "PEK",
-      departureTime: "12:00",
-      arrivalDate: "2026-08-21",
-      arrivalTime: "10:00",
-      actualDepartureDate: "",
-      actualDepartureTime: "",
-      actualArrivalDate: "",
-      actualArrivalTime: "",
-      originTerminal: "",
-      originGate: "",
-      destinationTerminal: "",
-      destinationGate: "",
-      aircraftType: "",
-      aircraftRegistration: "",
-      seat: "",
-      cabin: "",
-      bookingClass: "",
-      baggageCarousel: "",
-      ticketNumber: "",
-      bookingReference: "",
-      frequentFlyerMembershipId: "",
-      frequentFlyerTierAtFlight: "",
-    })).toThrow("arrival-before-departure");
+    expect(() =>
+      flightFromDraft({
+        flightNumber: "MU001",
+        serviceDate: "2026-08-21",
+        originIata: "PVG",
+        destinationIata: "PEK",
+        departureTime: "12:00",
+        arrivalDate: "2026-08-21",
+        arrivalTime: "10:00",
+        actualDepartureDate: "",
+        actualDepartureTime: "",
+        actualArrivalDate: "",
+        actualArrivalTime: "",
+        originTerminal: "",
+        originGate: "",
+        destinationTerminal: "",
+        destinationGate: "",
+        aircraftType: "",
+        aircraftRegistration: "",
+        seat: "",
+        cabin: "",
+        bookingClass: "",
+        baggageCarousel: "",
+        ticketNumber: "",
+        bookingReference: "",
+        frequentFlyerMembershipId: "",
+        frequentFlyerTierAtFlight: "",
+      }),
+    ).toThrow("arrival-before-departure");
   });
 
   it("writes actual times and optional facts while preserving unknown extensions", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "facts-id" });
-    const flight = flightFromDraft({
-      ...baseDraft(),
-      actualDepartureDate: "2026-08-21",
-      actualDepartureTime: "13:17",
-      actualArrivalDate: "2026-08-21",
-      actualArrivalTime: "09:22",
-      originTerminal: "1",
-      originGate: "18",
-      destinationTerminal: "B",
-      destinationGate: "8",
-      aircraftType: "B773",
-      aircraftRegistration: "B-7883",
-      seat: "31L",
-      cabin: "economy",
-      bookingClass: "P",
-      baggageCarousel: "8",
-    }, {
-      ...flightFromDraft(baseDraft()),
-      extensions: {
-        "example.unknown": { preserved: true },
-        "keepraw-fly.aircraft": { source: "manual" },
+    const flight = flightFromDraft(
+      {
+        ...baseDraft(),
+        actualDepartureDate: "2026-08-21",
+        actualDepartureTime: "13:17",
+        actualArrivalDate: "2026-08-21",
+        actualArrivalTime: "09:22",
+        originTerminal: "1",
+        originGate: "18",
+        destinationTerminal: "B",
+        destinationGate: "8",
+        aircraftType: "B773",
+        aircraftRegistration: "B-7883",
+        seat: "31L",
+        cabin: "economy",
+        bookingClass: "P",
+        baggageCarousel: "8",
       },
-    });
+      {
+        ...flightFromDraft(baseDraft()),
+        extensions: {
+          "example.unknown": { preserved: true },
+          "keepraw-fly.aircraft": { source: "manual" },
+        },
+      },
+    );
 
     expect(flight.actualDeparture).toBe("2026-08-21T13:17:00+08:00");
     expect(flight.actualArrival).toBe("2026-08-21T09:22:00-07:00");
-    expect(flight.origin).toMatchObject({ iata: "PVG", terminal: "1", gate: "18" });
-    expect(flight.destination).toMatchObject({ iata: "SFO", terminal: "B", gate: "8" });
+    expect(flight.origin).toMatchObject({
+      iata: "PVG",
+      terminal: "1",
+      gate: "18",
+    });
+    expect(flight.destination).toMatchObject({
+      iata: "SFO",
+      terminal: "B",
+      gate: "8",
+    });
     expect(flight.extensions?.["example.unknown"]).toEqual({ preserved: true });
     expect(flight.extensions?.["keepraw-fly.aircraft"]).toEqual({
       source: "manual",
@@ -215,7 +239,11 @@ describe("flight editor data", () => {
       membershipId: "membership-zh",
       tierAtFlight: "金卡",
     });
-    expect(flightToDraft(flight)).toMatchObject({ ticketNumber: "7811234567890", bookingReference: "KY78M9", frequentFlyerTierAtFlight: "金卡" });
+    expect(flightToDraft(flight)).toMatchObject({
+      ticketNumber: "7811234567890",
+      bookingReference: "KY78M9",
+      frequentFlyerTierAtFlight: "金卡",
+    });
     vi.unstubAllGlobals();
   });
 
@@ -235,14 +263,16 @@ describe("flight editor data", () => {
     });
     const duplicate = flightToDraft(original, {
       duplicate: true,
-      memberships: [{
-        id: "membership-zh",
-        programId: "phoenixmiles",
-        programName: "尊鹏俱乐部",
-        memberNumber: "ZH123456",
-        tier: "金卡",
-        associatedAirlines: ["ZH"],
-      }],
+      memberships: [
+        {
+          id: "membership-zh",
+          programId: "phoenixmiles",
+          programName: "尊鹏俱乐部",
+          memberNumber: "ZH123456",
+          tier: "金卡",
+          associatedAirlines: ["ZH"],
+        },
+      ],
     });
     expect(duplicate).toMatchObject({
       ticketNumber: "",
@@ -257,10 +287,12 @@ describe("flight editor data", () => {
   });
 
   it("requires both date and time for an actual event", () => {
-    expect(() => flightFromDraft({
-      ...baseDraft(),
-      actualDepartureDate: "2026-08-21",
-    })).toThrow("incomplete-actual-time");
+    expect(() =>
+      flightFromDraft({
+        ...baseDraft(),
+        actualDepartureDate: "2026-08-21",
+      }),
+    ).toThrow("incomplete-actual-time");
   });
 
   it("stores an alphanumeric carousel independently and uses null when unknown", () => {
@@ -280,21 +312,35 @@ describe("flight editor data", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "booking-class-id" });
     const flight = flightFromDraft({ ...baseDraft(), bookingClass: "p" });
 
-    expect(flight.extensions?.["keepraw-fly.seat"]).toEqual({ bookingClass: "P" });
-    expect(() => flightFromDraft({ ...baseDraft(), bookingClass: "PP" }))
-      .toThrow("invalid-booking-class");
+    expect(flight.extensions?.["keepraw-fly.seat"]).toEqual({
+      bookingClass: "P",
+    });
+    expect(() =>
+      flightFromDraft({ ...baseDraft(), bookingClass: "PP" }),
+    ).toThrow("invalid-booking-class");
     vi.unstubAllGlobals();
   });
 
   it("round-trips destination terminal and gate, and removes a cleared gate", () => {
     vi.stubGlobal("crypto", { randomUUID: () => "destination-gate-id" });
     const existing = {
-      ...flightFromDraft({ ...baseDraft(), destinationTerminal: "I", destinationGate: "72A" }),
+      ...flightFromDraft({
+        ...baseDraft(),
+        destinationTerminal: "I",
+        destinationGate: "72A",
+      }),
     };
     const draft = flightToDraft(existing);
-    expect(draft).toMatchObject({ destinationTerminal: "I", destinationGate: "72A" });
+    expect(draft).toMatchObject({
+      destinationTerminal: "I",
+      destinationGate: "72A",
+    });
     const edited = flightFromDraft(draft, existing);
-    expect(edited.destination).toEqual({ iata: "SFO", terminal: "I", gate: "72A" });
+    expect(edited.destination).toEqual({
+      iata: "SFO",
+      terminal: "I",
+      gate: "72A",
+    });
 
     const cleared = flightFromDraft({ ...draft, destinationGate: "" }, edited);
     expect(cleared.destination).toEqual({ iata: "SFO", terminal: "I" });
@@ -349,7 +395,7 @@ function baseDraft(): FlightDraft {
     originTerminal: "",
     originGate: "",
     destinationTerminal: "",
-      destinationGate: "",
+    destinationGate: "",
     aircraftType: "",
     aircraftRegistration: "",
     seat: "",

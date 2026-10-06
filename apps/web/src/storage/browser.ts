@@ -1,9 +1,15 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import type { ArchiveKind, ArchiveLoadResult, SettingsStore, StorageAdapter } from "./adapter";
+import type {
+  ArchiveKind,
+  ArchiveLoadResult,
+  SettingsStore,
+  StorageAdapter,
+} from "./adapter";
 import type { ViewerSettings } from "./types";
 
-export type PersistentStorageState = "checking" | "granted" | "available" | "unsupported" | "failed";
+export type PersistentStorageState =
+  "checking" | "granted" | "available" | "unsupported" | "failed";
 
 function storageManager(): StorageManager | undefined {
   return typeof navigator !== "undefined" ? navigator.storage : undefined;
@@ -14,23 +20,31 @@ type PersistentStorageManager = StorageManager & {
   persisted?: () => Promise<boolean>;
 };
 
-export async function persistentStorageState(): Promise<Exclude<PersistentStorageState, "checking">> {
+export async function persistentStorageState(): Promise<
+  Exclude<PersistentStorageState, "checking">
+> {
   try {
     const persistent = storageManager() as PersistentStorageManager | undefined;
     if (typeof persistent?.persisted !== "function") return "unsupported";
-    return await persistent.persisted() ? "granted" : typeof persistent.persist === "function" ? "available" : "unsupported";
+    return (await persistent.persisted())
+      ? "granted"
+      : typeof persistent.persist === "function"
+        ? "available"
+        : "unsupported";
   } catch {
     return "failed";
   }
 }
 
-export async function requestPersistentStorage(): Promise<Exclude<PersistentStorageState, "checking">> {
+export async function requestPersistentStorage(): Promise<
+  Exclude<PersistentStorageState, "checking">
+> {
   try {
     const persistent = storageManager() as PersistentStorageManager | undefined;
     if (typeof persistent?.persisted !== "function") return "unsupported";
     if (await persistent.persisted()) return "granted";
     if (typeof persistent.persist !== "function") return "unsupported";
-    return await persistent.persist() ? "granted" : "available";
+    return (await persistent.persist()) ? "granted" : "available";
   } catch {
     return "failed";
   }
@@ -72,12 +86,21 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     const record = await this.database.documents.get("active");
     if (!record) return { status: "empty" };
     const kind = record.kind ?? "personal";
-    const { validateAndMigrateKeeprawFly } = await import("@keepraw-fly/validator");
+    const { validateAndMigrateKeeprawFly } =
+      await import("@keepraw-fly/validator");
     const result = validateAndMigrateKeeprawFly(record.document);
     if (!result.valid) {
-      const recoverySource = { rawDocument: record.document, kind, updatedAt: record.updatedAt };
+      const recoverySource = {
+        rawDocument: record.document,
+        kind,
+        updatedAt: record.updatedAt,
+      };
       return result.reason === "unsupported-version"
-        ? { status: "unsupported-version", ...recoverySource, formatVersion: result.formatVersion }
+        ? {
+            status: "unsupported-version",
+            ...recoverySource,
+            formatVersion: result.formatVersion,
+          }
         : { status: "invalid", ...recoverySource, issues: result.issues };
     }
     if (result.migrations.length) {
@@ -89,19 +112,33 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
           rawDocument: record.document,
           kind,
           updatedAt: record.updatedAt,
-          issues: [{ path: "/", keyword: "migration", message: "The migrated archive could not be saved safely." }],
+          issues: [
+            {
+              path: "/",
+              keyword: "migration",
+              message: "The migrated archive could not be saved safely.",
+            },
+          ],
         };
       }
     }
-    return { status: "valid", document: result.data, kind, updatedAt: record.updatedAt };
+    return {
+      status: "valid",
+      document: result.data,
+      kind,
+      updatedAt: record.updatedAt,
+    };
   }
 
   async loadArchiveKind(): Promise<ArchiveKind | null> {
     const record = await this.database.documents.get("active");
-    return record ? record.kind ?? "personal" : null;
+    return record ? (record.kind ?? "personal") : null;
   }
 
-  async saveDocument(document: KeeprawFlyDocument, kind: ArchiveKind = "personal"): Promise<void> {
+  async saveDocument(
+    document: KeeprawFlyDocument,
+    kind: ArchiveKind = "personal",
+  ): Promise<void> {
     await this.database.documents.put({
       key: "active",
       document: structuredClone(document),

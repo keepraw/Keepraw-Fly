@@ -21,7 +21,11 @@ interface MapViewportProps {
     zoomOut: string;
     reset: string;
   };
-  children: (camera: MapCamera, viewportHeight: number, pixelScale: number) => ReactNode;
+  children: (
+    camera: MapCamera,
+    viewportHeight: number,
+    pixelScale: number,
+  ) => ReactNode;
 }
 
 interface Gesture {
@@ -51,14 +55,22 @@ export function MapViewport({
   const gestureMovedRef = useRef(false);
   const suppressClickRef = useRef(false);
   const mountedRef = useRef(false);
-  const [camera, setCameraState] = useState(() => clampCamera(initialCamera, maxZoom, viewportHeight));
+  const [camera, setCameraState] = useState(() =>
+    clampCamera(initialCamera, maxZoom, viewportHeight),
+  );
 
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-        setViewportHeight(WORLD_WIDTH * entry.contentRect.height / entry.contentRect.width);
+      if (
+        entry &&
+        entry.contentRect.width > 0 &&
+        entry.contentRect.height > 0
+      ) {
+        setViewportHeight(
+          (WORLD_WIDTH * entry.contentRect.height) / entry.contentRect.width,
+        );
         setViewportWidth(entry.contentRect.width);
       }
     });
@@ -66,41 +78,50 @@ export function MapViewport({
     return () => observer.disconnect();
   }, []);
 
-  const setCamera = useCallback((next: MapCamera) => {
-    const clamped = clampCamera(next, maxZoom, viewportHeight);
-    cameraRef.current = clamped;
-    setCameraState(clamped);
-  }, [maxZoom, viewportHeight]);
+  const setCamera = useCallback(
+    (next: MapCamera) => {
+      const clamped = clampCamera(next, maxZoom, viewportHeight);
+      cameraRef.current = clamped;
+      setCameraState(clamped);
+    },
+    [maxZoom, viewportHeight],
+  );
 
   const stopAnimation = useCallback(() => {
-    if (animationRef.current !== undefined) cancelAnimationFrame(animationRef.current);
+    if (animationRef.current !== undefined)
+      cancelAnimationFrame(animationRef.current);
     animationRef.current = undefined;
   }, []);
 
-  const animateTo = useCallback((target: MapCamera) => {
-    stopAnimation();
-    const destination = clampCamera(target, maxZoom, viewportHeight);
-    const start = cameraRef.current;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setCamera(destination);
-      return;
-    }
-    const startedAt = performance.now();
-    const duration = 240;
-    const step = (now: number) => {
-      const progress = Math.min((now - startedAt) / duration, 1);
-      const eased = 1 - (1 - progress) ** 3;
-      setCamera({
-        centerX: mix(start.centerX, destination.centerX, eased),
-        centerY: mix(start.centerY, destination.centerY, eased),
-        zoom: mix(start.zoom, destination.zoom, eased),
-      });
-      if (progress < 1) animationRef.current = requestAnimationFrame(step);
-      else animationRef.current = undefined;
-    };
-    animationRef.current = requestAnimationFrame(step);
-  }, [maxZoom, viewportHeight, setCamera, stopAnimation]);
+  const animateTo = useCallback(
+    (target: MapCamera) => {
+      stopAnimation();
+      const destination = clampCamera(target, maxZoom, viewportHeight);
+      const start = cameraRef.current;
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reduceMotion) {
+        setCamera(destination);
+        return;
+      }
+      const startedAt = performance.now();
+      const duration = 240;
+      const step = (now: number) => {
+        const progress = Math.min((now - startedAt) / duration, 1);
+        const eased = 1 - (1 - progress) ** 3;
+        setCamera({
+          centerX: mix(start.centerX, destination.centerX, eased),
+          centerY: mix(start.centerY, destination.centerY, eased),
+          zoom: mix(start.zoom, destination.zoom, eased),
+        });
+        if (progress < 1) animationRef.current = requestAnimationFrame(step);
+        else animationRef.current = undefined;
+      };
+      animationRef.current = requestAnimationFrame(step);
+    },
+    [maxZoom, viewportHeight, setCamera, stopAnimation],
+  );
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -109,23 +130,34 @@ export function MapViewport({
       return;
     }
     animateTo(fittedCamera);
-  }, [animateTo, fittedCamera.centerX, fittedCamera.centerY, fittedCamera.zoom, setCamera]);
+  }, [
+    animateTo,
+    fittedCamera.centerX,
+    fittedCamera.centerY,
+    fittedCamera.zoom,
+    setCamera,
+  ]);
 
   useEffect(() => () => stopAnimation(), [stopAnimation]);
 
-  const zoomAt = useCallback((anchor: { x: number; y: number }, nextZoom: number, animate = false) => {
-    const current = cameraRef.current;
-    const zoom = Math.min(maxZoom, Math.max(1, nextZoom));
-    const worldX = current.centerX + (anchor.x - WORLD_WIDTH / 2) / current.zoom;
-    const worldY = current.centerY + (anchor.y - viewportHeight / 2) / current.zoom;
-    const next = {
-      centerX: worldX - (anchor.x - WORLD_WIDTH / 2) / zoom,
-      centerY: worldY - (anchor.y - viewportHeight / 2) / zoom,
-      zoom,
-    };
-    if (animate) animateTo(next);
-    else setCamera(next);
-  }, [animateTo, maxZoom, viewportHeight, setCamera]);
+  const zoomAt = useCallback(
+    (anchor: { x: number; y: number }, nextZoom: number, animate = false) => {
+      const current = cameraRef.current;
+      const zoom = Math.min(maxZoom, Math.max(1, nextZoom));
+      const worldX =
+        current.centerX + (anchor.x - WORLD_WIDTH / 2) / current.zoom;
+      const worldY =
+        current.centerY + (anchor.y - viewportHeight / 2) / current.zoom;
+      const next = {
+        centerX: worldX - (anchor.x - WORLD_WIDTH / 2) / zoom,
+        centerY: worldY - (anchor.y - viewportHeight / 2) / zoom,
+        zoom,
+      };
+      if (animate) animateTo(next);
+      else setCamera(next);
+    },
+    [animateTo, maxZoom, viewportHeight, setCamera],
+  );
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -159,33 +191,56 @@ export function MapViewport({
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     stopAnimation();
-    if (!(event.target as Element).closest('[role="button"]')) event.currentTarget.setPointerCapture(event.pointerId);
-    pointersRef.current.set(event.pointerId, clientToMap(event.currentTarget, event.clientX, event.clientY));
+    if (!(event.target as Element).closest('[role="button"]'))
+      event.currentTarget.setPointerCapture(event.pointerId);
+    pointersRef.current.set(
+      event.pointerId,
+      clientToMap(event.currentTarget, event.clientX, event.clientY),
+    );
     gestureMovedRef.current = false;
     resetGesture();
   };
 
   const handlePointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
-    if (!pointersRef.current.has(event.pointerId) || !gestureRef.current) return;
-    pointersRef.current.set(event.pointerId, clientToMap(event.currentTarget, event.clientX, event.clientY));
+    if (!pointersRef.current.has(event.pointerId) || !gestureRef.current)
+      return;
+    pointersRef.current.set(
+      event.pointerId,
+      clientToMap(event.currentTarget, event.clientX, event.clientY),
+    );
     const points = [...pointersRef.current.values()];
     const gesture = gestureRef.current;
     const midpoint = averagePoint(points);
-    if (Math.hypot(midpoint.x - gesture.midpoint.x, midpoint.y - gesture.midpoint.y) > 2) {
+    if (
+      Math.hypot(
+        midpoint.x - gesture.midpoint.x,
+        midpoint.y - gesture.midpoint.y,
+      ) > 2
+    ) {
       gestureMovedRef.current = true;
     }
 
     if (points.length === 1) {
       setCamera({
-        centerX: gesture.camera.centerX - (midpoint.x - gesture.midpoint.x) / gesture.camera.zoom,
-        centerY: gesture.camera.centerY - (midpoint.y - gesture.midpoint.y) / gesture.camera.zoom,
+        centerX:
+          gesture.camera.centerX -
+          (midpoint.x - gesture.midpoint.x) / gesture.camera.zoom,
+        centerY:
+          gesture.camera.centerY -
+          (midpoint.y - gesture.midpoint.y) / gesture.camera.zoom,
         zoom: gesture.camera.zoom,
       });
       return;
     }
 
     const distance = Math.max(pointDistance(points[0]!, points[1]!), 1);
-    const zoom = Math.min(maxZoom, Math.max(1, gesture.camera.zoom * distance / Math.max(gesture.distance, 1)));
+    const zoom = Math.min(
+      maxZoom,
+      Math.max(
+        1,
+        (gesture.camera.zoom * distance) / Math.max(gesture.distance, 1),
+      ),
+    );
     setCamera({
       centerX: gesture.worldAnchor.x - (midpoint.x - WORLD_WIDTH / 2) / zoom,
       centerY: gesture.worldAnchor.y - (midpoint.y - viewportHeight / 2) / zoom,
@@ -209,50 +264,104 @@ export function MapViewport({
   const handleDoubleClick = (event: ReactMouseEvent<SVGSVGElement>) => {
     if ((event.target as Element).closest('[role="button"]')) return;
     event.preventDefault();
-    zoomAt(clientToMap(event.currentTarget, event.clientX, event.clientY), cameraRef.current.zoom * 1.8, true);
+    zoomAt(
+      clientToMap(event.currentTarget, event.clientX, event.clientY),
+      cameraRef.current.zoom * 1.8,
+      true,
+    );
   };
 
   const translateX = WORLD_WIDTH / 2 - camera.centerX * camera.zoom;
   const translateY = viewportHeight / 2 - camera.centerY * camera.zoom;
 
-  return <div className={`map-viewport ${className ?? ""}`} data-zoom={camera.zoom.toFixed(2)}>
-    <svg
-      ref={svgRef}
-      viewBox={`0 0 ${WORLD_WIDTH} ${viewportHeight}`}
-      role="group"
-      aria-label={ariaLabel}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
-      onDoubleClick={handleDoubleClick}
-      onClickCapture={handleClickCapture}
+  return (
+    <div
+      className={`map-viewport ${className ?? ""}`}
+      data-zoom={camera.zoom.toFixed(2)}
     >
-      <g className="map-viewport-content" transform={`translate(${translateX} ${translateY}) scale(${camera.zoom})`}>
-        {children(camera, viewportHeight, WORLD_WIDTH / viewportWidth)}
-      </g>
-    </svg>
-    <div className="map-zoom-controls" role="group" aria-label={labels.reset}>
-      <button type="button" onClick={() => zoomAt({ x: WORLD_WIDTH / 2, y: viewportHeight / 2 }, camera.zoom * 1.5, true)} disabled={camera.zoom >= maxZoom - 0.01} aria-label={labels.zoomIn}>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg>
-      </button>
-      <button type="button" onClick={() => zoomAt({ x: WORLD_WIDTH / 2, y: viewportHeight / 2 }, camera.zoom / 1.5, true)} disabled={camera.zoom <= 1.01} aria-label={labels.zoomOut}>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" /></svg>
-      </button>
-      <button type="button" onClick={() => animateTo(fittedCamera)} aria-label={labels.reset}>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 7.2 8 3l5 4.2v5.3H9.8V9.3H6.2v3.2H3Z" /></svg>
-      </button>
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${WORLD_WIDTH} ${viewportHeight}`}
+        role="group"
+        aria-label={ariaLabel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onDoubleClick={handleDoubleClick}
+        onClickCapture={handleClickCapture}
+      >
+        <g
+          className="map-viewport-content"
+          transform={`translate(${translateX} ${translateY}) scale(${camera.zoom})`}
+        >
+          {children(camera, viewportHeight, WORLD_WIDTH / viewportWidth)}
+        </g>
+      </svg>
+      <div className="map-zoom-controls" role="group" aria-label={labels.reset}>
+        <button
+          type="button"
+          onClick={() =>
+            zoomAt(
+              { x: WORLD_WIDTH / 2, y: viewportHeight / 2 },
+              camera.zoom * 1.5,
+              true,
+            )
+          }
+          disabled={camera.zoom >= maxZoom - 0.01}
+          aria-label={labels.zoomIn}
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 3v10M3 8h10" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            zoomAt(
+              { x: WORLD_WIDTH / 2, y: viewportHeight / 2 },
+              camera.zoom / 1.5,
+              true,
+            )
+          }
+          disabled={camera.zoom <= 1.01}
+          aria-label={labels.zoomOut}
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3 8h10" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => animateTo(fittedCamera)}
+          aria-label={labels.reset}
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3 7.2 8 3l5 4.2v5.3H9.8V9.3H6.2v3.2H3Z" />
+          </svg>
+        </button>
+      </div>
     </div>
-  </div>;
+  );
 }
 
-function clampCamera(camera: MapCamera, maxZoom: number, viewportHeight: number): MapCamera {
+function clampCamera(
+  camera: MapCamera,
+  maxZoom: number,
+  viewportHeight: number,
+): MapCamera {
   const zoom = Math.min(maxZoom, Math.max(1, camera.zoom));
   const halfWidth = WORLD_WIDTH / (2 * zoom);
   const halfHeight = Math.min(WORLD_HEIGHT / 2, viewportHeight / (2 * zoom));
   return {
-    centerX: Math.min(WORLD_WIDTH - halfWidth, Math.max(halfWidth, camera.centerX)),
-    centerY: Math.min(WORLD_HEIGHT - halfHeight, Math.max(halfHeight, camera.centerY)),
+    centerX: Math.min(
+      WORLD_WIDTH - halfWidth,
+      Math.max(halfWidth, camera.centerX),
+    ),
+    centerY: Math.min(
+      WORLD_HEIGHT - halfHeight,
+      Math.max(halfHeight, camera.centerY),
+    ),
     zoom,
   };
 }
@@ -260,12 +369,16 @@ function clampCamera(camera: MapCamera, maxZoom: number, viewportHeight: number)
 function clientToMap(svg: SVGSVGElement, clientX: number, clientY: number) {
   const rect = svg.getBoundingClientRect();
   return {
-    x: (clientX - rect.left) * WORLD_WIDTH / rect.width,
-    y: (clientY - rect.top) * svg.viewBox.baseVal.height / rect.height,
+    x: ((clientX - rect.left) * WORLD_WIDTH) / rect.width,
+    y: ((clientY - rect.top) * svg.viewBox.baseVal.height) / rect.height,
   };
 }
 
-function screenToWorld(point: { x: number; y: number }, camera: MapCamera, viewportHeight: number) {
+function screenToWorld(
+  point: { x: number; y: number },
+  camera: MapCamera,
+  viewportHeight: number,
+) {
   return {
     x: camera.centerX + (point.x - WORLD_WIDTH / 2) / camera.zoom,
     y: camera.centerY + (point.y - viewportHeight / 2) / camera.zoom,
@@ -280,7 +393,10 @@ function averagePoint(points: { x: number; y: number }[]) {
   };
 }
 
-function pointDistance(left: { x: number; y: number }, right: { x: number; y: number }) {
+function pointDistance(
+  left: { x: number; y: number },
+  right: { x: number; y: number },
+) {
   return Math.hypot(left.x - right.x, left.y - right.y);
 }
 

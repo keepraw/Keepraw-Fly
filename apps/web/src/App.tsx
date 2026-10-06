@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { KeeprawFlight, KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
+import type {
+  KeeprawFlight,
+  KeeprawFlyDocument,
+  ProfileName,
+} from "@keepraw-fly/schema";
 import demoData from "@keepraw-fly/core/demo";
 import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
@@ -9,7 +13,11 @@ import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
-import { initialPassportView, passportVisibleFlights, type PassportViewState } from "./data/passport-exploration";
+import {
+  initialPassportView,
+  passportVisibleFlights,
+  type PassportViewState,
+} from "./data/passport-exploration";
 import { SettingsPage } from "./pages/SettingsPage";
 import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly } from "./data/export";
@@ -17,7 +25,10 @@ import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind, ArchiveLoadResult } from "./storage/adapter";
-import { createPersistenceQueue, type PersistenceState } from "./storage/persistence";
+import {
+  createPersistenceQueue,
+  type PersistenceState,
+} from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import {
   frequentFlyerMemberships,
@@ -27,39 +38,59 @@ import {
 } from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
-type DocumentSnapshot = { document: KeeprawFlyDocument; kind: ArchiveKind } | null;
-type RecoveryArchive = Extract<ArchiveLoadResult, { status: "invalid" | "unsupported-version" }>;
+type DocumentSnapshot = {
+  document: KeeprawFlyDocument;
+  kind: ArchiveKind;
+} | null;
+type RecoveryArchive = Extract<
+  ArchiveLoadResult,
+  { status: "invalid" | "unsupported-version" }
+>;
 
 export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
   const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
-  const [recoveryArchive, setRecoveryArchive] = useState<RecoveryArchive | null>(null);
+  const [recoveryArchive, setRecoveryArchive] =
+    useState<RecoveryArchive | null>(null);
   const [recoveryBusy, setRecoveryBusy] = useState(false);
   const recoveryOperationRef = useRef(false);
-  const [settings, setSettings] = useState<ViewerSettings>(defaultViewerSettings);
+  const [settings, setSettings] = useState<ViewerSettings>(
+    defaultViewerSettings,
+  );
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
-  const [documentPersistence, setDocumentPersistence] = useState<PersistenceState>({ status: "idle" });
-  const [settingsPersistence, setSettingsPersistence] = useState<PersistenceState>({ status: "idle" });
-  const [documentWrites] = useState(() => createPersistenceQueue<DocumentSnapshot>(
-    (snapshot) => snapshot
-      ? browserStorage.saveDocument(snapshot.document, snapshot.kind)
-      : browserStorage.clearDocument(),
-    (state) => {
-      setDocumentPersistence(state);
-      if (state.status === "saved") setStorageError(null);
-    },
-  ));
-  const [settingsWrites] = useState(() => createPersistenceQueue<ViewerSettings>(
-    (snapshot) => browserStorage.saveSettings(snapshot),
-    setSettingsPersistence,
-  ));
+  const [documentPersistence, setDocumentPersistence] =
+    useState<PersistenceState>({ status: "idle" });
+  const [settingsPersistence, setSettingsPersistence] =
+    useState<PersistenceState>({ status: "idle" });
+  const [documentWrites] = useState(() =>
+    createPersistenceQueue<DocumentSnapshot>(
+      (snapshot) =>
+        snapshot
+          ? browserStorage.saveDocument(snapshot.document, snapshot.kind)
+          : browserStorage.clearDocument(),
+      (state) => {
+        setDocumentPersistence(state);
+        if (state.status === "saved") setStorageError(null);
+      },
+    ),
+  );
+  const [settingsWrites] = useState(() =>
+    createPersistenceQueue<ViewerSettings>(
+      (snapshot) => browserStorage.saveSettings(snapshot),
+      setSettingsPersistence,
+    ),
+  );
   const [page, setPage] = useState<Page>(pageFromHash);
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
-  const [passportView, setPassportView] = useState<PassportViewState>(initialPassportView);
-  const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(null);
-  const [duplicateTemplate, setDuplicateTemplate] = useState<KeeprawFlight | null>(null);
+  const [passportView, setPassportView] =
+    useState<PassportViewState>(initialPassportView);
+  const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(
+    null,
+  );
+  const [duplicateTemplate, setDuplicateTemplate] =
+    useState<KeeprawFlight | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
   const editorReturnFocusRef = useRef<HTMLElement | null>(null);
 
@@ -69,23 +100,38 @@ export function App() {
     [document, selectedFlightId],
   );
   const editedFlight = useMemo(
-    () => editorFlightId && editorFlightId !== "new"
-      ? flightById(document, editorFlightId)
-      : undefined,
+    () =>
+      editorFlightId && editorFlightId !== "new"
+        ? flightById(document, editorFlightId)
+        : undefined,
     [document, editorFlightId],
   );
   const preferredAirportCodes = useMemo(
     () => recentAirportCodes(document?.flights ?? []),
     [document?.flights],
   );
-  const memberships = useMemo(() => document ? frequentFlyerMemberships(document) : [], [document]);
-  const visibleFlights = useMemo(() => passportVisibleFlights(document?.flights ?? [], passportView), [document?.flights, passportView]);
-  const flightIndex = visibleFlights.findIndex((flight) => flight.id === selectedFlightId);
-  const previousFlight = flightIndex > 0 ? visibleFlights[flightIndex - 1] : undefined;
-  const nextFlight = flightIndex >= 0 ? visibleFlights[flightIndex + 1] : undefined;
+  const memberships = useMemo(
+    () => (document ? frequentFlyerMemberships(document) : []),
+    [document],
+  );
+  const visibleFlights = useMemo(
+    () => passportVisibleFlights(document?.flights ?? [], passportView),
+    [document?.flights, passportView],
+  );
+  const flightIndex = visibleFlights.findIndex(
+    (flight) => flight.id === selectedFlightId,
+  );
+  const previousFlight =
+    flightIndex > 0 ? visibleFlights[flightIndex - 1] : undefined;
+  const nextFlight =
+    flightIndex >= 0 ? visibleFlights[flightIndex + 1] : undefined;
 
   function openFlight(flightId: string) {
-    setPassportView((view) => ({ ...view, flightId: null, scrollFlightId: flightId }));
+    setPassportView((view) => ({
+      ...view,
+      flightId: null,
+      scrollFlightId: flightId,
+    }));
     setSelectedFlightId(flightId);
   }
 
@@ -98,9 +144,15 @@ export function App() {
       .then(([archiveResult, settingsResult]) => {
         if (!active) return;
         // A preferences read failure must not hide an existing unreadable archive.
-        if (archiveResult.status === "fulfilled") applyArchiveLoad(archiveResult.value);
-        if (settingsResult.status === "fulfilled" && settingsResult.value) setSettings(settingsResult.value);
-        if (archiveResult.status === "rejected" || settingsResult.status === "rejected") setStorageError("storage");
+        if (archiveResult.status === "fulfilled")
+          applyArchiveLoad(archiveResult.value);
+        if (settingsResult.status === "fulfilled" && settingsResult.value)
+          setSettings(settingsResult.value);
+        if (
+          archiveResult.status === "rejected" ||
+          settingsResult.status === "rejected"
+        )
+          setStorageError("storage");
       })
       .finally(() => {
         if (active) setLoaded(true);
@@ -113,7 +165,11 @@ export function App() {
   function applyArchiveLoad(result: ArchiveLoadResult) {
     setDocument(result.status === "valid" ? result.document : null);
     setArchiveKind(result.status === "empty" ? null : result.kind);
-    setRecoveryArchive(result.status === "invalid" || result.status === "unsupported-version" ? result : null);
+    setRecoveryArchive(
+      result.status === "invalid" || result.status === "unsupported-version"
+        ? result
+        : null,
+    );
   }
 
   async function runRecoveryOperation(operation: () => Promise<void>) {
@@ -202,8 +258,11 @@ export function App() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const hasUnsavedChanges = documentPersistence.status === "saving" || documentPersistence.status === "error"
-    || settingsPersistence.status === "saving" || settingsPersistence.status === "error";
+  const hasUnsavedChanges =
+    documentPersistence.status === "saving" ||
+    documentPersistence.status === "error" ||
+    settingsPersistence.status === "saving" ||
+    settingsPersistence.status === "error";
 
   useEffect(() => {
     if (!hasUnsavedChanges) return;
@@ -238,7 +297,9 @@ export function App() {
     });
   }
 
-  function updateMemberships(nextMemberships: readonly FrequentFlyerMembership[]) {
+  function updateMemberships(
+    nextMemberships: readonly FrequentFlyerMembership[],
+  ) {
     if (!document) return;
     storeDocument(withFrequentFlyerMemberships(document, nextMemberships));
   }
@@ -257,9 +318,10 @@ export function App() {
 
   function createArchive() {
     setPassportView(initialPassportView);
-    editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement
-      ? window.document.activeElement
-      : null;
+    editorReturnFocusRef.current =
+      window.document.activeElement instanceof HTMLElement
+        ? window.document.activeElement
+        : null;
     storeDocument(createEmptyDocument(), "personal");
     setPage("passport");
     setSelectedFlightId(null);
@@ -286,10 +348,15 @@ export function App() {
 
   function saveFlight(flight: KeeprawFlight) {
     if (!document) return;
-    const existingIndex = document.flights.findIndex((item) => item.id === flight.id);
-    const flights = existingIndex === -1
-      ? [...document.flights, flight]
-      : document.flights.map((item) => item.id === flight.id ? flight : item);
+    const existingIndex = document.flights.findIndex(
+      (item) => item.id === flight.id,
+    );
+    const flights =
+      existingIndex === -1
+        ? [...document.flights, flight]
+        : document.flights.map((item) =>
+            item.id === flight.id ? flight : item,
+          );
     storeDocument({ ...document, flights });
     setEditorFlightId(null);
     setDuplicateTemplate(null);
@@ -317,56 +384,107 @@ export function App() {
   }
 
   if (!loaded) {
-    return <main className="loading-screen" id="main-content" aria-label={t("app.loading")}><span>K</span></main>;
+    return (
+      <main
+        className="loading-screen"
+        id="main-content"
+        aria-label={t("app.loading")}
+      >
+        <span>K</span>
+      </main>
+    );
   }
 
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#main-content">{t("app.skipToContent")}</a>
+      <a className="skip-link" href="#main-content">
+        {t("app.skipToContent")}
+      </a>
       <AppHeader
         currentPage={page}
         onNavigate={(nextPage) => {
           setPage(nextPage);
           setSelectedFlightId(null);
         }}
-        detailActions={selectedFlight ? {
-          onPrevious: previousFlight ? () => openFlight(previousFlight.id) : undefined,
-          onNext: nextFlight ? () => openFlight(nextFlight.id) : undefined,
-          onBack: () => {
-            setSelectedFlightId(null);
-            setPage("passport");
-            window.location.hash = "passport";
-          },
-          onDuplicate: () => {
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
-            setDuplicateTemplate(selectedFlight);
-            setEditorFlightId("new");
-          },
-          onEdit: () => {
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
-            setEditorFlightId(selectedFlight.id);
-          },
-        } : undefined}
+        detailActions={
+          selectedFlight
+            ? {
+                onPrevious: previousFlight
+                  ? () => openFlight(previousFlight.id)
+                  : undefined,
+                onNext: nextFlight
+                  ? () => openFlight(nextFlight.id)
+                  : undefined,
+                onBack: () => {
+                  setSelectedFlightId(null);
+                  setPage("passport");
+                  window.location.hash = "passport";
+                },
+                onDuplicate: () => {
+                  editorReturnFocusRef.current =
+                    window.document.activeElement instanceof HTMLElement
+                      ? window.document.activeElement
+                      : null;
+                  setDuplicateTemplate(selectedFlight);
+                  setEditorFlightId("new");
+                },
+                onEdit: () => {
+                  editorReturnFocusRef.current =
+                    window.document.activeElement instanceof HTMLElement
+                      ? window.document.activeElement
+                      : null;
+                  setEditorFlightId(selectedFlight.id);
+                },
+              }
+            : undefined
+        }
       />
       <div className="persistence-status" role="status">
-        {documentPersistence.status === "saving" || settingsPersistence.status === "saving" ? t("actions.saving") : null}
+        {documentPersistence.status === "saving" ||
+        settingsPersistence.status === "saving"
+          ? t("actions.saving")
+          : null}
       </div>
-      {storageError || documentPersistence.status === "error" || settingsPersistence.status === "error" || (document && archiveKind === "demo") ? (
+      {storageError ||
+      documentPersistence.status === "error" ||
+      settingsPersistence.status === "error" ||
+      (document && archiveKind === "demo") ? (
         <div className="page-notices">
           {documentPersistence.status === "error" ? (
             <div className="storage-warning" role="alert">
               <span>{t("app.changesNotSaved")}</span>
-              <button type="button" onClick={() => { void documentWrites.retry(); }}>{t("actions.retry")}</button>
+              <button
+                type="button"
+                onClick={() => {
+                  void documentWrites.retry();
+                }}
+              >
+                {t("actions.retry")}
+              </button>
             </div>
-          ) : storageError ? <div className="storage-warning" role="alert">{t("app.storageUnavailable")}</div> : null}
+          ) : storageError ? (
+            <div className="storage-warning" role="alert">
+              {t("app.storageUnavailable")}
+            </div>
+          ) : null}
           {settingsPersistence.status === "error" ? (
             <div className="storage-warning" role="alert">
               <span>{t("app.settingsNotSaved")}</span>
-              <button type="button" onClick={() => { void settingsWrites.retry(); }}>{t("actions.retry")}</button>
+              <button
+                type="button"
+                onClick={() => {
+                  void settingsWrites.retry();
+                }}
+              >
+                {t("actions.retry")}
+              </button>
             </div>
           ) : null}
           {document && archiveKind === "demo" ? (
-            <DemoBanner compact={Boolean(selectedFlight) || page === "passport"} onCreateArchive={createArchive} />
+            <DemoBanner
+              compact={Boolean(selectedFlight) || page === "passport"}
+              onCreateArchive={createArchive}
+            />
           ) : null}
         </div>
       ) : null}
@@ -414,23 +532,36 @@ export function App() {
           timeFormat={settings.timeFormat}
           onOpenFlight={openFlight}
           onAddFlight={() => {
-            editorReturnFocusRef.current = window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
+            editorReturnFocusRef.current =
+              window.document.activeElement instanceof HTMLElement
+                ? window.document.activeElement
+                : null;
             setDuplicateTemplate(null);
             setEditorFlightId("new");
           }}
           onOpenImport={() => {
             setPage("settings");
             window.location.hash = "settings";
-            window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.document.getElementById("settings-import")?.scrollIntoView({ block: "start" })));
+            window.requestAnimationFrame(() =>
+              window.requestAnimationFrame(() =>
+                window.document
+                  .getElementById("settings-import")
+                  ?.scrollIntoView({ block: "start" }),
+              ),
+            );
           }}
         />
       ) : null}
-      {document && editorFlightId && (editorFlightId === "new" || editedFlight) ? (
+      {document &&
+      editorFlightId &&
+      (editorFlightId === "new" || editedFlight) ? (
         <FlightEditor
           key={`${editorFlightId}-${duplicateTemplate?.id ?? "blank"}`}
-          flight={editorFlightId === "new"
-            ? duplicateTemplate ?? undefined
-            : editedFlight}
+          flight={
+            editorFlightId === "new"
+              ? (duplicateTemplate ?? undefined)
+              : editedFlight
+          }
           isDuplicate={editorFlightId === "new" && Boolean(duplicateTemplate)}
           preferredAirportCodes={preferredAirportCodes}
           returnFocus={editorReturnFocusRef.current}
@@ -438,7 +569,10 @@ export function App() {
           memberships={memberships}
           onSave={saveFlight}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
-          onCancel={() => { setEditorFlightId(null); setDuplicateTemplate(null); }}
+          onCancel={() => {
+            setEditorFlightId(null);
+            setDuplicateTemplate(null);
+          }}
         />
       ) : null}
       {confirmDemoExport ? (

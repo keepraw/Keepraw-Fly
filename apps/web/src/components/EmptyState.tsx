@@ -9,7 +9,11 @@ interface EmptyStateProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
 }
 
-export function EmptyState({ onCreateArchive, onTryDemo, onImport }: EmptyStateProps) {
+export function EmptyState({
+  onCreateArchive,
+  onTryDemo,
+  onImport,
+}: EmptyStateProps) {
   const { t } = useTranslation();
 
   return (
@@ -18,13 +22,19 @@ export function EmptyState({ onCreateArchive, onTryDemo, onImport }: EmptyStateP
       <h1>{t("welcome.title")}</h1>
       <p>{t("welcome.description")}</p>
       <div className="welcome-actions">
-        <button className="button-primary" type="button" onClick={onCreateArchive}>
+        <button
+          className="button-primary"
+          type="button"
+          onClick={onCreateArchive}
+        >
           {t("actions.createArchive")}
         </button>
         <button className="button-secondary" type="button" onClick={onTryDemo}>
           {t("actions.tryDemo")}
         </button>
-        <div className="welcome-import"><ImportControl onImport={onImport} /></div>
+        <div className="welcome-import">
+          <ImportControl onImport={onImport} />
+        </div>
       </div>
       <p className="privacy-note">{t("welcome.privacy")}</p>
     </PageShell>

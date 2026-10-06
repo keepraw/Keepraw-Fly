@@ -15,6 +15,8 @@ pnpm test:e2e --list
 
 `pnpm test:e2e` runs all three projects with their respective layers. CI keeps
 Chromium in `verify` and separate Firefox/WebKit matrix jobs with `fail-fast: false`.
+Before type checking, `verify` runs `pnpm format:check`, `pnpm lint:css` and
+`pnpm check:css-tokens`; any failed check fails CI.
 Failed browser jobs upload the HTML report, screenshots and retained traces.
 Browser installation remains `install --with-deps` for each engine; no binary cache
 is added because removing repeated tests is the primary saving, while system
@@ -25,21 +27,21 @@ dependencies still need installation on fresh runners.
 Counts are from Playwright discovery when introducing this split, not a fixed
 limit on future tests. All files below continue running in Chromium.
 
-| Test file | Chromium | Firefox / WebKit, each | Coverage retained in full regression |
-| --- | ---: | ---: | --- |
-| `archive-recovery.pw.ts` | 24 | 0 | Corruption, migrations, future versions, serialization, recovery retries, import confirmation matrix, locales, Axe |
-| `desktop-readability.pw.ts` | 1 | 0 | Search/year statistics, adjacent navigation, locale/theme/viewport presentation matrix |
-| `detail-map-curve.pw.ts` | 1 | 1 | Native SVG screen geometry, round endpoints and offline maps |
-| `document-persistence.pw.ts` | 11 | 1 | Edited flight reload, plus all failed writes, retry, deletion, concurrent writes and queue ordering |
-| `flight-row-navigation.pw.ts` | 1 | 0 | Every row hit area, keyboard outlines, both themes and viewport combinations |
-| `keepraw-fly.pw.ts` | 20 | 0 | Complete editing, imports/validation/duplicates, Settings, localization, statistics, Axe and visual acceptance |
-| `map-visibility-and-title.pw.ts` | 2 | 0 | Twelve-route contrast/frequency audit and all airport/locale title wrapping combinations |
-| `passport-detail-return.pw.ts` | 5 | 5 | Internal/document scroll restoration, adjacent detail return, SVG airport/route keyboard selection and focus |
-| `passport-legend.pw.ts` | 1 | 0 | Statistics, filters, all locale × theme × viewport combinations and Axe |
-| `persistent-storage.pw.ts` | 12 | 1 | Native StorageManager capabilities, plus mocked permission/status/retry/localization matrices |
-| `responsive-boundaries.pw.ts` | 13 | 1 | Full eight-viewport acceptance, both themes, every row/date, landscape forms/imports/confirmations and live 760/761 resize |
-| `cross-browser-smoke.pw.ts` | 6 | 6 | Bounded compatibility checks listed below |
-| **Total** | **97** | **15** | Original 91 tests retained, six added |
+| Test file                        | Chromium | Firefox / WebKit, each | Coverage retained in full regression                                                                                       |
+| -------------------------------- | -------: | ---------------------: | -------------------------------------------------------------------------------------------------------------------------- |
+| `archive-recovery.pw.ts`         |       24 |                      0 | Corruption, migrations, future versions, serialization, recovery retries, import confirmation matrix, locales, Axe         |
+| `desktop-readability.pw.ts`      |        1 |                      0 | Search/year statistics, adjacent navigation, locale/theme/viewport presentation matrix                                     |
+| `detail-map-curve.pw.ts`         |        1 |                      1 | Native SVG screen geometry, round endpoints and offline maps                                                               |
+| `document-persistence.pw.ts`     |       11 |                      1 | Edited flight reload, plus all failed writes, retry, deletion, concurrent writes and queue ordering                        |
+| `flight-row-navigation.pw.ts`    |        1 |                      0 | Every row hit area, keyboard outlines, both themes and viewport combinations                                               |
+| `keepraw-fly.pw.ts`              |       20 |                      0 | Complete editing, imports/validation/duplicates, Settings, localization, statistics, Axe and visual acceptance             |
+| `map-visibility-and-title.pw.ts` |        2 |                      0 | Twelve-route contrast/frequency audit and all airport/locale title wrapping combinations                                   |
+| `passport-detail-return.pw.ts`   |        5 |                      5 | Internal/document scroll restoration, adjacent detail return, SVG airport/route keyboard selection and focus               |
+| `passport-legend.pw.ts`          |        1 |                      0 | Statistics, filters, all locale × theme × viewport combinations and Axe                                                    |
+| `persistent-storage.pw.ts`       |       12 |                      1 | Native StorageManager capabilities, plus mocked permission/status/retry/localization matrices                              |
+| `responsive-boundaries.pw.ts`    |       13 |                      1 | Full eight-viewport acceptance, both themes, every row/date, landscape forms/imports/confirmations and live 760/761 resize |
+| `cross-browser-smoke.pw.ts`      |        6 |                      6 | Bounded compatibility checks listed below                                                                                  |
+| **Total**                        |   **97** |                 **15** | Original 91 tests retained, six added                                                                                      |
 
 Before the split, each of Chromium, Firefox and WebKit ran 91 tests. Afterward,
 Firefox and WebKit each run 15 (about 84% fewer); Chromium runs 97. Test counts do
@@ -105,11 +107,11 @@ projects. The Chromium list must still contain every pre-existing regression.
 
 Verified on Windows on 2026-10-06, with zero retries, skips or failures:
 
-| Project | Passed | Workers | Playwright elapsed time |
-| --- | ---: | ---: | ---: |
-| Chromium full regression | 97 | 2 | 199 seconds |
-| Firefox smoke | 15 | 1 | 38 seconds |
-| WebKit smoke | 15 | 1 | 56 seconds |
+| Project                  | Passed | Workers | Playwright elapsed time |
+| ------------------------ | -----: | ------: | ----------------------: |
+| Chromium full regression |     97 |       2 |             199 seconds |
+| Firefox smoke            |     15 |       1 |              38 seconds |
+| WebKit smoke             |     15 |       1 |              56 seconds |
 
 These timings exclude dependency/browser installation; Actions runner setup has
 its own cost. The retained `responsive-boundaries` resize smoke took about four

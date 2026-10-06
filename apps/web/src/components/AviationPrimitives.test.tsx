@@ -1,6 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { AirportCode, AviationIcon, FlightStatusBadge } from "./AviationPrimitives";
+import {
+  AirportCode,
+  AviationIcon,
+  FlightStatusBadge,
+} from "./AviationPrimitives";
 
 describe("aviation visual primitives", () => {
   it("maps operational statuses to semantic tones", () => {
@@ -17,7 +21,9 @@ describe("aviation visual primitives", () => {
   });
 
   it("renders airport codes with an explicit size role", () => {
-    const markup = renderToStaticMarkup(<AirportCode code="TAO" size="display" />);
+    const markup = renderToStaticMarkup(
+      <AirportCode code="TAO" size="display" />,
+    );
 
     expect(markup).toContain("airport-code-display--display");
     expect(markup).toContain(">TAO</span>");

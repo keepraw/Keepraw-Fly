@@ -1,5 +1,15 @@
-button { cursor: pointer; transition: border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
-button:disabled { cursor: not-allowed; opacity: 0.5; }
+button {
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
 .eyebrow {
   margin: 0;
@@ -30,7 +40,11 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   line-height: var(--type-leading-label);
 }
 
-.button-secondary { border-color: var(--line); color: var(--ink); background: transparent; }
+.button-secondary {
+  border-color: var(--line);
+  color: var(--ink);
+  background: transparent;
+}
 
 .add-flight-button {
   display: inline-flex;
@@ -54,9 +68,12 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   display: grid;
   overflow-y: auto;
   place-items: center;
-  padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  padding: max(24px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
   background: var(--color-overlay);
 }
+
 .confirmation-dialog {
   width: min(440px, 100%);
   padding: 28px;
@@ -66,17 +83,67 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   background: var(--surface);
   box-shadow: none;
 }
-.confirmation-dialog h2 { margin: 0; font-family: var(--font-family-display); font-size: var(--type-size-data-heading); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: var(--type-leading-heading); }
-.confirmation-dialog p { margin: 14px 0 0; color: var(--muted); font-size: var(--type-size-body); line-height: var(--type-leading-body); }
-.confirmation-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
-.confirmation-actions button { min-height: 40px; padding: 0 16px; border-radius: var(--radius-control); cursor: pointer; font-size: var(--type-size-label); font-weight: var(--font-weight-medium); }
-.confirmation-danger { border: 1px solid var(--red); color: var(--color-brand-mark); background: var(--red); }
 
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+.confirmation-dialog h2 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--type-size-data-heading);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--type-leading-heading);
+}
 
+.confirmation-dialog p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: var(--type-size-body);
+  line-height: var(--type-leading-body);
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.confirmation-actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  font-size: var(--type-size-label);
+  font-weight: var(--font-weight-medium);
+}
+
+.confirmation-danger {
+  border: 1px solid var(--red);
+  color: var(--color-brand-mark);
+  background: var(--red);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
 
 @media (max-width: 760px) {
-  .confirmation-dialog { padding: 24px 20px; }
-  .confirmation-actions { align-items: stretch; flex-direction: column-reverse; }
-  .confirmation-actions button { width: 100%; }
+  .confirmation-dialog {
+    padding: 24px 20px;
+  }
+
+  .confirmation-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .confirmation-actions button {
+    width: 100%;
+  }
 }

@@ -13,13 +13,29 @@ import type { FlightImportAssessment } from "./duplicate-detection";
 import type { ImportPreflightCounts } from "./import-preview";
 
 const flightyFieldNames = [
-  "Date", "Airline", "Flight", "From", "To", "Gate Departure (Scheduled)",
-  "Gate Arrival (Scheduled)", "Gate Departure (Actual)", "Gate Arrival (Actual)",
-  "Dep Terminal", "Dep Gate", "Arr Terminal", "Arr Gate", "Canceled", "Diverted To",
-  "PNR", "Aircraft Type Name", "Tail Number", "Seat", "Cabin Class",
+  "Date",
+  "Airline",
+  "Flight",
+  "From",
+  "To",
+  "Gate Departure (Scheduled)",
+  "Gate Arrival (Scheduled)",
+  "Gate Departure (Actual)",
+  "Gate Arrival (Actual)",
+  "Dep Terminal",
+  "Dep Gate",
+  "Arr Terminal",
+  "Arr Gate",
+  "Canceled",
+  "Diverted To",
+  "PNR",
+  "Aircraft Type Name",
+  "Tail Number",
+  "Seat",
+  "Cabin Class",
 ] as const;
 
-type FlightyField = typeof flightyFieldNames[number];
+type FlightyField = (typeof flightyFieldNames)[number];
 
 const normalizedFlightyHeaders: Record<FlightyField, string> = {
   Date: "date",
@@ -45,12 +61,19 @@ const normalizedFlightyHeaders: Record<FlightyField, string> = {
 };
 
 const requiredFlightyFields: FlightyField[] = [
-  "Date", "Airline", "Flight", "From", "To", "Gate Departure (Scheduled)", "Gate Arrival (Scheduled)",
+  "Date",
+  "Airline",
+  "Flight",
+  "From",
+  "To",
+  "Gate Departure (Scheduled)",
+  "Gate Arrival (Scheduled)",
 ];
 
-const normalizedHeaderAliases: Partial<Record<string, FlightyField>> = Object.fromEntries(
-  flightyFieldNames.map((field) => [normalizedFlightyHeaders[field], field]),
-);
+const normalizedHeaderAliases: Partial<Record<string, FlightyField>> =
+  Object.fromEntries(
+    flightyFieldNames.map((field) => [normalizedFlightyHeaders[field], field]),
+  );
 normalizedHeaderAliases.cancelled = "Canceled";
 
 export type FlightyDiagnosticSeverity = "error" | "warning";
@@ -81,7 +104,9 @@ export interface FlightyImportPreflight extends ImportPreflightCounts {
 
 export function isFlightyCsv(parsed: ParsedCsv): boolean {
   const headers = new Set(parsed.headers.map(normalizeHeader));
-  return requiredFlightyFields.every((field) => headers.has(normalizedFlightyHeaders[field]));
+  return requiredFlightyFields.every((field) =>
+    headers.has(normalizedFlightyHeaders[field]),
+  );
 }
 
 export function preflightFlightyImport(
@@ -94,7 +119,12 @@ export function preflightFlightyImport(
   const warnings: FlightyDiagnostic[] = [];
 
   for (const field of requiredFlightyFields) {
-    if (headerIndexes[field] === undefined) issues.push({ severity: "error", code: "missing-required-header", value: field });
+    if (headerIndexes[field] === undefined)
+      issues.push({
+        severity: "error",
+        code: "missing-required-header",
+        value: field,
+      });
   }
 
   const mappedRows: string[][] = [];
@@ -115,13 +145,20 @@ export function preflightFlightyImport(
 
   const mapped: ParsedCsv = { headers: csvFlightFields, rows: mappedRows };
   const csvPreflight = mappedRows.length
-    ? preflightCsvImport(mapped, detectCsvMapping(mapped.headers), existing, idFactory)
+    ? preflightCsvImport(
+        mapped,
+        detectCsvMapping(mapped.headers),
+        existing,
+        idFactory,
+      )
     : emptyCsvPreflight();
   for (const issue of csvPreflight.issues) {
     issues.push({
       severity: "error",
       code: issue.code,
-      lineNumber: issue.lineNumber ? sourceLines[issue.lineNumber - 2] : undefined,
+      lineNumber: issue.lineNumber
+        ? sourceLines[issue.lineNumber - 2]
+        : undefined,
     });
   }
 
@@ -147,11 +184,18 @@ export function buildDocumentFromFlightyPreflight(
   existing: KeeprawFlyDocument | null,
   includePossibleDuplicates = false,
 ): KeeprawFlyDocument {
-  if (!preflight.canImport) throw new Error(preflight.issues[0]?.code ?? "flighty-import-invalid");
-  return buildDocumentFromCsvPreflight(preflight.csvPreflight, existing, includePossibleDuplicates);
+  if (!preflight.canImport)
+    throw new Error(preflight.issues[0]?.code ?? "flighty-import-invalid");
+  return buildDocumentFromCsvPreflight(
+    preflight.csvPreflight,
+    existing,
+    includePossibleDuplicates,
+  );
 }
 
-function flightyHeaderIndexes(headers: readonly string[]): Partial<Record<FlightyField, number>> {
+function flightyHeaderIndexes(
+  headers: readonly string[],
+): Partial<Record<FlightyField, number>> {
   const indexes: Partial<Record<FlightyField, number>> = {};
   headers.forEach((header, index) => {
     const field = normalizedHeaderAliases[normalizeHeader(header)];
@@ -160,8 +204,16 @@ function flightyHeaderIndexes(headers: readonly string[]): Partial<Record<Flight
   return indexes;
 }
 
-function flightyValues(row: string[], indexes: Partial<Record<FlightyField, number>>): Record<FlightyField, string> {
-  return Object.fromEntries(flightyFieldNames.map((field) => [field, (row[indexes[field] ?? -1] ?? "").trim()])) as Record<FlightyField, string>;
+function flightyValues(
+  row: string[],
+  indexes: Partial<Record<FlightyField, number>>,
+): Record<FlightyField, string> {
+  return Object.fromEntries(
+    flightyFieldNames.map((field) => [
+      field,
+      (row[indexes[field] ?? -1] ?? "").trim(),
+    ]),
+  ) as Record<FlightyField, string>;
 }
 
 function validateFlightyRow(
@@ -171,18 +223,48 @@ function validateFlightyRow(
 ): FlightyDiagnostic[] {
   const issues: FlightyDiagnostic[] = [];
   for (const field of requiredFlightyFields) {
-    if (!values[field]) issues.push({ severity: "error", code: "missing-value", lineNumber, value: field });
+    if (!values[field])
+      issues.push({
+        severity: "error",
+        code: "missing-value",
+        lineNumber,
+        value: field,
+      });
   }
 
   const airline = resolveAirline(values.Airline);
-  if (!airline && values.Airline) issues.push({ severity: "error", code: "unknown-airline", lineNumber, value: values.Airline });
-  if (values.Flight && !/^[A-Z0-9]+$/i.test(values.Flight)) issues.push({ severity: "error", code: "invalid-flight", lineNumber, value: values.Flight });
+  if (!airline && values.Airline)
+    issues.push({
+      severity: "error",
+      code: "unknown-airline",
+      lineNumber,
+      value: values.Airline,
+    });
+  if (values.Flight && !/^[A-Z0-9]+$/i.test(values.Flight))
+    issues.push({
+      severity: "error",
+      code: "invalid-flight",
+      lineNumber,
+      value: values.Flight,
+    });
 
   const cancelled = parseFlightyBoolean(values.Canceled);
-  if (cancelled === undefined) issues.push({ severity: "error", code: "invalid-cancelled", lineNumber, value: values.Canceled });
+  if (cancelled === undefined)
+    issues.push({
+      severity: "error",
+      code: "invalid-cancelled",
+      lineNumber,
+      value: values.Canceled,
+    });
 
   const cabin = normalizeCabin(values["Cabin Class"]);
-  if (values["Cabin Class"] && !cabin) warnings.push({ severity: "warning", code: "unknown-cabin", lineNumber, value: values["Cabin Class"] });
+  if (values["Cabin Class"] && !cabin)
+    warnings.push({
+      severity: "warning",
+      code: "unknown-cabin",
+      lineNumber,
+      value: values["Cabin Class"],
+    });
   return issues;
 }
 
@@ -223,7 +305,10 @@ function parseFlightyBoolean(value: string): boolean | undefined {
 }
 
 function normalizeCabin(value: string): string | undefined {
-  const normalized = value.trim().toLowerCase().replace(/[\s_-]+/g, " ");
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, " ");
   if (normalized === "economy") return "economy";
   if (normalized === "premium economy") return "premium economy";
   if (normalized === "business") return "business";
@@ -232,7 +317,10 @@ function normalizeCabin(value: string): string | undefined {
 }
 
 function normalizeHeader(value: string): string {
-  return value.trim().toLowerCase().replace(/[\s_()-]+/g, "");
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_()-]+/g, "");
 }
 
 function emptyCsvPreflight(): ReturnType<typeof preflightCsvImport> {

@@ -1,4 +1,9 @@
-import type { FrequentFlyerMembership, KeeprawFlight, KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
+import type {
+  FrequentFlyerMembership,
+  KeeprawFlight,
+  KeeprawFlyDocument,
+  ProfileName,
+} from "@keepraw-fly/schema";
 import type {
   KeeprawFlyMigration,
   ValidationIssue,
@@ -33,7 +38,9 @@ export interface JsonImportPreflight extends ImportPreflightCounts {
   migrations: KeeprawFlyMigration[];
 }
 
-export function summarizeImport(document: KeeprawFlyDocument): ImportPreviewSummary {
+export function summarizeImport(
+  document: KeeprawFlyDocument,
+): ImportPreviewSummary {
   const dates = document.flights
     .map((flight) => flight.serviceDate)
     .sort((left, right) => left.localeCompare(right));
@@ -56,7 +63,10 @@ export function preflightJsonImport(
   const rawRecordCount = countJsonFlightRecords(text);
 
   if (result.valid) {
-    const assessments = assessFlightImports(result.data.flights, existing?.flights ?? []);
+    const assessments = assessFlightImports(
+      result.data.flights,
+      existing?.flights ?? [],
+    );
     return {
       document: result.data,
       totalRecords: result.data.flights.length,
@@ -73,7 +83,10 @@ export function preflightJsonImport(
   const problemIndexes = new Set(
     result.issues
       .map((issue) => issue.flightIndex)
-      .filter((index): index is number => index !== undefined && index < rawRecordCount),
+      .filter(
+        (index): index is number =>
+          index !== undefined && index < rawRecordCount,
+      ),
   );
 
   return {
@@ -96,7 +109,10 @@ export function buildDocumentFromJsonImport(
   includePossibleDuplicates = false,
 ): KeeprawFlyDocument {
   if (!preflight.document) throw new Error("invalid-import-preflight");
-  const importedFlights = selectFlightsForImport(preflight.assessments, includePossibleDuplicates);
+  const importedFlights = selectFlightsForImport(
+    preflight.assessments,
+    includePossibleDuplicates,
+  );
 
   if (existing) {
     const merged = mergeFrequentFlyerMemberships(
@@ -107,7 +123,9 @@ export function buildDocumentFromJsonImport(
     return {
       ...existing,
       flights: [...existing.flights, ...merged.flights],
-      ...(merged.memberships.length ? { frequentFlyerMemberships: merged.memberships } : {}),
+      ...(merged.memberships.length
+        ? { frequentFlyerMemberships: merged.memberships }
+        : {}),
     };
   }
 
@@ -122,11 +140,17 @@ function mergeFrequentFlyerMemberships(
   imported: readonly FrequentFlyerMembership[],
   flights: readonly KeeprawFlight[],
 ): { memberships: FrequentFlyerMembership[]; flights: KeeprawFlight[] } {
-  const memberships: FrequentFlyerMembership[] = existing.map((membership) => structuredClone(membership));
-  const selectedIds = new Set(flights.flatMap((flight) => flight.frequentFlyer?.membershipId ?? []));
+  const memberships: FrequentFlyerMembership[] = existing.map((membership) =>
+    structuredClone(membership),
+  );
+  const selectedIds = new Set(
+    flights.flatMap((flight) => flight.frequentFlyer?.membershipId ?? []),
+  );
   const idMap = new Map<string, string>();
 
-  for (const membership of imported.filter((item) => selectedIds.has(item.id))) {
+  for (const membership of imported.filter((item) =>
+    selectedIds.has(item.id),
+  )) {
     const current = memberships.find((item) => item.id === membership.id);
     if (!current) {
       memberships.push(structuredClone(membership));
@@ -139,7 +163,8 @@ function mergeFrequentFlyerMemberships(
     }
     let suffix = 2;
     let nextId = `${membership.id}-imported`;
-    while (memberships.some((item) => item.id === nextId)) nextId = `${membership.id}-imported-${suffix++}`;
+    while (memberships.some((item) => item.id === nextId))
+      nextId = `${membership.id}-imported-${suffix++}`;
     memberships.push({ ...structuredClone(membership), id: nextId });
     idMap.set(membership.id, nextId);
   }
@@ -150,14 +175,23 @@ function mergeFrequentFlyerMemberships(
       if (!flight.frequentFlyer) return flight;
       const membershipId = idMap.get(flight.frequentFlyer.membershipId);
       return membershipId && membershipId !== flight.frequentFlyer.membershipId
-        ? { ...flight, frequentFlyer: { ...flight.frequentFlyer, membershipId } }
+        ? {
+            ...flight,
+            frequentFlyer: { ...flight.frequentFlyer, membershipId },
+          }
         : flight;
     }),
   };
 }
 
-function sameMembership(left: FrequentFlyerMembership, right: FrequentFlyerMembership): boolean {
-  return left.programId === right.programId && left.memberNumber === right.memberNumber;
+function sameMembership(
+  left: FrequentFlyerMembership,
+  right: FrequentFlyerMembership,
+): boolean {
+  return (
+    left.programId === right.programId &&
+    left.memberNumber === right.memberNumber
+  );
 }
 
 function countJsonFlightRecords(text: string): number {

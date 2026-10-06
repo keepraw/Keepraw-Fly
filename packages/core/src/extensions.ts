@@ -1,12 +1,17 @@
 import type { KeeprawFlight, JsonValue } from "@keepraw-fly/schema";
 
-function asObject(value: JsonValue | undefined): Record<string, JsonValue> | null {
+function asObject(
+  value: JsonValue | undefined,
+): Record<string, JsonValue> | null {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value
     : null;
 }
 
-function stringField(value: Record<string, JsonValue> | null, field: string): string | undefined {
+function stringField(
+  value: Record<string, JsonValue> | null,
+  field: string,
+): string | undefined {
   const candidate = value?.[field];
   return typeof candidate === "string" ? candidate : undefined;
 }

@@ -1,41 +1,121 @@
-import { access, copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import {
+  access,
+  copyFile,
+  mkdir,
+  readdir,
+  readFile,
+  writeFile,
+} from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const packageRoot = resolve(repositoryRoot, "apps/web/node_modules/soaring-symbols/dist");
+const packageRoot = resolve(
+  repositoryRoot,
+  "apps/web/node_modules/soaring-symbols/dist",
+);
 const assetRoot = resolve(repositoryRoot, "assets/airlines");
-const outputPath = resolve(repositoryRoot, "apps/web/src/generated/airline-icons.ts");
-const publicAssetRoot = resolve(repositoryRoot, "apps/web/public/assets/airlines");
-const externalRoot = process.env.AIRLINES_LOGOS_DATASET_DIR ? resolve(process.env.AIRLINES_LOGOS_DATASET_DIR) : resolve(repositoryRoot, ".tmp-airlines-logos-dataset");
-const localRows = [...JSON.parse(await readFile(resolve(repositoryRoot, "packages/core/data/airlines.json"), "utf8")), ...JSON.parse(await readFile(resolve(repositoryRoot, "packages/core/data/airline-overrides.json"), "utf8"))];
-const localAirlines = new Map(localRows.filter(([iata, icao]) => iata && icao).map(([iata, icao]) => [String(iata).toUpperCase(), String(icao).toUpperCase()]));
+const outputPath = resolve(
+  repositoryRoot,
+  "apps/web/src/generated/airline-icons.ts",
+);
+const publicAssetRoot = resolve(
+  repositoryRoot,
+  "apps/web/public/assets/airlines",
+);
+const externalRoot = process.env.AIRLINES_LOGOS_DATASET_DIR
+  ? resolve(process.env.AIRLINES_LOGOS_DATASET_DIR)
+  : resolve(repositoryRoot, ".tmp-airlines-logos-dataset");
+const localRows = [
+  ...JSON.parse(
+    await readFile(
+      resolve(repositoryRoot, "packages/core/data/airlines.json"),
+      "utf8",
+    ),
+  ),
+  ...JSON.parse(
+    await readFile(
+      resolve(repositoryRoot, "packages/core/data/airline-overrides.json"),
+      "utf8",
+    ),
+  ),
+];
+const localAirlines = new Map(
+  localRows
+    .filter(([iata, icao]) => iata && icao)
+    .map(([iata, icao]) => [
+      String(iata).toUpperCase(),
+      String(icao).toUpperCase(),
+    ]),
+);
 await mkdir(assetRoot, { recursive: true });
 await mkdir(publicAssetRoot, { recursive: true });
-const soaringAirlines = JSON.parse(await readFile(resolve(packageRoot, "airlines.json"), "utf8"));
+const soaringAirlines = JSON.parse(
+  await readFile(resolve(packageRoot, "airlines.json"), "utf8"),
+);
 const svgCodes = new Set();
 for (const airline of soaringAirlines) {
   const iata = airline.iata && String(airline.iata).toUpperCase();
   const icao = airline.icao && String(airline.icao).toUpperCase();
-  if (!iata || !localAirlines.has(iata) || localAirlines.get(iata) !== icao) continue;
-  for (const filename of ["icon.svg", "icon-mono.svg", "logo.svg", "logo-mono.svg"]) {
-    try { await access(resolve(packageRoot, "assets", airline.slug, filename)); await copyFile(resolve(packageRoot, "assets", airline.slug, filename), resolve(assetRoot, `${iata}.svg`)); svgCodes.add(iata); break; } catch { /* try next variant */ }
+  if (!iata || !localAirlines.has(iata) || localAirlines.get(iata) !== icao)
+    continue;
+  for (const filename of [
+    "icon.svg",
+    "icon-mono.svg",
+    "logo.svg",
+    "logo-mono.svg",
+  ]) {
+    try {
+      await access(resolve(packageRoot, "assets", airline.slug, filename));
+      await copyFile(
+        resolve(packageRoot, "assets", airline.slug, filename),
+        resolve(assetRoot, `${iata}.svg`),
+      );
+      svgCodes.add(iata);
+      break;
+    } catch {
+      /* try next variant */
+    }
   }
 }
 // Optional one-time import; checked-in PNGs are the only runtime dependency.
 try {
-  const sourceRows = (JSON.parse(await readFile(resolve(externalRoot, "airlines.json"), "utf8"))).data;
+  const sourceRows = JSON.parse(
+    await readFile(resolve(externalRoot, "airlines.json"), "utf8"),
+  ).data;
   for (const row of sourceRows) {
     const iata = row.iata_code && String(row.iata_code).toUpperCase();
     const icao = row.icao_code && String(row.icao_code).toUpperCase();
-    if (!iata || !icao || svgCodes.has(iata) || localAirlines.get(iata) !== icao || !row.logo) continue;
+    if (
+      !iata ||
+      !icao ||
+      svgCodes.has(iata) ||
+      localAirlines.get(iata) !== icao ||
+      !row.logo
+    )
+      continue;
     const source = resolve(externalRoot, String(row.logo).replace(/^\.\//, ""));
-    try { await access(source); await copyFile(source, resolve(assetRoot, `${iata}.png`)); } catch { /* text fallback remains */ }
+    try {
+      await access(source);
+      await copyFile(source, resolve(assetRoot, `${iata}.png`));
+    } catch {
+      /* text fallback remains */
+    }
   }
-} catch { /* source is optional after PNGs are checked in */ }
-const files = (await readdir(assetRoot)).filter((file) => /^(?:[A-Z0-9]{2})\.(?:svg|png)$/.test(file)).sort();
-for (const file of files) await copyFile(resolve(assetRoot, file), resolve(publicAssetRoot, file));
-const mappings = files.map((file) => `  ${JSON.stringify(file.slice(0, 2))}: { src: "./assets/airlines/${file}" },`);
+} catch {
+  /* source is optional after PNGs are checked in */
+}
+const files = (await readdir(assetRoot))
+  .filter((file) => /^(?:[A-Z0-9]{2})\.(?:svg|png)$/.test(file))
+  .sort();
+for (const file of files)
+  await copyFile(resolve(assetRoot, file), resolve(publicAssetRoot, file));
+const mappings = files.map(
+  (file) =>
+    `  ${JSON.stringify(file.slice(0, 2))}: { src: "./assets/airlines/${file}" },`,
+);
 const source = `// Generated by scripts/generate-airline-icons.mjs. Do not edit manually.\n\nexport interface AirlineLogoAsset {\n  src: string;\n}\n\nexport const airlineLogoByCode: Readonly<Record<string, AirlineLogoAsset>> = Object.freeze({\n${mappings.join("\n")}\n});\n`;
 await writeFile(outputPath, source, "utf8");
-console.log(`Generated ${files.length} local airline assets and ${files.length} IATA mappings.`);
+console.log(
+  `Generated ${files.length} local airline assets and ${files.length} IATA mappings.`,
+);

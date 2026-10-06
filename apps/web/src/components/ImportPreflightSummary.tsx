@@ -13,12 +13,16 @@ export function ImportPreflightSummary({
   onIncludePossibleDuplicatesChange,
 }: ImportPreflightSummaryProps) {
   const { t } = useTranslation();
-  const selectedRecords = preflight.newRecords
-    + (includePossibleDuplicates ? preflight.possibleDuplicateRecords : 0);
+  const selectedRecords =
+    preflight.newRecords +
+    (includePossibleDuplicates ? preflight.possibleDuplicateRecords : 0);
 
   return (
     <>
-      <dl className="import-preflight-stats" aria-label={t("import.preflightSummary")}>
+      <dl
+        className="import-preflight-stats"
+        aria-label={t("import.preflightSummary")}
+      >
         <div>
           <dt>{t("import.totalRecords")}</dt>
           <dd>{preflight.totalRecords}</dd>
@@ -35,11 +39,17 @@ export function ImportPreflightSummary({
           <dt>{t("import.newRecords")}</dt>
           <dd>{preflight.newRecords}</dd>
         </div>
-        <div className={preflight.possibleDuplicateRecords ? "import-stat-possible" : ""}>
+        <div
+          className={
+            preflight.possibleDuplicateRecords ? "import-stat-possible" : ""
+          }
+        >
           <dt>{t("import.possibleDuplicateRecords")}</dt>
           <dd>{preflight.possibleDuplicateRecords}</dd>
         </div>
-        <div className={preflight.exactDuplicateRecords ? "import-stat-exact" : ""}>
+        <div
+          className={preflight.exactDuplicateRecords ? "import-stat-exact" : ""}
+        >
           <dt>{t("import.exactDuplicateRecords")}</dt>
           <dd>{preflight.exactDuplicateRecords}</dd>
         </div>
@@ -48,17 +58,25 @@ export function ImportPreflightSummary({
         <div className="import-resolution" role="note">
           <strong>{t("import.importPlan", { count: selectedRecords })}</strong>
           {preflight.exactDuplicateRecords ? (
-            <span>{t("import.exactDuplicateNote", { count: preflight.exactDuplicateRecords })}</span>
+            <span>
+              {t("import.exactDuplicateNote", {
+                count: preflight.exactDuplicateRecords,
+              })}
+            </span>
           ) : null}
           {preflight.possibleDuplicateRecords ? (
             <label>
               <input
                 type="checkbox"
                 checked={includePossibleDuplicates}
-                onChange={(event) => onIncludePossibleDuplicatesChange?.(event.target.checked)}
+                onChange={(event) =>
+                  onIncludePossibleDuplicatesChange?.(event.target.checked)
+                }
               />
               <span>
-                {t("import.includePossibleDuplicates", { count: preflight.possibleDuplicateRecords })}
+                {t("import.includePossibleDuplicates", {
+                  count: preflight.possibleDuplicateRecords,
+                })}
                 <small>{t("import.possibleDuplicateNote")}</small>
               </span>
             </label>

@@ -45,7 +45,9 @@ export function createPersistenceQueue<Snapshot>(
 
   function retry(): Promise<boolean> {
     // save() changes state synchronously, also preventing repeated Retry clicks.
-    return state.status === "error" ? save(latestSnapshot) : Promise.resolve(false);
+    return state.status === "error"
+      ? save(latestSnapshot)
+      : Promise.resolve(false);
   }
 
   return { save, retry };

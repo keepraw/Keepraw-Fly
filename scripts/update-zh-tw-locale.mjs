@@ -11,7 +11,9 @@ const traditionalizeChinese = OpenCC.Converter({ from: "cn", to: "tw" });
 function convert(value) {
   if (typeof value === "string") return traditionalizeChinese(value);
   if (Array.isArray(value)) return value.map(convert);
-  return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, convert(child)]));
+  return Object.fromEntries(
+    Object.entries(value).map(([key, child]) => [key, convert(child)]),
+  );
 }
 
 const source = JSON.parse(await readFile(sourcePath, "utf8"));
@@ -23,4 +25,6 @@ translated.settings.languages = {
 };
 
 await writeFile(targetPath, `${JSON.stringify(translated, null, 2)}\n`, "utf8");
-console.log("Generated apps/web/src/locales/zh-TW.json from the reviewed zh-CN source.");
+console.log(
+  "Generated apps/web/src/locales/zh-TW.json from the reviewed zh-CN source.",
+);
