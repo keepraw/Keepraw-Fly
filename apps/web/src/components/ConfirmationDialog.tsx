@@ -37,9 +37,10 @@ export function ConfirmationDialog({
   onCancelRef.current = onCancel;
 
   useEffect(() => {
-    const returnFocus = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    const returnFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     const appRoot = document.getElementById("root");
     const rootWasInert = appRoot?.inert ?? false;
     const previousAriaHidden = appRoot?.getAttribute("aria-hidden") ?? null;
@@ -59,8 +60,9 @@ export function ConfirmationDialog({
       }
       if (event.key !== "Tab" || !dialogRef.current) return;
 
-      const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector)]
-        .filter((element) => !element.hidden);
+      const focusable = [
+        ...dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+      ].filter((element) => !element.hidden);
       const first = focusable[0];
       const last = focusable.at(-1);
       if (!first || !last) return;
@@ -81,15 +83,20 @@ export function ConfirmationDialog({
         if (previousAriaHidden === null) appRoot.removeAttribute("aria-hidden");
         else appRoot.setAttribute("aria-hidden", previousAriaHidden);
       }
-      const disabledButton = returnFocus instanceof HTMLButtonElement && returnFocus.disabled;
+      const disabledButton =
+        returnFocus instanceof HTMLButtonElement && returnFocus.disabled;
       if (returnFocus?.isConnected && !disabledButton) returnFocus.focus();
     };
   }, []);
 
   return createPortal(
-    <div className="confirmation-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onCancel();
-    }}>
+    <div
+      className="confirmation-backdrop"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onCancel();
+      }}
+    >
       <section
         ref={dialogRef}
         className="confirmation-dialog"
@@ -101,12 +108,23 @@ export function ConfirmationDialog({
         <h2 id={titleId}>{title}</h2>
         <p id={descriptionId}>{description}</p>
         <div className="confirmation-actions">
-          <button ref={cancelRef} className="button-secondary" type="button" onClick={onCancel}>{cancelLabel}</button>
           <button
-            className={tone === "danger" ? "confirmation-danger" : "button-primary"}
+            ref={cancelRef}
+            className="button-secondary"
+            type="button"
+            onClick={onCancel}
+          >
+            {cancelLabel}
+          </button>
+          <button
+            className={
+              tone === "danger" ? "confirmation-danger" : "button-primary"
+            }
             type="button"
             onClick={onConfirm}
-          >{confirmLabel}</button>
+          >
+            {confirmLabel}
+          </button>
         </div>
       </section>
     </div>,

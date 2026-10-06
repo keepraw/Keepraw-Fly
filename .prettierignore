@@ -1,0 +1,27 @@
+# Dependencies, builds, test reports and local review output.
+node_modules/
+.pnpm-store/
+dist/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+artifacts/
+
+# pnpm owns the lockfile; scripts own these generated modules and metadata.
+pnpm-lock.yaml
+apps/web/src/generated/
+apps/web/src/data/world-map.generated.ts
+apps/web/src/data/world-map.source.json
+apps/web/src/locales/zh-TW.json
+
+# Bundled third-party/reference datasets and copied vendor assets.
+packages/core/data/airports.iata.json
+packages/core/data/airports.source.json
+packages/core/data/airport-city-groups.json
+packages/core/data/airport-locales.json
+packages/core/data/airport-locales.source.json
+packages/core/data/airlines.json
+packages/core/data/airlines.source.json
+assets/
+apps/web/public/assets/airlines/

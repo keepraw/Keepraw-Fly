@@ -1,5 +1,9 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { arrivalDelayMinutes, distanceKilometers, flightDuration } from "./calculations";
+import {
+  arrivalDelayMinutes,
+  distanceKilometers,
+  flightDuration,
+} from "./calculations";
 import { airportByIata, type SupportedLocale } from "./reference-data";
 import { airlineNames, resolveAirline } from "./airline-reference";
 
@@ -44,7 +48,8 @@ function increment(map: Map<string, number>, key: string): void {
 
 function topCount(counts: Map<string, number>): RankedCode | null {
   const top = [...counts].sort(
-    ([codeA, countA], [codeB, countB]) => countB - countA || codeA.localeCompare(codeB),
+    ([codeA, countA], [codeB, countB]) =>
+      countB - countA || codeA.localeCompare(codeB),
   )[0];
   return top ? { code: top[0], count: top[1] } : null;
 }
@@ -60,7 +65,9 @@ function aircraftType(flight: KeeprawFlight): string | null {
 
 export function distanceForFlight(flight: KeeprawFlight): number | null {
   const origin = airportByIata.get(flight.origin.iata);
-  const destination = airportByIata.get((flight.divertedTo ?? flight.destination).iata);
+  const destination = airportByIata.get(
+    (flight.divertedTo ?? flight.destination).iata,
+  );
   return origin && destination ? distanceKilometers(origin, destination) : null;
 }
 
@@ -87,7 +94,8 @@ export function calculatePassportStatistics(
     if (type) aircraftTypes.add(type);
 
     const kilometers = distanceForFlight(flight);
-    if (kilometers !== null) distances.push({ flightId: flight.id, kilometers });
+    if (kilometers !== null)
+      distances.push({ flightId: flight.id, kilometers });
     durationMinutes += flightDuration(flight).minutes;
     const arrivalDelay = arrivalDelayMinutes(flight);
     if (arrivalDelay !== null) {
@@ -96,11 +104,16 @@ export function calculatePassportStatistics(
     }
   }
 
-  const rankedDistances = [...distances].sort((a, b) => a.kilometers - b.kilometers);
+  const rankedDistances = [...distances].sort(
+    (a, b) => a.kilometers - b.kilometers,
+  );
 
   return {
     flights: flights.filter((flight) => !flight.cancelled).length,
-    distanceKilometers: distances.reduce((sum, item) => sum + item.kilometers, 0),
+    distanceKilometers: distances.reduce(
+      (sum, item) => sum + item.kilometers,
+      0,
+    ),
     durationMinutes,
     totalDelayMinutes: delayCoverage ? totalDelayMinutes : null,
     countries: countryCodes.size,
@@ -114,11 +127,16 @@ export function calculatePassportStatistics(
   };
 }
 
-export function collectVisitedCountryCodes(flights: KeeprawFlight[]): Set<string> {
+export function collectVisitedCountryCodes(
+  flights: KeeprawFlight[],
+): Set<string> {
   const countryCodes = new Set<string>();
   for (const flight of flights) {
     if (flight.cancelled) continue;
-    for (const iata of [flight.origin.iata, (flight.divertedTo ?? flight.destination).iata]) {
+    for (const iata of [
+      flight.origin.iata,
+      (flight.divertedTo ?? flight.destination).iata,
+    ]) {
       const country = airportByIata.get(iata)?.country;
       if (country) countryCodes.add(country);
     }
@@ -146,16 +164,21 @@ export function calculateYearStatistics(
         airlines: stats.airlines,
         airports: stats.airports,
         routes: new Set(
-          yearFlights.filter((flight) => !flight.cancelled).map(
-            (flight) => `${flight.origin.iata}-${flight.destination.iata}`,
-          ),
+          yearFlights
+            .filter((flight) => !flight.cancelled)
+            .map(
+              (flight) => `${flight.origin.iata}-${flight.destination.iata}`,
+            ),
         ).size,
       };
     })
     .sort((a, b) => b.year - a.year);
 }
 
-export function airlineDisplayName(code: string, locale: SupportedLocale): string {
+export function airlineDisplayName(
+  code: string,
+  locale: SupportedLocale,
+): string {
   const airline = resolveAirline(code);
   return airline ? airlineNames(airline, locale)[0] : code;
 }

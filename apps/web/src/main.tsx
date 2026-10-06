@@ -29,33 +29,49 @@ if (!root) {
 
 function Bootstrap() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "failed">(
+    "loading",
+  );
 
   useEffect(() => {
     let active = true;
     void loadAirportDirectory()
-      .then(() => { if (active) setStatus("ready"); })
-      .catch(() => { if (active) setStatus("failed"); });
-    return () => { active = false; };
+      .then(() => {
+        if (active) setStatus("ready");
+      })
+      .catch(() => {
+        if (active) setStatus("failed");
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (status === "ready") return <App />;
 
   return (
     <main className="bootstrap-screen" aria-live="polite">
-      <span className="wordmark-mark" aria-hidden="true">K</span>
+      <span className="wordmark-mark" aria-hidden="true">
+        K
+      </span>
       <strong>Keepraw Fly</strong>
       {status === "loading" ? (
         <p>{t("app.loadingAirportDirectory")}</p>
       ) : (
         <>
           <p>{t("app.airportDirectoryUnavailable")}</p>
-          <button type="button" className="button-primary" onClick={() => {
-            setStatus("loading");
-            void loadAirportDirectory()
-              .then(() => setStatus("ready"))
-              .catch(() => setStatus("failed"));
-          }}>{t("actions.retry")}</button>
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => {
+              setStatus("loading");
+              void loadAirportDirectory()
+                .then(() => setStatus("ready"))
+                .catch(() => setStatus("failed"));
+            }}
+          >
+            {t("actions.retry")}
+          </button>
         </>
       )}
     </main>

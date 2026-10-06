@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { buildRouteSegments } from "@keepraw-fly/core";
 import { flightRouteCamera } from "../data/map-camera";
-import { greatCirclePath, projectPoint, regionalCenterLongitude } from "../data/map-geometry";
+import {
+  greatCirclePath,
+  projectPoint,
+  regionalCenterLongitude,
+} from "../data/map-geometry";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
 
@@ -15,20 +19,33 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
   const { t } = useTranslation();
   const route = useMemo(() => buildRouteSegments([flight])[0], [flight]);
   const camera = useMemo(
-    () => route ? flightRouteCamera(route.origin, route.destination) : null,
+    () => (route ? flightRouteCamera(route.origin, route.destination) : null),
     [route],
   );
 
   if (!route || !camera) return null;
 
-  const centerLongitude = regionalCenterLongitude([route.origin, route.destination]);
+  const centerLongitude = regionalCenterLongitude([
+    route.origin,
+    route.destination,
+  ]);
   const origin = projectPoint(route.origin, centerLongitude);
   const destination = projectPoint(route.destination, centerLongitude);
-  const routePath = greatCirclePath(route.origin, route.destination, 40, centerLongitude);
+  const routePath = greatCirclePath(
+    route.origin,
+    route.destination,
+    40,
+    centerLongitude,
+  );
 
   return (
-    <section className="detail-route-map" aria-labelledby="detail-route-map-title">
-      <h2 className="sr-only" id="detail-route-map-title">{flight.origin.iata} → {flight.destination.iata}</h2>
+    <section
+      className="detail-route-map"
+      aria-labelledby="detail-route-map-title"
+    >
+      <h2 className="sr-only" id="detail-route-map-title">
+        {flight.origin.iata} → {flight.destination.iata}
+      </h2>
       <MapViewport
         className="detail-route-map-canvas"
         ariaLabel={t("flightDetail.routeAtlasLabel", {
@@ -36,7 +53,9 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
           destination: flight.destination.iata,
         })}
         initialCamera={camera}
-        cameraForViewport={(height) => flightRouteCamera(route.origin, route.destination, height)}
+        cameraForViewport={(height) =>
+          flightRouteCamera(route.origin, route.destination, height)
+        }
         maxZoom={12}
         labels={{
           zoomIn: t("mapControls.zoomIn"),
@@ -46,15 +65,29 @@ export function FlightRouteMap({ flight }: FlightRouteMapProps) {
       >
         {(viewport, _height, pixelScale) => {
           const inverseZoom = pixelScale / viewport.zoom;
-          return <>
-            <MapWorld showOutline={false} centerLongitude={centerLongitude} />
-            <g className="detail-map-route-group">
-              <path className="detail-map-route-underlay" d={routePath} />
-              <path className="detail-map-route" d={routePath} />
-            </g>
-            <DetailAirport x={origin.x} y={origin.y} inverseZoom={inverseZoom} code={route.origin.iata} variant="origin" />
-            <DetailAirport x={destination.x} y={destination.y} inverseZoom={inverseZoom} code={route.destination.iata} variant="destination" />
-          </>;
+          return (
+            <>
+              <MapWorld showOutline={false} centerLongitude={centerLongitude} />
+              <g className="detail-map-route-group">
+                <path className="detail-map-route-underlay" d={routePath} />
+                <path className="detail-map-route" d={routePath} />
+              </g>
+              <DetailAirport
+                x={origin.x}
+                y={origin.y}
+                inverseZoom={inverseZoom}
+                code={route.origin.iata}
+                variant="origin"
+              />
+              <DetailAirport
+                x={destination.x}
+                y={destination.y}
+                inverseZoom={inverseZoom}
+                code={route.destination.iata}
+                variant="destination"
+              />
+            </>
+          );
         }}
       </MapViewport>
     </section>
@@ -74,13 +107,20 @@ function DetailAirport({
   code: string;
   variant: "origin" | "destination";
 }) {
-  return <g className={`detail-map-airport is-${variant}`} transform={`translate(${x} ${y})`}>
-    <g transform={`scale(${inverseZoom})`}>
-      <circle className="detail-map-airport-point" r="3.5" />
-      <g className="detail-map-airport-label" transform="translate(8 -23)">
-        <rect width="34" height="19" rx="4" />
-        <text x="17" y="13" textAnchor="middle">{code}</text>
+  return (
+    <g
+      className={`detail-map-airport is-${variant}`}
+      transform={`translate(${x} ${y})`}
+    >
+      <g transform={`scale(${inverseZoom})`}>
+        <circle className="detail-map-airport-point" r="3.5" />
+        <g className="detail-map-airport-label" transform="translate(8 -23)">
+          <rect width="34" height="19" rx="4" />
+          <text x="17" y="13" textAnchor="middle">
+            {code}
+          </text>
+        </g>
       </g>
     </g>
-  </g>;
+  );
 }

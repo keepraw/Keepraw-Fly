@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import { parseKeeprawFlyJson, validateKeeprawFly } from "@keepraw-fly/validator";
+import {
+  parseKeeprawFlyJson,
+  validateKeeprawFly,
+} from "@keepraw-fly/validator";
 import {
   buildDocumentFromJsonImport,
   preflightJsonImport,
@@ -18,17 +21,23 @@ describe("import preview", () => {
   });
 
   it("handles an empty archive without inventing dates or an owner", () => {
-    expect(summarizeImport({
-      format: "keepraw-fly",
-      formatVersion: "0.1.0",
-      profile: {},
-      flights: [],
-    })).toEqual({ flightCount: 0 });
+    expect(
+      summarizeImport({
+        format: "keepraw-fly",
+        formatVersion: "0.1.0",
+        profile: {},
+        flights: [],
+      }),
+    ).toEqual({ flightCount: 0 });
   });
 
   it("preflights a valid archive against an empty collection", () => {
     const text = JSON.stringify(documentWithFlights);
-    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), null);
+    const preflight = preflightJsonImport(
+      text,
+      parseKeeprawFlyJson(text),
+      null,
+    );
 
     expect(preflight).toMatchObject({
       totalRecords: 2,
@@ -48,7 +57,11 @@ describe("import preview", () => {
       flights: [structuredClone(documentWithFlights.flights[0]!)],
     };
     const text = JSON.stringify(documentWithFlights);
-    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), existing);
+    const preflight = preflightJsonImport(
+      text,
+      parseKeeprawFlyJson(text),
+      existing,
+    );
 
     expect(preflight).toMatchObject({
       newRecords: 1,
@@ -77,31 +90,67 @@ describe("import preview", () => {
       exactDuplicateRecords: 0,
       canImport: false,
     });
-    expect(preflight.issues[0]).toMatchObject({ flightIndex: 1, keyword: "chronology" });
+    expect(preflight.issues[0]).toMatchObject({
+      flightIndex: 1,
+      keyword: "chronology",
+    });
   });
 
   it("merges referenced memberships and remaps a colliding imported id", () => {
     const existing: KeeprawFlyDocument = {
       ...documentWithFlights,
       flights: [],
-      frequentFlyerMemberships: [{ id: "ff-1", programId: "mileageplus", memberNumber: "UA001", associatedAirlines: ["UA"], defaultAirline: "UA" }],
+      frequentFlyerMemberships: [
+        {
+          id: "ff-1",
+          programId: "mileageplus",
+          memberNumber: "UA001",
+          associatedAirlines: ["UA"],
+          defaultAirline: "UA",
+        },
+      ],
     };
     const imported: KeeprawFlyDocument = {
       ...documentWithFlights,
-      frequentFlyerMemberships: [{ id: "ff-1", programId: "phoenixmiles", memberNumber: "ZH001", tier: "gold", associatedAirlines: ["ZH"], defaultAirline: "ZH" }],
-      flights: [{ ...documentWithFlights.flights[0]!, frequentFlyer: { membershipId: "ff-1", tierAtFlight: "silver" } }],
+      frequentFlyerMemberships: [
+        {
+          id: "ff-1",
+          programId: "phoenixmiles",
+          memberNumber: "ZH001",
+          tier: "gold",
+          associatedAirlines: ["ZH"],
+          defaultAirline: "ZH",
+        },
+      ],
+      flights: [
+        {
+          ...documentWithFlights.flights[0]!,
+          frequentFlyer: { membershipId: "ff-1", tierAtFlight: "silver" },
+        },
+      ],
     };
     const text = JSON.stringify(imported);
-    const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), existing);
+    const preflight = preflightJsonImport(
+      text,
+      parseKeeprawFlyJson(text),
+      existing,
+    );
     const merged = buildDocumentFromJsonImport(preflight, existing);
 
     expect(merged.frequentFlyerMemberships).toHaveLength(2);
-    expect(merged.flights[0]?.frequentFlyer).toEqual({ membershipId: "ff-1-imported", tierAtFlight: "silver" });
+    expect(merged.flights[0]?.frequentFlyer).toEqual({
+      membershipId: "ff-1-imported",
+      tierAtFlight: "silver",
+    });
   });
 
   it("reports an empty or malformed file as a blocking file issue", () => {
     for (const text of ["", '{"format":']) {
-      const preflight = preflightJsonImport(text, parseKeeprawFlyJson(text), null);
+      const preflight = preflightJsonImport(
+        text,
+        parseKeeprawFlyJson(text),
+        null,
+      );
       expect(preflight).toMatchObject({
         totalRecords: 0,
         validRecords: 0,

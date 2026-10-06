@@ -23,12 +23,21 @@ describe("passport map geometry", () => {
     expect(end.x - start.x).toBeGreaterThan(Math.abs(end.y - start.y) * 0.25);
     const paths = regionalWorldPaths(center);
     expect(paths.countries).toHaveLength(WORLD_COUNTRIES.length);
-    expect(paths.countries.find(country => country.code === "CN")?.path).not.toBe(WORLD_COUNTRIES.find(country => country.code === "CN")?.path);
-    const antarctica = paths.countries.find(country => country.code === "AQ")!.path;
+    expect(
+      paths.countries.find((country) => country.code === "CN")?.path,
+    ).not.toBe(WORLD_COUNTRIES.find((country) => country.code === "CN")?.path);
+    const antarctica = paths.countries.find(
+      (country) => country.code === "AQ",
+    )!.path;
     const numbers = antarctica.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
     const ys = numbers.filter((_, index) => index % 2 === 1);
     expect(Math.min(...ys)).toBeGreaterThan(400);
-    expect(regionalCenterLongitude([{ latitude: 30, longitude: -122 }, { latitude: 35, longitude: 140 }])).toBe(0);
+    expect(
+      regionalCenterLongitude([
+        { latitude: 30, longitude: -122 },
+        { latitude: 35, longitude: 140 },
+      ]),
+    ).toBe(0);
   });
   it("projects geographic coordinates onto the world canvas", () => {
     expect(projectPoint({ latitude: 0, longitude: 0 })).toEqual({
@@ -70,6 +79,8 @@ describe("passport map geometry", () => {
     expect(WORLD_GRATICULE_PATH.length).toBeGreaterThan(10_000);
     expect(WORLD_LAND_PATH.length).toBeGreaterThan(50_000);
     expect(WORLD_COUNTRIES.length).toBeGreaterThan(170);
-    expect(WORLD_COUNTRIES.find((country) => country.code === "CN")?.path.length).toBeGreaterThan(100);
+    expect(
+      WORLD_COUNTRIES.find((country) => country.code === "CN")?.path.length,
+    ).toBeGreaterThan(100);
   });
 });

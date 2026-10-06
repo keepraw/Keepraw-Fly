@@ -1,5 +1,9 @@
 import cityGroupRows from "../data/airport-city-groups.json";
-import { localizedText, type LocalizedText, type SupportedLocale } from "./reference-data";
+import {
+  localizedText,
+  type LocalizedText,
+  type SupportedLocale,
+} from "./reference-data";
 
 type CompactCityGroupRow = [string, string, string, string[]];
 
@@ -40,18 +44,28 @@ for (const [code, name, country, airportCodes] of [
   });
 }
 
-export const airportCityGroups = [...groupsByCode.values()].sort((left, right) => left.code.localeCompare(right.code));
-export const airportCityGroupByCode = new Map(airportCityGroups.map((group) => [group.code, group]));
+export const airportCityGroups = [...groupsByCode.values()].sort(
+  (left, right) => left.code.localeCompare(right.code),
+);
+export const airportCityGroupByCode = new Map(
+  airportCityGroups.map((group) => [group.code, group]),
+);
 
 const cityGroupByAirport = new Map<string, AirportCityGroup>();
 for (const group of airportCityGroups) {
-  for (const airportCode of group.airportCodes) cityGroupByAirport.set(airportCode, group);
+  for (const airportCode of group.airportCodes)
+    cityGroupByAirport.set(airportCode, group);
 }
 
-export function airportCityGroupForAirport(iata: string): AirportCityGroup | undefined {
+export function airportCityGroupForAirport(
+  iata: string,
+): AirportCityGroup | undefined {
   return cityGroupByAirport.get(iata);
 }
 
-export function airportCityGroupName(group: AirportCityGroup, locale: SupportedLocale): string {
+export function airportCityGroupName(
+  group: AirportCityGroup,
+  locale: SupportedLocale,
+): string {
   return localizedText(group.name, locale);
 }

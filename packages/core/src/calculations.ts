@@ -17,9 +17,12 @@ export function departureDelayMinutes(flight: KeeprawFlight): number | null {
     : null;
 }
 
-export type FlightOperationalStatus = "scheduled" | "onTime" | "delayed" | "early" | "cancelled" | "diverted";
+export type FlightOperationalStatus =
+  "scheduled" | "onTime" | "delayed" | "early" | "cancelled" | "diverted";
 
-export function flightOperationalStatus(flight: KeeprawFlight): FlightOperationalStatus {
+export function flightOperationalStatus(
+  flight: KeeprawFlight,
+): FlightOperationalStatus {
   if (flight.cancelled) return "cancelled";
   if (flight.divertedTo) return "diverted";
   const delay = flight.actualArrival
@@ -55,7 +58,9 @@ export function flightDuration(flight: KeeprawFlight): FlightDuration {
 
 export function arrivalDelayMinutes(flight: KeeprawFlight): number | null {
   if (flight.divertedTo) return null;
-  return flight.actualArrival ? minutesBetween(flight.scheduledArrival, flight.actualArrival) : null;
+  return flight.actualArrival
+    ? minutesBetween(flight.scheduledArrival, flight.actualArrival)
+    : null;
 }
 
 export function distanceKilometers(

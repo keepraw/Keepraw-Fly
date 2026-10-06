@@ -159,18 +159,18 @@ from Settings. The first row contains column headers. Recognized English and
 Chinese aliases are mapped automatically; the import preview lets you choose
 the source column for every supported field. Column order is flexible.
 
-| Fields | Required | Values |
-| --- | --- | --- |
-| `flightNumber` | Yes | Uppercase airline prefix plus flight number, without spaces or hyphens, for example `MU589`; the airline is derived from the prefix. |
-| `serviceDate` | Yes | `YYYY-MM-DD`, matching departure's airport-local date. |
-| `originIata`, `destinationIata` | Yes | Distinct uppercase IATA codes in the bundled airport directory. |
-| `scheduledDeparture`, `scheduledArrival` | Yes | Date and time as described below; arrival must follow departure. |
-| `actualDeparture`, `actualArrival` | No | Recorded actual date and time. |
-| `originTerminal`, `originGate`, `destinationTerminal`, `destinationGate` | No | Terminal and gate text. |
-| `cancelled`, `divertedToIata` | No | Use `true`/`false` for cancellation; `1`/`yes` also mean true. A diversion uses a known IATA code. A flight cannot be both cancelled and diverted. |
-| `ticketNumber`, `bookingReference` | No | Separate ticket number and booking reference/PNR. |
-| `aircraftType`, `aircraftRegistration` | No | Aircraft facts stored in the aircraft extension. |
-| `seat`, `bookingClass`, `cabin` | No | Seat and cabin text; booking class is a single letter, normalized to uppercase. |
+| Fields                                                                   | Required | Values                                                                                                                                             |
+| ------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flightNumber`                                                           | Yes      | Uppercase airline prefix plus flight number, without spaces or hyphens, for example `MU589`; the airline is derived from the prefix.               |
+| `serviceDate`                                                            | Yes      | `YYYY-MM-DD`, matching departure's airport-local date.                                                                                             |
+| `originIata`, `destinationIata`                                          | Yes      | Distinct uppercase IATA codes in the bundled airport directory.                                                                                    |
+| `scheduledDeparture`, `scheduledArrival`                                 | Yes      | Date and time as described below; arrival must follow departure.                                                                                   |
+| `actualDeparture`, `actualArrival`                                       | No       | Recorded actual date and time.                                                                                                                     |
+| `originTerminal`, `originGate`, `destinationTerminal`, `destinationGate` | No       | Terminal and gate text.                                                                                                                            |
+| `cancelled`, `divertedToIata`                                            | No       | Use `true`/`false` for cancellation; `1`/`yes` also mean true. A diversion uses a known IATA code. A flight cannot be both cancelled and diverted. |
+| `ticketNumber`, `bookingReference`                                       | No       | Separate ticket number and booking reference/PNR.                                                                                                  |
+| `aircraftType`, `aircraftRegistration`                                   | No       | Aircraft facts stored in the aircraft extension.                                                                                                   |
+| `seat`, `bookingClass`, `cabin`                                          | No       | Seat and cabin text; booking class is a single letter, normalized to uppercase.                                                                    |
 
 The six required fields must be mapped and populated in every row. Optional
 fields may be unmapped or empty. Offset-free times must use `YYYY-MM-DDTHH:mm`,

@@ -10,15 +10,15 @@ live in the application; page CSS controls composition.
 
 ### Source of truth
 
-| Source | Responsibility |
-| --- | --- |
-| [design-system.css](../apps/web/src/design-system.css) | Semantic colors, typography, spacing, shape, depth, motion and theme tokens |
-| [styles/](../apps/web/src/styles/) | Global foundations, shared presentation and feature composition; responsive rules stay with their owner |
-| [main.tsx](../apps/web/src/main.tsx) | Explicit, stable stylesheet import order after design-system tokens |
-| [PageShell](../apps/web/src/components/PageShell.tsx) | Main-content landmark and shared page shell |
-| [AppHeader](../apps/web/src/components/AppHeader.tsx) | Passport/Settings navigation, mobile headings and flight-detail actions |
-| [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | Airport codes, status badges and aviation icons |
-| [MapViewport](../apps/web/src/components/MapViewport.tsx) | Local SVG pan, zoom, reset and camera transitions |
+| Source                                                                  | Responsibility                                                                                          |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [design-system.css](../apps/web/src/design-system.css)                  | Semantic colors, typography, spacing, shape, depth, motion and theme tokens                             |
+| [styles/](../apps/web/src/styles/)                                      | Global foundations, shared presentation and feature composition; responsive rules stay with their owner |
+| [main.tsx](../apps/web/src/main.tsx)                                    | Explicit, stable stylesheet import order after design-system tokens                                     |
+| [PageShell](../apps/web/src/components/PageShell.tsx)                   | Main-content landmark and shared page shell                                                             |
+| [AppHeader](../apps/web/src/components/AppHeader.tsx)                   | Passport/Settings navigation, mobile headings and flight-detail actions                                 |
+| [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | Airport codes, status badges and aviation icons                                                         |
+| [MapViewport](../apps/web/src/components/MapViewport.tsx)               | Local SVG pan, zoom, reset and camera transitions                                                       |
 
 The feature split keeps `design-system.css` responsible for tokens and shared
 design-system definitions. `base.css` owns element foundations and accessibility
@@ -70,11 +70,11 @@ new UI should prefer semantic roles instead of adding another palette.
 Each page needs one clear subject. Scale, alignment and whitespace establish
 hierarchy before surfaces, shadows or decoration.
 
-| Page or region | Primary subject | Supporting content |
-| --- | --- | --- |
-| Passport | Geographic footprint and the connected flight archive | Period/search controls, derived totals and selection details |
-| Flight detail | Origin → destination and the relationship between local times | Date, flight identity, recorded status and optional travel facts |
-| Settings | Data ownership and editable preferences | Section labels, import/export controls and storage information |
+| Page or region | Primary subject                                               | Supporting content                                               |
+| -------------- | ------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Passport       | Geographic footprint and the connected flight archive         | Period/search controls, derived totals and selection details     |
+| Flight detail  | Origin → destination and the relationship between local times | Date, flight identity, recorded status and optional travel facts |
+| Settings       | Data ownership and editable preferences                       | Section labels, import/export controls and storage information   |
 
 The chronological flight list is part of Passport, not a separate page. Desktop
 can place the map and archive beside each other; mobile reorders the same content
@@ -129,15 +129,15 @@ Screenshots and Playwright reports are local test outputs, not product assets.
 
 ### 实现入口
 
-| 源文件 | 职责 |
-| --- | --- |
-| [design-system.css](../apps/web/src/design-system.css) | 语义颜色、字体、间距、形状、纵深、动效与主题 token |
-| [styles/](../apps/web/src/styles/) | 全局基础、共享展示与 feature 构图；响应式规则与所属样式共置 |
-| [main.tsx](../apps/web/src/main.tsx) | 在 design-system token 之后，以明确且稳定的顺序导入样式 |
-| [PageShell](../apps/web/src/components/PageShell.tsx) | 主内容 landmark 和共享页面骨架 |
-| [AppHeader](../apps/web/src/components/AppHeader.tsx) | Passport/设置导航、移动端标题和航班详情操作 |
-| [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | 机场代码、状态徽标和航空图标 |
-| [MapViewport](../apps/web/src/components/MapViewport.tsx) | 本地 SVG 地图拖动、缩放、复位与视角过渡 |
+| 源文件                                                                  | 职责                                                        |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------- |
+| [design-system.css](../apps/web/src/design-system.css)                  | 语义颜色、字体、间距、形状、纵深、动效与主题 token          |
+| [styles/](../apps/web/src/styles/)                                      | 全局基础、共享展示与 feature 构图；响应式规则与所属样式共置 |
+| [main.tsx](../apps/web/src/main.tsx)                                    | 在 design-system token 之后，以明确且稳定的顺序导入样式     |
+| [PageShell](../apps/web/src/components/PageShell.tsx)                   | 主内容 landmark 和共享页面骨架                              |
+| [AppHeader](../apps/web/src/components/AppHeader.tsx)                   | Passport/设置导航、移动端标题和航班详情操作                 |
+| [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | 机场代码、状态徽标和航空图标                                |
+| [MapViewport](../apps/web/src/components/MapViewport.tsx)               | 本地 SVG 地图拖动、缩放、复位与视角过渡                     |
 
 拆分后，`design-system.css` 继续负责 token 与共享设计系统定义。`base.css` 负责元素基础
 规则与可访问性辅助类；`shell.css` 负责页头、导航、页面骨架与加载界面；`controls.css`
@@ -174,11 +174,11 @@ Screenshots and Playwright reports are local test outputs, not product assets.
 
 每页只有一个清晰主题。先用尺度、对齐和留白建立层级，再考虑表面、阴影或装饰。
 
-| 页面或区域 | 主要对象 | 支撑内容 |
-| --- | --- | --- |
-| Passport | 地理飞行足迹及相互关联的航班档案 | 时间范围/搜索控件、派生统计和选中内容的详情 |
-| 航班详情 | 起点 → 终点及两地当地时间的关系 | 日期、航班身份、已记录状态和可选出行事实 |
-| 设置 | 数据归属与可编辑偏好 | 章节标签、导入/导出控件和存储信息 |
+| 页面或区域 | 主要对象                         | 支撑内容                                    |
+| ---------- | -------------------------------- | ------------------------------------------- |
+| Passport   | 地理飞行足迹及相互关联的航班档案 | 时间范围/搜索控件、派生统计和选中内容的详情 |
+| 航班详情   | 起点 → 终点及两地当地时间的关系  | 日期、航班身份、已记录状态和可选出行事实    |
+| 设置       | 数据归属与可编辑偏好             | 章节标签、导入/导出控件和存储信息           |
 
 按时间组织的航班列表属于 Passport，不再是独立页面。桌面端可以并排展示地图与档案，
 移动端将同样的内容重排为文档流。航班详情在移动端不展示航线地图。
