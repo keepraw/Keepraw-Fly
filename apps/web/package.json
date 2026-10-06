@@ -16,10 +16,10 @@
     "@keepraw-fly/validator": "workspace:*",
     "d3-geo": "3.1.1",
     "dexie": "^4.4.6",
-    "i18next": "^25.3.4",
+    "i18next": "^26.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-i18next": "^15.6.1",
+    "react-i18next": "^17.0.15",
     "soaring-symbols": "0.1.0-alpha.12"
   },
   "devDependencies": {
