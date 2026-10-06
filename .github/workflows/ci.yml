@@ -47,8 +47,18 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run browser journeys
+      - name: Run full Chromium regression journeys
         run: pnpm test:e2e --project=chromium
+
+      - name: Upload failed Chromium diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-chromium
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Upload Passport mobile review screenshots
         if: always()
@@ -96,7 +106,9 @@ jobs:
       - name: Install Playwright browser and system dependencies
         run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Run full browser journeys
+      # Each project selects @cross-browser tests in playwright.config.ts.
+      # Keep engine diagnostics independent; Chromium runs all E2E in verify.
+      - name: Run cross-browser smoke journeys
         run: pnpm test:e2e --project=${{ matrix.browser }}
 
       - name: Upload failed browser diagnostics

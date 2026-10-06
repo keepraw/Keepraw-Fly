@@ -133,7 +133,8 @@ async function openSettings(page: Page) {
   await expect(page.locator(".settings-page")).toBeVisible();
 }
 
-test("persists an edited flight and keeps it after reload without an unsaved warning", async ({ page }) => {
+// Real IndexedDB round-trip; mocked failures/queue ordering stay in Chromium.
+test("persists an edited flight and keeps it after reload without an unsaved warning", { tag: "@cross-browser" }, async ({ page }) => {
   await importArchive(page);
   await openImportedFlight(page);
   await editFlightNumber(page, "UA124");

@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-test("keeps a natural long-route arc and round offline detail-map endpoints", async ({ page, context }) => {
+// SVG screen transforms, endpoint geometry and offline rendering vary by engine.
+test("keeps a natural long-route arc and round offline detail-map endpoints", { tag: "@cross-browser" }, async ({ page, context }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
   const archive = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
