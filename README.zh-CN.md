@@ -71,10 +71,10 @@ pnpm check:docs
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm test:e2e
+pnpm test:e2e --project=chromium
 ```
 
-需要时先运行 `pnpm exec playwright install chromium`。`pnpm check:docs` 会检查功能说明、Demo 标注及文档中的本地链接。GitHub Actions 会针对 Pull Request 和 `main` 运行仓库检查，并在 `main` 检查通过后部署到 GitHub Pages。配置方式见[部署说明](docs/deployment.md)。
+需要时先运行 `pnpm exec playwright install chromium`。Chromium 运行完整 E2E 回归；Firefox 和 WebKit 仅运行带标记的兼容性 smoke，命令为 `pnpm test:e2e --project=firefox --project=webkit`（先安装对应浏览器）。分层和新增测试规则见[测试说明](docs/testing.md)。`pnpm check:docs` 会检查功能说明、Demo 标注及文档中的本地链接。GitHub Actions 会针对 Pull Request 和 `main` 运行仓库检查，并在 `main` 检查通过后部署到 GitHub Pages。配置方式见[部署说明](docs/deployment.md)。
 
 ## 数据格式
 

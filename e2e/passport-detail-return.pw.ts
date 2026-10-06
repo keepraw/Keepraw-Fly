@@ -2,6 +2,8 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 
+// Both scrollports and SVG-to-row keyboard focus have engine-specific behavior.
+
 async function importLongArchive(page: Page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const archive: KeeprawFlyDocument = JSON.parse(await readFile(new URL("../examples/basic.keepraw-fly.json", import.meta.url), "utf8"));
@@ -37,7 +39,7 @@ async function expectRestoredWithoutSelection(page: Page, row: Locator) {
 }
 
 for (const width of [1280, 390]) {
-  test(`restores the opened flight without selection at ${width}px`, async ({ page }) => {
+  test(`restores the opened flight without selection at ${width}px`, { tag: "@cross-browser" }, async ({ page }) => {
     await page.setViewportSize({ width, height: 720 });
     await importLongArchive(page);
     // Keep a year and search active to verify navigation preserves the list scope.
@@ -58,7 +60,7 @@ for (const width of [1280, 390]) {
   });
 }
 
-test("restores the adjacent detail flight without selecting it", async ({ page }) => {
+test("restores the adjacent detail flight without selecting it", { tag: "@cross-browser" }, async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await importLongArchive(page);
   await flightRow(page, 24).click();
@@ -68,7 +70,7 @@ test("restores the adjacent detail flight without selecting it", async ({ page }
 });
 
 for (const source of ["airport", "route"] as const) {
-  test(`map ${source} selection still scrolls, focuses and highlights the flight`, async ({ page }) => {
+  test(`map ${source} selection still scrolls, focuses and highlights the flight`, { tag: "@cross-browser" }, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await importLongArchive(page);
     const row = flightRow(page, 24);

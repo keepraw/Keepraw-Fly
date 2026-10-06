@@ -190,7 +190,7 @@ test("rechecks persistent storage granted elsewhere before requesting", async ({
   expect(await page.evaluate(() => window.storageProtectionTest.persistCalls)).toBe(0);
 });
 
-test("reads native persistent storage without assuming the browser grants it", async ({ page }, testInfo) => {
+test("reads native persistent storage without assuming the browser grants it", { tag: "@cross-browser" }, async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/#settings");
