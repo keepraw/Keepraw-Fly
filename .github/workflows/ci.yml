@@ -61,7 +61,7 @@ jobs:
 
       - name: Upload failed Chromium diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-chromium
           path: |
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload Passport mobile review screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: passport-mobile-review
           path: test-results/review/passport-mobile-*.png
@@ -122,7 +122,7 @@ jobs:
 
       - name: Upload failed browser diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-${{ matrix.browser }}
           path: |
