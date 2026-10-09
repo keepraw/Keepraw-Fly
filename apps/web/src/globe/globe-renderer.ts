@@ -7,6 +7,7 @@ import type { RouteSegment } from "@keepraw-fly/core";
 import {
   defaultGlobeView,
   globeAirports,
+  physicalGlobeRoutes,
   routeArc,
   routeKey,
   selectedRouteView,
@@ -89,14 +90,17 @@ export function createGlobe(
   host.append(canvas);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 20);
-  const home = defaultGlobeView(routes);
+  let home = defaultGlobeView(routes, {
+    width: host.clientWidth || 1008,
+    height: host.clientHeight || 610,
+  });
   camera.position.copy(vector(home.direction).multiplyScalar(home.distance));
   camera.lookAt(0, 0, 0);
   const controls = new OrbitControls(camera, canvas);
   controls.enablePan = false;
   controls.enableDamping = false;
   controls.enableRotate = true;
-  controls.minDistance = 1.75;
+  controls.minDistance = 1.45;
   controls.maxDistance = 6.2;
   controls.rotateSpeed = 0.55;
   controls.zoomSpeed = 0.65;
@@ -158,25 +162,53 @@ export function createGlobe(
     labels.append(label);
     return { point, marker, label };
   });
-  const routeLines = [...routes]
-    .sort((a, b) => a.flightCount - b.flightCount)
-    .map((route) => {
-      const points = routeArc(route);
-      const lineGeometry = new LineGeometry();
-      lineGeometry.setPositions(points.flat());
-      const lineMaterial = new LineMaterial({
-        color: 0x529bd0,
-        linewidth: 1,
-        transparent: true,
-        opacity: 0.6,
-        depthTest: true,
-        depthWrite: false,
-      });
-      const line = new Line2(lineGeometry, lineMaterial);
-      line.computeLineDistances();
-      scene.add(line);
-      return { route, points, line };
+  const routeLines = physicalGlobeRoutes(routes).map((directions) => {
+    const route = directions[0]!;
+    const points = routeArc(route);
+    const lineGeometry = new LineGeometry();
+    lineGeometry.setPositions(points.flat());
+    const lineMaterial = new LineMaterial({
+      color: 0x529bd0,
+      linewidth: 1,
+      transparent: true,
+      opacity: 0.6,
+      depthTest: true,
+      depthWrite: false,
+      toneMapped: false,
     });
+    const selectedUniform = { value: 0 };
+    lineMaterial.onBeforeCompile = (shader) => {
+      shader.uniforms.sceneSelected = selectedUniform;
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nvarying float vRouteFacing;",
+        )
+        .replace(
+          "void main() {",
+          `void main() {
+            vec3 routeWorld = (modelMatrix * vec4(position.y < 0.5 ? instanceStart : instanceEnd, 1.0)).xyz;
+            vRouteFacing = dot(normalize(routeWorld), normalize(cameraPosition - routeWorld));`,
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nvarying float vRouteFacing;\nuniform float sceneSelected;",
+        )
+        .replace(
+          "gl_FragColor = vec4( diffuseColor.rgb, alpha );",
+          `
+            float limbFloor = mix(0.04, 0.18, sceneSelected);
+            alpha *= limbFloor + (1.0 - limbFloor) * smoothstep(-0.02, 0.30, vRouteFacing);
+            gl_FragColor = vec4( diffuseColor.rgb, alpha );`,
+        );
+    };
+    lineMaterial.customProgramCacheKey = () => "globe-route-limb-v1";
+    const line = new Line2(lineGeometry, lineMaterial);
+    line.computeLineDistances();
+    scene.add(line);
+    return { route, directions, points, line, selectedUniform };
+  });
   let disposed = false,
     frame = 0,
     width = 1,
@@ -192,7 +224,8 @@ export function createGlobe(
   } | null = null;
   let dragging = false,
     pointerStart = { x: 0, y: 0 };
-  let centered = false;
+  let viewOffset = home.offset ?? { x: 0, y: 0 };
+  let atHome = true;
   const metrics: GlobeMetrics = {
     firstFrameMs: 0,
     frames: 0,
@@ -211,8 +244,9 @@ export function createGlobe(
   function paintStyles() {
     const dark = uniforms.dark.value === 1;
     for (const item of routeLines) {
-      const active = isSelectedRoute(item.route),
-        hovered = highlight === routeKey(item.route);
+      const active = item.directions.some(isSelectedRoute),
+        hovered = item.directions.some((r) => highlight === routeKey(r));
+      item.selectedUniform.value = active ? 1 : 0;
       item.line.material.color.set(
         active
           ? dark
@@ -223,20 +257,25 @@ export function createGlobe(
               ? 0xc7eeff
               : 0x1357a4
             : dark
-              ? 0x68b6ed
+              ? 0x65a8d6
               : 0x2876c9,
       );
-      const level = Math.min(Math.log2(item.route.flightCount + 1), 3);
+      const level = Math.min(
+        Math.log2(
+          item.directions.reduce((sum, r) => sum + r.flightCount, 0) + 1,
+        ),
+        3,
+      );
       item.line.material.linewidth = active
-        ? 2.2
+        ? 1.65
         : hovered
-          ? 1.8
-          : 0.95 + level * 0.28;
+          ? 1.3
+          : 0.85 + level * 0.08;
       item.line.material.opacity = active
-        ? 1
+        ? 0.92
         : hovered
-          ? 0.95
-          : (selected?.kind === "route" ? 0.44 : 0.65) + level * 0.06;
+          ? 0.8
+          : (selected?.kind === "route" ? 0.27 : 0.4) + level * 0.1;
       item.line.renderOrder = active ? 3 : hovered ? 2 : 1;
     }
     for (const item of markers) {
@@ -311,6 +350,24 @@ export function createGlobe(
     renderer.render(scene, camera);
     layoutLabels();
     host.dataset.camera = JSON.stringify(camera.position.toArray());
+    host.dataset.scene = JSON.stringify({
+      camera: camera.position.toArray(),
+      fov: camera.fov,
+      viewOffset,
+      viewport: { width, height },
+      home,
+      atHome,
+      physicalRoutes: routeLines.length,
+      routes: routeLines.flatMap((item) =>
+        item.directions.map((route) => ({
+          key: routeKey(route),
+          count: route.flightCount,
+          maxAltitude: Math.max(
+            ...item.points.map((p) => Math.hypot(...p) - 1),
+          ),
+        })),
+      ),
+    });
     host.dataset.lighting = JSON.stringify({
       ...lighting,
       sunDirection: uniforms.sunDirection.value.toArray(),
@@ -331,14 +388,15 @@ export function createGlobe(
     if (!disposed && !frame) frame = requestAnimationFrame(render);
   }
   function flyTo(view: GlobeView, center = true) {
-    centered = center;
+    atHome = !center;
+    viewOffset = view.offset ?? { x: 0, y: 0 };
     const to = vector(view.direction).multiplyScalar(view.distance);
     // Selection centers the route; Home returns to the deliberately cropped composition.
     camera.setViewOffset(
       width,
       height,
-      0,
-      center ? 0 : -height * 0.16,
+      width * viewOffset.x,
+      height * viewOffset.y,
       width,
       height,
     );
@@ -358,16 +416,31 @@ export function createGlobe(
     };
     invalidate();
   }
+  // DEV-only Lab capture seam: lock historical cameras without moving the sun.
+  const reviewHost = host as HTMLDivElement & {
+    globeReviewView?: (view: GlobeView) => void;
+  };
+  reviewHost.globeReviewView = (view) => flyTo(view);
   function resize() {
     width = Math.max(1, host.clientWidth);
     height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height);
     camera.aspect = width / height;
+    home = defaultGlobeView(routes, { width, height });
+    if (atHome) {
+      moving = null;
+      camera.position.copy(
+        vector(home.direction).multiplyScalar(home.distance),
+      );
+      camera.lookAt(0, 0, 0);
+      viewOffset = home.offset ?? { x: 0, y: 0 };
+      controls.update();
+    }
     camera.setViewOffset(
       width,
       height,
-      0,
-      centered ? 0 : -height * 0.16,
+      width * viewOffset.x,
+      height * viewOffset.y,
       width,
       height,
     );
@@ -428,6 +501,7 @@ export function createGlobe(
   nightTexture.colorSpace = THREE.NoColorSpace;
   const change = () => invalidate();
   const controlStart = () => {
+    atHome = false;
     moving = null;
     callbacks.hover(null);
   };
@@ -470,18 +544,19 @@ export function createGlobe(
         const distance = Math.hypot(x - p.x - t * dx, y - p.y - t * dy);
         if (distance < best) {
           best = distance;
+          const route = item.directions.find(isSelectedRoute) ?? item.route;
           hit = {
             selection: {
               kind: "route",
-              origin: item.route.origin.iata,
-              destination: item.route.destination.iata,
+              origin: route.origin.iata,
+              destination: route.destination.iata,
             },
             text: callbacks.routeLabel(
-              item.route.origin.iata,
-              item.route.destination.iata,
-              item.route.flightCount,
+              route.origin.iata,
+              route.destination.iata,
+              route.flightCount,
             ),
-            key: routeKey(item.route),
+            key: routeKey(route),
           };
         }
       }
@@ -520,6 +595,7 @@ export function createGlobe(
   const key = (e: KeyboardEvent) => {
     const spherical = new THREE.Spherical().setFromVector3(camera.position);
     if (e.key.startsWith("Arrow")) {
+      atHome = false;
       e.preventDefault();
       moving = null;
       if (e.key === "ArrowLeft") spherical.theta -= 0.12;
@@ -538,6 +614,7 @@ export function createGlobe(
     }
   };
   function zoom(factor: number) {
+    atHome = false;
     moving = null;
     camera.position.setLength(
       Math.max(
@@ -589,7 +666,7 @@ export function createGlobe(
             r.origin.iata === selection.origin &&
             r.destination.iata === selection.destination,
         );
-        if (route) flyTo(selectedRouteView(route));
+        if (route) flyTo(selectedRouteView(route, { width, height }));
       } else if (selection?.kind === "airport") {
         const airport = airports.find((a) => a.iata === selection.code);
         if (airport)
@@ -638,6 +715,7 @@ export function createGlobe(
       canvas.remove();
       labels.replaceChildren();
       delete host.dataset.ready;
+      delete reviewHost.globeReviewView;
     },
   };
 }

@@ -5,6 +5,8 @@ import {
   dot,
   geographicPoint,
   globeAirports,
+  physicalGlobeRoutes,
+  projectGlobePoint,
   interpolateSphere,
   routeArc,
   selectedRouteView,
@@ -88,6 +90,41 @@ describe("globe geodesy", () => {
     const airports = globeAirports([route(PVG, HKG, 3), route(HKG, PVG, 2)]);
     expect(airports.map((a) => a.flightCount)).toEqual([5, 5]);
   });
+  it("saturates long-haul height while retaining depth and surface endpoints", () => {
+    const heights = [
+      route(SFO, LAX),
+      route(SFO, JFK),
+      route(SFO, NRT),
+      route(SFO, airport("A", -37.62, 57.62)),
+    ].map((r) => {
+      const arc = routeArc(r);
+      expect(Math.hypot(...arc[0]!)).toBeCloseTo(1.002, 10);
+      expect(Math.hypot(...arc[96]!)).toBeCloseTo(1.002, 10);
+      return Math.max(...arc.map((p) => Math.hypot(...p) - 1));
+    });
+    expect(heights[0]).toBeGreaterThan(0.006);
+    expect(heights[0]).toBeLessThan(heights[1]!);
+    expect(heights[1]).toBeLessThan(heights[2]!);
+    expect(heights[3]).toBeLessThan(0.035);
+    // No radial ring for a coincident airport.
+    expect(Math.hypot(...routeArc(route(PVG, PVG))[48]!)).toBeCloseTo(
+      1.002,
+      10,
+    );
+  });
+  it("shares reverse/duplicate geometry without merging directed business counts", () => {
+    const input = [route(PVG, HKG, 3), route(HKG, PVG, 2), route(PVG, HKG, 1)];
+    const pairs = physicalGlobeRoutes(input);
+    expect(pairs).toHaveLength(1);
+    expect(pairs[0]).toHaveLength(3);
+    expect(input.map((r) => r.flightCount)).toEqual([3, 2, 1]);
+    const forward = routeArc(input[0]!),
+      reverse = routeArc(input[1]!).reverse();
+    forward.forEach((p, i) =>
+      p.forEach((v, axis) => expect(v).toBeCloseTo(reverse[i]![axis]!, 10)),
+    );
+    expect(physicalGlobeRoutes([...input].reverse())).toEqual(pairs);
+  });
 });
 describe("intelligent globe camera", () => {
   it("faces dense Asia despite a sparse North American outlier", () => {
@@ -140,5 +177,61 @@ describe("intelligent globe camera", () => {
     expect(dot(single.direction, spherePoint(SFO))).toBeGreaterThan(0.9);
     const south = defaultGlobeView([route(SYD, airport("AKL", -37, 174.8), 8)]);
     expect(geographicPoint(south.direction).latitude).toBeLessThan(-25);
+  });
+  it("keeps regional activity inside safe screen margins at wide and tall aspects", () => {
+    for (const routes of [
+      [route(PVG, HKG, 12), route(HKG, NRT, 7), route(SFO, JFK)],
+      [route(SFO, LAX, 12), route(SFO, JFK, 8), route(PVG, HKG)],
+    ]) {
+      for (const viewport of [
+        { width: 1006, height: 608 },
+        { width: 860, height: 428 },
+        { width: 650, height: 610 },
+      ]) {
+        const view = defaultGlobeView(routes, viewport);
+        const mainAirports = globeAirports(routes).filter(
+          (p) => p.flightCount > 5,
+        );
+        for (const point of mainAirports) {
+          const projected = projectGlobePoint(
+            spherePoint(point),
+            view,
+            viewport,
+          );
+          expect(projected.visible).toBe(true);
+          expect(projected.x).toBeGreaterThan(0.06);
+          expect(projected.x).toBeLessThan(0.92);
+          expect(projected.y).toBeGreaterThan(0.16);
+          expect(projected.y).toBeLessThan(0.9);
+        }
+        // A cropped cap, rather than an automatic highest-hub center.
+        const hub = projectGlobePoint(
+          spherePoint(mainAirports[0]!),
+          view,
+          viewport,
+        );
+        expect(Math.hypot(hub.x - 0.5, hub.y - 0.5)).toBeGreaterThan(0.05);
+        expect(view.distance).toBeLessThan(3);
+      }
+    }
+  });
+  it("fits selected intercontinental endpoints with real occlusion at either aspect", () => {
+    for (const viewport of [
+      { width: 1006, height: 608 },
+      { width: 860, height: 428 },
+      { width: 600, height: 610 },
+    ]) {
+      for (const r of [route(SFO, NRT), route(LAX, SYD), route(PVG, JFK)]) {
+        const view = selectedRouteView(r, viewport);
+        for (const point of [r.origin, r.destination]) {
+          const p = projectGlobePoint(spherePoint(point), view, viewport);
+          expect(p.visible).toBe(true);
+          expect(p.x).toBeGreaterThan(0.06);
+          expect(p.x).toBeLessThan(0.94);
+          expect(p.y).toBeGreaterThan(0.1);
+          expect(p.y).toBeLessThan(0.9);
+        }
+      }
+    }
   });
 });
