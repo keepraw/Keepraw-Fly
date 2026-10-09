@@ -3,44 +3,66 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 async function imageStats(page: Page) {
   const png = await page.locator(".globe-webgl").screenshot();
-  return page.evaluate(async (base64) => {
-    const image = new Image();
-    image.src = `data:image/png;base64,${base64}`;
-    await image.decode();
-    const canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    const context = canvas.getContext("2d")!;
-    context.drawImage(image, 0, 0);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    let warmPixels = 0,
-      totalLuminance = 0,
-      centerLuminance = 0,
-      centerPixels = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-      const r = pixels[i]!,
-        g = pixels[i + 1]!,
-        b = pixels[i + 2]!;
-      if (r > 100 && g > 50 && r > g * 1.12 && g > b * 1.2) warmPixels++;
-      totalLuminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      const x = (i / 4) % canvas.width,
-        y = Math.floor(i / 4 / canvas.width);
-      if (
-        x > canvas.width * 0.25 &&
-        x < canvas.width * 0.75 &&
-        y > canvas.height * 0.2 &&
-        y < canvas.height * 0.8
-      ) {
-        centerLuminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        centerPixels++;
+  const scene = JSON.parse(
+    (await page.locator(".globe-host").getAttribute("data-scene"))!,
+  );
+  return page.evaluate(
+    async ({ base64, scene }) => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${base64}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const context = canvas.getContext("2d")!;
+      context.drawImage(image, 0, 0);
+      const pixels = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      ).data;
+      let warmPixels = 0,
+        totalLuminance = 0,
+        centerLuminance = 0,
+        centerPixels = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i]!,
+          g = pixels[i + 1]!,
+          b = pixels[i + 2]!;
+        if (r > 100 && g > 50 && r > g * 1.12 && g > b * 1.2) warmPixels++;
+        totalLuminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        const x = (i / 4) % canvas.width,
+          y = Math.floor(i / 4 / canvas.width);
+        // The new close-up exposes space inside the old rectangular sample.
+        // Sample only the analytic inner sphere disk, excluding atmosphere/space.
+        const distance = Math.hypot(...scene.camera);
+        const radius =
+          canvas.height /
+          (2 *
+            Math.tan((scene.fov * Math.PI) / 360) *
+            Math.sqrt(distance * distance - 1));
+        const sphereX = canvas.width * (0.5 - scene.viewOffset.x),
+          sphereY = canvas.height * (0.5 - scene.viewOffset.y);
+        if (
+          x > canvas.width * 0.25 &&
+          x < canvas.width * 0.75 &&
+          y > canvas.height * 0.2 &&
+          y < canvas.height * 0.8 &&
+          Math.hypot(x - sphereX, y - sphereY) < radius * 0.9
+        ) {
+          centerLuminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          centerPixels++;
+        }
       }
-    }
-    return {
-      warmPixels,
-      meanLuminance: totalLuminance / (pixels.length / 4),
-      meanCenterLuminance: centerLuminance / centerPixels,
-    };
-  }, png.toString("base64"));
+      return {
+        warmPixels,
+        meanLuminance: totalLuminance / (pixels.length / 4),
+        meanCenterLuminance: centerLuminance / centerPixels,
+      };
+    },
+    { base64: png.toString("base64"), scene },
+  );
 }
 
 test("cinematic layers produce real pixels and keep the world-space sun fixed @cross-browser", async ({
