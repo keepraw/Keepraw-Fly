@@ -1,0 +1,32 @@
+[
+  {
+    "file": "assets/globe-audit-CgM1nqIR.js",
+    "bytes": 592924,
+    "gzipBytes": 148804
+  },
+  {
+    "file": "assets/earth-2048-CTFtQwMi.webp",
+    "bytes": 316798,
+    "gzipBytes": 316916
+  },
+  {
+    "file": "assets/earth-4096-DVsGXufG.webp",
+    "bytes": 973494,
+    "gzipBytes": 973812
+  },
+  {
+    "file": "assets/night-2048-BpqPfWyr.webp",
+    "bytes": 125466,
+    "gzipBytes": 125421
+  },
+  {
+    "file": "assets/night-4096-BXF6E_Ym.webp",
+    "bytes": 401034,
+    "gzipBytes": 400487
+  },
+  {
+    "file": "globe-audit.html",
+    "bytes": 83,
+    "gzipBytes": 99
+  }
+]
