@@ -1,11 +1,15 @@
 # Desktop Passport Globe 实验交付说明
 
+本说明记录 Task 1 基线交付时的状态。最新的光照重构、性能、真实浏览器截图与
+Draft PR 审查状态见 [Task 1B-1 报告](globe-cinematic-lighting.md)，
+当前仍为 **Visual approval pending**。
+
 日期：2026-10-09。分支：`codex/globe-prototype-experiment`。
 起点：PR #33 检查点 `a6be5cc`，原分支为
 `codex/desktop-passport-redesign-checkpoint`。
 
 已交付可运行、可交互、使用现有档案数据的独立原型。正式 Passport 地图没有被替换，
-没有创建、合并或关闭 PR。视觉效果尚未由项目负责人验收；当前性能结果也不足以支持直接生产整合。
+Task 1 交付时没有创建、合并或关闭 PR。视觉效果尚未由项目负责人验收；当时的性能结果也不足以支持直接生产整合。
 
 ## 打开与代码范围
 

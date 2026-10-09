@@ -1,0 +1,71 @@
+{
+  "phase": "after",
+  "url": "http://127.0.0.1:5173/globe-lab",
+  "backend": "chrome",
+  "baselineCommit": "04fb505",
+  "data": "Repository Demo archive; All years; 24 flights; 23 directed routes; 20 airports",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "quality": 4096,
+  "devicePixelRatio": 1,
+  "gpu": {
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "maxTextureSize": 16384
+  },
+  "records": [
+    {
+      "theme": "dark",
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "metrics": {
+        "firstFrameMs": 106.39999999850988,
+        "frames": 6,
+        "lastFrameMs": 0.7000000029802322,
+        "recentFrameMs": [
+          90.09999999776483, 0.8999999985098839, 171.09999999776483,
+          0.6999999992549419, 0.5, 0.7000000029802322
+        ],
+        "drawCalls": 45,
+        "textureSize": 4096,
+        "pixelRatio": 1,
+        "textureReadyMs": 116.80000000074506,
+        "texturedFrameMs": 294.3999999985099
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}"
+    },
+    {
+      "theme": "light",
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "metrics": {
+        "firstFrameMs": 106.39999999850988,
+        "frames": 9,
+        "lastFrameMs": 0.5,
+        "recentFrameMs": [
+          90.09999999776483, 0.8999999985098839, 171.09999999776483,
+          0.6999999992549419, 0.5, 0.7000000029802322, 0.8000000007450581,
+          0.30000000074505806, 0.5
+        ],
+        "drawCalls": 45,
+        "textureSize": 4096,
+        "pixelRatio": 1,
+        "textureReadyMs": 116.80000000074506,
+        "texturedFrameMs": 294.3999999985099
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"light\"}"
+    },
+    {
+      "view": "rotated",
+      "camera": "[1.2656938003266538,1.5282610618712893,1.7563989668018805]",
+      "lighting": "{\"earthOnly\":true,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}"
+    }
+  ],
+  "cadence": {
+    "samples": 120,
+    "totalMs": 1999.8999999999996,
+    "medianMs": 16.699999999999818,
+    "p95Ms": 16.800000000000182,
+    "observedRafHz": 60.00300015000751
+  }
+}

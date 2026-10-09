@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-09",
+  "visualStatus": "Visual approval pending",
+  "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6",
+  "passed": [
+    {
+      "command": "pnpm test",
+      "tests": 297
+    },
+    {
+      "command": "pnpm typecheck"
+    },
+    {
+      "command": "pnpm build",
+      "note": "Existing >500 kB chunk warning persists"
+    },
+    {
+      "command": "pnpm exec playwright test e2e/globe-lab.pw.ts --project=chromium --project=webkit --workers=1",
+      "tests": 10
+    },
+    {
+      "command": "pnpm exec playwright test e2e/globe-lighting.pw.ts --project=chromium --project=webkit --workers=1 --output=artifacts/final-lighting-tests",
+      "tests": 4
+    },
+    {
+      "command": "pnpm exec playwright test e2e/passport-desktop-design.pw.ts",
+      "tests": 4,
+      "note": "Chromium 3 passed; WebKit 1 passed in isolated output retry after concurrent trace-directory cleanup produced ENOENT"
+    },
+    {
+      "command": "Axe Light/Dark; Chromium/WebKit",
+      "violations": 0
+    },
+    {
+      "command": "Production asset hashes against 04fb505",
+      "compared": 9,
+      "differences": 0
+    },
+    {
+      "command": "Prettier scoped check and git diff --check"
+    }
+  ],
+  "unverified": [
+    {
+      "engine": "firefox",
+      "attemptedTests": 2,
+      "error": "browserType.launch: spawn UNKNOWN",
+      "stage": "Browser process launch; tests never reached application",
+      "browser": "Playwright Firefox 1543"
+    }
+  ]
+}
