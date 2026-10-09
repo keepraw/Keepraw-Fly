@@ -27,6 +27,7 @@ export default {
         "apps/web/src/styles/flight-editor.css",
         "apps/web/src/styles/import.css",
         "apps/web/src/styles/passport.css",
+        "apps/web/src/styles/passport-desktop.css",
         "apps/web/src/styles/route-map.css",
         "apps/web/src/styles/settings.css",
         "apps/web/src/styles/shell.css",

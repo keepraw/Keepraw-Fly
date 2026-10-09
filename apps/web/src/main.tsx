@@ -20,6 +20,7 @@ import "./styles/route-map.css";
 import "./styles/flight-detail.css";
 // Shared flight time/deviation rules here must retain their precedence over Detail.
 import "./styles/passport.css";
+import "./styles/passport-desktop.css";
 
 const root = document.getElementById("root");
 

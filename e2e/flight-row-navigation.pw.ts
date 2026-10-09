@@ -40,9 +40,9 @@ test("opens details from every row area and from keyboard focus", async ({
     for (const selector of [
       ".airline-logo",
       ".flight-number",
-      ".flight-times",
-      ".flight-route",
-      ".flight-status",
+      ...(width > 760
+        ? [".flight-ledger-duration", ".flight-route-cities"]
+        : [".flight-times", ".flight-route", ".flight-status"]),
       ".flight-date",
     ]) {
       await row.locator(selector).click();
