@@ -102,3 +102,14 @@ asset sizes and generator are recorded in
 `apps/web/src/globe/globe-texture.source.json`. The source contains no NASA logos
 or identifiable people. NASA informational imagery usage terms are linked there;
 this is not a claim that all NASA imagery is unrestricted.
+
+## NASA Black Marble (development Globe Lab)
+
+The Lab also bundles downsampled, lossless grayscale NASA Earth at Night / Black
+Marble 2016 imagery, credited to NASA Earth Observatory / Joshua Stevens, using
+Suomi NPP VIIRS data from Miguel Román, NASA GSFC. It provides historical,
+geographically registered city-light intensity rather than live observations.
+Source URL, source and output SHA-256 hashes, dimensions, bounds, processing,
+usage guidelines and generator are recorded in
+`apps/web/src/globe/globe-night-texture.source.json`. NASA's informational imagery
+guidelines apply; no endorsement, logos or identifiable people are included.
