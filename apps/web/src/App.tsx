@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   KeeprawFlight,
@@ -38,6 +38,11 @@ import {
 } from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
+// DEV is replaced at build time: the experiment and its assets are absent from
+// the normal production bundle and never replace PassportRouteMap.
+const GlobeLab = import.meta.env.DEV
+  ? lazy(() => import("./globe/GlobeLab"))
+  : null;
 type DocumentSnapshot = {
   document: KeeprawFlyDocument;
   kind: ArchiveKind;
@@ -392,6 +397,22 @@ export function App() {
       >
         <span>K</span>
       </main>
+    );
+  }
+
+  if (
+    GlobeLab &&
+    window.location.pathname === "/globe-lab" &&
+    !recoveryArchive
+  ) {
+    return (
+      <Suspense fallback={<main className="loading-screen">Globe Lab</main>}>
+        <GlobeLab
+          document={document ?? demoDocument}
+          settings={settings}
+          isDemo={!document || archiveKind === "demo"}
+        />
+      </Suspense>
     );
   }
 

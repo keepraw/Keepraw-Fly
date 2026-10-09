@@ -85,3 +85,20 @@ distributed under the ISC License. Their license texts are included in
 
 Run `pnpm update:world-map` to regenerate the checked-in SVG paths and refresh
 the upstream license files from their pinned versions.
+
+## Three.js (development Globe Lab)
+
+The isolated, development-only Globe Lab uses Three.js 0.186.1 and its
+OrbitControls / Line2 addons under the MIT License. The complete notice is
+included in `apps/web/src/globe/LICENSE.three`. Normal production builds exclude
+the experiment and this dependency's browser code.
+
+## NASA Blue Marble (development Globe Lab)
+
+The Globe Lab bundles resized NASA Earth Observatory Blue Marble Next Generation
+July 2004 imagery with topography and bathymetry. NASA is credited in the Lab;
+no endorsement is implied. Source URL, usage guidelines, checksum, dimensions,
+asset sizes and generator are recorded in
+`apps/web/src/globe/globe-texture.source.json`. The source contains no NASA logos
+or identifiable people. NASA informational imagery usage terms are linked there;
+this is not a claim that all NASA imagery is unrestricted.
