@@ -1,0 +1,72 @@
+{
+  "url": "http://127.0.0.1:5174/globe-lab",
+  "backend": "chrome",
+  "launchOptions": {
+    "channel": "chrome",
+    "headless": true,
+    "args": ["--use-angle=d3d11", "--ignore-gpu-blocklist"]
+  },
+  "gpu": {
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "maxTextureSize": 16384
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "devicePixelRatio": 1,
+  "data": "Repository Demo; all years; 24 flights; no selection; complete globe",
+  "measurements": [
+    {
+      "quality": 4096,
+      "initial": {
+        "firstFrameMs": 83.20000000298023,
+        "frames": 4,
+        "lastFrameMs": 0.5999999977648258,
+        "recentFrameMs": [
+          67.80000000074506, 1.1000000014901161, 172.89999999850988,
+          0.5999999977648258
+        ],
+        "drawCalls": 45,
+        "textureSize": 4096,
+        "pixelRatio": 1,
+        "textureReadyMs": 91.90000000223517,
+        "texturedFrameMs": 270.5
+      },
+      "cadence": {
+        "samples": 120,
+        "totalMs": 2000.1000000000004,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 16.800000000000182,
+        "observedRafHz": 59.99700014999249
+      },
+      "idleFramesAfter300ms": 0,
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}"
+    },
+    {
+      "quality": 2048,
+      "initial": {
+        "firstFrameMs": 29.900000002235174,
+        "frames": 3,
+        "lastFrameMs": 45.5,
+        "recentFrameMs": [13.600000001490116, 0.3999999985098839, 45.5],
+        "drawCalls": 45,
+        "textureSize": 2048,
+        "pixelRatio": 1,
+        "textureReadyMs": 37.100000001490116,
+        "texturedFrameMs": 93.80000000074506
+      },
+      "cadence": {
+        "samples": 120,
+        "totalMs": 1999.8999999999996,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 16.800000000000182,
+        "observedRafHz": 60.00300015000751
+      },
+      "idleFramesAfter300ms": 0,
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}"
+    }
+  ],
+  "note": "RAF cadence includes browser/driver work; engine lastFrameMs is JS submission time, not GPU timing. Observed Hz is not a native display FPS counter."
+}

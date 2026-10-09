@@ -1,0 +1,5038 @@
+{
+  "source": "c814eb3779d69aa6037c154370913a62a13b7af1",
+  "baseline": "45f92e9c78a118417803dc7f43f027a821f95c65",
+  "scenes": [
+    {
+      "phase": "before",
+      "name": "dark-default-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "dark-earth-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "light-default-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "light-earth-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "dark-asia-1440",
+      "camera": [-1.1954406601348027, 1.3705673428747847, -1.9274249107920183],
+      "direction": [
+        -0.45110968306973687, 0.5171952237263339, -0.727330155015856
+      ],
+      "distance": 2.65,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 75,
+          "insideScreenSamples": 38,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 85,
+          "insideScreenSamples": 85,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 86,
+          "insideScreenSamples": 86,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 83,
+          "insideScreenSamples": 83,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 87,
+          "insideScreenSamples": 87,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 51,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 84,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 77,
+          "insideScreenSamples": 61,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 52,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 91,
+          "insideScreenSamples": 74,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "dark-north-america-1440",
+      "camera": [-1.124032771929223, 1.6176650976028617, 1.7726279811699441],
+      "direction": [-0.4241633101619709, 0.610439659472778, 0.6689162193094129],
+      "distance": 2.65,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 96,
+          "insideScreenSamples": 96,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 95,
+          "insideScreenSamples": 95,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 95,
+          "insideScreenSamples": 95,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 87,
+          "insideScreenSamples": 87,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 47,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 81,
+          "insideScreenSamples": 81,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 92,
+          "insideScreenSamples": 56,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 46,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "dark-selected-long-haul-1440",
+      "camera": [-2.048247362495708, 3.1728982934540553, 0.8891847929382503],
+      "direction": [
+        -0.5279189612984216, 0.817788516199937, 0.22918008873613127
+      ],
+      "distance": 3.879851857296477,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": [
+        "SFO",
+        "PVG",
+        "LHR",
+        "PEK",
+        "JFK",
+        "NRT",
+        "DFW",
+        "ORD",
+        "YVR"
+      ],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 83,
+          "insideScreenSamples": 83,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 86,
+          "insideScreenSamples": 86,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 83,
+          "insideScreenSamples": 83,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "dark-default-1280",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 860,
+        "height": 428
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "before",
+      "name": "light-default-1280",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 860,
+        "height": 428
+      },
+      "sunDirection": [
+        0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.017420617275566652,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.07870720625522032,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.0791943350283768,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.02834320557367187,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.06779128176961158,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.05106702616257763,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.07066049736630231,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.04367416940663338,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.02702375718634964,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.07636210917192021,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.06959463787478226,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.018440626615133793,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.08290343784498799,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.05215247293365555,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.07502497423008436,
+          "frontSamples": 88,
+          "insideScreenSamples": 88,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.023815651549032646,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.08768705739466665,
+          "frontSamples": 75,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.07147076049801271,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.02228689887091906,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.023287041886499882,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.08163500584908867,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.024625297461709383,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-default-1440",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-earth-1440",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "light-default-1440",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "light-earth-1440",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-asia-1440",
+      "camera": [-1.0826632393673685, 1.2412685369432013, -1.7455923720380542],
+      "direction": [
+        -0.4511096830697369, 0.5171952237263339, -0.727330155015856
+      ],
+      "distance": 2.4,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 67,
+          "insideScreenSamples": 32,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 78,
+          "insideScreenSamples": 48,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 79,
+          "insideScreenSamples": 57,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 75,
+          "insideScreenSamples": 59,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 81,
+          "insideScreenSamples": 49,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 83,
+          "insideScreenSamples": 56,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 77,
+          "insideScreenSamples": 40,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 52,
+          "insideScreenSamples": 36,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 85,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-north-america-1440",
+      "camera": [-1.0179919443887304, 1.4650551827346672, 1.6053989263425912],
+      "direction": [
+        -0.42416331016197095, 0.6104396594727779, 0.6689162193094129
+      ],
+      "distance": 2.4000000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 82,
+          "insideScreenSamples": 82,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 81,
+          "insideScreenSamples": 81,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 89,
+          "insideScreenSamples": 41,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 74,
+          "insideScreenSamples": 74,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 86,
+          "insideScreenSamples": 44,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 87,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 70,
+          "insideScreenSamples": 70,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 87,
+          "insideScreenSamples": 40,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-selected-long-haul-1440",
+      "camera": [-1.3076640957440773, 2.025675830844, 0.5676829124731355],
+      "direction": [
+        -0.5279189612984214, 0.8177885161999371, 0.22918008873613122
+      ],
+      "distance": 2.477016723415021,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": [
+        "SFO",
+        "PVG",
+        "PEK",
+        "JFK",
+        "NRT",
+        "BOS",
+        "DFW",
+        "ORD",
+        "YVR"
+      ],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 93,
+          "insideScreenSamples": 93,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 95,
+          "insideScreenSamples": 52,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 40,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 95,
+          "insideScreenSamples": 95,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 93,
+          "insideScreenSamples": 36,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 73,
+          "insideScreenSamples": 19,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 92,
+          "insideScreenSamples": 50,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 44,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-default-1280",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.03784836921563861,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 860,
+        "height": 428
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "light-default-1280",
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "direction": [
+        -0.5458180578508809, 0.23870391298836047, -0.8031830984575918
+      ],
+      "distance": 2.0999999999999996,
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.03784836921563861,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 860,
+        "height": 428
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 51,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 65,
+          "insideScreenSamples": 65,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 63,
+          "insideScreenSamples": 63,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 64,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 60,
+          "insideScreenSamples": 60,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 68,
+          "insideScreenSamples": 68,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 71,
+          "insideScreenSamples": 71,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 62,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 53,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 69,
+          "insideScreenSamples": 55,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-fixed-b1-default-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 91,
+          "insideScreenSamples": 91,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 72,
+          "insideScreenSamples": 72,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 69,
+          "insideScreenSamples": 69,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-fixed-b1-earth-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 91,
+          "insideScreenSamples": 91,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 72,
+          "insideScreenSamples": 72,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 69,
+          "insideScreenSamples": 69,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "light-fixed-b1-default-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 91,
+          "insideScreenSamples": 91,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 72,
+          "insideScreenSamples": 72,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 69,
+          "insideScreenSamples": 69,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "light-fixed-b1-earth-1440",
+      "camera": [-0.9525123923227677, 1.5282610618712893, 1.9441291801831475],
+      "direction": [
+        -0.35943863861236514, 0.5767022874985996, 0.7336336528993008
+      ],
+      "distance": 2.6500000000000004,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": -0.16
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": [],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 91,
+          "insideScreenSamples": 91,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 92,
+          "insideScreenSamples": 92,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 72,
+          "insideScreenSamples": 72,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 69,
+          "insideScreenSamples": 69,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 90,
+          "insideScreenSamples": 90,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-fixed-b1-asia-1440",
+      "camera": [-1.1954406601348027, 1.3705673428747847, -1.9274249107920183],
+      "direction": [
+        -0.45110968306973687, 0.5171952237263339, -0.727330155015856
+      ],
+      "distance": 2.65,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 69,
+          "insideScreenSamples": 44,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 80,
+          "insideScreenSamples": 80,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 81,
+          "insideScreenSamples": 81,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 77,
+          "insideScreenSamples": 77,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 83,
+          "insideScreenSamples": 83,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 79,
+          "insideScreenSamples": 79,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 62,
+          "insideScreenSamples": 48,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 87,
+          "insideScreenSamples": 78,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    },
+    {
+      "phase": "after",
+      "name": "dark-fixed-b1-north-america-1440",
+      "camera": [-1.124032771929223, 1.6176650976028617, 1.7726279811699441],
+      "direction": [-0.4241633101619709, 0.610439659472778, 0.6689162193094129],
+      "distance": 2.65,
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"],
+      "routes": [
+        {
+          "key": "SFO-LAX",
+          "count": 1,
+          "maxAltitude": 0.008237457623881506,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "NRT-DFW",
+          "count": 1,
+          "maxAltitude": 0.02912233227538419,
+          "frontSamples": 95,
+          "insideScreenSamples": 95,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-LAX",
+          "count": 1,
+          "maxAltitude": 0.029212916480528817,
+          "frontSamples": 84,
+          "insideScreenSamples": 84,
+          "totalSamples": 97
+        },
+        {
+          "key": "PEK-PVG",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-PEK",
+          "count": 1,
+          "maxAltitude": 0.013062143374774626,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "HND-SFO",
+          "count": 2,
+          "maxAltitude": 0.02680304821128332,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "SIN-NRT",
+          "count": 1,
+          "maxAltitude": 0.022032786030162343,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-HND",
+          "count": 1,
+          "maxAltitude": 0.02746871988258448,
+          "frontSamples": 94,
+          "insideScreenSamples": 94,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-SFO",
+          "count": 1,
+          "maxAltitude": 0.019410622968776714,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "CTU-PVG",
+          "count": 1,
+          "maxAltitude": 0.012474936504811796,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-PVG",
+          "count": 1,
+          "maxAltitude": 0.028671500452364107,
+          "frontSamples": 83,
+          "insideScreenSamples": 83,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-LHR",
+          "count": 1,
+          "maxAltitude": 0.027226308083726503,
+          "frontSamples": 92,
+          "insideScreenSamples": 52,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-FRA",
+          "count": 1,
+          "maxAltitude": 0.008669549372445573,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-HKG",
+          "count": 1,
+          "maxAltitude": 0.02986934410676989,
+          "frontSamples": 76,
+          "insideScreenSamples": 76,
+          "totalSamples": 97
+        },
+        {
+          "key": "JFK-LHR",
+          "count": 1,
+          "maxAltitude": 0.02239091556735273,
+          "frontSamples": 89,
+          "insideScreenSamples": 62,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-ICN",
+          "count": 1,
+          "maxAltitude": 0.02840325736137439,
+          "frontSamples": 89,
+          "insideScreenSamples": 89,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-YVR",
+          "count": 1,
+          "maxAltitude": 0.011039208222989316,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        },
+        {
+          "key": "LAX-SYD",
+          "count": 1,
+          "maxAltitude": 0.03063352540458375,
+          "frontSamples": 72,
+          "insideScreenSamples": 72,
+          "totalSamples": 97
+        },
+        {
+          "key": "SFO-CDG",
+          "count": 1,
+          "maxAltitude": 0.027649211067779067,
+          "frontSamples": 89,
+          "insideScreenSamples": 51,
+          "totalSamples": 97
+        },
+        {
+          "key": "PVG-PEK",
+          "count": 1,
+          "maxAltitude": 0.010356130894482174,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "CAN-CTU",
+          "count": 1,
+          "maxAltitude": 0.01080266820463005,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "LHR-SIN",
+          "count": 1,
+          "maxAltitude": 0.029651371441452135,
+          "frontSamples": 0,
+          "insideScreenSamples": 0,
+          "totalSamples": 97
+        },
+        {
+          "key": "BOS-ORD",
+          "count": 1,
+          "maxAltitude": 0.01140184627259444,
+          "frontSamples": 97,
+          "insideScreenSamples": 97,
+          "totalSamples": 97
+        }
+      ],
+      "provenance": "Camera, sun and labels measured in browser; route visibility derived from unchanged airport coordinates, each revision arc formula and recorded projection with sphere occlusion."
+    }
+  ]
+}
