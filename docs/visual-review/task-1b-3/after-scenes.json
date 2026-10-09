@@ -1,0 +1,2800 @@
+{
+  "phase": "after",
+  "baselineCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+  "url": "http://127.0.0.1:5173/globe-lab",
+  "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+  "browser": "154.0.8037.58",
+  "launch": "Chrome / ANGLE D3D11",
+  "passport": {
+    "width": 998,
+    "height": 576.0625,
+    "canvasWidth": 996,
+    "canvasHeight": 574,
+    "border": ["1px", "1px"],
+    "provenance": "Live Desktop Passport .route-map/.route-map-canvas at 1440x900; passport-desktop.css and passport.css grid allocation"
+  },
+  "errors": [],
+  "externalRequests": [],
+  "records": [
+    {
+      "name": "a-dark-default-1440",
+      "key": "dark-default-1440",
+      "mode": "dark",
+      "candidate": "A",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "2199ee0b817d714e11fcae0b20e4367c1828ebf2ce818d3628caf6727dff772e"
+    },
+    {
+      "name": "a-dark-earth-1440",
+      "key": "dark-earth-1440",
+      "mode": "dark",
+      "candidate": "A",
+      "view": "earth",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": true,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": [],
+      "sha256": "693aecf2c204835b056eac20eb93c4ec85bf33e96173eecc6176e099d50cd586"
+    },
+    {
+      "name": "a-light-default-1440",
+      "key": "light-default-1440",
+      "mode": "light",
+      "candidate": "A",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "e4e854c1def3377aa023f99ce1acb48eb8edd9a9dc499c238fc43b7046e8529a"
+    },
+    {
+      "name": "a-light-earth-1440",
+      "key": "light-earth-1440",
+      "mode": "light",
+      "candidate": "A",
+      "view": "earth",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": true,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": [],
+      "sha256": "c2174f49bd0605d288c418b71cc7e973b6cc46eb39afbb1bd8041b9b8a94fd7e"
+    },
+    {
+      "name": "b-dark-default-1440",
+      "key": "dark-default-1440",
+      "mode": "dark",
+      "candidate": "B",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "1ed68a4ba6096f5fe65dcf2f567cc909e103bf33ea4c295d90483a66f4798376"
+    },
+    {
+      "name": "b-dark-earth-1440",
+      "key": "dark-earth-1440",
+      "mode": "dark",
+      "candidate": "B",
+      "view": "earth",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": true,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": [],
+      "sha256": "ea24e0b13f79fb458c840957b5dfbe6cd8e6c2dbbd8ee24146b5d49a6d2a6d20"
+    },
+    {
+      "name": "b-light-default-1440",
+      "key": "light-default-1440",
+      "mode": "light",
+      "candidate": "B",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "d1f819e3f4afd2d5ca74f08b671073dcce68193c2233c1715bab410a09a6d06c"
+    },
+    {
+      "name": "b-light-earth-1440",
+      "key": "light-earth-1440",
+      "mode": "light",
+      "candidate": "B",
+      "view": "earth",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": true,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": [],
+      "sha256": "e6294db9f76d3939323600cf216f824a816bfa252453e002c5e966d0c3d949a9"
+    },
+    {
+      "name": "a-dark-selected-1440",
+      "key": "dark-selected-1440",
+      "mode": "dark",
+      "candidate": "A",
+      "view": "selected",
+      "selected": "PEK-PVG",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [-0.8166267865622934, 1.1945157392458245, -1.452154551059543],
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": 0
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": false,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "e200e180b96ee70fdc1cf318a54b3303ae20cd9b6ad7b77a83a51ec35f572fb3"
+    },
+    {
+      "name": "b-dark-selected-1440",
+      "key": "dark-selected-1440",
+      "mode": "dark",
+      "candidate": "B",
+      "view": "selected",
+      "selected": "PEK-PVG",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [-0.8166267865622934, 1.1945157392458245, -1.452154551059543],
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": 0
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.0459629031778328,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": false,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "ddf26cb585ca6d9c386774bf860f7aae0dedb0043c4401bb39c5b2b8111a5861"
+    },
+    {
+      "name": "a-dark-default-1280",
+      "key": "dark-default-1280",
+      "mode": "dark",
+      "candidate": "A",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.03784836921563861,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 860,
+          "height": 428
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.03784836921563861,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "c830e3601392132634ac39b1407815d4802e45f1ed0f1e8d07fed13eaad719d3"
+    },
+    {
+      "name": "b-dark-default-1280",
+      "key": "dark-default-1280",
+      "mode": "dark",
+      "candidate": "B",
+      "view": "default",
+      "selected": null,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.03784836921563861,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 860,
+          "height": 428
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.03784836921563861,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "7485e72d4268301fa05d77f23344cca49f61958d4089ac98c6865c756f75dde0"
+    },
+    {
+      "name": "a-dark-passport-size-1440",
+      "key": "dark-passport-size-1440",
+      "mode": "dark",
+      "candidate": "A",
+      "view": "passport-size",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 996,
+          "height": 574
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.043828278017696565,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "92dc5b52f3c409b5a0dc0ff3bfb53a83d47023ab08dac3092935e4e547f21878"
+    },
+    {
+      "name": "a-light-passport-size-1440",
+      "key": "light-passport-size-1440",
+      "mode": "light",
+      "candidate": "A",
+      "view": "passport-size",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 996,
+          "height": 574
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.043828278017696565,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "A",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "a20cbe919d7c7781f1f76143300b5eb34e1036ce5c83d4944180244790795d48"
+    },
+    {
+      "name": "b-dark-passport-size-1440",
+      "key": "dark-passport-size-1440",
+      "mode": "dark",
+      "candidate": "B",
+      "view": "passport-size",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 996,
+          "height": 574
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.043828278017696565,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "dark"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "f9f98f74b74789e2dbcfaef99faa0ea3bfa0086d38ce8262b02036cb517bedd5"
+    },
+    {
+      "name": "b-light-passport-size-1440",
+      "key": "light-passport-size-1440",
+      "mode": "light",
+      "candidate": "B",
+      "view": "passport-size",
+      "selected": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scene": {
+        "camera": [
+          -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+        ],
+        "fov": 34,
+        "viewOffset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        },
+        "viewport": {
+          "width": 996,
+          "height": 574
+        },
+        "home": {
+          "direction": [
+            -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+          ],
+          "distance": 2.1,
+          "offset": {
+            "x": -0.043828278017696565,
+            "y": -0.5004980895646883
+          }
+        },
+        "atHome": true,
+        "physicalRoutes": 22,
+        "routes": [
+          {
+            "key": "BOS-ORD",
+            "count": 1,
+            "maxAltitude": 0.011400745691857228
+          },
+          {
+            "key": "CAN-CTU",
+            "count": 1,
+            "maxAltitude": 0.010802587460114532
+          },
+          {
+            "key": "CAN-PEK",
+            "count": 1,
+            "maxAltitude": 0.013062995638361663
+          },
+          {
+            "key": "CTU-PVG",
+            "count": 1,
+            "maxAltitude": 0.012475943057889571
+          },
+          {
+            "key": "JFK-LHR",
+            "count": 1,
+            "maxAltitude": 0.022391672348190728
+          },
+          {
+            "key": "JFK-SFO",
+            "count": 1,
+            "maxAltitude": 0.019411140322535436
+          },
+          {
+            "key": "LAX-HND",
+            "count": 1,
+            "maxAltitude": 0.027468989018827328
+          },
+          {
+            "key": "LAX-ICN",
+            "count": 1,
+            "maxAltitude": 0.028404747805789166
+          },
+          {
+            "key": "LAX-SYD",
+            "count": 1,
+            "maxAltitude": 0.030633309636001416
+          },
+          {
+            "key": "LHR-FRA",
+            "count": 1,
+            "maxAltitude": 0.008671026061357168
+          },
+          {
+            "key": "LHR-SIN",
+            "count": 1,
+            "maxAltitude": 0.029649626799788553
+          },
+          {
+            "key": "NRT-DFW",
+            "count": 1,
+            "maxAltitude": 0.0291209695015886
+          },
+          {
+            "key": "PVG-LAX",
+            "count": 1,
+            "maxAltitude": 0.02921266437131509
+          },
+          {
+            "key": "SFO-CDG",
+            "count": 1,
+            "maxAltitude": 0.027649328070615153
+          },
+          {
+            "key": "SFO-HKG",
+            "count": 1,
+            "maxAltitude": 0.029868831246128158
+          },
+          {
+            "key": "SFO-LAX",
+            "count": 1,
+            "maxAltitude": 0.008239307772383464
+          },
+          {
+            "key": "SFO-LHR",
+            "count": 1,
+            "maxAltitude": 0.0272267469970644
+          },
+          {
+            "key": "SFO-PVG",
+            "count": 1,
+            "maxAltitude": 0.02867075371981076
+          },
+          {
+            "key": "SFO-YVR",
+            "count": 1,
+            "maxAltitude": 0.011039241479179784
+          },
+          {
+            "key": "SIN-NRT",
+            "count": 1,
+            "maxAltitude": 0.02203270692679493
+          },
+          {
+            "key": "HND-SFO",
+            "count": 2,
+            "maxAltitude": 0.02680276734991338
+          },
+          {
+            "key": "PEK-PVG",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          },
+          {
+            "key": "PVG-PEK",
+            "count": 1,
+            "maxAltitude": 0.010353636448704684
+          }
+        ]
+      },
+      "lighting": {
+        "artDirection": "B",
+        "earthOnly": false,
+        "surface": true,
+        "nightLights": true,
+        "atmosphere": true,
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "sunDirection": [
+          -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+        ],
+        "exposure": 1,
+        "theme": "light"
+      },
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"],
+      "sha256": "c3ca1ecce0403625c0c233f22e17f6739ce501c1b6d3349fad9800c305673637"
+    }
+  ]
+}
