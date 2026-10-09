@@ -266,6 +266,22 @@ export default function GlobeLab({
             <details className="globe-debug" open>
               <summary>{t("globe.lightingReview")}</summary>
               <div className="globe-debug-layers">
+                <label>
+                  {t("globe.artDirection")}
+                  <select
+                    aria-label={t("globe.artDirection")}
+                    value={lighting.artDirection}
+                    onChange={(event) =>
+                      setLighting((previous) => ({
+                        ...previous,
+                        artDirection: event.target.value as "A" | "B",
+                      }))
+                    }
+                  >
+                    <option value="A">A · Restrained Midnight Aviation</option>
+                    <option value="B">B · Subtle Horizon Twilight</option>
+                  </select>
+                </label>
                 {(
                   ["earthOnly", "surface", "nightLights", "atmosphere"] as const
                 ).map((key) => (

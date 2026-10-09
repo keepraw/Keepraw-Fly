@@ -1,6 +1,7 @@
 import { i18n } from "../i18n";
 const resources = {
   en: {
+    artDirection: "Art Direction",
     lightingReview: "Lighting review · Visual approval pending",
     earthOnly: "Earth only",
     daySurface: "Day surface",
@@ -36,6 +37,7 @@ const resources = {
     empty: "No matching flights.",
   },
   "zh-CN": {
+    artDirection: "艺术方向",
     lightingReview: "光照审查 · Visual approval pending",
     earthOnly: "仅地球",
     daySurface: "日间地表",
@@ -71,6 +73,7 @@ const resources = {
     empty: "没有匹配的航班。",
   },
   "zh-TW": {
+    artDirection: "藝術方向",
     lightingReview: "光照審查 · Visual approval pending",
     earthOnly: "僅地球",
     daySurface: "日間地表",

@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
-async function imageStats(page: Page) {
+async function imageStats(page: Page, reference?: string) {
   const png = await page.locator(".globe-webgl").screenshot();
   const scene = JSON.parse(
     (await page.locator(".globe-host").getAttribute("data-scene"))!,
   );
   return page.evaluate(
-    async ({ base64, scene }) => {
+    async ({ base64, scene, reference }) => {
       const image = new Image();
       image.src = `data:image/png;base64,${base64}`;
       await image.decode();
@@ -22,6 +22,29 @@ async function imageStats(page: Page) {
         canvas.width,
         canvas.height,
       ).data;
+      let changedPixels = 0;
+      if (reference) {
+        const previous = new Image();
+        previous.src = `data:image/png;base64,${reference}`;
+        await previous.decode();
+        context.drawImage(previous, 0, 0);
+        const prior = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        ).data;
+        for (let i = 0; i < pixels.length; i += 4) {
+          if (
+            Math.max(
+              Math.abs(pixels[i]! - prior[i]!),
+              Math.abs(pixels[i + 1]! - prior[i + 1]!),
+              Math.abs(pixels[i + 2]! - prior[i + 2]!),
+            ) > 2
+          )
+            changedPixels++;
+        }
+      }
       let warmPixels = 0,
         totalLuminance = 0,
         centerLuminance = 0,
@@ -56,12 +79,13 @@ async function imageStats(page: Page) {
         }
       }
       return {
+        changedPixels,
         warmPixels,
         meanLuminance: totalLuminance / (pixels.length / 4),
         meanCenterLuminance: centerLuminance / centerPixels,
       };
     },
-    { base64: png.toString("base64"), scene },
+    { base64: png.toString("base64"), scene, reference },
   );
 }
 
@@ -90,16 +114,25 @@ test("cinematic layers produce real pixels and keep the world-space sun fixed @c
     JSON.parse((await host.getAttribute("data-lighting"))!);
   const initial = await read();
   const lit = await imageStats(page);
-  expect(lit.warmPixels).toBeGreaterThan(500);
+  const litPixels = (await page.locator(".globe-webgl").screenshot()).toString(
+    "base64",
+  );
   await page
     .getByRole("checkbox", { name: "City lights", exact: true })
     .uncheck();
   await expect.poll(async () => (await read()).nightLights).toBe(false);
-  const withoutCities = await imageStats(page);
-  expect(withoutCities.warmPixels).toBeLessThan(lit.warmPixels * 0.05);
+  const withoutCities = await imageStats(page, litPixels);
+  // Neutral, quiet cities no longer satisfy the old orange-pixel classifier.
+  // Verify actual emission by toggling ONLY the city layer at a fixed camera.
+  expect(withoutCities.changedPixels).toBeGreaterThan(500);
+  expect(withoutCities.meanCenterLuminance).toBeLessThan(
+    lit.meanCenterLuminance,
+  );
   await page
     .getByRole("checkbox", { name: "City lights", exact: true })
     .check();
+  await expect.poll(async () => (await read()).nightLights).toBe(true);
+  expect((await imageStats(page, litPixels)).changedPixels).toBe(0);
   const before = await host.getAttribute("data-camera");
   await page.locator(".globe-webgl").focus();
   await page.keyboard.press("ArrowRight");

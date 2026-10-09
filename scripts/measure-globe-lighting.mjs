@@ -1,7 +1,7 @@
 import { chromium } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
 
-const [url, output, backend = "chrome"] = process.argv.slice(2);
+const [url, output, backend = "chrome", candidate] = process.argv.slice(2);
 if (!url || !output)
   throw new Error(
     "Usage: node scripts/measure-globe-lighting.mjs URL OUTPUT [chrome|software]",
@@ -24,6 +24,10 @@ try {
   await page.goto(url);
   await page.locator(".globe-host[data-ready=true]").waitFor();
   await page.getByRole("button", { name: "Dark", exact: true }).click();
+  if (candidate)
+    await page
+      .getByRole("combobox", { name: "Art Direction", exact: true })
+      .selectOption(candidate);
   const gpu = await page.locator("canvas").evaluate((canvas) => {
     const gl = canvas.getContext("webgl2");
     const ext = gl.getExtension("WEBGL_debug_renderer_info");
@@ -101,6 +105,7 @@ try {
   const data = {
     url,
     backend,
+    candidate: candidate ?? "baseline/default",
     launchOptions,
     gpu,
     viewport: { width: 1440, height: 900 },
