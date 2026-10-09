@@ -16,6 +16,43 @@
   background: var(--lab-bg);
   color-scheme: light;
 }
+
+.globe-debug {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.globe-debug summary {
+  cursor: pointer;
+}
+.globe-debug-layers,
+.globe-debug-parameters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0;
+}
+.globe-debug label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.globe-debug input[type="range"] {
+  width: 90px;
+}
+.globe-debug button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+.globe-legend[hidden] {
+  display: none;
+}
 .globe-lab[data-theme="dark"] {
   --color-warning: #f6bc62;
   --lab-bg: #101923;

@@ -9,12 +9,14 @@ import {
   type GlobeSelection,
   type GlobeTheme,
 } from "./globe-renderer";
+import type { GlobeLighting } from "./globe-lighting";
 
 export function GlobeMap({
   routes,
   flights,
   theme,
   quality,
+  lighting,
   selection,
   highlightedRoute,
   onSelect,
@@ -23,6 +25,7 @@ export function GlobeMap({
   flights: KeeprawFlight[];
   theme: GlobeTheme;
   quality: "2048" | "4096";
+  lighting: GlobeLighting;
   selection: GlobeSelection | null;
   highlightedRoute?: string;
   onSelect: (selection: GlobeSelection) => void;
@@ -31,8 +34,14 @@ export function GlobeMap({
   const host = useRef<HTMLDivElement>(null),
     labels = useRef<HTMLDivElement>(null),
     controller = useRef<GlobeController | null>(null);
-  const latest = useRef({ onSelect, selection, theme, highlightedRoute });
-  latest.current = { onSelect, selection, theme, highlightedRoute };
+  const latest = useRef({
+    onSelect,
+    selection,
+    theme,
+    highlightedRoute,
+    lighting,
+  });
+  latest.current = { onSelect, selection, theme, highlightedRoute, lighting };
   const [error, setError] = useState<string | null>(null),
     [hover, setHover] = useState<string | null>(null),
     [retry, setRetry] = useState(0);
@@ -58,6 +67,7 @@ export function GlobeMap({
         },
       );
       controller.current = instance;
+      instance.lighting(latest.current.lighting);
       instance.select(latest.current.selection);
       return () => {
         instance.dispose();
@@ -68,6 +78,7 @@ export function GlobeMap({
     }
   }, [routes, quality, retry]);
   useEffect(() => controller.current?.theme(theme), [theme]);
+  useEffect(() => controller.current?.lighting(lighting), [lighting]);
   useEffect(() => controller.current?.select(selection), [selection]);
   useEffect(
     () => controller.current?.highlight(highlightedRoute),
@@ -108,7 +119,7 @@ export function GlobeMap({
             {t("globe.surface")}
             <span>{t("globe.local")}</span>
           </div>
-          <div className="globe-legend">
+          <div className="globe-legend" hidden={lighting.earthOnly}>
             <span className="globe-legend-route" />
             {t("globe.routes")}
             <span className="globe-legend-selected" />

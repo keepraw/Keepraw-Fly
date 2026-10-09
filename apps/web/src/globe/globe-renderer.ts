@@ -17,6 +17,16 @@ import {
 } from "./globe-math";
 import earth4096 from "./assets/earth-4096.webp";
 import earth2048 from "./assets/earth-2048.webp";
+import night4096 from "./assets/night-4096.webp";
+import night2048 from "./assets/night-2048.webp";
+import {
+  defaultLighting,
+  globeSunDirection,
+  globeVertex,
+  surfaceFragment,
+  atmosphereFragment,
+  type GlobeLighting,
+} from "./globe-lighting";
 
 export type GlobeTheme = "light" | "dark";
 export type GlobeSelection =
@@ -34,6 +44,7 @@ export interface GlobeMetrics {
   pixelRatio: number;
 }
 export interface GlobeController {
+  lighting: (settings: GlobeLighting) => void;
   theme: (theme: GlobeTheme) => void;
   select: (selection: GlobeSelection | null) => void;
   highlight: (key?: string) => void;
@@ -42,31 +53,6 @@ export interface GlobeController {
   dispose: () => void;
 }
 
-const vertex = `varying vec2 vUv; varying vec3 vNormal; varying vec3 vPosition;
-void main() { vUv=uv; vNormal=normalize(normalMatrix*normal); vec4 p=modelViewMatrix*vec4(position,1.0); vPosition=p.xyz; gl_Position=projectionMatrix*p; }`;
-const fragment = `uniform sampler2D earth; uniform float dark; varying vec2 vUv; varying vec3 vNormal; varying vec3 vPosition;
-void main() {
-  vec3 tex=texture2D(earth,vUv).rgb;
-  float lum=dot(tex,vec3(.299,.587,.114));
-  float ocean=smoothstep(.008,.045,tex.b-max(tex.r,tex.g));
-  float detail=pow(clamp(lum,0.0,1.0),.70);
-  vec3 landLight=mix(vec3(.32,.54,.73),vec3(.93,.98,1.0),detail);
-  vec3 landDark=mix(vec3(.06,.14,.23),vec3(.46,.59,.71),detail);
-  vec3 seaLight=mix(vec3(.27,.56,.80),vec3(.52,.77,.94),clamp(lum*2.0,0.0,1.0));
-  vec3 seaDark=mix(vec3(.013,.045,.095),vec3(.065,.18,.29),clamp(lum*2.0,0.0,1.0));
-  vec3 base=mix(mix(landLight,seaLight,ocean),mix(landDark,seaDark,ocean),dark);
-  vec3 n=normalize(vNormal), view=normalize(-vPosition);
-  vec3 light=normalize(mix(vec3(-.45,.85,1.5),vec3(-.75,.8,.65),dark));
-  float lambert=max(dot(n,light),0.0);
-  float illumination=mix(.65+.44*lambert,.20+1.05*lambert,dark);
-  float rim=pow(1.0-max(dot(n,view),0.0),3.5);
-  float spec=pow(max(dot(reflect(-light,n),view),0.0),36.0)*ocean;
-  vec3 color=base*illumination + vec3(.36,.62,.85)*spec*mix(.10,.07,dark);
-  color=mix(color,mix(vec3(.56,.78,.97),vec3(.10,.27,.43),dark),rim*mix(.35,.28,dark));
-  gl_FragColor=vec4(color,1.0);
-}`;
-const atmosphereFragment = `uniform float dark; varying vec2 vUv; varying vec3 vNormal; varying vec3 vPosition;
-void main(){ vec3 n=normalize(vNormal); float facing=abs(dot(n,normalize(-vPosition))); float alpha=pow(1.0-facing,6.0)*mix(.19,.24,dark); gl_FragColor=vec4(mix(vec3(.45,.73,1.0),vec3(.15,.40,.72),dark),alpha); }`;
 const vector = (v: Vec3) => new THREE.Vector3(...v);
 
 export function createGlobe(
@@ -93,6 +79,8 @@ export function createGlobe(
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1;
   const canvas = renderer.domElement;
   canvas.className = "globe-webgl";
   canvas.tabIndex = 0;
@@ -116,21 +104,30 @@ export function createGlobe(
   controls.maxPolarAngle = Math.PI - 0.04;
   const uniforms = {
     earth: { value: new THREE.Texture() },
+    nightMap: { value: new THREE.Texture() },
     dark: { value: initialTheme === "dark" ? 1 : 0 },
+    sunDirection: { value: globeSunDirection(home.direction) },
+    sunIntensity: { value: defaultLighting.sunIntensity },
+    twilightWidth: { value: defaultLighting.twilightWidth },
+    atmosphereIntensity: { value: defaultLighting.atmosphereIntensity },
+    nightIntensity: { value: defaultLighting.nightIntensity },
+    surfaceEnabled: { value: 1 },
+    nightEnabled: { value: 1 },
+    atmosphereEnabled: { value: 1 },
   };
   const geometry = new THREE.SphereGeometry(1, 160, 96);
   const material = new THREE.ShaderMaterial({
     uniforms,
-    vertexShader: vertex,
-    fragmentShader: fragment,
+    vertexShader: globeVertex,
+    fragmentShader: surfaceFragment,
   });
   const globe = new THREE.Mesh(geometry, material);
   scene.add(globe);
   const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.012, 128, 80),
+    new THREE.SphereGeometry(1.026, 128, 80),
     new THREE.ShaderMaterial({
-      uniforms: { dark: uniforms.dark },
-      vertexShader: vertex,
+      uniforms,
+      vertexShader: globeVertex,
       fragmentShader: atmosphereFragment,
       transparent: true,
       depthWrite: false,
@@ -186,6 +183,7 @@ export function createGlobe(
     height = 1,
     selected: GlobeSelection | null = null,
     highlight: string | undefined;
+  let lighting = { ...defaultLighting };
   let moving: {
     from: THREE.Vector3;
     to: THREE.Vector3;
@@ -260,6 +258,10 @@ export function createGlobe(
     return { x: ((p.x + 1) * width) / 2, y: ((1 - p.y) * height) / 2, z: p.z };
   }
   function layoutLabels() {
+    if (lighting.earthOnly) {
+      for (const item of markers) item.label.hidden = true;
+      return;
+    }
     const cam = camera.position.toArray() as unknown as Vec3;
     const boxes: { x: number; y: number }[] = [];
     const sorted = [...markers].sort(
@@ -309,6 +311,12 @@ export function createGlobe(
     renderer.render(scene, camera);
     layoutLabels();
     host.dataset.camera = JSON.stringify(camera.position.toArray());
+    host.dataset.lighting = JSON.stringify({
+      ...lighting,
+      sunDirection: uniforms.sunDirection.value.toArray(),
+      exposure: renderer.toneMappingExposure,
+      theme: uniforms.dark.value ? "dark" : "light",
+    });
     metrics.frames++;
     metrics.drawCalls = renderer.info.render.calls;
     metrics.lastFrameMs = performance.now() - began;
@@ -370,6 +378,15 @@ export function createGlobe(
   }
   const observer = new ResizeObserver(resize);
   observer.observe(host);
+  let loadedTextures = 0;
+  const textureReady = () => {
+    if (++loadedTextures !== 2) return;
+    metrics.textureReadyMs = performance.now() - start;
+    host.dataset.ready = "true";
+    invalidate();
+  };
+  const emptyEarth = uniforms.earth.value;
+  const emptyNight = uniforms.nightMap.value;
   const texture = new THREE.TextureLoader().load(
     quality === "4096" ? earth4096 : earth2048,
     (loaded) => {
@@ -380,8 +397,8 @@ export function createGlobe(
       loaded.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
       uniforms.earth.value = loaded;
       metrics.textureSize = loaded.image.width;
-      metrics.textureReadyMs = performance.now() - start;
-      host.dataset.ready = "true";
+      emptyEarth.dispose();
+      textureReady();
       invalidate();
     },
     undefined,
@@ -389,8 +406,26 @@ export function createGlobe(
       if (!disposed) callbacks.error("texture");
     },
   );
-  // Raw color values are intentionally graded in the shader, independently per theme.
-  texture.colorSpace = THREE.NoColorSpace;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const nightTexture = new THREE.TextureLoader().load(
+    quality === "4096" ? night4096 : night2048,
+    (loaded) => {
+      if (disposed) {
+        loaded.dispose();
+        return;
+      }
+      loaded.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      uniforms.nightMap.value = loaded;
+      emptyNight.dispose();
+      textureReady();
+      invalidate();
+    },
+    undefined,
+    () => {
+      if (!disposed) callbacks.error("texture");
+    },
+  );
+  nightTexture.colorSpace = THREE.NoColorSpace;
   const change = () => invalidate();
   const controlStart = () => {
     moving = null;
@@ -402,6 +437,7 @@ export function createGlobe(
     x: number,
     y: number,
   ): { selection: GlobeSelection; text: string; key?: string } | null {
+    if (lighting.earthOnly) return null;
     const cam = camera.position.toArray() as unknown as Vec3;
     for (const item of markers) {
       const v = item.marker.position.toArray() as unknown as Vec3,
@@ -525,6 +561,21 @@ export function createGlobe(
   resize();
   paintStyles();
   return {
+    lighting(settings) {
+      lighting = { ...settings };
+      uniforms.sunIntensity.value = settings.sunIntensity;
+      uniforms.twilightWidth.value = settings.twilightWidth;
+      uniforms.atmosphereIntensity.value = settings.atmosphereIntensity;
+      uniforms.nightIntensity.value = settings.nightIntensity;
+      uniforms.surfaceEnabled.value = Number(settings.surface);
+      uniforms.nightEnabled.value = Number(settings.nightLights);
+      uniforms.atmosphereEnabled.value = Number(settings.atmosphere);
+      atmosphere.visible = settings.atmosphere;
+      for (const item of routeLines) item.line.visible = !settings.earthOnly;
+      for (const item of markers) item.marker.visible = !settings.earthOnly;
+      callbacks.hover(null);
+      invalidate();
+    },
     theme(theme) {
       uniforms.dark.value = theme === "dark" ? 1 : 0;
       paintStyles();
@@ -578,7 +629,11 @@ export function createGlobe(
       atmosphere.geometry.dispose();
       atmosphere.material.dispose();
       uniforms.earth.value.dispose();
+      uniforms.nightMap.value.dispose();
+      emptyEarth.dispose();
+      emptyNight.dispose();
       texture.dispose();
+      nightTexture.dispose();
       renderer.dispose();
       canvas.remove();
       labels.replaceChildren();

@@ -15,6 +15,7 @@ import { FlightRow } from "../components/FlightRow";
 import { GlobeMap } from "./GlobeMap";
 import { globeAirports } from "./globe-math";
 import type { GlobeSelection, GlobeTheme } from "./globe-renderer";
+import { defaultLighting } from "./globe-lighting";
 import "./globe-lab.css";
 import "./lab-locales";
 
@@ -40,6 +41,7 @@ export default function GlobeLab({
   const [selection, setSelection] = useState<GlobeSelection | null>(null),
     [hovered, setHovered] = useState<KeeprawFlight | null>(null);
   const [quality, setQuality] = useState<"2048" | "4096">("4096");
+  const [lighting, setLighting] = useState({ ...defaultLighting });
   const flights = useMemo(
     () =>
       passportVisibleFlights(document.flights, {
@@ -179,6 +181,7 @@ export default function GlobeLab({
               flights={flights}
               theme={theme}
               quality={quality}
+              lighting={lighting}
               selection={selection}
               highlightedRoute={
                 hovered
@@ -260,10 +263,67 @@ export default function GlobeLab({
               </label>
             </div>
             <p className="globe-help">{t("globe.help")}</p>
+            <details className="globe-debug" open>
+              <summary>{t("globe.lightingReview")}</summary>
+              <div className="globe-debug-layers">
+                {(
+                  ["earthOnly", "surface", "nightLights", "atmosphere"] as const
+                ).map((key) => (
+                  <label key={key}>
+                    <input
+                      type="checkbox"
+                      checked={lighting[key]}
+                      onChange={(event) =>
+                        setLighting((previous) => ({
+                          ...previous,
+                          [key]: event.target.checked,
+                        }))
+                      }
+                    />
+                    {t(`globe.${key === "surface" ? "daySurface" : key}`)}
+                  </label>
+                ))}
+              </div>
+              <div className="globe-debug-parameters">
+                {(
+                  [
+                    ["sunIntensity", 0, 4, 0.1],
+                    ["twilightWidth", 0.05, 0.4, 0.01],
+                    ["atmosphereIntensity", 0, 2, 0.1],
+                    ["nightIntensity", 0, 3, 0.1],
+                  ] as const
+                ).map(([key, min, max, step]) => (
+                  <label key={key}>
+                    {t(`globe.${key}`)}
+                    <input
+                      type="range"
+                      min={min}
+                      max={max}
+                      step={step}
+                      value={lighting[key]}
+                      onChange={(event) =>
+                        setLighting((previous) => ({
+                          ...previous,
+                          [key]: Number(event.target.value),
+                        }))
+                      }
+                    />
+                    <output>{lighting[key]}</output>
+                  </label>
+                ))}
+              </div>
+              <button onClick={() => setLighting({ ...defaultLighting })}>
+                {t("globe.resetLighting")}
+              </button>
+            </details>
             <p className="globe-attribution">
               {t("globe.credit")}{" "}
               <a href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography-bathymetry/">
                 NASA Earth Observatory / Blue Marble
+              </a>
+              {" · "}
+              <a href="https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/">
+                NASA / Black Marble 2016
               </a>
             </p>
           </section>
