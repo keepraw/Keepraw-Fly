@@ -1,0 +1,74 @@
+# Task 1B-3 — Cinematic Globe art direction
+
+**Visual approval pending. A is the default candidate; neither candidate is approved.**
+
+Rendered source: `2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1`. Baseline: `b9d32b3be9b6791a5a2861846d220c96ca0d59f0`. [Side-by-side browser review](visual-review/task-1b-3/README.md).
+
+## Reference diagnosis
+
+The supplied original KEEPRAW FLY design board was inspected directly, especially desktop dark 01 and desktop light 04, alongside all six requested Task 1B-2 browser captures. The supplied filename omits the `(1)` suffix in the brief; the actual attached board is the visual reference.
+
+In 01, city lights are small, mostly muted warm-white flecks embedded in a visible blue-gray land surface. They do not fill the luminance range or define every coastline with white. In B2, the dense China/Japan/Korea network reaches bright cream before the routes do; orange midtones and nearly black water make those highlights appear even harsher. The `.85` power expands weak signals, and emission intensity `1.6` pushes dense clusters into ACES' pale highlight shoulder. This organizes attention around population density rather than the owner's flights.
+
+The concept establishes depth through a navy ocean, blue-gray land relief, dark valleys, visible coasts, and a concentrated lit horizon. Its atmospheric edge is thin, blue, and locally cold-white near the light; the backlit side falls away instead of drawing a luminous circular border. Selected coral routes/endpoints lead, then the ordinary blue route network, clear airport labels, quiet city lights, and the supporting surface/air. The existing composition is frozen this round: the reference's exact hemisphere or flight network cannot be reproduced by changing data or camera.
+
+In 04, pale terrain is separated from blue water and retains local texture and coastline contrast. B2's uniform bright fill and visible cream city pixels obscure that separation. The concept's clarity comes from different reflectance and terrain values, not a gray haze over the entire sphere.
+
+## Material and color response
+
+Only the existing surface/atmosphere shaders and route styles are refined. Both candidates use the same shader programs, meshes, local textures, UV mapping, exposure, and world-space sun. The Lab selector updates one `horizonTwilight` uniform through the existing lighting controller; React's renderer-initialization dependencies do not change.
+
+Black Marble remains raw `NoColorSpace` grayscale visualization data, not calibrated radiance. The `.012` background floor is retained. A continuous monotonic response uses a smooth toe across `.075`, a `1.25` midtone power, and a bounded `.13 * midtone / (.24 + midtone)` shoulder. The same response applies to every texel, with no regional masks, extra texture samples, random removal, or invented cities. Low signals stay low, middle signals retain differences, and bright clusters flatten gradually below the previous white-gold peaks. A low-saturation neutral warm-white mix replaces orange/yellow grading. Emission fades through the terminator; Light mode has zero city emission because a nighttime overlay reduced daytime clarity. This is a combined tonal redesign, not only a global intensity reduction.
+
+The geographic day texture remains GPU-decoded sRGB. Its exactly reconstructed display values are used solely to derive land/ocean/terrain grading. Display-authored palette colors are converted once to linear albedo before illumination; the former approximate inverse-gamma followed by implicitly linear palette values is made explicit. ACES Filmic, exposure `1`, and renderer sRGB output are unchanged. No second output gamma is applied. A smooth terrain highlight shoulder, source-derived cool terrain variation, and source-derived bathymetry keep Light mode's snow, land and water differentiated without warm green/brown hues.
+
+Dark terrain now has selective blue-gray fill, with a small terrain-dependent increment on land and a distinct deep navy water palette. This exposes coasts, mountains, and seabed variation without brightening space. The surface scattering is concentrated toward the tangent (`grazing^7` rather than `^3.5`). The existing atmosphere shell is retained; its effective optical core narrows from `.007` to `.0032`, with a fading skirt only near B's lit limb. Backlit opacity drops considerably. Geometry and shell subdivisions are unchanged.
+
+A uses the narrow blue atmospheric core. B adds a localized cold-white surface tangent and a low-amplitude outer skirt, gated by the same surface normal/sun direction. It does not increase sun intensity, city emission or exposure. Light A/B share the same surface palette/illumination; their horizon difference is intentionally slight against a bright blue background.
+
+Ordinary routes retain their geometry and continuous limb fade. Dark blue changes to `#70b7e6`, Light to `#256fbd`; unselected base opacity becomes `.62`/`.57` plus small frequency increments. Ordinary width remains about `.99–1.11` CSS px. Selected coral stays at `1.65` px / `.92` opacity, with quieter but still legible ordinary routes behind it. Airports, labels, depth testing, picking and selection semantics are unchanged.
+
+## Controlled capture
+
+`scripts/capture-globe-art.mjs` captures eight fresh baseline images before the material edit and sixteen A/B images afterward. Every comparison asserts exact equality of the entire scene diagnostic: camera, FOV, ViewOffset, viewport, Home state, all route keys/counts/altitudes. World sun and exposure are also asserted equal. Unmodified Demo: all years, 24 flights, 23 directed routes, 22 physical strokes, 20 airports, 4K, DPR 1. Chrome uses Intel UHD / ANGLE D3D11. Screenshots are direct browser PNGs, without editing, compositing or generated imagery. Each image's mode, candidate, viewport, view, camera, data and hash are recorded in the manifest and scene JSON.
+
+At 1440×900, the live formal Passport `.route-map` measures **998×576.0625 CSS px**, with a 996×574 client canvas and 1 px border. Its allocation comes from `passport-desktop.css` and `passport.css`'s existing sticky grid, including the report below the map. This was measured after loading the same Demo; no assumed map height is used. The Lab stage alone is resized to the measured outer size, so its client WebGL canvas also becomes 996×574. The unchanged Home algorithm supplies the camera for this aspect; baseline/A/B use that same camera. Formal Passport remains SVG.
+
+## Visual self-review and limits
+
+| Question        | A — Restrained Midnight Aviation                                                                                                                                                                                     | B — Subtle Horizon Twilight                                                                                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| City hierarchy  | China/Japan/Korea's remaining geographic density is visible, but subdued gray-gold flecks sit below routes and airport markers. Dense India/China areas still read as texture, particularly at selected close range. | Identical city response; the local brighter limb does not amplify cities.                                                                                                          |
+| Shadow depth    | Navy water, coastlines and blue-gray relief are discernible; the right-hand ocean remains deep, with subtle bathymetry.                                                                                              | Same shadow foundation; the grazing shoulder reveals slightly more depth near the light only.                                                                                      |
+| Atmosphere      | Very light blue rim; avoids the previous broad uniform glow. Some sections can feel austere and less cinematic than the concept.                                                                                     | A small cold-white focus and gentler outer decay add spatial separation on the right limb. At selected views, this rim is more noticeable and retains a detectable synthetic edge. |
+| Route hierarchy | Ordinary fine blue strokes are clearer than B2; selected PEK→PVG coral and endpoints read first. Long routes still cluster at the limb because their true geometry/data are frozen.                                  | Same route styles. Near the locally brighter limb, grazing strokes can lose some contrast; inspect the 1280 view at full size.                                                     |
+| Light mode      | No night-light speckle overlay; more distinct mountain/coast and seabed variation. The cool, pale grade remains less photographic and more map-like than 04.                                                         | Same base clarity, with only a subtle horizon difference; no arbitrary brightening to manufacture a second Light style.                                                            |
+| Overall         | Quiet, legible aviation framing; weakest in dramatic horizon separation.                                                                                                                                             | More atmospheric focus; weakest in occasional visible rim artificiality.                                                                                                           |
+
+Neither is claimed to meet the concept's final standard. The reference still has more photographic cloud/terrain complexity and a different flight pattern. No clouds, particles, star field, bloom, flares or trails were added. Review the images at original size; lower average brightness or passing pixel tests does not constitute visual acceptance. A remains the task-requested default, B an alternative for human review. Visual expansion and formal integration stop here.
+
+## Verification and cost
+
+- `pnpm test`: 301 passed (Web 201 / Core 66 / Validator 31 / CSS 3). Existing frozen camera/arc mathematics remain unchanged.
+- `pnpm typecheck`, `pnpm build`, documentation consistency, CSS lint/token checks, changed-file formatting and `git diff --check` pass. The pre-existing production >500 kB chunk warning remains.
+- Globe suites, single worker: **Chromium 9 + WebKit 9 passed**, zero retries/skips. Existing texture/context fallback, retry, filtering, picking, zoom/Home, motion, accessibility and formal isolation remain covered. New A/B coverage checks unchanged camera/route/sun/exposure/city intensity, retained Canvas identity and textures, visible selected endpoints in both themes, local pixel differences and zero idle frames.
+- Formal Passport desktop suite: **Chromium 3 + WebKit 1 passed**. The first invocation used a nonexistent shortened filename and found no tests; the correctly named `passport-desktop-design.pw.ts` run provides these results.
+- The first six-worker run had 12 passes and 4 failures: Chromium's obsolete orange-pixel requirement, plus WebKit Lab initialization (two cases) / fallback readiness (one). Only the obsolete pixel assumption was revised: fixed-camera city layer on/off must change >500 actual pixels, reduce luminance, and restore exactly. The strict all-layers-disabled inner-sphere luminance threshold remains `<0.1` (measured 0 in both engines). Full single-worker rerun passes; the WebKit first-run readiness cause is not established, and timeouts/configuration were not loosened.
+- Firefox: one attempted A/B case fails **before application load**, `browserType.launch: spawn UNKNOWN` (Firefox 1543). Local Firefox remains unverified. Historical remote failures are tracked separately; local launch failure is not asserted to explain remote CI.
+- B2 remote [CI 37902087619](https://github.com/keepraw/Keepraw-Fly/actions/runs/37902087619) was inspected before this push: WebKit succeeds; Firefox has seven existing Globe readiness/related failures; Chromium has an existing direct-picking/motion camera assertion failure. These precede B3. No CI infrastructure, frozen interaction implementation, retries or timeout settings were changed to conceal them. The new remote run's outcome must be inspected independently.
+- Final PNG capture records no page/console errors and no external HTTP resource requests. Light/Dark Axe reports retain zero violations. Production isolation: nine asset names/bytes/SHA-256 all equal B2; texture and geography files unchanged.
+
+Same Intel UHD / D3D11 hardware, 1440×900, same camera/sun/Demo, DPR 1. Sequential independent runs: 30 warm-up RAFs and 120 measured rotation intervals, no concurrent browser tests.
+
+| Quality | B2 / A / B observed RAF Hz | Median ms B2 / A / B | p95 ms B2 / A / B  | Textured first frame ms B2 / A / B |
+| ------- | -------------------------- | -------------------- | ------------------ | ---------------------------------- |
+| 4K      | 60.00 / 60.00 / 60.00      | 16.7 / 16.7 / 16.7   | 16.8 / 16.8 / 16.8 | 388.7 / 293.5 / 304.3              |
+| 2K      | 59.99 / 60.00 / 60.00      | 16.7 / 16.7 / 16.7   | 16.9 / 16.8 / 16.8 | 177.8 / 102.5 / 94.5               |
+
+All have 42 default draw calls and zero extra frames over 300 ms at rest. Single-run startup differences include driver/cache effects; no startup speedup is claimed. RAF Hz is not a native FPS counter or GPU timing, and a 60 Hz cap cannot prove spare GPU capacity. Shader arithmetic changes but sample/pass/geometry counts do not. Independent renderer JS: 596,933 → 598,612 B (+1,679); gzip 150,174 → 150,943 B (+769). Formal production addition: 0 B. Same 4K/2K texture bytes and estimated texture memory as B2. [Raw evidence](visual-review/task-1b-3/README.md#verification-and-raw-evidence).
+
+## Scope
+
+Implementation changes: `globe-lighting.ts`, style parameters/uniform binding in `globe-renderer.ts`, DEV Lab selector/locales/CSS. New `globe-art.pw.ts`, revised city pixel verification in `globe-lighting.pw.ts`, art capture script and optional candidate in the existing performance script. `globe-math.ts`, `GlobeMap.tsx`, camera/orbit/selection/Home logic, surface/night assets and source records, business filtering/statistics, formal Archive/Passport/detail/mobile pages, schemas, dependencies and workflows are untouched. Task 1B-1/1B-2 documents and images are preserved.
+
+Continue Draft PR #34 on `codex/globe-prototype-experiment`. No PR #35, merge, auto-merge, PR #33 update or formal Globe integration. **Visual approval pending.**
