@@ -115,6 +115,7 @@ export function createGlobe(
     twilightWidth: { value: defaultLighting.twilightWidth },
     atmosphereIntensity: { value: defaultLighting.atmosphereIntensity },
     nightIntensity: { value: defaultLighting.nightIntensity },
+    horizonTwilight: { value: 0 },
     surfaceEnabled: { value: 1 },
     nightEnabled: { value: 1 },
     atmosphereEnabled: { value: 1 },
@@ -257,8 +258,8 @@ export function createGlobe(
               ? 0xc7eeff
               : 0x1357a4
             : dark
-              ? 0x65a8d6
-              : 0x2876c9,
+              ? 0x70b7e6
+              : 0x256fbd,
       );
       const level = Math.min(
         Math.log2(
@@ -270,12 +271,13 @@ export function createGlobe(
         ? 1.65
         : hovered
           ? 1.3
-          : 0.85 + level * 0.08;
+          : 0.93 + level * 0.06;
       item.line.material.opacity = active
         ? 0.92
         : hovered
           ? 0.8
-          : (selected?.kind === "route" ? 0.27 : 0.4) + level * 0.1;
+          : (selected?.kind === "route" ? 0.36 : dark ? 0.62 : 0.57) +
+            level * 0.07;
       item.line.renderOrder = active ? 3 : hovered ? 2 : 1;
     }
     for (const item of markers) {
@@ -644,6 +646,7 @@ export function createGlobe(
       uniforms.twilightWidth.value = settings.twilightWidth;
       uniforms.atmosphereIntensity.value = settings.atmosphereIntensity;
       uniforms.nightIntensity.value = settings.nightIntensity;
+      uniforms.horizonTwilight.value = settings.artDirection === "B" ? 1 : 0;
       uniforms.surfaceEnabled.value = Number(settings.surface);
       uniforms.nightEnabled.value = Number(settings.nightLights);
       uniforms.atmosphereEnabled.value = Number(settings.atmosphere);

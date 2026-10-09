@@ -389,6 +389,16 @@
   padding: 0 6px;
   font-size: 12px;
 }
+.globe-debug-layers select {
+  max-width: 100%;
+  margin-left: 8px;
+  padding: 4px 6px;
+  border: 1px solid var(--lab-line);
+  border-radius: 3px;
+  color: var(--lab-ink);
+  background: var(--lab-surface);
+  font-size: 12px;
+}
 .globe-help {
   margin: 12px 0 0;
   font-size: 11px;
