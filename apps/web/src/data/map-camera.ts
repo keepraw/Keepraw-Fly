@@ -29,14 +29,16 @@ export function passportMapCamera(
   routes: RouteSegment[],
   airports: GeographicPoint[],
   viewportHeight = WORLD_HEIGHT,
+  insetBottom = 0,
 ): MapCamera {
+  const usableHeight = Math.max(100, viewportHeight - insetBottom);
   if (
     routes.some(
       (route) =>
         Math.abs(route.origin.longitude - route.destination.longitude) > 180,
     )
   )
-    return WORLD_CAMERA;
+    return passportWorldCamera(usableHeight);
   const centerLongitude = regionalCenterLongitude(airports);
   const points = [
     ...airports.map((airport) => projectPoint(airport, centerLongitude)),
@@ -44,11 +46,26 @@ export function passportMapCamera(
       sampleGreatCircle(route.origin, route.destination, 48, centerLongitude),
     ),
   ];
-  return fitProjectedPoints(points, {
-    maxZoom: 8,
-    padding: 0.12,
-    viewportHeight,
+  const camera = fitProjectedPoints(points, {
+    maxZoom: 6,
+    padding: 0.16,
+    viewportHeight: usableHeight,
   });
+  return camera === WORLD_CAMERA
+    ? passportWorldCamera(usableHeight)
+    : {
+        ...camera,
+        centerY: camera.centerY + insetBottom / (2 * camera.zoom),
+      };
+}
+
+function passportWorldCamera(viewportHeight: number): MapCamera {
+  // A wide, short stage needs a scale below 1 to retain polar routes. Detail
+  // keeps its original camera; only Passport opts into this overview scale.
+  return {
+    ...WORLD_CAMERA,
+    zoom: Math.min(0.94, (viewportHeight / WORLD_HEIGHT) * 0.9),
+  };
 }
 
 export function flightRouteCamera(

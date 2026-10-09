@@ -239,7 +239,9 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
     await expect(page.locator(".passport-mobile-summary")).toBeHidden();
     await expect(page.locator(".route-map-canvas")).toBeVisible();
     await expect(page.locator(".passport-highlights")).toHaveCount(1);
-    await expect(page.locator(".passport-highlights")).toBeVisible();
+    await expect(page.locator(".passport-highlights"))[
+      page.viewportSize()!.height <= 540 ? "toBeHidden" : "toBeVisible"
+    ]();
   }
 }
 

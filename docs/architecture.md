@@ -97,6 +97,23 @@ points and great-circle routes, including adaptive sampling and date-line
 clipping. The local SVG viewport supports pan, zoom, reset and route/airport
 selection. No external map tiles, map API calls or device location are required.
 
+Desktop Passport also projects a bundled Natural Earth 1:50m SRTM Plus relief
+texture with that same projection and geographic center. It is clipped to the
+vector land geometry and transformed together with the routes while panning
+and zooming. `MapRelief` caches up to three projected images and yields between
+pixel strips; a failed texture load leaves the interactive vector map usable.
+The texture is 554 KiB and does not replace airport/route geometry. Flight Detail
+uses the original map appearance. Regenerate the texture with Pillow using
+`python scripts/generate-map-relief.py /path/to/SR_50M.tif`; the pinned download,
+archive checksum and public-domain license are in `map-relief.source.json`.
+
+Passport alone permits an overview zoom below 1 to fit the full world into wide
+stages; regional cameras retain 16% padding and a maximum initial zoom of 6 for
+geographic context. Desktop flight rows localize city names from airport data,
+fall back to IATA when a city is unavailable, and flag arrival delays of at least
+30 minutes. Flight Detail retains every timing deviation. Short desktop windows
+(height at most 540px) show all six core statistics and omit the three Highlights.
+
 ## Source entry points
 
 - [Storage contracts](../apps/web/src/storage/adapter.ts) and

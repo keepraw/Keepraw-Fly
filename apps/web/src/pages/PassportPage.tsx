@@ -57,7 +57,7 @@ function SpotlightItem({
         {context ? (
           <span className="passport-spotlight-context">{context}</span>
         ) : null}
-        <strong>{value}</strong>
+        <strong className="passport-spotlight-value">{value}</strong>
         {code ? <span className="passport-spotlight-code">{code}</span> : null}
       </span>
       {metadata ? <small>{metadata}</small> : null}
@@ -156,9 +156,6 @@ export function PassportPage({
   const routes = useMemo(() => buildRouteSegments(flights), [flights]);
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
-  );
-  const shortest = flights.find(
-    (flight) => flight.id === stats.shortestFlight?.flightId,
   );
   // An airport filter can tie with its sole opposite endpoint; keep the active
   // airport visible as that tied leader so its pressed state remains available.
@@ -352,12 +349,19 @@ export function PassportPage({
         >
           <div className="passport-visual-sticky">
             <p className="passport-scope" aria-live="polite">
-              {t(
-                selectedYear === "lifetime"
-                  ? "passport.scopeAll"
-                  : "passport.scopeYear",
-                { year: selectedYear, count: flights.length },
-              )}
+              {isDesktop ? (
+                <span className="passport-map-title">
+                  {t("passport.worldTitle")}
+                </span>
+              ) : null}
+              <span>
+                {t(
+                  selectedYear === "lifetime"
+                    ? "passport.scopeAll"
+                    : "passport.scopeYear",
+                  { year: selectedYear, count: flights.length },
+                )}
+              </span>
             </p>
             {isDesktop ? (
               <Suspense
@@ -402,177 +406,255 @@ export function PassportPage({
               </Suspense>
             ) : null}
 
-            <section
-              className="passport-legend"
-              key={`primary-${selectedYear}`}
-              aria-label={t("passport.primaryStats")}
-            >
-              <p className="passport-legend-hero">
-                <span className="sr-only">{t("passport.distance")} </span>
-                <strong>
-                  {t(distanceKey, {
-                    value: formatDistance(
-                      stats.distanceKilometers,
-                      locale,
-                      distanceUnit,
-                    ),
-                  })}
-                </strong>
-              </p>
-              <p className="passport-legend-support">
-                {t("passport.heroSupport", {
-                  count: stats.flights,
-                  flights: stats.flights.toLocaleString(locale),
-                  duration,
-                })}
-              </p>
-              <p
-                className="passport-legend-delay"
-                title={t("passport.delayBasedOnArrivals")}
-                aria-description={t("passport.delayBasedOnArrivals")}
+            {isDesktop ? (
+              <section
+                className="passport-legend passport-core-stats"
+                aria-label={t("passport.primaryStats")}
               >
-                {t("passport.arrivalDelayTotal", { duration: arrivalDelay })}
-              </p>
-            </section>
-
-            <p
-              className="passport-network-line"
-              aria-label={t("passport.collectionStats")}
-            >
-              {t("passport.networkSentence", {
-                countries: t("passport.networkCountries", {
-                  count: stats.countries,
-                }),
-                airports: t("passport.networkAirports", {
-                  count: stats.airports,
-                }),
-                airlines: t("passport.networkAirlines", {
-                  count: stats.airlines,
-                }),
-                types: t("passport.networkTypes", {
-                  count: stats.aircraftTypes,
-                }),
-              })}
-            </p>
-
-            <section
-              className="passport-mobile-summary"
-              id="passport-summary"
-              key={`mobile-summary-${selectedYear}`}
-              aria-label={t("passport.primaryStats")}
-            >
-              <p className="passport-panel-kicker">
-                KEEPRAW FLY <span> / </span> {t("passport.panelTitle")}
-              </p>
-              <div className="passport-mobile-hero">
-                <strong>{stats.flights.toLocaleString(locale)}</strong>
-                <span>{t("passport.flights")}</span>
-              </div>
-              <div className="passport-mobile-journey">
-                <div>
-                  <span>{t("passport.distance")}</span>
-                  <strong>
-                    {t(distanceKey, {
+                {[
+                  [
+                    "distance",
+                    t(distanceKey, {
                       value: formatDistance(
                         stats.distanceKilometers,
                         locale,
                         distanceUnit,
                       ),
+                    }),
+                  ],
+                  ["flights", stats.flights.toLocaleString(locale)],
+                  ["timeInAir", duration],
+                  ["airports", stats.airports.toLocaleString(locale)],
+                  ["airlines", stats.airlines.toLocaleString(locale)],
+                  ["countries", stats.countries.toLocaleString(locale)],
+                ].map(([label, value]) => (
+                  <p className="passport-core-stat" key={label}>
+                    <strong>{value}</strong>
+                    <span>{t(`passport.${label}`)}</span>
+                  </p>
+                ))}
+              </section>
+            ) : (
+              <>
+                <section
+                  className="passport-legend"
+                  key={`primary-${selectedYear}`}
+                  aria-label={t("passport.primaryStats")}
+                >
+                  <p className="passport-legend-hero">
+                    <span
+                      className={
+                        isDesktop ? "passport-report-label" : "sr-only"
+                      }
+                    >
+                      {t("passport.distance")}{" "}
+                    </span>
+                    <strong>
+                      {t(distanceKey, {
+                        value: formatDistance(
+                          stats.distanceKilometers,
+                          locale,
+                          distanceUnit,
+                        ),
+                      })}
+                    </strong>
+                  </p>
+                  <p className="passport-legend-support">
+                    {isDesktop ? (
+                      <>
+                        <span>
+                          <strong>
+                            {stats.flights.toLocaleString(locale)}
+                          </strong>{" "}
+                          {t("passport.flights")}
+                        </span>
+                        <span>
+                          <strong>{duration}</strong> {t("passport.timeInAir")}
+                        </span>
+                      </>
+                    ) : (
+                      t("passport.heroSupport", {
+                        count: stats.flights,
+                        flights: stats.flights.toLocaleString(locale),
+                        duration,
+                      })
+                    )}
+                  </p>
+                  <p
+                    className="passport-legend-delay"
+                    data-delayed={Boolean(
+                      stats.totalDelayMinutes && stats.totalDelayMinutes > 0,
+                    )}
+                    title={t("passport.delayBasedOnArrivals")}
+                    aria-description={t("passport.delayBasedOnArrivals")}
+                  >
+                    {t("passport.arrivalDelayTotal", {
+                      duration: arrivalDelay,
                     })}
-                  </strong>
-                </div>
-                <div>
-                  <span>{t("passport.timeInAir")}</span>
-                  <strong>
-                    {formatDuration(stats.durationMinutes, locale)}
-                  </strong>
-                </div>
-              </div>
-              <div
-                className="passport-mobile-support"
-                aria-label={t("passport.collectionStats")}
-              >
-                <span>
-                  {t("passport.countries")}:{" "}
-                  {stats.countries.toLocaleString(locale)}
-                </span>
-                <span>
-                  {t("passport.airports")}:{" "}
-                  {stats.airports.toLocaleString(locale)}
-                </span>
-                <span>
-                  {t("passport.airlines")}:{" "}
-                  {stats.airlines.toLocaleString(locale)}
-                </span>
-                <span>
-                  {t("passport.aircraftTypes")}:{" "}
-                  {stats.aircraftTypes.toLocaleString(locale)}
-                </span>
-              </div>
-            </section>
+                  </p>
+                </section>
 
-            <section
-              className="passport-mobile-panel passport-delay-panel"
-              aria-labelledby="passport-delay-title"
-            >
-              <h2 id="passport-delay-title">{t("passport.totalDelay")}</h2>
-              <div
-                className="passport-delay-main"
-                title={t("passport.delayBasedOnArrivals")}
-                aria-description={t("passport.delayBasedOnArrivals")}
-              >
-                <strong>{arrivalDelay}</strong>
-              </div>
-              {stats.totalDelayMinutes === null ? (
-                <p>{t("passport.delayUnavailable")}</p>
-              ) : (
-                <>
-                  {worstDelay ? (
-                    <p className="passport-delay-longest">
-                      <span>{t("passport.longestDelay")}</span>
+                <p
+                  className="passport-network-line"
+                  aria-label={t("passport.collectionStats")}
+                >
+                  {isDesktop ? (
+                    <>
+                      {(
+                        [
+                          ["countries", stats.countries],
+                          ["airports", stats.airports],
+                          ["airlines", stats.airlines],
+                          ["aircraftTypes", stats.aircraftTypes],
+                        ] as const
+                      ).map(([label, count]) => (
+                        <span key={label}>
+                          <strong>{count.toLocaleString(locale)}</strong>{" "}
+                          {t(`passport.${label}`)}
+                        </span>
+                      ))}
+                    </>
+                  ) : (
+                    t("passport.networkSentence", {
+                      countries: t("passport.networkCountries", {
+                        count: stats.countries,
+                      }),
+                      airports: t("passport.networkAirports", {
+                        count: stats.airports,
+                      }),
+                      airlines: t("passport.networkAirlines", {
+                        count: stats.airlines,
+                      }),
+                      types: t("passport.networkTypes", {
+                        count: stats.aircraftTypes,
+                      }),
+                    })
+                  )}
+                </p>
+              </>
+            )}
+
+            {!isDesktop ? (
+              <>
+                <section
+                  className="passport-mobile-summary"
+                  id="passport-summary"
+                  key={`mobile-summary-${selectedYear}`}
+                  aria-label={t("passport.primaryStats")}
+                >
+                  <p className="passport-panel-kicker">
+                    KEEPRAW FLY <span> / </span> {t("passport.panelTitle")}
+                  </p>
+                  <div className="passport-mobile-hero">
+                    <strong>{stats.flights.toLocaleString(locale)}</strong>
+                    <span>{t("passport.flights")}</span>
+                  </div>
+                  <div className="passport-mobile-journey">
+                    <div>
+                      <span>{t("passport.distance")}</span>
                       <strong>
-                        {worstDelay.flight.flightNumber} ·{" "}
-                        {formatDuration(worstDelay.minutes, locale)}
+                        {t(distanceKey, {
+                          value: formatDistance(
+                            stats.distanceKilometers,
+                            locale,
+                            distanceUnit,
+                          ),
+                        })}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>{t("passport.timeInAir")}</span>
+                      <strong>
+                        {formatDuration(stats.durationMinutes, locale)}
+                      </strong>
+                    </div>
+                  </div>
+                  <div
+                    className="passport-mobile-support"
+                    aria-label={t("passport.collectionStats")}
+                  >
+                    <span>
+                      {t("passport.countries")}:{" "}
+                      {stats.countries.toLocaleString(locale)}
+                    </span>
+                    <span>
+                      {t("passport.airports")}:{" "}
+                      {stats.airports.toLocaleString(locale)}
+                    </span>
+                    <span>
+                      {t("passport.airlines")}:{" "}
+                      {stats.airlines.toLocaleString(locale)}
+                    </span>
+                    <span>
+                      {t("passport.aircraftTypes")}:{" "}
+                      {stats.aircraftTypes.toLocaleString(locale)}
+                    </span>
+                  </div>
+                </section>
+
+                <section
+                  className="passport-mobile-panel passport-delay-panel"
+                  aria-labelledby="passport-delay-title"
+                >
+                  <h2 id="passport-delay-title">{t("passport.totalDelay")}</h2>
+                  <div
+                    className="passport-delay-main"
+                    title={t("passport.delayBasedOnArrivals")}
+                    aria-description={t("passport.delayBasedOnArrivals")}
+                  >
+                    <strong>{arrivalDelay}</strong>
+                  </div>
+                  {stats.totalDelayMinutes === null ? (
+                    <p>{t("passport.delayUnavailable")}</p>
+                  ) : (
+                    <>
+                      {worstDelay ? (
+                        <p className="passport-delay-longest">
+                          <span>{t("passport.longestDelay")}</span>
+                          <strong>
+                            {worstDelay.flight.flightNumber} ·{" "}
+                            {formatDuration(worstDelay.minutes, locale)}
+                          </strong>
+                        </p>
+                      ) : null}
+                    </>
+                  )}
+                </section>
+
+                <section
+                  className="passport-mobile-panel passport-network-panel"
+                  aria-labelledby="passport-network-title"
+                >
+                  <h2 id="passport-network-title">
+                    {t("passport.networkPanelTitle")}
+                  </h2>
+                  <div className="passport-network-facts">
+                    <div>
+                      <strong>{stats.countries.toLocaleString(locale)}</strong>
+                      <span>{t("passport.countries")}</span>
+                    </div>
+                    <div>
+                      <strong>{stats.airports.toLocaleString(locale)}</strong>
+                      <span>{t("passport.airports")}</span>
+                    </div>
+                  </div>
+                  {stats.mostVisitedAirport ? (
+                    <p>
+                      <span>{t("passport.mostVisitedAirport")}</span>
+                      <strong>
+                        {airportByIata.get(stats.mostVisitedAirport.code)
+                          ? localizedText(
+                              airportByIata.get(stats.mostVisitedAirport.code)!
+                                .name,
+                              locale,
+                            )
+                          : stats.mostVisitedAirport.code}
                       </strong>
                     </p>
                   ) : null}
-                </>
-              )}
-            </section>
-
-            <section
-              className="passport-mobile-panel passport-network-panel"
-              aria-labelledby="passport-network-title"
-            >
-              <h2 id="passport-network-title">
-                {t("passport.networkPanelTitle")}
-              </h2>
-              <div className="passport-network-facts">
-                <div>
-                  <strong>{stats.countries.toLocaleString(locale)}</strong>
-                  <span>{t("passport.countries")}</span>
-                </div>
-                <div>
-                  <strong>{stats.airports.toLocaleString(locale)}</strong>
-                  <span>{t("passport.airports")}</span>
-                </div>
-              </div>
-              {stats.mostVisitedAirport ? (
-                <p>
-                  <span>{t("passport.mostVisitedAirport")}</span>
-                  <strong>
-                    {airportByIata.get(stats.mostVisitedAirport.code)
-                      ? localizedText(
-                          airportByIata.get(stats.mostVisitedAirport.code)!
-                            .name,
-                          locale,
-                        )
-                      : stats.mostVisitedAirport.code}
-                  </strong>
-                </p>
-              ) : null}
-            </section>
-
+                </section>
+              </>
+            ) : null}
             {isDesktop ? (
               <div
                 className="passport-highlights"
@@ -582,6 +664,18 @@ export function PassportPage({
                   {t("passport.highlights")}
                 </h2>
                 <div className="passport-spotlight">
+                  <div
+                    className="passport-delay-highlight"
+                    data-delayed={Boolean(
+                      stats.totalDelayMinutes && stats.totalDelayMinutes > 0,
+                    )}
+                    title={t("passport.delayBasedOnArrivals")}
+                  >
+                    <span className="passport-spotlight-label">
+                      {t("passport.totalDelay")}
+                    </span>
+                    <strong>{arrivalDelay}</strong>
+                  </div>
                   <SpotlightItem
                     label={t("passport.highlightBeen")}
                     value={mostVisitedName}
@@ -619,67 +713,7 @@ export function PassportPage({
                         : undefined
                     }
                   />
-                  <SpotlightItem
-                    label={t("passport.highlightFlown")}
-                    value={
-                      stats.mostFlownAirline
-                        ? airlineDisplayName(
-                            stats.mostFlownAirline.code,
-                            locale,
-                          )
-                        : "—"
-                    }
-                    metadata={
-                      stats.mostFlownAirline
-                        ? t("passport.flightFrequency", {
-                            count: stats.mostFlownAirline.count,
-                          })
-                        : undefined
-                    }
-                    ariaLabel={
-                      stats.mostFlownAirline
-                        ? t("passport.filterAirline", {
-                            airline: airlineDisplayName(
-                              stats.mostFlownAirline.code,
-                              locale,
-                            ),
-                          })
-                        : undefined
-                    }
-                    selected={
-                      stats.mostFlownAirline
-                        ? isSelected({
-                            kind: "airline",
-                            code: stats.mostFlownAirline.code,
-                          })
-                        : false
-                    }
-                    onSelect={
-                      stats.mostFlownAirline
-                        ? () =>
-                            toggleHighlight({
-                              kind: "airline",
-                              code: stats.mostFlownAirline!.code,
-                            })
-                        : undefined
-                    }
-                  />
-                  <div
-                    className="passport-spotlight-routes"
-                    role="group"
-                    aria-labelledby="passport-spotlight-routes-label"
-                  >
-                    <span
-                      className="passport-spotlight-label"
-                      id="passport-spotlight-routes-label"
-                    >
-                      {t("passport.highlightRoutes")}
-                    </span>
-                    <div>
-                      {routeHighlight(longest, t("passport.longestFlight"))}
-                      {routeHighlight(shortest, t("passport.shortestFlight"))}
-                    </div>
-                  </div>
+                  {routeHighlight(longest, t("passport.longestFlight"))}
                 </div>
               </div>
             ) : null}
@@ -783,6 +817,7 @@ export function PassportPage({
                           selected={view.flightId === flight.id}
                           onHoverChange={setHoveredFlight}
                           revealIndex={index}
+                          presentation={isDesktop ? "passport" : "standard"}
                         />
                       ))}
                     </div>

@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -14,8 +15,9 @@ interface MapViewportProps {
   ariaLabel: string;
   className?: string;
   initialCamera: MapCamera;
-  cameraForViewport?: (height: number) => MapCamera;
+  cameraForViewport?: (height: number, pixelScale: number) => MapCamera;
   maxZoom?: number;
+  minZoom?: number;
   labels: {
     zoomIn: string;
     zoomOut: string;
@@ -41,13 +43,16 @@ export function MapViewport({
   initialCamera,
   cameraForViewport,
   maxZoom = 6,
+  minZoom = 1,
   labels,
   children,
 }: MapViewportProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [viewportHeight, setViewportHeight] = useState(WORLD_HEIGHT);
   const [viewportWidth, setViewportWidth] = useState(WORLD_WIDTH);
-  const fittedCamera = cameraForViewport?.(viewportHeight) ?? initialCamera;
+  const fittedCamera =
+    cameraForViewport?.(viewportHeight, WORLD_WIDTH / viewportWidth) ??
+    initialCamera;
   const cameraRef = useRef(initialCamera);
   const animationRef = useRef<number | undefined>(undefined);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
@@ -56,12 +61,18 @@ export function MapViewport({
   const suppressClickRef = useRef(false);
   const mountedRef = useRef(false);
   const [camera, setCameraState] = useState(() =>
-    clampCamera(initialCamera, maxZoom, viewportHeight),
+    clampCamera(initialCamera, maxZoom, viewportHeight, minZoom),
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const svg = svgRef.current;
     if (!svg || typeof ResizeObserver === "undefined") return;
+    // Establish screen scale before paint. SVG endpoint radii must not spend a
+    // frame using the 960px fallback when a different-width stage is mounted.
+    if (svg.clientWidth > 0 && svg.clientHeight > 0) {
+      setViewportHeight((WORLD_WIDTH * svg.clientHeight) / svg.clientWidth);
+      setViewportWidth(svg.clientWidth);
+    }
     const observer = new ResizeObserver(([entry]) => {
       if (
         entry &&
@@ -80,11 +91,11 @@ export function MapViewport({
 
   const setCamera = useCallback(
     (next: MapCamera) => {
-      const clamped = clampCamera(next, maxZoom, viewportHeight);
+      const clamped = clampCamera(next, maxZoom, viewportHeight, minZoom);
       cameraRef.current = clamped;
       setCameraState(clamped);
     },
-    [maxZoom, viewportHeight],
+    [maxZoom, minZoom, viewportHeight],
   );
 
   const stopAnimation = useCallback(() => {
@@ -96,7 +107,7 @@ export function MapViewport({
   const animateTo = useCallback(
     (target: MapCamera) => {
       stopAnimation();
-      const destination = clampCamera(target, maxZoom, viewportHeight);
+      const destination = clampCamera(target, maxZoom, viewportHeight, minZoom);
       const start = cameraRef.current;
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
@@ -120,7 +131,7 @@ export function MapViewport({
       };
       animationRef.current = requestAnimationFrame(step);
     },
-    [maxZoom, viewportHeight, setCamera, stopAnimation],
+    [maxZoom, minZoom, viewportHeight, setCamera, stopAnimation],
   );
 
   useEffect(() => {
@@ -143,7 +154,7 @@ export function MapViewport({
   const zoomAt = useCallback(
     (anchor: { x: number; y: number }, nextZoom: number, animate = false) => {
       const current = cameraRef.current;
-      const zoom = Math.min(maxZoom, Math.max(1, nextZoom));
+      const zoom = Math.min(maxZoom, Math.max(minZoom, nextZoom));
       const worldX =
         current.centerX + (anchor.x - WORLD_WIDTH / 2) / current.zoom;
       const worldY =
@@ -156,7 +167,7 @@ export function MapViewport({
       if (animate) animateTo(next);
       else setCamera(next);
     },
-    [animateTo, maxZoom, viewportHeight, setCamera],
+    [animateTo, maxZoom, minZoom, viewportHeight, setCamera],
   );
 
   useEffect(() => {
@@ -237,7 +248,7 @@ export function MapViewport({
     const zoom = Math.min(
       maxZoom,
       Math.max(
-        1,
+        minZoom,
         (gesture.camera.zoom * distance) / Math.max(gesture.distance, 1),
       ),
     );
@@ -324,7 +335,7 @@ export function MapViewport({
               true,
             )
           }
-          disabled={camera.zoom <= 1.01}
+          disabled={camera.zoom <= minZoom + 0.01}
           aria-label={labels.zoomOut}
         >
           <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -349,9 +360,10 @@ function clampCamera(
   camera: MapCamera,
   maxZoom: number,
   viewportHeight: number,
+  minZoom: number,
 ): MapCamera {
-  const zoom = Math.min(maxZoom, Math.max(1, camera.zoom));
-  const halfWidth = WORLD_WIDTH / (2 * zoom);
+  const zoom = Math.min(maxZoom, Math.max(minZoom, camera.zoom));
+  const halfWidth = Math.min(WORLD_WIDTH / 2, WORLD_WIDTH / (2 * zoom));
   const halfHeight = Math.min(WORLD_HEIGHT / 2, viewportHeight / (2 * zoom));
   return {
     centerX: Math.min(
