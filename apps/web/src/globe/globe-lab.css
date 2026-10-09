@@ -1,0 +1,421 @@
+.globe-lab {
+  --lab-bg: #f3f7fc;
+  --lab-surface: #f8fbff;
+  --lab-ink: #173352;
+  --lab-muted: #58708a;
+  --lab-line: #cedceb;
+  --lab-select: #e1edfa;
+  --ink: var(--lab-ink);
+  --muted: var(--lab-muted);
+  --faint: var(--lab-muted);
+  --line: var(--lab-line);
+  --surface: transparent;
+  --color-warning: #835713;
+  min-height: 100dvh;
+  color: var(--lab-ink);
+  background: var(--lab-bg);
+  color-scheme: light;
+}
+.globe-lab[data-theme="dark"] {
+  --color-warning: #f6bc62;
+  --lab-bg: #101923;
+  --lab-surface: #142230;
+  --lab-ink: #e0eaf5;
+  --lab-muted: #98aec5;
+  --lab-line: #2a3e52;
+  --lab-select: #213b53;
+  color-scheme: dark;
+}
+.globe-lab button,
+.globe-lab select,
+.globe-lab input {
+  color: inherit;
+  font: inherit;
+}
+.globe-lab a {
+  color: inherit;
+}
+.globe-lab button {
+  cursor: pointer;
+}
+.globe-lab :focus-visible {
+  outline: 2px solid #6eacdf;
+  outline-offset: 3px;
+}
+.globe-lab-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--lab-line);
+  background: var(--lab-surface);
+}
+.globe-wordmark {
+  font-weight: 760;
+  font-size: 20px;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+.globe-lab-header > span {
+  font: 12px var(--font-family-mono);
+  color: var(--lab-muted);
+}
+.globe-lab-header > a:last-child {
+  margin-left: auto;
+  font-size: 12px;
+}
+.globe-lab-main {
+  max-width: 1800px;
+  margin: auto;
+  padding: 0 24px 20px;
+}
+.globe-lab-intro {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--lab-line);
+  font-size: 12px;
+  color: var(--lab-muted);
+}
+.globe-theme-switch {
+  display: flex;
+  gap: 4px;
+}
+.globe-theme-switch button {
+  border: 0;
+  background: transparent;
+  border-radius: 3px;
+  padding: 6px 12px;
+}
+.globe-theme-switch button[aria-pressed="true"] {
+  color: var(--lab-ink);
+  background: var(--lab-select);
+}
+.globe-lab-layout {
+  display: grid;
+  grid-template-columns: clamp(260px, 27vw, 360px) minmax(0, 1fr);
+  gap: 24px;
+  padding-top: 14px;
+}
+.globe-lab-sidebar {
+  min-width: 0;
+}
+.globe-lab .globe-lab-sidebar {
+  grid-column: 1;
+  grid-row: 1;
+  height: auto;
+  align-self: start;
+}
+.globe-years {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--lab-line);
+  height: 32px;
+}
+.globe-years button {
+  padding: 4px 12px;
+  background: transparent;
+  border: 0;
+  color: var(--lab-muted);
+  font-size: 12px;
+}
+.globe-years button[aria-pressed="true"] {
+  color: var(--lab-ink);
+  box-shadow: inset 0 -2px #6b9bc8;
+}
+.globe-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--lab-line);
+  padding: 7px 10px;
+  border-radius: 4px;
+  margin: 12px 0 18px;
+}
+.globe-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 12px;
+}
+.globe-flight-heading {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 0 8px 10px;
+}
+.globe-flight-heading span {
+  font: 11px var(--font-family-mono);
+  color: var(--lab-muted);
+}
+.globe-flight-list {
+  max-height: calc(100dvh - 280px);
+  overflow: auto;
+}
+.globe-lab .flight-row {
+  color: var(--lab-ink);
+  border-color: var(--lab-line);
+}
+.globe-lab .flight-row.is-selected {
+  background: var(--lab-select);
+  box-shadow: inset 2px 0 #7eafe1;
+}
+.globe-lab .flight-row:hover {
+  background: var(--lab-select);
+}
+.globe-lab .flight-row small,
+.globe-lab .flight-ledger-date,
+.globe-lab .flight-ledger-duration {
+  color: var(--lab-muted);
+}
+.globe-map-heading {
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.globe-map-heading h1 {
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.globe-map-heading > span {
+  padding-top: 4px;
+  color: var(--lab-muted);
+  font-size: 11px;
+}
+.globe-lab-map-panel {
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 1;
+}
+.globe-stage {
+  position: relative;
+  height: clamp(280px, calc(100dvh - 290px), 700px);
+  overflow: hidden;
+  border: 1px solid #adc8e3;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 60% 5%, #e7f3ff, #c2def3 75%);
+  color: #21476c;
+}
+.globe-stage[data-theme="dark"] {
+  background: radial-gradient(ellipse at 55% 12%, #122b40, #05111e 80%);
+  border-color: #2f4b65;
+  color: #d8eafa;
+}
+.globe-host,
+.globe-labels {
+  position: absolute;
+  inset: 0;
+}
+.globe-host[hidden],
+.globe-labels[hidden] {
+  display: none;
+}
+.globe-webgl {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+.globe-labels {
+  pointer-events: none;
+}
+.globe-airport-label {
+  pointer-events: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 0;
+  padding: 3px 4px;
+  background: transparent;
+  font: 600 11px var(--font-family-data);
+  line-height: 1;
+  text-shadow: 0 1px 4px #e4f4ff;
+}
+.globe-airport-label[hidden] {
+  display: none;
+}
+[data-theme="dark"] .globe-airport-label {
+  text-shadow:
+    0 1px 4px #041325,
+    0 1px 2px #041325;
+}
+.globe-airport-label.is-selected {
+  color: #c9463e;
+  font-size: 13px;
+}
+[data-theme="dark"] .globe-airport-label.is-selected {
+  color: #ffb0a5;
+}
+.globe-caption {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font: 11px var(--font-family-mono);
+  pointer-events: none;
+}
+.globe-caption span {
+  display: block;
+  margin-top: 5px;
+  opacity: 0.6;
+  font: 10px var(--font-family-ui);
+}
+.globe-legend {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 9px;
+  font-size: 10px;
+  background: #eef7ffdf;
+  border-radius: 3px;
+  pointer-events: none;
+}
+[data-theme="dark"] .globe-legend {
+  background: #122a3bdf;
+}
+.globe-legend-route,
+.globe-legend-selected {
+  width: 20px;
+  height: 2px;
+  background: #418fcb;
+}
+.globe-legend-selected {
+  background: #f08071;
+  margin-left: 4px;
+}
+.globe-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 4px;
+}
+.globe-controls button {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid #a8c4df;
+  background: #eef7fff2;
+  font-size: 17px;
+}
+[data-theme="dark"] .globe-controls button {
+  border-color: #3f5b74;
+  background: #13283aee;
+}
+.globe-tooltip {
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  font-size: 12px;
+  background: #eef7ffdf;
+  padding: 6px 9px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+[data-theme="dark"] .globe-tooltip {
+  background: #102537dd;
+}
+.globe-tooltip:empty {
+  display: none;
+}
+.globe-selection-controls {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 70px;
+  gap: 16px;
+  margin-top: 16px;
+}
+.globe-selection-controls label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  color: var(--lab-muted);
+  font-size: 11px;
+}
+.globe-selection-controls select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--lab-line);
+  border-radius: 3px;
+  background: var(--lab-surface);
+  color: var(--lab-ink);
+  height: 32px;
+  padding: 0 6px;
+  font-size: 12px;
+}
+.globe-help {
+  margin: 12px 0 0;
+  font-size: 11px;
+  color: var(--lab-muted);
+}
+.globe-attribution {
+  margin: 8px 0 0;
+  font-size: 10px;
+  color: var(--lab-muted);
+}
+.globe-fallback {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.globe-fallback p {
+  padding: 6px 16px;
+  font-size: 12px;
+}
+.globe-fallback .route-map {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+}
+.globe-fallback .route-map-canvas {
+  height: 100%;
+}
+@media (max-width: 1050px) {
+  .globe-lab-layout {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .globe-selection-controls {
+    gap: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .globe-lab-main {
+    padding-inline: 12px;
+  }
+  .globe-lab-layout {
+    grid-template-columns: 1fr;
+  }
+  .globe-lab-sidebar {
+    display: none;
+  }
+  .globe-lab-map-panel {
+    grid-column: 1;
+  }
+  .globe-stage {
+    height: 420px;
+  }
+}
+@media (max-height: 540px) and (min-width: 761px) {
+  .globe-lab-header {
+    height: 44px;
+  }
+  .globe-lab-intro {
+    height: 40px;
+  }
+  .globe-stage {
+    height: 280px;
+  }
+  .globe-flight-list {
+    max-height: 285px;
+  }
+}
