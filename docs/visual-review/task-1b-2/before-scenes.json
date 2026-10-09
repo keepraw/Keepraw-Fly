@@ -1,0 +1,468 @@
+{
+  "phase": "before",
+  "url": "http://127.0.0.1:5174/globe-lab",
+  "baselineCommit": "45f92e9c78a118417803dc7f43f027a821f95c65",
+  "data": "Unmodified Demo, all years; 24 flights; 23 directed routes; 20 airports. Regional views select existing PVG/SFO airports, retain all routes.",
+  "records": [
+    {
+      "name": "dark-default-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"]
+    },
+    {
+      "name": "dark-earth-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":true,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": []
+    },
+    {
+      "name": "light-default-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"light\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"]
+    },
+    {
+      "name": "light-earth-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":true,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"light\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": []
+    },
+    {
+      "name": "dark-asia-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-1.1954406601348027,1.3705673428747847,-1.9274249107920183]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": 0
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["PVG", "HND", "PEK", "CAN", "CTU", "ICN"]
+    },
+    {
+      "name": "dark-north-america-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-1.124032771929223,1.6176650976028617,1.7726279811699441]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": 0
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["SFO", "LAX", "JFK", "BOS", "DFW", "ORD", "YVR"]
+    },
+    {
+      "name": "dark-selected-long-haul-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "camera": "[-2.048247362495708,3.1728982934540553,0.8891847929382503]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": 0
+        },
+        "viewport": {
+          "width": 1006,
+          "height": 608
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": [
+        "SFO",
+        "PVG",
+        "LHR",
+        "PEK",
+        "JFK",
+        "NRT",
+        "DFW",
+        "ORD",
+        "YVR"
+      ]
+    },
+    {
+      "name": "dark-default-1280",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 860,
+          "height": 428
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"dark\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["SFO", "LAX", "JFK", "DFW", "ORD", "YVR"]
+    },
+    {
+      "name": "light-default-1280",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "camera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+      "scene": null,
+      "baselineProjection": {
+        "provenance": "B1 source: PerspectiveCamera 34deg; Home offset (0,-.16), selected offset (0,0). Camera measured from browser.",
+        "fov": 34,
+        "viewOffset": {
+          "x": 0,
+          "y": -0.16
+        },
+        "viewport": {
+          "width": 860,
+          "height": 428
+        }
+      },
+      "lighting": "{\"earthOnly\":false,\"surface\":true,\"nightLights\":true,\"atmosphere\":true,\"sunIntensity\":2.2,\"twilightWidth\":0.18,\"atmosphereIntensity\":1,\"nightIntensity\":1.6,\"sunDirection\":[0.7978800943480026,0.5277711246556168,-0.2912816420974177],\"exposure\":1,\"theme\":\"light\"}",
+      "routes": [
+        "Select a route",
+        "SFO → LAX · 1",
+        "NRT → DFW · 1",
+        "PVG → LAX · 1",
+        "PEK → PVG · 1",
+        "CAN → PEK · 1",
+        "HND → SFO · 2",
+        "SIN → NRT · 1",
+        "LAX → HND · 1",
+        "JFK → SFO · 1",
+        "CTU → PVG · 1",
+        "SFO → PVG · 1",
+        "SFO → LHR · 1",
+        "LHR → FRA · 1",
+        "SFO → HKG · 1",
+        "JFK → LHR · 1",
+        "LAX → ICN · 1",
+        "SFO → YVR · 1",
+        "LAX → SYD · 1",
+        "SFO → CDG · 1",
+        "PVG → PEK · 1",
+        "CAN → CTU · 1",
+        "LHR → SIN · 1",
+        "BOS → ORD · 1"
+      ],
+      "flights": 24,
+      "visibleLabels": ["SFO", "LAX", "JFK", "DFW", "ORD", "YVR"]
+    }
+  ]
+}
