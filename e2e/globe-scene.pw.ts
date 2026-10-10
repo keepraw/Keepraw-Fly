@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { globeMode, exerciseSvgFallback } from "./helpers/globe-capability";
 
 test("regional composition, shared reverse strokes and manual camera ownership @cross-browser", async ({
   page,
@@ -11,6 +12,32 @@ test("regional composition, shared reverse strokes and manual camera ownership @
     if (message.type() === "error") errors.push(message.text());
   });
   await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    const route = page.getByRole("combobox", { name: "Route", exact: true });
+    for (const key of ["PEK-PVG", "PVG-PEK", "LHR-FRA"]) {
+      await route.selectOption(key);
+      await expect(route).toHaveValue(key);
+      await expect(
+        page.locator(".globe-fallback .map-route.is-selected"),
+      ).toHaveCount(1);
+      const [origin, destination] = key.split("-");
+      await expect(
+        page.locator(".globe-fallback .map-airport.is-selected title"),
+      ).toHaveCount(2);
+      expect(
+        (
+          await page
+            .locator(".globe-fallback .map-airport.is-selected title")
+            .allTextContents()
+        )
+          .map((text) => text.split(" ·")[0])
+          .sort(),
+      ).toEqual([origin, destination].sort());
+    }
+    await exerciseSvgFallback(page);
+    expect(errors).toEqual([]);
+    return;
+  }
   const host = page.locator(".globe-host");
   await expect(host).toHaveAttribute("data-ready", "true");
   const scene = async () =>

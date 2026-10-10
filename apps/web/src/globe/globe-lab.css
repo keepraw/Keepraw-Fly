@@ -421,6 +421,12 @@
   padding: 6px 16px;
   font-size: 12px;
 }
+.globe-fallback p button {
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
 .globe-fallback .route-map {
   flex: 1;
   min-height: 0;

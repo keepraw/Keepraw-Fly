@@ -5,6 +5,8 @@ import type { RouteSegment } from "@keepraw-fly/core";
 import { PassportRouteMap } from "../components/PassportRouteMap";
 import {
   createGlobe,
+  GlobeInitializationError,
+  type GlobeFailure,
   type GlobeController,
   type GlobeSelection,
   type GlobeTheme,
@@ -42,12 +44,17 @@ export function GlobeMap({
     lighting,
   });
   latest.current = { onSelect, selection, theme, highlightedRoute, lighting };
-  const [error, setError] = useState<string | null>(null),
+  const [error, setError] = useState<GlobeFailure | null>(null),
     [hover, setHover] = useState<string | null>(null),
     [retry, setRetry] = useState(0);
   useEffect(() => {
     if (!host.current || !labels.current) return;
     setError(null);
+    const fail = (failure: GlobeFailure) => {
+      console.warn("[Globe Lab] Rendering fallback", failure);
+      setHover(null);
+      setError(failure);
+    };
     try {
       const instance = createGlobe(
         host.current,
@@ -63,7 +70,7 @@ export function GlobeMap({
           routeLabel: (origin, destination, count) =>
             `${origin} → ${destination} · ${t("passport.flightFrequency", { count })}`,
           hover: setHover,
-          error: setError,
+          error: fail,
         },
       );
       controller.current = instance;
@@ -73,8 +80,15 @@ export function GlobeMap({
         instance.dispose();
         controller.current = null;
       };
-    } catch {
-      setError("webgl");
+    } catch (cause) {
+      fail(
+        cause instanceof GlobeInitializationError
+          ? cause.failure
+          : {
+              kind: "initialization",
+              message: cause instanceof Error ? cause.message : String(cause),
+            },
+      );
     }
   }, [routes, quality, retry]);
   useEffect(() => controller.current?.theme(theme), [theme]);
@@ -89,6 +103,8 @@ export function GlobeMap({
       className="globe-stage"
       aria-label={t("globe.mapLabel")}
       data-theme={theme}
+      data-attempt={retry}
+      data-error={error ? JSON.stringify(error) : undefined}
     >
       <div className="globe-host" ref={host} hidden={Boolean(error)} />
       <div className="globe-labels" ref={labels} hidden={Boolean(error)} />
