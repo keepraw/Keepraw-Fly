@@ -15,7 +15,12 @@ function runReport(report, env = {}) {
       ["scripts/report-playwright.mjs", path],
       {
         encoding: "utf8",
-        env: { ...process.env, GITHUB_STEP_SUMMARY: "", ...env },
+        env: {
+          ...process.env,
+          GITHUB_ACTIONS: "",
+          GITHUB_STEP_SUMMARY: "",
+          ...env,
+        },
       },
     );
   } finally {
