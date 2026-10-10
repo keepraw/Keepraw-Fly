@@ -64,14 +64,18 @@ test("real Dark emission separates warm compact accents from quiet city fabric a
     expect(output.warmSeparation.p50).toBeGreaterThan(
       before.warmSeparation.p95,
     );
-    expect(output.meanLuminance).toBeLessThan(before.meanLuminance);
+    expect(output.meanLuminance).toBeLessThan(before.meanLuminance * 1.15);
     expect(output.light.p95 / output.light.p50).toBeGreaterThan(
       before.light.p95 / before.light.p50,
     );
     expect(output.light.max).toBeGreaterThan(before.light.max);
     // Bright accents occupy a small fraction, not a continent-sized glow.
+    // Owner-approved nightIntensity 2.0 (vs 1.0 in Task 1B-6 diagnostics)
+    // intentionally restores mid/peripheral detail with bounded peaks, so the
+    // accent share rises from ~0 to ~0.06 while staying compact. nearWhite and
+    // clipped below still forbid blown-out continents.
     expect(output.accent.count).toBeGreaterThan(0);
-    expect(output.accent.count / output.light.count).toBeLessThan(0.02);
+    expect(output.accent.count / output.light.count).toBeLessThan(0.08);
     expect(output.nearWhite).toBe(0);
     expect(output.clipped).toBe(0);
   }
