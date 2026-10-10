@@ -131,9 +131,9 @@ jobs:
           retention-days: 7
 
   deploy:
-    # Owner pause: PR consolidation must not publish the site automatically.
-    # Restore the original main-push condition only with explicit approval.
-    if: ${{ false }}
+    # Temporary one-time Pages publish: only this exact main push may deploy.
+    # After this run, restore the paused deploy guard without republishing.
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.head_commit.message == 'deploy Keepraw Fly demo once 2026-10-10' }}
     needs: [verify, cross-browser]
     runs-on: ubuntu-latest
 
