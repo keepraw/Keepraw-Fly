@@ -1,0 +1,555 @@
+{
+  "prefix": "comp",
+  "passport": {
+    "width": 998,
+    "height": 576.0625
+  },
+  "candidates": [
+    "control",
+    "B-europe-asia",
+    "C-close-asia"
+  ],
+  "records": [
+    {
+      "file": "comp-control-fixed-dark.png",
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+      "bytes": 649976,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-control-fixed-light.png",
+      "sha256": "e03d8a6169c43b04d1192195fd4c921423b5e4ebf3ef79f11ebe1f9f7ecf567e",
+      "bytes": 685246,
+      "solarMode": "fixed",
+      "theme": "light",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-control-selected-SFO-HKG-dark.png",
+      "sha256": "3d72efd05b1677f22ea756810fe9b158d4835fdccc5571739554441fa9e7187a",
+      "bytes": 639364,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -1.5446013849728348,
+        1.913272155863639,
+        -0.34165715564699106
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-B-europe-asia-fixed-dark.png",
+      "sha256": "b35caa65da55f5f53d9849671aee2821ff10b9c658240783038350b1a09bd124",
+      "bytes": 614336,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        0.18492376389767473,
+        1.2249999999999999,
+        -2.1136882933739116
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.5
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-B-europe-asia-fixed-light.png",
+      "sha256": "e6234c169a1bb644cb5afe3218246eafc39144a6d44a584f977abcc84f9911fb",
+      "bytes": 626258,
+      "solarMode": "fixed",
+      "theme": "light",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        0.18492376389767473,
+        1.2249999999999999,
+        -2.1136882933739116
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.5
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-B-europe-asia-selected-SFO-HKG-dark.png",
+      "sha256": "b35caa65da55f5f53d9849671aee2821ff10b9c658240783038350b1a09bd124",
+      "bytes": 614336,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        0.18492376389767473,
+        1.2249999999999999,
+        -2.1136882933739116
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.5
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-C-close-asia-fixed-dark.png",
+      "sha256": "3e7c00d80d7b770dde52b1bac2b8d619b6d0b58a4415513cf4b8a404c8913a23",
+      "bytes": 806559,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -0.5988852656816309,
+        0.7117891253826504,
+        -1.4822930477933314
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.45
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-C-close-asia-fixed-light.png",
+      "sha256": "196ba2d59ae89030db95b74683a070a8bd3a2f729c5551ac464296c9d2a41ff6",
+      "bytes": 832376,
+      "solarMode": "fixed",
+      "theme": "light",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -0.5988852656816309,
+        0.7117891253826504,
+        -1.4822930477933314
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.45
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-C-close-asia-selected-SFO-HKG-dark.png",
+      "sha256": "3e7c00d80d7b770dde52b1bac2b8d619b6d0b58a4415513cf4b8a404c8913a23",
+      "bytes": 806559,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -0.5988852656816309,
+        0.7117891253826504,
+        -1.4822930477933314
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.45
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-control-passport-dark.png",
+      "sha256": "9ae338fe3a9facfec66ddd8cd238dd58bde339a4cc86c323d166e3b8508f80f5",
+      "bytes": 600439,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "viewOffset": {
+        "x": -0.04376344465051274,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 994,
+        "height": 572
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.04376344465051274,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-B-europe-asia-passport-dark.png",
+      "sha256": "0dc0855b7fb8a8d18d1adb674404e2f92d2bb4b0017896b1b0f46a9bbbf195f6",
+      "bytes": 559645,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        0.18492376389767473,
+        1.2249999999999999,
+        -2.1136882933739116
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.5
+      },
+      "viewport": {
+        "width": 994,
+        "height": 572
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.04376344465051274,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "comp-C-close-asia-passport-dark.png",
+      "sha256": "e0add9dadf090019d5d6d96d391ec912e41999dc10f61ddc11bf6f0e50c866e9",
+      "bytes": 766822,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 2,
+        "nightIntensity": 2
+      },
+      "camera": [
+        -0.5988852656816309,
+        0.7117891253826504,
+        -1.4822930477933314
+      ],
+      "viewOffset": {
+        "x": 0,
+        "y": -0.45
+      },
+      "viewport": {
+        "width": 994,
+        "height": 572
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.04376344465051274,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": false,
+      "physicalRoutes": 22
+    }
+  ],
+  "errors": []
+}
