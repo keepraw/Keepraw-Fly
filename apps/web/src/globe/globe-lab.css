@@ -40,6 +40,24 @@
   align-items: center;
   gap: 6px;
 }
+.globe-solar-mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.globe-solar-mode legend {
+  padding: 0 4px;
+  font-size: 11px;
+}
+.globe-solar-mode label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .globe-debug input[type="range"] {
   width: 90px;
 }

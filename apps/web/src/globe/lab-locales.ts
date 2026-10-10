@@ -2,6 +2,9 @@ import { i18n } from "../i18n";
 const resources = {
   en: {
     twilightReview: "Twilight Review",
+    solarMode: "Solar Mode",
+    solarFixed: "Fixed",
+    solarRealtime: "Real-time",
     solarDiagnostic: "Solar regions (diagnostic)",
     neutralProbe: "Neutral solar probe (diagnostic)",
     artDirection: "Art Direction",
@@ -41,6 +44,9 @@ const resources = {
   },
   "zh-CN": {
     twilightReview: "暮光审查视角",
+    solarMode: "太阳模式",
+    solarFixed: "固定",
+    solarRealtime: "实时",
     solarDiagnostic: "昼夜分区（诊断）",
     neutralProbe: "中性光照材质（诊断）",
     artDirection: "艺术方向",
@@ -80,6 +86,9 @@ const resources = {
   },
   "zh-TW": {
     twilightReview: "暮光審查視角",
+    solarMode: "太陽模式",
+    solarFixed: "固定",
+    solarRealtime: "即時",
     solarDiagnostic: "晝夜分區（診斷）",
     neutralProbe: "中性光照材質（診斷）",
     artDirection: "藝術方向",

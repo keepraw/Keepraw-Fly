@@ -16,6 +16,7 @@ import { GlobeMap } from "./GlobeMap";
 import { globeAirports } from "./globe-math";
 import type { GlobeSelection, GlobeTheme } from "./globe-renderer";
 import { defaultLighting } from "./globe-lighting";
+import type { SolarMode } from "./globe-solar";
 import "./globe-lab.css";
 import "./lab-locales";
 
@@ -42,6 +43,7 @@ export default function GlobeLab({
     [hovered, setHovered] = useState<KeeprawFlight | null>(null);
   const [quality, setQuality] = useState<"2048" | "4096">("4096");
   const [lighting, setLighting] = useState({ ...defaultLighting });
+  const [solarMode, setSolarMode] = useState<SolarMode>("fixed");
   const flights = useMemo(
     () =>
       passportVisibleFlights(document.flights, {
@@ -182,6 +184,7 @@ export default function GlobeLab({
               theme={theme}
               quality={quality}
               lighting={lighting}
+              solarMode={solarMode}
               selection={selection}
               highlightedRoute={
                 hovered
@@ -266,6 +269,29 @@ export default function GlobeLab({
             <details className="globe-debug" open>
               <summary>{t("globe.lightingReview")}</summary>
               <div className="globe-debug-layers">
+                <fieldset className="globe-solar-mode">
+                  <legend>{t("globe.solarMode")}</legend>
+                  <label>
+                    <input
+                      type="radio"
+                      name="globe-solar-mode"
+                      value="fixed"
+                      checked={solarMode === "fixed"}
+                      onChange={() => setSolarMode("fixed")}
+                    />
+                    {t("globe.solarFixed")}
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="globe-solar-mode"
+                      value="realtime"
+                      checked={solarMode === "realtime"}
+                      onChange={() => setSolarMode("realtime")}
+                    />
+                    {t("globe.solarRealtime")}
+                  </label>
+                </fieldset>
                 <label>
                   {t("globe.artDirection")}
                   <select
@@ -335,7 +361,12 @@ export default function GlobeLab({
                   </label>
                 ))}
               </div>
-              <button onClick={() => setLighting({ ...defaultLighting })}>
+              <button
+                onClick={() => {
+                  setLighting({ ...defaultLighting });
+                  setSolarMode("fixed");
+                }}
+              >
                 {t("globe.resetLighting")}
               </button>
             </details>
