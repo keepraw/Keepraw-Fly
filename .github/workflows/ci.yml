@@ -131,7 +131,9 @@ jobs:
           retention-days: 7
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Owner pause: PR consolidation must not publish the site automatically.
+    # Restore the original main-push condition only with explicit approval.
+    if: ${{ false }}
     needs: [verify, cross-browser]
     runs-on: ubuntu-latest
 
