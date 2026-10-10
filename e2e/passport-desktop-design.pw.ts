@@ -1,3 +1,6 @@
+import { disablePassportWebGL } from "./helpers/passport-svg";
+test.beforeEach(async ({ page }) => disablePassportWebGL(page));
+
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -156,6 +159,7 @@ for (const theme of ["light", "dark"]) {
       expect(selectedColor).not.toBe(ordinaryColor);
       await expect(page.locator(".map-airport.is-selected")).toHaveCount(2);
       await expect(selected).toHaveCSS("outline-style", "solid");
+      await page.locator(".passport-exploration-close").click();
     }
     await writeFile(
       `test-results/desktop-review/${theme}-dimensions.json`,
@@ -314,6 +318,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         await page.screenshot({
           path: `test-results/desktop-review/${distribution}-${theme}-${viewport.width}x${viewport.height}.png`,
         });
+        await page.locator(".passport-exploration-close").click();
       }
       await context.setOffline(false);
     }
