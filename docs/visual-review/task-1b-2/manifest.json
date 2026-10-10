@@ -201,5 +201,107 @@
       "sha256": "50f2cc2a82ff4244ac7add60190bbe035ae6a6a8da0b61d31971ff2ed150b5cc",
       "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
     }
-  ]
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "after-dark-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-selected-long-haul-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-fixed-b1-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-fixed-b1-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-selected-long-haul-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-earth-1440.png",
+        "available": false
+      }
+    ]
+  }
 }

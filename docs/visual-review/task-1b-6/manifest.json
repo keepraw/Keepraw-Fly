@@ -879,5 +879,39 @@
       "external": []
     }
   ],
-  "renderedSourceCommit": "8df4ef05857581e837fb6d54676f5c1d3ad7c3e1"
+  "renderedSourceCommit": "8df4ef05857581e837fb6d54676f5c1d3ad7c3e1",
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "../task-1b-5/after-east-asia.png",
+        "available": false
+      },
+      {
+        "name": "../task-1b-5/dark-routes.png",
+        "available": false
+      },
+      {
+        "name": "before-emission.png",
+        "available": false
+      },
+      {
+        "name": "after-surface.png",
+        "available": false
+      },
+      {
+        "name": "after-emission.png",
+        "available": false
+      },
+      {
+        "name": "after-combined.png",
+        "available": false
+      },
+      {
+        "name": "after-routes.png",
+        "available": false
+      }
+    ]
+  }
 }

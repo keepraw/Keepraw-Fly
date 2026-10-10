@@ -1084,5 +1084,39 @@
       "external": []
     }
   ],
-  "renderedSourceCommit": "9eee6efbe30c22128e16e67d8d8b4fbffc04a080"
+  "renderedSourceCommit": "9eee6efbe30c22128e16e67d8d8b4fbffc04a080",
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "../task-1b-4/dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-east-asia.png",
+        "available": false
+      },
+      {
+        "name": "dark-earth.png",
+        "available": false
+      },
+      {
+        "name": "after-east-asia.png",
+        "available": false
+      },
+      {
+        "name": "dark-routes.png",
+        "available": false
+      },
+      {
+        "name": "light-earth.png",
+        "available": false
+      },
+      {
+        "name": "dark-passport-size.png",
+        "available": false
+      }
+    ]
+  }
 }

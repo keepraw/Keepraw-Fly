@@ -91,5 +91,35 @@
       "camera": [-0.5988852656816309, 0.7117891253826504, -1.4822930477933314],
       "atHome": false
     }
-  ]
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "comp-clean-B-europe-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-B-europe-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-B-europe-asia-selected-LHR-SIN-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-selected-PEK-PVG-dark.png",
+        "available": false
+      }
+    ]
+  }
 }

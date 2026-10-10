@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-6 Dark city-light appearance review
 
 **Visual approval pending. Keep Draft PR #34 and await the owner's visual review.**
@@ -24,25 +26,25 @@ All images are unedited Chrome 154.0.8037.58 / WebGL 2 / Intel UHD / ANGLE D3D11
 
 **Surface Only** — city emission and atmosphere disabled. This frame is pixel-identical to the same B5 layer; geography and material have not been darkened to disguise the lighting issue.
 
-![Dark Surface Only](after-surface.png)
+Historical capture: Dark Surface Only (superseded; PNG removed)
 
 **Emission Only** — surface, atmosphere and aviation overlays disabled. This is the actual final emitted-light shader output through ACES/sRGB, not a raw grayscale map or a fabricated light visualization.
 
-| B5 Emission Only                    | B6 Emission Only                   |
-| ----------------------------------- | ---------------------------------- |
-| ![B5 emission](before-emission.png) | ![B6 emission](after-emission.png) |
+| B5 Emission Only                                          | B6 Emission Only                                          |
+| --------------------------------------------------------- | --------------------------------------------------------- |
+| Historical capture: B5 emission (superseded; PNG removed) | Historical capture: B6 emission (superseded; PNG removed) |
 
 **Combined** — normal surface, city emission and atmosphere, with aviation overlays hidden for inspection.
 
-| B5 Combined                                      | B6 Combined, identical camera and data |
-| ------------------------------------------------ | -------------------------------------- |
-| ![B5 Combined](../task-1b-5/after-east-asia.png) | ![B6 Combined](after-combined.png)     |
+| B5 Combined                                               | B6 Combined, identical camera and data                    |
+| --------------------------------------------------------- | --------------------------------------------------------- |
+| Historical capture: B5 Combined (superseded; PNG removed) | Historical capture: B6 Combined (superseded; PNG removed) |
 
 The regenerated B5 Combined clip exactly matches its archived SHA-256. Normal Light Earth-only rendering also matches B5 pixel-for-pixel. Full scene/screenshot provenance is in manifest.json.
 
-| B5 full route network                      | B6 full route network          |
-| ------------------------------------------ | ------------------------------ |
-| ![B5 routes](../task-1b-5/dark-routes.png) | ![B6 routes](after-routes.png) |
+| B5 full route network                                   | B6 full route network                                   |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| Historical capture: B5 routes (superseded; PNG removed) | Historical capture: B6 routes (superseded; PNG removed) |
 
 Visual inspection shows quieter intercity fabric, small warm-white accents and softer local transitions in eastern China, Beijing/Tianjin, the Yangtze and Pearl deltas, Korea and Japan. Cities now differ in color and local contrast from gray-blue mountain/plateau detail. Routes retain their cool-blue hierarchy. The camera's geography and B4's stronger bathymetric contrast remain; the reference's clouds, photographic depth and Europe-to-Asia composition are not reproduced. These observations support owner review; they do not establish visual approval.
 

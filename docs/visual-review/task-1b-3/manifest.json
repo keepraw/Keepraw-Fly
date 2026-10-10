@@ -708,5 +708,107 @@
       "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
       "provenance": "Direct Chrome WebGL browser screenshot; unedited"
     }
-  ]
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "before-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-passport-size-1440.png",
+        "available": false
+      }
+    ]
+  }
 }

@@ -95,5 +95,47 @@
       "sha256": "f8e0c498047943fc1bb1812f09e7b170702737c5504ecd06d6b2642c9400d7dc",
       "renderSourceCommit": "04fb505b0302b855244307b853cb70078ef34e6e"
     }
-  ]
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "after-dark-complete-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-review-controls.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-rotated-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-complete-1440.png",
+        "available": false
+      }
+    ]
+  }
 }

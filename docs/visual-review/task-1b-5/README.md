@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-5 Night lights dynamic range review
 
 **Visual approval pending. Draft PR #34 remains an isolated DEV-only Globe Lab experiment.**
@@ -12,21 +14,21 @@ Starting checkpoint: `2720002ef01845aa1b04bb31fce6d619a54a30bf`. Rendered source
 
 The baseline full-page PNG is referenced directly, avoiding a duplicate. Six new PNGs total approximately 3.41 MB. Every product image is actual unedited Chrome 154.0.8037.58 WebGL 2 / Intel UHD / ANGLE D3D11 output at 1440×900, DPR1, 4K, exposure1, art A. Demo retains all years, 24 flights, 23 directed routes, 22 physical strokes, 20 airports and no selection. Camera, Home offset, FOV, complete route metadata, viewport and every lighting setting are asserted identical to B4, including its world sun `[-0.2926889023874383, 0.290121517531001, 0.9111326530669097]`.
 
-| B4 Dark Earth only                                     | B5 Dark Earth only                   |
-| ------------------------------------------------------ | ------------------------------------ |
-| ![B4 unchanged Home](../task-1b-4/dark-earth-1440.png) | ![B5 unchanged Home](dark-earth.png) |
+| B4 Dark Earth only                                              | B5 Dark Earth only                                              |
+| --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Historical capture: B4 unchanged Home (superseded; PNG removed) | Historical capture: B5 unchanged Home (superseded; PNG removed) |
 
-| B4 East Asia detail                   | B5 same East Asia detail             |
-| ------------------------------------- | ------------------------------------ |
-| ![B4 East Asia](before-east-asia.png) | ![B5 East Asia](after-east-asia.png) |
+| B4 East Asia detail                                        | B5 same East Asia detail                                   |
+| ---------------------------------------------------------- | ---------------------------------------------------------- |
+| Historical capture: B4 East Asia (superseded; PNG removed) | Historical capture: B5 East Asia (superseded; PNG removed) |
 
 The details are browser screenshot clips at x650/y310, 580×370 CSS pixels from the identical 1440×900 Home view. They do not zoom, move the camera, rescale or edit pixels. The B4 clip comes from a source/public snapshot of the starting checkpoint on the same browser/GPU.
 
-| B5 Dark full routes           | B5 Light same Earth-only scene |
-| ----------------------------- | ------------------------------ |
-| ![B5 routes](dark-routes.png) | ![B5 Light](light-earth.png)   |
+| B5 Dark full routes                                     | B5 Light same Earth-only scene                         |
+| ------------------------------------------------------- | ------------------------------------------------------ |
+| Historical capture: B5 routes (superseded; PNG removed) | Historical capture: B5 Light (superseded; PNG removed) |
 
-![B5 at actual Desktop Passport map size](dark-passport-size.png)
+Historical capture: B5 at actual Desktop Passport map size (superseded; PNG removed)
 
 The official Passport outer map was remeasured at 998×576.0625 CSS px (client 996×574); the Lab preview asserts the corresponding B4 scene. The actual product still uses SVG.
 

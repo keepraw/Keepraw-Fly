@@ -280,5 +280,35 @@
     }
   ],
   "errors": [],
-  "external": []
+  "external": [],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "before-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "before-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "before-realtime-light.png",
+        "available": false
+      },
+      {
+        "name": "before-realtime-dark.png",
+        "available": false
+      },
+      {
+        "name": "before-passport-dark.png",
+        "available": false
+      },
+      {
+        "name": "before-passport-light.png",
+        "available": false
+      }
+    ]
+  }
 }

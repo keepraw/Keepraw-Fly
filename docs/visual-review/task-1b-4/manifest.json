@@ -1677,5 +1677,51 @@
   ],
   "errors": [],
   "external": [],
-  "renderedSource": "2a7e67f8267ed9fce306d1315d374dd02aa65ac2"
+  "renderedSource": "2a7e67f8267ed9fce306d1315d374dd02aa65ac2",
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "light-twilight-1440.png",
+        "available": false
+      },
+      {
+        "name": "dark-twilight-1440.png",
+        "available": false
+      },
+      {
+        "name": "light-solar-diagnostic-1440.png",
+        "available": false
+      },
+      {
+        "name": "dark-solar-diagnostic-1440.png",
+        "available": false
+      },
+      {
+        "name": "light-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "dark-passport-size-1440.png",
+        "available": false
+      }
+    ]
+  }
 }
