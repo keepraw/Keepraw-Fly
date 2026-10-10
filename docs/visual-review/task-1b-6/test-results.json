@@ -1,0 +1,49 @@
+{
+  "status": "Visual approval pending",
+  "unit": {
+    "passed": 307,
+    "core": 66,
+    "validator": 31,
+    "web": 207,
+    "cssAst": 3
+  },
+  "typecheck": "passed",
+  "build": "passed; existing >500 kB warning",
+  "chromium": {
+    "initialPassed": 14,
+    "initialFailed": 1,
+    "globeSolarNightPassed": 12,
+    "officialPassportInitialPassed": 2,
+    "initialFailure": "Official Passport Light heightFits",
+    "baselineLightFollowup": "1/1 passed on unchanged B5 snapshot",
+    "currentLightFollowup": "1/1 passed sequentially",
+    "cause": "undetermined; no official source/assertion change",
+    "workers": 1,
+    "retries": 0
+  },
+  "supersededB5Assertion": "The old requirement that every periphery grow brighter failed initially, then was replaced by actual B5-relative emission appearance acceptance for the B6 artistic objective. Geography, dark controls, solar and route checks remain.",
+  "invariants": {
+    "surfaceOnlyPixelIdentical": true,
+    "lightPixelIdentical": true,
+    "baselineCombinedClipHashMatches": true,
+    "productionAssetDifferences": 0
+  },
+  "otherEngines": "No additional local Firefox/WebKit matrix",
+  "performance": "No unrelated timing matrix; existing idle regression passed",
+  "previousCI": {
+    "url": "https://github.com/keepraw/Keepraw-Fly/actions/runs/38013258594",
+    "chromiumPassed": 110,
+    "chromiumFailed": 1,
+    "failure": "existing motion-camera assertion; B5 night test passed",
+    "webkit": "success",
+    "firefox": "17 passed / 8 Globe-related failures",
+    "deploy": "skipped"
+  },
+  "limitations": [
+    "Visual approval pending",
+    "4K source plateaus remain a data limitation",
+    "Local four-sample spill adds Dark shader texture fetches",
+    "Reference photographic depth/composition not reproduced",
+    "Initial official height assertion cause undetermined"
+  ]
+}

@@ -1,6 +1,7 @@
 import "fake-indexeddb/auto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Dexie from "dexie";
+import { defaultViewerSettings } from "./types";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   BrowserStorageAdapter,
@@ -121,6 +122,58 @@ describe("persistent storage", () => {
 });
 
 describe("BrowserStorageAdapter", () => {
+  it.each([undefined, "invalid", null, 1, "fixed", "realtime"])(
+    "normalizes legacy solar mode %s without changing other preferences or archives",
+    async (solarMode) => {
+      vi.stubGlobal("navigator", { language: "en-US" });
+      const name = `test-${crypto.randomUUID()}`;
+      const database = new Dexie(name);
+      databases.push(database);
+      database
+        .version(1)
+        .stores({ documents: "&key, updatedAt", preferences: "&key" });
+      const { solarMode: unused, ...old } = defaultViewerSettings();
+      void unused;
+      const settings = {
+        ...old,
+        language: "zh-TW",
+        appearance: "dark",
+        distanceUnit: "kilometers",
+        timeFormat: "12-hour",
+        powerUserMode: true,
+        lastBackupAt: "2026-09-01T00:00:00Z",
+        ...(solarMode === undefined ? {} : { solarMode }),
+      };
+      await database.table("preferences").put({ key: "viewer", settings });
+      const document: KeeprawFlyDocument = {
+        format: "keepraw-fly",
+        formatVersion: "0.1.0",
+        profile: {},
+        flights: [],
+      };
+      const record = {
+        key: "active",
+        document,
+        kind: "personal",
+        updatedAt: "2026-09-01T00:00:00Z",
+      };
+      await database.table("documents").put(record);
+      const adapter = new BrowserStorageAdapter(name);
+      adapters.push(adapter);
+      const normalized = {
+        ...settings,
+        solarMode:
+          solarMode === "realtime" ? ("realtime" as const) : ("fixed" as const),
+      };
+      expect(await adapter.loadSettings()).toEqual(normalized);
+      expect(
+        (await database.table("preferences").get("viewer")).settings,
+      ).toEqual(settings);
+      await adapter.saveSettings((await adapter.loadSettings())!);
+      expect(await adapter.loadSettings()).toEqual(normalized);
+      expect(await database.table("documents").get("active")).toEqual(record);
+    },
+  );
   async function storedArchive(document: unknown, kind?: "personal" | "demo") {
     const name = `test-${crypto.randomUUID()}`;
     const adapter = new BrowserStorageAdapter(name);
@@ -183,6 +236,7 @@ describe("BrowserStorageAdapter", () => {
       distanceUnit: "kilometers" as const,
       timeFormat: "12-hour" as const,
       powerUserMode: true,
+      solarMode: "realtime" as const,
     };
 
     await adapter.saveSettings(settings);

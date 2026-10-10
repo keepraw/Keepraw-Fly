@@ -114,22 +114,37 @@ test(
           expect(
             await dot.evaluate((element) => getComputedStyle(element).fill),
           ).not.toBe("none");
-          const point = await dot.evaluate((element, index) => {
-            const bounds = element.getBoundingClientRect();
-            const path =
-              document.querySelector<SVGPathElement>(".detail-map-route")!;
-            const end = path
-              .getPointAtLength(index === 0 ? 0 : path.getTotalLength())
-              .matrixTransform(path.getScreenCTM()!);
-            return {
-              width: bounds.width,
-              height: bounds.height,
-              offset: Math.hypot(
-                bounds.x + bounds.width / 2 - end.x,
-                bounds.y + bounds.height / 2 - end.y,
-              ),
-            };
-          }, index);
+          const measurePoint = () =>
+            dot.evaluate((element, index) => {
+              const bounds = element.getBoundingClientRect();
+              const circle = element as SVGCircleElement;
+              const matrix = circle.getScreenCTM()!;
+              const path =
+                document.querySelector<SVGPathElement>(".detail-map-route")!;
+              const end = path
+                .getPointAtLength(index === 0 ? 0 : path.getTotalLength())
+                .matrixTransform(path.getScreenCTM()!);
+              return {
+                radius: circle.r.baseVal.value,
+                projectedDiameter:
+                  circle.r.baseVal.value * 2 * Math.hypot(matrix.a, matrix.b),
+                width: bounds.width,
+                height: bounds.height,
+                offset: Math.hypot(
+                  bounds.x + bounds.width / 2 - end.x,
+                  bounds.y + bounds.height / 2 - end.y,
+                ),
+              };
+            }, index);
+          // The inverse-zoom/pixel-scale groups are updated by ResizeObserver.
+          // Firefox can expose the previous scale after navigation while the
+          // route is already visible. Wait for the actual 7px geometry, rather
+          // than weakening the size threshold or assuming visibility is ready.
+          await expect
+            .poll(async () => (await measurePoint()).projectedDiameter)
+            .toBeCloseTo(7, 1);
+          const point = await measurePoint();
+          expect(point.radius).toBe(3.5);
           expect(point.width).toBeGreaterThanOrEqual(6);
           // SVG bounds can round by a layout unit in different engines.
           expect(point.width).toBeLessThanOrEqual(8.05);

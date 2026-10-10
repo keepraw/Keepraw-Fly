@@ -1,0 +1,42 @@
+[
+  {
+    "channel": "chrome",
+    "args": ["--use-angle=d3d11", "--ignore-gpu-blocklist"],
+    "gpu": {
+      "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (Intel)"
+    },
+    "metrics": {
+      "firstFrameMs": 109.90000000223517,
+      "frames": 3,
+      "lastFrameMs": 203.10000000149012,
+      "recentFrameMs": [93.5, 1.1000000014901161, 203.10000000149012],
+      "drawCalls": 45,
+      "textureSize": 4096,
+      "pixelRatio": 1,
+      "textureReadyMs": 124.30000000074506,
+      "texturedFrameMs": 327.6000000014901
+    }
+  },
+  {
+    "channel": "msedge",
+    "args": ["--use-angle=d3d11", "--ignore-gpu-blocklist"],
+    "gpu": {
+      "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (Intel)"
+    },
+    "metrics": {
+      "firstFrameMs": 100,
+      "frames": 3,
+      "lastFrameMs": 198.89999999850988,
+      "recentFrameMs": [
+        84.79999999701977, 2.300000000745058, 198.89999999850988
+      ],
+      "drawCalls": 45,
+      "textureSize": 4096,
+      "pixelRatio": 1,
+      "textureReadyMs": 160,
+      "texturedFrameMs": 359
+    }
+  }
+]

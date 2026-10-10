@@ -1,0 +1,157 @@
+{
+  "format": "keepraw-fly",
+  "formatVersion": "0.1.0",
+  "profile": {
+    "name": {
+      "native": "中文排版测试档案",
+      "romanized": "Typography Fixture",
+      "primary": "native"
+    }
+  },
+  "flights": [
+    {
+      "id": "typography-1",
+      "flightNumber": "ZH910",
+      "serviceDate": "2026-09-17",
+      "airline": { "iata": "ZH" },
+      "origin": { "iata": "SZX" },
+      "destination": { "iata": "TAO" },
+      "scheduledDeparture": "2026-09-17T02:00:00.000Z",
+      "scheduledArrival": "2026-09-17T04:58:00.000Z",
+      "actualDeparture": "2026-09-17T02:00:00.000Z",
+      "actualArrival": "2026-09-17T04:58:00.000Z"
+    },
+    {
+      "id": "typography-2",
+      "flightNumber": "ZH911",
+      "serviceDate": "2026-08-17",
+      "airline": { "iata": "ZH" },
+      "origin": { "iata": "TAO" },
+      "destination": { "iata": "SZX" },
+      "scheduledDeparture": "2026-08-17T02:00:00.000Z",
+      "scheduledArrival": "2026-08-17T05:03:00.000Z",
+      "actualDeparture": "2026-08-17T02:00:00.000Z",
+      "actualArrival": "2026-08-17T05:03:00.000Z"
+    },
+    {
+      "id": "typography-3",
+      "flightNumber": "CX912",
+      "serviceDate": "2026-07-17",
+      "airline": { "iata": "CX" },
+      "origin": { "iata": "HKG" },
+      "destination": { "iata": "TAO" },
+      "scheduledDeparture": "2026-07-17T02:00:00.000Z",
+      "scheduledArrival": "2026-07-17T04:45:00.000Z",
+      "actualDeparture": "2026-07-17T02:00:00.000Z",
+      "actualArrival": "2026-07-17T04:45:00.000Z"
+    },
+    {
+      "id": "typography-4",
+      "flightNumber": "CX913",
+      "serviceDate": "2026-06-17",
+      "airline": { "iata": "CX" },
+      "origin": { "iata": "TAO" },
+      "destination": { "iata": "HKG" },
+      "scheduledDeparture": "2026-06-17T02:00:00.000Z",
+      "scheduledArrival": "2026-06-17T04:46:00.000Z",
+      "actualDeparture": "2026-06-17T02:00:00.000Z",
+      "actualArrival": "2026-06-17T04:46:00.000Z"
+    },
+    {
+      "id": "typography-5",
+      "flightNumber": "CA914",
+      "serviceDate": "2026-05-17",
+      "airline": { "iata": "CA" },
+      "origin": { "iata": "CAN" },
+      "destination": { "iata": "PEK" },
+      "scheduledDeparture": "2026-05-17T02:00:00.000Z",
+      "scheduledArrival": "2026-05-17T04:00:00.000Z",
+      "actualDeparture": "2026-05-17T02:50:00.000Z",
+      "actualArrival": "2026-05-17T04:50:00.000Z"
+    },
+    {
+      "id": "typography-6",
+      "flightNumber": "MU915",
+      "serviceDate": "2026-04-17",
+      "airline": { "iata": "MU" },
+      "origin": { "iata": "PVG" },
+      "destination": { "iata": "PEK" },
+      "scheduledDeparture": "2026-04-17T02:00:00.000Z",
+      "scheduledArrival": "2026-04-17T04:07:00.000Z",
+      "actualDeparture": "2026-04-17T02:00:00.000Z",
+      "actualArrival": "2026-04-17T04:07:00.000Z"
+    },
+    {
+      "id": "typography-7",
+      "flightNumber": "CX916",
+      "serviceDate": "2025-09-17",
+      "airline": { "iata": "CX" },
+      "origin": { "iata": "HKG" },
+      "destination": { "iata": "BOM" },
+      "scheduledDeparture": "2025-09-17T02:00:00.000Z",
+      "scheduledArrival": "2025-09-17T08:25:00.000Z",
+      "actualDeparture": "2025-09-17T04:05:00.000Z",
+      "actualArrival": "2025-09-17T10:30:00.000Z"
+    },
+    {
+      "id": "typography-8",
+      "flightNumber": "CX917",
+      "serviceDate": "2025-08-17",
+      "airline": { "iata": "CX" },
+      "origin": { "iata": "BOM" },
+      "destination": { "iata": "HKG" },
+      "scheduledDeparture": "2025-08-17T02:00:00.000Z",
+      "scheduledArrival": "2025-08-17T07:51:00.000Z",
+      "actualDeparture": "2025-08-17T02:00:00.000Z",
+      "actualArrival": "2025-08-17T07:51:00.000Z"
+    },
+    {
+      "id": "typography-9",
+      "flightNumber": "CZ918",
+      "serviceDate": "2025-07-17",
+      "airline": { "iata": "CZ" },
+      "origin": { "iata": "SZX" },
+      "destination": { "iata": "CAN" },
+      "scheduledDeparture": "2025-07-17T02:00:00.000Z",
+      "scheduledArrival": "2025-07-17T04:00:00.000Z",
+      "actualDeparture": "2025-07-17T02:00:00.000Z",
+      "actualArrival": "2025-07-17T04:00:00.000Z"
+    },
+    {
+      "id": "typography-10",
+      "flightNumber": "MU919",
+      "serviceDate": "2025-06-17",
+      "airline": { "iata": "MU" },
+      "origin": { "iata": "PEK" },
+      "destination": { "iata": "PVG" },
+      "scheduledDeparture": "2025-06-17T02:00:00.000Z",
+      "scheduledArrival": "2025-06-17T04:00:00.000Z",
+      "actualDeparture": "2025-06-17T02:27:00.000Z",
+      "actualArrival": "2025-06-17T04:27:00.000Z"
+    },
+    {
+      "id": "typography-11",
+      "flightNumber": "MU920",
+      "serviceDate": "2025-05-17",
+      "airline": { "iata": "MU" },
+      "origin": { "iata": "TAO" },
+      "destination": { "iata": "PVG" },
+      "scheduledDeparture": "2025-05-17T02:00:00.000Z",
+      "scheduledArrival": "2025-05-17T03:58:00.000Z",
+      "actualDeparture": "2025-05-17T02:00:00.000Z",
+      "actualArrival": "2025-05-17T03:58:00.000Z"
+    },
+    {
+      "id": "typography-12",
+      "flightNumber": "CZ921",
+      "serviceDate": "2025-04-17",
+      "airline": { "iata": "CZ" },
+      "origin": { "iata": "PVG" },
+      "destination": { "iata": "SZX" },
+      "scheduledDeparture": "2025-04-17T02:00:00.000Z",
+      "scheduledArrival": "2025-04-17T03:58:00.000Z",
+      "actualDeparture": "2025-04-17T02:00:00.000Z",
+      "actualArrival": "2025-04-17T03:58:00.000Z"
+    }
+  ]
+}

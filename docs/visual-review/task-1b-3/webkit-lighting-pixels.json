@@ -1,0 +1,22 @@
+{
+  "lit": {
+    "changedPixels": 0,
+    "warmPixels": 0,
+    "meanLuminance": 24.83415305448471,
+    "meanCenterLuminance": 27.63166937798733
+  },
+  "withoutCities": {
+    "changedPixels": 139640,
+    "warmPixels": 0,
+    "meanLuminance": 23.627769962157775,
+    "meanCenterLuminance": 24.940782617367823
+  },
+  "disabled": {
+    "changedPixels": 0,
+    "warmPixels": 0,
+    "meanLuminance": 64.92047157293318,
+    "meanCenterLuminance": 0
+  },
+  "sunDirection": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+  "errors": []
+}

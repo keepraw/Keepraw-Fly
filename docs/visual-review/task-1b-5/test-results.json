@@ -1,0 +1,53 @@
+{
+  "status": "Visual approval pending",
+  "unit": {
+    "total": 307,
+    "core": 66,
+    "validator": 31,
+    "web": 207,
+    "cssAst": 3,
+    "schema": 0
+  },
+  "chromium": {
+    "passed": 14,
+    "failed": 0,
+    "workers": 1,
+    "retries": 0,
+    "existingGlobe": 9,
+    "solar": 1,
+    "newNight": 1,
+    "officialPassport": 3
+  },
+  "typecheck": "passed",
+  "build": "passed; existing >500 kB chunk warning",
+  "docs": "passed",
+  "cssLint": "passed",
+  "cssTokens": "passed",
+  "format": "passed",
+  "diff": "passed",
+  "production": {
+    "compared": 9,
+    "differences": 0
+  },
+  "otherEngines": "not rerun for B5",
+  "performance": "no new timing matrix; existing idle regression passed",
+  "baselineCI": {
+    "url": "https://github.com/keepraw/Keepraw-Fly/actions/runs/38010592259",
+    "verify": "success including full Chromium",
+    "webkit": "success",
+    "firefox": {
+      "passed": 17,
+      "failed": 8,
+      "category": "same Globe readiness-related failures"
+    },
+    "deploy": "skipped"
+  },
+  "captureSetup": "Initial baseline snapshot lacked root tsconfig; added unchanged configuration and restarted task-owned helper. Final captures and scene assertions passed.",
+  "limitations": [
+    "Visual approval pending",
+    "Historical grayscale data, not calibrated radiance",
+    "Fixed Home does not expose Sahara, Los Angeles or central Pacific audit bounds",
+    "No complete new Firefox/WebKit matrix",
+    "Existing B4 material/photographic-depth limitations persist"
+  ]
+}

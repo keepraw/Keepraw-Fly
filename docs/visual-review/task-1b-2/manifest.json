@@ -1,0 +1,307 @@
+{
+  "baseline": "45f92e9c78a118417803dc7f43f027a821f95c65",
+  "implementation": "c814eb3779d69aa6037c154370913a62a13b7af1",
+  "browser": "System Google Chrome, headless, Intel UHD Direct3D11",
+  "launchArgs": ["--use-angle=d3d11", "--ignore-gpu-blocklist"],
+  "devicePixelRatio": 1,
+  "quality": 4096,
+  "imageOrigin": "Unmodified actual browser PNG screenshots; no generation, compositing or retouching.",
+  "pngCount": 24,
+  "totalPngBytes": 12681445,
+  "files": [
+    {
+      "name": "after-dark-asia-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 649034,
+      "sha256": "66c66328ffb6fc488630dca4d42a91db53ecaf7ab8a66290a48d1b1a37cba7d9",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-default-1280.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 394148,
+      "sha256": "7b0645a8b339c5b2c451405081cbb22bab979d668b1ac7915d7f34b42fc050a0",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 621921,
+      "sha256": "d344aad0e275a5e0e94268455cd11c1c502075e002ef70b74d0d891d87f2b366",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 604720,
+      "sha256": "5646d588ca030eefe4beddf8ec5f01ed050a10d971c004df15d88530c5d7ed9a",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-fixed-b1-asia-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 622507,
+      "sha256": "fbbcd8f398a957ab2e23682470eb3ddd90bae45e4b853948cf15b7f30107704c",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-fixed-b1-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 590753,
+      "sha256": "04274166c6ec55cbbbd54dd84f05ec2d3c295d3d407ea3870dc9151d88336d4b",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-fixed-b1-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 568352,
+      "sha256": "d01b9b3dec1f8437b9b768c50d7f7db4940e0339905dba298db00f684497af01",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-fixed-b1-north-america-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 571095,
+      "sha256": "4adb2ef5e3c15be53dd7e80070d02f48cc5488ef3fad9257d2dab491ee1daa64",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-north-america-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 582520,
+      "sha256": "393e55050f9fa923fa4616f9b2dd6b6a3477b7e0ddabd6ad62b8f6fe03a414ce",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-dark-selected-long-haul-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 591432,
+      "sha256": "ae04d5923283f1176fcc639a0dd593cd6668c04eba063a995fd6a0646fa77a16",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-light-default-1280.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 364761,
+      "sha256": "dd3b17c04b383f2116d5ff552d9f14a4d03ef606fe1f0eddd16889ab72aadad9",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-light-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 576893,
+      "sha256": "07a87b6a9b87b4dbf7660177cfab5725c710be3122b2fbaa8425c0aeca91a92e",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-light-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 559394,
+      "sha256": "f26b3b54cc9a095a0e69ddc07b55cff7a88726cf09fe12135ae6776ce80ecd4e",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-light-fixed-b1-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 483083,
+      "sha256": "5e0e2dcfef6e583dba16ea2221791dba99de2fd86f91b46c24cac04b42aa0c3f",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "after-light-fixed-b1-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 458581,
+      "sha256": "a02ae27b15eb69956df107021fb2cfe8e3745b3c41113d7f778d9812add1652f",
+      "renderedSource": "c814eb3779d69aa6037c154370913a62a13b7af1"
+    },
+    {
+      "name": "before-dark-asia-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 580394,
+      "sha256": "ba4650fef33b67dc4c7d80afeb5ecc876b622536a9b29c759a73bff89cefc782",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-dark-default-1280.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 353744,
+      "sha256": "9225418c00f5013b5dea1ee90ee8e783460a59c5fcdf8b445ceebdc0a38ef94b",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-dark-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 562227,
+      "sha256": "a4a45b77e25c136f37c8736e1c956dff1fb6178dd57371bc6329dd6959b3cb88",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-dark-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 532715,
+      "sha256": "683d39138bae9ffaeaf0a580bb29127178c9c6e9c2ad389a79cb6690d60ff2fe",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-dark-north-america-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 508646,
+      "sha256": "bc159ab9a4b66aaac14b75d5aa3997a25b67c6e06c2e56ac0c05022460f7f746",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-dark-selected-long-haul-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 460354,
+      "sha256": "250ae3b4ddbd49582d8123f35c51f14b5077207275d4ff9969bd26ac9d148bf2",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-light-default-1280.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 352333,
+      "sha256": "8d24c5d3ba9a16bb3ac2f55b3db7af9a32c7a7c79a3ebbc871bf49b7df8742e3",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-light-default-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 559195,
+      "sha256": "4b280573ae857f283fe7c259ef7b24323854221e5bd30fb8083064834c507e2e",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    },
+    {
+      "name": "before-light-earth-1440.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 532643,
+      "sha256": "50f2cc2a82ff4244ac7add60190bbe035ae6a6a8da0b61d31971ff2ed150b5cc",
+      "renderedSource": "45f92e9c78a118417803dc7f43f027a821f95c65"
+    }
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "after-dark-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-fixed-b1-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-selected-long-haul-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-fixed-b1-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-fixed-b1-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-asia-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-north-america-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-selected-long-haul-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-earth-1440.png",
+        "available": false
+      }
+    ]
+  }
+}

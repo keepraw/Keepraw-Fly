@@ -291,7 +291,9 @@
     "highlightRoutes": "航段",
     "filterAirport": "筛选到访 {{airport}}（{{code}}）的航班",
     "filterAirline": "筛选乘坐 {{airline}} 的航班",
-    "filterRoute": "筛选{{context}}，{{origin}} 至 {{destination}} 的航班"
+    "filterRoute": "筛选{{context}}，{{origin}} 至 {{destination}} 的航班",
+    "annualArrivalDelay": "年度到达延误",
+    "recentDelayYears": "最近三个有记录的年份"
   },
   "import": {
     "failed": "无法导入这个文件",
@@ -440,6 +442,9 @@
     }
   },
   "settings": {
+    "fontCredit": "中文界面使用 MiSans / MiSans TC，字体版权归小米所有。",
+    "fontLicense": "小米字体许可与使用说明",
+    "fontNetwork": "中文字体由 jsDelivr 提供，字体请求不包含航班记录。",
     "viewerPreferences": "查看器偏好",
     "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
     "general": "常规",
@@ -531,7 +536,11 @@
     "editMembership": "编辑",
     "collapseMembership": "收起",
     "memberNumberSummary": "会员号 {{number}}",
-    "defaultAirlineSummary": "默认：{{airline}}"
+    "defaultAirlineSummary": "默认：{{airline}}",
+    "solarMode": "太阳光照",
+    "solarFixed": "固定太阳",
+    "solarRealtime": "真实太阳（实时）",
+    "solarModeHint": "固定太阳使用已批准的电影感光照方向；真实太阳按当前 UTC 时间呈现昼夜。当前用于地球实验室，并为未来的三维地球保留偏好。"
   },
   "recovery": {
     "title": "无法打开本地飞行档案",

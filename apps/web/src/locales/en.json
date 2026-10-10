@@ -304,7 +304,9 @@
     "highlightRoutes": "Routes",
     "filterAirport": "Filter flights visiting {{airport}} ({{code}})",
     "filterAirline": "Filter flights flown with {{airline}}",
-    "filterRoute": "{{context}}: filter flights from {{origin}} to {{destination}}"
+    "filterRoute": "{{context}}: filter flights from {{origin}} to {{destination}}",
+    "annualArrivalDelay": "Arrival delay by year",
+    "recentDelayYears": "Latest 3 recorded years"
   },
   "import": {
     "failed": "This file cannot be imported",
@@ -464,6 +466,9 @@
     }
   },
   "settings": {
+    "fontCredit": "Chinese typography uses MiSans / MiSans TC, copyright Xiaomi.",
+    "fontLicense": "Xiaomi font license and usage guidance",
+    "fontNetwork": "Chinese fonts load from jsDelivr. Font requests do not include flight records.",
     "viewerPreferences": "Viewer preferences",
     "description": "Display preferences stay local. Profile names travel with your Keepraw Fly archive.",
     "general": "General",
@@ -555,7 +560,11 @@
     "editMembership": "Edit",
     "collapseMembership": "Collapse",
     "memberNumberSummary": "Member number {{number}}",
-    "defaultAirlineSummary": "Default: {{airline}}"
+    "defaultAirlineSummary": "Default: {{airline}}",
+    "solarMode": "Solar illumination",
+    "solarFixed": "Fixed Sun",
+    "solarRealtime": "Real-time Sun",
+    "solarModeHint": "Fixed Sun uses the approved cinematic direction. Real-time Sun follows the current UTC day and night. Applies to Globe Lab now and the future 3D globe."
   },
   "recovery": {
     "title": "We couldn't open your local archive",

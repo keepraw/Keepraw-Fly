@@ -1,0 +1,86 @@
+
+Running 7 tests using 2 workers
+
+(node:7008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [chromium] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated (7.2s)
+  ok 1 [chromium] › e2e\typography-zoom.pw.ts:10:3 › native 100% zoom preserves desktop and mobile breakpoint layout (8.4s)
+(node:19580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 [chromium] › e2e\typography-zoom.pw.ts:10:3 › native 125% zoom preserves desktop and mobile breakpoint layout (3.0s)
+  ok 4 [chromium] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser (8.9s)
+  ok 5 [chromium] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN light @cross-browser (7.0s)
+  ok 6 [chromium] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW dark @cross-browser (7.1s)
+  ok 7 [chromium] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW light @cross-browser (16.1s)
+
+
+  1) [chromium] › e2e\typography-zoom.pw.ts:10:3 › native 125% zoom preserves desktop and mobile breakpoint layout
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1.25
+    Received: 1
+
+      56 |           await waitForPassportLayout(page);
+      57 |           const diagnostics = await passportViewportDiagnostics(page);
+    > 58 |           expect(diagnostics.devicePixelRatio).toBe(zoom);
+         |                                                ^
+      59 |           expect(diagnostics.document.scrollWidth).toBeLessThanOrEqual(
+      60 |             diagnostics.innerWidth + 1,
+      61 |           );
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\typography-zoom.pw.ts:58:48
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-font-zoom-results\typography-zoom.pw.ts-nati-cc14f-nd-mobile-breakpoint-layout-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-font-zoom-results\typography-zoom.pw.ts-nati-cc14f-nd-mobile-breakpoint-layout-chromium\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-font-zoom-results\typography-zoom.pw.ts-nati-cc14f-nd-mobile-breakpoint-layout-chromium\error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-font-zoom-results\typography-zoom.pw.ts-nati-cc14f-nd-mobile-breakpoint-layout-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-font-zoom-results\typography-zoom.pw.ts-nati-cc14f-nd-mobile-breakpoint-layout-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      81 |         ),
+      82 |       ),
+    > 83 |   ).toBe(true);
+         |     ^
+      84 | });
+      85 |
+      86 | for (const locale of ["zh-CN", "zh-TW"])
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\typography.pw.ts:83:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-font-zoom-results\typography.pw.ts-Chinese-s-8ddf8-n-blocking-and-deduplicated-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-font-zoom-results\typography.pw.ts-Chinese-s-8ddf8-n-blocking-and-deduplicated-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-font-zoom-results\typography.pw.ts-Chinese-s-8ddf8-n-blocking-and-deduplicated-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-font-zoom-results\typography.pw.ts-Chinese-s-8ddf8-n-blocking-and-deduplicated-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e\typography-zoom.pw.ts:10:3 › native 125% zoom preserves desktop and mobile breakpoint layout
+    [chromium] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated
+  5 passed (1.3m)

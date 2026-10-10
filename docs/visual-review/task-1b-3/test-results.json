@@ -1,0 +1,375 @@
+{
+  "globe": {
+    "stats": {
+      "startTime": "2026-10-09T08:44:57.175Z",
+      "duration": 140647.53900000002,
+      "expected": 18,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "errors": [],
+    "tests": [
+      {
+        "file": "globe-art.pw.ts",
+        "title": "art direction changes local light without reinitializing the globe @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 4404,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-art.pw.ts",
+        "title": "art direction changes local light without reinitializing the globe @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9615,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe actual browser screenshots, viewports, selection and resource measurements @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 12902,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe local SVG fallback on texture failure and context loss @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3887,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe filtering, real archive loading and formal Passport isolation @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 5438,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe gracefully handles disabled WebGL @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1443,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe direct route and airport picking, motion and accessibility @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 14351,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe actual browser screenshots, viewports, selection and resource measurements @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 19701,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe local SVG fallback on texture failure and context loss @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 5611,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe filtering, real archive loading and formal Passport isolation @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 6426,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe gracefully handles disabled WebGL @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1986,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lab.pw.ts",
+        "title": "globe direct route and airport picking, motion and accessibility @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 18533,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lighting.pw.ts",
+        "title": "cinematic layers produce real pixels and keep the world-space sun fixed @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 5453,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lighting.pw.ts",
+        "title": "night texture failure falls back locally and retries both textures @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3402,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lighting.pw.ts",
+        "title": "cinematic layers produce real pixels and keep the world-space sun fixed @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 14187,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-lighting.pw.ts",
+        "title": "night texture failure falls back locally and retries both textures @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 4534,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-scene.pw.ts",
+        "title": "regional composition, shared reverse strokes and manual camera ownership @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3359,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "globe-scene.pw.ts",
+        "title": "regional composition, shared reverse strokes and manual camera ownership @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3674,
+            "retry": 0
+          }
+        ]
+      }
+    ]
+  },
+  "passport": {
+    "stats": {
+      "startTime": "2026-10-09T08:49:19.502Z",
+      "duration": 63949.816,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "errors": [],
+    "tests": [
+      {
+        "file": "passport-desktop-design.pw.ts",
+        "title": "desktop flight report, ledger and map remain usable in light",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9611,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "passport-desktop-design.pw.ts",
+        "title": "desktop flight report, ledger and map remain usable in dark",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9595,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "passport-desktop-design.pw.ts",
+        "title": "regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 8547,
+            "retry": 0
+          }
+        ]
+      },
+      {
+        "file": "passport-desktop-design.pw.ts",
+        "title": "regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 34716,
+            "retry": 0
+          }
+        ]
+      }
+    ]
+  },
+  "firefox": {
+    "stats": {
+      "startTime": "2026-10-09T08:48:33.525Z",
+      "duration": 531.358,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "errors": [],
+    "tests": [
+      {
+        "file": "globe-art.pw.ts",
+        "title": "art direction changes local light without reinitializing the globe @cross-browser",
+        "project": "firefox",
+        "status": "unexpected",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 1,
+            "retry": 0,
+            "error": "Error: browserType.launch: spawn UNKNOWN\nCall log:\n\u001b[2m  - <launching> C:\\Users\\forgo\\AppData\\Local\\ms-playwright\\firefox-1543\\firefox\\firefox.exe -no-remote -headless -profile C:\\Users\\forgo\\AppData\\Local\\Temp\\playwright_firefoxdev_profile-243tiF -juggler-pipe -silent\u001b[22m\n"
+          }
+        ]
+      }
+    ]
+  },
+  "initialSixWorkerRun": {
+    "passed": 12,
+    "failed": 4,
+    "details": [
+      "Chromium: obsolete orange-city pixel predicate (0 warm pixels)",
+      "WebKit: two Lab initialization readiness failures; one fallback readiness failure"
+    ],
+    "resolution": "Actual city layer pixel difference/restore replaces orange classifier; full single-worker rerun passes without timeout/config changes; WebKit initial cause not established"
+  },
+  "checks": {
+    "unit": {
+      "passed": 301,
+      "web": 201,
+      "core": 66,
+      "validator": 31,
+      "css": 3
+    },
+    "typecheck": "passed",
+    "build": "passed; preexisting >500kB chunk warning",
+    "docs": "passed",
+    "cssLint": "passed",
+    "cssTokens": "passed",
+    "formatting": "passed",
+    "productionAssetDifferences": 0
+  },
+  "baselineRemote": {
+    "commit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+    "run": 37902087619,
+    "url": "https://github.com/keepraw/Keepraw-Fly/actions/runs/37902087619",
+    "webkit": "success",
+    "firefox": "failure; 7 existing Globe readiness/related failures",
+    "chromium": "failure; globe-lab.pw.ts:304 end camera equals mid-animation camera",
+    "distinction": "Historical results fetched before B3 push; local Firefox spawn failure is separate"
+  }
+}

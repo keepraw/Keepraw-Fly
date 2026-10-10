@@ -1,0 +1,13 @@
+
+> keepraw-fly@0.1.0 typecheck C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> pnpm -r typecheck
+
+Scope: 4 of 5 workspace projects
+packages/schema typecheck$ tsc --noEmit --pretty false
+packages/schema typecheck: Done
+packages/core typecheck$ tsc --noEmit --pretty false
+packages/core typecheck: Done
+packages/validator typecheck$ tsc --noEmit --pretty false
+packages/validator typecheck: Done
+apps/web typecheck$ tsc --noEmit --pretty false
+apps/web typecheck: Done

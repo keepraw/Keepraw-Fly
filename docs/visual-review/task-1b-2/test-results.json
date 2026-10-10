@@ -1,0 +1,38 @@
+{
+  "implementation": "c814eb3779d69aa6037c154370913a62a13b7af1",
+  "unit": {
+    "command": "pnpm test",
+    "passed": 301,
+    "web": 201,
+    "core": 66,
+    "validator": 31,
+    "css": 3
+  },
+  "typecheck": "pnpm typecheck: passed",
+  "build": "pnpm build: passed; existing >500kB production chunk warning",
+  "documentation": "pnpm check:docs: passed",
+  "format": "Changed source files pass Prettier. Review evidence formatted before final docs commit.",
+  "globeBrowserFinalCases": { "chromium": 8, "webkit": 8, "passed": 16 },
+  "formalPassport": { "chromium": 3, "webkit": 1, "passed": 4 },
+  "accessibility": "Light/Dark Axe reports: Chromium and WebKit zero violations",
+  "commands": [
+    "pnpm exec playwright test e2e/globe-lab.pw.ts e2e/globe-lighting.pw.ts --project=chromium --workers=1 --output=artifacts/b2-chromium-results",
+    "pnpm exec playwright test e2e/globe-lighting.pw.ts e2e/globe-scene.pw.ts --project=chromium --workers=1 --output=artifacts/b2-chromium-scene",
+    "pnpm exec playwright test e2e/globe-lab.pw.ts e2e/globe-lighting.pw.ts e2e/globe-scene.pw.ts --project=webkit --workers=1 --output=artifacts/b2-webkit-results",
+    "pnpm exec playwright test e2e/globe-scene.pw.ts --project=webkit --project=chromium --workers=1 --output=artifacts/b2-scene-repeat",
+    "pnpm exec playwright test e2e/passport-desktop-design.pw.ts --project=chromium --project=webkit --workers=1 --output=artifacts/b2-passport-results"
+  ],
+  "initialFailuresAndRepairs": [
+    "The old all-lighting-disabled rectangular pixel probe included exposed space after new camera cropping. It now intersects the analytic inner sphere disk and retains the <0.1 luminance threshold. Chromium/WebKit pass.",
+    "The new WebKit manual-resize case read the diagnostic camera before ArrowRight rendered. It now awaits the actual changed camera before recording the manual position. Chromium/WebKit pass.",
+    "Changed-file format check found screenshot script formatting before push; corrected and checked again. No tests were skipped or timeouts loosened."
+  ],
+  "firefox": {
+    "command": "pnpm exec playwright test e2e/globe-scene.pw.ts --project=firefox --workers=1 --output=artifacts/b2-firefox-results",
+    "failed": 1,
+    "reason": "browserType.launch: spawn UNKNOWN, Playwright Firefox 1543, before application load",
+    "applicationValidation": "unverified",
+    "preExistingRemote": "B1 commit 45f92e9, workflow 37896404248: Firefox failure, verify success, WebKit success. Local spawn error is not asserted to be the remote failure cause. Earlier reported flakiness remains a known CI limitation."
+  },
+  "visualApproval": "pending"
+}

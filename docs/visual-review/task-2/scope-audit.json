@@ -1,0 +1,141 @@
+{
+  "baseline": "8e759707c1c265b360183160f6fe369428e30b4a",
+  "frozen": [
+    {
+      "file": "apps/web/src/globe/globe-math.ts",
+      "sha256": "076b653739c635a9b9acd71a849c6e5f0219e8298adca547099ddb4f3680473f",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/globe-renderer.ts",
+      "sha256": "ab2c1e20e7bcfb2495f830e8cadbac7db59dbb0543d6e7b63f9692e021aabb08",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/globe-lighting.ts",
+      "sha256": "90340450212ac41c85abc62c5be56308bab01addc9b1b121f285a3508a125613",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/globe-solar.ts",
+      "sha256": "3eee0e060a3f656931b14f9d7a1955b87edddcc2fb40bad2115a922365e007c6",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/globe-night-emission.ts",
+      "sha256": "3baa6edc3a306e6e1443aa2bff95a359d72f3a66eba5db3b96f40d74885b14c6",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/globe-night-response.ts",
+      "sha256": "91c6ac0c251d490597759554375a60489f1857d001ed2506bc03dadf2733ad25",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/globe/GlobeMap.tsx",
+      "sha256": "3a6c4969bef4c3077f7da01828470359e54795d64e0a66fdd9cb179c276f7492",
+      "unchanged": true
+    },
+    {
+      "file": "packages/core/src/statistics.ts",
+      "sha256": "d8ffd10c160fa96d29427d9892d632532dc75f5334c31a3e69a37620c208ee33",
+      "unchanged": true
+    },
+    {
+      "file": "apps/web/src/styles/passport.css",
+      "sha256": "ae8706674f74e644a64657346f101c0940904da1297cb37b231c01c7f5b85b1f",
+      "unchanged": true
+    }
+  ],
+  "references": [
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+      "unchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-light.png",
+      "sha256": "e03d8a6169c43b04d1192195fd4c921423b5e4ebf3ef79f11ebe1f9f7ecf567e",
+      "unchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-passport-dark.png",
+      "sha256": "9ae338fe3a9facfec66ddd8cd238dd58bde339a4cc86c323d166e3b8508f80f5",
+      "unchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-selected-SFO-HKG-dark.png",
+      "sha256": "3d72efd05b1677f22ea756810fe9b158d4835fdccc5571739554441fa9e7187a",
+      "unchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-passport-light.png",
+      "sha256": "12938b061a5c3d8628d43327f3ece26623b0331a9e55c7a70c824a0b01171a9e",
+      "unchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-selected-PEK-PVG-dark.png",
+      "sha256": "6a58c04942d6bc9ad1f3ca87d93cccfe59c5f29b40d88f7a635372acffc6ee8b",
+      "unchanged": true
+    }
+  ],
+  "historicalResults": [
+    {
+      "file": "docs/visual-review/task-1b-1/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7a/manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/pixel-comparison.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-manifest.json",
+      "originalDataUnchanged": true
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-manifest.json",
+      "originalDataUnchanged": true
+    }
+  ],
+  "domainAndArchiveSchemaChanges": "none"
+}

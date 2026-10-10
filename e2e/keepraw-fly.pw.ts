@@ -383,7 +383,13 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     expect(layout.fitsViewport).toBe(true);
     expect(layout.actionableElementsFit).toBe(true);
     expect(layout.selectsVisible).toBe(true);
-    expect(layout.controls).toHaveLength(7);
+    expect(layout.controls).toHaveLength(8);
+    await expect(page.locator(".settings-display-fields select")).toHaveCount(
+      5,
+    );
+    await expect(
+      page.locator(".settings-display-fields select").nth(4),
+    ).toHaveValue("fixed");
     expect(
       Math.max(...layout.controls.map((control) => control.left)) -
         Math.min(...layout.controls.map((control) => control.left)),
@@ -666,7 +672,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         bodyFitsViewport:
           document.documentElement.scrollHeight <= window.innerHeight,
         highlightsVisible:
-          document.querySelectorAll(".passport-highlight").length === 2 &&
+          document.querySelectorAll(".passport-airport-rank").length === 4 &&
+          document.querySelectorAll(".passport-longest-flight").length === 1 &&
           getComputedStyle(document.querySelector(".passport-highlights")!)
             .display !== "none",
         distanceLeads:
@@ -785,7 +792,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#passport"]').click();
     await expect(page.locator(".passport-highlights")).toBeVisible();
-    await expect(page.locator(".passport-highlight")).toHaveCount(2);
+    await expect(page.locator(".passport-highlight")).toHaveCount(5);
     expect(
       await page
         .locator("html")
@@ -1610,7 +1617,8 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     return {
       canvasHasDepth: getComputedStyle(canvas).backgroundImage !== "none",
       highlightsVisible:
-        document.querySelectorAll(".passport-highlight").length === 2 &&
+        document.querySelectorAll(".passport-airport-rank").length === 4 &&
+        document.querySelectorAll(".passport-longest-flight").length === 1 &&
         getComputedStyle(document.querySelector(".passport-highlights")!)
           .display !== "none",
       mapBorderRadius: mapStyle.borderRadius,
@@ -1662,7 +1670,10 @@ test("keeps core archive surfaces precise and non-decorative", async ({
       const transform = element.getAttribute("transform")!;
       return Number(transform.match(/scale\(([^)]+)\)/)![1]);
     });
-  for (let index = 0; index < 6; index += 1) {
+  // Fit scale depends on the available map height. Keep exercising the same
+  // 8x cap after the statistics dashboard reserves more vertical space.
+  const zoomSteps = Math.ceil(Math.log(8 / fittedScale) / Math.log(1.5));
+  for (let index = 0; index < zoomSteps; index += 1) {
     await page.getByRole("button", { name: "Zoom in" }).click();
     await expect(mapCanvas).toHaveAttribute(
       "data-zoom",
@@ -1831,14 +1842,14 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         .trim(),
     };
   });
-  expect(simplifiedTypography.titleFamily).toContain("Inter");
+  expect(simplifiedTypography.titleFamily).toContain("MiSans");
   expect(simplifiedTypography.titleFamily).toContain("PingFang SC");
   expect(simplifiedTypography.titleFamily).toContain("Microsoft YaHei UI");
   expect(simplifiedTypography.titleFamily).not.toContain("SimSun");
   expect(simplifiedTypography.timeFamily).toContain("Inter");
   expect(simplifiedTypography.titleWeight).toBe("700");
   expect(simplifiedTypography.chineseStack).toBe(
-    '"PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
+    '"MiSans", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
   );
 
   const stopHierarchy = await page.locator(".detail-stops").evaluate((hero) => {
@@ -1937,13 +1948,13 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         .trim(),
     };
   });
-  expect(traditionalTypography.titleFamily).toContain("Inter");
+  expect(traditionalTypography.titleFamily).toContain("MiSans TC");
   expect(traditionalTypography.titleFamily).toContain("PingFang TC");
   expect(traditionalTypography.titleFamily).toContain("Microsoft JhengHei UI");
   expect(traditionalTypography.titleFamily).not.toContain("SimSun");
   expect(traditionalTypography.titleWeight).toBe("700");
   expect(traditionalTypography.chineseStack).toBe(
-    '"PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
+    '"MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
   );
 });
 
@@ -2009,7 +2020,8 @@ test("keeps every page aligned to the shared responsive shell", async ({
       );
       if (pageName === "Passport" && width > 760) {
         expect(layout.mainPaddingTop).toBeLessThanOrEqual(22);
-        expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
+        // Task 2C reserves max(24px, safe-area-inset-bottom) at this 900px height.
+        expect(layout.mainPaddingBottom).toBe(24);
       } else {
         expect(layout.mainPaddingTop).toBe(width <= 760 ? 16 : 32);
         expect(layout.mainPaddingBottom).toBe(width <= 760 ? 48 : 120);

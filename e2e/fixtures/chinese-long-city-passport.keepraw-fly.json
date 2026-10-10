@@ -1,0 +1,229 @@
+{
+  "format": "keepraw-fly",
+  "formatVersion": "0.1.0",
+  "profile": {
+    "name": {
+      "native": "真实中文长城市名排版测试",
+      "romanized": "Typography Fixture",
+      "primary": "native"
+    }
+  },
+  "flights": [
+    {
+      "id": "typography-1-long-city",
+      "flightNumber": "ZH910",
+      "serviceDate": "2026-09-17",
+      "airline": {
+        "iata": "ZH"
+      },
+      "origin": {
+        "iata": "ADD"
+      },
+      "destination": {
+        "iata": "JNB"
+      },
+      "scheduledDeparture": "2026-09-17T02:00:00.000Z",
+      "scheduledArrival": "2026-09-17T04:58:00.000Z",
+      "actualDeparture": "2026-09-17T02:00:00.000Z",
+      "actualArrival": "2026-09-17T04:58:00.000Z"
+    },
+    {
+      "id": "typography-2-long-city",
+      "flightNumber": "ZH911",
+      "serviceDate": "2026-08-17",
+      "airline": {
+        "iata": "ZH"
+      },
+      "origin": {
+        "iata": "JNB"
+      },
+      "destination": {
+        "iata": "ADD"
+      },
+      "scheduledDeparture": "2026-08-17T02:00:00.000Z",
+      "scheduledArrival": "2026-08-17T05:03:00.000Z",
+      "actualDeparture": "2026-08-17T02:00:00.000Z",
+      "actualArrival": "2026-08-17T05:03:00.000Z"
+    },
+    {
+      "id": "typography-3-long-city",
+      "flightNumber": "CX912",
+      "serviceDate": "2026-07-17",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "EZE"
+      },
+      "destination": {
+        "iata": "JNB"
+      },
+      "scheduledDeparture": "2026-07-17T02:00:00.000Z",
+      "scheduledArrival": "2026-07-17T04:45:00.000Z",
+      "actualDeparture": "2026-07-17T02:00:00.000Z",
+      "actualArrival": "2026-07-17T04:45:00.000Z"
+    },
+    {
+      "id": "typography-4-long-city",
+      "flightNumber": "CX913",
+      "serviceDate": "2026-06-17",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "JNB"
+      },
+      "destination": {
+        "iata": "EZE"
+      },
+      "scheduledDeparture": "2026-06-17T02:00:00.000Z",
+      "scheduledArrival": "2026-06-17T04:46:00.000Z",
+      "actualDeparture": "2026-06-17T02:00:00.000Z",
+      "actualArrival": "2026-06-17T04:46:00.000Z"
+    },
+    {
+      "id": "typography-5-long-city",
+      "flightNumber": "CA914",
+      "serviceDate": "2026-05-17",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "CPT"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2026-05-17T02:00:00.000Z",
+      "scheduledArrival": "2026-05-17T04:00:00.000Z",
+      "actualDeparture": "2026-05-17T02:50:00.000Z",
+      "actualArrival": "2026-05-17T04:50:00.000Z"
+    },
+    {
+      "id": "typography-6-long-city",
+      "flightNumber": "MU915",
+      "serviceDate": "2026-04-17",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "CDG"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2026-04-17T02:00:00.000Z",
+      "scheduledArrival": "2026-04-17T04:07:00.000Z",
+      "actualDeparture": "2026-04-17T02:00:00.000Z",
+      "actualArrival": "2026-04-17T04:07:00.000Z"
+    },
+    {
+      "id": "typography-7-long-city",
+      "flightNumber": "CX916",
+      "serviceDate": "2025-09-17",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "EZE"
+      },
+      "destination": {
+        "iata": "AMS"
+      },
+      "scheduledDeparture": "2025-09-17T02:00:00.000Z",
+      "scheduledArrival": "2025-09-17T08:25:00.000Z",
+      "actualDeparture": "2025-09-17T04:05:00.000Z",
+      "actualArrival": "2025-09-17T10:30:00.000Z"
+    },
+    {
+      "id": "typography-8-long-city",
+      "flightNumber": "CX917",
+      "serviceDate": "2025-08-17",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "AMS"
+      },
+      "destination": {
+        "iata": "EZE"
+      },
+      "scheduledDeparture": "2025-08-17T02:00:00.000Z",
+      "scheduledArrival": "2025-08-17T07:51:00.000Z",
+      "actualDeparture": "2025-08-17T02:00:00.000Z",
+      "actualArrival": "2025-08-17T07:51:00.000Z"
+    },
+    {
+      "id": "typography-9-long-city",
+      "flightNumber": "CZ918",
+      "serviceDate": "2025-07-17",
+      "airline": {
+        "iata": "CZ"
+      },
+      "origin": {
+        "iata": "ADD"
+      },
+      "destination": {
+        "iata": "CPT"
+      },
+      "scheduledDeparture": "2025-07-17T02:00:00.000Z",
+      "scheduledArrival": "2025-07-17T04:00:00.000Z",
+      "actualDeparture": "2025-07-17T02:00:00.000Z",
+      "actualArrival": "2025-07-17T04:00:00.000Z"
+    },
+    {
+      "id": "typography-10-long-city",
+      "flightNumber": "MU919",
+      "serviceDate": "2025-06-17",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "CDG"
+      },
+      "scheduledDeparture": "2025-06-17T02:00:00.000Z",
+      "scheduledArrival": "2025-06-17T04:00:00.000Z",
+      "actualDeparture": "2025-06-17T02:27:00.000Z",
+      "actualArrival": "2025-06-17T04:27:00.000Z"
+    },
+    {
+      "id": "typography-11-long-city",
+      "flightNumber": "MU920",
+      "serviceDate": "2025-05-17",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "JNB"
+      },
+      "destination": {
+        "iata": "CDG"
+      },
+      "scheduledDeparture": "2025-05-17T02:00:00.000Z",
+      "scheduledArrival": "2025-05-17T03:58:00.000Z",
+      "actualDeparture": "2025-05-17T02:00:00.000Z",
+      "actualArrival": "2025-05-17T03:58:00.000Z"
+    },
+    {
+      "id": "typography-12-long-city",
+      "flightNumber": "CZ921",
+      "serviceDate": "2025-04-17",
+      "airline": {
+        "iata": "CZ"
+      },
+      "origin": {
+        "iata": "CDG"
+      },
+      "destination": {
+        "iata": "ADD"
+      },
+      "scheduledDeparture": "2025-04-17T02:00:00.000Z",
+      "scheduledArrival": "2025-04-17T03:58:00.000Z",
+      "actualDeparture": "2025-04-17T02:00:00.000Z",
+      "actualArrival": "2025-04-17T03:58:00.000Z"
+    }
+  ]
+}

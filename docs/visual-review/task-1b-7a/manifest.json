@@ -1,0 +1,104 @@
+{
+  "baseCommit": "6df4ae08cc29c6217148bd40d7459cc8ce2ca651",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "data": "Demo archive, all years (default filter), Home camera unmoved between shots",
+  "records": [
+    {
+      "name": "fixed-dark.png",
+      "solarMode": "fixed",
+      "theme": "dark",
+      "utc": "2026-10-10T03:43:08.650Z",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "sceneCamera": [
+        -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+      ],
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "physicalRoutes": 22
+    },
+    {
+      "name": "fixed-light.png",
+      "solarMode": "fixed",
+      "theme": "light",
+      "utc": "2026-10-10T03:43:09.769Z",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "sceneCamera": [
+        -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+      ],
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "physicalRoutes": 22
+    },
+    {
+      "name": "realtime-light.png",
+      "solarMode": "realtime",
+      "theme": "light",
+      "utc": "2026-10-10T03:43:10.606Z",
+      "sunDirection": [
+        -0.5112588387024527, -0.11531980958902485, -0.8516547078276328
+      ],
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "sceneCamera": [
+        -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+      ],
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "physicalRoutes": 22
+    },
+    {
+      "name": "realtime-dark.png",
+      "solarMode": "realtime",
+      "theme": "dark",
+      "utc": "2026-10-10T03:43:11.503Z",
+      "sunDirection": [
+        -0.5112588387024527, -0.11531980958902485, -0.8516547078276328
+      ],
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "sceneCamera": [
+        -1.1462179214868498, 0.5012782172755569, -1.6866845067609426
+      ],
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "physicalRoutes": 22
+    }
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "realtime-light.png",
+        "available": false
+      },
+      {
+        "name": "realtime-dark.png",
+        "available": false
+      }
+    ]
+  }
+}

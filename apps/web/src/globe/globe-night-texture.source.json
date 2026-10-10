@@ -1,0 +1,30 @@
+{
+  "dataset": "NASA Earth at Night / Black Marble 2016, global grayscale composite (3 km)",
+  "source": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/144000/144897/BlackMarble_2016_3km_gray.jpg",
+  "documentation": "https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/",
+  "usageTerms": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "license": "NASA informational imagery usage guidelines; generally not subject to US copyright. Credit NASA, no implied endorsement.",
+  "credit": "NASA Earth Observatory / Joshua Stevens; Suomi NPP VIIRS data from Miguel Roman, NASA GSFC",
+  "sourceSha256": "3fbc8aae3529dc1ebfcf3aa9361bd3dfc11d19950a6af6d8ed2df61bd8b0134d",
+  "sourceDimensions": [13500, 6750],
+  "sourceBytes": 3064569,
+  "projection": "Equirectangular; longitude -180 to +180 left to right, latitude +90 to -90 top to bottom",
+  "geographicBounds": [-180, -90, 180, 90],
+  "purpose": "Geographically registered nighttime emission intensity; historical visual composite, not live lights or calibrated radiance",
+  "processing": "Convert to grayscale, Lanczos downsample, lossless WebP; raw data texture (NoColorSpace), shader threshold removes low-level background",
+  "assets": [
+    {
+      "file": "assets/night-2048.webp",
+      "dimensions": [2048, 1024],
+      "bytes": 125466,
+      "sha256": "2224d65bbae31c840ae61579a3560a660133e500b7c8c0b9c217648650b6fb15"
+    },
+    {
+      "file": "assets/night-4096.webp",
+      "dimensions": [4096, 2048],
+      "bytes": 401034,
+      "sha256": "bfb9e07f8da63dcbb8e8a818218a5aba3b2f69585f2d2a5997dd747e766e5e98"
+    }
+  ],
+  "generator": "scripts/generate-globe-night-textures.py"
+}

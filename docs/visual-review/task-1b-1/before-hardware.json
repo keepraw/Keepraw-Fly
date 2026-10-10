@@ -1,0 +1,72 @@
+{
+  "url": "http://127.0.0.1:5174/globe-lab",
+  "backend": "chrome",
+  "launchOptions": {
+    "channel": "chrome",
+    "headless": true,
+    "args": ["--use-angle=d3d11", "--ignore-gpu-blocklist"]
+  },
+  "gpu": {
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)",
+    "maxTextureSize": 16384
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "devicePixelRatio": 1,
+  "data": "Repository Demo; all years; 24 flights; no selection; complete globe",
+  "measurements": [
+    {
+      "quality": 4096,
+      "initial": {
+        "firstFrameMs": 72.19999999925494,
+        "frames": 4,
+        "lastFrameMs": 0.6000000014901161,
+        "recentFrameMs": [
+          52.099999997764826, 0.8000000007450581, 138.89999999850988,
+          0.6000000014901161
+        ],
+        "drawCalls": 45,
+        "textureSize": 4096,
+        "pixelRatio": 1,
+        "textureReadyMs": 82.10000000149012,
+        "texturedFrameMs": 221.19999999925494
+      },
+      "cadence": {
+        "samples": 120,
+        "totalMs": 2000.1999999999998,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 16.800000000000182,
+        "observedRafHz": 59.99400059994001
+      },
+      "idleFramesAfter300ms": 0,
+      "lighting": null
+    },
+    {
+      "quality": 2048,
+      "initial": {
+        "firstFrameMs": 39.899999998509884,
+        "frames": 3,
+        "lastFrameMs": 51.5,
+        "recentFrameMs": [17.399999998509884, 0.30000000074505806, 51.5],
+        "drawCalls": 45,
+        "textureSize": 2048,
+        "pixelRatio": 1,
+        "textureReadyMs": 51.30000000074506,
+        "texturedFrameMs": 103.19999999925494
+      },
+      "cadence": {
+        "samples": 120,
+        "totalMs": 2000.1000000000004,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 16.800000000000182,
+        "observedRafHz": 59.99700014999249
+      },
+      "idleFramesAfter300ms": 0,
+      "lighting": null
+    }
+  ],
+  "note": "RAF cadence includes browser/driver work; engine lastFrameMs is JS submission time, not GPU timing. Observed Hz is not a native display FPS counter."
+}

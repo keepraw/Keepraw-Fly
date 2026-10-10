@@ -1,0 +1,125 @@
+{
+  "prefix": "comp-clean",
+  "records": [
+    {
+      "file": "comp-clean-B-europe-asia-fixed-dark.png",
+      "sha256": "43cf0f2ec6677d7d7e9c96f32846fade7bba89d455cef4ec242de3c2d6960727",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [0.18492376389767473, 1.2249999999999999, -2.1136882933739116],
+      "atHome": false
+    },
+    {
+      "file": "comp-clean-B-europe-asia-fixed-light.png",
+      "sha256": "8e0df39bf81e69ba83bd741038c9526d9e8e1136cccb5a7914e075576f134c55",
+      "theme": "light",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [0.18492376389767473, 1.2249999999999999, -2.1136882933739116],
+      "atHome": false
+    },
+    {
+      "file": "comp-clean-B-europe-asia-selected-LHR-SIN-dark.png",
+      "sha256": "f63784827d269a32e67f79933cbb9502a9517bb686077c1b713fc0a9361f2215",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [0.8063784593435332, 1.7052047953099672, -2.041603758556495],
+      "atHome": false
+    },
+    {
+      "file": "comp-clean-C-close-asia-fixed-dark.png",
+      "sha256": "4ab75b2230499ae11674671d455a11d8d41afe2aa94ec3477ddd10a5191e3de6",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [-0.5988852656816309, 0.7117891253826504, -1.4822930477933314],
+      "atHome": false
+    },
+    {
+      "file": "comp-clean-C-close-asia-fixed-light.png",
+      "sha256": "b31bc75d9fff3fd50d4658ba5703ca8dee32bd5d59975d9065bbd2f721b40162",
+      "theme": "light",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [-0.5988852656816309, 0.7117891253826504, -1.4822930477933314],
+      "atHome": false
+    },
+    {
+      "file": "comp-clean-C-close-asia-selected-PEK-PVG-dark.png",
+      "sha256": "cf9552e61dc2272f02d95a6f4e0f33239770aa082c0c9f366fa3c14d141043e9",
+      "theme": "dark",
+      "sunDirection": [
+        -0.2926889023874383, 0.290121517531001, 0.9111326530669097
+      ],
+      "lighting": {
+        "sunIntensity": 0.7,
+        "nightIntensity": 2,
+        "atmosphereIntensity": 2
+      },
+      "camera": [-0.5988852656816309, 0.7117891253826504, -1.4822930477933314],
+      "atHome": false
+    }
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "comp-clean-B-europe-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-B-europe-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-B-europe-asia-selected-LHR-SIN-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-clean-C-close-asia-selected-PEK-PVG-dark.png",
+        "available": false
+      }
+    ]
+  }
+}
