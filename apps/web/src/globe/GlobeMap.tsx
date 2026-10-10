@@ -205,10 +205,12 @@ export function GlobeMap({
         </div>
       ) : (
         <>
-          {variant === "lab" ? <div className="globe-caption">
-            {t("globe.surface")}
-            <span>{t("globe.local")}</span>
-          </div> : null}
+          {variant === "lab" ? (
+            <div className="globe-caption">
+              {t("globe.surface")}
+              <span>{t("globe.local")}</span>
+            </div>
+          ) : null}
           <div className="globe-legend" hidden={lighting.earthOnly}>
             <span className="globe-legend-route" />
             {t("globe.routes")}
