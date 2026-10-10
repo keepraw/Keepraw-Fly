@@ -11,10 +11,10 @@
   /* Typography families: Latin-first UI prose plus explicit Simplified/Traditional Chinese glyph stacks. */
   --font-family-latin: "Inter", "Segoe UI Variable Text", "Segoe UI";
   --font-family-cjk-sc:
-    "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Source Han Sans SC", sans-serif;
+    "MiSans", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
   --font-family-cjk-tc:
-    "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei",
+    "MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei",
     "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
   --font-family-ui:
     var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont,
@@ -205,17 +205,17 @@
 
 :root:lang(zh-CN),
 :root:lang(zh-Hans) {
-  --font-family-ui: var(--font-family-latin), var(--font-family-cjk-sc);
+  --font-family-ui: var(--font-family-cjk-sc);
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: var(--font-family-latin), var(--font-family-cjk-sc);
+  --font-family-display: var(--font-family-cjk-sc);
   --font-family-data: var(--font-family-latin), var(--font-family-cjk-sc);
 }
 
 :root:lang(zh-TW),
 :root:lang(zh-Hant) {
-  --font-family-ui: var(--font-family-latin), var(--font-family-cjk-tc);
+  --font-family-ui: var(--font-family-cjk-tc);
   --font-family-sans: var(--font-family-ui);
-  --font-family-display: var(--font-family-latin), var(--font-family-cjk-tc);
+  --font-family-display: var(--font-family-cjk-tc);
   --font-family-data: var(--font-family-latin), var(--font-family-cjk-tc);
 }
 
