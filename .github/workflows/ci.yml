@@ -131,9 +131,9 @@ jobs:
           retention-days: 7
 
   deploy:
-    # Temporary one-time Pages publish: only this exact main push may deploy.
-    # After this run, restore the paused deploy guard without republishing.
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.head_commit.message == 'deploy Keepraw Fly demo once 2026-10-10' }}
+    # Owner pause: automatic Pages publishing is disabled after the one-time demo deployment.
+    # Only explicit Owner approval may enable another deployment.
+    if: ${{ false }}
     needs: [verify, cross-browser]
     runs-on: ubuntu-latest
 
