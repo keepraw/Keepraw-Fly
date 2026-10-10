@@ -1,3 +1,6 @@
+import { disablePassportWebGL } from "./helpers/passport-svg";
+test.beforeEach(async ({ page }) => disablePassportWebGL(page));
+
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile } from "node:fs/promises";
@@ -584,16 +587,18 @@ test("selects map records and filters the main ledger through search", async ({
   await page.locator(".map-airport").first().focus();
   await page.keyboard.press("Enter");
   await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
-  const count = await page.locator(".flight-row").count();
   const routeCode = await page
     .locator('.map-airport[aria-pressed="true"] .map-airport-label')
     .first()
     .textContent();
+  await page.locator(".passport-exploration-close").click();
+  const count = await page.locator(".flight-row").count();
   await page.locator("#passport-flight-search").fill(routeCode!.trim());
   expect(await page.locator(".flight-row").count()).toBeLessThan(count);
   await page.locator(".map-route").first().focus();
   await page.keyboard.press("Enter");
   await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
+  await page.locator(".passport-exploration-close").click();
   await page.locator("#passport-flight-search").fill("");
   await expect(page.locator(".flight-row")).toHaveCount(count);
   await page.setViewportSize({ width: 390, height: 844 });

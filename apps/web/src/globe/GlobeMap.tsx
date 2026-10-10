@@ -20,6 +20,7 @@ import {
 } from "./globe-solar";
 
 export function GlobeMap({
+  variant = "lab",
   routes,
   flights,
   theme,
@@ -30,6 +31,7 @@ export function GlobeMap({
   highlightedRoute,
   onSelect,
 }: {
+  variant?: "lab" | "passport";
   routes: RouteSegment[];
   flights: KeeprawFlight[];
   theme: GlobeTheme;
@@ -40,7 +42,7 @@ export function GlobeMap({
   highlightedRoute?: string;
   onSelect: (selection: GlobeSelection) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const host = useRef<HTMLDivElement>(null),
     labels = useRef<HTMLDivElement>(null),
     controller = useRef<GlobeController | null>(null);
@@ -66,13 +68,22 @@ export function GlobeMap({
   useEffect(() => {
     if (!host.current || !labels.current) return;
     setError(null);
+    let active = true;
+    let instance: GlobeController | undefined;
+    const dispose = () => {
+      instance?.dispose();
+      instance = undefined;
+      controller.current = null;
+    };
     const fail = (failure: GlobeFailure) => {
+      if (!active) return;
       console.warn("[Globe Lab] Rendering fallback", failure);
+      dispose();
       setHover(null);
       setError(failure);
     };
     try {
-      const instance = createGlobe(
+      instance = createGlobe(
         host.current,
         labels.current,
         routes,
@@ -92,13 +103,10 @@ export function GlobeMap({
       controller.current = instance;
       instance.lighting(latest.current.lighting);
       instance.select(latest.current.selection);
+      instance.highlight(latest.current.highlightedRoute);
       if (latest.current.solarMode === "realtime") {
         instance.solar(solarDirectionFromUtc(new Date()));
       }
-      return () => {
-        instance.dispose();
-        controller.current = null;
-      };
     } catch (cause) {
       fail(
         cause instanceof GlobeInitializationError
@@ -109,7 +117,11 @@ export function GlobeMap({
             },
       );
     }
-  }, [routes, quality, retry]);
+    return () => {
+      active = false;
+      dispose();
+    };
+  }, [routes, quality, retry, i18n.resolvedLanguage]);
   useEffect(() => controller.current?.theme(theme), [theme]);
   useEffect(() => controller.current?.lighting(lighting), [lighting]);
   useEffect(() => {
@@ -171,7 +183,7 @@ export function GlobeMap({
   );
   return (
     <section
-      className="globe-stage"
+      className={`globe-stage ${variant === "passport" ? "globe-stage-passport" : ""}`}
       aria-label={t("globe.mapLabel")}
       data-theme={theme}
       data-solar-mode={solarMode}
@@ -195,6 +207,14 @@ export function GlobeMap({
               selection?.kind === "airport" ? selection.code : undefined
             }
             selectedRoute={selection?.kind === "route" ? selection : undefined}
+            highlightedRoute={
+              highlightedRoute
+                ? {
+                    origin: highlightedRoute.split("-")[0]!,
+                    destination: highlightedRoute.split("-")[1]!,
+                  }
+                : undefined
+            }
             onSelectAirport={(code) => onSelect({ kind: "airport", code })}
             onSelectRoute={(origin, destination) =>
               onSelect({ kind: "route", origin, destination })
@@ -203,17 +223,19 @@ export function GlobeMap({
         </div>
       ) : (
         <>
-          <div className="globe-caption">
-            {t("globe.surface")}
-            <span>{t("globe.local")}</span>
-          </div>
+          {variant === "lab" ? (
+            <div className="globe-caption">
+              {t("globe.surface")}
+              <span>{t("globe.local")}</span>
+            </div>
+          ) : null}
           <div className="globe-legend" hidden={lighting.earthOnly}>
             <span className="globe-legend-route" />
             {t("globe.routes")}
             <span className="globe-legend-selected" />
             {t("globe.selected")}
           </div>
-          {import.meta.env.DEV && (
+          {variant === "lab" && import.meta.env.DEV && (
             <button
               className="globe-twilight-review"
               onClick={() => controller.current?.twilightReview()}
