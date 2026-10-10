@@ -19,10 +19,44 @@ export function loadChineseWebfonts(language: Language, owner: Document): void {
     link.crossOrigin = "anonymous";
     link.referrerPolicy = "no-referrer";
     link.dataset.chineseWebfont = key;
+    const family = traditional ? "MiSans TC" : "MiSans";
+    const numericWeight = { regular: "400", medium: "500", semibold: "600" }[
+      weight
+    ];
+    link.dataset.fontFamily = family;
+    link.dataset.fontWeight = numericWeight;
     // Loading and failure are evidence for diagnostics, never app readiness gates.
     link.dataset.fontStatus = "loading";
     link.onload = () => {
-      link.dataset.fontStatus = "loaded";
+      try {
+        // 4.3.1 publishes Medium/Semibold as separate families, all at weight 400.
+        // Map CORS-readable native faces onto the UI family and true weights.
+        // Replace complete rules: Firefox exposes read-only face descriptors.
+        // Keeping the same native sheet preserves remote src and unicode-range.
+        const sheet = link.sheet;
+        if (!sheet) throw new Error("Font stylesheet is unavailable");
+        for (let index = 0; index < sheet.cssRules.length; index += 1) {
+          const rule = sheet.cssRules[index];
+          if (!rule || rule.type !== CSSRule.FONT_FACE_RULE) continue;
+          const face = rule as CSSFontFaceRule;
+          if (
+            face.style.fontFamily.replaceAll('"', "") === family &&
+            face.style.fontWeight === numericWeight
+          )
+            continue;
+          const mapped = face.cssText
+            .replace(/font-family:\s*[^;]+;/, 'font-family: "' + family + '";')
+            .replace(
+              /font-weight:\s*[^;]+;/,
+              "font-weight: " + numericWeight + ";",
+            );
+          sheet.insertRule(mapped, index);
+          sheet.deleteRule(index + 1);
+        }
+        link.dataset.fontStatus = "loaded";
+      } catch {
+        link.dataset.fontStatus = "unavailable";
+      }
     };
     link.onerror = () => {
       link.dataset.fontStatus = "unavailable";

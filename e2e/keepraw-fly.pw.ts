@@ -1842,14 +1842,14 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         .trim(),
     };
   });
-  expect(simplifiedTypography.titleFamily).toContain("Inter");
+  expect(simplifiedTypography.titleFamily).toContain("MiSans");
   expect(simplifiedTypography.titleFamily).toContain("PingFang SC");
   expect(simplifiedTypography.titleFamily).toContain("Microsoft YaHei UI");
   expect(simplifiedTypography.titleFamily).not.toContain("SimSun");
   expect(simplifiedTypography.timeFamily).toContain("Inter");
   expect(simplifiedTypography.titleWeight).toBe("700");
   expect(simplifiedTypography.chineseStack).toBe(
-    '"PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
+    '"MiSans", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
   );
 
   const stopHierarchy = await page.locator(".detail-stops").evaluate((hero) => {
@@ -1948,13 +1948,13 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         .trim(),
     };
   });
-  expect(traditionalTypography.titleFamily).toContain("Inter");
+  expect(traditionalTypography.titleFamily).toContain("MiSans TC");
   expect(traditionalTypography.titleFamily).toContain("PingFang TC");
   expect(traditionalTypography.titleFamily).toContain("Microsoft JhengHei UI");
   expect(traditionalTypography.titleFamily).not.toContain("SimSun");
   expect(traditionalTypography.titleWeight).toBe("700");
   expect(traditionalTypography.chineseStack).toBe(
-    '"PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
+    '"MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
   );
 });
 
@@ -2020,7 +2020,8 @@ test("keeps every page aligned to the shared responsive shell", async ({
       );
       if (pageName === "Passport" && width > 760) {
         expect(layout.mainPaddingTop).toBeLessThanOrEqual(22);
-        expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
+        // Task 2C reserves max(24px, safe-area-inset-bottom) at this 900px height.
+        expect(layout.mainPaddingBottom).toBe(24);
       } else {
         expect(layout.mainPaddingTop).toBe(width <= 760 ? 16 : 32);
         expect(layout.mainPaddingBottom).toBe(width <= 760 ? 48 : 120);

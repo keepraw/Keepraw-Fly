@@ -1,0 +1,5 @@
+
+> keepraw-fly@0.1.0 check:docs C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> node scripts/check-doc-consistency.mjs
+
+Documentation checks passed for 28 files: capabilities, developer demo and local links.

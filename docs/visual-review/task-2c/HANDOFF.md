@@ -1,6 +1,11 @@
-# Task 2C — PAUSED / CHECKPOINT
+# Task 2C — resumed verification / Owner visual review pending
 
-Status: **WIP checkpoint committed and pushed by owner on 2026-10-10; not visually accepted.**
+Status: **Task 2C resumed on 2026-10-10; verification and evidence continued; not visually accepted.**
+
+The checkpoint sections below preserve their historical statuses. Current results,
+all new screenshots and remaining risks are in [the resumed review](resume/README.md)
+and [validation record](resume/validation-results.json). Final pushed-HEAD remote
+CI is reported in PR #34; retain Draft and wait for Owner visual acceptance.
 
 Historical note: the automated Git save attempts failed permission review, but
 the owner subsequently committed and pushed the complete Task 2C checkpoint via
@@ -213,3 +218,26 @@ pnpm test:e2e e2e/typography.pw.ts --project=webkit --output=artifacts/task-2c-w
   live PR head and its CI rather than treating an earlier SHA as immutable.
 - Task 2C remains **unaccepted**. Do not begin Task 3, mark either PR ready,
   merge, deploy or modify approved Globe visual parameters.
+
+## 2026-10-10 resumed verification
+
+The new device was checked before edits: origin `keepraw/Keepraw-Fly`, correct
+Task 2C branch, clean worktree, and matching local/fetched remote
+`f89c86b5cfb81a54be9c5984bf669f69e6dc8a3a` (0 ahead / 0 behind).
+Node 24.19.0 was available; pnpm 10.14.0 was prepared locally and dependencies
+restored with the frozen lockfile because the system pnpm 11 and existing Vite
+installation did not match the project. Dependency manifests were preserved.
+
+Current fixes update the stale Chinese Inter assertions and exact 24px desktop
+bottom spacing, correct native zoom breakpoint settlement, map the real CDN
+Regular/Medium/Semibold faces to 400/500/600 across engines, and keep Chinese
+delay units together in narrow short desktop columns. Native 100%/125% tests
+retain the ≤540px compact exception. No Globe parameters, approved hashes,
+Mobile-specific styles or Longest Flight map were changed.
+
+[Resumed review and 90 candidate PNGs](resume/README.md) includes normal and
+real-long-city geometry matrices, actual font resources/glyphs/loading shifts,
+formal test logs, exact stages and the existing EZE/BUE city-group English
+fallback. Local full-engine failures are retained and do not invalidate or
+stand in for independently observed final remote results. See PR #34 for the
+new pushed commit and its final CI URL/status. Visual acceptance remains pending.

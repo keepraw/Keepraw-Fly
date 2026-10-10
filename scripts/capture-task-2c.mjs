@@ -7,10 +7,14 @@ import { format } from "prettier";
 import {
   passportTypographyBounds,
   waitForTypography,
+  passportViewportDiagnostics,
 } from "./passport-typography-evidence.mjs";
 
-const directory = "docs/visual-review/task-2c";
-const fixture = "e2e/fixtures/chinese-passport.keepraw-fly.json";
+const directory =
+  process.env.TASK_2C_EVIDENCE_DIRECTORY ?? "docs/visual-review/task-2c/resume";
+const fixture =
+  process.env.TASK_2C_FIXTURE ??
+  "e2e/fixtures/chinese-passport.keepraw-fly.json";
 const origin = "http://127.0.0.1:5173";
 const sizes = [
   [1646, 928],
@@ -29,6 +33,7 @@ const records = [],
   screenshots = [];
 const pending = [];
 const cssMetadata = [];
+const stylesheetRequests = [];
 const root = "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1";
 for (const [folder, prefix] of [
   ["misans", "misans"],
@@ -93,6 +98,13 @@ for (const zoom of [1, 1.25]) {
           if (!entry.hadRecentInput) window.__fontShifts.push(entry.value);
       }).observe({ type: "layout-shift", buffered: true });
     });
+    page.on("request", (r) => {
+      if (
+        r.url().includes("misans-webfont") &&
+        r.resourceType() === "stylesheet"
+      )
+        stylesheetRequests.push({ zoom, url: r.url() });
+    });
     page.on("response", (r) => {
       if (r.url().includes("misans-webfont"))
         pending.push(
@@ -126,6 +138,8 @@ for (const zoom of [1, 1.25]) {
     assert.equal(await page.locator("link[data-chinese-webfont]").count(), 0);
     for (const language of ["zh-CN", "zh-TW", "en"])
       for (const theme of ["dark", "light"]) {
+        // The previous physical 761px case is Mobile at native 125% zoom.
+        await page.setViewportSize({ width: 1440, height: 900 });
         const firstLocaleLoad =
           language !== "en" &&
           (await page
@@ -161,6 +175,9 @@ for (const zoom of [1, 1.25]) {
           );
           await ready;
           const before = await passportTypographyBounds(page);
+          await page.evaluate(() => {
+            window.__fontShifts = [];
+          });
           gate.releases.forEach((r) => r());
           gate = null;
           await waitForTypography(page, language);
@@ -178,13 +195,35 @@ for (const zoom of [1, 1.25]) {
         } else await waitForTypography(page, language);
         for (const [width, height] of sizes) {
           await page.setViewportSize({ width, height });
+          await waitForTypography(page, language);
+          const diagnostics = await passportViewportDiagnostics(page);
           const actual = await page.evaluate(() => ({
             width: innerWidth,
             height: innerHeight,
             dpr: devicePixelRatio,
           }));
           assert.equal(actual.dpr, zoom);
-          if (actual.width <= 760) {
+          const file = `passport-${language}-${theme}-${width}x${height}-zoom${zoom * 100}.png`;
+          const takeScreenshot = async () => {
+            if (
+              fixture.includes("long-city") &&
+              width !== 1440 &&
+              !(width === 1024 && zoom === 1.25)
+            )
+              return;
+            const bytes = await page.screenshot({
+              path: `${directory}/${file}`,
+            });
+            screenshots.push({
+              file,
+              language,
+              theme,
+              zoom,
+              viewport: [width, height],
+              sha256: sha(bytes),
+            });
+          };
+          if (!diagnostics.desktop) {
             assert.equal(await page.locator(".passport-highlights").count(), 0);
             records.push({
               zoom,
@@ -193,10 +232,16 @@ for (const zoom of [1, 1.25]) {
               physicalViewport: [width, height],
               mobile: true,
               viewport: actual,
+              diagnostics,
               documentWidthFits: await page.evaluate(
                 () => document.documentElement.scrollWidth <= innerWidth + 1,
               ),
             });
+            assert(
+              records.at(-1).documentWidthFits,
+              "Mobile horizontal overflow",
+            );
+            await takeScreenshot();
             continue;
           }
           await waitForTypography(page, language);
@@ -210,6 +255,7 @@ for (const zoom of [1, 1.25]) {
             theme,
             physicalViewport: [width, height],
             bounds,
+            diagnostics,
           });
           assert(
             bounds.documentFits,
@@ -227,23 +273,7 @@ for (const zoom of [1, 1.25]) {
           assert(bounds.controlsContained);
           assert.equal(bounds.longestHasMap, false);
           assert.equal(bounds.kpis.length, 6);
-          if (
-            zoom === 1 &&
-            ((language !== "en" && [1440, 1646].includes(width)) ||
-              (language === "en" && width === 1440))
-          ) {
-            const file = `passport-${language}-${theme}-${width}x${height}.png`;
-            const bytes = await page.screenshot({
-              path: `${directory}/${file}`,
-            });
-            screenshots.push({
-              file,
-              language,
-              theme,
-              viewport: [width, height],
-              sha256: sha(bytes),
-            });
-          }
+          await takeScreenshot();
         }
         if (language !== "en" && theme === "light" && zoom === 1) {
           const { root: dom } = await cdp.send("DOM.getDocument");
@@ -260,6 +290,13 @@ for (const zoom of [1, 1.25]) {
             fonts.push({
               language,
               selector,
+              style: await page
+                .locator(selector)
+                .first()
+                .evaluate((e) => ({
+                  family: getComputedStyle(e).fontFamily,
+                  weight: getComputedStyle(e).fontWeight,
+                })),
               ...(await cdp.send("CSS.getPlatformFontsForNode", { nodeId })),
             });
           }
@@ -280,6 +317,11 @@ for (const zoom of [1, 1.25]) {
   } finally {
     await context.close();
   }
+  assert.equal(
+    stylesheetRequests.filter((r) => r.zoom === zoom).length,
+    6,
+    "Stylesheet requests must deduplicate across theme/locale switches",
+  );
   console.log(
     `Native browser zoom ${zoom * 100}%: locale/theme/viewport matrix completed.`,
   );
@@ -305,6 +347,27 @@ for (const language of ["zh-CN", "zh-TW"])
       .some((f) => f.fonts.some((p) => p.isCustomFont)),
     `${language}: no downloaded font used for glyphs`,
   );
+for (const language of ["zh-CN", "zh-TW"]) {
+  const names =
+    language === "zh-CN"
+      ? { 400: "MiSans-Regular", 500: "MiSans-Medium", 600: "MiSans-Semibold" }
+      : { 400: "MiSansTC", 500: "MiSansTC-Medium", 600: "MiSansTC-Semibold" };
+  for (const weight of [400, 500, 600])
+    assert(
+      fonts.some(
+        (f) =>
+          f.language === language &&
+          f.style?.weight === String(weight) &&
+          f.fonts?.some(
+            (p) =>
+              p.isCustomFont &&
+              p.glyphCount > 0 &&
+              p.postScriptName === names[weight],
+          ),
+      ),
+      language + ": missing rendered weight " + weight,
+    );
+}
 const control = "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png";
 const approved =
   "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5";
@@ -328,6 +391,7 @@ const result = {
     "Native Chromium partition.default_zoom_level.x = log(factor)/log(1.2); confirmed devicePixelRatio and effective CSS viewport. No CSS zoom or DPR-only emulation.",
   approvedControl: { file: control, sha256: approved },
   cssMetadata,
+  stylesheetRequests,
   resources: [...new Map(resources.map((r) => [r.url, r])).values()],
   fonts,
   shifts,

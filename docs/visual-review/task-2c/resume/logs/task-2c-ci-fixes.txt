@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:13376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\keepraw-fly.pw.ts:1724:1 › localizes airport identity and keeps sparse facility and map layouts legible (6.5s)
+  ok 2 [chromium] › e2e\keepraw-fly.pw.ts:1961:1 › keeps every page aligned to the shared responsive shell (3.6s)
+
+  2 passed (10.9s)

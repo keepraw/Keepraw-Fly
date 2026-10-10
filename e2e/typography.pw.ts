@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { passportTypographyBounds } from "../scripts/passport-typography-evidence.mjs";
+import {
+  passportTypographyBounds,
+  waitForPassportLayout,
+} from "../scripts/passport-typography-evidence.mjs";
 
 const fixture = "e2e/fixtures/chinese-passport.keepraw-fly.json";
 async function importFixture(page) {
@@ -11,14 +14,7 @@ async function importFixture(page) {
     .click();
 }
 async function settle(page) {
-  await page.waitForFunction(
-    () =>
-      Math.abs(
-        parseFloat(
-          getComputedStyle(document.querySelector(".app-shell")).height,
-        ) - innerHeight,
-      ) < 1,
-  );
+  await waitForPassportLayout(page);
   await page.evaluate(async () => {
     await document.fonts.ready;
     await new Promise((r) =>
@@ -27,7 +23,7 @@ async function settle(page) {
   });
 }
 
-test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated", async ({
+test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated @cross-browser", async ({
   page,
 }) => {
   const requests = [];
@@ -40,7 +36,7 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
       return route.fulfill({
         status: 200,
         contentType: "text/css",
-        body: "/* font link lifecycle fixture */",
+        body: '@font-face { font-family: "MiSans Medium"; font-weight: 400; src: local("Arial"); font-display: swap; unicode-range: U+4E00-9FFF; }',
       });
     },
   );
@@ -53,6 +49,10 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
     await page.locator(".settings-fields select").first().selectOption(locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await page.goto("/#passport");
+    await expect(page.locator(".passport-map-title")).toHaveCSS(
+      "font-family",
+      locale === "en" ? /Inter/ : locale === "zh-TW" ? /MiSans TC/ : /MiSans/,
+    );
     await expect(page.locator("#passport-flight-search")).toHaveValue("TAO");
     await expect(page.locator(".flight-row")).toHaveCount(5);
   }
@@ -72,7 +72,13 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
           (link) =>
             link.dataset.fontStatus === "loaded" &&
             link.crossOrigin === "anonymous" &&
-            link.referrerPolicy === "no-referrer",
+            link.referrerPolicy === "no-referrer" &&
+            [...link.sheet.cssRules].every(
+              (rule) =>
+                rule.style.fontFamily.replaceAll('"', "") ===
+                  link.dataset.fontFamily &&
+                rule.style.fontWeight === link.dataset.fontWeight,
+            ),
         ),
       ),
   ).toBe(true);
@@ -134,3 +140,67 @@ for (const locale of ["zh-CN", "zh-TW"])
       await expect(page.locator(".flight-row")).toHaveCount(12);
     });
   }
+
+for (const locale of ["zh-CN", "zh-TW"]) {
+  test(
+    "real long Chinese city names stay readable: " + locale + " @cross-browser",
+    async ({ page }) => {
+      await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort());
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto("/");
+      await page
+        .locator('input[type="file"]')
+        .setInputFiles(
+          "e2e/fixtures/chinese-long-city-passport.keepraw-fly.json",
+        );
+      await page
+        .getByRole("button", { name: "Import this archive", exact: true })
+        .click();
+      for (const theme of ["dark", "light"]) {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto("/#settings");
+        await page
+          .locator(".settings-fields select")
+          .nth(0)
+          .selectOption(locale);
+        await page
+          .locator(".settings-fields select")
+          .nth(1)
+          .selectOption(theme);
+        await page.goto("/#passport");
+        await expect(
+          page.locator(".flight-route-cities").first(),
+        ).toContainText(locale === "zh-CN" ? "亚的斯亚贝巴" : "亞的斯亞貝巴");
+        await expect(
+          page.locator(".flight-route-cities").first(),
+        ).toContainText(locale === "zh-CN" ? "约翰内斯堡" : "約翰內斯堡");
+        for (const [width, height] of [
+          [1440, 900],
+          [1280, 720],
+          [1024, 768],
+          [819, 614],
+          [761, 900],
+        ]) {
+          await page.setViewportSize({ width, height });
+          await settle(page);
+          const bounds = await passportTypographyBounds(page);
+          expect(bounds.documentFits).toBe(true);
+          expect(bounds.singleScreen).toBe(true);
+          expect(bounds.failures).toEqual([]);
+          expect(bounds.controlsContained).toBe(true);
+          expect(bounds.longestHasMap).toBe(false);
+          expect(bounds.kpis).toHaveLength(6);
+          expect(
+            await page
+              .locator(".passport-longest-endpoint > span")
+              .evaluateAll((nodes) =>
+                nodes.every(
+                  (node) => getComputedStyle(node).textOverflow !== "ellipsis",
+                ),
+              ),
+          ).toBe(true);
+        }
+      }
+    },
+  );
+}

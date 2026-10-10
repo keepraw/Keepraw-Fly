@@ -1,0 +1,5 @@
+
+> keepraw-fly@0.1.0 check:css-tokens C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> node scripts/check-css-tokens.mjs
+
+CSS tokens: 14 stylesheets, 1243 var() references (154 unique tokens), 185 CSS definitions, 6 runtime definitions, 0 unresolved tokens.
