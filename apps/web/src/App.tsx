@@ -554,6 +554,8 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
+          appearance={settings.appearance}
+          solarMode={settings.solarMode}
           onOpenFlight={openFlight}
           onAddFlight={() => {
             editorReturnFocusRef.current =

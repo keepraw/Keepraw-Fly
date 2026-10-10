@@ -258,12 +258,13 @@ test("globe local SVG fallback on texture failure and context loss @cross-browse
   await ready(page);
 });
 
-test("globe filtering, real archive loading and formal Passport isolation @cross-browser", async ({
+test("globe filtering, real archive loading and formal Passport integration @cross-browser", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo", exact: true }).click();
-  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+  await globeMode(page);
+  await expect(page.locator(".passport-globe-frame")).toBeVisible();
   await page.goto("/globe-lab");
   const mode = await globeMode(page);
   const expectMap = async () => {
@@ -287,8 +288,9 @@ test("globe filtering, real archive loading and formal Passport isolation @cross
     page.getByRole("combobox", { name: "Route", exact: true }),
   ).toHaveValue("SFO-LAX");
   await page.goto("/#passport");
-  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
-  await expect(page.locator(".globe-webgl")).toHaveCount(0);
+  await globeMode(page);
+  await expect(page.locator(".passport-globe-frame")).toBeVisible();
+  await expect(page.locator(".globe-lab")).toHaveCount(0);
 });
 
 test("globe gracefully handles disabled WebGL @cross-browser", async ({

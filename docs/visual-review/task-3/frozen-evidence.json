@@ -1,0 +1,74 @@
+{
+  "base": "2b9378d0a27146a8650508c0a54f04b709b9d976",
+  "unchanged": true,
+  "records": [
+    {
+      "path": "apps/web/src/globe/assets/earth-2048.webp",
+      "sha256": "e2d915bc161f0bc0912368096c9efd308dab2c9f6ef16bf01f27c7321f77f4ee"
+    },
+    {
+      "path": "apps/web/src/globe/assets/earth-4096.webp",
+      "sha256": "bf0133a99e78c9d1a17c7f1a863fea678e5b7add5843287ca3d307fc800e4c5c"
+    },
+    {
+      "path": "apps/web/src/globe/assets/night-2048.webp",
+      "sha256": "2224d65bbae31c840ae61579a3560a660133e500b7c8c0b9c217648650b6fb15"
+    },
+    {
+      "path": "apps/web/src/globe/assets/night-4096.webp",
+      "sha256": "bfb9e07f8da63dcbb8e8a818218a5aba3b2f69585f2d2a5997dd747e766e5e98"
+    },
+    {
+      "path": "apps/web/src/globe/globe-lab.css",
+      "sha256": "16a8ab612cb614d538cf1c61ed28b0e143511056cc2a3393197f18cbf2e4f094"
+    },
+    {
+      "path": "apps/web/src/globe/globe-lighting.ts",
+      "sha256": "90340450212ac41c85abc62c5be56308bab01addc9b1b121f285a3508a125613"
+    },
+    {
+      "path": "apps/web/src/globe/globe-math.ts",
+      "sha256": "076b653739c635a9b9acd71a849c6e5f0219e8298adca547099ddb4f3680473f"
+    },
+    {
+      "path": "apps/web/src/globe/globe-night-emission.ts",
+      "sha256": "3baa6edc3a306e6e1443aa2bff95a359d72f3a66eba5db3b96f40d74885b14c6"
+    },
+    {
+      "path": "apps/web/src/globe/globe-night-response.ts",
+      "sha256": "91c6ac0c251d490597759554375a60489f1857d001ed2506bc03dadf2733ad25"
+    },
+    {
+      "path": "apps/web/src/globe/globe-night-texture.source.json",
+      "sha256": "830900c000e45189c95413be515668ee902ab50d03312d41af692bf0ec9967a4"
+    },
+    {
+      "path": "apps/web/src/globe/globe-renderer.ts",
+      "sha256": "ab2c1e20e7bcfb2495f830e8cadbac7db59dbb0543d6e7b63f9692e021aabb08"
+    },
+    {
+      "path": "apps/web/src/globe/globe-solar.ts",
+      "sha256": "3eee0e060a3f656931b14f9d7a1955b87edddcc2fb40bad2115a922365e007c6"
+    },
+    {
+      "path": "apps/web/src/globe/globe-texture.source.json",
+      "sha256": "352d558b1d8c167315d6fbeb5efaa736e159ab926e034c20ec3b84908c3587a4"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-fixed-light.png",
+      "sha256": "e03d8a6169c43b04d1192195fd4c921423b5e4ebf3ef79f11ebe1f9f7ecf567e"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-passport-dark.png",
+      "sha256": "9ae338fe3a9facfec66ddd8cd238dd58bde339a4cc86c323d166e3b8508f80f5"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-selected-SFO-HKG-dark.png",
+      "sha256": "3d72efd05b1677f22ea756810fe9b158d4835fdccc5571739554441fa9e7187a"
+    }
+  ]
+}

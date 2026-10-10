@@ -29,15 +29,17 @@ import {
 import { FlightRow } from "../components/FlightRow";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
+import type { Appearance } from "../storage/types";
+import type { SolarMode } from "../globe/globe-solar";
 import {
   passportVisibleFlights,
   type PassportSelection,
   type PassportViewState,
 } from "../data/passport-exploration";
 
-const PassportRouteMap = lazy(() =>
-  import("../components/PassportRouteMap").then((module) => ({
-    default: module.PassportRouteMap,
+const PassportGlobe = lazy(() =>
+  import("../globe/PassportGlobe").then((module) => ({
+    default: module.PassportGlobe,
   })),
 );
 
@@ -46,6 +48,8 @@ interface PassportPageProps {
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
+  appearance: Appearance;
+  solarMode: SolarMode;
   onAddFlight: () => void;
   onOpenImport: () => void;
   onOpenFlight: (flightId: string) => void;
@@ -58,6 +62,8 @@ export function PassportPage({
   locale,
   distanceUnit,
   timeFormat,
+  appearance,
+  solarMode,
   onAddFlight,
   onOpenImport,
   onOpenFlight,
@@ -92,7 +98,7 @@ export function PassportPage({
   );
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, view],
+    [document.flights, selectedYear, query, selection],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
   const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
@@ -118,7 +124,15 @@ export function PassportPage({
     (worst, item) => (!worst || item.minutes > worst.minutes ? item : worst),
     null,
   );
-  const routes = useMemo(() => buildRouteSegments(flights), [flights]);
+  // Keep the period/search network stable while selecting or focusing Archive rows.
+  // Selection filters the report and Archive; the Globe retains the surrounding
+  // network so another airport/route can be selected without clearing first.
+  const mapFlights = useMemo(
+    () =>
+      passportVisibleFlights(document.flights, { ...view, selection: null }),
+    [document.flights, selectedYear, query],
+  );
+  const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
   );
@@ -368,33 +382,57 @@ export function PassportPage({
                   </section>
                 }
               >
-                <PassportRouteMap
-                  key={`map-${selectedYear}`}
+                <PassportGlobe
                   routes={routes}
-                  flights={flights}
-                  selectedAirport={
-                    selection?.kind === "airport" ? selection.code : undefined
+                  flights={mapFlights}
+                  appearance={appearance}
+                  solarMode={solarMode}
+                  selection={
+                    selection?.kind === "route" || selection?.kind === "airport"
+                      ? selection
+                      : null
                   }
-                  selectedRoute={
-                    selection?.kind === "route" ? selection : undefined
+                  highlightedRoute={
+                    highlightedRoute
+                      ? `${highlightedRoute.origin}-${highlightedRoute.destination}`
+                      : undefined
                   }
-                  highlightedRoute={highlightedRoute}
-                  onSelectAirport={(code) => {
-                    const flight = flights.find(
-                      (flight) =>
-                        flight.origin.iata === code ||
-                        (flight.divertedTo ?? flight.destination).iata === code,
+                  onClear={() => setSelection(null)}
+                  onSelect={(target) => {
+                    // Globe uses the same scoped exploration as Archive/Highlights.
+                    const matching = mapFlights.find((flight) =>
+                      target.kind === "airport"
+                        ? flight.origin.iata === target.code ||
+                          (flight.divertedTo ?? flight.destination).iata ===
+                            target.code
+                        : flight.origin.iata === target.origin &&
+                          (flight.divertedTo ?? flight.destination).iata ===
+                            target.destination,
                     );
-                    if (flight) selectFlight(flight, true);
-                  }}
-                  onSelectRoute={(origin, destination) => {
-                    const flight = flights.find(
-                      (flight) =>
-                        flight.origin.iata === origin &&
-                        (flight.divertedTo ?? flight.destination).iata ===
-                          destination,
-                    );
-                    if (flight) selectFlight(flight, true);
+                    if (matching) {
+                      onViewChange({
+                        ...view,
+                        selection: target,
+                        flightId: matching.id,
+                        scrollFlightId: matching.id,
+                      });
+                      window.requestAnimationFrame(() => {
+                        const row = [
+                          ...window.document.querySelectorAll<HTMLElement>(
+                            ".flight-record",
+                          ),
+                        ].find((item) => item.dataset.flightId === matching.id);
+                        row?.scrollIntoView({
+                          block: "nearest",
+                          inline: "nearest",
+                        });
+                        row
+                          ?.querySelector<HTMLButtonElement>(".flight-row")
+                          ?.focus({ preventScroll: true });
+                      });
+                    } else {
+                      setSelection(target);
+                    }
                   }}
                 />
               </Suspense>
