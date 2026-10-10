@@ -10,7 +10,15 @@ function visit(suite) {
         (files[spec.file] ?? 0) +
         test.results.reduce((sum, result) => sum + result.duration, 0);
       if (test.status !== "expected")
-        failures.push({ title: spec.title, status: test.status });
+        failures.push({
+          file: spec.file,
+          title: spec.title,
+          project: test.projectName,
+          status: test.status,
+          errors: test.results.flatMap((result) =>
+            (result.errors ?? []).map((error) => error.message),
+          ),
+        });
     }
   }
   for (const child of suite.suites ?? []) visit(child);
@@ -22,6 +30,7 @@ const summary = {
     Object.entries(files).sort((a, b) => b[1] - a[1]),
   ),
   failures,
+  errors: report.errors ?? [],
 };
 const text = JSON.stringify(summary);
 console.log(text);
@@ -40,6 +49,7 @@ if (process.env.GITHUB_STEP_SUMMARY)
 if (
   report.stats.skipped ||
   report.stats.unexpected ||
+  report.errors?.length ||
   !Object.keys(files).length
 )
   process.exitCode = 1;

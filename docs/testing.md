@@ -13,14 +13,38 @@ pnpm test:e2e --project=webkit
 pnpm test:e2e --list
 ```
 
-`pnpm test:e2e` runs all three projects with their respective layers. CI keeps
-Chromium in `verify` and separate Firefox/WebKit matrix jobs with `fail-fast: false`.
-Before type checking, `verify` runs `pnpm format:check`, `pnpm lint:css` and
-`pnpm check:css-tokens`; any failed check fails CI.
-Failed browser jobs upload the HTML report, screenshots and retained traces.
-Browser installation remains `install --with-deps` for each engine; no binary cache
-is added because removing repeated tests is the primary saving, while system
-dependencies still need installation on fresh runners.
+`pnpm test:e2e` runs all three projects with their respective layers. CI runs
+static checks and the production build in `checks`, two file-level Chromium shards
+in `chromium`, and the existing Firefox/WebKit matrix in `cross-browser`. Both
+matrices keep `fail-fast: false`. Playwright's default worker count, retries and
+`fullyParallel: false` remain unchanged. Each Chromium shard uses
+`--shard=1/2` or `--shard=2/2`; their disjoint union must include every Chromium test.
+
+The existing check name `verify` is an aggregate gate with `always()`: every
+static, Chromium and cross-browser dependency must succeed, including both entries
+of each matrix. A failed, cancelled or skipped dependency fails the gate. The
+paused `deploy` job depends on all validation jobs and retains `if: ${{ false }}`.
+Do not change repository Required Checks or enable deployment as part of CI tuning.
+
+Every browser job uploads HTML/JSON reports and failure screenshots/retained traces,
+including on failure. Chromium artifacts are named `playwright-chromium-shard-1`
+and `playwright-chromium-shard-2`; mobile review screenshots also have shard-specific
+names. `scripts/report-playwright.mjs` adds counts, per-file test durations (including
+retries) and failure diagnostics to the job summary and a check annotation. It fails
+on skipped/unexpected tests, global errors or an empty report. Browser installation
+remains `install --with-deps`; no browser cache or new dependency is introduced.
+
+The CI optimization starts from main `792e629`: **134 Chromium tests and 38 tests
+per compatibility engine**. PR #38's 140/44/44 inventory belongs to a separate
+feature branch. The inventory below records the earlier browser-layer split.
+
+The responsive matrix retains eight viewports, both themes and all 192 flight-row
+checks. Reachability, date text, clipping and hit testing still run for every row.
+[`expectFlightRowGeometry`](../e2e/helpers/flight-row-geometry.ts) snapshots all row
+rectangles in one browser evaluation, then runs the same non-null/non-overlap
+assertions for every original pair, date-width and desktop scroll-left assertions.
+It removes repeated rectangle reads and a duplicate row scroll, without changing
+application code or geometry tolerances.
 
 ## Full regression inventory
 
