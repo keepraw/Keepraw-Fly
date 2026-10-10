@@ -411,6 +411,7 @@ export function App() {
           document={document ?? demoDocument}
           settings={settings}
           isDemo={!document || archiveKind === "demo"}
+          onSettingsChange={storeSettings}
         />
       </Suspense>
     );
