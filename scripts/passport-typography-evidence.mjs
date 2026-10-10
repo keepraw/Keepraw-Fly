@@ -1,5 +1,20 @@
 /** Geometry in the right scrollport, including text and clipping ancestors. */
 export async function passportTypographyBounds(page) {
+  // The formal map is lazy. Layout/locale readiness alone does not guarantee
+  // that its scene or SVG fallback exists, especially on a cold browser context.
+  await page.waitForFunction(() =>
+    Boolean(
+      document.querySelector(
+        '.passport-globe-frame .globe-host[data-ready="true"], .passport-globe-frame .globe-fallback svg, .route-map-canvas',
+      ),
+    ),
+  );
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
   return page.evaluate(() => {
     const visual = document.querySelector(".passport-visual");
     const box = (e) => {
