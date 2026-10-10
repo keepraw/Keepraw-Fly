@@ -445,95 +445,228 @@
 
   .passport-spotlight {
     display: grid;
-    grid-template-columns: 0.75fr 1fr 1.35fr;
-    gap: 16px;
-    align-items: start;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.15fr) minmax(0, 1.1fr);
+    gap: 0;
+    align-items: stretch;
   }
 
-  .passport-spotlight > .passport-spotlight-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 8px;
-    padding: 0;
-    min-height: 64px;
-    align-content: start;
+  .passport-spotlight > * {
+    min-width: 0;
+    padding: 8px 16px 4px;
   }
 
-  .passport-spotlight > .passport-spotlight-item > .passport-spotlight-label {
-    grid-column: 1 / -1;
+  .passport-spotlight > :first-child {
+    padding-left: 0;
+  }
+
+  .passport-spotlight > :last-child {
+    padding-right: 0;
+  }
+
+  .passport-spotlight > * + * {
+    border-left: 1px solid var(--line);
   }
 
   .passport-spotlight-label,
-  .passport-spotlight-item small,
-  .passport-spotlight-context {
+  .passport-chart-scope {
+    display: block;
     color: var(--muted);
-    font-size: 0.6875rem;
-    line-height: 1.3;
+    font-size: 0.625rem;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.035em;
+    line-height: 1.4;
+    text-transform: uppercase;
   }
 
-  .passport-spotlight-copy {
-    display: block;
-    min-width: 0;
-    font-size: 0.8125rem;
-  }
-
-  .passport-spotlight-copy:has(.passport-spotlight-code) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 6px;
-  }
-
-  .passport-spotlight-value {
-    display: block;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .passport-spotlight-code {
-    flex: 0 0 auto;
-    margin: 0;
-    color: var(--muted);
-    font-family: var(--font-family-data);
-    font-size: 0.75rem;
-    font-weight: var(--font-weight-semibold);
-  }
-
-  .passport-spotlight-item small {
-    grid-column: 1;
-    white-space: normal;
-  }
-
-  .passport-spotlight-arrow {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .passport-spotlight-context {
-    display: block;
-    margin: 0 0 4px;
-  }
-
-  .passport-spotlight-item strong {
-    font-size: 0.875rem;
-    line-height: 1.35;
+  .passport-spotlight-item {
+    min-height: 0;
+    align-items: stretch;
+    font-variant-numeric: tabular-nums;
   }
 
   .passport-delay-highlight {
-    display: grid;
-    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
-  .passport-delay-highlight strong {
+  .passport-delay-highlight > strong {
     font-family: var(--font-family-data);
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: var(--font-weight-semibold);
     font-variant-numeric: tabular-nums;
     line-height: 1.2;
   }
 
-  .passport-delay-highlight[data-delayed="true"] strong {
+  .passport-delay-highlight[data-delayed="true"] > strong {
     color: var(--color-danger);
+  }
+
+  .passport-delay-chart {
+    display: flex;
+    align-items: end;
+    gap: 16px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .passport-delay-chart li {
+    display: flex;
+    min-width: 30px;
+    flex-direction: column;
+    gap: 4px;
+    color: var(--muted);
+    font-family: var(--font-family-data);
+    font-size: 0.625rem;
+    text-align: center;
+  }
+
+  .passport-delay-column {
+    display: flex;
+    height: 48px;
+    align-items: end;
+    justify-content: center;
+    border-bottom: 1px solid var(--color-line-strong);
+  }
+
+  .passport-delay-bar {
+    width: 24px;
+    height: var(--delay-height);
+    min-height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--color-line-strong);
+  }
+
+  .passport-delay-chart [data-emphasized="true"] .passport-delay-bar {
+    background: var(--color-danger);
+  }
+
+  .passport-chart-scope {
+    font-size: 0.5625rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .passport-airport-ranking > ol {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .passport-airport-rank {
+    grid-template-columns: minmax(0, 1fr) 48px 18px;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 3px 4px;
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .passport-airport-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .passport-spotlight-code {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--font-family-data);
+    font-size: 0.6875rem;
+    white-space: nowrap;
+  }
+
+  .passport-airport-track {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--color-surface-sunken);
+  }
+
+  .passport-airport-track > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--passport-selection);
+  }
+
+  .passport-airport-count {
+    text-align: right;
+  }
+
+  .passport-longest-flight {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-self: stretch;
+  }
+
+  .passport-longest-route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  .passport-longest-endpoint {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .passport-longest-endpoint:last-child {
+    text-align: right;
+  }
+
+  .passport-longest-endpoint > strong {
+    font-family: var(--font-family-data);
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  .passport-longest-endpoint > span {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .passport-longest-arrow {
+    padding-top: 4px;
+    color: var(--muted);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .passport-longest-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .passport-longest-facts > span {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .passport-longest-facts strong {
+    font-family: var(--font-family-data);
+    font-size: 0.9375rem;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  .passport-highlight-empty {
+    color: var(--muted);
+    font-size: 0.875rem;
   }
 }
 
@@ -551,6 +684,47 @@
     gap: 8px 18px;
   }
 
+  .passport-core-stat strong {
+    font-size: 1.125rem;
+  }
+
+  .passport-spotlight {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .passport-spotlight > .passport-longest-flight {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px 16px;
+    margin-top: 8px;
+    padding: 10px 0 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .passport-longest-flight > .passport-spotlight-label {
+    grid-column: 1 / -1;
+  }
+
+  .passport-longest-endpoint > strong {
+    font-size: 1.25rem;
+  }
+
+  .passport-airport-rank {
+    grid-template-columns: minmax(0, 1fr) 40px 18px;
+  }
+
+  .passport-spotlight > * {
+    padding-inline: 12px;
+  }
+
+  .passport-core-stat {
+    padding-inline: 10px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 900px) {
   .passport-core-stats {
     grid-template-columns: 1.25fr 0.7fr 1.1fr;
     gap: 10px 0;
@@ -559,18 +733,6 @@
   .passport-core-stat:nth-child(4) {
     padding-left: 0;
     border-left: 0;
-  }
-
-  .passport-core-stat strong {
-    font-size: 1.125rem;
-  }
-
-  .passport-spotlight {
-    gap: 12px;
-  }
-
-  .passport-core-stat {
-    padding-inline: 10px;
   }
 }
 

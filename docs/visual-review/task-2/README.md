@@ -1,83 +1,70 @@
-# Task 2 — Desktop Passport statistics and solar preference
+# Task 2B — Statistics Visual Fidelity Pass
 
-PR #34 only, base `codex/desktop-passport-redesign-checkpoint`. Control is approved; Task 2 Desktop UI awaits owner visual review. PR stays Draft. Stop here before Task 3 / production WebGL integration.
+PR [#34](https://github.com/keepraw/Keepraw-Fly/pull/34), existing branch `codex/globe-prototype-experiment`, baseline `fa3e10d457d84df96a47b59b4d1fd403451bc4a9`. Remote HEAD was checked before changes and matched the baseline. Keep Draft; owner visual approval remains pending. Stop before Task 3.
 
-## Desktop statistics and Highlights
+## Continuous statistics dashboard
 
-Six existing KPIs form one compact region: Distance, Flights, Flight duration, Airports, Airlines, Countries/Regions. Existing calculations, units, locale formatting, cancellation/diversion semantics, search, annual/lifetime and archive behavior are reused unchanged.
+The six existing KPIs and their calculations are retained. Three aligned columns now restore the information density of concept Panels 01/04 without introducing separate cards:
 
-The secondary row shows total arrival delay, the most visited city/IATA with visit frequency, and localized longest-flight cities with duration and selected-unit distance. Actual duration is used when both actual times exist; otherwise the established scheduled-duration helper applies. Unknown delay stays `—`, recorded zero stays formatted zero, and early arrivals never offset positive delay. The arrival-delay explanation remains available through title/accessibility description.
+- **Total arrival delay:** prominent total plus native HTML/CSS annual columns. Positive delays use the existing `arrivalDelayMinutes` helper; early arrivals contribute zero; missing actual arrivals and diversions remain unknown; cancelled flights are excluded. The latest three service years with non-cancelled records are shown in chronological order. Unknown years show `—` without a bar; recorded zero uses a baseline tick. When a scope has more than three years, a visible caption identifies the latest-three-year chart while the total continues to cover that entire scope.
+- **Most visited:** up to four localized city/IATA rows, actual counts and proportional bars relative to the highest count. Origin and actual destination each count once; diversions use the recorded diversion airport. Ties sort by IATA code. Every row retains the established airport selection, filter toggle, focus and `aria-pressed` interaction.
+- **Longest flight:** prominent origin/destination IATA, complete localized cities, and separate duration/distance values. Actual duration is preferred when both actual times exist; otherwise scheduled duration applies. Distance follows km/mi preferences. The route remains a keyboard-accessible selection button. Empty filtered data uses plain unavailable states. **This module contains no map, image, SVG or canvas.**
 
-Airport/route buttons retain filtering, pressed state, keyboard operation and highlighting. The city name remains visible at narrower desktop widths. Typography uses tabular numbers and restrained shared separators. Mobile Passport and Flight Detail have no design changes; 760/761 is preserved; Highlights are hidden at desktop heights ≤540px.
+All three modules use the exact same Lifetime / Year / Search / selection scope as the six KPIs. No fabricated demo values, chart library or dependency was added.
 
-## Unedited browser review
+## Browser evidence and previous-layout comparison
 
-Repository Demo, Lifetime, English, kilometers, DPR1, reduced motion. Production Passport continues to use its established SVG map. No fabricated routes, miniature Highlight maps or screenshot compositing.
+Ten existing candidate PNG paths are replaced in place. Captures are unedited Chromium browser screenshots of the repository Demo, Lifetime, English, kilometers, DPR1 and reduced motion. They retain the production 2D SVG map.
 
-| Viewport   | Dark                               | Light                                |
-| ---------- | ---------------------------------- | ------------------------------------ |
-| 1440 × 900 | [Dark](passport-dark-1440x900.png) | [Light](passport-light-1440x900.png) |
-| 1366 × 768 | [Dark](passport-dark-1366x768.png) | [Light](passport-light-1366x768.png) |
-| 1280 × 720 | [Dark](passport-dark-1280x720.png) | [Light](passport-light-1280x720.png) |
-| 1024 × 768 | [Dark](passport-dark-1024x768.png) | [Light](passport-light-1024x768.png) |
-| 761 × 900  | [Dark](passport-dark-761x900.png)  | [Light](passport-light-761x900.png)  |
+| Viewport   | Dark                               | Light                                | Map height before → after | Highlights before → after |
+| ---------- | ---------------------------------- | ------------------------------------ | ------------------------- | ------------------------- |
+| 1440 × 900 | [Dark](passport-dark-1440x900.png) | [Light](passport-light-1440x900.png) | 578.05 → 498.05px         | 64 → 144px                |
+| 1366 × 768 | [Dark](passport-dark-1366x768.png) | [Light](passport-light-1366x768.png) | 447.48 → 367.48px         | 64 → 144px                |
+| 1280 × 720 | [Dark](passport-dark-1280x720.png) | [Light](passport-light-1280x720.png) | 401.13 → 321.13px         | 64 → 144px                |
+| 1024 × 768 | [Dark](passport-dark-1024x768.png) | [Light](passport-light-1024x768.png) | 402.22 → 289.31px         | 64 → 226.80px             |
+| 761 × 900  | [Dark](passport-dark-761x900.png)  | [Light](passport-light-761x900.png)  | 520.73 → 371.42px         | 77.48 → 226.80px          |
 
-[Capture manifest](screenshots.json) records untouched PNG hashes, browser version, all six values, all three Highlights and actual geometry. No page/right-region overflow or clipped map controls occurred. At 1440 × 900, the map is **578.05px** high, KPI strip **64.95px**, Highlights **64px**; the checkpoint map was **576.06px**. At 761px, the same six KPIs use two compact rows. Archive scrolling remains independent.
+At narrower desktop widths the delay/ranking occupy the first row and the route/details occupy the second. At 1024px six KPIs still fit on one row; at 761px they use two rows. The map remains the largest visual region at each requested size. Flight Archive retains its independent scrollport. Desktop height ≤540px continues to hide Highlights, and the 760/761 boundary and Mobile Passport are preserved.
 
-Generate this exact ten-image set using `node scripts/capture-task-2.mjs` with the local development server running. It checks overflow and the approved Globe reference SHA-256 before/after capture.
+[Capture manifest](screenshots.json) records the previous baseline geometry, current DOM dimensions, source archive SHA-256, arrival timestamps and calculated yearly delays, endpoint records, actual/scheduled duration records, chart proportions and localized route facts. Every capture passes document/right-region overflow, visible Highlight text range, map-control boundary and frozen Control hash assertions. `node scripts/capture-task-2.mjs` regenerates this exact ten-image set with the local development server running.
 
-![Desktop Dark review](passport-dark-1440x900.png)
+![Desktop Dark](passport-dark-1440x900.png)
 
-![Desktop Light review](passport-light-1440x900.png)
+![Desktop Light](passport-light-1440x900.png)
 
-## Globe evidence cleanup
+## Actual Demo data
 
-[Canonical references](../task-1b-7b2/README.md) and [complete deletion/retention inventory](../task-1b-7b2/cleanup-inventory.json): 124 → 6 historical Globe PNGs, 118 deleted, **68,539,317 bytes** removed from the current tree. All six retained references are unchanged. Approved Dark Control SHA-256: `c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5`.
+The [source archive](../../../packages/core/data/demo.keepraw-fly.json) contains 24 non-cancelled flights. Its six KPIs remain **143,204 km · 24 flights · 181h 46m · 20 airports · 16 airlines · 11 countries**.
 
-Numerical evidence, original hashes/results, provenance, textures, tests, source concepts and licensing artifacts remain. Git history is intact.
+| Service year | Positive arrival delay | Recorded actual arrivals |
+| ------------ | ---------------------- | ------------------------ |
+| 2024         | 38 min                 | 6                        |
+| 2025         | 53 min                 | 7                        |
+| 2026         | 66 min                 | 9                        |
 
-## Persistent solar preference and migration
+The annual sum is **157 min = 2h 37m**. Unknown arrival times do not create recorded zero values.
 
-Settings → General exposes **Fixed Sun / Real-time Sun**, with English, Simplified Chinese and Traditional Chinese labels and an explanation of their meaning. Default is `fixed`. `ViewerSettings.solarMode` reuses the existing preferences record and ordered persistence queue; no separate storage or portable archive field was added.
+| Rank | City / IATA         | Visits | Bar proportion |
+| ---- | ------------------- | ------ | -------------- |
+| 1    | San Francisco · SFO | 9      | 100%           |
+| 2    | Los Angeles · LAX   | 5      | 55.56%         |
+| 3    | Shanghai · PVG      | 5      | 55.56%         |
+| 4    | London · LHR        | 4      | 44.44%         |
 
-The IndexedDB loading path normalizes missing/invalid modes to `fixed` while preserving all other preferences and the archive. No database version change is needed: the existing key/value record accepts the additional field. Read-time normalization does not rewrite a historical record; the next ordinary settings save persists the normalized preference. Real-time survives reload and navigation.
+Longest flight remains **LAX / Los Angeles → SYD / Sydney**, **14h 27m**, **12,061 km / 7,494 mi**. The manifest provides the original timestamps and endpoints behind these displayed values.
 
-Globe Lab reads the App-owned preference directly. Its existing radio controls write through the same settings callback/queue. Mode changes do not touch routes, theme, quality, camera or selection and introduce no renderer/texture initialization. Existing UTC astronomy, minute-boundary refresh and visibility handling remain unchanged. Returning to Fixed restores the canonical world-space direction.
+## Protected work
 
-**Reset Lighting** restores the approved lighting parameters and diagnostic toggles only. It keeps the persistent solar preference, camera, selection, filters and theme. A translated title/accessibility description explains this scope.
+[Task 2B scope audit](task-2b-scope-audit.json) verifies 44 protected source/reference/configuration files byte-for-byte against the baseline: Globe camera/Home, rendering, lighting, shaders, night emission and UTC solar behavior; storage/settings and solar preference persistence; core KPI/duration/distance calculations; production SVG map; Flight Detail and shared/mobile Passport CSS; the original solar pixel test and Playwright configuration. The six canonical Globe PNGs are unchanged.
 
-Focused migration tests exercise missing, `null`, invalid string, numeric, `fixed` and `realtime` records in real fake-IndexedDB tables, retain language/theme/units/time format/power-user/backup fields, verify read-time storage is unchanged, round-trip a normal settings save and compare the entire archive record. The browser regression exercises Settings → reload → Lab → Reset Lighting → Fixed → reload → Settings, plus all three localized labels. Existing deterministic UTC/camera/renderer/visibility tests remain active.
+Approved Dark Control SHA-256 remains `c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5`. The [118-image cleanup inventory](../task-1b-7b2/cleanup-inventory.json), [canonical references](../task-1b-7b2/README.md), [historical Task 2 scope audit](scope-audit.json), [Task 2 validation](test-results.json) and [Task 2 file list](changed-files.json) remain intact. Prior commits `cd6a1b0`, `2583808` and `fa3e10d` are preserved as ancestors.
 
-[Scope audit](scope-audit.json) confirms nine frozen source files, all six retained PNGs and all fourteen changed historical JSON reports preserve their original content (apart from added screenshot lifecycle metadata). Core calculations, domain schema, mobile styles, shaders, camera math, solar math, picking and fallback code remain unchanged.
+## Validation and handoff
 
-## Actual validation and remaining limitations
+Current validation results and limitations are recorded in [Task 2B results](task-2b-results.json). New tests cover annual aggregation, unknown/zero/early/cancelled/diverted records, Top 4 and stable ties, filter scope, keyboard airport/route toggles, real proportional bars, localized cities/IATA, units and empty states. Existing suites cover Dark/Light, all requested sizes, short landscape, three languages, archive scrolling, mobile boundary, Globe and solar preferences.
 
-| Check                                                                    | Result                                                                                                                                                |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Documentation, formatting, CSS lint/tokens, typecheck, build, diff check | Passed                                                                                                                                                |
-| Unit suite                                                               | **330 passed**: web230 + core66 + validator31 + CSS AST3                                                                                              |
-| Chromium full suite                                                      | **117 passed / 1 failed** on the old Settings control-count assertion                                                                                 |
-| Chromium Settings follow-up                                              | **1 passed** after updating 7 → 8 controls and explicitly checking the fifth General select and Fixed default; all 118 current test cases have passed |
-| WebKit full project                                                      | **25 passed / 1 failed**: existing Globe screenshot test timed out waiting for the Fit recorded routes button to stabilize                            |
-| WebKit isolated follow-up                                                | **1 passed**, 16.6s, unchanged product code/assertions/timeouts/retries; all 26 current project cases have passed                                     |
-| Firefox full project                                                     | All **26** cases blocked at native browser launch: `browserType.launch: spawn UNKNOWN`; no application assertions ran                                 |
-| Formal screenshots                                                       | **10 captured**, geometry and hashes verified, all ten visually inspected                                                                             |
-| Frozen sources / retained evidence                                       | **9 sources + 6 PNGs + 14 historical JSON reports** verified unchanged                                                                                |
+The map zoom regression still verifies every zoom step and the established 8x cap. Its number of clicks now derives from the actual fitted map scale because the statistics dashboard changes the map height. Other existing test edits only update selectors/counts for the new structure or add requested viewport coverage. The attempted solar-test synchronization change was reverted because it did not resolve the repeated hash mismatch and was outside Task 2B. Globe sources, the original solar test, Playwright configuration, assertion thresholds, hash comparisons, timeouts and retries are unchanged.
 
-[Machine-readable results](test-results.json) and [exact changed-file list](changed-files.json) complement the capture and cleanup inventories. Local full/follow-up logs and traces remain in ignored `artifacts/task-2-*` and `test-results/`; they are not another tracked screenshot archive.
+**Full E2E remains unresolved.** Earlier Chromium runs returned 117 passed / 2 failed, 118 passed / 1 failed, and 115 passed / 4 failed. The original solar assertion at `e2e/globe-solar.pw.ts:130` failed in the first two runs; the third run with the abandoned synchronization attempt also failed, alongside two navigation timeouts and the immediate overflow assertion at `e2e/passport-legend.pw.ts:153`. Causes are not established. Logs, retained traces/screenshots, error locations and reproduction history are listed in the results manifest. The first run's default-output trace was overwritten before dedicated output directories were used; the second run retains the same failure with the original test. Firefox was blocked by Windows `browserType.launch: spawn UNKNOWN`; WebKit was not executed for Task 2B. Full local runs have stopped. Passed static/unit/build checks are reused; only one final Task 2B targeted run is performed.
 
-Two earlier Chromium runs were interrupted after trace inspection showed Vite serving the App's timestamped storage module alongside the test's untimestamped module. Terminal interruption had left a child listener alive. After stopping the verified workspace listener and checking the App import was clean, all storage fault-injection cases passed. No storage assertions were removed.
-
-The known WebKit `globe-lab.pw.ts:328` axe color-contrast issue **did not recur**. Its full-run interaction/motion/accessibility check passed. The separate screenshot timeout above is retained explicitly, with its original trace and passing isolated follow-up; no WCAG rules, retries or timeouts were weakened.
-
-Remaining local limitations: Firefox cannot launch on this Windows host; WebKit showed the recorded transient screenshot timeout; build retains the existing >500kB chunk warning. No outstanding Task 2 application defect was reproduced. Owner review of the final Desktop UI remains pending.
-
-At the owner's final instruction, PR #34 is updated directly without waiting for or monitoring CI. The [PR checks](https://github.com/keepraw/Keepraw-Fly/pull/34/checks) are linked for reference only; no new-head CI success is claimed here.
-
-## Commits and handoff
-
-- `cd6a1b00e66ab30907fba3e9673e939485f54eb2` — obsolete screenshot cleanup and canonical inventory.
-- `2583808a2490c0a4ffa9519a65e7129ef766e067` — compact statistics, localized Highlights, regressions and ten review captures.
-- The final solar-preference commit contains Settings/Lab synchronization, IndexedDB normalization, migration/browser regressions and this handoff; its SHA is recorded in PR #34 and the delivery message.
-
-Push destination is exclusively `codex/globe-prototype-experiment`. PR #34 stays Draft on its existing base. No merge, Task 3, production WebGL integration or new camera exploration occurred. Await owner visual approval of Task 2.
+[PR checks / CI](https://github.com/keepraw/Keepraw-Fly/pull/34/checks). Final commit and CI run URL are recorded in the delivery message. No merge, deployment, PR #33 change or Task 3 work. Await owner visual acceptance of Task 2B.

@@ -113,14 +113,14 @@ for (const theme of ["light", "dark"]) {
       ]();
       if (viewport.height > 540) {
         await expect(
-          page.locator(".passport-spotlight-value").last(),
+          page.locator(".passport-longest-route").last(),
         ).toBeVisible();
-        await expect(
-          page.locator(".passport-spotlight-value").last(),
-        ).toHaveText(/\S.+\s*→\s*\S.+/);
-        await expect(
-          page.locator(".passport-spotlight-item small").last(),
-        ).toHaveText(/\d+h.*·.*\d/);
+        await expect(page.locator(".passport-longest-route").last()).toHaveText(
+          /\S.+\s*→\s*\S.+/,
+        );
+        await expect(page.locator(".passport-longest-facts")).toHaveText(
+          /Flight duration\d+h.*Distance.*\d/,
+        );
       }
       expect(geometry.mapAfterArchive).toBe(true);
       expect(geometry.reportBelowMap).toBe(true);
