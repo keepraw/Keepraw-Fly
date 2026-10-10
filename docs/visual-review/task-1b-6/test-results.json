@@ -36,7 +36,7 @@
     "chromiumFailed": 1,
     "failure": "existing motion-camera assertion; B5 night test passed",
     "webkit": "success",
-    "firefox": "failure",
+    "firefox": "17 passed / 8 Globe-related failures",
     "deploy": "skipped"
   },
   "limitations": [
