@@ -5,6 +5,7 @@
     min-width: 0;
     min-height: 0;
     height: 100%;
+    align-self: stretch;
   }
 
   .passport-globe-frame .globe-stage {
@@ -46,6 +47,38 @@
   .passport-globe-frame .globe-fallback .route-map {
     min-height: 0;
     height: 100%;
+    border: 0;
+    flex: 1 1 0;
+  }
+
+  .passport-globe-frame .globe-fallback > p {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    flex: none;
+    padding: 8px 12px;
+    color: inherit;
+    background: #eef7ffed;
+  }
+
+  .passport-globe-frame[data-theme="dark"] .globe-fallback > p {
+    background: #14293be8;
+  }
+
+  .passport-globe-frame:has(.globe-fallback) .passport-globe-navigation {
+    top: 54px;
+  }
+
+  .passport-globe-frame :focus-visible {
+    outline: 2px solid #6eacdf;
+    outline-offset: 3px;
+  }
+
+  .passport-globe-frame[data-theme="light"] .globe-airport-label.is-selected {
+    color: #c9463e;
   }
 
   .passport-globe-navigation {

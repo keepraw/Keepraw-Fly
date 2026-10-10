@@ -1,3 +1,6 @@
+import { disablePassportWebGL } from "./helpers/passport-svg";
+test.beforeEach(async ({ page }) => disablePassportWebGL(page));
+
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";

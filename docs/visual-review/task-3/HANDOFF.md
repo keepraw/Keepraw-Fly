@@ -1,30 +1,39 @@
-# Task 3 — Production Desktop Globe integration (WIP)
+# Task 3 — Production Desktop Globe integration
 
-Status: **Draft implementation, not visually accepted or released.**
+Status: **Implemented and locally validated; awaiting remote CI and Owner final visual acceptance. PR #35 remains Draft. No merge or deployment authorized.**
 
-Base: PR #34 (`codex/globe-prototype-experiment`) at approved Task 2C commit `2b9378d0a27146a8650508c0a54f04b709b9d976`.
+Task 2C was visually accepted and Task 3 development authorized on 2026-10-10. This continues the existing integration at `3e0b85590dc6625b67c0e8bf56e857bec9883b2b`, on `codex/desktop-passport-task-3-globe-integration`, based on `codex/globe-prototype-experiment` at `2b9378d0a27146a8650508c0a54f04b709b9d976`. PR #33, #34 and #35 must not be merged automatically.
 
-Task 2C was visually accepted by the Owner on 2026-10-10. Task 3 is separately authorized for development only; neither PR #33 nor PR #34 may be merged, and Task 3 must remain Draft until separately approved.
+## Production behavior
 
-## Integration implemented
+- The official Desktop Passport lazily mounts the approved `GlobeMap`/Three renderer in its existing map cell. Its renderer, shaders, camera math, solar math, ocean, atmosphere, night response/emission, textures and Lab stylesheet remain unchanged.
+- `buildRouteSegments` uses actual validated flight records. The surrounding Globe network follows Lifetime, Year and Search; selecting an airport or directed route filters Archive/KPI/Highlights, selects the newest matching flight, scrolls it into view and moves keyboard focus to its row. The surrounding network remains available to select another route directly.
+- Period/search network arrays remain stable across Archive focus, selected-record changes and airport/route selection. These interactions no longer recreate the WebGL scene. A genuinely changed period/search network is disposed and composed once using the existing approved default camera algorithm; route/airport selection uses the existing approved camera transition.
+- Repeated flights aggregate counts, reverse directions share the approved physical stroke, and the picker retains both directed choices. Overlap and reverse picking reuse the existing renderer. Diverted flights use the actual arrival airport. Cancelled or unknown-coordinate records are not invented as flown geometry.
+- Pointer airport labels and route hit testing, arrows, zoom, Home and native keyboard-accessible airport/route pickers operate on the formal page.
+- Appearance and Fixed Sun / Real-time Sun use the existing persisted Settings record. System appearance follows the OS media query. Realtime updates retain the existing visibility-aware minute timer.
+- No WebGL2, texture failure and actual `WEBGL_lose_context` loss switch to the original interactive SVG. Retry restores the selected state. The wrapper immediately disposes a failed renderer; unmount, page leave, desktop/mobile transition and data replacement also dispose the instance. SVG fallback receives Archive route hover/selection highlights.
+- Shared Lab styles supply host/canvas sizing, labels, controls and legend. Passport-specific rules supply scoped label/button styling, full-height grid sizing and fallback status overlay without reducing the SVG viewport.
+- Six KPI and three Highlights remain on one screen, the Archive scrolls independently, and the right side has no separate scroll. Longest Flight has no mini-map. The existing Mobile branch and short-height exception remain intact.
 
-- A lazy Desktop-only `PassportGlobe` mounts the existing `GlobeMap`/Three renderer in the official Passport's map cell, leaving the independently designed Mobile branch unchanged.
-- Passes actual scoped flights and `buildRouteSegments` data from the existing Lifetime/Year/Search/selection flow. No hardcoded demo routes.
-- Reuses approved `defaultLighting`, existing `defaultGlobeView`, Fixed Sun / Real-time Sun, 4096 imagery and native resource disposal without modifying shaders, rendering/camera/solar algorithms, assets or pixel assertions.
-- Receives production theme and IndexedDB-backed solar preference from `App`; resolves system theme using `prefers-color-scheme`.
-- Globe airport/route selections link to Passport's existing exploration state, identify corresponding real flights and scroll/focus the Archive. Keyboard-accessible select controls offer route and airport choices. The existing `GlobeMap` already includes drag, zoom, keyboard navigation and SVG fallback on WebGL/texture/context failure.
-- Adds a scoped production Globe stylesheet without changing the Globe Lab visual stylesheet rules or Mobile-specific CSS.
+## Visual evidence
 
-## Must validate before Owner review
+[Screenshot index](SCREENSHOTS.md) · [Browser measurements and image hashes](browser-evidence.json)
 
-- **No CI pass is claimed yet.** Run documentation/format/CSS/typecheck/unit/build and Chromium/Firefox/WebKit regression against the exact new head; the Lab CSS is reused and the initial integration requires browser layout verification.
-- Capture actual Desktop Globe screenshots for Dark/Light, English/Simplified/Traditional, and 1646x928, 1440x900, 1366x768, 1280x720, 1024x768, 761x900 at 100% and relevant 125% native zoom. Verify no right scrolling, six KPI and three Highlights, existing <=540px exception.
-- Exercise real multi-route/reverse-route/overlap, Lifetime/Year/Search scope, click/keyboard route and airport filtering, Archive focus/scroll, selected states, no-selection and absent-flight cases. Check that map updates preserve expected view behavior.
-- Test disabled WebGL, context loss and failed textures with operational SVG selection fallback; check runtime memory, resource disposal and tab-hidden solar updates.
-- Prove Mobile design remains unchanged and screenshots/control interactions are intact. Inspect app bundle size and impact of shipping Three.js only in the lazily-loaded desktop chunk.
-- Add dedicated Task 3 E2E for integration behavior and screenshots. Do not change approved Globe visual, camera/light parameter sources or existing reference pixel hash.
-- Owner must separately review visuals and authorize any merge/deployment.
+The 63 images are actual `/#passport` captures, never Lab substitutes: English/Simplified/Traditional, Dark/Light, 1440×900, 1366×768, 1280×720, 1024×768 and 761×900 at 100% and native 125%, plus three long-city archives at 1280×720. Zoom uses Chromium profile preferences and verifies DPR plus the effective CSS viewport; no CSS zoom or DPR-only emulation.
 
-## Known environment limitation
+At native 125%, physical 761×900 becomes an effective CSS width of 609px and intentionally uses the existing Mobile design. All other matrix entries mount real WebGL 3D. There are 57 Desktop captures and six Mobile captures. Desktop checks assert a filled renderer host, actual route data, six KPI, all three Highlights, complete text, no right scrolling and a bottom safety margin of at least 24 CSS pixels (fractional rounding accounted for). Small map cells retain the approved collision suppression; all airports and both route directions remain available through the picker.
 
-The remote GitHub connector can write code and start CI through this PR, but the current execution environment cannot reach github.com from the container to clone the project; therefore no local pnpm, real browser or screenshot run has been performed in this session. Treat this as unverified WIP, even if GitHub accepts the commits.
+The default Globe keeps the approved cinematic crop, including the cropped lower hemisphere. This is not a new camera or lighting design. Owner must review the formal-page composition at the smaller cells and 125% zoom before acceptance.
+
+## Validation
+
+[Validation record](VALIDATION.md)
+
+The initial remote CI at `3e0b855` failed Prettier in `PassportPage.tsx`; it was not a validated integration. The current work fixes that formatting and tests actual local browsers. Existing SVG regression journeys deliberately disable WebGL2 to exercise the formal fallback while retaining their original assertions. Tests that assumed selecting a map record did not filter Archive now explicitly close the new exploration before testing a broader search. The former Lab-isolation assertion now verifies the authorized formal Globe integration. No approved pixel hash or visual assertion has been relaxed.
+
+Task 3 E2E covers real duplicate/reverse/diverted data, period/search updates, Archive focus, stable canvas identity during selection, direct pointer picking, keyboard camera controls, both themes, accessibility, all three failure paths, retry, native GPU deletions and stopped RAF after disposal, persisted solar settings and Mobile transitions. Existing Lab camera/light/night/solar tests remain in the full regression.
+
+## Delivery boundary
+
+Await **Owner's final visual acceptance** of the actual Passport screenshots. Keep PR #35 Draft; do not merge any of PR #33/#34/#35 and do not publish. Normal commit/push only, with no reset, clean, rebase or force push.

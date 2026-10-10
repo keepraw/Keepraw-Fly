@@ -1,3 +1,6 @@
+import { disablePassportWebGL } from "./helpers/passport-svg";
+test.beforeEach(async ({ page }) => disablePassportWebGL(page));
+
 import { expect, test } from "@playwright/test";
 import { readFile, mkdir } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -115,6 +118,9 @@ test("shares search and year scope, map selection and adjacent detail navigation
   await expect(
     page.locator('.flight-record[data-flight-id="zh9911"] .flight-row'),
   ).toBeFocused();
+  // Task 3 map selection now opens the route exploration; restore the period
+  // scope before exercising a broader airport search and detail adjacency.
+  await page.locator(".passport-exploration-close").click();
   await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(2);
   await page.getByRole("button", { name: /Open ZH9911/ }).click();

@@ -98,7 +98,7 @@ export function PassportPage({
   );
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, view],
+    [document.flights, selectedYear, query, selection],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
   const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
@@ -124,7 +124,15 @@ export function PassportPage({
     (worst, item) => (!worst || item.minutes > worst.minutes ? item : worst),
     null,
   );
-  const routes = useMemo(() => buildRouteSegments(flights), [flights]);
+  // Keep the period/search network stable while selecting or focusing Archive rows.
+  // Selection filters the report and Archive; the Globe retains the surrounding
+  // network so another airport/route can be selected without clearing first.
+  const mapFlights = useMemo(
+    () =>
+      passportVisibleFlights(document.flights, { ...view, selection: null }),
+    [document.flights, selectedYear, query],
+  );
+  const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
   );
@@ -376,7 +384,7 @@ export function PassportPage({
               >
                 <PassportGlobe
                   routes={routes}
-                  flights={flights}
+                  flights={mapFlights}
                   appearance={appearance}
                   solarMode={solarMode}
                   selection={
@@ -392,15 +400,14 @@ export function PassportPage({
                   onClear={() => setSelection(null)}
                   onSelect={(target) => {
                     // Globe uses the same scoped exploration as Archive/Highlights.
-                    const matching = flights.find(
-                      (flight) =>
-                        target.kind === "airport"
-                          ? flight.origin.iata === target.code ||
-                            (flight.divertedTo ?? flight.destination).iata ===
-                              target.code
-                          : flight.origin.iata === target.origin &&
-                            (flight.divertedTo ?? flight.destination).iata ===
-                              target.destination,
+                    const matching = mapFlights.find((flight) =>
+                      target.kind === "airport"
+                        ? flight.origin.iata === target.code ||
+                          (flight.divertedTo ?? flight.destination).iata ===
+                            target.code
+                        : flight.origin.iata === target.origin &&
+                          (flight.divertedTo ?? flight.destination).iata ===
+                            target.destination,
                     );
                     if (matching) {
                       onViewChange({
@@ -414,9 +421,7 @@ export function PassportPage({
                           ...window.document.querySelectorAll<HTMLElement>(
                             ".flight-record",
                           ),
-                        ].find(
-                          (item) => item.dataset.flightId === matching.id,
-                        );
+                        ].find((item) => item.dataset.flightId === matching.id);
                         row?.scrollIntoView({
                           block: "nearest",
                           inline: "nearest",
