@@ -47,6 +47,10 @@ The [initial CI run](https://github.com/keepraw/Keepraw-Fly/actions/runs/3805274
 - WebKit: all 38 compatibility journeys passed, including the formal 3D pointer, texture failure, context loss and retry paths.
 - Deployment: skipped by the workflow's branch/event condition. No site was published.
 
-The final documentation-only delivery commit has its own status on [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks). The implementation run above refers to the exact code commit; it is not presented as a run for a newer documentation commit.
+The [documentation delivery CI](https://github.com/keepraw/Keepraw-Fly/actions/runs/38055833596) on `6ed2f7b` concluded success, but Chromium reported **133 passed and one flaky** native-100%-zoom test, which passed on the workflow's existing retry #1. Its first attempt reported `text::BOM` in the Longest Flight text measurement. Firefox/WebKit each passed 38 without retries; static, unit and build checks passed. This is not described as a clean Chromium run.
+
+An unchanged local diagnostic then failed while measuring a missing map node before the lazy Globe was mounted. The native-zoom journey now awaits independently verified Globe capability/readiness, settled fonts and finite animations before making the same geometry assertions. No clipping assertion, approved hash, layout, test timeout or retry setting changed. Both native 100% and 125% journeys then passed without retries in 11.7 seconds (`artifacts/task-3-native-zoom-readiness-results`). This synchronizes the browser measurement with the rendered page; it does not establish a confirmed cause for the remote `BOM` transient.
+
+The final test-readiness delivery commit has its own status on [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks). The implementation run above refers to the exact code commit; it is not presented as a run for a newer delivery commit. Product code and all 63 screenshots remain unchanged after `7578541`.
 
 Remaining: Owner's final visual acceptance. Review the approved cropped composition and collision-suppressed labels in narrow/125% cells; the picker exposes every airport and both route directions. PR #35 stays Draft. No PR merge or site deployment has been performed.
