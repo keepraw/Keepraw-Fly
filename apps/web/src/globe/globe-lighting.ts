@@ -142,20 +142,42 @@ void main() {
   // classification. Even misclassified coastal/snow pixels retain their RGB.
   float oceanReflection = smoothstep(.002,.04, source.b - max(source.r, source.g));
 
-  // Solar illumination: identical energy/terminator for both themes and A/B.
-  // Low indirect fill retains readable night terrain without flattening day.
-  float diffuse = pow(max(solar, 0.0), .65);
-  float illumination = .32 + sunIntensity * diffuse * day;
-  vec3 illuminated = source * illumination;
+  // Solar illumination ARCHITECTURE (shared energy/terminator for both themes, A/B):
+  // - Direct key: photographic contrast exponent (.72) with ocean-absorbed response
+  //   (oceans keep 0.80x direct vs land) to separate land/ocean materials.
+  // - Indirect fill: twilight-aware hemisphere (night .36, day .58, +0.12 twilight
+  //   lift) instead of a flat constant. Lifts terminator readability where texture
+  //   was muddy while keeping deep night darker for city contrast. Identical for
+  //   Light/Dark and A/B; themes grade AFTER this shared lighting.
+  float diffuse = pow(max(solar, 0.0), 0.72);
+  float directEnergy = sunIntensity * diffuse * day;
+  float indirect = mix(0.36, 0.58, day) + 0.12 * twilight * (1.0 - day * 0.5);
+  float oceanDiffuseScale = mix(1.0, 0.80, oceanReflection);
+  vec3 illuminated = source * (indirect + directEnergy * oceanDiffuseScale);
 
-  // Theme grading AFTER lighting: retain local hue and texture differences.
-  // Gentle desaturation/cool balance rather than fixed artificial land colors.
-  vec3 neutral = vec3(luminance * illumination);
-  vec3 lightGrade = mix(illuminated, neutral, .26) * vec3(.88,1.04,1.22);
-  vec3 darkGrade = mix(illuminated, neutral, .65) * vec3(.42,.70,1.12);
+  // Theme grading AFTER lighting: luminance-dependent desaturation plus
+  // material-aware balances. Shadows stay deep navy while mid/high terrain
+  // retains hue and texture — not a global wash or second gamma decode.
+  // Light keeps land near-neutral and gives oceans a controlled blue; Dark lifts
+  // land red (readable warm terrain) while oceans stay navy. Preserves RGB ratios.
+  float illumLuminance = dot(illuminated, vec3(.2126,.7152,.0722));
+  vec3 neutralLit = vec3(illumLuminance);
+  float lightDesat = mix(0.30, 0.12, smoothstep(0.03, 0.35, luminance));
+  float darkDesat = mix(0.68, 0.38, smoothstep(0.02, 0.28, luminance));
+  vec3 lightBalance = mix(vec3(0.98,1.015,1.06), vec3(0.84,0.99,1.14), oceanReflection);
+  vec3 darkBalance = mix(vec3(0.58,0.78,1.02), vec3(0.40,0.66,1.06), oceanReflection);
+  vec3 lightGrade = mix(illuminated, neutralLit, lightDesat) * lightBalance;
+  vec3 darkGrade = mix(illuminated, neutralLit, darkDesat) * darkBalance;
   vec3 color = mix(lightGrade, darkGrade, dark) * surfaceEnabled;
-  float specular = pow(max(dot(n, normalize(sunDirection + view)), 0.0), 90.0);
-  color += vec3(.025,.06,.10) * specular * oceanReflection * day * surfaceEnabled;
+  // Ocean material response: view-dependent sky sheen plus a sharp warm sun glint.
+  // Both are ocean-selective and day-modulated — photographic fresnel luminosity
+  // for Light oceans without uniform cobalt heaviness, subtle depth in Dark.
+  vec3 halfVec = normalize(sunDirection + view);
+  float fresnel = pow(1.0 - max(dot(n, view), 0.0), 3.0);
+  float skySheen = fresnel * oceanReflection * day * (0.30 + 0.70 * diffuse);
+  color += vec3(0.20,0.42,0.68) * skySheen * 0.28 * surfaceEnabled;
+  float glint = pow(max(dot(n, halfVec), 0.0), 220.0);
+  color += vec3(1.0,0.86,0.66) * glint * oceanReflection * day * 0.38 * surfaceEnabled;
 
   // Registered Black Marble is raw grayscale visualization data. Restore
   // peripheral/mid urban detail while retaining the bounded warm-neutral peaks.
@@ -167,13 +189,15 @@ void main() {
   if (dark > .5) cityEmission = darkCityEmission(vUv, radiance, lights);
   color += cityEmission * night * nightIntensity * nightEnabled;
 
-  // Tangent air: true twilight peaks at solar=0, never at midday.
+  // Concentrated tangent air: no night halo so the backlit limb falls away.
+  // Day-side blue plus a warm twilight focus that peaks at solar=0, never midday.
+  // A/B only scales the twilight shoulder; sun/terminator stay identical.
   float grazing = 1.0 - max(dot(n, view), 0.0);
-  float rim = pow(grazing, 7.0);
-  float sunlitAir = smoothstep(-twilightWidth,.65,solar);
-  vec3 scatter = mix(vec3(.002,.007,.018), vec3(.065,.17,.32), sunlitAir);
-  scatter += vec3(.18,.19,.20) * twilight * mix(.25,1.0,horizonTwilight);
-  color += scatter * rim * atmosphereIntensity * atmosphereEnabled * mix(.65,1.0,dark);
+  float rim = pow(grazing, 6.0);
+  float limbDay = smoothstep(-twilightWidth * 0.35, 0.65, solar);
+  vec3 limbScatter = vec3(0.055,0.15,0.30) * limbDay;
+  limbScatter += vec3(0.20,0.16,0.11) * twilight * mix(0.35,1.0,horizonTwilight);
+  color += limbScatter * rim * atmosphereIntensity * atmosphereEnabled * mix(0.60,1.0,dark);
   gl_FragColor = vec4(color, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -197,13 +221,17 @@ void main() {
   float outerFade = 1.0 - smoothstep(.010,.022,altitude);
   float solar = dot(normalize(closest), sunDirection);
   vec3 response = solarResponse(solar);
-  float day = smoothstep(-twilightWidth,.65,solar);
+  // Concentrated shell: tight night cutoff (no uniform halo), forward-scattered
+  // lobe toward the sun azimuth for cinematic depth. Same terminator/energy basis
+  // as the surface; A/B only scales the twilight shoulder and narrow skirt.
+  float day = smoothstep(-twilightWidth * 0.5,.65,solar);
   float twilight = response.y;
-  float phase = .75 * (1.0 + pow(dot(ray, sunDirection),2.0));
-  vec3 color = mix(vec3(.008,.028,.065),vec3(.11,.28,.49),day);
-  color += vec3(.18,.19,.20) * twilight * mix(.25,1.0,horizonTwilight);
-  float alpha = (core + skirt * twilight) * outerFade * phase * mix(.025,.38,day) * atmosphereIntensity;
-  alpha *= mix(.65,1.0,dark);
+  float mu = dot(ray, sunDirection);
+  float forwardLobe = 0.35 + 0.95 * pow(max(mu, 0.0), 3.0);
+  vec3 color = mix(vec3(0.0),vec3(.10,.26,.46),day);
+  color += vec3(.20,.17,.13) * twilight * mix(.30,1.0,horizonTwilight);
+  float alpha = (core + skirt * twilight) * outerFade * forwardLobe * mix(.0,.40,pow(day,1.25)) * atmosphereIntensity;
+  alpha *= mix(.60,1.0,dark);
   gl_FragColor = vec4(color,clamp(alpha,0.0,.45));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>

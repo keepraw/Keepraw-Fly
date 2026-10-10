@@ -1,0 +1,344 @@
+{
+  "prefix": "before",
+  "base": "http://127.0.0.1:5174/globe-lab",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "data": "Demo archive, all years (default filter), Home camera unmoved between Fixed/Realtime theme shots; passport-size uses its own aspect Home",
+  "passport": {
+    "width": 998,
+    "height": 576.0625,
+    "clientWidth": 996,
+    "clientHeight": 574
+  },
+  "records": [
+    {
+      "file": "before-fixed-dark.png",
+      "sha256": "7ce2b1f0f93071d4fc1b8d915cca335f04ed9fbba4f998c6081d8b07b3295b0c",
+      "bytes": 615184,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "utc": "2026-10-10T04:26:59.791Z",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "before-fixed-light.png",
+      "sha256": "6a41cd8a745e30cc140f43b13883de90615fc05a9175f36b320e974ed6158cb6",
+      "bytes": 655243,
+      "solarMode": "fixed",
+      "theme": "light",
+      "utc": "2026-10-10T04:27:00.576Z",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "before-realtime-light.png",
+      "sha256": "92c30f73c1ca4c1d6e410a6607fed5d8888b6b5237401ad84c25a739019b3f06",
+      "bytes": 756878,
+      "solarMode": "realtime",
+      "theme": "light",
+      "utc": "2026-10-10T04:27:01.509Z",
+      "sunDirection": [
+        -0.33993861327836294,
+        -0.11551966465153149,
+        -0.9333257450007374
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "before-realtime-dark.png",
+      "sha256": "9bef4d7d78c53a6974b20ab844e2afc739f7121136f435982f02b5eb0fa66df6",
+      "bytes": 707681,
+      "solarMode": "realtime",
+      "theme": "dark",
+      "utc": "2026-10-10T04:27:02.503Z",
+      "sunDirection": [
+        -0.33993861327836294,
+        -0.11551966465153149,
+        -0.9333257450007374
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 1006,
+        "height": 608
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.0459629031778328,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "before-passport-dark.png",
+      "sha256": "6f46aaca5d54f338a308340906bb06afaf997c597e69638abdd178082f79fe26",
+      "bytes": 572019,
+      "solarMode": "fixed",
+      "theme": "dark",
+      "utc": "2026-10-10T04:27:08.888Z",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 996,
+        "height": 574
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    },
+    {
+      "file": "before-passport-light.png",
+      "sha256": "96e7f0cbd43d66a738c1cf5d9d5bddc086758e87d4f56972479156e3e38620e7",
+      "bytes": 610037,
+      "solarMode": "fixed",
+      "theme": "light",
+      "utc": "2026-10-10T04:27:09.937Z",
+      "sunDirection": [
+        -0.2926889023874383,
+        0.290121517531001,
+        0.9111326530669097
+      ],
+      "exposure": 1,
+      "lighting": {
+        "sunIntensity": 2.2,
+        "twilightWidth": 0.18,
+        "atmosphereIntensity": 0.65,
+        "nightIntensity": 1,
+        "artDirection": "A"
+      },
+      "camera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "sceneCamera": [
+        -1.1462179214868498,
+        0.5012782172755569,
+        -1.6866845067609426
+      ],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "viewport": {
+        "width": 996,
+        "height": 574
+      },
+      "home": {
+        "direction": [
+          -0.5458180578508808,
+          0.23870391298836036,
+          -0.803183098457592
+        ],
+        "distance": 2.1,
+        "offset": {
+          "x": -0.043828278017696565,
+          "y": -0.5004980895646883
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 22
+    }
+  ],
+  "errors": [],
+  "external": []
+}
