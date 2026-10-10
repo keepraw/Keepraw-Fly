@@ -423,7 +423,7 @@ export function PassportPage({
                   ["countries", stats.countries.toLocaleString(locale)],
                 ].map(([label, value]) => (
                   <p className="passport-core-stat" key={label}>
-                    <StatisticValue value={value} />
+                    <StatisticValue value={value ?? ""} />
                     <span>{t(`passport.${label}`)}</span>
                   </p>
                 ))}
