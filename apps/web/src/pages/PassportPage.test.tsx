@@ -63,6 +63,8 @@ async function render(
         locale={locale}
         distanceUnit={distanceUnit}
         timeFormat="24-hour"
+        appearance="dark"
+        solarMode="fixed"
         view={view}
         onViewChange={() => {}}
         onAddFlight={() => {}}
