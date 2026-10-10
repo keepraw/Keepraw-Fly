@@ -264,7 +264,7 @@
 .globe-labels {
   pointer-events: none;
 }
-.globe-airport-label {
+.globe-lab .globe-airport-label {
   pointer-events: auto;
   position: absolute;
   left: 0;
@@ -274,7 +274,10 @@
   background: transparent;
   font: 600 11px var(--font-family-data);
   line-height: 1;
-  text-shadow: 0 1px 4px #e4f4ff;
+  color: #dcecff;
+  text-shadow:
+    0 1px 4px #041325,
+    0 1px 2px #041325;
 }
 .globe-airport-label[hidden] {
   display: none;
@@ -284,11 +287,11 @@
     0 1px 4px #041325,
     0 1px 2px #041325;
 }
-.globe-airport-label.is-selected {
+.globe-lab .globe-airport-label.is-selected {
   color: #c9463e;
   font-size: 13px;
 }
-[data-theme="dark"] .globe-airport-label.is-selected {
+.globe-lab[data-theme="dark"] .globe-airport-label.is-selected {
   color: #ffb0a5;
 }
 .globe-caption {
@@ -465,4 +468,16 @@
   .globe-flight-list {
     max-height: 285px;
   }
+}
+
+.globe-twilight-review {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: 1px solid var(--lab-line);
+  border-radius: 3px;
+  padding: 5px 8px;
+  background: var(--lab-surface);
+  color: var(--lab-ink);
+  font-size: 11px;
 }

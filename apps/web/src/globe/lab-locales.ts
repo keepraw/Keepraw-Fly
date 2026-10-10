@@ -1,6 +1,9 @@
 import { i18n } from "../i18n";
 const resources = {
   en: {
+    twilightReview: "Twilight Review",
+    solarDiagnostic: "Solar regions (diagnostic)",
+    neutralProbe: "Neutral solar probe (diagnostic)",
     artDirection: "Art Direction",
     lightingReview: "Lighting review · Visual approval pending",
     earthOnly: "Earth only",
@@ -37,6 +40,9 @@ const resources = {
     empty: "No matching flights.",
   },
   "zh-CN": {
+    twilightReview: "暮光审查视角",
+    solarDiagnostic: "昼夜分区（诊断）",
+    neutralProbe: "中性光照材质（诊断）",
     artDirection: "艺术方向",
     lightingReview: "光照审查 · Visual approval pending",
     earthOnly: "仅地球",
@@ -73,6 +79,9 @@ const resources = {
     empty: "没有匹配的航班。",
   },
   "zh-TW": {
+    twilightReview: "暮光審查視角",
+    solarDiagnostic: "晝夜分區（診斷）",
+    neutralProbe: "中性光照材質（診斷）",
     artDirection: "藝術方向",
     lightingReview: "光照審查 · Visual approval pending",
     earthOnly: "僅地球",

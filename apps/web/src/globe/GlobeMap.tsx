@@ -125,6 +125,14 @@ export function GlobeMap({
             <span className="globe-legend-selected" />
             {t("globe.selected")}
           </div>
+          {import.meta.env.DEV && (
+            <button
+              className="globe-twilight-review"
+              onClick={() => controller.current?.twilightReview()}
+            >
+              {t("globe.twilightReview")}
+            </button>
+          )}
           <div className="globe-controls">
             <button
               onClick={() => controller.current?.zoom(1 / 1.15)}
