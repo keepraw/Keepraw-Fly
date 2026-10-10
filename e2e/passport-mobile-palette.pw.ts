@@ -15,6 +15,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
     await page.goto("/");
     await page.getByRole("button", { name: "Try demo", exact: true }).click();
+    await expect(page.locator(".flight-row")).toHaveCount(24);
   });
 
   for (const language of ["en", "zh-CN", "zh-TW"]) {
@@ -30,6 +31,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           loadedGlobeResources.push(request.url());
       });
       await page.reload();
+      await expect(page.locator(".flight-row")).toHaveCount(24);
       for (const viewport of cases) {
         await page.setViewportSize(viewport);
         await page.goto("/#settings");
@@ -47,6 +49,16 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           "background-color",
           viewport.theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)",
         );
+        const primaryText =
+          viewport.theme === "dark" ? "rgb(229, 234, 242)" : "rgb(30, 43, 62)";
+        await expect(page.locator(".flight-row").first()).toHaveCSS(
+          "color",
+          primaryText,
+        );
+        await expect(page.locator(".year-heading h2").first()).toHaveCSS(
+          "color",
+          primaryText,
+        );
         await expect(page.locator(".passport-mobile-summary")).toBeVisible();
         await expect(page.locator(".passport-delay-panel")).toBeVisible();
         await expect(page.locator(".passport-network-panel")).toBeVisible();
@@ -61,6 +73,11 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         expect(
           await heading.evaluate((el) => el.scrollWidth <= el.clientWidth),
         ).toBe(true);
+
+        const accessibility = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze();
+        expect(accessibility.violations).toEqual([]);
 
         const search = page.locator(".passport-search-field input");
         await search.focus();
@@ -91,11 +108,6 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         );
         await page.locator(".detail-header-back").click();
         await expect(page.locator(".passport-mobile-summary")).toBeVisible();
-
-        const accessibility = await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-          .analyze();
-        expect(accessibility.violations).toEqual([]);
       }
       expect(loadedGlobeResources).toEqual([]);
     });
