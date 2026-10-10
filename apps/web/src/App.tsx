@@ -30,6 +30,7 @@ import {
   type PersistenceState,
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
+import { loadChineseWebfonts } from "./typography/load-webfonts";
 import {
   frequentFlyerMemberships,
   recentAirportCodes,
@@ -231,6 +232,7 @@ export function App() {
   useEffect(() => {
     void i18n.changeLanguage(settings.language);
     documentElementLanguage(settings.language);
+    loadChineseWebfonts(settings.language, window.document);
   }, [i18n, settings.language]);
 
   useEffect(() => {

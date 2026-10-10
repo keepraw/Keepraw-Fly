@@ -152,8 +152,10 @@ describe("Passport narrative and spotlights", () => {
           );
         }
         expect(highlights).not.toMatch(/<svg|<canvas|<img/);
-        expect(highlights).toContain(formatDuration(120, locale));
-        expect(highlights).toContain(
+        expect(highlights.replace(/<[^>]*>/g, "")).toContain(
+          formatDuration(120, locale),
+        );
+        expect(highlights.replace(/<[^>]*>/g, "")).toContain(
           i18n.t(
             unit === "miles"
               ? "passport.distanceMiles"
@@ -168,7 +170,7 @@ describe("Passport narrative and spotlights", () => {
           ...markup.matchAll(
             /class="passport-core-stat"><strong>(.*?)<\/strong>/g,
           ),
-        ].map((match) => match[1]);
+        ].map((match) => match[1].replace(/<[^>]*>/g, ""));
         expect(values).toEqual([
           i18n.t(
             unit === "miles"

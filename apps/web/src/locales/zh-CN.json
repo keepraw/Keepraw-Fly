@@ -442,6 +442,9 @@
     }
   },
   "settings": {
+    "fontCredit": "中文界面使用 MiSans / MiSans TC，字体版权归小米所有。",
+    "fontLicense": "小米字体许可与使用说明",
+    "fontNetwork": "中文字体由 jsDelivr 提供，字体请求不包含航班记录。",
     "viewerPreferences": "查看器偏好",
     "description": "显示偏好仅保存在本地；个人姓名会随 Keepraw Fly 档案一起保存。",
     "general": "常规",

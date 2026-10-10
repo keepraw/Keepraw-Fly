@@ -32,6 +32,12 @@ JSON export is the primary backup and migration method. Export a Keepraw Fly JSO
 
 Airport, airline and map assets are bundled reference data, not a live flight-status service. See the [third-party notices](THIRD_PARTY_NOTICES.md).
 
+Chinese UI fonts use MiSans / MiSans TC from the fixed `misans-webfont@4.3.1`
+jsDelivr distribution. Only Chinese locales request its CSS and needed WOFF2
+subsets; English retains the existing Inter/system stack. This third-party font
+service receives normal resource-request metadata, but no flight records or
+archive contents. A failed font request falls back to system fonts.
+
 ## Import and backup
 
 Open **Settings → Data and backup** to preview an import before it changes your archive.

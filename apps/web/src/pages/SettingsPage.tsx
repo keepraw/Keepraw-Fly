@@ -755,6 +755,19 @@ export function SettingsPage({
             </div>
           </section>
         </div>
+        <p className="settings-font-credit">
+          {t("settings.fontCredit")}{" "}
+          <a
+            href="https://hyperos.mi.com/font-download/MiSans字体知识产权许可协议.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            referrerPolicy="no-referrer"
+          >
+            {t("settings.fontLicense")}
+          </a>
+          <br />
+          {t("settings.fontNetwork")}
+        </p>
       </div>
       {confirmClear ? (
         <ConfirmationDialog

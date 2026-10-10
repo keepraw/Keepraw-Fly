@@ -55,9 +55,11 @@ new UI should prefer semantic roles instead of adding another palette.
 - Colors distinguish canvas, surfaces, text, borders, focus and operational
   meaning. Positive, attention, critical and information colors describe state.
   The map has its own shared semantic palette.
-- UI, display, data and monospace families use locally available fonts. Data roles
-  use tabular numerals; English, Simplified Chinese and Traditional Chinese share
-  the same hierarchy with language-specific CJK fallbacks.
+- English retains the locally available Inter/system stack. Chinese UI/display
+  families prefer MiSans (Simplified) or MiSans TC (Traditional), loaded on demand
+  from fixed `misans-webfont@4.3.1` jsDelivr CSS at 400/500/600 with swap and
+  unicode-range subsets. Data roles retain Latin-first tabular numerals with the
+  corresponding Chinese fallback. Failed requests use existing system stacks.
 - Appearance defaults to **System**. Light and Dark are explicit user options.
   Both themes use the same semantic roles.
 - The shared content maximum is 1,280 px with fluid 20–40 px gutters; flight-detail

@@ -1,5 +1,33 @@
 # Third-party notices
 
+## MiSans / MiSans TC webfonts
+
+Chinese UI typography uses **MiSans** (Simplified Chinese) and **MiSans TC**
+(Traditional Chinese), copyright Xiaomi. The fonts remain subject to Xiaomi's
+independent font license; see the [official font site](https://hyperos.mi.com/font/zh/)
+and [official font license](https://hyperos.mi.com/font-download/MiSans字体知识产权许可协议.pdf).
+They are not licensed under Keepraw Fly's MIT License or Apache-2.0.
+
+The approved third-party distribution is
+[mobeicanyue/misans-webfont](https://github.com/mobeicanyue/misans-webfont),
+fixed at **4.3.1**. That project's distribution code uses
+[Apache License 2.0](https://github.com/mobeicanyue/misans-webfont/blob/main/LICENSE);
+this does not relicense Xiaomi's font files. The owner's originally specified
+`4.003.1` returned 404 and was corrected to the published `4.3.1` with explicit
+owner approval.
+
+The viewer loads only the active Chinese locale's Regular (400), Medium (500)
+and Semibold (600) CSS from `https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/`.
+Those stylesheets use `font-display: swap` and `unicode-range` WOFF2 subsets.
+English retains the existing Inter/system font stack and does not initiate
+Chinese font downloads. No font binary is repackaged or committed here.
+
+jsDelivr is a third-party static-resource network dependency: it receives normal
+resource-request metadata such as IP address. Stylesheet links omit credentials
+and the page referrer; font requests contain no flight records, archive names or
+search/filter values. An unavailable CDN leaves the application usable with the
+existing system font fallbacks. Settings includes a visible Xiaomi attribution.
+
 ## airportsdata
 
 Keepraw Fly bundles a generated subset of the

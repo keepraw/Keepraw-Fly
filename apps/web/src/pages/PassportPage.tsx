@@ -28,6 +28,7 @@ import {
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
 import { PageShell } from "../components/PageShell";
+import { StatisticValue } from "../typography/StatisticValue";
 import {
   passportVisibleFlights,
   type PassportSelection,
@@ -217,23 +218,27 @@ export function PassportPage({
             <span className="passport-spotlight-label">
               {t("passport.timeInAir")}
             </span>
-            <strong>
-              {flight
-                ? formatDuration(flightDuration(flight).minutes, locale)
-                : "—"}
-            </strong>
+            <StatisticValue
+              value={
+                flight
+                  ? formatDuration(flightDuration(flight).minutes, locale)
+                  : "—"
+              }
+            />
           </span>
           <span>
             <span className="passport-spotlight-label">
               {t("passport.distance")}
             </span>
-            <strong>
-              {distance === null
-                ? "—"
-                : t(distanceKey, {
-                    value: formatDistance(distance, locale, distanceUnit),
-                  })}
-            </strong>
+            <StatisticValue
+              value={
+                distance === null
+                  ? "—"
+                  : t(distanceKey, {
+                      value: formatDistance(distance, locale, distanceUnit),
+                    })
+              }
+            />
           </span>
         </span>
       </>
@@ -418,7 +423,7 @@ export function PassportPage({
                   ["countries", stats.countries.toLocaleString(locale)],
                 ].map(([label, value]) => (
                   <p className="passport-core-stat" key={label}>
-                    <strong>{value}</strong>
+                    <StatisticValue value={value} />
                     <span>{t(`passport.${label}`)}</span>
                   </p>
                 ))}
@@ -591,7 +596,7 @@ export function PassportPage({
                     title={t("passport.delayBasedOnArrivals")}
                     aria-description={t("passport.delayBasedOnArrivals")}
                   >
-                    <strong>{arrivalDelay}</strong>
+                    <StatisticValue value={arrivalDelay} />
                   </div>
                   {stats.totalDelayMinutes === null ? (
                     <p>{t("passport.delayUnavailable")}</p>
