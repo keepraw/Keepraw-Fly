@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { Vec3 } from "./globe-math";
 import { nightResponseKernel } from "./globe-night-response";
+import { darkCityEmissionKernel } from "./globe-night-emission";
 
 export interface GlobeLighting {
   artDirection: "A" | "B";
@@ -92,6 +93,7 @@ vec3 solarResponse(float solar) {
 export const surfaceFragment = /* glsl */ `
 uniform sampler2D earth;
 uniform sampler2D nightMap;
+uniform vec2 nightTexelSize;
 uniform vec3 sunDirection;
 uniform float dark;
 uniform float sunIntensity;
@@ -109,6 +111,7 @@ varying vec3 vWorldNormal;
 varying vec3 vWorldPosition;
 ${solarKernel}
 ${nightResponseKernel}
+${darkCityEmissionKernel}
 void main() {
   vec3 n = normalize(vWorldNormal);
   vec3 view = normalize(cameraPosition - vWorldPosition);
@@ -160,7 +163,9 @@ void main() {
   float signal = max(radiance - .012, 0.0);
   float lights = cityLightResponse(radiance);
   vec3 warm = mix(vec3(.83,.77,.66), vec3(.96,.90,.79), smoothstep(.1,.8, signal));
-  color += warm * lights * night * nightIntensity * nightEnabled * mix(.45,1.0,dark);
+  vec3 cityEmission = warm * lights * .45;
+  if (dark > .5) cityEmission = darkCityEmission(vUv, radiance, lights);
+  color += cityEmission * night * nightIntensity * nightEnabled;
 
   // Tangent air: true twilight peaks at solar=0, never at midday.
   float grazing = 1.0 - max(dot(n, view), 0.0);

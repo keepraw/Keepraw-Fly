@@ -111,6 +111,9 @@ export function createGlobe(
   const uniforms = {
     earth: { value: new THREE.Texture() },
     nightMap: { value: new THREE.Texture() },
+    nightTexelSize: {
+      value: new THREE.Vector2(1 / Number(quality), 2 / Number(quality)),
+    },
     dark: { value: initialTheme === "dark" ? 1 : 0 },
     sunDirection: { value: globeSunDirection(home.direction) },
     sunIntensity: { value: defaultLighting.sunIntensity },
