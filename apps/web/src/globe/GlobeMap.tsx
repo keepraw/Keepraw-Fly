@@ -12,6 +12,11 @@ import {
   type GlobeTheme,
 } from "./globe-renderer";
 import type { GlobeLighting } from "./globe-lighting";
+import {
+  FIXED_SUN_DIRECTION,
+  solarDirectionFromUtc,
+  type SolarMode,
+} from "./globe-solar";
 
 export function GlobeMap({
   routes,
@@ -19,6 +24,7 @@ export function GlobeMap({
   theme,
   quality,
   lighting,
+  solarMode,
   selection,
   highlightedRoute,
   onSelect,
@@ -28,6 +34,7 @@ export function GlobeMap({
   theme: GlobeTheme;
   quality: "2048" | "4096";
   lighting: GlobeLighting;
+  solarMode: SolarMode;
   selection: GlobeSelection | null;
   highlightedRoute?: string;
   onSelect: (selection: GlobeSelection) => void;
@@ -42,8 +49,16 @@ export function GlobeMap({
     theme,
     highlightedRoute,
     lighting,
+    solarMode,
   });
-  latest.current = { onSelect, selection, theme, highlightedRoute, lighting };
+  latest.current = {
+    onSelect,
+    selection,
+    theme,
+    highlightedRoute,
+    lighting,
+    solarMode,
+  };
   const [error, setError] = useState<GlobeFailure | null>(null),
     [hover, setHover] = useState<string | null>(null),
     [retry, setRetry] = useState(0);
@@ -76,6 +91,9 @@ export function GlobeMap({
       controller.current = instance;
       instance.lighting(latest.current.lighting);
       instance.select(latest.current.selection);
+      if (latest.current.solarMode === "realtime") {
+        instance.solar(solarDirectionFromUtc(new Date()));
+      }
       return () => {
         instance.dispose();
         controller.current = null;
@@ -93,6 +111,37 @@ export function GlobeMap({
   }, [routes, quality, retry]);
   useEffect(() => controller.current?.theme(theme), [theme]);
   useEffect(() => controller.current?.lighting(lighting), [lighting]);
+  useEffect(() => {
+    if (!controller.current) return;
+    controller.current.solar(
+      solarMode === "realtime"
+        ? solarDirectionFromUtc(new Date())
+        : FIXED_SUN_DIRECTION,
+    );
+  }, [solarMode]);
+  useEffect(() => {
+    if (solarMode !== "realtime") return;
+    let disposed = false;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const tick = () => {
+      if (disposed || document.hidden) return;
+      controller.current?.solar(solarDirectionFromUtc(new Date()));
+      const now = Date.now();
+      timeout = setTimeout(tick, 60000 - (now % 60000) + 50);
+    };
+    const now = Date.now();
+    timeout = setTimeout(tick, 60000 - (now % 60000) + 50);
+    const onVisible = () => {
+      if (!document.hidden && !disposed)
+        controller.current?.solar(solarDirectionFromUtc(new Date()));
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      disposed = true;
+      if (timeout) clearTimeout(timeout);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [solarMode]);
   useEffect(() => controller.current?.select(selection), [selection]);
   useEffect(
     () => controller.current?.highlight(highlightedRoute),
@@ -103,6 +152,7 @@ export function GlobeMap({
       className="globe-stage"
       aria-label={t("globe.mapLabel")}
       data-theme={theme}
+      data-solar-mode={solarMode}
       data-attempt={retry}
       data-error={error ? JSON.stringify(error) : undefined}
     >

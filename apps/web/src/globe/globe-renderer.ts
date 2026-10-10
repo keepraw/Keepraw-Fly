@@ -22,13 +22,13 @@ import night4096 from "./assets/night-4096.webp";
 import night2048 from "./assets/night-2048.webp";
 import {
   defaultLighting,
-  globeSunDirection,
   twilightReviewView,
   globeVertex,
   surfaceFragment,
   atmosphereFragment,
   type GlobeLighting,
 } from "./globe-lighting";
+import { FIXED_SUN_DIRECTION } from "./globe-solar";
 
 export type GlobeTheme = "light" | "dark";
 export type GlobeSelection =
@@ -65,6 +65,7 @@ export class GlobeInitializationError extends Error {
 }
 export interface GlobeController {
   lighting: (settings: GlobeLighting) => void;
+  solar: (direction: Vec3) => void;
   theme: (theme: GlobeTheme) => void;
   select: (selection: GlobeSelection | null) => void;
   highlight: (key?: string) => void;
@@ -151,7 +152,9 @@ export function createGlobe(
       value: new THREE.Vector2(1 / Number(quality), 2 / Number(quality)),
     },
     dark: { value: initialTheme === "dark" ? 1 : 0 },
-    sunDirection: { value: globeSunDirection(home.direction) },
+    // Fixed world-space baseline sun. Independent of camera, routes,
+    // filtering and theme; Real-time mode updates this same uniform.
+    sunDirection: { value: new THREE.Vector3(...FIXED_SUN_DIRECTION) },
     sunIntensity: { value: defaultLighting.sunIntensity },
     twilightWidth: { value: defaultLighting.twilightWidth },
     atmosphereIntensity: { value: defaultLighting.atmosphereIntensity },
@@ -737,6 +740,13 @@ export function createGlobe(
       for (const item of routeLines) item.line.visible = !settings.earthOnly;
       for (const item of markers) item.marker.visible = !settings.earthOnly;
       callbacks.hover(null);
+      invalidate();
+    },
+    solar(direction) {
+      // Solar time update only: same shared uniform, no scene rebuild,
+      // texture reload, camera reset or interaction loss.
+      uniforms.sunDirection.value.set(direction[0], direction[1], direction[2]);
+      uniforms.sunDirection.value.normalize();
       invalidate();
     },
     theme(theme) {
