@@ -1,0 +1,12 @@
+{
+  "dataset": "Natural Earth 1:50m Shaded Relief Basic",
+  "version": "3.2.0",
+  "source": "https://naciscdn.org/naturalearth/50m/raster/SR_50M.zip",
+  "sha256": "ff810f5f2747463fd8ffa612b23e5f5e5d593a345218976872b6749610976ab7",
+  "documentation": "https://www.naturalearthdata.com/downloads/50m-raster-data/50m-shaded-relief/",
+  "license": "Public domain; see LICENSE.natural-earth",
+  "geographicBounds": [-180, -90, 180, 90],
+  "generatedAsset": "../assets/map-relief.webp",
+  "generator": "scripts/generate-map-relief.py",
+  "notes": "SRTM Plus terrain shading. Reprojected to Equal Earth at runtime, clipped to the interactive vector land layer. No network map service."
+}

@@ -82,14 +82,14 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
         await expectUnclipped(row.locator(".flight-date"));
         await expectSeparateBoxes(
           row.locator(".flight-date"),
-          row.locator(".flight-time-column"),
+          row.locator(mobile ? ".flight-time-column" : ".flight-route-cities"),
         );
       }
       if (!mobile) {
-        // The narrow ledger uses a container query to move status off the date.
+        // The date occupies its own column in the desktop ledger.
         await expect(page.locator(".flight-date").last()).toHaveCSS(
           "grid-column-start",
-          "5",
+          "3",
         );
         expect(
           await page

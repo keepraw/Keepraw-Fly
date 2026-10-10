@@ -197,6 +197,18 @@ export function PassportRouteMap({
     (sum, route) => sum + route.flightCount,
     0,
   );
+  const emphasis = (route: (typeof routeItems)[number]) =>
+    Number(
+      (highlightedRoute?.origin === route.origin.iata &&
+        highlightedRoute.destination === route.destination.iata) ||
+        (selectedRoute?.origin === route.origin.iata &&
+          selectedRoute.destination === route.destination.iata),
+    );
+  // Opposite-direction routes share a great-circle path. Draw the active route
+  // last so its selection color cannot be covered by the return flight.
+  const displayedRoutes = [...routeItems].sort(
+    (a, b) => emphasis(a) - emphasis(b),
+  );
 
   return (
     <section className="route-map" id="passport-visual">
@@ -204,10 +216,11 @@ export function PassportRouteMap({
         className="route-map-canvas"
         ariaLabel={t("passport.mapPreviewLabel", { flights: totalFlights })}
         initialCamera={initialCamera}
-        cameraForViewport={(height) =>
-          passportMapCamera(routes, airports, height)
+        cameraForViewport={(height, pixelScale) =>
+          passportMapCamera(routes, airports, height, 40 * pixelScale)
         }
         maxZoom={8}
+        minZoom={0.3}
         labels={{
           zoomIn: t("mapControls.zoomIn"),
           zoomOut: t("mapControls.zoomOut"),
@@ -234,6 +247,7 @@ export function PassportRouteMap({
           return (
             <>
               <MapWorld
+                appearance="aviation"
                 centerLongitude={centerLongitude}
                 countryVisits={countryVisits}
                 showOutline={camera.zoom <= 1.05}
@@ -256,7 +270,7 @@ export function PassportRouteMap({
                   highlightedRoute ? "map-routes has-highlight" : "map-routes"
                 }
               >
-                {routeItems.map((route) => {
+                {displayedRoutes.map((route) => {
                   const selected =
                     selectedRoute?.origin === route.origin.iata &&
                     selectedRoute.destination === route.destination.iata;
