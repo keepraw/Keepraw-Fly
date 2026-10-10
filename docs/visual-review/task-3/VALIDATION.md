@@ -31,7 +31,7 @@ Existing Lab visual, scene/camera, night, fixed/realtime solar and SVG regressio
 
 ## Screenshots and frozen material
 
-- [63 formal Passport images](SCREENSHOTS.md): all five required physical viewports, three languages, two themes, native 100%/125%, and long-city records. 57 Desktop WebGL images and six existing Mobile images.
+- [63 captured Passport image records](SCREENSHOTS.md): all five physical viewports, three languages, two themes, native 100%/125%, and long-city records. The original 57 Desktop WebGL and six Mobile PNGs were captured and visually reviewed; Task 4 now retains 12 representative PNGs in the current checkout. The other original image files remain accessible at pre-cleanup commit `0bb6660d41605dbeb1da3bc3f15df5b56798aba8`.
 - [Browser evidence](browser-evidence.json): route data, projected labels, exact renderer host dimensions, DPR/effective viewport, complete KPI/Highlights text, independent Archive scrolling, right scroll height, bottom margin and SHA-256 for each capture. All measured Desktop cases fit; minimum bottom safety is approximately 24 CSS pixels, and map height ranges from approximately 200 to 537 CSS pixels.
 - [Frozen material evidence](frozen-evidence.json): 17 renderer/math/light/solar/night/texture/Lab CSS/Control files match approved base `2b9378d` byte-for-byte. Approved Dark Control SHA-256 remains `c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5`.
 - Native zoom uses Chromium profile `partition.default_zoom_level`; DPR and effective CSS viewport are asserted. Physical 761px at 125% is Mobile. Images use real font loads and actual validated archive imports on `/#passport`, not Globe Lab.
@@ -57,4 +57,4 @@ The shared `passportTypographyBounds` entry now also waits for the actual lazy 3
 
 The final shared-readiness delivery commit has its own status on [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks). The implementation run above refers to the exact code commit; it is not presented as a run for a newer delivery commit. Product code and all 63 screenshots remain unchanged after `7578541`.
 
-Remaining: Owner's final visual acceptance. Review the approved cropped composition and collision-suppressed labels in narrow/125% cells; the picker exposes every airport and both route directions. PR #35 stays Draft. No PR merge or site deployment has been performed.
+Owner has since accepted the Task 3 composition, including narrow/125% cells, and PR #35 was merged as `0bb6660d`. This validation log records the original CI and image evidence; see [Task 4 cleanup](../CLEANUP-2026-10-10.md) for retained/deleted PNG inventory. Automatic GitHub Pages deployment was paused at that merge.
