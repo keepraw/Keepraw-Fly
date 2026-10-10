@@ -23,6 +23,7 @@ import night2048 from "./assets/night-2048.webp";
 import {
   defaultLighting,
   globeSunDirection,
+  twilightReviewView,
   globeVertex,
   surfaceFragment,
   atmosphereFragment,
@@ -51,6 +52,7 @@ export interface GlobeController {
   highlight: (key?: string) => void;
   zoom: (factor: number) => void;
   home: () => void;
+  twilightReview: () => void;
   dispose: () => void;
 }
 
@@ -116,6 +118,8 @@ export function createGlobe(
     atmosphereIntensity: { value: defaultLighting.atmosphereIntensity },
     nightIntensity: { value: defaultLighting.nightIntensity },
     horizonTwilight: { value: 0 },
+    solarDiagnostic: { value: 0 },
+    neutralProbe: { value: 0 },
     surfaceEnabled: { value: 1 },
     nightEnabled: { value: 1 },
     atmosphereEnabled: { value: 1 },
@@ -256,10 +260,10 @@ export function createGlobe(
           : hovered
             ? dark
               ? 0xc7eeff
-              : 0x1357a4
+              : 0xd6edff
             : dark
               ? 0x70b7e6
-              : 0x256fbd,
+              : 0x82c5ed,
       );
       const level = Math.min(
         Math.log2(
@@ -276,7 +280,7 @@ export function createGlobe(
         ? 0.92
         : hovered
           ? 0.8
-          : (selected?.kind === "route" ? 0.36 : dark ? 0.62 : 0.57) +
+          : (selected?.kind === "route" ? 0.36 : dark ? 0.62 : 0.64) +
             level * 0.07;
       item.line.renderOrder = active ? 3 : hovered ? 2 : 1;
     }
@@ -287,7 +291,7 @@ export function createGlobe(
           : selected?.kind === "route" &&
             [selected.origin, selected.destination].includes(item.point.iata);
       item.marker.material.color.set(
-        active ? (dark ? 0xffa293 : 0xd95349) : dark ? 0xc0e3ff : 0x255e9c,
+        active ? (dark ? 0xffa293 : 0xd95349) : dark ? 0xc0e3ff : 0xb4ddf7,
       );
       item.marker.scale.setScalar(active ? 1.55 : 1);
       item.label.classList.toggle("is-selected", Boolean(active));
@@ -650,7 +654,9 @@ export function createGlobe(
       uniforms.surfaceEnabled.value = Number(settings.surface);
       uniforms.nightEnabled.value = Number(settings.nightLights);
       uniforms.atmosphereEnabled.value = Number(settings.atmosphere);
-      atmosphere.visible = settings.atmosphere;
+      uniforms.solarDiagnostic.value = Number(settings.solarDiagnostic);
+      uniforms.neutralProbe.value = Number(settings.neutralProbe);
+      atmosphere.visible = settings.atmosphere && !settings.solarDiagnostic;
       for (const item of routeLines) item.line.visible = !settings.earthOnly;
       for (const item of markers) item.marker.visible = !settings.earthOnly;
       callbacks.hover(null);
@@ -684,6 +690,9 @@ export function createGlobe(
       paintStyles();
     },
     zoom,
+    twilightReview() {
+      flyTo(twilightReviewView(uniforms.sunDirection.value, home.direction));
+    },
     home() {
       flyTo(home, false);
     },

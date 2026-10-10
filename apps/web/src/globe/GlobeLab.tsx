@@ -283,7 +283,14 @@ export default function GlobeLab({
                   </select>
                 </label>
                 {(
-                  ["earthOnly", "surface", "nightLights", "atmosphere"] as const
+                  [
+                    "earthOnly",
+                    "surface",
+                    "nightLights",
+                    "atmosphere",
+                    "solarDiagnostic",
+                    "neutralProbe",
+                  ] as const
                 ).map((key) => (
                   <label key={key}>
                     <input
