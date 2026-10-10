@@ -1,6 +1,6 @@
 # Task 2B — Statistics Visual Fidelity Pass
 
-PR [#34](https://github.com/keepraw/Keepraw-Fly/pull/34), existing branch `codex/globe-prototype-experiment`, baseline `fa3e10d457d84df96a47b59b4d1fd403451bc4a9`. Remote HEAD was checked before changes and matched the baseline. Keep Draft; owner visual approval remains pending. Stop before Task 3.
+PR [#34](https://github.com/keepraw/Keepraw-Fly/pull/34), existing branch `codex/globe-prototype-experiment`, baseline `fa3e10d457d84df96a47b59b4d1fd403451bc4a9`. Remote HEAD was checked before changes and matched the baseline. Historical checkpoint: PR #34 is now merged and later Task 3 integrated the approved production Globe. Subsequent status statements below refer to this earlier development stage.
 
 ## Continuous statistics dashboard
 
@@ -14,23 +14,19 @@ All three modules use the exact same Lifetime / Year / Search / selection scope 
 
 ## Browser evidence and previous-layout comparison
 
-Ten existing candidate PNG paths are replaced in place. Captures are unedited Chromium browser screenshots of the repository Demo, Lifetime, English, kilometers, DPR1 and reduced motion. They retain the production 2D SVG map.
+This is historical Task 2B evidence from the earlier 2D SVG Passport, not the current production 3D Globe. The original ten Dark/Light PNG screenshots were retired from the checkout during [Task 4 evidence cleanup](../CLEANUP-2026-10-10.md). The [pre-cleanup snapshot](https://github.com/keepraw/Keepraw-Fly/tree/0bb6660d41605dbeb1da3bc3f15df5b56798aba8/docs/visual-review/task-2) retains all original images through Git history.
 
-| Viewport   | Dark                               | Light                                | Map height before → after | Highlights before → after |
-| ---------- | ---------------------------------- | ------------------------------------ | ------------------------- | ------------------------- |
-| 1440 × 900 | [Dark](passport-dark-1440x900.png) | [Light](passport-light-1440x900.png) | 578.05 → 498.05px         | 64 → 144px                |
-| 1366 × 768 | [Dark](passport-dark-1366x768.png) | [Light](passport-light-1366x768.png) | 447.48 → 367.48px         | 64 → 144px                |
-| 1280 × 720 | [Dark](passport-dark-1280x720.png) | [Light](passport-light-1280x720.png) | 401.13 → 321.13px         | 64 → 144px                |
-| 1024 × 768 | [Dark](passport-dark-1024x768.png) | [Light](passport-light-1024x768.png) | 402.22 → 289.31px         | 64 → 226.80px             |
-| 761 × 900  | [Dark](passport-dark-761x900.png)  | [Light](passport-light-761x900.png)  | 520.73 → 371.42px         | 77.48 → 226.80px          |
+| Viewport   | Map height before → after | Highlights before → after |
+| ---------- | ------------------------- | ------------------------- |
+| 1440 × 900 | 578.05 → 498.05px         | 64 → 144px                |
+| 1366 × 768 | 447.48 → 367.48px         | 64 → 144px                |
+| 1280 × 720 | 401.13 → 321.13px         | 64 → 144px                |
+| 1024 × 768 | 402.22 → 289.31px         | 64 → 226.80px             |
+| 761 × 900  | 520.73 → 371.42px         | 77.48 → 226.80px          |
 
-At narrower desktop widths the delay/ranking occupy the first row and the route/details occupy the second. At 1024px six KPIs still fit on one row; at 761px they use two rows. The map remains the largest visual region at each requested size. Flight Archive retains its independent scrollport. Desktop height ≤540px continues to hide Highlights, and the 760/761 boundary and Mobile Passport are preserved.
+At narrower desktop widths the delay/ranking occupied the first row and route/details occupied the second. The six KPIs, independent Archive scroll and 760/761 Mobile breakpoint were validated in this historical checkpoint.
 
-[Capture manifest](screenshots.json) records the previous baseline geometry, current DOM dimensions, source archive SHA-256, arrival timestamps and calculated yearly delays, endpoint records, actual/scheduled duration records, chart proportions and localized route facts. Every capture passes document/right-region overflow, visible Highlight text range, map-control boundary and frozen Control hash assertions. `node scripts/capture-task-2.mjs` regenerates this exact ten-image set with the local development server running.
-
-![Desktop Dark](passport-dark-1440x900.png)
-
-![Desktop Light](passport-light-1440x900.png)
+The unchanged [capture manifest](screenshots.json) retains baseline/current geometry, original screenshot filenames and dataset SHA-256 values. Those filenames are historical identifiers, not links to current files. Running `node scripts/capture-task-2.mjs` with the local development server regenerates the original ten-image set; the images are intentionally not stored in the current checkout.
 
 ## Actual Demo data
 

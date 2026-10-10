@@ -1,4 +1,6 @@
-# Task 2C — resumed verification / Owner visual review pending
+# Task 2C — resumed verification (historical checkpoint)
+
+**Current note (Task 4):** The Owner later accepted Task 2C visuals; PR #34 was merged. The 14 preliminary root-level PNG captures were retired and four representative images from the final resumed review remain. Original full screenshot sets can be retrieved from commit `0bb6660d41605dbeb1da3bc3f15df5b56798aba8`; see [cleanup inventory](../CLEANUP-2026-10-10.md). Remaining "pending", "Draft" and "not yet accepted" statements are historically accurate **as of this checkpoint**, not current project status.
 
 Status: **Task 2C resumed on 2026-10-10; verification and evidence continued; not visually accepted.**
 
