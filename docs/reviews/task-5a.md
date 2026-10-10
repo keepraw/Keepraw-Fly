@@ -11,6 +11,8 @@ Each comparison uses the same 24-flight bundled Demo archive, distance unit and
 appearance. Left is the baseline; right is Task 5A. Images retain the original
 CSS pixel size and show the upper 1,380 pixels of each full-page capture, including
 the panels, search, buttons and first flight rows.
+Captures wait for the selected appearance and flight/year text colors to settle
+before measuring and taking screenshots. Theme transition frames are excluded.
 
 | Language            | Viewport | Appearance | Comparison                                        |
 | ------------------- | -------- | ---------- | ------------------------------------------------- |
@@ -59,7 +61,40 @@ matrix in each language, Axe AA checks, search/clear, real Tab focus and Enter
 navigation, detail return, System/explicit appearance precedence with reload,
 and palette isolation from Settings and Flight Detail.
 
-Final automated results will be recorded here after the runs complete.
+- Frozen dependency installation, all 333 unit tests, documentation consistency,
+  formatting, CSS lint/token checks, workspace type checking and production build
+  passed.
+- Chromium covered all 140 current journeys across the full and targeted runs.
+  The initial full run passed 138/139; the existing flight-row navigation journey
+  reached its 30-second deadline under concurrent load. With no concurrent build
+  or browser work, the unchanged journey passed in 24.4 seconds (baseline:
+  24.8 seconds). All six new mobile journeys passed without timeout changes.
+- Firefox: **44/44 passed**. WebKit: **44/44 passed**. Chromium and WebKit exercised
+  the desktop WebGL path. Firefox reported unavailable WebGL in this cloud image
+  and exercised the existing interactive SVG fallback.
+- The subsequent initial-entry checks passed all six mobile journeys in Chromium
+  and Firefox. One WebKit fixture navigated before reload restored the Demo archive.
+  Waiting for its 24 flight rows fixed the startup race; the WebKit rerun passed
+  **6/6** with the same assertions and timeout budgets.
+- Axe reported no WCAG A/AA violations in the new mobile journeys. Cancelled
+  text on the focused Light row exceeds 4.5:1 contrast; keyboard focus uses the
+  visible purple ring in both appearances.
+- Chromium and WebKit also passed a mobile touch-context check: tapping Demo,
+  searching, opening the first and last flights, returning from Detail and
+  opening Settings. These are browser checks, not physical iOS/Android testing.
+
+Local WebKit uses verified official Debian libraries extracted into the workspace.
+Its `ldconfig` cache probe cannot see the workspace GLES library, so only that
+preflight probe is bypassed; actual library loading, browser startup and all
+44 test assertions executed successfully.
+
+GitHub CI at the implementation commit passed Chromium verification and Firefox.
+Its WebKit job failed in the initial run and one retry. The cloud network denied
+the redirected diagnostic download; the required log domains are saved in the
+environment draft but need to be applied in environment settings before diagnosis
+can continue. The remote failure remains unexplained and is not treated as a pass.
+See the [failed job](https://github.com/keepraw/Keepraw-Fly/actions/runs/38072562008/job/114275649907)
+and the PR's current checks for the latest remote result.
 
 ## Owner review
 
