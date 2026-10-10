@@ -16,7 +16,6 @@ import { GlobeMap } from "./GlobeMap";
 import { globeAirports } from "./globe-math";
 import type { GlobeSelection, GlobeTheme } from "./globe-renderer";
 import { defaultLighting } from "./globe-lighting";
-import type { SolarMode } from "./globe-solar";
 import "./globe-lab.css";
 import "./lab-locales";
 
@@ -24,10 +23,12 @@ export default function GlobeLab({
   document,
   settings,
   isDemo,
+  onSettingsChange,
 }: {
   document: KeeprawFlyDocument;
   settings: ViewerSettings;
   isDemo: boolean;
+  onSettingsChange: (settings: ViewerSettings) => void;
 }) {
   const { t } = useTranslation();
   const [theme, setTheme] = useState<GlobeTheme>(() =>
@@ -43,7 +44,9 @@ export default function GlobeLab({
     [hovered, setHovered] = useState<KeeprawFlight | null>(null);
   const [quality, setQuality] = useState<"2048" | "4096">("4096");
   const [lighting, setLighting] = useState({ ...defaultLighting });
-  const [solarMode, setSolarMode] = useState<SolarMode>("fixed");
+  const solarMode = settings.solarMode;
+  const setSolarMode = (solarMode: ViewerSettings["solarMode"]) =>
+    onSettingsChange({ ...settings, solarMode });
   const flights = useMemo(
     () =>
       passportVisibleFlights(document.flights, {
@@ -362,9 +365,10 @@ export default function GlobeLab({
                 ))}
               </div>
               <button
+                title={t("globe.resetLightingHint")}
+                aria-description={t("globe.resetLightingHint")}
                 onClick={() => {
                   setLighting({ ...defaultLighting });
-                  setSolarMode("fixed");
                 }}
               >
                 {t("globe.resetLighting")}

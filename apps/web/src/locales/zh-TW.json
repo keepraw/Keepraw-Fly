@@ -531,7 +531,11 @@
     "editMembership": "編輯",
     "collapseMembership": "收起",
     "memberNumberSummary": "會員號 {{number}}",
-    "defaultAirlineSummary": "預設：{{airline}}"
+    "defaultAirlineSummary": "預設：{{airline}}",
+    "solarMode": "太陽光照",
+    "solarFixed": "固定太陽",
+    "solarRealtime": "真實太陽（即時）",
+    "solarModeHint": "固定太陽使用已核准的電影感光照方向；真實太陽依目前 UTC 時間呈現晝夜。目前用於地球實驗室，並為未來的三維地球保留偏好。"
   },
   "recovery": {
     "title": "無法開啟本機飛行檔案",

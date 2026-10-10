@@ -276,6 +276,28 @@ export function SettingsPage({
                   <option value="12-hour">{t("settings.twelveHour")}</option>
                 </select>
               </label>
+              <label className="settings-row">
+                <span className="settings-row-label">
+                  {t("settings.solarMode")}
+                </span>
+                <select
+                  className="settings-row-control"
+                  value={settings.solarMode}
+                  title={t("settings.solarModeHint")}
+                  aria-description={t("settings.solarModeHint")}
+                  onChange={(event) =>
+                    updateSetting(
+                      "solarMode",
+                      event.target.value as ViewerSettings["solarMode"],
+                    )
+                  }
+                >
+                  <option value="fixed">{t("settings.solarFixed")}</option>
+                  <option value="realtime">
+                    {t("settings.solarRealtime")}
+                  </option>
+                </select>
+              </label>
             </div>
           </section>
 

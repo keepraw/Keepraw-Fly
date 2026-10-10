@@ -383,7 +383,13 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     expect(layout.fitsViewport).toBe(true);
     expect(layout.actionableElementsFit).toBe(true);
     expect(layout.selectsVisible).toBe(true);
-    expect(layout.controls).toHaveLength(7);
+    expect(layout.controls).toHaveLength(8);
+    await expect(page.locator(".settings-display-fields select")).toHaveCount(
+      5,
+    );
+    await expect(
+      page.locator(".settings-display-fields select").nth(4),
+    ).toHaveValue("fixed");
     expect(
       Math.max(...layout.controls.map((control) => control.left)) -
         Math.min(...layout.controls.map((control) => control.left)),

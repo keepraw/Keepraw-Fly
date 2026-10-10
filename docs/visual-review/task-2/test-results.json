@@ -1,0 +1,66 @@
+{
+  "baselineCommit": "8e759707c1c265b360183160f6fe369428e30b4a",
+  "checks": {
+    "pnpm check:docs": "passed",
+    "pnpm format:check": "passed",
+    "pnpm lint:css": "passed",
+    "pnpm check:css-tokens": "passed",
+    "pnpm typecheck": "passed",
+    "pnpm test": {
+      "passed": 330,
+      "web": 230,
+      "core": 66,
+      "validator": 31,
+      "cssAst": 3
+    },
+    "pnpm test:e2e --project=chromium": {
+      "fullRun": { "passed": 117, "failed": 1 },
+      "failure": "Existing grouped Settings test expected seven controls; the solar select adds an eighth. Updated expectation and explicit fifth General select/default assertion.",
+      "focusedFollowup": { "passed": 1, "failed": 0 },
+      "log": "artifacts/task-2-chromium-final.log",
+      "followupLog": "artifacts/task-2-settings-followup.log"
+    },
+    "pnpm test:e2e --project=firefox": {
+      "launchFailures": 26,
+      "applicationAssertionsRun": false,
+      "error": "browserType.launch: spawn UNKNOWN",
+      "log": "artifacts/task-2-firefox-final.log"
+    },
+    "pnpm test:e2e --project=webkit": {
+      "fullRun": { "passed": 25, "failed": 1 },
+      "failure": "globe-lab.pw.ts:51 screenshot/resource test timed out at line 176 waiting for Fit recorded routes button stability",
+      "focusedFollowup": { "passed": 1, "failed": 0, "testSeconds": 16.6 },
+      "knownAxeContrastIssueRecurred": false,
+      "assertionsTimeoutsRetriesWcagUnchanged": true,
+      "log": "artifacts/task-2-webkit-final.log",
+      "followupLog": "artifacts/task-2-webkit-followup.log",
+      "originalTrace": "artifacts/task-2-webkit-results/globe-lab.pw.ts-globe-actu-d8243--measurements-cross-browser-webkit/trace.zip"
+    },
+    "pnpm build": "passed; existing >500kB chunk warning",
+    "git diff --check": "passed"
+  },
+  "harnessNotes": {
+    "interruptedHmrRuns": 2,
+    "reason": "App used browser.ts?t=1791614977591 while test injected untimestamped browser.ts; old Vite child listener survived terminal interruption",
+    "evidence": "artifacts/task-2-hmr-duplicate-storage.zip",
+    "resolved": "Stopped verified workspace listener; checked clean App import; final full run storage injection tests all passed"
+  },
+  "screenshots": {
+    "files": 10,
+    "realDemo": true,
+    "pixelsEdited": false,
+    "geometryChecks": "passed",
+    "visuallyInspected": 10
+  },
+  "scopeAudit": {
+    "frozenSources": 9,
+    "retainedPngs": 6,
+    "originalJsonReports": 14,
+    "unchanged": true
+  },
+  "ci": {
+    "status": "not monitored at owner request",
+    "checksUrl": "https://github.com/keepraw/Keepraw-Fly/pull/34/checks"
+  },
+  "stopAfter": "Task 2; owner visual approval required before Task 3"
+}
