@@ -170,7 +170,7 @@ describe("Passport narrative and spotlights", () => {
           ...markup.matchAll(
             /class="passport-core-stat"><strong>(.*?)<\/strong>/g,
           ),
-        ].map((match) => match[1].replace(/<[^>]*>/g, ""));
+        ].map((match) => (match[1] ?? "").replace(/<[^>]*>/g, ""));
         expect(values).toEqual([
           i18n.t(
             unit === "miles"
