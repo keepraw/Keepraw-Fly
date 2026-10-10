@@ -289,10 +289,11 @@ test("real-time timer suspends while hidden and resumes on visibility", async ({
     2,
   );
 
-  // First minute transition while visible.
+  // First minute transition while visible. Wait for the rendered solar update
+  // before sampling: RAF-driven data-lighting lags the timer tick.
   await page.clock.runFor(45_000);
-  const afterFirst = await sun(page);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+  const afterFirst = await sun(page);
   expect(
     Math.hypot(
       afterFirst[0]! -
@@ -304,10 +305,10 @@ test("real-time timer suspends while hidden and resumes on visibility", async ({
     ),
   ).toBeGreaterThan(0.002);
 
-  // Second minute transition while visible.
+  // Second minute transition while visible. Same deterministic ordering.
   await page.clock.runFor(70_000);
-  const afterSecond = await sun(page);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+  const afterSecond = await sun(page);
   expect(afterSecond).not.toEqual(afterFirst);
 
   // Hide across a minute boundary: no update may fire while hidden.
