@@ -1,0 +1,355 @@
+{
+  "scene": {
+    "camera": [-2.8860744177258066, 1.6016537156601658, -1.4371081484914894],
+    "fov": 34,
+    "viewOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "viewport": {
+      "width": 1006,
+      "height": 608
+    },
+    "home": {
+      "direction": [
+        -0.5458180578508808, 0.23870391298836036, -0.803183098457592
+      ],
+      "distance": 2.1,
+      "offset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      }
+    },
+    "atHome": false,
+    "physicalRoutes": 22,
+    "routes": [
+      {
+        "key": "BOS-ORD",
+        "count": 1,
+        "maxAltitude": 0.011400745691857228
+      },
+      {
+        "key": "CAN-CTU",
+        "count": 1,
+        "maxAltitude": 0.010802587460114532
+      },
+      {
+        "key": "CAN-PEK",
+        "count": 1,
+        "maxAltitude": 0.013062995638361663
+      },
+      {
+        "key": "CTU-PVG",
+        "count": 1,
+        "maxAltitude": 0.012475943057889571
+      },
+      {
+        "key": "JFK-LHR",
+        "count": 1,
+        "maxAltitude": 0.022391672348190728
+      },
+      {
+        "key": "JFK-SFO",
+        "count": 1,
+        "maxAltitude": 0.019411140322535436
+      },
+      {
+        "key": "LAX-HND",
+        "count": 1,
+        "maxAltitude": 0.027468989018827328
+      },
+      {
+        "key": "LAX-ICN",
+        "count": 1,
+        "maxAltitude": 0.028404747805789166
+      },
+      {
+        "key": "LAX-SYD",
+        "count": 1,
+        "maxAltitude": 0.030633309636001416
+      },
+      {
+        "key": "LHR-FRA",
+        "count": 1,
+        "maxAltitude": 0.008671026061357168
+      },
+      {
+        "key": "LHR-SIN",
+        "count": 1,
+        "maxAltitude": 0.029649626799788553
+      },
+      {
+        "key": "NRT-DFW",
+        "count": 1,
+        "maxAltitude": 0.0291209695015886
+      },
+      {
+        "key": "PVG-LAX",
+        "count": 1,
+        "maxAltitude": 0.02921266437131509
+      },
+      {
+        "key": "SFO-CDG",
+        "count": 1,
+        "maxAltitude": 0.027649328070615153
+      },
+      {
+        "key": "SFO-HKG",
+        "count": 1,
+        "maxAltitude": 0.029868831246128158
+      },
+      {
+        "key": "SFO-LAX",
+        "count": 1,
+        "maxAltitude": 0.008239307772383464
+      },
+      {
+        "key": "SFO-LHR",
+        "count": 1,
+        "maxAltitude": 0.0272267469970644
+      },
+      {
+        "key": "SFO-PVG",
+        "count": 1,
+        "maxAltitude": 0.02867075371981076
+      },
+      {
+        "key": "SFO-YVR",
+        "count": 1,
+        "maxAltitude": 0.011039241479179784
+      },
+      {
+        "key": "SIN-NRT",
+        "count": 1,
+        "maxAltitude": 0.02203270692679493
+      },
+      {
+        "key": "HND-SFO",
+        "count": 2,
+        "maxAltitude": 0.02680276734991338
+      },
+      {
+        "key": "PEK-PVG",
+        "count": 1,
+        "maxAltitude": 0.010353636448704684
+      },
+      {
+        "key": "PVG-PEK",
+        "count": 1,
+        "maxAltitude": 0.010353636448704684
+      }
+    ]
+  },
+  "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+  "records": [
+    {
+      "theme": "Light",
+      "candidate": "A",
+      "groups": {
+        "day": {
+          "count": 19051,
+          "luminance": 50.13748270432034,
+          "emission": 0,
+          "changed": 0
+        },
+        "twilight": {
+          "count": 16560,
+          "luminance": 25.591748345409453,
+          "emission": 0.05009531400966183,
+          "changed": 73
+        },
+        "night": {
+          "count": 19066,
+          "luminance": 32.86892794503215,
+          "emission": 0.4733167523339983,
+          "changed": 869
+        }
+      },
+      "compared": 54677,
+      "mismatched": 0,
+      "signature": 1660317220,
+      "irradiance": {
+        "groups": {
+          "day": {
+            "count": 19051,
+            "luminance": 160.02593338933883,
+            "emission": 0,
+            "changed": 0
+          },
+          "twilight": {
+            "count": 16560,
+            "luminance": 78.07205327293498,
+            "emission": 0,
+            "changed": 0
+          },
+          "night": {
+            "count": 19066,
+            "luminance": 57.017199999997835,
+            "emission": 0,
+            "changed": 0
+          }
+        },
+        "compared": 54677,
+        "mismatched": 0,
+        "signature": 1660317220
+      }
+    },
+    {
+      "theme": "Light",
+      "candidate": "B",
+      "groups": {
+        "day": {
+          "count": 19051,
+          "luminance": 50.13748270432034,
+          "emission": 0,
+          "changed": 0
+        },
+        "twilight": {
+          "count": 16560,
+          "luminance": 25.591748345409453,
+          "emission": 0.05009531400966183,
+          "changed": 73
+        },
+        "night": {
+          "count": 19066,
+          "luminance": 32.86892794503215,
+          "emission": 0.4733167523339983,
+          "changed": 869
+        }
+      },
+      "compared": 54677,
+      "mismatched": 0,
+      "signature": 1660317220,
+      "irradiance": {
+        "groups": {
+          "day": {
+            "count": 19051,
+            "luminance": 160.02593338933883,
+            "emission": 0,
+            "changed": 0
+          },
+          "twilight": {
+            "count": 16560,
+            "luminance": 78.07205327293498,
+            "emission": 0,
+            "changed": 0
+          },
+          "night": {
+            "count": 19066,
+            "luminance": 57.017199999997835,
+            "emission": 0,
+            "changed": 0
+          }
+        },
+        "compared": 54677,
+        "mismatched": 0,
+        "signature": 1660317220
+      }
+    },
+    {
+      "theme": "Dark",
+      "candidate": "A",
+      "groups": {
+        "day": {
+          "count": 19051,
+          "luminance": 37.71920454569342,
+          "emission": 0,
+          "changed": 0
+        },
+        "twilight": {
+          "count": 16560,
+          "luminance": 17.66875311594111,
+          "emission": 0.11501661835748792,
+          "changed": 90
+        },
+        "night": {
+          "count": 19066,
+          "luminance": 22.651883436483235,
+          "emission": 1.1057277562152523,
+          "changed": 1060
+        }
+      },
+      "compared": 54677,
+      "mismatched": 0,
+      "signature": 1660317220,
+      "irradiance": {
+        "groups": {
+          "day": {
+            "count": 19051,
+            "luminance": 128.3944188546666,
+            "emission": 0,
+            "changed": 0
+          },
+          "twilight": {
+            "count": 16560,
+            "luminance": 55.725218683582185,
+            "emission": 0,
+            "changed": 0
+          },
+          "night": {
+            "count": 19066,
+            "luminance": 38.89800000000609,
+            "emission": 0,
+            "changed": 0
+          }
+        },
+        "compared": 54677,
+        "mismatched": 0,
+        "signature": 1660317220
+      }
+    },
+    {
+      "theme": "Dark",
+      "candidate": "B",
+      "groups": {
+        "day": {
+          "count": 19051,
+          "luminance": 37.71920454569342,
+          "emission": 0,
+          "changed": 0
+        },
+        "twilight": {
+          "count": 16560,
+          "luminance": 17.66875311594111,
+          "emission": 0.11501661835748792,
+          "changed": 90
+        },
+        "night": {
+          "count": 19066,
+          "luminance": 22.651883436483235,
+          "emission": 1.1057277562152523,
+          "changed": 1060
+        }
+      },
+      "compared": 54677,
+      "mismatched": 0,
+      "signature": 1660317220,
+      "irradiance": {
+        "groups": {
+          "day": {
+            "count": 19051,
+            "luminance": 128.3944188546666,
+            "emission": 0,
+            "changed": 0
+          },
+          "twilight": {
+            "count": 16560,
+            "luminance": 55.725218683582185,
+            "emission": 0,
+            "changed": 0
+          },
+          "night": {
+            "count": 19066,
+            "luminance": 38.89800000000609,
+            "emission": 0,
+            "changed": 0
+          }
+        },
+        "compared": 54677,
+        "mismatched": 0,
+        "signature": 1660317220
+      }
+    }
+  ],
+  "errors": []
+}
