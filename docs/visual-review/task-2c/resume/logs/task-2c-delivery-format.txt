@@ -1,0 +1,6 @@
+
+> keepraw-fly@0.1.0 format:check C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> prettier --check "**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}"
+
+Checking formatting...
+All matched files use Prettier code style!

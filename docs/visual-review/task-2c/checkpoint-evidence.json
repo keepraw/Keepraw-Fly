@@ -1,0 +1,1706 @@
+{
+  "task": "Task 2C — PAUSED / CHECKPOINT",
+  "recordedAt": "2026-10-10T17:05:38.9914099+08:00",
+  "baseline": "b54f1b04f936bf227f1c3882a4aee58163df2647",
+  "branch": "codex/globe-prototype-experiment",
+  "fontVersion": "4.3.1",
+  "visualAcceptance": "Pending",
+  "finalCapture": {
+    "status": "Failed after native 100-percent matrix completed; 125-percent settlement timeout",
+    "geometry100": "36 cases completed according to original log: three locales, two themes, six sizes",
+    "geometry125": "Pending",
+    "finalBrowserManifestWritten": false,
+    "logPath": "artifacts/task-2c-capture-final.log",
+    "originalLog": "Native browser zoom 100%: locale/theme/viewport matrix completed.\r\nnode:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\npage.waitForFunction: Timeout 30000ms exceeded.\r\n    at waitForTypography (C:\\Users\\forgo\\Documents\\Keepraw-Fly\\scripts\\passport-typography-evidence.mjs:162:14)\r\n    at async file:///C:/Users/forgo/Documents/Keepraw-Fly/scripts/capture-task-2c.mjs:178:16 {\r\n  log: [],\r\n  name: 'TimeoutError'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+  },
+  "previousCaptureFailure": {
+    "logPath": "artifacts/task-2c-capture.log",
+    "stage": "Earlier English glyph-range failure before current line-height adjustment",
+    "originalLog": "node:internal/modules/run_main:107\r\n    triggerUncaughtException(\r\n    ^\r\n\r\nAssertionError [ERR_ASSERTION]: 1/en/dark/1646: text or clipping\r\n+ actual - expected\r\n\r\n+ [\r\n+   'text::3h 22m',\r\n+   'text::BOM',\r\n+   'text::HKG'\r\n+ ]\r\n- []\r\n\r\n    at file:///C:/Users/forgo/Documents/Keepraw-Fly/scripts/capture-task-2c.mjs:212:18 {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: [ 'text::3h 22m', 'text::BOM', 'text::HKG' ],\r\n  expected: [],\r\n  operator: 'deepStrictEqual',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v24.19.0\r\n"
+  },
+  "quickChecks": {
+    "gitDiffCheckExitCode": 0,
+    "scriptSyntax": [
+      {
+        "file": "scripts/passport-typography-evidence.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      {
+        "file": "scripts/capture-task-2c.mjs",
+        "exitCode": 0,
+        "output": ""
+      }
+    ],
+    "task2cUnitStaticBuildPlaywright": "Not run / Pending"
+  },
+  "screenshots": [
+    {
+      "file": "before-zh-CN-dark-1440x900.png",
+      "kind": "baseline",
+      "bytes": 582666,
+      "sha256": "03a6b532855c502d8876c93b05a2e2c67e678ddd052f4b19237921e667373c28"
+    },
+    {
+      "file": "before-zh-CN-light-1440x900.png",
+      "kind": "baseline",
+      "bytes": 560302,
+      "sha256": "d475079d53f834b1f3280bb238ee6533c317f2f2b08c715ce9c36b3cf0f946ee"
+    },
+    {
+      "file": "before-zh-TW-dark-1440x900.png",
+      "kind": "baseline",
+      "bytes": 583512,
+      "sha256": "1c74589a1705e41ff0e5f7f61561b7e2ce27b3c57c6a6ec730f164e0c5a8a067"
+    },
+    {
+      "file": "before-zh-TW-light-1440x900.png",
+      "kind": "baseline",
+      "bytes": 561184,
+      "sha256": "17616e7c68f4fb97c8152647618bd6e299b1133df739fd63d7e2c07a94d1bce8"
+    },
+    {
+      "file": "passport-en-dark-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 588566,
+      "sha256": "8ac70036be656baeccafc7b39ea37967e50f8563bed9379798101f5e7df8ffbf"
+    },
+    {
+      "file": "passport-en-light-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 566704,
+      "sha256": "d26d695a266f2343a7ed6eeff38cc4656ae788d3d006a503dc2bdf655d8d160c"
+    },
+    {
+      "file": "passport-zh-CN-dark-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 592057,
+      "sha256": "af466dfc348b1852d86d3c6e6cb9b3a938d1d75ce62e311d0487da84ef55039c"
+    },
+    {
+      "file": "passport-zh-CN-dark-1646x928.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 687029,
+      "sha256": "ec02c7c9431707701925966dee0e7ad3e881478dedbf4a79919dff698b958c50"
+    },
+    {
+      "file": "passport-zh-CN-light-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 569742,
+      "sha256": "9ed772cfa6da23971cd7e3980db3073f85a33b095042de518ccad8dba038dc11"
+    },
+    {
+      "file": "passport-zh-CN-light-1646x928.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 656196,
+      "sha256": "f358f3ebd39bcf645c3a8d363b9fcf6766ba6825b8281349e8fd9c8b54db2e37"
+    },
+    {
+      "file": "passport-zh-TW-dark-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 569672,
+      "sha256": "ae6e0b7e661f4ba9c852ba29662c5e40681e22a99fa8cb1d972d28522c6850aa"
+    },
+    {
+      "file": "passport-zh-TW-dark-1646x928.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 663707,
+      "sha256": "6ac1ee47e7e5e0135ae8b859d30a1023313510d4ce9751b805c3f0af48242606"
+    },
+    {
+      "file": "passport-zh-TW-light-1440x900.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 547043,
+      "sha256": "d53682b9d88d5c2374cf4cfc02c02cd4db303759389c2242bd534dfc861de41f"
+    },
+    {
+      "file": "passport-zh-TW-light-1646x928.png",
+      "kind": "current-candidate-100-percent",
+      "bytes": 632114,
+      "sha256": "a70123090459b223745954037c22d169eecb85d0b94d92f9d2082f23b6fae83f"
+    }
+  ],
+  "preliminaryCnProbe": {
+    "stage": "Earlier successful CN network and geometry probe; predates final StatisticValue spans and English line-height changes; not final-code acceptance",
+    "originalPath": "artifacts/task-2c-probe.json",
+    "data": {
+      "records": [
+        {
+          "viewport": {
+            "width": 1646,
+            "height": 928,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 418,
+            "y": 77,
+            "width": 1204,
+            "height": 827,
+            "right": 1622,
+            "bottom": 904
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 418,
+              "y": 77,
+              "width": 1204,
+              "height": 28,
+              "right": 1622,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 418,
+              "y": 113,
+              "width": 1204,
+              "height": 551.015625,
+              "right": 1622,
+              "bottom": 664.015625
+            },
+            ".passport-core-stats": {
+              "x": 418,
+              "y": 672.015625,
+              "width": 1204,
+              "height": 69.6875,
+              "right": 1622,
+              "bottom": 741.703125
+            },
+            ".passport-highlights": {
+              "x": 418,
+              "y": 749.703125,
+              "width": 1204,
+              "height": 154.296875,
+              "right": 1622,
+              "bottom": 904
+            },
+            ".passport-longest-flight": {
+              "x": 1187.765625,
+              "y": 749.703125,
+              "width": 434.21875,
+              "height": 154.296875,
+              "right": 1621.984375,
+              "bottom": 904
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 827,
+            "scrollHeight": 827,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 695,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 418,
+              "y": 680.015625,
+              "width": 325.390625,
+              "height": 50.6875,
+              "right": 743.390625,
+              "bottom": 730.703125
+            },
+            {
+              "text": "12航班",
+              "x": 743.390625,
+              "y": 680.015625,
+              "width": 141.015625,
+              "height": 50.6875,
+              "right": 884.40625,
+              "bottom": 730.703125
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 884.40625,
+              "y": 680.015625,
+              "width": 282.015625,
+              "height": 50.6875,
+              "right": 1166.421875,
+              "bottom": 730.703125
+            },
+            {
+              "text": "7机场",
+              "x": 1166.421875,
+              "y": 680.015625,
+              "width": 151.859375,
+              "height": 50.6875,
+              "right": 1318.28125,
+              "bottom": 730.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 1318.28125,
+              "y": 680.015625,
+              "width": 151.859375,
+              "height": 50.6875,
+              "right": 1470.140625,
+              "bottom": 730.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 1470.140625,
+              "y": 680.015625,
+              "width": 151.859375,
+              "height": 50.6875,
+              "right": 1622,
+              "bottom": 730.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 1440,
+            "height": 900,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 799,
+            "right": 1416,
+            "bottom": 876
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 418,
+              "y": 77,
+              "width": 998,
+              "height": 28,
+              "right": 1416,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 418,
+              "y": 113,
+              "width": 998,
+              "height": 524.296875,
+              "right": 1416,
+              "bottom": 637.296875
+            },
+            ".passport-core-stats": {
+              "x": 418,
+              "y": 645.296875,
+              "width": 998,
+              "height": 68.40625,
+              "right": 1416,
+              "bottom": 713.703125
+            },
+            ".passport-highlights": {
+              "x": 418,
+              "y": 721.703125,
+              "width": 998,
+              "height": 154.296875,
+              "right": 1416,
+              "bottom": 876
+            },
+            ".passport-longest-flight": {
+              "x": 1056.0625,
+              "y": 721.703125,
+              "width": 359.921875,
+              "height": 154.296875,
+              "right": 1415.984375,
+              "bottom": 876
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 799,
+            "scrollHeight": 799,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 667,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 418,
+              "y": 653.296875,
+              "width": 269.71875,
+              "height": 49.40625,
+              "right": 687.71875,
+              "bottom": 702.703125
+            },
+            {
+              "text": "12航班",
+              "x": 687.71875,
+              "y": 653.296875,
+              "width": 116.890625,
+              "height": 49.40625,
+              "right": 804.609375,
+              "bottom": 702.703125
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 804.609375,
+              "y": 653.296875,
+              "width": 233.765625,
+              "height": 49.40625,
+              "right": 1038.375,
+              "bottom": 702.703125
+            },
+            {
+              "text": "7机场",
+              "x": 1038.375,
+              "y": 653.296875,
+              "width": 125.875,
+              "height": 49.40625,
+              "right": 1164.25,
+              "bottom": 702.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 1164.25,
+              "y": 653.296875,
+              "width": 125.875,
+              "height": 49.40625,
+              "right": 1290.125,
+              "bottom": 702.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 1290.125,
+              "y": 653.296875,
+              "width": 125.875,
+              "height": 49.40625,
+              "right": 1416,
+              "bottom": 702.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 1366,
+            "height": 768,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 416.8125,
+            "y": 77,
+            "width": 925.1875,
+            "height": 667,
+            "right": 1342,
+            "bottom": 744
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 416.8125,
+              "y": 77,
+              "width": 925.1875,
+              "height": 28,
+              "right": 1342,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 416.8125,
+              "y": 113,
+              "width": 925.1875,
+              "height": 393.90625,
+              "right": 1342,
+              "bottom": 506.90625
+            },
+            ".passport-core-stats": {
+              "x": 416.8125,
+              "y": 514.90625,
+              "width": 925.1875,
+              "height": 66.796875,
+              "right": 1342,
+              "bottom": 581.703125
+            },
+            ".passport-highlights": {
+              "x": 416.8125,
+              "y": 589.703125,
+              "width": 925.1875,
+              "height": 154.296875,
+              "right": 1342,
+              "bottom": 744
+            },
+            ".passport-longest-flight": {
+              "x": 1008.3125,
+              "y": 589.703125,
+              "width": 333.671875,
+              "height": 154.296875,
+              "right": 1341.984375,
+              "bottom": 744
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 667,
+            "scrollHeight": 667,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 535,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 416.8125,
+              "y": 522.90625,
+              "width": 250.046875,
+              "height": 47.796875,
+              "right": 666.859375,
+              "bottom": 570.703125
+            },
+            {
+              "text": "12航班",
+              "x": 666.859375,
+              "y": 522.90625,
+              "width": 108.34375,
+              "height": 47.796875,
+              "right": 775.203125,
+              "bottom": 570.703125
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 775.203125,
+              "y": 522.90625,
+              "width": 216.71875,
+              "height": 47.796875,
+              "right": 991.921875,
+              "bottom": 570.703125
+            },
+            {
+              "text": "7机场",
+              "x": 991.921875,
+              "y": 522.90625,
+              "width": 116.6875,
+              "height": 47.796875,
+              "right": 1108.609375,
+              "bottom": 570.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 1108.609375,
+              "y": 522.90625,
+              "width": 116.6875,
+              "height": 47.796875,
+              "right": 1225.296875,
+              "bottom": 570.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 1225.296875,
+              "y": 522.90625,
+              "width": 116.703125,
+              "height": 47.796875,
+              "right": 1342,
+              "bottom": 570.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 720,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 393.59375,
+            "y": 77,
+            "width": 862.40625,
+            "height": 619,
+            "right": 1256,
+            "bottom": 696
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 393.59375,
+              "y": 77,
+              "width": 862.40625,
+              "height": 28,
+              "right": 1256,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 393.59375,
+              "y": 113,
+              "width": 862.40625,
+              "height": 347.765625,
+              "right": 1256,
+              "bottom": 460.765625
+            },
+            ".passport-core-stats": {
+              "x": 393.59375,
+              "y": 468.765625,
+              "width": 862.40625,
+              "height": 64.9375,
+              "right": 1256,
+              "bottom": 533.703125
+            },
+            ".passport-highlights": {
+              "x": 393.59375,
+              "y": 541.703125,
+              "width": 862.40625,
+              "height": 154.296875,
+              "right": 1256,
+              "bottom": 696
+            },
+            ".passport-longest-flight": {
+              "x": 944.953125,
+              "y": 541.703125,
+              "width": 311.03125,
+              "height": 154.296875,
+              "right": 1255.984375,
+              "bottom": 696
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 619,
+            "scrollHeight": 619,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 487,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 393.59375,
+              "y": 476.765625,
+              "width": 233.078125,
+              "height": 45.9375,
+              "right": 626.671875,
+              "bottom": 522.703125
+            },
+            {
+              "text": "12航班",
+              "x": 626.671875,
+              "y": 476.765625,
+              "width": 101,
+              "height": 45.9375,
+              "right": 727.671875,
+              "bottom": 522.703125
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 727.671875,
+              "y": 476.765625,
+              "width": 202,
+              "height": 45.9375,
+              "right": 929.671875,
+              "bottom": 522.703125
+            },
+            {
+              "text": "7机场",
+              "x": 929.671875,
+              "y": 476.765625,
+              "width": 108.78125,
+              "height": 45.9375,
+              "right": 1038.453125,
+              "bottom": 522.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 1038.453125,
+              "y": 476.765625,
+              "width": 108.765625,
+              "height": 45.9375,
+              "right": 1147.21875,
+              "bottom": 522.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 1147.21875,
+              "y": 476.765625,
+              "width": 108.78125,
+              "height": 45.9375,
+              "right": 1256,
+              "bottom": 522.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 1024,
+            "height": 768,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 324,
+            "y": 77,
+            "width": 684,
+            "height": 667,
+            "right": 1008,
+            "bottom": 744
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 324,
+              "y": 77,
+              "width": 684,
+              "height": 28,
+              "right": 1008,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 324,
+              "y": 113,
+              "width": 684,
+              "height": 309.109375,
+              "right": 1008,
+              "bottom": 422.109375
+            },
+            ".passport-core-stats": {
+              "x": 324,
+              "y": 430.109375,
+              "width": 684,
+              "height": 61.59375,
+              "right": 1008,
+              "bottom": 491.703125
+            },
+            ".passport-highlights": {
+              "x": 324,
+              "y": 499.703125,
+              "width": 684,
+              "height": 244.296875,
+              "right": 1008,
+              "bottom": 744
+            },
+            ".passport-longest-flight": {
+              "x": 324,
+              "y": 657.5,
+              "width": 684,
+              "height": 86.5,
+              "right": 1008,
+              "bottom": 744
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 667,
+            "scrollHeight": 667,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 535,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 324,
+              "y": 438.109375,
+              "width": 184.859375,
+              "height": 42.59375,
+              "right": 508.859375,
+              "bottom": 480.703125
+            },
+            {
+              "text": "12航班",
+              "x": 508.859375,
+              "y": 438.109375,
+              "width": 80.109375,
+              "height": 42.59375,
+              "right": 588.96875,
+              "bottom": 480.703125
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 588.96875,
+              "y": 438.109375,
+              "width": 160.21875,
+              "height": 42.59375,
+              "right": 749.1875,
+              "bottom": 480.703125
+            },
+            {
+              "text": "7机场",
+              "x": 749.1875,
+              "y": 438.109375,
+              "width": 86.265625,
+              "height": 42.59375,
+              "right": 835.453125,
+              "bottom": 480.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 835.453125,
+              "y": 438.109375,
+              "width": 86.265625,
+              "height": 42.59375,
+              "right": 921.71875,
+              "bottom": 480.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 921.71875,
+              "y": 438.109375,
+              "width": 86.28125,
+              "height": 42.59375,
+              "right": 1008,
+              "bottom": 480.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        },
+        {
+          "viewport": {
+            "width": 761,
+            "height": 900,
+            "devicePixelRatio": 1
+          },
+          "documentFits": true,
+          "right": {
+            "x": 324,
+            "y": 77,
+            "width": 421,
+            "height": 799,
+            "right": 745,
+            "bottom": 876
+          },
+          "components": {
+            ".passport-scope": {
+              "x": 324,
+              "y": 77,
+              "width": 421,
+              "height": 28,
+              "right": 745,
+              "bottom": 105
+            },
+            ".route-map": {
+              "x": 324,
+              "y": 113,
+              "width": 421,
+              "height": 388.515625,
+              "right": 745,
+              "bottom": 501.515625
+            },
+            ".passport-core-stats": {
+              "x": 324,
+              "y": 509.515625,
+              "width": 421,
+              "height": 114.1875,
+              "right": 745,
+              "bottom": 623.703125
+            },
+            ".passport-highlights": {
+              "x": 324,
+              "y": 631.703125,
+              "width": 421,
+              "height": 244.296875,
+              "right": 745,
+              "bottom": 876
+            },
+            ".passport-longest-flight": {
+              "x": 324,
+              "y": 789.5,
+              "width": 421,
+              "height": 86.5,
+              "right": 745,
+              "bottom": 876
+            }
+          },
+          "failures": [],
+          "controlsContained": true,
+          "rightScroll": {
+            "clientHeight": 799,
+            "scrollHeight": 799,
+            "overflowY": "visible",
+            "required": false,
+            "reachableBottom": true
+          },
+          "bottomSafety": 24,
+          "archiveScroll": {
+            "clientHeight": 667,
+            "scrollHeight": 966,
+            "overflowY": "auto"
+          },
+          "longestHasMap": false,
+          "kpis": [
+            {
+              "text": "13,165 英里距离",
+              "x": 324,
+              "y": 517.515625,
+              "width": 172.53125,
+              "height": 42.59375,
+              "right": 496.53125,
+              "bottom": 560.109375
+            },
+            {
+              "text": "12航班",
+              "x": 496.53125,
+              "y": 517.515625,
+              "width": 96.625,
+              "height": 42.59375,
+              "right": 593.15625,
+              "bottom": 560.109375
+            },
+            {
+              "text": "35小时 51分飞行时长",
+              "x": 593.15625,
+              "y": 517.515625,
+              "width": 151.828125,
+              "height": 42.59375,
+              "right": 744.984375,
+              "bottom": 560.109375
+            },
+            {
+              "text": "7机场",
+              "x": 324,
+              "y": 570.109375,
+              "width": 172.53125,
+              "height": 42.59375,
+              "right": 496.53125,
+              "bottom": 612.703125
+            },
+            {
+              "text": "5航空公司",
+              "x": 496.53125,
+              "y": 570.109375,
+              "width": 96.625,
+              "height": 42.59375,
+              "right": 593.15625,
+              "bottom": 612.703125
+            },
+            {
+              "text": "3国家与地区",
+              "x": 593.15625,
+              "y": 570.109375,
+              "width": 151.828125,
+              "height": 42.59375,
+              "right": 744.984375,
+              "bottom": 612.703125
+            }
+          ],
+          "routePaths": [
+            {
+              "route": null,
+              "path": "M520.6,163.1L526.5,140.7L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.5,140.7L520.6,163.1"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L526.7,141.2L532.7,119.3"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L526.7,141.2L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M519.2,160.6L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L531.2,121.5L523.6,108"
+            },
+            {
+              "route": null,
+              "path": "M520.9,164.2L508.1,163.6L495.3,163.6L482.5,164.2L469.7,165.3L457,166.9L444.3,169.1L419.1,174.9"
+            },
+            {
+              "route": null,
+              "path": "M419.1,174.9L444.3,169.1L457,166.9L469.7,165.3L482.5,164.2L495.3,163.6L508.1,163.6L520.9,164.2"
+            },
+            {
+              "route": null,
+              "path": "M520.6,163.1L519.2,160.6"
+            },
+            {
+              "route": null,
+              "path": "M523.6,108L531.2,121.5L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M532.7,119.3L538.2,135.5"
+            },
+            {
+              "route": null,
+              "path": "M538.2,135.5L529.2,149L520.6,163.1"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/result.min.css",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-semibold/result.min.css",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-medium/result.min.css",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/0.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/16.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/19.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/12.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/11.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/15.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/17.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/13.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/18.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/20.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/10.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/23.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/14.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/21.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/80.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/84.woff2",
+          "status": 200
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/misans/misans-regular/2.woff2",
+          "status": 200
+        }
+      ],
+      "fonts": [
+        {
+          "selector": ".passport-map-title",
+          "fonts": [
+            {
+              "familyName": "MiSans",
+              "postScriptName": "MiSans-Regular",
+              "isCustomFont": true,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "selector": ".flight-route-cities",
+          "fonts": [
+            {
+              "familyName": "MiSans",
+              "postScriptName": "MiSans-Regular",
+              "isCustomFont": true,
+              "glyphCount": 4
+            },
+            {
+              "familyName": "Segoe UI Variable",
+              "postScriptName": "Segoe-UI-Variable-Text-Light",
+              "isCustomFont": false,
+              "glyphCount": 1
+            }
+          ]
+        },
+        {
+          "selector": ".passport-airport-name",
+          "fonts": [
+            {
+              "familyName": "MiSans",
+              "postScriptName": "MiSans-Regular",
+              "isCustomFont": true,
+              "glyphCount": 3
+            },
+            {
+              "familyName": "Segoe UI Variable",
+              "postScriptName": "Segoe-UI-Variable-Text",
+              "isCustomFont": false,
+              "glyphCount": 5
+            }
+          ]
+        },
+        {
+          "selector": ".passport-core-stat strong",
+          "fonts": [
+            {
+              "familyName": "MiSans",
+              "postScriptName": "MiSans-Regular",
+              "isCustomFont": true,
+              "glyphCount": 2
+            },
+            {
+              "familyName": "Segoe UI Variable",
+              "postScriptName": "Segoe-UI-Variable-Text-Semibold",
+              "isCustomFont": false,
+              "glyphCount": 7
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "baselineEvidence": {
+    "stage": "Pre-Task-2C baseline",
+    "originalPath": "artifacts/task-2c-before.json",
+    "data": [
+      {
+        "locale": "zh-CN",
+        "theme": "dark",
+        "file": "before-zh-CN-dark-1440x900.png",
+        "geometry": {
+          ".passport-layout": {
+            "x": 24,
+            "y": 77,
+            "width": 1392,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-visual": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-visual-sticky": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".route-map": {
+            "x": 418,
+            "y": 113,
+            "width": 998,
+            "height": 546.046875,
+            "bottom": 659.046875,
+            "scrollHeight": 544,
+            "clientHeight": 544,
+            "overflowY": "hidden",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-core-stats": {
+            "x": 418,
+            "y": 667.046875,
+            "width": 998,
+            "height": 64.953125,
+            "bottom": 732,
+            "scrollHeight": 64,
+            "clientHeight": 64,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-highlights": {
+            "x": 418,
+            "y": 740,
+            "width": 998,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-longest-flight": {
+            "x": 1056.0625,
+            "y": 740,
+            "width": 359.921875,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          }
+        }
+      },
+      {
+        "locale": "zh-CN",
+        "theme": "light",
+        "file": "before-zh-CN-light-1440x900.png",
+        "geometry": {
+          ".passport-layout": {
+            "x": 24,
+            "y": 77,
+            "width": 1392,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-visual": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-visual-sticky": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".route-map": {
+            "x": 418,
+            "y": 113,
+            "width": 998,
+            "height": 546.046875,
+            "bottom": 659.046875,
+            "scrollHeight": 544,
+            "clientHeight": 544,
+            "overflowY": "hidden",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-core-stats": {
+            "x": 418,
+            "y": 667.046875,
+            "width": 998,
+            "height": 64.953125,
+            "bottom": 732,
+            "scrollHeight": 64,
+            "clientHeight": 64,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-highlights": {
+            "x": 418,
+            "y": 740,
+            "width": 998,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          },
+          ".passport-longest-flight": {
+            "x": 1056.0625,
+            "y": 740,
+            "width": 359.921875,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Source Han Sans SC\", sans-serif"
+          }
+        }
+      },
+      {
+        "locale": "zh-TW",
+        "theme": "dark",
+        "file": "before-zh-TW-dark-1440x900.png",
+        "geometry": {
+          ".passport-layout": {
+            "x": 24,
+            "y": 77,
+            "width": 1392,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-visual": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-visual-sticky": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".route-map": {
+            "x": 418,
+            "y": 113,
+            "width": 998,
+            "height": 546.046875,
+            "bottom": 659.046875,
+            "scrollHeight": 544,
+            "clientHeight": 544,
+            "overflowY": "hidden",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-core-stats": {
+            "x": 418,
+            "y": 667.046875,
+            "width": 998,
+            "height": 64.953125,
+            "bottom": 732,
+            "scrollHeight": 64,
+            "clientHeight": 64,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-highlights": {
+            "x": 418,
+            "y": 740,
+            "width": 998,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-longest-flight": {
+            "x": 1056.0625,
+            "y": 740,
+            "width": 359.921875,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          }
+        }
+      },
+      {
+        "locale": "zh-TW",
+        "theme": "light",
+        "file": "before-zh-TW-light-1440x900.png",
+        "geometry": {
+          ".passport-layout": {
+            "x": 24,
+            "y": 77,
+            "width": 1392,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-visual": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-visual-sticky": {
+            "x": 418,
+            "y": 77,
+            "width": 998,
+            "height": 807,
+            "bottom": 884,
+            "scrollHeight": 807,
+            "clientHeight": 807,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".route-map": {
+            "x": 418,
+            "y": 113,
+            "width": 998,
+            "height": 546.046875,
+            "bottom": 659.046875,
+            "scrollHeight": 544,
+            "clientHeight": 544,
+            "overflowY": "hidden",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-core-stats": {
+            "x": 418,
+            "y": 667.046875,
+            "width": 998,
+            "height": 64.953125,
+            "bottom": 732,
+            "scrollHeight": 64,
+            "clientHeight": 64,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-highlights": {
+            "x": 418,
+            "y": 740,
+            "width": 998,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          },
+          ".passport-longest-flight": {
+            "x": 1056.0625,
+            "y": 740,
+            "width": 359.921875,
+            "height": 144,
+            "bottom": 884,
+            "scrollHeight": 144,
+            "clientHeight": 144,
+            "overflowY": "visible",
+            "fontFamily": "Inter, \"Segoe UI Variable Text\", \"Segoe UI\", \"PingFang TC\", \"Microsoft JhengHei UI\", \"Microsoft JhengHei\", \"Noto Sans CJK TC\", \"Source Han Sans TC\", sans-serif"
+          }
+        }
+      }
+    ]
+  },
+  "latestObservedCi": {
+    "commit": "b54f1b04f936bf227f1c3882a4aee58163df2647",
+    "run": "https://github.com/keepraw/Keepraw-Fly/actions/runs/38036355339",
+    "status": "completed",
+    "conclusion": "success",
+    "appliesToTask2c": false
+  }
+}

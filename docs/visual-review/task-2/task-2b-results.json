@@ -1,0 +1,279 @@
+{
+  "task": "Task 2B — Statistics Visual Fidelity Pass",
+  "baseline": "fa3e10d457d84df96a47b59b4d1fd403451bc4a9",
+  "checks": {
+    "documentation": "passed before final handoff documentation edits; final changed-document check recorded in delivery",
+    "format": "passed before final handoff documentation edits; final changed-file check recorded in delivery",
+    "cssLint": "passed; not repeated",
+    "cssTokens": "passed: zero unresolved; not repeated",
+    "typecheck": "passed; not repeated",
+    "unitTests": {
+      "passed": 333,
+      "repeatedAfterOwnerStopInstruction": false
+    },
+    "productionBuild": "passed; existing >500kB chunk warning; not repeated"
+  },
+  "scopeDecision": {
+    "retained": "Task 2B implementation, aggregation/UI tests, layout selector/count updates, requested viewport coverage, capture evidence and documentation.",
+    "mapZoomTest": "Necessary adjustment: derive clicks from fitted map scale after dashboard height changes. Original per-step zoom and 8x-cap assertions retained.",
+    "reverted": "e2e/globe-solar.pw.ts synchronization experiment reverted completely to baseline; it did not establish or resolve the cause.",
+    "protectedFilesUnchanged": 44,
+    "assertionThresholdsChanged": false,
+    "hashBaselinesChanged": false,
+    "timeoutsChanged": false,
+    "retriesAdded": false,
+    "completeLocalE2EStopped": true
+  },
+  "chromium": {
+    "initialFull": {
+      "passed": 117,
+      "failed": 2,
+      "log": "artifacts/task-2b-chromium.log",
+      "failures": [
+        {
+          "location": "e2e/keepraw-fly.pw.ts:1682 (before adjustment)",
+          "status": "resolved by required fitted-scale calculation; focused follow-up passed",
+          "observation": "Fixed six clicks reached 6.65x after map height change instead of the retained 8x cap."
+        },
+        {
+          "location": "e2e/globe-solar.pw.ts:130",
+          "status": "unresolved",
+          "observation": "Diagnostic screenshot hash mismatch; cause not established."
+        }
+      ],
+      "traceAvailability": "Initial default-output trace was overwritten by a later run before dedicated output directories were adopted. Original log retained; second full run preserves the same original-test failure and trace."
+    },
+    "secondFull": {
+      "passed": 118,
+      "failed": 1,
+      "log": "artifacts/task-2b-chromium-final.log",
+      "failures": [
+        {
+          "location": "e2e/globe-solar.pw.ts:130",
+          "status": "unresolved",
+          "expected": "0f4fa0909c43b4fe03008b82315924f158663ea77cf3318880a50c36feca5d2f",
+          "received": "8ba73191a1f5987efc22646288598e7722ab1c7ead225266ebd117607ad51ea2",
+          "evidence": {
+            "directory": "artifacts/task-2b-chromium-final-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium",
+            "files": [
+              {
+                "path": "artifacts/task-2b-chromium-final-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/trace.zip",
+                "bytes": 5118144,
+                "sha256": "191e81b6e16fe0b9fdb18de4a6249e8c39a8291aad9d38346a2bdb6795b7d393"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-final-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/error-context.md",
+                "bytes": 24250,
+                "sha256": "57e2c90ad875c0eb21bf0f57664a00487a6a1d9015356e0107efd5609ea3ebb6"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-final-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/test-failed-1.png",
+                "bytes": 234722,
+                "sha256": "a7886dffd28ffc60478bb3486b0e6ee92f3445901ac13e7c91bb1a1380c1d3b8"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "thirdFull": {
+      "passed": 115,
+      "failed": 4,
+      "log": "artifacts/task-2b-chromium-verified.log",
+      "note": "Historical run included the subsequently reverted solar synchronization experiment. No rerun after owner stop instruction.",
+      "failures": [
+        {
+          "location": "e2e/desktop-readability.pw.ts:5",
+          "status": "unresolved",
+          "observation": "30000ms test timeout; cause not established.",
+          "evidence": {
+            "directory": "artifacts/task-2b-chromium-verified-results/desktop-readability.pw.ts--67bfe--adjacent-detail-navigation-chromium",
+            "files": [
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/desktop-readability.pw.ts--67bfe--adjacent-detail-navigation-chromium/trace.zip",
+                "bytes": 12693516,
+                "sha256": "ae97942aac1339b0d5923d0438c8635754453217aa169a4ef18767006ad0435c"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/desktop-readability.pw.ts--67bfe--adjacent-detail-navigation-chromium/error-context.md",
+                "bytes": 3600,
+                "sha256": "4c82c7317b7a81dc9d8d951343b2d1681ea43a391f06aec0414ba2805a5d3796"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/desktop-readability.pw.ts--67bfe--adjacent-detail-navigation-chromium/test-failed-1.png",
+                "bytes": 38607,
+                "sha256": "9e14248dfd0d2eda82b2afd4fc4de7989d80e00c7fbfb11f28c6748cf0250f9b"
+              }
+            ]
+          }
+        },
+        {
+          "location": "e2e/flight-row-navigation.pw.ts:5",
+          "status": "unresolved",
+          "observation": "30000ms test timeout; cause not established.",
+          "evidence": {
+            "directory": "artifacts/task-2b-chromium-verified-results/flight-row-navigation.pw.t-f88b3-rea-and-from-keyboard-focus-chromium",
+            "files": [
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/flight-row-navigation.pw.t-f88b3-rea-and-from-keyboard-focus-chromium/trace.zip",
+                "bytes": 22234415,
+                "sha256": "61830a1441a71a263752e1352514ab516134b429acac70eda51136ac78489070"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/flight-row-navigation.pw.t-f88b3-rea-and-from-keyboard-focus-chromium/error-context.md",
+                "bytes": 4626,
+                "sha256": "ab038c488a81ea3cafbda97068e7d66b354adceb13ced915b36c76a6d7ff05de"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/flight-row-navigation.pw.t-f88b3-rea-and-from-keyboard-focus-chromium/test-failed-1.png",
+                "bytes": 281503,
+                "sha256": "1a543b022860b3cdfa0b2ae022ee7b96617735c90b5e7f961024d81829fcd8d1"
+              }
+            ]
+          }
+        },
+        {
+          "location": "e2e/globe-solar.pw.ts:150 with reverted experiment; baseline/current location :130",
+          "status": "unresolved",
+          "observation": "Same two diagnostic hashes mismatched in reverse order despite experimental wait. No proven fix.",
+          "evidence": {
+            "directory": "artifacts/task-2b-chromium-verified-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium",
+            "files": [
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/trace.zip",
+                "bytes": 7642229,
+                "sha256": "2469c6d7c6bb734bc35ba0f7eba1b9de763e5270614b2829809374a62f0cdafc"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/error-context.md",
+                "bytes": 24275,
+                "sha256": "83c0bb61b643f3701395430b381fcc778b678c57777645c0af729ec0bcf2a995"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/globe-solar.pw.ts-real-Web-7290e-ities-across-themes-and-art-chromium/test-failed-1.png",
+                "bytes": 234181,
+                "sha256": "9ea2b9f35266807e4f3975844ef7555a029a7bda5987ad85032137a7c73d5b82"
+              }
+            ]
+          }
+        },
+        {
+          "location": "e2e/passport-legend.pw.ts:153",
+          "status": "unresolved in full-suite context",
+          "observation": "Immediate scrollWidth <= clientWidth + 1 assertion returned false. Passed earlier full runs and final unchanged targeted run. Cause not established; assertion retained.",
+          "evidence": {
+            "directory": "artifacts/task-2b-chromium-verified-results/passport-legend.pw.ts-pres-282cd-removes-them-only-on-mobile-chromium",
+            "files": [
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/passport-legend.pw.ts-pres-282cd-removes-them-only-on-mobile-chromium/trace.zip",
+                "bytes": 33644607,
+                "sha256": "a5bbfa4aa3eba250a32205cc14349a99d32914f57a1a0fdab440505ae4e68cec"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/passport-legend.pw.ts-pres-282cd-removes-them-only-on-mobile-chromium/error-context.md",
+                "bytes": 20145,
+                "sha256": "fafe28cc7a0a6dd78870e8a55fefb79b582d06c26b03dc992da3147fe8883664"
+              },
+              {
+                "path": "artifacts/task-2b-chromium-verified-results/passport-legend.pw.ts-pres-282cd-removes-them-only-on-mobile-chromium/test-failed-1.png",
+                "bytes": 416807,
+                "sha256": "4979199594a04468727b3a5df4f0535c99b08436de78b6008a20065bbf4224df"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "earlierFocusedFollowup": {
+      "passed": 2,
+      "log": "artifacts/task-2b-focused-followup.log",
+      "note": "Zoom-cap test and original solar test passed in isolation; this does not resolve the full-suite solar failure."
+    },
+    "abandonedSynchronizationExperiment": {
+      "passed": 3,
+      "log": "artifacts/task-2b-solar-frame.log",
+      "note": "Historical isolated evidence only. Experiment reverted; full-suite mismatch still occurred."
+    },
+    "deliveryTargeted": {
+      "passed": 5,
+      "failed": 0,
+      "durationSeconds": 36.5,
+      "runsAfterOwnerStopInstruction": 1,
+      "log": "artifacts/task-2b-delivery-focused.log",
+      "files": [
+        "e2e/passport-statistics.pw.ts",
+        "e2e/passport-desktop-design.pw.ts",
+        "e2e/passport-legend.pw.ts"
+      ]
+    }
+  },
+  "firefox": {
+    "status": "blocked before application assertions",
+    "casesBlocked": 26,
+    "error": "browserType.launch: spawn UNKNOWN",
+    "log": "artifacts/task-2b-firefox.log",
+    "retainedDiagnostics": "artifacts/task-2b-firefox-results",
+    "reproduced": "Also occurred with native-host execution. No further runs."
+  },
+  "webkit": {
+    "status": "not executed for Task 2B; no success claimed"
+  },
+  "reproduction": {
+    "command": "pnpm test:e2e --project=chromium",
+    "environment": "Windows; PLAYWRIGHT_EXECUTABLE_PATH=C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe; existing Vite development server",
+    "solar": "Failed in all three full runs; original test passed focused follow-up; reverted experiment passed isolated tests but failed full run.",
+    "navigationTimeouts": "Observed in third full run only.",
+    "passportOverflow": "Observed in third full run; final unchanged targeted case passed."
+  },
+  "retainedLogs": [
+    {
+      "path": "artifacts/task-2b-chromium.log",
+      "bytes": 24186,
+      "sha256": "7e006f69addb16d947f8a5a7ef2193b8cb643d64c07fee302f7f8cc3f230bea6"
+    },
+    {
+      "path": "artifacts/task-2b-chromium-final.log",
+      "bytes": 21788,
+      "sha256": "eb05c7909a8871df624ca71ddb9c49079ddd93e78ee3735876f37e6c37dee649"
+    },
+    {
+      "path": "artifacts/task-2b-chromium-verified.log",
+      "bytes": 28548,
+      "sha256": "2544f07083550e5088982adecec426bdb4a6833f3a1ec6add5d86978d98c76a7"
+    },
+    {
+      "path": "artifacts/task-2b-firefox.log",
+      "bytes": 48342,
+      "sha256": "10f26a994c6411b90242719692a0424b25ed83119f5b4620c59f2a50d723e1ac"
+    },
+    {
+      "path": "artifacts/task-2b-focused-followup.log",
+      "bytes": 880,
+      "sha256": "5c2895b4c1f6bc01505fe0f16a9e6742d1c02a4aa27cdade0729a0ee3a3634b7"
+    },
+    {
+      "path": "artifacts/task-2b-solar-frame.log",
+      "bytes": 1262,
+      "sha256": "c924c721003edef8ebf524ce27d33b238353d0b790f464edb9ac3d671e164432"
+    },
+    {
+      "path": "artifacts/task-2b-delivery-focused.log",
+      "bytes": 1533,
+      "sha256": "d35aa1cfe2b384cb7ae701ca5e8d92bc2de5db6877cfa30737d623b1382a3248"
+    }
+  ],
+  "screenshots": {
+    "count": 10,
+    "allRequestedViewports": true,
+    "geometryAndVisibleText": true,
+    "mapControlsContained": true,
+    "longestFlightContainsMap": false,
+    "approvedControlUnchanged": true
+  },
+  "ci": {
+    "checksUrl": "https://github.com/keepraw/Keepraw-Fly/pull/34/checks",
+    "atCommitPreparation": "Delivery commit not yet pushed; its remote CI has not run. Actual result/run URL will be reported in PR description and delivery after push."
+  },
+  "ownerVisualApproval": "pending",
+  "task3Started": false
+}

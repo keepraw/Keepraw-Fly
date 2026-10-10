@@ -1,5 +1,33 @@
 # Third-party notices
 
+## MiSans / MiSans TC webfonts
+
+Chinese UI typography uses **MiSans** (Simplified Chinese) and **MiSans TC**
+(Traditional Chinese), copyright Xiaomi. The fonts remain subject to Xiaomi's
+independent font license; see the [official font site](https://hyperos.mi.com/font/zh/)
+and [official font license](https://hyperos.mi.com/font-download/MiSans字体知识产权许可协议.pdf).
+They are not licensed under Keepraw Fly's MIT License or Apache-2.0.
+
+The approved third-party distribution is
+[mobeicanyue/misans-webfont](https://github.com/mobeicanyue/misans-webfont),
+fixed at **4.3.1**. That project's distribution code uses
+[Apache License 2.0](https://github.com/mobeicanyue/misans-webfont/blob/main/LICENSE);
+this does not relicense Xiaomi's font files. The owner's originally specified
+`4.003.1` returned 404 and was corrected to the published `4.3.1` with explicit
+owner approval.
+
+The viewer loads only the active Chinese locale's Regular (400), Medium (500)
+and Semibold (600) CSS from `https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/`.
+Those stylesheets use `font-display: swap` and `unicode-range` WOFF2 subsets.
+English retains the existing Inter/system font stack and does not initiate
+Chinese font downloads. No font binary is repackaged or committed here.
+
+jsDelivr is a third-party static-resource network dependency: it receives normal
+resource-request metadata such as IP address. Stylesheet links omit credentials
+and the page referrer; font requests contain no flight records, archive names or
+search/filter values. An unavailable CDN leaves the application usable with the
+existing system font fallbacks. Settings includes a visible Xiaomi attribution.
+
 ## airportsdata
 
 Keepraw Fly bundles a generated subset of the
@@ -85,3 +113,31 @@ distributed under the ISC License. Their license texts are included in
 
 Run `pnpm update:world-map` to regenerate the checked-in SVG paths and refresh
 the upstream license files from their pinned versions.
+
+## Three.js (development Globe Lab)
+
+The isolated, development-only Globe Lab uses Three.js 0.186.1 and its
+OrbitControls / Line2 addons under the MIT License. The complete notice is
+included in `apps/web/src/globe/LICENSE.three`. Normal production builds exclude
+the experiment and this dependency's browser code.
+
+## NASA Blue Marble (development Globe Lab)
+
+The Globe Lab bundles resized NASA Earth Observatory Blue Marble Next Generation
+July 2004 imagery with topography and bathymetry. NASA is credited in the Lab;
+no endorsement is implied. Source URL, usage guidelines, checksum, dimensions,
+asset sizes and generator are recorded in
+`apps/web/src/globe/globe-texture.source.json`. The source contains no NASA logos
+or identifiable people. NASA informational imagery usage terms are linked there;
+this is not a claim that all NASA imagery is unrestricted.
+
+## NASA Black Marble (development Globe Lab)
+
+The Lab also bundles downsampled, lossless grayscale NASA Earth at Night / Black
+Marble 2016 imagery, credited to NASA Earth Observatory / Joshua Stevens, using
+Suomi NPP VIIRS data from Miguel Román, NASA GSFC. It provides historical,
+geographically registered city-light intensity rather than live observations.
+Source URL, source and output SHA-256 hashes, dimensions, bounds, processing,
+usage guidelines and generator are recorded in
+`apps/web/src/globe/globe-night-texture.source.json`. NASA's informational imagery
+guidelines apply; no endorsement, logos or identifiable people are included.

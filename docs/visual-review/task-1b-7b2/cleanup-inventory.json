@@ -1,0 +1,884 @@
+{
+  "baselineCommit": "8e759707c1c265b360183160f6fe369428e30b4a",
+  "scope": "Tracked Task 1B PNGs only; Git history is unchanged",
+  "before": {
+    "files": 124,
+    "bytes": 72540308
+  },
+  "after": {
+    "files": 6,
+    "bytes": 4000991
+  },
+  "removedBytes": 68539317,
+  "note": "Reduction is checkout/current-tree payload; historical Git object storage is retained.",
+  "files": [
+    {
+      "file": "docs/visual-review/task-1b-1/after-dark-complete-1280.png",
+      "bytes": 353744,
+      "sha256": "9225418c00f5013b5dea1ee90ee8e783460a59c5fcdf8b445ceebdc0a38ef94b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-dark-complete-1440.png",
+      "bytes": 562227,
+      "sha256": "a4a45b77e25c136f37c8736e1c956dff1fb6178dd57371bc6329dd6959b3cb88",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-dark-earth-1440.png",
+      "bytes": 532715,
+      "sha256": "683d39138bae9ffaeaf0a580bb29127178c9c6e9c2ad389a79cb6690d60ff2fe",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-dark-review-controls.png",
+      "bytes": 580796,
+      "sha256": "2378ed1945e81e504638496163f609142a8bd2ba74eef709c7b6930829b207d0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-dark-rotated-1440.png",
+      "bytes": 550278,
+      "sha256": "89aa59669d1fa4ce34deecc283619ba75dc633a36564bb7b1a910277f92abf41",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-light-complete-1440.png",
+      "bytes": 559195,
+      "sha256": "4b280573ae857f283fe7c259ef7b24323854221e5bd30fb8083064834c507e2e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/after-light-earth-1440.png",
+      "bytes": 532643,
+      "sha256": "50f2cc2a82ff4244ac7add60190bbe035ae6a6a8da0b61d31971ff2ed150b5cc",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/before-dark-complete-1440.png",
+      "bytes": 525595,
+      "sha256": "cc1ebdb1cd671710b025f14c0bff6aaefd8221652d6534de49acd842f674e50b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-1/before-light-complete-1440.png",
+      "bytes": 583270,
+      "sha256": "f8e0c498047943fc1bb1812f09e7b170702737c5504ecd06d6b2642c9400d7dc",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-asia-1440.png",
+      "bytes": 649034,
+      "sha256": "66c66328ffb6fc488630dca4d42a91db53ecaf7ab8a66290a48d1b1a37cba7d9",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-default-1280.png",
+      "bytes": 394148,
+      "sha256": "7b0645a8b339c5b2c451405081cbb22bab979d668b1ac7915d7f34b42fc050a0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-default-1440.png",
+      "bytes": 621921,
+      "sha256": "d344aad0e275a5e0e94268455cd11c1c502075e002ef70b74d0d891d87f2b366",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-earth-1440.png",
+      "bytes": 604720,
+      "sha256": "5646d588ca030eefe4beddf8ec5f01ed050a10d971c004df15d88530c5d7ed9a",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-fixed-b1-asia-1440.png",
+      "bytes": 622507,
+      "sha256": "fbbcd8f398a957ab2e23682470eb3ddd90bae45e4b853948cf15b7f30107704c",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-fixed-b1-default-1440.png",
+      "bytes": 590753,
+      "sha256": "04274166c6ec55cbbbd54dd84f05ec2d3c295d3d407ea3870dc9151d88336d4b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-fixed-b1-earth-1440.png",
+      "bytes": 568352,
+      "sha256": "d01b9b3dec1f8437b9b768c50d7f7db4940e0339905dba298db00f684497af01",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-fixed-b1-north-america-1440.png",
+      "bytes": 571095,
+      "sha256": "4adb2ef5e3c15be53dd7e80070d02f48cc5488ef3fad9257d2dab491ee1daa64",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-north-america-1440.png",
+      "bytes": 582520,
+      "sha256": "393e55050f9fa923fa4616f9b2dd6b6a3477b7e0ddabd6ad62b8f6fe03a414ce",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-dark-selected-long-haul-1440.png",
+      "bytes": 591432,
+      "sha256": "ae04d5923283f1176fcc639a0dd593cd6668c04eba063a995fd6a0646fa77a16",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-light-default-1280.png",
+      "bytes": 364761,
+      "sha256": "dd3b17c04b383f2116d5ff552d9f14a4d03ef606fe1f0eddd16889ab72aadad9",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-light-default-1440.png",
+      "bytes": 576893,
+      "sha256": "07a87b6a9b87b4dbf7660177cfab5725c710be3122b2fbaa8425c0aeca91a92e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-light-earth-1440.png",
+      "bytes": 559394,
+      "sha256": "f26b3b54cc9a095a0e69ddc07b55cff7a88726cf09fe12135ae6776ce80ecd4e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-light-fixed-b1-default-1440.png",
+      "bytes": 483083,
+      "sha256": "5e0e2dcfef6e583dba16ea2221791dba99de2fd86f91b46c24cac04b42aa0c3f",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/after-light-fixed-b1-earth-1440.png",
+      "bytes": 458581,
+      "sha256": "a02ae27b15eb69956df107021fb2cfe8e3745b3c41113d7f778d9812add1652f",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-asia-1440.png",
+      "bytes": 580394,
+      "sha256": "ba4650fef33b67dc4c7d80afeb5ecc876b622536a9b29c759a73bff89cefc782",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-default-1280.png",
+      "bytes": 353744,
+      "sha256": "9225418c00f5013b5dea1ee90ee8e783460a59c5fcdf8b445ceebdc0a38ef94b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-default-1440.png",
+      "bytes": 562227,
+      "sha256": "a4a45b77e25c136f37c8736e1c956dff1fb6178dd57371bc6329dd6959b3cb88",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-earth-1440.png",
+      "bytes": 532715,
+      "sha256": "683d39138bae9ffaeaf0a580bb29127178c9c6e9c2ad389a79cb6690d60ff2fe",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-north-america-1440.png",
+      "bytes": 508646,
+      "sha256": "bc159ab9a4b66aaac14b75d5aa3997a25b67c6e06c2e56ac0c05022460f7f746",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-dark-selected-long-haul-1440.png",
+      "bytes": 460354,
+      "sha256": "250ae3b4ddbd49582d8123f35c51f14b5077207275d4ff9969bd26ac9d148bf2",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-light-default-1280.png",
+      "bytes": 352333,
+      "sha256": "8d24c5d3ba9a16bb3ac2f55b3db7af9a32c7a7c79a3ebbc871bf49b7df8742e3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-light-default-1440.png",
+      "bytes": 559195,
+      "sha256": "4b280573ae857f283fe7c259ef7b24323854221e5bd30fb8083064834c507e2e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-2/before-light-earth-1440.png",
+      "bytes": 532643,
+      "sha256": "50f2cc2a82ff4244ac7add60190bbe035ae6a6a8da0b61d31971ff2ed150b5cc",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-dark-default-1280.png",
+      "bytes": 368160,
+      "sha256": "c830e3601392132634ac39b1407815d4802e45f1ed0f1e8d07fed13eaad719d3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-dark-default-1440.png",
+      "bytes": 573193,
+      "sha256": "2199ee0b817d714e11fcae0b20e4367c1828ebf2ce818d3628caf6727dff772e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-dark-earth-1440.png",
+      "bytes": 555730,
+      "sha256": "693aecf2c204835b056eac20eb93c4ec85bf33e96173eecc6176e099d50cd586",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-dark-passport-size-1440.png",
+      "bytes": 546310,
+      "sha256": "92dc5b52f3c409b5a0dc0ff3bfb53a83d47023ab08dac3092935e4e547f21878",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-dark-selected-1440.png",
+      "bytes": 647201,
+      "sha256": "e200e180b96ee70fdc1cf318a54b3303ae20cd9b6ad7b77a83a51ec35f572fb3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-light-default-1440.png",
+      "bytes": 541714,
+      "sha256": "e4e854c1def3377aa023f99ce1acb48eb8edd9a9dc499c238fc43b7046e8529a",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-light-earth-1440.png",
+      "bytes": 523232,
+      "sha256": "c2174f49bd0605d288c418b71cc7e973b6cc46eb39afbb1bd8041b9b8a94fd7e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/a-light-passport-size-1440.png",
+      "bytes": 516202,
+      "sha256": "a20cbe919d7c7781f1f76143300b5eb34e1036ce5c83d4944180244790795d48",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-dark-default-1280.png",
+      "bytes": 369439,
+      "sha256": "7485e72d4268301fa05d77f23344cca49f61958d4089ac98c6865c756f75dde0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-dark-default-1440.png",
+      "bytes": 573614,
+      "sha256": "1ed68a4ba6096f5fe65dcf2f567cc909e103bf33ea4c295d90483a66f4798376",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-dark-earth-1440.png",
+      "bytes": 555358,
+      "sha256": "ea24e0b13f79fb458c840957b5dfbe6cd8e6c2dbbd8ee24146b5d49a6d2a6d20",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-dark-passport-size-1440.png",
+      "bytes": 547623,
+      "sha256": "f9f98f74b74789e2dbcfaef99faa0ea3bfa0086d38ce8262b02036cb517bedd5",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-dark-selected-1440.png",
+      "bytes": 648513,
+      "sha256": "ddf26cb585ca6d9c386774bf860f7aae0dedb0043c4401bb39c5b2b8111a5861",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-light-default-1440.png",
+      "bytes": 541909,
+      "sha256": "d1f819e3f4afd2d5ca74f08b671073dcce68193c2233c1715bab410a09a6d06c",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-light-earth-1440.png",
+      "bytes": 523399,
+      "sha256": "e6294db9f76d3939323600cf216f824a816bfa252453e002c5e966d0c3d949a9",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/b-light-passport-size-1440.png",
+      "bytes": 516453,
+      "sha256": "c3ca1ecce0403625c0c233f22e17f6739ce501c1b6d3349fad9800c305673637",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-dark-default-1280.png",
+      "bytes": 394148,
+      "sha256": "7b0645a8b339c5b2c451405081cbb22bab979d668b1ac7915d7f34b42fc050a0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-dark-default-1440.png",
+      "bytes": 621921,
+      "sha256": "d344aad0e275a5e0e94268455cd11c1c502075e002ef70b74d0d891d87f2b366",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-dark-earth-1440.png",
+      "bytes": 604720,
+      "sha256": "5646d588ca030eefe4beddf8ec5f01ed050a10d971c004df15d88530c5d7ed9a",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-dark-passport-size-1440.png",
+      "bytes": 589056,
+      "sha256": "58d78dd94472ca0428f6aced2c8f1569f5829bcdc119e849eee72cd972638bd0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-dark-selected-1440.png",
+      "bytes": 705875,
+      "sha256": "659a871e06531194fe1ed0b907e341d9369f8ebbdd27c2b7f590d307abb71ebb",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-light-default-1440.png",
+      "bytes": 576893,
+      "sha256": "07a87b6a9b87b4dbf7660177cfab5725c710be3122b2fbaa8425c0aeca91a92e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-light-earth-1440.png",
+      "bytes": 559394,
+      "sha256": "f26b3b54cc9a095a0e69ddc07b55cff7a88726cf09fe12135ae6776ce80ecd4e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-3/before-light-passport-size-1440.png",
+      "bytes": 547939,
+      "sha256": "62b7047de84013b0d83ecec1175abc074da5602262ed7657a02abf1ed5ba2cc7",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/dark-default-1440.png",
+      "bytes": 713425,
+      "sha256": "9fbd1c842a1a1d9f6b1b064ec195bb57ef6104993921ba5c414a05335d308ce8",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/dark-earth-1440.png",
+      "bytes": 693615,
+      "sha256": "4dcb5464d5243cf3fdee63019ebb5856b41f7d7f92c6a39f0114f2d5c9cc4ad6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/dark-passport-size-1440.png",
+      "bytes": 674267,
+      "sha256": "c123c6c4e6cadb78bdf045b719b3b054d1fd9ae399a8b710dd3e76f6db9cc1b2",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/dark-solar-diagnostic-1440.png",
+      "bytes": 237442,
+      "sha256": "9fa88dfc51f2597039006830cfb64f2234ec8fa91447d9016c2c8583749057e8",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/dark-twilight-1440.png",
+      "bytes": 595131,
+      "sha256": "ea6d81bde71e0dd5bf3f4ef744cf98d29788f905e837d3302a60bd97489615f0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/light-default-1440.png",
+      "bytes": 761906,
+      "sha256": "8371f0a5ad8f34c2213da1cdb5dcb6a300bb0142ef22620b651c71b477397a10",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/light-earth-1440.png",
+      "bytes": 743955,
+      "sha256": "3cf6d10b5ded428f630dee76e76f69155a05162a48649cfabc3ad97838838648",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/light-passport-size-1440.png",
+      "bytes": 719089,
+      "sha256": "1dac8b2f199862f8dea5737c0bae0ff783ce455f8aa71400f1fa96245130b9aa",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/light-solar-diagnostic-1440.png",
+      "bytes": 228990,
+      "sha256": "d4bf5c4ea7749aaa60b5f378a3303b5f44bca2f00d643afc73b7325703474942",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-4/light-twilight-1440.png",
+      "bytes": 632753,
+      "sha256": "93bf185a04c204c85e72a99e530283b49eb412baebf30d544682b03c37733702",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/after-east-asia.png",
+      "bytes": 269585,
+      "sha256": "b2b74e0ed9a8e6d04a925a5f78cf81c3914ed1a29084ff758fa9c5472a3c54c3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/before-east-asia.png",
+      "bytes": 258141,
+      "sha256": "8e5cb6a097d7465e2f901a06e5bb69ebb87e52c619bb9caf750d5fff4024b5e3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/dark-earth.png",
+      "bytes": 710788,
+      "sha256": "d99520a235d0be804111293d6cf1a90f78cad8ef7b8724f4c17e11dca97cc1b8",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/dark-passport-size.png",
+      "bytes": 688862,
+      "sha256": "5ca7189d42d6d53e97a015f974cf2762e36cb66bc14f44550637a3bcbd0987ec",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/dark-routes.png",
+      "bytes": 728303,
+      "sha256": "6fe275231225a4424f54489585d93d616957b8e39fcc0696ab46769339a23cff",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-5/light-earth.png",
+      "bytes": 753173,
+      "sha256": "0885a758a1a6e946c48efbed66e5203ed4918932ce569f151a12c1f32f8c0d89",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/after-combined.png",
+      "bytes": 265256,
+      "sha256": "d11ffdaab1878cee1c5991ffe38c2391039f2c761b2425ee9682ef9400ccbf62",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/after-emission.png",
+      "bytes": 76686,
+      "sha256": "9233ddf6226491ae01521b252b01077c602ef9c52009220bd540e4d9567caf3c",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/after-routes.png",
+      "bytes": 720468,
+      "sha256": "4f42a5193245b31f4c40b5806a53796d87070924a8cda214b263b87eb5fb6cbc",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/after-surface.png",
+      "bytes": 226455,
+      "sha256": "09c331f3031ac01526dd1edc9983eaf6aaa145b477f5b6860db3a72273b6bfcc",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-6/before-emission.png",
+      "bytes": 80957,
+      "sha256": "8e3260173c715715d4b462b214865f6d869f307a21ac93ebffdae4d7bb8de1eb",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7a/fixed-dark.png",
+      "bytes": 615184,
+      "sha256": "7ce2b1f0f93071d4fc1b8d915cca335f04ed9fbba4f998c6081d8b07b3295b0c",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7a/fixed-light.png",
+      "bytes": 655243,
+      "sha256": "6a41cd8a745e30cc140f43b13883de90615fc05a9175f36b320e974ed6158cb6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7a/realtime-dark.png",
+      "bytes": 709124,
+      "sha256": "240be234c292de50bcd73d4f796f9ff7645574b6be536bf9e195202b037fb837",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7a/realtime-light.png",
+      "bytes": 759929,
+      "sha256": "37097ed6476d5bad262f8da7f5f2176b25668714e2b73907fcbe34e3a68acbf3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-fixed-dark.png",
+      "bytes": 638139,
+      "sha256": "aaed3062c5412bdf9e47fbb29e56d1f7b3548e86416ce3838f3ffe69b87f4e07",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-fixed-light.png",
+      "bytes": 672600,
+      "sha256": "d9cea4672fe394cc44a54900f83e29a00511fd313ff9e66ed5dbbe4fa6ad6b8b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-passport-dark.png",
+      "bytes": 594005,
+      "sha256": "e745b3176681e25831b114b2c5c6d4d9c8c5e5f784f72b8283eac6fcb47a6272",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-passport-light.png",
+      "bytes": 626956,
+      "sha256": "5c6c7bb9e788eac09f19038a11c7959828cb89b8e2512d0b77322b6360fa7ac8",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-realtime-dark.png",
+      "bytes": 703086,
+      "sha256": "73345791dfea8606f161e7e2c2ac52d027193bbd9285e60d0df595f4d974d1f5",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/after-realtime-light.png",
+      "bytes": 748434,
+      "sha256": "da243cafef3242d7fb932c19644d353a563b7d02030d225dcd0b6b999dd3e737",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-fixed-dark.png",
+      "bytes": 615184,
+      "sha256": "7ce2b1f0f93071d4fc1b8d915cca335f04ed9fbba4f998c6081d8b07b3295b0c",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-fixed-light.png",
+      "bytes": 655243,
+      "sha256": "6a41cd8a745e30cc140f43b13883de90615fc05a9175f36b320e974ed6158cb6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-passport-dark.png",
+      "bytes": 572019,
+      "sha256": "6f46aaca5d54f338a308340906bb06afaf997c597e69638abdd178082f79fe26",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-passport-light.png",
+      "bytes": 610037,
+      "sha256": "96e7f0cbd43d66a738c1cf5d9d5bddc086758e87d4f56972479156e3e38620e7",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-realtime-dark.png",
+      "bytes": 707681,
+      "sha256": "9bef4d7d78c53a6974b20ab844e2afc739f7121136f435982f02b5eb0fa66df6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b/before-realtime-light.png",
+      "bytes": 756878,
+      "sha256": "92c30f73c1ca4c1d6e410a6607fed5d8888b6b5237401ad84c25a739019b3f06",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-fixed-dark.png",
+      "bytes": 649720,
+      "sha256": "fbfe42606db7497dddf7dd0729410b588de24f75bdd7a223619583bebeeffaec",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-fixed-light.png",
+      "bytes": 685265,
+      "sha256": "f808bd79f891c9e56b88477e5b1b49ec39935e7c61ae17194021d160912d546b",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-passport-dark.png",
+      "bytes": 604212,
+      "sha256": "0d82a834ba55cfa97eacb16255ee2131a3adea162ff5a8839f1664b07e0771a3",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-passport-light.png",
+      "bytes": 637645,
+      "sha256": "517efb20acd9c05e1fb3431cb516279092696df1f9b1ccc78d627ed6f4aae25f",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-realtime-dark.png",
+      "bytes": 674856,
+      "sha256": "74b6105f987606ee283bd22577372044d9bef0468850c79998881251c4c3e827",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-realtime-light.png",
+      "bytes": 721610,
+      "sha256": "4b6a020bda755da10291bc15e0ae4291296a0a2a5bec824c6e2d872d71a44d3e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-selected-PEK-PVG-dark.png",
+      "bytes": 787920,
+      "sha256": "1c82e77b2a026dc245262749e14c260fd288c7249dfb6d78e07ac969cbaa0092",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-selected-SFO-HKG-dark.png",
+      "bytes": 635825,
+      "sha256": "987561f4fd00785c02e626fd9fb2e3b97151d4e952e14362b05f7b2f4aa0b95f",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/baseline-approved-selected-SFO-HKG-light.png",
+      "bytes": 696218,
+      "sha256": "b304c86fd8d5af3e764fdaa4d052851319b86462b9af7b1e761f9db209b0b226",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-B-europe-asia-passport-dark.png",
+      "bytes": 559645,
+      "sha256": "0dc0855b7fb8a8d18d1adb674404e2f92d2bb4b0017896b1b0f46a9bbbf195f6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-C-close-asia-passport-dark.png",
+      "bytes": 766822,
+      "sha256": "e0add9dadf090019d5d6d96d391ec912e41999dc10f61ddc11bf6f0e50c866e9",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-fixed-dark.png",
+      "bytes": 614498,
+      "sha256": "43cf0f2ec6677d7d7e9c96f32846fade7bba89d455cef4ec242de3c2d6960727",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-fixed-light.png",
+      "bytes": 627874,
+      "sha256": "8e0df39bf81e69ba83bd741038c9526d9e8e1136cccb5a7914e075576f134c55",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-selected-LHR-SIN-dark.png",
+      "bytes": 729930,
+      "sha256": "f63784827d269a32e67f79933cbb9502a9517bb686077c1b713fc0a9361f2215",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-fixed-dark.png",
+      "bytes": 807437,
+      "sha256": "4ab75b2230499ae11674671d455a11d8d41afe2aa94ec3477ddd10a5191e3de6",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-fixed-light.png",
+      "bytes": 834118,
+      "sha256": "b31bc75d9fff3fd50d4658ba5703ca8dee32bd5d59975d9065bbd2f721b40162",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-selected-PEK-PVG-dark.png",
+      "bytes": 803110,
+      "sha256": "cf9552e61dc2272f02d95a6f4e0f33239770aa082c0c9f366fa3c14d141043e9",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+      "bytes": 649976,
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+      "status": "retained",
+      "reason": "Owner-approved authoritative Control baseline"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-light.png",
+      "bytes": 685246,
+      "sha256": "e03d8a6169c43b04d1192195fd4c921423b5e4ebf3ef79f11ebe1f9f7ecf567e",
+      "status": "retained",
+      "reason": "Control Light counterpart"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-passport-dark.png",
+      "bytes": 600439,
+      "sha256": "9ae338fe3a9facfec66ddd8cd238dd58bde339a4cc86c323d166e3b8508f80f5",
+      "status": "retained",
+      "reason": "Control at measured Passport allocation"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-selected-SFO-HKG-dark.png",
+      "bytes": 639364,
+      "sha256": "3d72efd05b1677f22ea756810fe9b158d4835fdccc5571739554441fa9e7187a",
+      "status": "retained",
+      "reason": "Control long-haul selection regression"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-fixed-dark.png",
+      "bytes": 649976,
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-fixed-light.png",
+      "bytes": 685246,
+      "sha256": "e03d8a6169c43b04d1192195fd4c921423b5e4ebf3ef79f11ebe1f9f7ecf567e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-passport-dark.png",
+      "bytes": 603927,
+      "sha256": "9db5b1b105fe293b615a24310905368ed7bcfdcacd66dad477535d6173a6596e",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-passport-light.png",
+      "bytes": 637461,
+      "sha256": "12938b061a5c3d8628d43327f3ece26623b0331a9e55c7a70c824a0b01171a9e",
+      "status": "retained",
+      "reason": "Post-specular Light at measured Passport allocation"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-realtime-dark.png",
+      "bytes": 674804,
+      "sha256": "5ae0d4cd83d2a441bc8318187ef0929a09d1be3136ed40bb56f9ad32c019ec50",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-realtime-light.png",
+      "bytes": 720916,
+      "sha256": "f3c769569c7a2cc57d18bb4a8e6db1063461598352c6c3cfb3602ed61f9d6d56",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-selected-PEK-PVG-dark.png",
+      "bytes": 788505,
+      "sha256": "6a58c04942d6bc9ad1f3ca87d93cccfe59c5f29b40d88f7a635372acffc6ee8b",
+      "status": "retained",
+      "reason": "Post-specular short-haul selection regression"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-selected-SFO-HKG-dark.png",
+      "bytes": 639364,
+      "sha256": "3d72efd05b1677f22ea756810fe9b158d4835fdccc5571739554441fa9e7187a",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    },
+    {
+      "file": "docs/visual-review/task-1b-7b2/specular-fixed-selected-SFO-HKG-light.png",
+      "bytes": 699486,
+      "sha256": "cf18e3798531491df648967d6760d9c9edd9a67a0f7c68ec01cec69d859741e0",
+      "status": "removed",
+      "reason": "Superseded experimental capture; numerical evidence and provenance retained"
+    }
+  ]
+}

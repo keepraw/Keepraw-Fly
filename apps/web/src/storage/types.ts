@@ -1,4 +1,5 @@
 import type { DistanceUnit, TimeFormat } from "@keepraw-fly/core";
+import type { SolarMode } from "../globe/globe-solar";
 
 export type Language = "en" | "zh-CN" | "zh-TW";
 export type Appearance = "system" | "light" | "dark";
@@ -9,6 +10,7 @@ export interface ViewerSettings {
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   powerUserMode: boolean;
+  solarMode: SolarMode;
   lastBackupAt?: string;
 }
 
@@ -29,5 +31,17 @@ export function defaultViewerSettings(): ViewerSettings {
     distanceUnit: language === "en" ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
+    solarMode: "fixed",
+  };
+}
+
+// Preferences share the existing IndexedDB record. Read-time normalization
+// preserves older records and unrelated preferences without rewriting archives.
+export function normalizeViewerSettings(
+  settings: Omit<ViewerSettings, "solarMode"> & { solarMode?: unknown },
+): ViewerSettings {
+  return {
+    ...settings,
+    solarMode: settings.solarMode === "realtime" ? "realtime" : "fixed",
   };
 }

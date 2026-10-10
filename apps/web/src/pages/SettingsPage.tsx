@@ -276,6 +276,28 @@ export function SettingsPage({
                   <option value="12-hour">{t("settings.twelveHour")}</option>
                 </select>
               </label>
+              <label className="settings-row">
+                <span className="settings-row-label">
+                  {t("settings.solarMode")}
+                </span>
+                <select
+                  className="settings-row-control"
+                  value={settings.solarMode}
+                  title={t("settings.solarModeHint")}
+                  aria-description={t("settings.solarModeHint")}
+                  onChange={(event) =>
+                    updateSetting(
+                      "solarMode",
+                      event.target.value as ViewerSettings["solarMode"],
+                    )
+                  }
+                >
+                  <option value="fixed">{t("settings.solarFixed")}</option>
+                  <option value="realtime">
+                    {t("settings.solarRealtime")}
+                  </option>
+                </select>
+              </label>
             </div>
           </section>
 
@@ -733,6 +755,19 @@ export function SettingsPage({
             </div>
           </section>
         </div>
+        <p className="settings-font-credit">
+          {t("settings.fontCredit")}{" "}
+          <a
+            href="https://hyperos.mi.com/font-download/MiSans字体知识产权许可协议.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            referrerPolicy="no-referrer"
+          >
+            {t("settings.fontLicense")}
+          </a>
+          <br />
+          {t("settings.fontNetwork")}
+        </p>
       </div>
       {confirmClear ? (
         <ConfirmationDialog

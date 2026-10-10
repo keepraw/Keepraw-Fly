@@ -1,0 +1,52 @@
+{
+  "renderedSource": "2a7e67f8267ed9fce306d1315d374dd02aa65ac2",
+  "baseline": "38c61266915edc1252769c305623d56a1ffb563e",
+  "local": {
+    "units": 304,
+    "typecheck": "passed",
+    "build": "passed",
+    "docs": "passed",
+    "cssLint": "passed",
+    "cssTokens": "passed",
+    "chromium": {
+      "passed": 13,
+      "failed": 0,
+      "workers": 1,
+      "retries": 0,
+      "command": "pnpm exec playwright test e2e/globe-solar.pw.ts e2e/globe-lab.pw.ts e2e/globe-scene.pw.ts e2e/globe-lighting.pw.ts e2e/globe-art.pw.ts e2e/passport-desktop-design.pw.ts --project=chromium --workers=1 --output=artifacts/task-1b-4-final-results"
+    },
+    "baselineFormal": {
+      "passed": 2,
+      "source": "38c6126 complete apps/web/src and public snapshot, port 5174"
+    },
+    "otherEngines": "not run this round",
+    "newPerformanceMatrix": "not run; idle-frame regression passed"
+  },
+  "initialExistingRegression": {
+    "passed": 10,
+    "failed": 2,
+    "failure": "Passport light/dark heightFits, passport-desktop-design.pw.ts:98",
+    "cause": "undetermined; later baseline and final runs passed",
+    "artifactError": "overlapping Playwright run used default test-results directory; final runs serialized with separate directories"
+  },
+  "developmentSolarTestCorrections": [
+    "wait for rendered twilight camera",
+    "same GPU illumination path neutral reflectance probe excludes geographic albedo confound",
+    "compare actual sphere-region signatures rather than theme-dependent transparent canvas backgrounds"
+  ],
+  "historicalCI": {
+    "run": 37908031801,
+    "chromium": {
+      "passed": 108,
+      "failed": 1,
+      "failure": "existing globe-lab motion-camera not.toBe assertion"
+    },
+    "firefox": {
+      "passed": 17,
+      "failed": 8,
+      "failure": "Globe readiness and related failures"
+    },
+    "webkit": "success"
+  },
+  "visualApproval": "pending"
+}

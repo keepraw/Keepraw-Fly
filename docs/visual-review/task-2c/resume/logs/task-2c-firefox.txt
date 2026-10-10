@@ -1,0 +1,229 @@
+
+Running 30 tests using 6 workers
+
+(node:7796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [firefox] › e2e\document-persistence.pw.ts:162:1 › persists an edited flight and keeps it after reload without an unsaved warning @cross-browser (18.4s)
+  ok  5 [firefox] › e2e\globe-lighting.pw.ts:93:1 › cinematic layers produce real pixels and keep the world-space sun fixed @cross-browser (21.5s)
+  ok  3 [firefox] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 760x900 in light @cross-browser (22.5s)
+  ok  7 [firefox] › e2e\globe-scene.pw.ts:4:1 › regional composition, shared reverse strokes and manual camera ownership @cross-browser (15.8s)
+  ok  6 [firefox] › e2e\globe-lab.pw.ts:51:1 › globe actual browser screenshots, viewports, selection and resource measurements @cross-browser (37.7s)
+  ok  8 [firefox] › e2e\globe-lighting.pw.ts:198:1 › night texture failure falls back locally and retries both textures @cross-browser (13.7s)
+  ok  9 [firefox] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 761x900 in light @cross-browser (13.4s)
+  ok 12 [firefox] › e2e\passport-detail-return.pw.ts:58:3 › restores the opened flight without selection at 1280px @cross-browser (10.7s)
+  ok 11 [firefox] › e2e\globe-lab.pw.ts:218:1 › globe local SVG fallback on texture failure and context loss @cross-browser (15.4s)
+  ok 13 [firefox] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 844x390 in dark @cross-browser (18.0s)
+  ok 14 [firefox] › e2e\passport-detail-return.pw.ts:58:3 › restores the opened flight without selection at 390px @cross-browser (9.1s)
+  ok 17 [firefox] › e2e\passport-detail-return.pw.ts:89:1 › restores the adjacent detail flight without selecting it @cross-browser (9.4s)
+  ok 15 [firefox] › e2e\globe-lab.pw.ts:261:1 › globe filtering, real archive loading and formal Passport isolation @cross-browser (16.5s)
+  ok 10 [firefox] › e2e\passport-desktop-design.pw.ts:185:1 › regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser (34.2s)
+  ok 16 [firefox] › e2e\cross-browser-smoke.pw.ts:124:3 › Cross-browser engine smoke › short landscape editor saves a new flight with keyboard focus and usable confirmation controls @cross-browser (15.8s)
+  ok 20 [firefox] › e2e\persistent-storage.pw.ts:377:1 › reads native persistent storage without assuming the browser grants it @cross-browser (3.5s)
+[Globe capability] globe gracefully handles disabled WebGL @cross-browser: functional SVG fallback (WebGL2 context unavailable)
+  ok 18 [firefox] › e2e\passport-detail-return.pw.ts:103:3 › map airport selection still scrolls, focuses and highlights the flight @cross-browser (11.7s)
+  ok 21 [firefox] › e2e\cross-browser-smoke.pw.ts:205:3 › Cross-browser engine smoke › Passport SVG renders offline and responds to wheel zoom and pointer panning @cross-browser (7.8s)
+  ok 19 [firefox] › e2e\globe-lab.pw.ts:294:1 › globe gracefully handles disabled WebGL @cross-browser (15.4s)
+  ok 24 [firefox] › e2e\cross-browser-smoke.pw.ts:281:3 › Cross-browser engine smoke › balanced international detail title keeps Latin words whole at the mobile boundary @cross-browser (4.9s)
+  ok 23 [firefox] › e2e\passport-detail-return.pw.ts:103:3 › map route selection still scrolls, focuses and highlights the flight @cross-browser (9.6s)
+  ok 22 [firefox] › e2e\responsive-boundaries.pw.ts:146:1 › Passport, Flight Detail and Settings switch actual layout and retain state across 760/761 breakpoint resizes @cross-browser (25.7s)
+  ok 26 [firefox] › e2e\solar-preference.pw.ts:11:1 › solar preference survives Settings, Lab, reset lighting and reload @cross-browser (19.3s)
+  ok 25 [firefox] › e2e\globe-lab.pw.ts:328:1 › globe direct route and airport picking, motion and accessibility @cross-browser (21.5s)
+  x   2 [firefox] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser (1.0m)
+  x   4 [firefox] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser (1.0m)
+  ok 27 [firefox] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser (24.9s)
+  ok 28 [firefox] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN light @cross-browser (18.6s)
+  ok 29 [firefox] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW dark @cross-browser (14.3s)
+  ok 30 [firefox] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW light @cross-browser (9.2s)
+
+
+  1) [firefox] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error: browserContext.close: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> C:\Users\Administrator\AppData\Local\ms-playwright\firefox-1543\firefox\firefox.exe -no-remote -headless -profile C:\Users\ADMINI~1\AppData\Local\Temp\playwright_firefoxdev_profile-W4BW1a -juggler-pipe -silent
+    <launched> pid=21508
+    [pid=21508][err] *** You are running in headless mode.
+    [pid=21508][err] JavaScript warning: resource://services-settings/Utils.sys.mjs, line 125: unreachable code after return statement
+    [pid=21508][out]
+    [pid=21508][out] Juggler listening to the pipe
+    [pid=21508][err] [WARN  rkv::backend::impl_safe::environment] `load_ratio()` is irrelevant for this storage backend.
+    [pid=21508][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=7.39157) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+    [pid=21508][err] JavaScript error: chrome://juggler/content/Helper.js, line 82: NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIWebProgress.removeProgressListener]
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] JavaScript error: , line 0: SyntaxError: JSON.parse: unexpected end of data at line 1 column 1 of the JSON data
+    [pid=21508][out] console.warn: services.settings: #fetchAttachment: Forcing fallbackToDump to false due to Utils.LOAD_DUMPS being false
+    [pid=21508][out] console.error: (new NotFoundError("Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump", "resource://services-settings/Attachments.sys.mjs", 48))
+    [pid=21508][out] console.warn: "Unable to find the attachment for" "fa0fc42c-d91d-fca7-34eb-806ff46062dc"
+    [pid=21508][out] console.error: services.settings:
+    [pid=21508][out]   Message: EmptyDatabaseError: "main/nimbus-desktop-experiments" has not been synced yet
+    [pid=21508][out]   Stack:
+    [pid=21508][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5
+    [pid=21508][out] list@resource://services-settings/Database.sys.mjs:96:13
+    [pid=21508][out]
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] [WARN  glean_core::error_recording] gfx.adapter.primary.driver_files: Value length 771 exceeds maximum of 255
+    [pid=21508][out] console.error: [Exception... "Component returned failure code: 0x80070057 (NS_ERROR_ILLEGAL_VALUE) [nsIWinTaskbar.getTaskbarProgress]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: moz-src:///browser/components/downloads/DownloadsTaskbar.sys.mjs :: #windowsAttachIndicator :: line 181"  data: no]
+    [pid=21508] <gracefully close start>
+    [pid=21508] <kill>
+    [pid=21508] <will force kill>
+    [pid=21508] taskkill stdout: �ɹ�: ����ֹ PID 25412 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 25984 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 26140 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 23376 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 27272 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 21616 (���� PID 21508 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 21508 (���� PID 8432 �ӽ���)�Ľ��̡�
+
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> C:\Users\Administrator\AppData\Local\ms-playwright\firefox-1543\firefox\firefox.exe -no-remote -headless -profile C:\Users\ADMINI~1\AppData\Local\Temp\playwright_firefoxdev_profile-W4BW1a -juggler-pipe -silent
+    <launched> pid=21508
+    [pid=21508][err] *** You are running in headless mode.
+    [pid=21508][err] JavaScript warning: resource://services-settings/Utils.sys.mjs, line 125: unreachable code after return statement
+    [pid=21508][out]
+    [pid=21508][out] Juggler listening to the pipe
+    [pid=21508][err] [WARN  rkv::backend::impl_safe::environment] `load_ratio()` is irrelevant for this storage backend.
+    [pid=21508][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=7.39157) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+    [pid=21508][err] JavaScript error: chrome://juggler/content/Helper.js, line 82: NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIWebProgress.removeProgressListener]
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] JavaScript error: , line 0: SyntaxError: JSON.parse: unexpected end of data at line 1 column 1 of the JSON data
+    [pid=21508][out] console.warn: services.settings: #fetchAttachment: Forcing fallbackToDump to false due to Utils.LOAD_DUMPS being false
+    [pid=21508][out] console.error: (new NotFoundError("Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump", "resource://services-settings/Attachments.sys.mjs", 48))
+    [pid=21508][out] console.warn: "Unable to find the attachment for" "fa0fc42c-d91d-fca7-34eb-806ff46062dc"
+    [pid=21508][out] console.error: services.settings:
+    [pid=21508][out]   Message: EmptyDatabaseError: "main/nimbus-desktop-experiments" has not been synced yet
+    [pid=21508][out]   Stack:
+    [pid=21508][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5
+    [pid=21508][out] list@resource://services-settings/Database.sys.mjs:96:13
+    [pid=21508][out]
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=21508][err] [WARN  glean_core::error_recording] gfx.adapter.primary.driver_files: Value length 771 exceeds maximum of 255
+    [pid=21508][out] console.error: [Exception... "Component returned failure code: 0x80070057 (NS_ERROR_ILLEGAL_VALUE) [nsIWinTaskbar.getTaskbarProgress]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: moz-src:///browser/components/downloads/DownloadsTaskbar.sys.mjs :: #windowsAttachIndicator :: line 181"  data: no]
+    [pid=21508] <gracefully close start>
+    [pid=21508] <kill>
+    [pid=21508] <will force kill>
+    [pid=21508] taskkill stdout: �ɹ�: ����ֹ PID 25412 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 25984 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 26140 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 23376 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 27272 (���� PID 21616 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 21616 (���� PID 21508 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 21508 (���� PID 8432 �ӽ���)�Ľ��̡�
+
+    Call log:
+      - waiting for locator('.flight-record[data-flight-id="short"] .flight-row')
+        - locator resolved to <button type="button" class="flight-row" aria-label="Open ZH9911, SZX to TAO">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+        at [pid=21508][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5
+        at [pid=21508][out] list@resource://services-settings/Database.sys.mjs:96:13
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\detail-map-curve.pw.ts:67:12
+
+    Error Context: artifacts\task-2c-firefox-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-firefox\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-firefox-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-firefox-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [firefox] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Error: browserContext.close: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> C:\Users\Administrator\AppData\Local\ms-playwright\firefox-1543\firefox\firefox.exe -no-remote -headless -profile C:\Users\ADMINI~1\AppData\Local\Temp\playwright_firefoxdev_profile-aRg8VS -juggler-pipe -silent
+    <launched> pid=20804
+    [pid=20804][err] *** You are running in headless mode.
+    [pid=20804][err] JavaScript warning: resource://services-settings/Utils.sys.mjs, line 125: unreachable code after return statement
+    [pid=20804][out]
+    [pid=20804][out] Juggler listening to the pipe
+    [pid=20804][err] [WARN  rkv::backend::impl_safe::environment] `load_ratio()` is irrelevant for this storage backend.
+    [pid=20804][out] Crash Annotation GraphicsCriticalError: |[0][GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt (t=3.47196) [GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+    [pid=20804][err] JavaScript error: chrome://juggler/content/Helper.js, line 82: NS_ERROR_FAILURE: Component returned failure code: 0x80004005 (NS_ERROR_FAILURE) [nsIWebProgress.removeProgressListener]
+    [pid=20804][out] console.warn: services.settings: #fetchAttachment: Forcing fallbackToDump to false due to Utils.LOAD_DUMPS being false
+    [pid=20804][out] console.error: (new NotFoundError("Could not find fa0fc42c-d91d-fca7-34eb-806ff46062dc in cache or dump", "resource://services-settings/Attachments.sys.mjs", 48))
+    [pid=20804][out] console.warn: "Unable to find the attachment for" "fa0fc42c-d91d-fca7-34eb-806ff46062dc"
+    [pid=20804][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=20804][err] JavaScript error: , line 0: SyntaxError: JSON.parse: unexpected end of data at line 1 column 1 of the JSON data
+    [pid=20804][out] console.error: services.settings:
+    [pid=20804][out]   Message: EmptyDatabaseError: "main/nimbus-desktop-experiments" has not been synced yet
+    [pid=20804][out]   Stack:
+    [pid=20804][out]     EmptyDatabaseError@resource://services-settings/Database.sys.mjs:19:5
+    [pid=20804][out] list@resource://services-settings/Database.sys.mjs:96:13
+    [pid=20804][out]
+    [pid=20804][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=20804][err] [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: Error { code: HRESULT(0x80004005), message: "未指定的错误" }
+    [pid=20804][err] JavaScript warning: debugger eval code line 311 > eval, line 24: WebGL context was lost.
+    [pid=20804][out] console.error: [Exception... "Component returned failure code: 0x80070057 (NS_ERROR_ILLEGAL_VALUE) [nsIWinTaskbar.getTaskbarProgress]"  nsresult: "0x80070057 (NS_ERROR_ILLEGAL_VALUE)"  location: "JS frame :: moz-src:///browser/components/downloads/DownloadsTaskbar.sys.mjs :: #windowsAttachIndicator :: line 181"  data: no]
+    [pid=20804][err] [WARN  glean_core::error_recording] gfx.adapter.primary.driver_files: Value length 771 exceeds maximum of 255
+    [pid=20804] <gracefully close start>
+    [pid=20804] <kill>
+    [pid=20804] <will force kill>
+    [pid=20804] taskkill stdout: �ɹ�: ����ֹ PID 21600 (���� PID 20728 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 22532 (���� PID 20728 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 22592 (���� PID 20728 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 16024 (���� PID 20728 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 27096 (���� PID 20728 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 20728 (���� PID 20804 �ӽ���)�Ľ��̡�
+    �ɹ�: ����ֹ PID 20804 (���� PID 20528 �ӽ���)�Ľ��̡�
+
+    [pid=20804] <process did exit: exitCode=1, signal=null>
+    [pid=20804] starting temporary directories cleanup
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.globe-airport-label.is-selected:visible')
+    Expected: 2
+    Received: undefined
+
+
+      135 |       await expect(
+      136 |         page.locator(".globe-airport-label.is-selected:visible"),
+    > 137 |       ).toHaveCount(2);
+          |         ^
+      138 |     }
+      139 |   }
+      140 |   expect(
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\globe-art.pw.ts:137:9
+
+    Error Context: artifacts\task-2c-firefox-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-firefox\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-firefox-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-firefox-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [firefox] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser
+    [firefox] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser
+  28 passed (2.7m)

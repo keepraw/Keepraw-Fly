@@ -1,0 +1,862 @@
+{
+  "task": "Task 2C resumed development and verification",
+  "recordedAt": "2026-10-10T12:10:00.362Z",
+  "clientDate": "2026-10-10",
+  "clientTimezone": "Asia/Shanghai",
+  "visualAcceptance": "Pending Owner review",
+  "gitRecovery": {
+    "repository": "C:/Users/Administrator/Documents/GitHub/Keepraw-Fly",
+    "origin": "https://github.com/keepraw/Keepraw-Fly.git",
+    "branch": "codex/globe-prototype-experiment",
+    "initialHead": "f89c86b5cfb81a54be9c5984bf669f69e6dc8a3a",
+    "fetchedHead": "f89c86b5cfb81a54be9c5984bf669f69e6dc8a3a",
+    "initialWorktree": "Clean",
+    "ahead": 0,
+    "behind": 0,
+    "synchronization": "fetch --prune; already synchronized; no merge/switch/rebase/stash needed"
+  },
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.14.0",
+    "restore": "Frozen lockfile; manifests unchanged; system pnpm 11.25.0 was bypassed"
+  },
+  "sourceHashes": [
+    {
+      "file": "apps/web/src/typography/load-webfonts.ts",
+      "sha256": "51ada5f0bd6e74107464acc5133893c06fa1471d2a612c2b098a4b451abd3918",
+      "gitBlob": "b25e2bc8db4fd893c9248f3f892ea98c74f724d0"
+    },
+    {
+      "file": "apps/web/src/styles/passport-desktop.css",
+      "sha256": "59b354392b3bf42c984661b0e198df5a808444193afa165b1c8987322ee04054",
+      "gitBlob": "88101bc8001ba5006201ea552dc977f89639fbfd"
+    },
+    {
+      "file": "e2e/keepraw-fly.pw.ts",
+      "sha256": "aaef0876bbede6269422370e95249b346e7b4cc553e8f27233a1792d0e4e1a84",
+      "gitBlob": "78c23f44c34155a8f57ae3745ae55676f8457ef4"
+    },
+    {
+      "file": "e2e/typography.pw.ts",
+      "sha256": "4b89312f5bd0b1c95ee040349052ce1c5e98a83015565674df5a31cc2fba3d3c",
+      "gitBlob": "01ca5620df6d6a73c1dbf201e90a8cc19399bc0e"
+    },
+    {
+      "file": "e2e/typography-zoom.pw.ts",
+      "sha256": "5fef7553603dddc05cd9585bf932c11ab50861528b9d99fbbacbb04a03742cf1",
+      "gitBlob": "12b6ca57099c15d8541004415c111e4383f4d5f7"
+    },
+    {
+      "file": "e2e/fixtures/chinese-long-city-passport.keepraw-fly.json",
+      "sha256": "541d8bdf33adb603238461dfb8598a1294bdf613fa349ef33a54070353e9c170",
+      "gitBlob": "adc4f188c92a484a03b770869ca240983d7b8e60"
+    },
+    {
+      "file": "scripts/capture-task-2c.mjs",
+      "sha256": "21285c53d8a8f29044ab182ffcd6980bf7a13bffc8b6dcb499a235bb910635f0",
+      "gitBlob": "5e5bd68a72ff1ab045eb22371d1cb915a71de8b2"
+    },
+    {
+      "file": "scripts/passport-typography-evidence.mjs",
+      "sha256": "18bdb57502284956f6441e9ee687867c52a6dbbf08a65ae314403b73098abf91",
+      "gitBlob": "f87d2a89451398e1600ac22361a40cb53bc179e9"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Static docs/format/CSS/tokens/typecheck",
+      "status": "Passed"
+    },
+    {
+      "name": "Unit tests",
+      "status": "Passed",
+      "count": 333
+    },
+    {
+      "name": "Production build",
+      "status": "Passed",
+      "warning": "Existing chunk >500kB warning"
+    },
+    {
+      "name": "Stale CI assertions",
+      "status": "Passed",
+      "count": 2
+    },
+    {
+      "name": "Final focused formal Playwright",
+      "status": "Passed",
+      "count": 23,
+      "byEngine": {
+        "chromium": 9,
+        "firefox": 7,
+        "webkit": 7
+      }
+    },
+    {
+      "name": "Local full Chromium",
+      "status": "Passed",
+      "count": 126,
+      "stage": "Before final Firefox compatibility rule replacement; final rule implementation covered by focused tests; remote full CI must be checked for pushed head"
+    },
+    {
+      "name": "Earlier local full Firefox",
+      "status": "Failed",
+      "passed": 28,
+      "failed": 2,
+      "failures": ["detail-map-curve", "globe-art"],
+      "cause": "Not established; frozen sources unchanged; not retried"
+    },
+    {
+      "name": "Earlier local full WebKit",
+      "status": "Failed",
+      "passed": 20,
+      "failed": 10,
+      "cause": "Globe/route assertions and timeouts; no claimed all-green local suite"
+    },
+    {
+      "name": "Native zoom custom capture",
+      "status": "Passed",
+      "engine": "Installed Chrome",
+      "normalCases": 72,
+      "longCityCases": 72,
+      "screenshots": 90
+    },
+    {
+      "name": "Native zoom Firefox/WebKit",
+      "status": "Skipped",
+      "reason": "Native Chromium profile zoom mechanism; formal cross-engine 100% layout/fallback/long-city regressions passed"
+    },
+    {
+      "name": "Deploy/merge/Ready for Review/Task 3",
+      "status": "Skipped",
+      "reason": "Forbidden by owner"
+    }
+  ],
+  "zoom": {
+    "rootCause": "761 physical pixels at 125% becomes about 608.8 CSS px, enters Mobile; next theme loop inherited that viewport while waiting for natural content height to equal innerHeight",
+    "fix": "Restore desktop before each locale/theme; validate actual matchMedia breakpoint and fractional visualViewport; retain desktop fit assertion and natural Mobile flow",
+    "minimumReproduction": "native-zoom-probe.json",
+    "profileMethod": "Native Chromium partition.default_zoom_level.x = log(factor)/log(1.2); confirmed devicePixelRatio and effective CSS viewport. No CSS zoom or DPR-only emulation."
+  },
+  "fonts": {
+    "version": "4.3.1",
+    "rawCdn": "Separate Regular/Medium/Semibold family names; all raw declarations weight 400",
+    "mapping": "Complete native @font-face rule replacement into MiSans/MiSans TC weights 400/500/600; Firefox descriptors are read-only",
+    "evidence": "browser-evidence.json",
+    "woff2Responses": 121,
+    "cssRequests": 12,
+    "localSourcesDisabled": true,
+    "actualGlyphWeights": [400, 500, 600],
+    "fallback": "Final formal Chromium/Firefox/WebKit blocked-CDN tests include keyboard, axe, IndexedDB reload persistence and both themes",
+    "loadingShifts": [
+      {
+        "locale": "zh-CN",
+        "zoom": 1,
+        "cls": 0,
+        "majorGeometryStable": true
+      },
+      {
+        "locale": "zh-TW",
+        "zoom": 1,
+        "cls": 0.000003949652777777778,
+        "majorGeometryStable": true
+      },
+      {
+        "locale": "zh-CN",
+        "zoom": 1.25,
+        "cls": 0,
+        "majorGeometryStable": true
+      },
+      {
+        "locale": "zh-TW",
+        "zoom": 1.25,
+        "cls": 0,
+        "majorGeometryStable": true
+      }
+    ],
+    "english": "Inter/system stack retained; local Inter availability environment dependent",
+    "noFontBinaries": true,
+    "licenses": "Project MIT / third-party distribution code Apache-2.0 / independent Xiaomi font license"
+  },
+  "layout": {
+    "viewportMatrix": [
+      [1646, 928],
+      [1440, 900],
+      [1366, 768],
+      [1280, 720],
+      [1024, 768],
+      [761, 900]
+    ],
+    "locales": ["en", "zh-CN", "zh-TW"],
+    "themes": ["dark", "light"],
+    "zoom": [1, 1.25],
+    "desktop": "Archive auto-scroll; no right independent scroll; 6 KPIs and 3 Highlights except existing <=540px compact branch; no Longest Flight map",
+    "mobile": "Existing branch entered at CSS <=760px; native resize tests plus full Chromium mobile/keyboard/persistence regression passed; no mobile styles changed",
+    "narrowUnitFix": "Only Chinese delay value at desktop width 761..1100 and height <=700; 1.25rem, nowrap"
+  },
+  "preservation": {
+    "checkpointPngs": [
+      {
+        "file": "before-zh-CN-dark-1440x900.png",
+        "sha256": "03a6b532855c502d8876c93b05a2e2c67e678ddd052f4b19237921e667373c28",
+        "unchanged": true
+      },
+      {
+        "file": "before-zh-CN-light-1440x900.png",
+        "sha256": "d475079d53f834b1f3280bb238ee6533c317f2f2b08c715ce9c36b3cf0f946ee",
+        "unchanged": true
+      },
+      {
+        "file": "before-zh-TW-dark-1440x900.png",
+        "sha256": "1c74589a1705e41ff0e5f7f61561b7e2ce27b3c57c6a6ec730f164e0c5a8a067",
+        "unchanged": true
+      },
+      {
+        "file": "before-zh-TW-light-1440x900.png",
+        "sha256": "17616e7c68f4fb97c8152647618bd6e299b1133df739fd63d7e2c07a94d1bce8",
+        "unchanged": true
+      },
+      {
+        "file": "passport-en-dark-1440x900.png",
+        "sha256": "8ac70036be656baeccafc7b39ea37967e50f8563bed9379798101f5e7df8ffbf",
+        "unchanged": true
+      },
+      {
+        "file": "passport-en-light-1440x900.png",
+        "sha256": "d26d695a266f2343a7ed6eeff38cc4656ae788d3d006a503dc2bdf655d8d160c",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-CN-dark-1440x900.png",
+        "sha256": "af466dfc348b1852d86d3c6e6cb9b3a938d1d75ce62e311d0487da84ef55039c",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-CN-dark-1646x928.png",
+        "sha256": "ec02c7c9431707701925966dee0e7ad3e881478dedbf4a79919dff698b958c50",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-CN-light-1440x900.png",
+        "sha256": "9ed772cfa6da23971cd7e3980db3073f85a33b095042de518ccad8dba038dc11",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-CN-light-1646x928.png",
+        "sha256": "f358f3ebd39bcf645c3a8d363b9fcf6766ba6825b8281349e8fd9c8b54db2e37",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-TW-dark-1440x900.png",
+        "sha256": "ae6e0b7e661f4ba9c852ba29662c5e40681e22a99fa8cb1d972d28522c6850aa",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-TW-dark-1646x928.png",
+        "sha256": "6ac1ee47e7e5e0135ae8b859d30a1023313510d4ce9751b805c3f0af48242606",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-TW-light-1440x900.png",
+        "sha256": "d53682b9d88d5c2374cf4cfc02c02cd4db303759389c2242bd534dfc861de41f",
+        "unchanged": true
+      },
+      {
+        "file": "passport-zh-TW-light-1646x928.png",
+        "sha256": "a70123090459b223745954037c22d169eecb85d0b94d92f9d2082f23b6fae83f",
+        "unchanged": true
+      }
+    ],
+    "frozen": [
+      {
+        "file": "apps/web/src/App.tsx",
+        "baselineBlob": "1989b7afc5459e4884f294a44c5155f9bab4365c",
+        "currentBlob": "1989b7afc5459e4884f294a44c5155f9bab4365c",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/components/FlightRouteMap.tsx",
+        "baselineBlob": "86a7fac1a2f59a7d6d757cce5e774041c4934578",
+        "currentBlob": "86a7fac1a2f59a7d6d757cce5e774041c4934578",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/components/PassportRouteMap.tsx",
+        "baselineBlob": "d158db20823aa15e4c4524134e906736a3a1afac",
+        "currentBlob": "d158db20823aa15e4c4524134e906736a3a1afac",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/GlobeLab.tsx",
+        "baselineBlob": "8b854b87a044986df3ec8cd31ef464535b0d7c0b",
+        "currentBlob": "8b854b87a044986df3ec8cd31ef464535b0d7c0b",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/GlobeMap.tsx",
+        "baselineBlob": "9d14bc334a33ff73e2cd6fa2c29931298b37e839",
+        "currentBlob": "9d14bc334a33ff73e2cd6fa2c29931298b37e839",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/LICENSE.three",
+        "baselineBlob": "8ada2a5f982916b0ba4b7a0aa7de347587e745d7",
+        "currentBlob": "8ada2a5f982916b0ba4b7a0aa7de347587e745d7",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/assets/earth-2048.webp",
+        "baselineBlob": "0a8e9b24d9745981077668f1d42095266e4f894c",
+        "currentBlob": "0a8e9b24d9745981077668f1d42095266e4f894c",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/assets/earth-4096.webp",
+        "baselineBlob": "d46a9757696ed6940bc551c81311d503d94d6b84",
+        "currentBlob": "d46a9757696ed6940bc551c81311d503d94d6b84",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/assets/night-2048.webp",
+        "baselineBlob": "38c540b8408cec1b59132cf1ed13b9b167b55b7b",
+        "currentBlob": "38c540b8408cec1b59132cf1ed13b9b167b55b7b",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/assets/night-4096.webp",
+        "baselineBlob": "aa6d46f1b8ab4aab5740ddcf27aba90a11d93d54",
+        "currentBlob": "aa6d46f1b8ab4aab5740ddcf27aba90a11d93d54",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-lab.css",
+        "baselineBlob": "15b50cde1f42690f067aa14cd4f7375790ebf782",
+        "currentBlob": "15b50cde1f42690f067aa14cd4f7375790ebf782",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-lighting.test.ts",
+        "baselineBlob": "94fe09044652d32ad030ce3c50dea797690940f0",
+        "currentBlob": "94fe09044652d32ad030ce3c50dea797690940f0",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-lighting.ts",
+        "baselineBlob": "6eb3a595dcc9749ea0bf6e52a46de2d222d94d94",
+        "currentBlob": "6eb3a595dcc9749ea0bf6e52a46de2d222d94d94",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-math.test.ts",
+        "baselineBlob": "a4a42777877284b80f0e92d6ced9ac0dbf0bc2ec",
+        "currentBlob": "a4a42777877284b80f0e92d6ced9ac0dbf0bc2ec",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-math.ts",
+        "baselineBlob": "a22cb60cdf45ec74aad8c97338480f293bf5d7cd",
+        "currentBlob": "a22cb60cdf45ec74aad8c97338480f293bf5d7cd",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-night-emission.ts",
+        "baselineBlob": "3028d3dd70eae435a93b8df836be6d340852b3c4",
+        "currentBlob": "3028d3dd70eae435a93b8df836be6d340852b3c4",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-night-response.test.ts",
+        "baselineBlob": "76d9ee5d125437fbb9cf205abbfb811180176611",
+        "currentBlob": "76d9ee5d125437fbb9cf205abbfb811180176611",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-night-response.ts",
+        "baselineBlob": "fd1ff16fb1a2f2e81d05cb013f389b643ee35d30",
+        "currentBlob": "fd1ff16fb1a2f2e81d05cb013f389b643ee35d30",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-night-texture.source.json",
+        "baselineBlob": "a6eacab998937da1f0a71d61b7ec03e45b21e1a6",
+        "currentBlob": "a6eacab998937da1f0a71d61b7ec03e45b21e1a6",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-renderer.ts",
+        "baselineBlob": "af8a0072271f0ebb4d793211b4bef48735d96247",
+        "currentBlob": "af8a0072271f0ebb4d793211b4bef48735d96247",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-solar.test.ts",
+        "baselineBlob": "8eb56f86d079627af6ed2894e00a1235585efcd1",
+        "currentBlob": "8eb56f86d079627af6ed2894e00a1235585efcd1",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-solar.ts",
+        "baselineBlob": "47c16737b69f7882490598c799d3c71238148986",
+        "currentBlob": "47c16737b69f7882490598c799d3c71238148986",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/globe-texture.source.json",
+        "baselineBlob": "bcfc12ec1ff8747e824d61261db896b880d4853a",
+        "currentBlob": "bcfc12ec1ff8747e824d61261db896b880d4853a",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/globe/lab-locales.ts",
+        "baselineBlob": "6cf5a4c87c5b97a228b14aed7643bd2678f2d124",
+        "currentBlob": "6cf5a4c87c5b97a228b14aed7643bd2678f2d124",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/pages/FlightDetailPage.tsx",
+        "baselineBlob": "bb1e3d211bd8c5513f40c94bc19c845d3298fb10",
+        "currentBlob": "bb1e3d211bd8c5513f40c94bc19c845d3298fb10",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/pages/SettingsPage.tsx",
+        "baselineBlob": "a73de8a21d7a5fd180a82a1595c33df7feea0c04",
+        "currentBlob": "a73de8a21d7a5fd180a82a1595c33df7feea0c04",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/adapter.ts",
+        "baselineBlob": "3093d6042af3934dba01ac665fd9960485233d7e",
+        "currentBlob": "3093d6042af3934dba01ac665fd9960485233d7e",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/browser.test.ts",
+        "baselineBlob": "bd465b288a64d207e704e5dae99bae178e3a7ed0",
+        "currentBlob": "bd465b288a64d207e704e5dae99bae178e3a7ed0",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/browser.ts",
+        "baselineBlob": "0896b74743cc6ca0f9fe8f8d8d628490f4ca8f24",
+        "currentBlob": "0896b74743cc6ca0f9fe8f8d8d628490f4ca8f24",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/persistence.test.ts",
+        "baselineBlob": "ba301cd41663703dae70b9589cf1f75403fbf433",
+        "currentBlob": "ba301cd41663703dae70b9589cf1f75403fbf433",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/persistence.ts",
+        "baselineBlob": "c4bc96fa10c8b01f750f3856923d38e10c7ccfad",
+        "currentBlob": "c4bc96fa10c8b01f750f3856923d38e10c7ccfad",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/types.test.ts",
+        "baselineBlob": "cfb6fb3fe0c277e983a16142f50c39daae1ff11e",
+        "currentBlob": "cfb6fb3fe0c277e983a16142f50c39daae1ff11e",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/storage/types.ts",
+        "baselineBlob": "6bd6196936327946bd5be3683406c89b38cd4573",
+        "currentBlob": "6bd6196936327946bd5be3683406c89b38cd4573",
+        "unchanged": true
+      },
+      {
+        "file": "apps/web/src/styles/passport.css",
+        "baselineBlob": "f0149ebe6b2b37e4a73379b39a122f431d98af80",
+        "currentBlob": "f0149ebe6b2b37e4a73379b39a122f431d98af80",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+        "baselineBlob": "9f5ede8e402386738a12e5330dab2a5b527fc86d",
+        "currentBlob": "9f5ede8e402386738a12e5330dab2a5b527fc86d",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-light.png",
+        "baselineBlob": "a3e5cc9e1e28e8b0fff5cb3c3f8c291373afc0d6",
+        "currentBlob": "a3e5cc9e1e28e8b0fff5cb3c3f8c291373afc0d6",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/comp-control-passport-dark.png",
+        "baselineBlob": "f153b4c9402356aad211d07914fc0525cb78114c",
+        "currentBlob": "f153b4c9402356aad211d07914fc0525cb78114c",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/comp-control-selected-SFO-HKG-dark.png",
+        "baselineBlob": "f1aee76c099423a5dfedbf4d5198d900f51e4012",
+        "currentBlob": "f1aee76c099423a5dfedbf4d5198d900f51e4012",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/specular-fixed-passport-light.png",
+        "baselineBlob": "d83e4b19c4c61f3153ebc1138579655c2e448fc7",
+        "currentBlob": "d83e4b19c4c61f3153ebc1138579655c2e448fc7",
+        "unchanged": true
+      },
+      {
+        "file": "docs/visual-review/task-1b-7b2/specular-fixed-selected-PEK-PVG-dark.png",
+        "baselineBlob": "443fd652a77d3f3943f6ac703abb268e9785a634",
+        "currentBlob": "443fd652a77d3f3943f6ac703abb268e9785a634",
+        "unchanged": true
+      },
+      {
+        "file": "e2e/globe-solar.pw.ts",
+        "baselineBlob": "3c47a6e2fba167dea99a0cae38acfa52bc573e4f",
+        "currentBlob": "3c47a6e2fba167dea99a0cae38acfa52bc573e4f",
+        "unchanged": true
+      },
+      {
+        "file": "packages/core/src/calculations.ts",
+        "baselineBlob": "1fd96a4d63b0938775fb8fd7d2c070e34d61fcb5",
+        "currentBlob": "1fd96a4d63b0938775fb8fd7d2c070e34d61fcb5",
+        "unchanged": true
+      },
+      {
+        "file": "packages/core/src/statistics.ts",
+        "baselineBlob": "f857ae18ac4fa3bcc867aedd7bf7542fb3b615b2",
+        "currentBlob": "f857ae18ac4fa3bcc867aedd7bf7542fb3b615b2",
+        "unchanged": true
+      },
+      {
+        "file": "playwright.config.ts",
+        "baselineBlob": "a75361645870bf57e7ed81204f3ce5e0e4683490",
+        "currentBlob": "a75361645870bf57e7ed81204f3ce5e0e4683490",
+        "unchanged": true
+      }
+    ],
+    "control": {
+      "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+      "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5"
+    },
+    "dependencyAndPlaywrightConfigurationUnchanged": true
+  },
+  "remaining": [
+    {
+      "issue": "Owner visual acceptance",
+      "status": "Pending"
+    },
+    {
+      "issue": "EZE/BUE Archive city-group English fallback",
+      "status": "Known existing localization gap; Top 4/Longest Flight use localized airport city; no data change"
+    },
+    {
+      "issue": "Earlier local full Firefox/WebKit failures",
+      "status": "Failed; final focused passes do not erase these logs; final remote CI is independent"
+    }
+  ],
+  "remoteCI": {
+    "status": "Pending at record creation; final pushed-head run status and URL will be reported in PR #34",
+    "pullRequest": "https://github.com/keepraw/Keepraw-Fly/pull/34",
+    "headBranch": "codex/globe-prototype-experiment",
+    "prMustRemainDraft": true,
+    "base": "codex/desktop-passport-redesign-checkpoint",
+    "historicalFailure": "https://github.com/keepraw/Keepraw-Fly/actions/runs/38041880849"
+  },
+  "logs": [
+    {
+      "file": "logs/task-2c-dependencies.txt",
+      "stage": "Restored pnpm 10.14.0 with frozen lockfile",
+      "bytes": 496,
+      "sha256": "9d31bf3854f80d6e63f2fc0cb6032b0189dcfc7c4964e2c533f2a3a193849f4d",
+      "originalRawSha256": "e120aff3ddd26269369f362a0d30b6989980565f3f97e69a69f66a681ea1171d",
+      "originalRawBytes": 507,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-ci-fixes.txt",
+      "stage": "Two stale CI assertions: 2 passed",
+      "bytes": 474,
+      "sha256": "37215e045f2def97ac28fcabd58f82e416500596a92b1a35bea0fe04c673215e",
+      "originalRawSha256": "bca41fa2c67b2a60a1be0b5cac34c00cf811015ad2c7732da94f513822ed8a95",
+      "originalRawBytes": 483,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-chromium.txt",
+      "stage": "Full Chromium: 126 passed before final Firefox rule replacement; final change separately covered by focused tests and remote CI",
+      "bytes": 19223,
+      "sha256": "e7b237166a0dc6e3587958defe74495492c723e39675f4dbeb22626686a883b0",
+      "originalRawSha256": "de4a65f6496cbc3e3a8defa7e36e646abc1f3000ff03c4c663d42e903b3eacc1",
+      "originalRawBytes": 19359,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-firefox.txt",
+      "stage": "Earlier full Firefox: 28 passed / 2 failed; no unrelated fixes",
+      "bytes": 21249,
+      "sha256": "c78d16d11c26db5a41888616aee2d7e2a6fa48a1a676dde4c7fbd635c6e25a4e",
+      "originalRawSha256": "786bab09474007b8e9d1d210e57f0cb2efaab6e620bb06c4792e7e80c97458b5",
+      "originalRawBytes": 21491,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-webkit.txt",
+      "stage": "Earlier full WebKit: 20 passed / 10 failed; no unrelated fixes",
+      "bytes": 33443,
+      "sha256": "884632bfe3cbff389adaf816cca3ebb3c601797965c1ccb2f9db91ab565eae86",
+      "originalRawSha256": "f8c4dd3d853ff8a372b9978cc98aa06f1ab682476fa17847a3b874c420214921",
+      "originalRawBytes": 33894,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-font-zoom.txt",
+      "stage": "Initial new tests failed on headless shell zoom and CSS family quoting; corrected",
+      "bytes": 6786,
+      "sha256": "a9a30cfa8b0d483442ed321f3a3a5c6b58ecdb358767707fbe4913272c08d0b3",
+      "originalRawSha256": "5dc1676337224187cb8ba1036ea2cfbb536970b40fb750bbe915c915a376fd06",
+      "originalRawBytes": 6876,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-cross-focused.txt",
+      "stage": "Earlier focused run exposed Firefox read-only face descriptors",
+      "bytes": 4236,
+      "sha256": "3a5a7beb596760311f7737fe5843600818057b2186544c5933aa328a75a49a8d",
+      "originalRawSha256": "e3789e13d13bf30ab112ebf17d930b8ac503f074d459c51830e2bb78366dfe03",
+      "originalRawBytes": 4292,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-focused.txt",
+      "stage": "Final production source: 23 passed, Chromium 9 / Firefox 7 / WebKit 7",
+      "bytes": 3733,
+      "sha256": "1b91a3482f38de2ebce70a97de151c6fc4ce797d6878d8bc0b6b6ddb31f41ebb",
+      "originalRawSha256": "a7c12b74dfb9a9993f83af9b21f601c8427bdec8a17b09e5a0f3aa0caf04336d",
+      "originalRawBytes": 3767,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-rule-capture.txt",
+      "stage": "Final normal archive: 72 screenshots / 72 layout records / six CSS-WOFF2 groups",
+      "bytes": 208,
+      "sha256": "f157534ff34b7db67d59df06fe4473c3ccc43aa59e697961f646613747027149",
+      "originalRawSha256": "dc04148f815eb83d9f2052b377ab8c9c766b28a19faf25422a3c9bd0e3e12b6b",
+      "originalRawBytes": 211,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-rule-long-capture.txt",
+      "stage": "Final long-city archive: 18 screenshots / 72 layout records / six CSS-WOFF2 groups",
+      "bytes": 208,
+      "sha256": "3315264565094d6845544fc0987351594fa0633078254b51ced0da8aef3fce78",
+      "originalRawSha256": "3a2f18352375696261583db6506b1e3adca35bc4375a2f2ad92394bb486a1716",
+      "originalRawBytes": 211,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-rule-typecheck.txt",
+      "stage": "Final font-rule typecheck passed",
+      "bytes": 473,
+      "sha256": "858b7c7930d592d995c30c016eb788e0c901c1c0100153b7d6f6c83e99589d65",
+      "originalRawSha256": "e3b90701211486dc731284ef5e54e3bc8f43e2226b092a987ea43316ea97cc16",
+      "originalRawBytes": 486,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-rule-test.txt",
+      "stage": "Final unit tests passed: 330 Vitest + 3 CSS token tests",
+      "bytes": 4661,
+      "sha256": "96fd846c4ef94b89553e24ca88f3e5bc334f60614d0bcefed007bfd7b55cbe21",
+      "originalRawSha256": "7ede3cae357eaf741a5f9cb1edb949d7b0d2bfc8a9b4d136146eebe4fc0ec58b",
+      "originalRawBytes": 4735,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-rule-build.txt",
+      "stage": "Final production build passed; existing chunk >500kB warning",
+      "bytes": 1947,
+      "sha256": "c487911fca23e6e1ba26c5fbcd01bc306085be2520bdec3ba70472231002729f",
+      "originalRawSha256": "57ce5c81f4badd91d43aef9c519333d5087280584622032ba41632848d8cbfa0",
+      "originalRawBytes": 1982,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-check-docs.txt",
+      "stage": "Passed before review-document generation; final docs/format rechecked separately",
+      "bytes": 214,
+      "sha256": "af7bdce0a1238dac5d3e95e76cc90e59145e795aab01752d35d715b01d98e2b0",
+      "originalRawSha256": "9f26f1e7628083c9d3db69774dacf586cf5dec30c12fad9f52fc45bb9b384e67",
+      "originalRawBytes": 219,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-format-check.txt",
+      "stage": "Passed before review-document generation; final docs/format rechecked separately",
+      "bytes": 216,
+      "sha256": "490eff8c922cd95513de0a311360105a60a30a0d846b145d7969b0e7ba18e56d",
+      "originalRawSha256": "56847c0f399bc649c3cc531e001a9934b10a8ee87aa2c66f12d066f1e46597c2",
+      "originalRawBytes": 222,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-lint-css.txt",
+      "stage": "Passed before review-document generation; final docs/format rechecked separately",
+      "bytes": 155,
+      "sha256": "123818a3e62a6cb66cfc43e3fd7504f4e415d6553ec1ffd011fee93355fc0e87",
+      "originalRawSha256": "66e0dc61bf4ecb9c1a11cd3eda5907a33b064687a47e8101178fa843bebb3bc7",
+      "originalRawBytes": 160,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-final-check-css-tokens.txt",
+      "stage": "Passed before review-document generation; final docs/format rechecked separately",
+      "bytes": 263,
+      "sha256": "d03415410f2ca71dd78e5f36a3661f7cb70d40b724cc8f2cb09c162614881aa0",
+      "originalRawSha256": "8dacbb54ad8aa0120f2e0f5cb7dd9b93a212dd1871e324c47728b2dd30b52a45",
+      "originalRawBytes": 268,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-delivery-docs.txt",
+      "stage": "Final delivery docs passed (29 files)",
+      "bytes": 214,
+      "sha256": "ce65e9111af2f3bf0ff22831c728cd2fae0c34ba0e0a5d3a3602487eac6e8ddd",
+      "originalRawSha256": "0dc9ae3a60f1877eec8243328251e5852ea5c4cd98529d92a9936df95f574dbc",
+      "originalRawBytes": 219,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    },
+    {
+      "file": "logs/task-2c-delivery-format.txt",
+      "stage": "Final delivery formatting passed",
+      "bytes": 216,
+      "sha256": "490eff8c922cd95513de0a311360105a60a30a0d846b145d7969b0e7ba18e56d",
+      "originalRawSha256": "56847c0f399bc649c3cc531e001a9934b10a8ee87aa2c66f12d066f1e46597c2",
+      "originalRawBytes": 222,
+      "normalization": "LF line endings, trailing whitespace/blank EOF normalized; original artifacts log retained"
+    }
+  ],
+  "changedFiles": [
+    "docs/visual-review/task-2c/resume/README.md",
+    "docs/visual-review/task-2c/resume/browser-evidence.json",
+    "docs/visual-review/task-2c/resume/logs/task-2c-chromium.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-ci-fixes.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-cross-focused.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-delivery-docs.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-delivery-format.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-dependencies.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-check-css-tokens.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-check-docs.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-focused.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-format-check.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-lint-css.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-rule-capture.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-final-rule-long-capture.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-firefox.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-font-zoom.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-rule-build.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-rule-test.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-rule-typecheck.txt",
+    "docs/visual-review/task-2c/resume/logs/task-2c-webkit.txt",
+    "docs/visual-review/task-2c/resume/long-cities/browser-evidence.json",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/native-zoom-probe.json",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-dark-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-en-light-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-dark-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-CN-light-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-dark-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1024x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1024x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1280x720-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1280x720-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1366x768-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1366x768-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1440x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1440x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1646x928-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-1646x928-zoom125.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-761x900-zoom100.png",
+    "docs/visual-review/task-2c/resume/passport-zh-TW-light-761x900-zoom125.png",
+    "docs/visual-review/task-2c/resume/validation-results.json",
+    "e2e/fixtures/chinese-long-city-passport.keepraw-fly.json",
+    "e2e/typography-zoom.pw.ts",
+    "apps/web/src/styles/passport-desktop.css",
+    "apps/web/src/typography/load-webfonts.ts",
+    "docs/visual-review/task-2c/HANDOFF.md",
+    "e2e/keepraw-fly.pw.ts",
+    "e2e/typography.pw.ts",
+    "scripts/capture-task-2c.mjs",
+    "scripts/passport-typography-evidence.mjs"
+  ]
+}

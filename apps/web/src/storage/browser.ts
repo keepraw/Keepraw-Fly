@@ -6,7 +6,7 @@ import type {
   SettingsStore,
   StorageAdapter,
 } from "./adapter";
-import type { ViewerSettings } from "./types";
+import { normalizeViewerSettings, type ViewerSettings } from "./types";
 
 export type PersistentStorageState =
   "checking" | "granted" | "available" | "unsupported" | "failed";
@@ -152,7 +152,8 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
   }
 
   async loadSettings(): Promise<ViewerSettings | null> {
-    return (await this.database.preferences.get("viewer"))?.settings ?? null;
+    const settings = (await this.database.preferences.get("viewer"))?.settings;
+    return settings ? normalizeViewerSettings(settings) : null;
   }
 
   async saveSettings(settings: ViewerSettings): Promise<void> {

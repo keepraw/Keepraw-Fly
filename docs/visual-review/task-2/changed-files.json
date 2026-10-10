@@ -1,0 +1,712 @@
+{
+  "baselineCommit": "8e759707c1c265b360183160f6fe369428e30b4a",
+  "branch": "codex/globe-prototype-experiment",
+  "scope": "Exact cumulative Task 2 changes relative to the fetched checkpoint; includes this inventory",
+  "count": 176,
+  "files": [
+    {
+      "status": "M",
+      "path": "apps/web/src/App.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/globe/GlobeLab.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/globe/lab-locales.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/locales/en.json"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/locales/zh-CN.json"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/locales/zh-TW.json"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/pages/PassportPage.test.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/pages/PassportPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/pages/SettingsPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/storage/browser.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/storage/browser.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/storage/types.ts"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/styles/passport-desktop.css"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-1/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-dark-complete-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-dark-complete-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-dark-review-controls.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-dark-rotated-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-light-complete-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/after-light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/before-dark-complete-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-1/before-light-complete-1440.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-1/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-2/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-asia-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-fixed-b1-asia-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-fixed-b1-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-fixed-b1-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-fixed-b1-north-america-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-north-america-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-dark-selected-long-haul-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-light-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-light-fixed-b1-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/after-light-fixed-b1-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-asia-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-north-america-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-dark-selected-long-haul-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-light-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-2/before-light-earth-1440.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-2/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-3/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-dark-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-dark-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-dark-selected-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/a-light-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-dark-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-dark-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-dark-selected-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/b-light-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-dark-default-1280.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-dark-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-dark-selected-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-3/before-light-passport-size-1440.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-3/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-4/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/dark-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/dark-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/dark-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/dark-solar-diagnostic-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/dark-twilight-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/light-default-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/light-earth-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/light-passport-size-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/light-solar-diagnostic-1440.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-4/light-twilight-1440.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-4/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-5/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/after-east-asia.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/before-east-asia.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/dark-earth.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/dark-passport-size.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/dark-routes.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-5/diagnosis.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-5/light-earth.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-5/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-6/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-6/after-combined.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-6/after-emission.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-6/after-routes.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-6/after-surface.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-6/before-emission.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-6/manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7a/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7a/fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7a/fixed-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7a/manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7a/realtime-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7a/realtime-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-fixed-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b/after-manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-passport-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-realtime-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/after-realtime-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-fixed-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b/before-manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-passport-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-realtime-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b/before-realtime-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b/pixel-comparison.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b2/README.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-fixed-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-passport-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-realtime-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-realtime-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-selected-PEK-PVG-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-selected-SFO-HKG-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/baseline-approved-selected-SFO-HKG-light.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-1b-7b2/canonical-manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-1b-7b2/cleanup-inventory.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-B-europe-asia-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-C-close-asia-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-fixed-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-B-europe-asia-selected-LHR-SIN-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-fixed-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-C-close-asia-selected-PEK-PVG-dark.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b2/comp-clean-manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b2/comp-manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-fixed-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-fixed-light.png"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-manifest.json"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-passport-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-realtime-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-realtime-light.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-selected-SFO-HKG-dark.png"
+    },
+    {
+      "status": "D",
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-selected-SFO-HKG-light.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/changed-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-dark-1024x768.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-dark-1280x720.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-dark-1366x768.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-dark-1440x900.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-dark-761x900.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-light-1024x768.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-light-1280x720.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-light-1366x768.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-light-1440x900.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/passport-light-761x900.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/scope-audit.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/screenshots.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/visual-review/task-2/test-results.json"
+    },
+    {
+      "status": "M",
+      "path": "e2e/keepraw-fly.pw.ts"
+    },
+    {
+      "status": "M",
+      "path": "e2e/passport-desktop-design.pw.ts"
+    },
+    {
+      "status": "A",
+      "path": "e2e/solar-preference.pw.ts"
+    },
+    {
+      "status": "A",
+      "path": "scripts/capture-task-2.mjs"
+    }
+  ]
+}

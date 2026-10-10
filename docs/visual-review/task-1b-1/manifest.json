@@ -1,0 +1,141 @@
+{
+  "capturedOn": "2026-10-09",
+  "visualStatus": "Visual approval pending",
+  "baselineCommit": "04fb505b0302b855244307b853cb70078ef34e6e",
+  "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6",
+  "method": "Real Chrome/Intel D3D11 screenshots; no compositing or pixel editing",
+  "sameCameraVerified": true,
+  "data": "Repository Demo archive; All years; 24 flights; 23 directed routes; 20 airports",
+  "defaultCamera": "[-0.9525123923227677,1.5282610618712893,1.9441291801831475]",
+  "lightingDefaults": {
+    "earthOnly": false,
+    "surface": true,
+    "nightLights": true,
+    "atmosphere": true,
+    "sunIntensity": 2.2,
+    "twilightWidth": 0.18,
+    "atmosphereIntensity": 1,
+    "nightIntensity": 1.6,
+    "sunDirection": [
+      0.7978800943480026, 0.5277711246556168, -0.2912816420974177
+    ],
+    "exposure": 1,
+    "theme": "dark"
+  },
+  "files": [
+    {
+      "file": "after-dark-complete-1280.png",
+      "bytes": 353744,
+      "width": 1280,
+      "height": 720,
+      "sha256": "9225418c00f5013b5dea1ee90ee8e783460a59c5fcdf8b445ceebdc0a38ef94b",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-dark-complete-1440.png",
+      "bytes": 562227,
+      "width": 1440,
+      "height": 900,
+      "sha256": "a4a45b77e25c136f37c8736e1c956dff1fb6178dd57371bc6329dd6959b3cb88",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-dark-earth-1440.png",
+      "bytes": 532715,
+      "width": 1440,
+      "height": 900,
+      "sha256": "683d39138bae9ffaeaf0a580bb29127178c9c6e9c2ad389a79cb6690d60ff2fe",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-dark-review-controls.png",
+      "bytes": 580796,
+      "width": 1440,
+      "height": 1086,
+      "sha256": "2378ed1945e81e504638496163f609142a8bd2ba74eef709c7b6930829b207d0",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-dark-rotated-1440.png",
+      "bytes": 550278,
+      "width": 1440,
+      "height": 900,
+      "sha256": "89aa59669d1fa4ce34deecc283619ba75dc633a36564bb7b1a910277f92abf41",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-light-complete-1440.png",
+      "bytes": 559195,
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b280573ae857f283fe7c259ef7b24323854221e5bd30fb8083064834c507e2e",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "after-light-earth-1440.png",
+      "bytes": 532643,
+      "width": 1440,
+      "height": 900,
+      "sha256": "50f2cc2a82ff4244ac7add60190bbe035ae6a6a8da0b61d31971ff2ed150b5cc",
+      "renderSourceCommit": "ef9f9b31d01adaa3ec06b1dd83ac680c979eb0a6"
+    },
+    {
+      "file": "before-dark-complete-1440.png",
+      "bytes": 525595,
+      "width": 1440,
+      "height": 900,
+      "sha256": "cc1ebdb1cd671710b025f14c0bff6aaefd8221652d6534de49acd842f674e50b",
+      "renderSourceCommit": "04fb505b0302b855244307b853cb70078ef34e6e"
+    },
+    {
+      "file": "before-light-complete-1440.png",
+      "bytes": 583270,
+      "width": 1440,
+      "height": 900,
+      "sha256": "f8e0c498047943fc1bb1812f09e7b170702737c5504ecd06d6b2642c9400d7dc",
+      "renderSourceCommit": "04fb505b0302b855244307b853cb70078ef34e6e"
+    }
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "after-dark-complete-1280.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-review-controls.png",
+        "available": false
+      },
+      {
+        "name": "after-dark-rotated-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "after-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-complete-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-complete-1440.png",
+        "available": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "status": "Visual approval pending",
+  "baseline": "fec2798a432a8a3b69326d7737c9f7ee02412726",
+  "unit": {
+    "passed": 316,
+    "cssAst": 3,
+    "core": 66,
+    "validator": 31,
+    "web": 216
+  },
+  "typecheck": "passed",
+  "build": "passed; existing >500 kB warning",
+  "docs": "passed",
+  "cssLint": "passed",
+  "cssTokens": "passed",
+  "format": "passed after prettier --write on two new capture scripts",
+  "diffCheck": "passed",
+  "chromium": {
+    "workers": 1,
+    "retries": 0,
+    "globeSolarMode": "4/5 passed first run, 1/1 passed on retry (hidden-timer resync flake, no product change)",
+    "globeSolar": "1/1 passed",
+    "globeLighting": "2/2 passed",
+    "globeArt": "1/1 passed",
+    "globeNightResponse": "1/1 passed",
+    "globeNightStyle": "1/1 passed",
+    "globeScene": "1/1 passed",
+    "globeLab": "5/5 passed",
+    "passportDesktop": "3/3 passed"
+  },
+  "invariants": {
+    "fixedSunUnchanged": true,
+    "cityKernelsUntouched": true,
+    "cameraUnchanged": true,
+    "routesUnchanged": 22,
+    "exposureUnchanged": 1,
+    "lightingDefaultsUnchanged": true,
+    "disabledBlackPreserved": "covered by globe-lighting suite",
+    "emissionHierarchyPreserved": "covered by night-response/night-style suites",
+    "solarGeographyPreserved": "covered by globe-solar suite",
+    "productionAssetDifferences": 0
+  },
+  "otherEngines": "No local Firefox/WebKit matrix (system Chrome via PLAYWRIGHT_EXECUTABLE_PATH; Playwright browsers unavailable in sandbox)",
+  "limitations": [
+    "Visual approval pending",
+    "Realtime suns differ by wall-clock (~33s between before/after); theme-sharing verified, not pixel equality",
+    "Single-run browser pixel means; not photometry",
+    "No clouds, bloom, fabricated lights, or composition changes in this pass",
+    "Atmosphere shell edge may remain detectable at grazing angles",
+    "Reference photographic depth and Europe-to-Asia composition not reproduced"
+  ]
+}

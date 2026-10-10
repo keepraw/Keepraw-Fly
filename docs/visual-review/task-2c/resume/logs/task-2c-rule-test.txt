@@ -1,0 +1,74 @@
+
+> keepraw-fly@0.1.0 test C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> node --test scripts/css-tokens.test.mjs && pnpm -r test
+
+✔ CSS AST collects local/media definitions and nested fallbacks, ignoring text/comments (3.5652ms)
+✔ runtime AST accepts inline/typed assignments and rejects literal/type-only evidence (6.643ms)
+✔ checker fails nonexistent names even with fallback or source string evidence (744.9507ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1011.91
+Scope: 4 of 5 workspace projects
+packages/schema test$ vitest run --passWithNoTests
+packages/schema test:  RUN  v3.2.7 C:/Users/Administrator/Documents/GitHub/Keepraw-Fly/packages/schema
+packages/schema test: No test files found, exiting with code 0
+packages/schema test: include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+packages/schema test: exclude:  **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
+packages/schema test: Done
+packages/core test$ vitest run
+packages/core test:  RUN  v3.2.7 C:/Users/Administrator/Documents/GitHub/Keepraw-Fly/packages/core
+packages/core test:  ✓ tests/passport-highlights.test.ts (2 tests) 3ms
+packages/core test:  ✓ tests/time-display.test.ts (8 tests) 12ms
+packages/core test:  ✓ tests/core.test.ts (58 tests) 75ms
+packages/core test:  Test Files  3 passed (3)
+packages/core test:       Tests  68 passed (68)
+packages/core test:    Start at  20:08:25
+packages/core test:    Duration  687ms (transform 232ms, setup 0ms, collect 712ms, tests 90ms, environment 0ms, prepare 352ms)
+packages/core test: Done
+packages/validator test$ vitest run
+packages/validator test:  RUN  v3.2.7 C:/Users/Administrator/Documents/GitHub/Keepraw-Fly/packages/validator
+packages/validator test:  ✓ tests/validator.test.ts (31 tests) 15ms
+packages/validator test:  Test Files  1 passed (1)
+packages/validator test:       Tests  31 passed (31)
+packages/validator test:    Start at  20:08:26
+packages/validator test:    Duration  657ms (transform 148ms, setup 0ms, collect 314ms, tests 15ms, environment 0ms, prepare 98ms)
+packages/validator test: Done
+apps/web test$ vitest run --passWithNoTests
+apps/web test:  RUN  v3.2.7 C:/Users/Administrator/Documents/GitHub/Keepraw-Fly/apps/web
+apps/web test:  ✓ src/globe/globe-math.test.ts (14 tests) 88ms
+apps/web test:  ✓ src/data/map-geometry.test.ts (6 tests) 90ms
+apps/web test:  ✓ src/storage/persistence.test.ts (15 tests) 463ms
+apps/web test:    ✓ persistence queue with IndexedDB > keeps failed changes available for retry while IndexedDB retains the previous document  426ms
+apps/web test:  ✓ src/storage/browser.test.ts (32 tests) 515ms
+apps/web test:    ✓ BrowserStorageAdapter > round-trips a document including unknown extensions  403ms
+apps/web test:  ✓ src/pages/FlightDetailPage.test.tsx (4 tests) 143ms
+apps/web test:  ✓ src/globe/globe-night-response.test.ts (3 tests) 657ms
+apps/web test:    ✓ measured Black Marble response > is finite and smooth, preserves positive tonal ordering, and bounds the old peak  646ms
+apps/web test:  ✓ src/components/FlightRow.test.tsx (8 tests) 96ms
+apps/web test:  ✓ src/data/map-camera.test.ts (9 tests) 33ms
+apps/web test:  ✓ src/data/map-labels.test.ts (2 tests) 17ms
+apps/web test:  ✓ src/data/recovery-export.test.ts (9 tests) 17ms
+apps/web test:  ✓ src/pages/PassportPage.test.tsx (20 tests) 507ms
+apps/web test:  ✓ src/components/AviationPrimitives.test.tsx (3 tests) 17ms
+apps/web test:  ✓ src/i18n-resources.test.ts (18 tests) 11ms
+apps/web test:  ✓ src/data/flight-editor.test.ts (23 tests) 692ms
+apps/web test:  ✓ src/globe/globe-solar.test.ts (9 tests) 8ms
+apps/web test:  ✓ src/storage/types.test.ts (4 tests) 6ms
+apps/web test:  ✓ src/data/import-preview.test.ts (7 tests) 16ms
+apps/web test:  ✓ src/data/duplicate-detection.test.ts (8 tests) 6ms
+apps/web test:  ✓ src/data/passport-exploration.test.ts (5 tests) 11ms
+apps/web test:  ✓ src/data/map-route-visuals.test.ts (2 tests) 4ms
+apps/web test:  ✓ src/data/archive.test.ts (2 tests) 3ms
+apps/web test:  ✓ src/globe/globe-lighting.test.ts (3 tests) 3ms
+apps/web test:  ✓ src/data/csv-import.test.ts (16 tests) 1022ms
+apps/web test:  ✓ src/data/flighty-import.test.ts (9 tests) 981ms
+apps/web test:  Test Files  24 passed (24)
+apps/web test:       Tests  231 passed (231)
+apps/web test:    Start at  20:08:27
+apps/web test:    Duration  2.47s (transform 1.77s, setup 0ms, collect 7.18s, tests 5.40s, environment 6ms, prepare 4.44s)
+apps/web test: Done

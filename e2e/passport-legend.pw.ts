@@ -54,8 +54,8 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await expect(page.locator(".passport-core-stat:nth-child(2)")).toContainText(
     "9Flights",
   );
-  await expect(page.locator(".passport-delay-highlight")).toHaveText(
-    "Total arrival delay1h 30m",
+  await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
+    "1h 30m",
   );
   await expect(page.locator(".passport-visual")).not.toContainText(
     "Early arrivals do not offset delays",
@@ -82,7 +82,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   );
 
   await expect(page.locator(".passport-highlights")).toBeVisible();
-  await expect(page.locator(".passport-highlight")).toHaveCount(2);
+  await expect(page.locator(".passport-highlight")).toHaveCount(5);
   await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(8);
   await expect(page.locator(".passport-core-stat:nth-child(2)")).toContainText(
@@ -133,7 +133,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
       await settings.nth(1).selectOption(theme);
       await page.goto("/#passport");
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      for (const width of [1440, 1280, 390]) {
+      for (const width of [1440, 1366, 1280, 1024, 761, 390]) {
         await page.setViewportSize({ width, height: 720 });
         expect(
           await page
@@ -142,7 +142,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
         ).toBe(true);
         if (width > 760) {
           await expect(page.locator(".passport-highlights")).toBeVisible();
-          await expect(page.locator(".passport-highlight")).toHaveCount(2);
+          await expect(page.locator(".passport-highlight")).toHaveCount(5);
           await expect(page.locator(".passport-legend")).toBeVisible();
           expect(
             await page
@@ -197,7 +197,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
     await page.setViewportSize({ width, height: 900 });
     if (width > 760) {
       await expect(page.locator(".passport-highlights")).toBeVisible();
-      await expect(page.locator(".passport-highlight")).toHaveCount(2);
+      await expect(page.locator(".passport-highlight")).toHaveCount(5);
     } else {
       await expect(page.locator(".passport-highlights")).toHaveCount(0);
       const highlightsInTabOrder = await page

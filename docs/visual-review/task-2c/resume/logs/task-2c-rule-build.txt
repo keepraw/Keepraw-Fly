@@ -1,0 +1,34 @@
+
+> keepraw-fly@0.1.0 build C:\Users\Administrator\Documents\GitHub\Keepraw-Fly
+> pnpm -r build
+
+Scope: 4 of 5 workspace projects
+packages/schema build$ tsc --noEmit
+packages/schema build: Done
+packages/core build$ tsc --noEmit
+packages/core build: Done
+packages/validator build$ tsc --noEmit
+packages/validator build: Done
+apps/web build$ tsc --noEmit && vite build
+apps/web build: vite v8.3.3 building client environment for production...
+apps/web build: transforming...
+apps/web build: ✓ 349 modules transformed.
+apps/web build: rendering chunks...
+apps/web build: computing gzip size...
+apps/web build: dist/index.html                             0.78 kB │ gzip:   0.43 kB
+apps/web build: dist/assets/map-relief-BxThSjF1.webp      566.84 kB
+apps/web build: dist/assets/airports.iata-CQKL_k1B.json   683.39 kB │ gzip: 237.78 kB
+apps/web build: dist/assets/index-DQL6Q4oz.css            131.78 kB │ gzip:  22.02 kB
+apps/web build: dist/assets/FlightRouteMap-DTGOPqI1.js      1.99 kB │ gzip:   0.87 kB
+apps/web build: dist/assets/PassportRouteMap-DnOMFWVi.js    8.15 kB │ gzip:   3.16 kB
+apps/web build: dist/assets/src-BsJ5Gflc.js               150.88 kB │ gzip:  43.02 kB
+apps/web build: dist/assets/MapWorld-BEK4qYkK.js          278.56 kB │ gzip: 102.19 kB
+apps/web build: dist/assets/src-CrHdcosV.js               468.18 kB │ gzip: 152.15 kB
+apps/web build: dist/assets/index-11LYYAbG.js             592.29 kB │ gzip: 173.78 kB
+apps/web build: [plugin builtin:vite-reporter]
+apps/web build: (!) Some chunks are larger than 500 kB after minification. Consider:
+apps/web build: - Using dynamic import() to code-split the application
+apps/web build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+apps/web build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+apps/web build: ✓ built in 604ms
+apps/web build: Done

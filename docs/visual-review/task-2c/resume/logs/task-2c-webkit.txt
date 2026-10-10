@@ -1,0 +1,430 @@
+
+Running 30 tests using 6 workers
+
+(node:7844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 760x900 in light @cross-browser (28.1s)
+  ok  3 [webkit] › e2e\document-persistence.pw.ts:162:1 › persists an edited flight and keeps it after reload without an unsaved warning @cross-browser (28.8s)
+  x   4 [webkit] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser (35.0s)
+  x   1 [webkit] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser (35.5s)
+(node:27068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  8 [webkit] › e2e\globe-scene.pw.ts:4:1 › regional composition, shared reverse strokes and manual camera ownership @cross-browser (22.3s)
+(node:13972) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  5 [webkit] › e2e\globe-lighting.pw.ts:93:1 › cinematic layers produce real pixels and keep the world-space sun fixed @cross-browser (54.9s)
+  ok 10 [webkit] › e2e\persistent-storage.pw.ts:377:1 › reads native persistent storage without assuming the browser grants it @cross-browser (7.3s)
+  x   7 [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 761x900 in light @cross-browser (31.6s)
+(node:2460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 11 [webkit] › e2e\passport-detail-return.pw.ts:58:3 › restores the opened flight without selection at 1280px @cross-browser (30.3s)
+  ok  6 [webkit] › e2e\globe-lab.pw.ts:51:1 › globe actual browser screenshots, viewports, selection and resource measurements @cross-browser (1.4m)
+  x  12 [webkit] › e2e\globe-lighting.pw.ts:198:1 › night texture failure falls back locally and retries both textures @cross-browser (29.7s)
+(node:12936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 15 [webkit] › e2e\passport-detail-return.pw.ts:58:3 › restores the opened flight without selection at 390px @cross-browser (12.3s)
+  x  13 [webkit] › e2e\responsive-boundaries.pw.ts:146:1 › Passport, Flight Detail and Settings switch actual layout and retain state across 760/761 breakpoint resizes @cross-browser (33.4s)
+(node:15336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  16 [webkit] › e2e\globe-lab.pw.ts:218:1 › globe local SVG fallback on texture failure and context loss @cross-browser (25.3s)
+  x  14 [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 844x390 in dark @cross-browser (32.4s)
+(node:19700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 18 [webkit] › e2e\passport-detail-return.pw.ts:89:1 › restores the adjacent detail flight without selecting it @cross-browser (20.8s)
+  x  17 [webkit] › e2e\solar-preference.pw.ts:11:1 › solar preference survives Settings, Lab, reset lighting and reload @cross-browser (31.5s)
+  ok 21 [webkit] › e2e\cross-browser-smoke.pw.ts:124:3 › Cross-browser engine smoke › short landscape editor saves a new flight with keyboard focus and usable confirmation controls @cross-browser (15.0s)
+  ok 22 [webkit] › e2e\passport-detail-return.pw.ts:103:3 › map airport selection still scrolls, focuses and highlights the flight @cross-browser (14.4s)
+  ok 20 [webkit] › e2e\globe-lab.pw.ts:261:1 › globe filtering, real archive loading and formal Passport isolation @cross-browser (17.6s)
+[Globe capability] globe gracefully handles disabled WebGL @cross-browser: functional SVG fallback (WebGL2 context unavailable)
+  ok 23 [webkit] › e2e\cross-browser-smoke.pw.ts:205:3 › Cross-browser engine smoke › Passport SVG renders offline and responds to wheel zoom and pointer panning @cross-browser (11.9s)
+  ok 24 [webkit] › e2e\passport-detail-return.pw.ts:103:3 › map route selection still scrolls, focuses and highlights the flight @cross-browser (12.3s)
+  x  19 [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser (31.8s)
+  ok 25 [webkit] › e2e\globe-lab.pw.ts:294:1 › globe gracefully handles disabled WebGL @cross-browser (11.7s)
+(node:5908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 26 [webkit] › e2e\cross-browser-smoke.pw.ts:281:3 › Cross-browser engine smoke › balanced international detail title keeps Latin words whole at the mobile boundary @cross-browser (3.6s)
+  ok 27 [webkit] › e2e\globe-lab.pw.ts:328:1 › globe direct route and airport picking, motion and accessibility @cross-browser (13.5s)
+  ok 28 [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN light @cross-browser (21.5s)
+  ok 29 [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW dark @cross-browser (15.2s)
+  ok 30 [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW light @cross-browser (15.6s)
+  x   9 [webkit] › e2e\passport-desktop-design.pw.ts:185:1 › regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser (4.0m)
+
+
+  1) [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 761x900 in light @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('.detail-header-back')
+        - locator resolved to <button type="button" class="detail-header-back">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+
+
+      113 |       );
+      114 |       await expectHealthyPage(page, errors);
+    > 115 |       await page.locator(".detail-header-back").click();
+          |                                                 ^
+      116 |       await expect(row).toBeInViewport({ ratio: 0.99 });
+      117 |       await expect(
+      118 |         page.locator(".flight-row.is-selected, .flight-row[aria-current]"),
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\cross-browser-smoke.pw.ts:115:49
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--0b3a2-rolling-at-761x900-in-light-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--0b3a2-rolling-at-761x900-in-light-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--0b3a2-rolling-at-761x900-in-light-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--0b3a2-rolling-at-761x900-in-light-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 844x390 in dark @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  locator('.flight-row').last()
+    Expected: in viewport
+    Received: undefined
+
+    Call log:
+      - Expect "toBeInViewport" locator('.flight-row').last() with timeout 5000ms
+      - waiting for locator('.flight-row').last()
+      -
+
+
+      114 |       await expectHealthyPage(page, errors);
+      115 |       await page.locator(".detail-header-back").click();
+    > 116 |       await expect(row).toBeInViewport({ ratio: 0.99 });
+          |                         ^
+      117 |       await expect(
+      118 |         page.locator(".flight-row.is-selected, .flight-row[aria-current]"),
+      119 |       ).toHaveCount(0);
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\cross-browser-smoke.pw.ts:116:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--a154c-crolling-at-844x390-in-dark-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--a154c-crolling-at-844x390-in-dark-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--a154c-crolling-at-844x390-in-dark-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\cross-browser-smoke.pw.ts--a154c-crolling-at-844x390-in-dark-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('.detail-map-airport-point').first()
+        - locator resolved to visible <circle r="3.5" class="detail-map-airport-point"></circle>
+
+
+      113 |         ).entries()) {
+      114 |           expect(
+    > 115 |             await dot.evaluate((element) => getComputedStyle(element).fill),
+          |                       ^
+      116 |           ).not.toBe("none");
+      117 |           const measurePoint = () =>
+      118 |             dot.evaluate((element, index) => {
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\detail-map-curve.pw.ts:115:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\detail-map-curve.pw.ts-kee-e25c6-ffline-detail-map-endpoints-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [webkit] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('combobox', { name: 'Art Direction', exact: true })
+
+
+      125 |     await page.getByRole("button", { name: theme, exact: true }).click();
+      126 |     for (const option of ["A", "B"]) {
+    > 127 |       await direction.selectOption(option);
+          |                       ^
+      128 |       await expect
+      129 |         .poll(async () => (await read()).lighting.artDirection)
+      130 |         .toBe(option);
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\globe-art.pw.ts:127:23
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\globe-art.pw.ts-art-direct-ec158-ing-the-globe-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [webkit] › e2e\globe-lab.pw.ts:218:1 › globe local SVG fallback on texture failure and context loss @cross-browser
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.globe-fallback')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.globe-fallback') with timeout 5000ms
+      - waiting for locator('.globe-fallback')
+
+
+      226 |   await page.route("**/earth-4096.webp", (route) => route.abort());
+      227 |   await page.reload();
+    > 228 |   await expect(page.locator(".globe-fallback")).toBeVisible();
+          |                                                 ^
+      229 |   await expect
+      230 |     .poll(
+      231 |       async () =>
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\globe-lab.pw.ts:228:49
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-lab.pw.ts-globe-loca-ebd2e--context-loss-cross-browser-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\globe-lab.pw.ts-globe-loca-ebd2e--context-loss-cross-browser-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-lab.pw.ts-globe-loca-ebd2e--context-loss-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\globe-lab.pw.ts-globe-loca-ebd2e--context-loss-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [webkit] › e2e\globe-lighting.pw.ts:198:1 › night texture failure falls back locally and retries both textures @cross-browser
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.globe-fallback svg[role="group"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.globe-fallback svg[role="group"]') with timeout 5000ms
+      - waiting for locator('.globe-fallback svg[role="group"]')
+
+
+      206 |   await page.route("**/night-4096.webp", (route) => route.abort());
+      207 |   await page.reload();
+    > 208 |   await expect(page.locator('.globe-fallback svg[role="group"]')).toBeVisible();
+          |                                                                   ^
+      209 |   await expect
+      210 |     .poll(
+      211 |       async () =>
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\globe-lighting.pw.ts:208:67
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-lighting.pw.ts-night-08229-both-textures-cross-browser-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\globe-lighting.pw.ts-night-08229-both-textures-cross-browser-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\globe-lighting.pw.ts-night-08229-both-textures-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\globe-lighting.pw.ts-night-08229-both-textures-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [webkit] › e2e\passport-desktop-design.pw.ts:185:1 › regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser
+
+    Test timeout of 120000ms exceeded.
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.screenshot: Test ended.
+    Call log:
+      - taking page screenshot
+      - waiting for fonts to load...
+      - fonts loaded
+
+
+      312 |         await expect(page.locator(".flight-row.is-selected")).toBeFocused();
+      313 |         await mkdir("test-results/desktop-review", { recursive: true });
+    > 314 |         await page.screenshot({
+          |                    ^
+      315 |           path: `test-results/desktop-review/${distribution}-${theme}-${viewport.width}x${viewport.height}.png`,
+      316 |         });
+      317 |       }
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\passport-desktop-design.pw.ts:314:20
+
+    Error Context: artifacts\task-2c-webkit-results\passport-desktop-design.pw-bd07f-alized-cities-cross-browser-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\passport-desktop-design.pw-bd07f-alized-cities-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\passport-desktop-design.pw-bd07f-alized-cities-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [webkit] › e2e\responsive-boundaries.pw.ts:146:1 › Passport, Flight Detail and Settings switch actual layout and retain state across 760/761 breakpoint resizes @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Open UA123, SFO to LAX', exact: true })
+        - locator resolved to <button type="button" class="flight-row" aria-label="Open UA123, SFO to LAX">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      167 |     await page
+      168 |       .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
+    > 169 |       .click();
+          |        ^
+      170 |     await test.step("Flight Detail: 761→760→761→760 updates columns and map DOM on the same flight", async () => {
+      171 |       for (const width of [761, 760, 761, 760]) {
+      172 |         await page.setViewportSize({ width, height: 900 });
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\responsive-boundaries.pw.ts:169:8
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\responsive-boundaries.pw.t-ad727--760-761-breakpoint-resizes-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\responsive-boundaries.pw.t-ad727--760-761-breakpoint-resizes-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\responsive-boundaries.pw.t-ad727--760-761-breakpoint-resizes-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\responsive-boundaries.pw.t-ad727--760-761-breakpoint-resizes-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [webkit] › e2e\solar-preference.pw.ts:11:1 › solar preference survives Settings, Lab, reset lighting and reload @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('combobox', { name: 'Solar illumination', exact: true })
+    Expected: "fixed"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('combobox', { name: 'Solar illumination', exact: true }) with timeout 5000ms
+      - waiting for getByRole('combobox', { name: 'Solar illumination', exact: true })
+      - Test timeout of 30000ms exceeded.
+
+
+      58 |   ).toBeChecked();
+      59 |   await page.goto("/#settings");
+    > 60 |   await expect(control).toHaveValue("fixed");
+         |                         ^
+      61 |   for (const [locale, label, fixed, realtime] of [
+      62 |     ["en", "Solar illumination", "Fixed Sun", "Real-time Sun"],
+      63 |     ["zh-CN", "太阳光照", "固定太阳", "真实太阳（实时）"],
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\solar-preference.pw.ts:60:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\solar-preference.pw.ts-sol-f7f06-ng-and-reload-cross-browser-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\solar-preference.pw.ts-sol-f7f06-ng-and-reload-cross-browser-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\solar-preference.pw.ts-sol-f7f06-ng-and-reload-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\solar-preference.pw.ts-sol-f7f06-ng-and-reload-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser
+
+    Test timeout of 30000ms exceeded.
+
+    Error: frame.evaluate: Test timeout of 30000ms exceeded.
+
+      134 |       await page.keyboard.press("Enter");
+      135 |       await expect(page.locator(".flight-row")).toHaveCount(12);
+    > 136 |       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+          |               ^
+      137 |       await page.reload();
+      138 |       await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      139 |       await expect(page.locator(".flight-row")).toHaveCount(12);
+        at AxeBuilder.runPartialRecursive (C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\node_modules\.pnpm\@axe-core+playwright@4.13.0_playwright-core@1.63.0\node_modules\@axe-core\playwright\dist\index.mjs:280:39)
+        at AxeBuilder.analyze (C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\node_modules\.pnpm\@axe-core+playwright@4.13.0_playwright-core@1.63.0\node_modules\@axe-core\playwright\dist\index.mjs:210:39)
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\typography.pw.ts:136:15
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\typography.pw.ts-Chinese-d-c4081-DN-zh-CN-dark-cross-browser-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-webkit-results\typography.pw.ts-Chinese-d-c4081-DN-zh-CN-dark-cross-browser-webkit\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-webkit-results\typography.pw.ts-Chinese-d-c4081-DN-zh-CN-dark-cross-browser-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-webkit-results\typography.pw.ts-Chinese-d-c4081-DN-zh-CN-dark-cross-browser-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 761x900 in light @cross-browser
+    [webkit] › e2e\cross-browser-smoke.pw.ts:48:5 › Cross-browser engine smoke › boundary layout and scrolling at 844x390 in dark @cross-browser
+    [webkit] › e2e\detail-map-curve.pw.ts:6:1 › keeps a natural long-route arc and round offline detail-map endpoints @cross-browser
+    [webkit] › e2e\globe-art.pw.ts:4:1 › art direction changes local light without reinitializing the globe @cross-browser
+    [webkit] › e2e\globe-lab.pw.ts:218:1 › globe local SVG fallback on texture failure and context loss @cross-browser
+    [webkit] › e2e\globe-lighting.pw.ts:198:1 › night texture failure falls back locally and retries both textures @cross-browser
+    [webkit] › e2e\passport-desktop-design.pw.ts:185:1 › regional and Asia cameras retain accurate interactive relief and localized cities @cross-browser
+    [webkit] › e2e\responsive-boundaries.pw.ts:146:1 › Passport, Flight Detail and Settings switch actual layout and retain state across 760/761 breakpoint resizes @cross-browser
+    [webkit] › e2e\solar-preference.pw.ts:11:1 › solar preference survives Settings, Lab, reset lighting and reload @cross-browser
+    [webkit] › e2e\typography.pw.ts:88:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser
+  20 passed (4.9m)

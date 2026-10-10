@@ -1,0 +1,814 @@
+{
+  "baseline": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+  "renderedSource": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+  "browser": "154.0.8037.58",
+  "passport": {
+    "width": 998,
+    "height": 576.0625,
+    "canvasWidth": 996,
+    "canvasHeight": 574,
+    "border": ["1px", "1px"],
+    "provenance": "Live Desktop Passport .route-map/.route-map-canvas at 1440x900; passport-desktop.css and passport.css grid allocation"
+  },
+  "strictSceneComparison": "Exact scene/camera/FOV/offset/viewport/route and sun/exposure equality asserted by capture script",
+  "images": [
+    {
+      "file": "before-dark-default-1440.png",
+      "bytes": 621921,
+      "width": 1440,
+      "height": 900,
+      "sha256": "d344aad0e275a5e0e94268455cd11c1c502075e002ef70b74d0d891d87f2b366",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-dark-earth-1440.png",
+      "bytes": 604720,
+      "width": 1440,
+      "height": 900,
+      "sha256": "5646d588ca030eefe4beddf8ec5f01ed050a10d971c004df15d88530c5d7ed9a",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-light-default-1440.png",
+      "bytes": 576893,
+      "width": 1440,
+      "height": 900,
+      "sha256": "07a87b6a9b87b4dbf7660177cfab5725c710be3122b2fbaa8425c0aeca91a92e",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-light-earth-1440.png",
+      "bytes": 559394,
+      "width": 1440,
+      "height": 900,
+      "sha256": "f26b3b54cc9a095a0e69ddc07b55cff7a88726cf09fe12135ae6776ce80ecd4e",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-dark-selected-1440.png",
+      "bytes": 705875,
+      "width": 1440,
+      "height": 900,
+      "sha256": "659a871e06531194fe1ed0b907e341d9369f8ebbdd27c2b7f590d307abb71ebb",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "selected",
+      "selected": "PEK-PVG",
+      "camera": [-0.8166267865622934, 1.1945157392458245, -1.452154551059543],
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-dark-default-1280.png",
+      "bytes": 394148,
+      "width": 1280,
+      "height": 720,
+      "sha256": "7b0645a8b339c5b2c451405081cbb22bab979d668b1ac7915d7f34b42fc050a0",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.03784836921563861,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 860,
+        "height": 428
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-dark-passport-size-1440.png",
+      "bytes": 589056,
+      "width": 1440,
+      "height": 900,
+      "sha256": "58d78dd94472ca0428f6aced2c8f1569f5829bcdc119e849eee72cd972638bd0",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "before-light-passport-size-1440.png",
+      "bytes": 547939,
+      "width": 1440,
+      "height": 900,
+      "sha256": "62b7047de84013b0d83ecec1175abc074da5602262ed7657a02abf1ed5ba2cc7",
+      "sourceCommit": "b9d32b3be9b6791a5a2861846d220c96ca0d59f0",
+      "candidate": "before",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-dark-default-1440.png",
+      "bytes": 573193,
+      "width": 1440,
+      "height": 900,
+      "sha256": "2199ee0b817d714e11fcae0b20e4367c1828ebf2ce818d3628caf6727dff772e",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-dark-earth-1440.png",
+      "bytes": 555730,
+      "width": 1440,
+      "height": 900,
+      "sha256": "693aecf2c204835b056eac20eb93c4ec85bf33e96173eecc6176e099d50cd586",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-light-default-1440.png",
+      "bytes": 541714,
+      "width": 1440,
+      "height": 900,
+      "sha256": "e4e854c1def3377aa023f99ce1acb48eb8edd9a9dc499c238fc43b7046e8529a",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-light-earth-1440.png",
+      "bytes": 523232,
+      "width": 1440,
+      "height": 900,
+      "sha256": "c2174f49bd0605d288c418b71cc7e973b6cc46eb39afbb1bd8041b9b8a94fd7e",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-dark-default-1440.png",
+      "bytes": 573614,
+      "width": 1440,
+      "height": 900,
+      "sha256": "1ed68a4ba6096f5fe65dcf2f567cc909e103bf33ea4c295d90483a66f4798376",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-dark-earth-1440.png",
+      "bytes": 555358,
+      "width": 1440,
+      "height": 900,
+      "sha256": "ea24e0b13f79fb458c840957b5dfbe6cd8e6c2dbbd8ee24146b5d49a6d2a6d20",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-light-default-1440.png",
+      "bytes": 541909,
+      "width": 1440,
+      "height": 900,
+      "sha256": "d1f819e3f4afd2d5ca74f08b671073dcce68193c2233c1715bab410a09a6d06c",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-light-earth-1440.png",
+      "bytes": 523399,
+      "width": 1440,
+      "height": 900,
+      "sha256": "e6294db9f76d3939323600cf216f824a816bfa252453e002c5e966d0c3d949a9",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "earth",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.0459629031778328,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-dark-selected-1440.png",
+      "bytes": 647201,
+      "width": 1440,
+      "height": 900,
+      "sha256": "e200e180b96ee70fdc1cf318a54b3303ae20cd9b6ad7b77a83a51ec35f572fb3",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "selected",
+      "selected": "PEK-PVG",
+      "camera": [-0.8166267865622934, 1.1945157392458245, -1.452154551059543],
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-dark-selected-1440.png",
+      "bytes": 648513,
+      "width": 1440,
+      "height": 900,
+      "sha256": "ddf26cb585ca6d9c386774bf860f7aae0dedb0043c4401bb39c5b2b8111a5861",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "selected",
+      "selected": "PEK-PVG",
+      "camera": [-0.8166267865622934, 1.1945157392458245, -1.452154551059543],
+      "fov": 34,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "canvas": {
+        "width": 1006,
+        "height": 608
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-dark-default-1280.png",
+      "bytes": 368160,
+      "width": 1280,
+      "height": 720,
+      "sha256": "c830e3601392132634ac39b1407815d4802e45f1ed0f1e8d07fed13eaad719d3",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.03784836921563861,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 860,
+        "height": 428
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-dark-default-1280.png",
+      "bytes": 369439,
+      "width": 1280,
+      "height": 720,
+      "sha256": "7485e72d4268301fa05d77f23344cca49f61958d4089ac98c6865c756f75dde0",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "view": "default",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.03784836921563861,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 860,
+        "height": 428
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-dark-passport-size-1440.png",
+      "bytes": 546310,
+      "width": 1440,
+      "height": 900,
+      "sha256": "92dc5b52f3c409b5a0dc0ff3bfb53a83d47023ab08dac3092935e4e547f21878",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "a-light-passport-size-1440.png",
+      "bytes": 516202,
+      "width": 1440,
+      "height": 900,
+      "sha256": "a20cbe919d7c7781f1f76143300b5eb34e1036ce5c83d4944180244790795d48",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "A",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-dark-passport-size-1440.png",
+      "bytes": 547623,
+      "width": 1440,
+      "height": 900,
+      "sha256": "f9f98f74b74789e2dbcfaef99faa0ea3bfa0086d38ce8262b02036cb517bedd5",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    },
+    {
+      "file": "b-light-passport-size-1440.png",
+      "bytes": 516453,
+      "width": 1440,
+      "height": 900,
+      "sha256": "c3ca1ecce0403625c0c233f22e17f6739ce501c1b6d3349fad9800c305673637",
+      "sourceCommit": "2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1",
+      "candidate": "B",
+      "mode": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "view": "passport-size",
+      "selected": null,
+      "camera": [-1.1462179214868498, 0.5012782172755569, -1.6866845067609426],
+      "fov": 34,
+      "viewOffset": {
+        "x": -0.043828278017696565,
+        "y": -0.5004980895646883
+      },
+      "canvas": {
+        "width": 996,
+        "height": 574
+      },
+      "sun": [-0.2926889023874383, 0.290121517531001, 0.9111326530669097],
+      "data": "Unmodified Demo; all years; 24 flights; 23 directed routes; 22 physical strokes; 20 airports; 4K; DPR 1",
+      "provenance": "Direct Chrome WebGL browser screenshot; unedited"
+    }
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "before-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "before-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "before-light-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-default-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-earth-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-selected-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-default-1280.png",
+        "available": false
+      },
+      {
+        "name": "a-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "a-light-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-dark-passport-size-1440.png",
+        "available": false
+      },
+      {
+        "name": "b-light-passport-size-1440.png",
+        "available": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,544 @@
+[
+  {
+    "zoom": 1,
+    "physicalViewport": [1440, 900],
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 1440,
+      "height": 900,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1440,
+    "clientHeight": 900,
+    "documentScrollHeight": 900,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "top": 0,
+        "right": 1440,
+        "bottom": 900,
+        "left": 0
+      },
+      "height": "900px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 900,
+      "clientHeight": 900
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 418,
+      "y": 731.203125,
+      "width": 998,
+      "height": 144.796875,
+      "top": 731.203125,
+      "right": 1416,
+      "bottom": 876,
+      "left": 418
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1,
+    "physicalViewport": [1646, 928],
+    "innerWidth": 1646,
+    "innerHeight": 928,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 1646,
+      "height": 928,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1646,
+    "clientHeight": 928,
+    "documentScrollHeight": 928,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1646,
+        "height": 928,
+        "top": 0,
+        "right": 1646,
+        "bottom": 928,
+        "left": 0
+      },
+      "height": "928px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 928,
+      "clientHeight": 928
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 418,
+      "y": 759.203125,
+      "width": 1204,
+      "height": 144.796875,
+      "top": 759.203125,
+      "right": 1622,
+      "bottom": 904,
+      "left": 418
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1,
+    "physicalViewport": [1366, 768],
+    "innerWidth": 1366,
+    "innerHeight": 768,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 1366,
+      "height": 768,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1366,
+    "clientHeight": 768,
+    "documentScrollHeight": 768,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 768,
+        "top": 0,
+        "right": 1366,
+        "bottom": 768,
+        "left": 0
+      },
+      "height": "768px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 768,
+      "clientHeight": 768
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 416.8125,
+      "y": 599.203125,
+      "width": 925.1875,
+      "height": 144.796875,
+      "top": 599.203125,
+      "right": 1342,
+      "bottom": 744,
+      "left": 416.8125
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1,
+    "physicalViewport": [1280, 720],
+    "innerWidth": 1280,
+    "innerHeight": 720,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 1280,
+      "height": 720,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1280,
+    "clientHeight": 720,
+    "documentScrollHeight": 720,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 720,
+        "top": 0,
+        "right": 1280,
+        "bottom": 720,
+        "left": 0
+      },
+      "height": "720px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 720,
+      "clientHeight": 720
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 393.59375,
+      "y": 551.203125,
+      "width": 862.40625,
+      "height": 144.796875,
+      "top": 551.203125,
+      "right": 1256,
+      "bottom": 696,
+      "left": 393.59375
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1,
+    "physicalViewport": [1024, 768],
+    "innerWidth": 1024,
+    "innerHeight": 768,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 1024,
+      "height": 768,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1024,
+    "clientHeight": 768,
+    "documentScrollHeight": 768,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 768,
+        "top": 0,
+        "right": 1024,
+        "bottom": 768,
+        "left": 0
+      },
+      "height": "768px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 768,
+      "clientHeight": 768
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 324,
+      "y": 511.40625,
+      "width": 684,
+      "height": 232.59375,
+      "top": 511.40625,
+      "right": 1008,
+      "bottom": 744,
+      "left": 324
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1,
+    "physicalViewport": [761, 900],
+    "innerWidth": 761,
+    "innerHeight": 900,
+    "devicePixelRatio": 1,
+    "visualViewport": {
+      "width": 761,
+      "height": 900,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 761,
+    "clientHeight": 900,
+    "documentScrollHeight": 900,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 900,
+        "top": 0,
+        "right": 761,
+        "bottom": 900,
+        "left": 0
+      },
+      "height": "900px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 900,
+      "clientHeight": 900
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 324,
+      "y": 643.40625,
+      "width": 421,
+      "height": 232.59375,
+      "top": 643.40625,
+      "right": 745,
+      "bottom": 876,
+      "left": 324
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [1440, 900],
+    "innerWidth": 1152,
+    "innerHeight": 720,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 1152,
+      "height": 720,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1152,
+    "clientHeight": 720,
+    "documentScrollHeight": 720,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1152,
+        "height": 720,
+        "top": 0,
+        "right": 1152,
+        "bottom": 720,
+        "left": 0
+      },
+      "height": "720px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 720,
+      "clientHeight": 720
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 359.0375061035156,
+      "y": 551.2000122070312,
+      "width": 768.9625244140625,
+      "height": 144.8000030517578,
+      "top": 551.2000122070312,
+      "right": 1128.0000305175781,
+      "bottom": 696.0000152587891,
+      "left": 359.0375061035156
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [1646, 928],
+    "innerWidth": 1317,
+    "innerHeight": 742,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 1316.800048828125,
+      "height": 742.4000244140625,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1317,
+    "clientHeight": 742,
+    "documentScrollHeight": 742,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1316.800048828125,
+        "height": 742.4000244140625,
+        "top": 0,
+        "right": 1316.800048828125,
+        "bottom": 742.4000244140625,
+        "left": 0
+      },
+      "height": "742.4px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 742,
+      "clientHeight": 742
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 403.5249938964844,
+      "y": 573.6000366210938,
+      "width": 889.2750244140625,
+      "height": 144.8000030517578,
+      "top": 573.6000366210938,
+      "right": 1292.8000183105469,
+      "bottom": 718.4000396728516,
+      "left": 403.5249938964844
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [1366, 768],
+    "innerWidth": 1093,
+    "innerHeight": 614,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 1092.800048828125,
+      "height": 614.4000244140625,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1093,
+    "clientHeight": 614,
+    "documentScrollHeight": 614,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1092.800048828125,
+        "height": 614.4000244140625,
+        "top": 0,
+        "right": 1092.800048828125,
+        "bottom": 614.4000244140625,
+        "left": 0
+      },
+      "height": "614.4px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 614,
+      "clientHeight": 614
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 329.0500183105469,
+      "y": 445.6000061035156,
+      "width": 747.75,
+      "height": 144.8000030517578,
+      "top": 445.6000061035156,
+      "right": 1076.8000183105469,
+      "bottom": 590.4000091552734,
+      "left": 329.0500183105469
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [1280, 720],
+    "innerWidth": 1024,
+    "innerHeight": 576,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 1024,
+      "height": 576,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 1024,
+    "clientHeight": 576,
+    "documentScrollHeight": 576,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 576,
+        "top": 0,
+        "right": 1024,
+        "bottom": 576,
+        "left": 0
+      },
+      "height": "576px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 576,
+      "clientHeight": 576
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 324,
+      "y": 407.20001220703125,
+      "width": 684,
+      "height": 144.8000030517578,
+      "top": 407.20001220703125,
+      "right": 1008,
+      "bottom": 552.0000152587891,
+      "left": 324
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [1024, 768],
+    "innerWidth": 819,
+    "innerHeight": 614,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 819.2000122070312,
+      "height": 614.4000244140625,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 819,
+    "clientHeight": 614,
+    "documentScrollHeight": 614,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 819.2000122070312,
+        "height": 614.4000244140625,
+        "top": 0,
+        "right": 819.2000122070312,
+        "bottom": 614.4000244140625,
+        "left": 0
+      },
+      "height": "614.4px",
+      "minHeight": "0px",
+      "overflowY": "hidden",
+      "scrollHeight": 614,
+      "clientHeight": 614
+    },
+    "desktop": true,
+    "short": false,
+    "highlight": {
+      "x": 324,
+      "y": 444.1000061035156,
+      "width": 479.20001220703125,
+      "height": 146.3000030517578,
+      "top": 444.1000061035156,
+      "right": 803.2000122070312,
+      "bottom": 590.4000091552734,
+      "left": 324
+    },
+    "oldWaitSatisfied": true
+  },
+  {
+    "zoom": 1.25,
+    "physicalViewport": [761, 900],
+    "innerWidth": 609,
+    "innerHeight": 720,
+    "devicePixelRatio": 1.25,
+    "visualViewport": {
+      "width": 608.7999877929688,
+      "height": 720,
+      "scale": 1,
+      "offsetTop": 0
+    },
+    "clientWidth": 609,
+    "clientHeight": 720,
+    "documentScrollHeight": 4938,
+    "shell": {
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 608.7999877929688,
+        "height": 4938.6875,
+        "top": 0,
+        "right": 608.7999877929688,
+        "bottom": 4938.6875,
+        "left": 0
+      },
+      "height": "4938.69px",
+      "minHeight": "720px",
+      "overflowY": "visible",
+      "scrollHeight": 4939,
+      "clientHeight": 4939
+    },
+    "desktop": false,
+    "short": false,
+    "oldWaitSatisfied": false
+  }
+]
