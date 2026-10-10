@@ -1,0 +1,62 @@
+{
+  "texture": "unchanged earth-4096.webp",
+  "method": "geographic point samples of original sRGB blue dominance formula; observations are samples, not exhaustive land mask validation",
+  "samples": [
+    {
+      "name": "Sahara",
+      "latitude": 24,
+      "longitude": 15,
+      "sourceSRGB": [176, 140, 93],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Tarim",
+      "latitude": 40,
+      "longitude": 82,
+      "sourceSRGB": [170, 155, 122],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Tibet",
+      "latitude": 32,
+      "longitude": 88,
+      "sourceSRGB": [138, 124, 81],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Himalaya",
+      "latitude": 28,
+      "longitude": 86,
+      "sourceSRGB": [59, 61, 41],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Greenland",
+      "latitude": 75,
+      "longitude": -40,
+      "sourceSRGB": [251, 253, 253],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Amazon",
+      "latitude": -4,
+      "longitude": -65,
+      "sourceSRGB": [22, 35, 8],
+      "oldOceanWeight": 0
+    },
+    {
+      "name": "Japan coast",
+      "latitude": 35,
+      "longitude": 140,
+      "sourceSRGB": [30, 50, 60],
+      "oldOceanWeight": 0.9343216941144771
+    },
+    {
+      "name": "Pacific",
+      "latitude": 20,
+      "longitude": -150,
+      "sourceSRGB": [3, 5, 20],
+      "oldOceanWeight": 1
+    }
+  ]
+}
