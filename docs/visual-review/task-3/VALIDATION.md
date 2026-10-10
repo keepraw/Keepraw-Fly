@@ -8,6 +8,7 @@ Local Windows desktop verification on 2026-10-10 (Asia/Shanghai). Starting remot
 - TypeScript workspace check: passed.
 - Unit tests: 333 passed (3 CSS analysis tests, 68 core, 31 validator, 231 web). Schema has no unit test files.
 - Production build: passed. Desktop Globe remains in a lazy chunk; initial Mobile does not mount it. The build reports the existing large-chunk warning. The Globe JS chunk is approximately 622 kB / 161 kB gzip, plus local day/night imagery and the interactive SVG fallback dependency. No external map service is used.
+- Production preview smoke on the built output: passed. A fresh 1440×900 archive import loads the real WebGL scene and its three Globe assets; a fresh 390×844 Mobile import requests zero Globe assets and retains the Mobile summary. Neither session reports a page error. Local diagnostics: `artifacts/task-3-production-smoke.json`.
 - Local tools: Node 24.19.0, desktop runtime pnpm 11.25.0, Playwright 1.63.0. The frozen repository lockfile is unchanged. CI independently uses the repository's pnpm 10.14.0 and Node 24.
 
 ## Actual browser tests
@@ -37,6 +38,15 @@ Existing Lab visual, scene/camera, night, fixed/realtime solar and SVG regressio
 
 ## Remote CI and acceptance
 
-The [initial CI run](https://github.com/keepraw/Keepraw-Fly/actions/runs/38052748612) failed Prettier in `PassportPage.tsx`. Formatting was fixed locally. The latest pushed head must be checked on [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks); a prior run is not evidence for a newer commit.
+The [initial CI run](https://github.com/keepraw/Keepraw-Fly/actions/runs/38052748612) failed Prettier in `PassportPage.tsx`. Formatting was fixed locally.
+
+[Implementation CI run 38055009877](https://github.com/keepraw/Keepraw-Fly/actions/runs/38055009877) completed successfully on `7578541730a33bcc8a7f8e19fe5e42f9068fd045`:
+
+- Verify: documentation, Prettier, CSS/token checks, TypeScript, 333 unit tests, all 134 Chromium journeys (10.2 minutes, no flaky/retried cases), and production build passed.
+- Firefox: all 38 compatibility journeys passed. The runner's independently probed WebGL2 capability was unavailable; Globe journeys used the functional SVG path, and GPU-only steps did not execute there.
+- WebKit: all 38 compatibility journeys passed, including the formal 3D pointer, texture failure, context loss and retry paths.
+- Deployment: skipped by the workflow's branch/event condition. No site was published.
+
+The final documentation-only delivery commit has its own status on [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks). The implementation run above refers to the exact code commit; it is not presented as a run for a newer documentation commit.
 
 Remaining: Owner's final visual acceptance. Review the approved cropped composition and collision-suppressed labels in narrow/125% cells; the picker exposes every airport and both route directions. PR #35 stays Draft. No PR merge or site deployment has been performed.

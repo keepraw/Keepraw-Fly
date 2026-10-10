@@ -1,6 +1,6 @@
 # Task 3 — Production Desktop Globe integration
 
-Status: **Implemented and locally validated; awaiting remote CI and Owner final visual acceptance. PR #35 remains Draft. No merge or deployment authorized.**
+Status: **Implemented and validated locally and in remote CI at implementation commit `7578541`; awaiting Owner final visual acceptance. PR #35 remains Draft. No merge or deployment authorized.**
 
 Task 2C was visually accepted and Task 3 development authorized on 2026-10-10. This continues the existing integration at `3e0b85590dc6625b67c0e8bf56e857bec9883b2b`, on `codex/desktop-passport-task-3-globe-integration`, based on `codex/globe-prototype-experiment` at `2b9378d0a27146a8650508c0a54f04b709b9d976`. PR #33, #34 and #35 must not be merged automatically.
 
@@ -29,6 +29,8 @@ The default Globe keeps the approved cinematic crop, including the cropped lower
 ## Validation
 
 [Validation record](VALIDATION.md)
+
+[Implementation CI](https://github.com/keepraw/Keepraw-Fly/actions/runs/38055009877) passed on `7578541730a33bcc8a7f8e19fe5e42f9068fd045`: static checks, TypeScript, 333 unit tests, Chromium 134/134, Firefox 38/38, WebKit 38/38 and production build. Deployment was skipped. Linux Firefox had no usable WebGL2 context, so its Globe journeys verified the capability-based SVG path; Chromium and WebKit completed the 3D paths. Final documentation-only delivery changes can be checked separately through [PR #35 checks](https://github.com/keepraw/Keepraw-Fly/pull/35/checks).
 
 The initial remote CI at `3e0b855` failed Prettier in `PassportPage.tsx`; it was not a validated integration. The current work fixes that formatting and tests actual local browsers. Existing SVG regression journeys deliberately disable WebGL2 to exercise the formal fallback while retaining their original assertions. Tests that assumed selecting a map record did not filter Archive now explicitly close the new exploration before testing a broader search. The former Lab-isolation assertion now verifies the authorized formal Globe integration. No approved pixel hash or visual assertion has been relaxed.
 
