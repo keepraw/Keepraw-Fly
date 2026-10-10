@@ -117,7 +117,10 @@ for (const theme of ["light", "dark"]) {
         ).toBeVisible();
         await expect(
           page.locator(".passport-spotlight-value").last(),
-        ).toHaveText(/[A-Z]{3}\s*→\s*[A-Z]{3}/);
+        ).toHaveText(/\S.+\s*→\s*\S.+/);
+        await expect(
+          page.locator(".passport-spotlight-item small").last(),
+        ).toHaveText(/\d+h.*·.*\d/);
       }
       expect(geometry.mapAfterArchive).toBe(true);
       expect(geometry.reportBelowMap).toBe(true);
