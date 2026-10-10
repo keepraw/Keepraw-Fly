@@ -105,8 +105,12 @@ test("real WebGL shares day/twilight/night geography and nighttime cities across
       );
       for (const group of Object.values(stats.groups))
         expect(group.luminance).toBeGreaterThan(8);
+      // Owner-approved 0.7/2.0/2.0 compresses the with-cities day/night mean
+      // (dimmer key, brighter cities) vs the old 2.2/1.0 baseline. The neutral
+      // probe above still enforces 1.3x/1.15x pure solar architecture; here we
+      // require day to remain brighter than night with cities present.
       expect(stats.groups.day.luminance).toBeGreaterThan(
-        stats.groups.night.luminance * 1.3,
+        stats.groups.night.luminance * 1.05,
       );
       await page
         .getByRole("checkbox", {
