@@ -4,6 +4,8 @@
 
 This change makes Dark city emission read differently from illuminated terrain. It reuses the unchanged NASA 2K/4K data, preserves the B5 scalar response for quiet urban fabric, and adds local source-driven tonal structure and a narrow glow footprint. Light rendering and city-disabled Dark surface are pixel-identical to B5.
 
+Rendered source: `8df4ef05857581e837fb6d54676f5c1d3ad7c3e1`. Baseline checkpoint: `280f29c443e8728bb4de1c34ba978c8e7ac73ab7`.
+
 [Actual display diagnostics](display-diagnostics.json) · [Scene settings and PNG hashes](manifest.json) · [Checks and limitations](test-results.json) · [Production isolation](production-isolation.json) · [Task 1B-5](../task-1b-5/README.md)
 
 ## Diagnosis and implementation
@@ -64,6 +66,6 @@ The mean is lower, while a small subset gains stronger contrast: overall brightn
 - Focused Chromium first run: **14 passed / 1 failed**. All12 Globe/solar/night checks passed, including actual2K/4K emission color/contrast, no clipping, dark controls, shared solar regions, world sun, interactions, loading/fallback and idle behavior. Official Passport Dark and geographic interaction passed; Light's `heightFits` assertion failed. The unchanged complete B5 snapshot then passed that Light test1/1; the current branch's sequential follow-up also passed1/1. Cause remains undetermined. No official source, assertion, timeout, retry or CI was changed.
 - B5's night pixel test initially failed its requirement that every periphery become brighter than B4. B6 explicitly supersedes that artistic objective: geography/background/core-versus-periphery/route assertions remain, and a new real-output test compares warm separation, tonal hierarchy, restrained mean and sparse bright accents with actual B5 emission. The new test passed at both resolutions. The change is documented rather than presented as an unchanged B5 brightness acceptance.
 - Nine official bundled production assets retain identical names, sizes and SHA-256 against B5. No new production cost or formal Passport integration.
-- Prior B5 [CI38013258594](https://github.com/keepraw/Keepraw-Fly/actions/runs/38013258594) is complete: Chromium110 passed / one existing motion-camera assertion failed; the B5 night-response test passed. WebKit succeeded, Firefox failed, deploy skipped. No remote camera/Firefox fix is claimed. New-head CI is recorded on PR #34; no additional local Firefox/WebKit matrix was run.
+- Prior B5 [CI38013258594](https://github.com/keepraw/Keepraw-Fly/actions/runs/38013258594) is complete: Chromium110 passed / one existing motion-camera assertion failed; the B5 night-response test passed. WebKit succeeded, Firefox17 passed / eight Globe-related failures, deploy skipped. No remote camera/Firefox fix is claimed. New-head CI is recorded on PR #34; no additional local Firefox/WebKit matrix was run.
 
 **The focused refinement is submitted and further visual changes stop here. Visual approval pending.**
