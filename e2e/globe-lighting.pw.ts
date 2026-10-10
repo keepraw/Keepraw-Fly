@@ -173,7 +173,10 @@ test("cinematic layers produce real pixels and keep the world-space sun fixed @c
   await expect(
     page.locator(".globe-airport-label:visible").first(),
   ).toBeVisible();
-  await expect.poll(async () => (await read()).sunIntensity).toBe(2.2);
+  await expect.poll(async () => (await read()).sunIntensity).toBe(0.7);
+  await expect.poll(async () => (await read()).nightIntensity).toBe(2.0);
+  await expect.poll(async () => (await read()).atmosphereIntensity).toBe(2.0);
+  await expect.poll(async () => (await read()).twilightWidth).toBe(0.18);
   expect(errors).toEqual([]);
   await mkdir("artifacts/globe-lab", { recursive: true });
   await writeFile(
