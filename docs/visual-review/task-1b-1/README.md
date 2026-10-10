@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-1 browser evidence
 
 **Visual approval pending — Draft experiment review only.**
@@ -10,20 +12,20 @@ uses the designed Task 1B-1 defaults without screenshot-specific tuning.
 
 ## Same-camera comparison
 
-| Theme | Before                                          | After                                         |
-| ----- | ----------------------------------------------- | --------------------------------------------- |
-| Dark  | ![Dark before](before-dark-complete-1440.png)   | ![Dark after](after-dark-complete-1440.png)   |
-| Light | ![Light before](before-light-complete-1440.png) | ![Light after](after-light-complete-1440.png) |
+| Theme | Before                                                     | After                                                     |
+| ----- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| Dark  | Historical capture: Dark before (superseded; PNG removed)  | Historical capture: Dark after (superseded; PNG removed)  |
+| Light | Historical capture: Light before (superseded; PNG removed) | Historical capture: Light after (superseded; PNG removed) |
 
 ## Earth-only and additional views
 
-| View                                            | Screenshot                                        |
-| ----------------------------------------------- | ------------------------------------------------- |
-| Dark Earth only, 1440 × 900                     | ![Dark Earth only](after-dark-earth-1440.png)     |
-| Light Earth only, 1440 × 900                    | ![Light Earth only](after-light-earth-1440.png)   |
-| Dark rotated, cities and terminator, 1440 × 900 | ![Dark rotated](after-dark-rotated-1440.png)      |
-| Dark complete, 1280 × 720                       | ![Dark 1280](after-dark-complete-1280.png)        |
-| Dark full page with lighting controls           | ![Debug controls](after-dark-review-controls.png) |
+| View                                            | Screenshot                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------- |
+| Dark Earth only, 1440 × 900                     | Historical capture: Dark Earth only (superseded; PNG removed)  |
+| Light Earth only, 1440 × 900                    | Historical capture: Light Earth only (superseded; PNG removed) |
+| Dark rotated, cities and terminator, 1440 × 900 | Historical capture: Dark rotated (superseded; PNG removed)     |
+| Dark complete, 1280 × 720                       | Historical capture: Dark 1280 (superseded; PNG removed)        |
+| Dark full page with lighting controls           | Historical capture: Debug controls (superseded; PNG removed)   |
 
 ## Measurements and reproduction
 

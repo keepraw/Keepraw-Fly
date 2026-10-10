@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-7A — Fixed / Real-time Solar Lighting
 
 **Isolated experiment. Do not merge PR #34 directly. Stop after 7A; no photographic/material redesign.**
@@ -16,13 +18,13 @@ Branch: `codex/globe-solar-7a` · Baseline: `6df4ae08cc29c6217148bd40d7459cc8ce2
 
 Viewport 1440×900, Demo all-years default filter, Home camera unmoved. Full provenance in `manifest.json`.
 
-| Fixed Dark                    | Fixed Light                     |
-| ----------------------------- | ------------------------------- |
-| ![Fixed Dark](fixed-dark.png) | ![Fixed Light](fixed-light.png) |
+| Fixed Dark                                               | Fixed Light                                               |
+| -------------------------------------------------------- | --------------------------------------------------------- |
+| Historical capture: Fixed Dark (superseded; PNG removed) | Historical capture: Fixed Light (superseded; PNG removed) |
 
-| Real-time Light                        | Real-time Dark                       |
-| -------------------------------------- | ------------------------------------ |
-| ![Real-time Light](realtime-light.png) | ![Real-time Dark](realtime-dark.png) |
+| Real-time Light                                               | Real-time Dark                                               |
+| ------------------------------------------------------------- | ------------------------------------------------------------ |
+| Historical capture: Real-time Light (superseded; PNG removed) | Historical capture: Real-time Dark (superseded; PNG removed) |
 
 Captured 2026-10-10T03:43:08–11Z:
 

@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-7B — Cinematic Globe Visual Reconstruction (first pass)
 
 **Visual approval pending. Isolated experiment on `codex/globe-cinematic-7b` from `fec2798a432a8a3b69326d7737c9f7ee02412726`. Do not modify PR #34, the official Desktop Passport, statistics, or merge anything.**
@@ -28,29 +30,29 @@ Viewport 1440×900, DPR 1, 4K, Demo all-years, Home unmoved between theme/mode s
 - Passport allocation remeasured live: outer `998×576.0625`, client `996×574`; Lab stage resized, Home recomputed for that aspect, Light/Dark share the passport Home.
 - `before-fixed-dark` bytes 615184 and `before-fixed-light` 655243 match Task 1B-7A archives exactly.
 
-| Fixed Dark before                           | Fixed Dark after                          |
-| ------------------------------------------- | ----------------------------------------- |
-| ![before fixed dark](before-fixed-dark.png) | ![after fixed dark](after-fixed-dark.png) |
+| Fixed Dark before                                               | Fixed Dark after                                               |
+| --------------------------------------------------------------- | -------------------------------------------------------------- |
+| Historical capture: before fixed dark (superseded; PNG removed) | Historical capture: after fixed dark (superseded; PNG removed) |
 
-| Fixed Light before                            | Fixed Light after                           |
-| --------------------------------------------- | ------------------------------------------- |
-| ![before fixed light](before-fixed-light.png) | ![after fixed light](after-fixed-light.png) |
+| Fixed Light before                                               | Fixed Light after                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| Historical capture: before fixed light (superseded; PNG removed) | Historical capture: after fixed light (superseded; PNG removed) |
 
-| Passport Dark before                              | Passport Dark after                             |
-| ------------------------------------------------- | ----------------------------------------------- |
-| ![before passport dark](before-passport-dark.png) | ![after passport dark](after-passport-dark.png) |
+| Passport Dark before                                               | Passport Dark after                                               |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Historical capture: before passport dark (superseded; PNG removed) | Historical capture: after passport dark (superseded; PNG removed) |
 
-| Passport Light before                               | Passport Light after                              |
-| --------------------------------------------------- | ------------------------------------------------- |
-| ![before passport light](before-passport-light.png) | ![after passport light](after-passport-light.png) |
+| Passport Light before                                               | Passport Light after                                               |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Historical capture: before passport light (superseded; PNG removed) | Historical capture: after passport light (superseded; PNG removed) |
 
-| Realtime Light before                               | Realtime Light after                              |
-| --------------------------------------------------- | ------------------------------------------------- |
-| ![before realtime light](before-realtime-light.png) | ![after realtime light](after-realtime-light.png) |
+| Realtime Light before                                               | Realtime Light after                                               |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Historical capture: before realtime light (superseded; PNG removed) | Historical capture: after realtime light (superseded; PNG removed) |
 
-| Realtime Dark before                              | Realtime Dark after                             |
-| ------------------------------------------------- | ----------------------------------------------- |
-| ![before realtime dark](before-realtime-dark.png) | ![after realtime dark](after-realtime-dark.png) |
+| Realtime Dark before                                               | Realtime Dark after                                               |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Historical capture: before realtime dark (superseded; PNG removed) | Historical capture: after realtime dark (superseded; PNG removed) |
 
 Manifests: `before-manifest.json`, `after-manifest.json`. Pixels: `pixel-comparison.json` (real browser canvas, not mockups).
 

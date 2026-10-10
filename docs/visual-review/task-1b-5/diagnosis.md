@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Texture audit and pre-change diagnosis
 
 Recorded before modifying the Task 1B-4 emission implementation. Values are normalized historical grayscale visualization signals, **not calibrated luminance**.
@@ -54,6 +56,6 @@ All three SHA-256 hashes match the recorded NASA provenance. RGB channels agree 
 
 ![Historical transfer functions](transfer-curves.svg)
 
-The chart includes default intensity, excludes palette and solar mask, and uses logarithmic vertical scaling to expose the crushed low range. [B2 appearance](../task-1b-3/before-dark-earth-1440.png), [B3 appearance](../task-1b-3/a-dark-earth-1440.png), and [B4 appearance](../task-1b-4/dark-earth-1440.png) were inspected. Those historical images also differ in surface/atmosphere treatment; only the new fixed-camera B4 comparison isolates emission.
+The chart includes default intensity, excludes palette and solar mask, and uses logarithmic vertical scaling to expose the crushed low range. Historical capture: B2 appearance (superseded; PNG removed), Historical capture: B3 appearance (superseded; PNG removed), and Historical capture: B4 appearance (superseded; PNG removed) were inspected. Those historical images also differ in surface/atmosphere treatment; only the new fixed-camera B4 comparison isolates emission.
 
 Correction target: restore peripheral signals around 0.03–0.20 and urban middle values, retain the 0.012 noise floor, and keep the existing peak near 0.104. Separate toe width, midtone shoulder scale, and peak output controls. Preserve the palette, default intensity, theme strengths, and solar kernel.

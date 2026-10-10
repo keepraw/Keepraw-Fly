@@ -78,5 +78,27 @@
       },
       "physicalRoutes": 22
     }
-  ]
+  ],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "realtime-light.png",
+        "available": false
+      },
+      {
+        "name": "realtime-dark.png",
+        "available": false
+      }
+    ]
+  }
 }

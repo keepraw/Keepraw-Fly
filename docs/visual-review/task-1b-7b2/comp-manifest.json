@@ -451,5 +451,59 @@
       "physicalRoutes": 22
     }
   ],
-  "errors": []
+  "errors": [],
+  "screenshotLifecycle": {
+    "status": "historical",
+    "note": "Original filenames, hashes, pixel measurements and reported results are historical provenance, not live file links. Task 2 cleanup-inventory.json records availability. No pixels or original results were changed.",
+    "references": [
+      {
+        "name": "comp-control-fixed-dark.png",
+        "available": true
+      },
+      {
+        "name": "comp-control-fixed-light.png",
+        "available": true
+      },
+      {
+        "name": "comp-control-selected-SFO-HKG-dark.png",
+        "available": true
+      },
+      {
+        "name": "comp-B-europe-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-B-europe-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-B-europe-asia-selected-SFO-HKG-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-C-close-asia-fixed-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-C-close-asia-fixed-light.png",
+        "available": false
+      },
+      {
+        "name": "comp-C-close-asia-selected-SFO-HKG-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-control-passport-dark.png",
+        "available": true
+      },
+      {
+        "name": "comp-B-europe-asia-passport-dark.png",
+        "available": false
+      },
+      {
+        "name": "comp-C-close-asia-passport-dark.png",
+        "available": false
+      }
+    ]
+  }
 }

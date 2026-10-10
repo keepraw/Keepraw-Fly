@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-4 Globe solar illumination and geographic surface review
 
 **Visual approval pending. Keep Draft PR #34 and await the project owner's visual review.**
@@ -10,23 +12,23 @@ This iteration separates Geographic Surface, Solar Illumination, and Theme Color
 
 Before directly references existing Task 1B-3 artifacts. Each default and official-size After asserts that camera, FOV, ViewOffset, viewport, complete route metadata, sun and exposure match its corresponding Before. Each Light/Dark pair also asserts identical scenes.
 
-| View                    | Task 1B-3 Before                                                       | Task 1B-4 After                                         |
-| ----------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------- |
-| Light Earth only        | ![B3 Light Earth](../task-1b-3/a-light-earth-1440.png)                 | ![B4 Light Earth](light-earth-1440.png)                 |
-| Dark Earth only         | ![B3 Dark Earth](../task-1b-3/a-dark-earth-1440.png)                   | ![B4 Dark Earth](dark-earth-1440.png)                   |
-| Light full routes       | ![B3 Light routes](../task-1b-3/a-light-default-1440.png)              | ![B4 Light routes](light-default-1440.png)              |
-| Dark full routes        | ![B3 Dark routes](../task-1b-3/a-dark-default-1440.png)                | ![B4 Dark routes](dark-default-1440.png)                |
-| Light official map size | ![B3 Light official size](../task-1b-3/a-light-passport-size-1440.png) | ![B4 Light official size](light-passport-size-1440.png) |
-| Dark official map size  | ![B3 Dark official size](../task-1b-3/a-dark-passport-size-1440.png)   | ![B4 Dark official size](dark-passport-size-1440.png)   |
+| View                    | Task 1B-3 Before                                                     | Task 1B-4 After                                                      |
+| ----------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Light Earth only        | Historical capture: B3 Light Earth (superseded; PNG removed)         | Historical capture: B4 Light Earth (superseded; PNG removed)         |
+| Dark Earth only         | Historical capture: B3 Dark Earth (superseded; PNG removed)          | Historical capture: B4 Dark Earth (superseded; PNG removed)          |
+| Light full routes       | Historical capture: B3 Light routes (superseded; PNG removed)        | Historical capture: B4 Light routes (superseded; PNG removed)        |
+| Dark full routes        | Historical capture: B3 Dark routes (superseded; PNG removed)         | Historical capture: B4 Dark routes (superseded; PNG removed)         |
+| Light official map size | Historical capture: B3 Light official size (superseded; PNG removed) | Historical capture: B4 Light official size (superseded; PNG removed) |
+| Dark official map size  | Historical capture: B3 Dark official size (superseded; PNG removed)  | Historical capture: B4 Dark official size (superseded; PNG removed)  |
 
 ## Identical twilight viewpoint
 
 Twilight Review points the camera along the projection of the Home direction onto the plane perpendicular to the sun, at distance 3.6 with no ViewOffset. Only this review camera changes; the sun remains fixed. Home and selected-route views are not required to show the terminator.
 
-| Light                                                      | Dark                                                     |
-| ---------------------------------------------------------- | -------------------------------------------------------- |
-| ![Light twilight](light-twilight-1440.png)                 | ![Dark identical twilight](dark-twilight-1440.png)       |
-| ![Light solar diagnostic](light-solar-diagnostic-1440.png) | ![Dark solar diagnostic](dark-solar-diagnostic-1440.png) |
+| Light                                                                | Dark                                                                  |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Historical capture: Light twilight (superseded; PNG removed)         | Historical capture: Dark identical twilight (superseded; PNG removed) |
+| Historical capture: Light solar diagnostic (superseded; PNG removed) | Historical capture: Dark solar diagnostic (superseded; PNG removed)   |
 
 Green means Day, orange Twilight, and blue Night. Both themes have identical geographic regions; the background follows the UI theme. These categorical colors are development diagnostics, not the product Earth's illumination boundary.
 

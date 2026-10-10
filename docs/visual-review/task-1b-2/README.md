@@ -1,3 +1,5 @@
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review and cleanup inventory](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+
 # Task 1B-2 browser review
 
 **Visual approval pending.** These PNGs are real system Chrome / Intel UHD D3D11 browser screenshots, captured at DPR 1 and 4K textures. They are not generated, retouched or composited. The unchanged Demo contains 24 flights / 23 directed routes / 20 airports; the new renderer draws 22 physical airport-pair strokes.
@@ -8,37 +10,37 @@ Baseline: `45f92e9c78a118417803dc7f43f027a821f95c65`. Implementation: `c814eb377
 
 The data is identical; each implementation uses its own intended camera and initial world sun. Dark/Light within each version retain exactly the same camera. These comparisons include the camera improvement.
 
-| Mode / viewport  | B1 before                                          | B2 new default                                    |
-| ---------------- | -------------------------------------------------- | ------------------------------------------------- |
-| Dark, 1440×900   | ![B1 dark](before-dark-default-1440.png)           | ![B2 dark](after-dark-default-1440.png)           |
-| Light, 1440×900  | ![B1 light](before-light-default-1440.png)         | ![B2 light](after-light-default-1440.png)         |
-| Dark Earth only  | ![B1 dark earth](before-dark-earth-1440.png)       | ![B2 dark earth](after-dark-earth-1440.png)       |
-| Light Earth only | ![B1 light earth](before-light-earth-1440.png)     | ![B2 light earth](after-light-earth-1440.png)     |
-| Dark, 1280×720   | ![B1 dark compact](before-dark-default-1280.png)   | ![B2 dark compact](after-dark-default-1280.png)   |
-| Light, 1280×720  | ![B1 light compact](before-light-default-1280.png) | ![B2 light compact](after-light-default-1280.png) |
+| Mode / viewport  | B1 before                                                      | B2 new default                                                 |
+| ---------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| Dark, 1440×900   | Historical capture: B1 dark (superseded; PNG removed)          | Historical capture: B2 dark (superseded; PNG removed)          |
+| Light, 1440×900  | Historical capture: B1 light (superseded; PNG removed)         | Historical capture: B2 light (superseded; PNG removed)         |
+| Dark Earth only  | Historical capture: B1 dark earth (superseded; PNG removed)    | Historical capture: B2 dark earth (superseded; PNG removed)    |
+| Light Earth only | Historical capture: B1 light earth (superseded; PNG removed)   | Historical capture: B2 light earth (superseded; PNG removed)   |
+| Dark, 1280×720   | Historical capture: B1 dark compact (superseded; PNG removed)  | Historical capture: B2 dark compact (superseded; PNG removed)  |
+| Light, 1280×720  | Historical capture: B1 light compact (superseded; PNG removed) | Historical capture: B2 light compact (superseded; PNG removed) |
 
 ## Regional and selected views
 
 All flights remain present. Asia selects actual PVG; North America selects actual SFO. Camera fitting differs between versions, and the new world sun stays fixed during selections.
 
-| View             | B1 before                                                | B2 after                                                |
-| ---------------- | -------------------------------------------------------- | ------------------------------------------------------- |
-| Asia             | ![B1 Asia](before-dark-asia-1440.png)                    | ![B2 Asia](after-dark-asia-1440.png)                    |
-| North America    | ![B1 NA](before-dark-north-america-1440.png)             | ![B2 NA](after-dark-north-america-1440.png)             |
-| Selected NRT→DFW | ![B1 long haul](before-dark-selected-long-haul-1440.png) | ![B2 long haul](after-dark-selected-long-haul-1440.png) |
+| View             | B1 before                                                  | B2 after                                                   |
+| ---------------- | ---------------------------------------------------------- | ---------------------------------------------------------- |
+| Asia             | Historical capture: B1 Asia (superseded; PNG removed)      | Historical capture: B2 Asia (superseded; PNG removed)      |
+| North America    | Historical capture: B1 NA (superseded; PNG removed)        | Historical capture: B2 NA (superseded; PNG removed)        |
+| Selected NRT→DFW | Historical capture: B1 long haul (superseded; PNG removed) | Historical capture: B2 long haul (superseded; PNG removed) |
 
 ## Same historical camera
 
 These six additional views lock the camera vector, FOV and fractional view offset to B1. This isolates the material, lighting and stroke changes from the new camera placement. The new artistic sun is still initialized from the new Home view and is not moved for the screenshot: the comparisons intentionally include its changed geographical direction. They do not imply an identical sun between B1 and B2.
 
-| View             | B1 camera retained in B2                                  |
-| ---------------- | --------------------------------------------------------- |
-| Dark complete    | ![Fixed dark](after-dark-fixed-b1-default-1440.png)       |
-| Light complete   | ![Fixed light](after-light-fixed-b1-default-1440.png)     |
-| Dark Earth only  | ![Fixed dark earth](after-dark-fixed-b1-earth-1440.png)   |
-| Light Earth only | ![Fixed light earth](after-light-fixed-b1-earth-1440.png) |
-| Asia             | ![Fixed Asia](after-dark-fixed-b1-asia-1440.png)          |
-| North America    | ![Fixed NA](after-dark-fixed-b1-north-america-1440.png)   |
+| View             | B1 camera retained in B2                                        |
+| ---------------- | --------------------------------------------------------------- |
+| Dark complete    | Historical capture: Fixed dark (superseded; PNG removed)        |
+| Light complete   | Historical capture: Fixed light (superseded; PNG removed)       |
+| Dark Earth only  | Historical capture: Fixed dark earth (superseded; PNG removed)  |
+| Light Earth only | Historical capture: Fixed light earth (superseded; PNG removed) |
+| Asia             | Historical capture: Fixed Asia (superseded; PNG removed)        |
+| North America    | Historical capture: Fixed NA (superseded; PNG removed)          |
 
 ## Performance and audit
 
