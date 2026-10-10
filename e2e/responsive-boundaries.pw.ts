@@ -1,3 +1,4 @@
+import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -237,47 +238,12 @@ for (const theme of ["light", "dark"]) {
         // Check every row, including rows initially outside the archive scrollport.
         for (const row of await page.locator(".flight-row").all()) {
           const date = row.locator(".flight-date");
-          // Scroll the row vertically, not the date: scrolling a clipped date
-          // itself can silently shift an overflow-x:hidden ancestor sideways.
-          await row.evaluate((element) =>
-            element.scrollIntoView({ block: "center", inline: "nearest" }),
-          );
+          // Reachability scrolls the row, not the date; scrolling the date can
+          // silently shift an overflow-x:hidden ancestor sideways.
           await expectReachable(row);
           await expect(date).toHaveText("Aug 19");
           await expectUnclipped(date);
-          if (viewport.width > 760) {
-            expect(
-              await page
-                .locator(".passport-archive-scroll")
-                .evaluate((element) => element.scrollLeft),
-            ).toBe(0);
-          }
-          expect(
-            await date.evaluate(
-              (element) => element.scrollWidth <= element.clientWidth,
-            ),
-          ).toBe(true);
-          for (const selector of [
-            ".airline-logo",
-            ".flight-number",
-            ...(viewport.width > 760
-              ? [".flight-route-cities", ".flight-ledger-duration"]
-              : [".flight-route", ".flight-time-column", ".flight-status"]),
-          ]) {
-            await expectSeparateBoxes(row.locator(selector), date);
-          }
-          await expectSeparateBoxes(
-            row.locator(".flight-route-cities"),
-            row.locator(".flight-number"),
-          );
-          await expectSeparateBoxes(
-            row.locator(".flight-route-cities"),
-            row.locator(
-              viewport.width > 760
-                ? ".flight-ledger-duration"
-                : ".flight-time-column",
-            ),
-          );
+          await expectFlightRowGeometry(row, viewport.width > 760);
         }
         await expectHealthyPage(page, errors);
       });
