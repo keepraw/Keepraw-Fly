@@ -1,0 +1,62 @@
+{
+  "Baseline": "2720002ef01845aa1b04bb31fce6d619a54a30bf",
+  "ComparedFiles": 9,
+  "Differences": 0,
+  "AssetNamesMatch": true,
+  "Assets": [
+    {
+      "File": "airports.iata-CQKL_k1B.json",
+      "Bytes": 683392,
+      "SHA256": "B99C1CFF36C309113BE27E606E43E19F107CD86E2072D269C41FC7A0E0CB2839",
+      "Same": true
+    },
+    {
+      "File": "FlightRouteMap-v49L-fby.js",
+      "Bytes": 1990,
+      "SHA256": "E4BBE83829E4BBB571A3BD2DF7F41CBF8CE1F46575B6256F92C30EEED7A510F3",
+      "Same": true
+    },
+    {
+      "File": "index-CKTmc0M9.js",
+      "Bytes": 585474,
+      "SHA256": "1567856E65CE911981A2ECBD75CC9CACEDE3A9FEFF19200C3D72C67F1DF96B6B",
+      "Same": true
+    },
+    {
+      "File": "index-G9P-tAeS.css",
+      "Bytes": 127201,
+      "SHA256": "3EC7FFBEC623849944C954546C610BC8FAA6B93F20F9B274FF6BF368C9007630",
+      "Same": true
+    },
+    {
+      "File": "map-relief-BxThSjF1.webp",
+      "Bytes": 566844,
+      "SHA256": "17B39814E5A915A5ABA6C642A994975C437295AAC5B29C57D5A341CCB91D1CFE",
+      "Same": true
+    },
+    {
+      "File": "MapWorld-DGZ9-nRu.js",
+      "Bytes": 278560,
+      "SHA256": "19F5A79B72D3C598FF58F36933631C1FC95E12869F37B7BD4201BADBB0A6562D",
+      "Same": true
+    },
+    {
+      "File": "PassportRouteMap-DBXt_qPr.js",
+      "Bytes": 8155,
+      "SHA256": "8FD86A6635839E204FB2C65F0D89084B9B6C049255273B0B4ADE31FBCE7D36EE",
+      "Same": true
+    },
+    {
+      "File": "src-BMs7BAFU.js",
+      "Bytes": 150883,
+      "SHA256": "9A20CF15560B32EE726ADA834086425BEC403329B62462AA7A781EFB86A7B686",
+      "Same": true
+    },
+    {
+      "File": "src-CrHdcosV.js",
+      "Bytes": 468185,
+      "SHA256": "F9F9D5165E96B1234B83F93207EE5D6A67F4302152814EB57AA35E177B8872C8",
+      "Same": true
+    }
+  ]
+}
