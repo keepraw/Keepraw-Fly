@@ -1,6 +1,465 @@
 {
   "method": "Unedited real-browser screenshots; repository Demo; Lifetime; en; kilometers; DPR1; reduced motion",
   "browser": "154.0.8037.99",
+  "task": "Task 2B — Statistics Visual Fidelity Pass",
+  "baseline": "fa3e10d457d84df96a47b59b4d1fd403451bc4a9",
+  "sourceEvidence": {
+    "file": "packages/core/data/demo.keepraw-fly.json",
+    "sha256": "25ae315a8f366f8bb5b5fb03ed2f15613a3897862f106add45f06a70a34fc421",
+    "annualArrivals": [
+      {
+        "year": "2024",
+        "records": [
+          {
+            "id": "demo-2024-qf12",
+            "scheduledArrival": "2024-11-29T06:15:00+11:00",
+            "actualArrival": "2024-11-29T06:08:00+11:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2024-af83",
+            "scheduledArrival": "2024-09-09T10:45:00+02:00",
+            "actualArrival": "2024-09-09T10:52:00+02:00",
+            "minutes": 7
+          },
+          {
+            "id": "demo-2024-mu5101",
+            "scheduledArrival": "2024-07-15T10:20:00+08:00",
+            "actualArrival": "2024-07-15T10:51:00+08:00",
+            "minutes": 31
+          },
+          {
+            "id": "demo-2024-cz3475",
+            "scheduledArrival": "2024-05-20T16:45:00+08:00",
+            "actualArrival": "2024-05-20T16:27:00+08:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2024-sq317",
+            "scheduledArrival": "2024-03-05T07:50:00+08:00",
+            "actualArrival": "2024-03-05T07:39:00+08:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2024-dl1106",
+            "scheduledArrival": "2024-01-18T08:06:00-06:00",
+            "actualArrival": "2024-01-18T07:51:00-06:00",
+            "minutes": 0
+          }
+        ]
+      },
+      {
+        "year": "2025",
+        "records": [
+          {
+            "id": "demo-2025-ua857",
+            "scheduledArrival": "2025-12-23T19:10:00+08:00",
+            "actualArrival": "2025-12-23T19:38:00+08:00",
+            "minutes": 28
+          },
+          {
+            "id": "demo-2025-ba286",
+            "scheduledArrival": "2025-10-09T13:50:00+01:00",
+            "actualArrival": "2025-10-09T13:30:00+01:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2025-lh901",
+            "scheduledArrival": "2025-09-25T12:05:00+02:00",
+            "actualArrival": "2025-09-25T12:09:00+02:00",
+            "minutes": 4
+          },
+          {
+            "id": "demo-2025-cx879",
+            "scheduledArrival": "2025-08-15T19:10:00+08:00",
+            "actualArrival": "2025-08-15T18:57:00+08:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2025-nh108",
+            "scheduledArrival": "2025-06-30T16:25:00-07:00",
+            "actualArrival": "2025-06-30T16:46:00-07:00",
+            "minutes": 21
+          },
+          {
+            "id": "demo-2025-aa100",
+            "scheduledArrival": "2025-05-04T06:30:00+01:00",
+            "actualArrival": "2025-05-04T06:30:00+01:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2025-ke18",
+            "scheduledArrival": "2025-03-20T17:35:00+09:00",
+            "actualArrival": "2025-03-20T17:04:00+09:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2025-ac566",
+            "scheduledArrival": "2025-01-12T18:59:00-08:00",
+            "actualArrival": null,
+            "minutes": null
+          }
+        ]
+      },
+      {
+        "year": "2026",
+        "records": [
+          {
+            "id": "demo-2026-ua123",
+            "scheduledArrival": "2026-08-19T11:52:00-07:00",
+            "actualArrival": "2026-08-19T12:21:00-07:00",
+            "minutes": 29
+          },
+          {
+            "id": "demo-2026-aa178",
+            "scheduledArrival": "2026-08-03T14:45:00-05:00",
+            "actualArrival": "2026-08-03T14:31:00-05:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-mu583",
+            "scheduledArrival": "2026-07-21T10:05:00-07:00",
+            "actualArrival": "2026-07-21T10:01:00-07:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-ca1831",
+            "scheduledArrival": "2026-06-11T09:45:00+08:00",
+            "actualArrival": "2026-06-11T09:40:00+08:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-cz3107",
+            "scheduledArrival": "2026-05-26T15:10:00+08:00",
+            "actualArrival": "2026-05-26T15:47:00+08:00",
+            "minutes": 37
+          },
+          {
+            "id": "demo-2026-jl2",
+            "scheduledArrival": "2026-04-09T09:55:00-07:00",
+            "actualArrival": "2026-04-09T09:55:00-07:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-sq12",
+            "scheduledArrival": "2026-03-17T17:05:00+09:00",
+            "actualArrival": "2026-03-17T16:48:00+09:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-dl275",
+            "scheduledArrival": "2026-02-15T15:00:00+09:00",
+            "actualArrival": null,
+            "minutes": null
+          },
+          {
+            "id": "demo-2026-ua2402",
+            "scheduledArrival": "2026-01-28T21:47:00-08:00",
+            "actualArrival": "2026-01-28T21:38:00-08:00",
+            "minutes": 0
+          },
+          {
+            "id": "demo-2026-mu5418",
+            "scheduledArrival": "2026-01-06T22:55:00+08:00",
+            "actualArrival": "2026-01-06T22:39:00+08:00",
+            "minutes": 0
+          }
+        ]
+      }
+    ],
+    "flownEndpoints": [
+      {
+        "id": "demo-2026-ua123",
+        "origin": "SFO",
+        "destination": "LAX"
+      },
+      {
+        "id": "demo-2026-aa178",
+        "origin": "NRT",
+        "destination": "DFW"
+      },
+      {
+        "id": "demo-2026-mu583",
+        "origin": "PVG",
+        "destination": "LAX"
+      },
+      {
+        "id": "demo-2026-ca1831",
+        "origin": "PEK",
+        "destination": "PVG"
+      },
+      {
+        "id": "demo-2026-cz3107",
+        "origin": "CAN",
+        "destination": "PEK"
+      },
+      {
+        "id": "demo-2026-jl2",
+        "origin": "HND",
+        "destination": "SFO"
+      },
+      {
+        "id": "demo-2026-sq12",
+        "origin": "SIN",
+        "destination": "NRT"
+      },
+      {
+        "id": "demo-2026-dl275",
+        "origin": "LAX",
+        "destination": "HND"
+      },
+      {
+        "id": "demo-2026-ua2402",
+        "origin": "JFK",
+        "destination": "SFO"
+      },
+      {
+        "id": "demo-2026-mu5418",
+        "origin": "CTU",
+        "destination": "PVG"
+      },
+      {
+        "id": "demo-2025-ua857",
+        "origin": "SFO",
+        "destination": "PVG"
+      },
+      {
+        "id": "demo-2025-ba286",
+        "origin": "SFO",
+        "destination": "LHR"
+      },
+      {
+        "id": "demo-2025-lh901",
+        "origin": "LHR",
+        "destination": "FRA"
+      },
+      {
+        "id": "demo-2025-cx879",
+        "origin": "SFO",
+        "destination": "HKG"
+      },
+      {
+        "id": "demo-2025-nh108",
+        "origin": "HND",
+        "destination": "SFO"
+      },
+      {
+        "id": "demo-2025-aa100",
+        "origin": "JFK",
+        "destination": "LHR"
+      },
+      {
+        "id": "demo-2025-ke18",
+        "origin": "LAX",
+        "destination": "ICN"
+      },
+      {
+        "id": "demo-2025-ac566",
+        "origin": "SFO",
+        "destination": "YVR"
+      },
+      {
+        "id": "demo-2024-qf12",
+        "origin": "LAX",
+        "destination": "SYD"
+      },
+      {
+        "id": "demo-2024-af83",
+        "origin": "SFO",
+        "destination": "CDG"
+      },
+      {
+        "id": "demo-2024-mu5101",
+        "origin": "PVG",
+        "destination": "PEK"
+      },
+      {
+        "id": "demo-2024-cz3475",
+        "origin": "CAN",
+        "destination": "CTU"
+      },
+      {
+        "id": "demo-2024-sq317",
+        "origin": "LHR",
+        "destination": "SIN"
+      },
+      {
+        "id": "demo-2024-dl1106",
+        "origin": "BOS",
+        "destination": "ORD"
+      }
+    ],
+    "durationRecords": [
+      {
+        "id": "demo-2026-ua123",
+        "scheduledDeparture": "2026-08-19T10:20:00-07:00",
+        "scheduledArrival": "2026-08-19T11:52:00-07:00",
+        "actualDeparture": "2026-08-19T10:57:00-07:00",
+        "actualArrival": "2026-08-19T12:21:00-07:00"
+      },
+      {
+        "id": "demo-2026-aa178",
+        "scheduledDeparture": "2026-08-03T16:30:00+09:00",
+        "scheduledArrival": "2026-08-03T14:45:00-05:00",
+        "actualDeparture": "2026-08-03T16:26:00+09:00",
+        "actualArrival": "2026-08-03T14:31:00-05:00"
+      },
+      {
+        "id": "demo-2026-mu583",
+        "scheduledDeparture": "2026-07-21T13:20:00+08:00",
+        "scheduledArrival": "2026-07-21T10:05:00-07:00",
+        "actualDeparture": "2026-07-21T13:34:00+08:00",
+        "actualArrival": "2026-07-21T10:01:00-07:00"
+      },
+      {
+        "id": "demo-2026-ca1831",
+        "scheduledDeparture": "2026-06-11T07:30:00+08:00",
+        "scheduledArrival": "2026-06-11T09:45:00+08:00",
+        "actualDeparture": "2026-06-11T07:31:00+08:00",
+        "actualArrival": "2026-06-11T09:40:00+08:00"
+      },
+      {
+        "id": "demo-2026-cz3107",
+        "scheduledDeparture": "2026-05-26T12:00:00+08:00",
+        "scheduledArrival": "2026-05-26T15:10:00+08:00",
+        "actualDeparture": "2026-05-26T12:52:00+08:00",
+        "actualArrival": "2026-05-26T15:47:00+08:00"
+      },
+      {
+        "id": "demo-2026-jl2",
+        "scheduledDeparture": "2026-04-09T16:25:00+09:00",
+        "scheduledArrival": "2026-04-09T09:55:00-07:00",
+        "actualDeparture": "2026-04-09T16:25:00+09:00",
+        "actualArrival": "2026-04-09T09:55:00-07:00"
+      },
+      {
+        "id": "demo-2026-sq12",
+        "scheduledDeparture": "2026-03-17T09:20:00+08:00",
+        "scheduledArrival": "2026-03-17T17:05:00+09:00",
+        "actualDeparture": "2026-03-17T09:16:00+08:00",
+        "actualArrival": "2026-03-17T16:48:00+09:00"
+      },
+      {
+        "id": "demo-2026-dl275",
+        "scheduledDeparture": "2026-02-14T10:05:00-08:00",
+        "scheduledArrival": "2026-02-15T15:00:00+09:00",
+        "actualDeparture": null,
+        "actualArrival": null
+      },
+      {
+        "id": "demo-2026-ua2402",
+        "scheduledDeparture": "2026-01-28T18:10:00-05:00",
+        "scheduledArrival": "2026-01-28T21:47:00-08:00",
+        "actualDeparture": "2026-01-28T18:23:00-05:00",
+        "actualArrival": "2026-01-28T21:38:00-08:00"
+      },
+      {
+        "id": "demo-2026-mu5418",
+        "scheduledDeparture": "2026-01-06T20:15:00+08:00",
+        "scheduledArrival": "2026-01-06T22:55:00+08:00",
+        "actualDeparture": "2026-01-06T20:11:00+08:00",
+        "actualArrival": "2026-01-06T22:39:00+08:00"
+      },
+      {
+        "id": "demo-2025-ua857",
+        "scheduledDeparture": "2025-12-22T13:55:00-08:00",
+        "scheduledArrival": "2025-12-23T19:10:00+08:00",
+        "actualDeparture": "2025-12-22T14:44:00-08:00",
+        "actualArrival": "2025-12-23T19:38:00+08:00"
+      },
+      {
+        "id": "demo-2025-ba286",
+        "scheduledDeparture": "2025-10-08T19:20:00-07:00",
+        "scheduledArrival": "2025-10-09T13:50:00+01:00",
+        "actualDeparture": "2025-10-08T19:18:00-07:00",
+        "actualArrival": "2025-10-09T13:30:00+01:00"
+      },
+      {
+        "id": "demo-2025-lh901",
+        "scheduledDeparture": "2025-09-25T09:30:00+01:00",
+        "scheduledArrival": "2025-09-25T12:05:00+02:00",
+        "actualDeparture": "2025-09-25T09:42:00+01:00",
+        "actualArrival": "2025-09-25T12:09:00+02:00"
+      },
+      {
+        "id": "demo-2025-cx879",
+        "scheduledDeparture": "2025-08-14T13:30:00-07:00",
+        "scheduledArrival": "2025-08-15T19:10:00+08:00",
+        "actualDeparture": "2025-08-14T13:34:00-07:00",
+        "actualArrival": "2025-08-15T18:57:00+08:00"
+      },
+      {
+        "id": "demo-2025-nh108",
+        "scheduledDeparture": "2025-06-30T22:55:00+09:00",
+        "scheduledArrival": "2025-06-30T16:25:00-07:00",
+        "actualDeparture": "2025-06-30T23:31:00+09:00",
+        "actualArrival": "2025-06-30T16:46:00-07:00"
+      },
+      {
+        "id": "demo-2025-aa100",
+        "scheduledDeparture": "2025-05-03T18:10:00-04:00",
+        "scheduledArrival": "2025-05-04T06:30:00+01:00",
+        "actualDeparture": "2025-05-03T18:10:00-04:00",
+        "actualArrival": "2025-05-04T06:30:00+01:00"
+      },
+      {
+        "id": "demo-2025-ke18",
+        "scheduledDeparture": "2025-03-19T12:40:00-07:00",
+        "scheduledArrival": "2025-03-20T17:35:00+09:00",
+        "actualDeparture": "2025-03-19T12:36:00-07:00",
+        "actualArrival": "2025-03-20T17:04:00+09:00"
+      },
+      {
+        "id": "demo-2025-ac566",
+        "scheduledDeparture": "2025-01-12T16:35:00-08:00",
+        "scheduledArrival": "2025-01-12T18:59:00-08:00",
+        "actualDeparture": null,
+        "actualArrival": null
+      },
+      {
+        "id": "demo-2024-qf12",
+        "scheduledDeparture": "2024-11-27T20:20:00-08:00",
+        "scheduledArrival": "2024-11-29T06:15:00+11:00",
+        "actualDeparture": "2024-11-27T20:41:00-08:00",
+        "actualArrival": "2024-11-29T06:08:00+11:00"
+      },
+      {
+        "id": "demo-2024-af83",
+        "scheduledDeparture": "2024-09-08T15:00:00-07:00",
+        "scheduledArrival": "2024-09-09T10:45:00+02:00",
+        "actualDeparture": "2024-09-08T15:18:00-07:00",
+        "actualArrival": "2024-09-09T10:52:00+02:00"
+      },
+      {
+        "id": "demo-2024-mu5101",
+        "scheduledDeparture": "2024-07-15T08:00:00+08:00",
+        "scheduledArrival": "2024-07-15T10:20:00+08:00",
+        "actualDeparture": "2024-07-15T08:49:00+08:00",
+        "actualArrival": "2024-07-15T10:51:00+08:00"
+      },
+      {
+        "id": "demo-2024-cz3475",
+        "scheduledDeparture": "2024-05-20T14:15:00+08:00",
+        "scheduledArrival": "2024-05-20T16:45:00+08:00",
+        "actualDeparture": "2024-05-20T14:10:00+08:00",
+        "actualArrival": "2024-05-20T16:27:00+08:00"
+      },
+      {
+        "id": "demo-2024-sq317",
+        "scheduledDeparture": "2024-03-04T10:55:00+00:00",
+        "scheduledArrival": "2024-03-05T07:50:00+08:00",
+        "actualDeparture": "2024-03-04T10:58:00+00:00",
+        "actualArrival": "2024-03-05T07:39:00+08:00"
+      },
+      {
+        "id": "demo-2024-dl1106",
+        "scheduledDeparture": "2024-01-18T06:10:00-05:00",
+        "scheduledArrival": "2024-01-18T08:06:00-06:00",
+        "actualDeparture": "2024-01-18T06:09:00-05:00",
+        "actualArrival": "2024-01-18T07:51:00-06:00"
+      }
+    ]
+  },
   "approvedReference": {
     "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
     "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
@@ -10,12 +469,17 @@
   "records": [
     {
       "file": "passport-dark-1440x900.png",
-      "sha256": "712ca2fddc9858ddeaa5f8dba64413b5a91608cdf83f7fa8ae1e77649d9acc7b",
-      "bytes": 565126,
+      "sha256": "3982451b676983428b31a7db8a846d10786f8c4934b5d97acb4b4c18163bf8f9",
+      "bytes": 498260,
       "theme": "dark",
       "viewport": {
         "width": 1440,
         "height": 900
+      },
+      "previousGeometry": {
+        "mapHeight": 578.046875,
+        "statsHeight": 64.953125,
+        "highlightsHeight": 64
       },
       "pageWidth": 1440,
       "pageHeight": 900,
@@ -23,11 +487,70 @@
       "scrollWidth": 998,
       "clientHeight": 759,
       "scrollHeight": 759,
-      "mapHeight": 578.046875,
+      "mapHeight": 498.046875,
       "statsHeight": 64.953125,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -37,19 +560,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-dark-1366x768.png",
-      "sha256": "a0c2d5e47fe6629617ecf9140a291841f460540c3c7c319b78cd1172676bb35a",
-      "bytes": 412793,
+      "sha256": "8a22eeee2422f6b6ef19e3d0dad8ca82617b8d3c369d9a3d6810b784afa9f8ef",
+      "bytes": 336162,
       "theme": "dark",
       "viewport": {
         "width": 1366,
         "height": 768
+      },
+      "previousGeometry": {
+        "mapHeight": 447.484375,
+        "statsHeight": 63.515625,
+        "highlightsHeight": 64
       },
       "pageWidth": 1366,
       "pageHeight": 768,
@@ -57,11 +585,70 @@
       "scrollWidth": 925,
       "clientHeight": 627,
       "scrollHeight": 627,
-      "mapHeight": 447.484375,
+      "mapHeight": 367.484375,
       "statsHeight": 63.515625,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -71,19 +658,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-dark-1280x720.png",
-      "sha256": "8d339c36810a3bb3c14ea8aee6270631204a25b2544396482c909e1185e96e7f",
-      "bytes": 353407,
+      "sha256": "7ac0310ac9eea41a62ef704eb95a7a419113f816f2cf028366a6b85bf3ef85a2",
+      "bytes": 283293,
       "theme": "dark",
       "viewport": {
         "width": 1280,
         "height": 720
+      },
+      "previousGeometry": {
+        "mapHeight": 401.125,
+        "statsHeight": 61.875,
+        "highlightsHeight": 64
       },
       "pageWidth": 1280,
       "pageHeight": 720,
@@ -91,11 +683,70 @@
       "scrollWidth": 862,
       "clientHeight": 579,
       "scrollHeight": 579,
-      "mapHeight": 401.125,
+      "mapHeight": 321.125,
       "statsHeight": 61.875,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -105,19 +756,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-dark-1024x768.png",
-      "sha256": "51e5eec489357c2a757a735fb8fc756f2be6e48877ea23df01b1da03cdc7758a",
-      "bytes": 331506,
+      "sha256": "9e0f125488c11c088cee54e584eff0e2ab55558d32776d3bb94dffe6720127a9",
+      "bytes": 241204,
       "theme": "dark",
       "viewport": {
         "width": 1024,
         "height": 768
+      },
+      "previousGeometry": {
+        "mapHeight": 402.21875,
+        "statsHeight": 108.78125,
+        "highlightsHeight": 64
       },
       "pageWidth": 1024,
       "pageHeight": 768,
@@ -125,11 +781,70 @@
       "scrollWidth": 684,
       "clientHeight": 627,
       "scrollHeight": 627,
-      "mapHeight": 402.21875,
-      "statsHeight": 108.78125,
-      "highlightsHeight": 64,
+      "mapHeight": 289.3125,
+      "statsHeight": 58.890625,
+      "highlightsHeight": 226.796875,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -139,19 +854,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-dark-761x900.png",
-      "sha256": "5687e3d4f97a1c89668e9a3acaa5538bd29f4d501494d8bf476e971fdc51d3ee",
-      "bytes": 239155,
+      "sha256": "634e3cb423f5e16cfe8160a95af777c04ec6b5cd5dc76e1dd16a3c97527566b4",
+      "bytes": 223143,
       "theme": "dark",
       "viewport": {
         "width": 761,
         "height": 900
+      },
+      "previousGeometry": {
+        "mapHeight": 520.734375,
+        "statsHeight": 108.78125,
+        "highlightsHeight": 77.484375
       },
       "pageWidth": 761,
       "pageHeight": 900,
@@ -159,11 +879,70 @@
       "scrollWidth": 421,
       "clientHeight": 759,
       "scrollHeight": 759,
-      "mapHeight": 520.734375,
+      "mapHeight": 371.421875,
       "statsHeight": 108.78125,
-      "highlightsHeight": 77.484375,
+      "highlightsHeight": 226.796875,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -173,19 +952,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-light-1440x900.png",
-      "sha256": "27a10046358fae9f9332960b23c1e7bb2fc10e3c87ce670a64008e6d1970a5a4",
-      "bytes": 559172,
+      "sha256": "cf8ffbbd3eeffe2db83ef4e41d4c023a9c1828141f291e7504195a1d2678584a",
+      "bytes": 490675,
       "theme": "light",
       "viewport": {
         "width": 1440,
         "height": 900
+      },
+      "previousGeometry": {
+        "mapHeight": 578.046875,
+        "statsHeight": 64.953125,
+        "highlightsHeight": 64
       },
       "pageWidth": 1440,
       "pageHeight": 900,
@@ -193,11 +977,70 @@
       "scrollWidth": 998,
       "clientHeight": 759,
       "scrollHeight": 759,
-      "mapHeight": 578.046875,
+      "mapHeight": 498.046875,
       "statsHeight": 64.953125,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -207,19 +1050,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-light-1366x768.png",
-      "sha256": "7a31c3bf051c19c1d6aa57374bf922dbbba1f4069bab9123c2969360878b5581",
-      "bytes": 410328,
+      "sha256": "bbe0f4ebb6f81a9f42e9c1719036fff6175d74e43dff97da318910785bef25d7",
+      "bytes": 335325,
       "theme": "light",
       "viewport": {
         "width": 1366,
         "height": 768
+      },
+      "previousGeometry": {
+        "mapHeight": 447.484375,
+        "statsHeight": 63.515625,
+        "highlightsHeight": 64
       },
       "pageWidth": 1366,
       "pageHeight": 768,
@@ -227,11 +1075,70 @@
       "scrollWidth": 925,
       "clientHeight": 627,
       "scrollHeight": 627,
-      "mapHeight": 447.484375,
+      "mapHeight": 367.484375,
       "statsHeight": 63.515625,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -241,19 +1148,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-light-1280x720.png",
-      "sha256": "418b89c26b263a11e9555761d085456a8590772790cf7aa4dd07c44a2781727e",
-      "bytes": 350777,
+      "sha256": "96820a51180828ab5539df8befde75f3e08a1055a2b02c5ae1553c17684fc54b",
+      "bytes": 280991,
       "theme": "light",
       "viewport": {
         "width": 1280,
         "height": 720
+      },
+      "previousGeometry": {
+        "mapHeight": 401.125,
+        "statsHeight": 61.875,
+        "highlightsHeight": 64
       },
       "pageWidth": 1280,
       "pageHeight": 720,
@@ -261,11 +1173,70 @@
       "scrollWidth": 862,
       "clientHeight": 579,
       "scrollHeight": 579,
-      "mapHeight": 401.125,
+      "mapHeight": 321.125,
       "statsHeight": 61.875,
-      "highlightsHeight": 64,
+      "highlightsHeight": 144,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -275,19 +1246,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-light-1024x768.png",
-      "sha256": "8fb54c6a27ad531ce9ff8265fc0b331d8e45152073c2e87b48cef38d8af9dc15",
-      "bytes": 326957,
+      "sha256": "702ef6b6051508441aa090fbc993c2b4ab2db0b38178f1c78d4766f14f0a32f9",
+      "bytes": 238520,
       "theme": "light",
       "viewport": {
         "width": 1024,
         "height": 768
+      },
+      "previousGeometry": {
+        "mapHeight": 402.21875,
+        "statsHeight": 108.78125,
+        "highlightsHeight": 64
       },
       "pageWidth": 1024,
       "pageHeight": 768,
@@ -295,11 +1271,70 @@
       "scrollWidth": 684,
       "clientHeight": 627,
       "scrollHeight": 627,
-      "mapHeight": 402.21875,
-      "statsHeight": 108.78125,
-      "highlightsHeight": 64,
+      "mapHeight": 289.3125,
+      "statsHeight": 58.890625,
+      "highlightsHeight": 226.796875,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -309,19 +1344,24 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     },
     {
       "file": "passport-light-761x900.png",
-      "sha256": "ac024008c05dadcc727cee3d6f720d81d867b6320c1c2de728520e2216b91741",
-      "bytes": 232646,
+      "sha256": "418072329776c5ed739c609a61c2301a480504015fe5f8fe0579b30360e66bef",
+      "bytes": 218247,
       "theme": "light",
       "viewport": {
         "width": 761,
         "height": 900
+      },
+      "previousGeometry": {
+        "mapHeight": 520.734375,
+        "statsHeight": 108.78125,
+        "highlightsHeight": 77.484375
       },
       "pageWidth": 761,
       "pageHeight": 900,
@@ -329,11 +1369,70 @@
       "scrollWidth": 421,
       "clientHeight": 759,
       "scrollHeight": 759,
-      "mapHeight": 520.734375,
+      "mapHeight": 371.421875,
       "statsHeight": 108.78125,
-      "highlightsHeight": 77.484375,
+      "highlightsHeight": 226.796875,
       "controlsFit": true,
       "highlightsFit": true,
+      "visibleTextFits": true,
+      "highlightData": {
+        "annualDelays": [
+          {
+            "year": 2024,
+            "minutes": 38,
+            "recordedArrivals": 6,
+            "barHeight": "57.57575757575758%"
+          },
+          {
+            "year": 2025,
+            "minutes": 53,
+            "recordedArrivals": 7,
+            "barHeight": "80.3030303030303%"
+          },
+          {
+            "year": 2026,
+            "minutes": 66,
+            "recordedArrivals": 9,
+            "barHeight": "100%"
+          }
+        ],
+        "airports": [
+          {
+            "code": "SFO",
+            "visits": 9,
+            "barWidth": "100%"
+          },
+          {
+            "code": "LAX",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "PVG",
+            "visits": 5,
+            "barWidth": "55.5556%"
+          },
+          {
+            "code": "LHR",
+            "visits": 4,
+            "barWidth": "44.4444%"
+          }
+        ],
+        "longest": {
+          "endpoints": [
+            {
+              "iata": "LAX",
+              "city": "Los Angeles"
+            },
+            {
+              "iata": "SYD",
+              "city": "Sydney"
+            }
+          ],
+          "facts": ["14h 27m", "12,061 km"],
+          "containsMap": false
+        }
+      },
       "metrics": [
         "143,204 kmDistance",
         "24Flights",
@@ -343,9 +1442,9 @@
         "11Countries"
       ],
       "highlights": [
-        "Total arrival delay2h 37m",
-        "Most visitedSan FranciscoSFO9 visits→",
-        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+        "Total arrival delay2h 37m20240h 38m20250h 53m20261h 06m",
+        "Most visitedSan Francisco · SFO99 visitsLos Angeles · LAX55 visitsShanghai · PVG55 visitsLondon · LHR44 visits",
+        "Longest flightLAXLos Angeles→SYDSydneyFlight duration14h 27mDistance12,061 km"
       ]
     }
   ]

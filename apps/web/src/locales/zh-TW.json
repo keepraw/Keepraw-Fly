@@ -291,7 +291,9 @@
     "highlightRoutes": "航段",
     "filterAirport": "篩選到訪 {{airport}}（{{code}}）的航班",
     "filterAirline": "篩選搭乘 {{airline}} 的航班",
-    "filterRoute": "篩選{{context}}，{{origin}} 至 {{destination}} 的航班"
+    "filterRoute": "篩選{{context}}，{{origin}} 至 {{destination}} 的航班",
+    "annualArrivalDelay": "年度到達延誤",
+    "recentDelayYears": "最近三個有記錄的年份"
   },
   "import": {
     "failed": "無法導入這個文件",

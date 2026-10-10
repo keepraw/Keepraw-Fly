@@ -35,7 +35,7 @@ afterEach(() => vi.unstubAllGlobals());
 async function render(
   locale: "en" | "zh-CN" | "zh-TW",
   view = initialPassportView,
-  record: KeeprawFlight | null = flight,
+  record: KeeprawFlight | KeeprawFlight[] | null = flight,
   desktop = true,
   distanceUnit: DistanceUnit = "kilometers",
 ) {
@@ -53,7 +53,7 @@ async function render(
     format: "keepraw-fly",
     formatVersion: "0.1.0",
     profile: { name: { native: "Test" } },
-    flights: record ? [record] : [],
+    flights: record ? (Array.isArray(record) ? record : [record]) : [],
   };
   vi.stubGlobal("window", { matchMedia: () => ({ matches: desktop }) });
   const markup = renderToStaticMarkup(
@@ -75,6 +75,33 @@ async function render(
 }
 
 describe("Passport narrative and spotlights", () => {
+  it("keeps annual charts and airport bars in the same Lifetime, Year and Search scope", async () => {
+    const records = [2023, 2024, 2025, 2026].map((year, index) => ({
+      ...flight,
+      id: String(year),
+      serviceDate: `${year}-01-01`,
+      flightNumber: `CX${year}`,
+      actualArrival: `2026-09-22T12:${String(index * 10).padStart(2, "0")}:00+08:00`,
+    }));
+    const { markup, i18n } = await render("en", initialPassportView, records);
+    expect(markup).toContain(i18n.t("passport.recentDelayYears"));
+    expect(
+      [...markup.matchAll(/data-year="(\d+)"/g)].map((match) => match[1]),
+    ).toEqual(["2024", "2025", "2026"]);
+    expect(markup).toContain(`<strong>${formatDuration(60, "en")}</strong>`);
+    for (const view of [
+      { ...initialPassportView, year: 2025 },
+      { ...initialPassportView, query: "CX2025" },
+    ] as PassportViewState[]) {
+      const { markup } = await render("en", view, records);
+      expect(
+        [...markup.matchAll(/data-year="(\d+)"/g)].map((match) => match[1]),
+      ).toEqual(["2025"]);
+      expect(markup).toContain('data-minutes="20"');
+      expect(markup.match(/data-visits="1"/g)).toHaveLength(2);
+      expect(markup).toContain(`<strong>${formatDuration(20, "en")}</strong>`);
+    }
+  });
   it("keeps the existing first-flight actions for an empty archive", async () => {
     const { markup, i18n } = await render("en", initialPassportView, null);
     expect(markup).toContain(i18n.t("passport.emptyTitle"));
@@ -88,7 +115,11 @@ describe("Passport narrative and spotlights", () => {
       actualDeparture: "2026-09-22T10:10:00+08:00",
       actualArrival: "2026-09-22T12:30:00+08:00",
     });
-    expect(markup).toContain(`<small>${formatDuration(140, "en")} ·`);
+    expect(markup).toMatch(
+      new RegExp(
+        `passport-longest-facts[\\s\\S]*?<strong>${formatDuration(140, "en")}</strong>`,
+      ),
+    );
   });
 
   it("handles a partially populated reference without inventing distance or a longest route", async () => {
@@ -97,7 +128,7 @@ describe("Passport narrative and spotlights", () => {
       origin: { iata: "ZZZ" },
     });
     expect(markup).toContain("<strong>0 km</strong>");
-    expect(markup).toContain("passport-spotlight-item is-unavailable");
+    expect(markup).toContain("passport-longest-flight is-unavailable");
     expect(markup).toContain(formatDuration(120, "en"));
   });
   it.each(["en", "zh-CN", "zh-TW"] as const)(
@@ -115,9 +146,12 @@ describe("Passport narrative and spotlights", () => {
         const highlights = markup.match(
           /class="passport-highlights"[\s\S]*?<\/aside>/,
         )![0];
-        expect(highlights).toContain(
-          `${localizedText(airportByIata.get("HKG")!.city, locale)} → ${localizedText(airportByIata.get("TAO")!.city, locale)}`,
-        );
+        for (const code of ["HKG", "TAO"]) {
+          expect(highlights).toContain(
+            `<strong>${code}</strong><span>${localizedText(airportByIata.get(code)!.city, locale)}</span>`,
+          );
+        }
+        expect(highlights).not.toMatch(/<svg|<canvas|<img/);
         expect(highlights).toContain(formatDuration(120, locale));
         expect(highlights).toContain(
           i18n.t(
@@ -179,7 +213,7 @@ describe("Passport narrative and spotlights", () => {
       expect(markup.match(/class="passport-core-stat"/g)).toHaveLength(6);
       expect(markup).toContain("<strong>0</strong>");
       expect(
-        markup.match(/passport-spotlight-item is-unavailable/g),
+        markup.match(/passport-spotlight-item[^"<>]*is-unavailable/g),
       ).toHaveLength(2);
     }
   });
@@ -270,7 +304,7 @@ describe("Passport narrative and spotlights", () => {
     });
     expect(
       markup.match(
-        /class="passport-highlight passport-spotlight-item is-unavailable"/g,
+        /class="passport-highlight passport-spotlight-item[^"<>]*is-unavailable"/g,
       ),
     ).toHaveLength(2);
     expect(markup).not.toMatch(/<button[^>]*class="passport-highlight/);

@@ -304,7 +304,9 @@
     "highlightRoutes": "Routes",
     "filterAirport": "Filter flights visiting {{airport}} ({{code}})",
     "filterAirline": "Filter flights flown with {{airline}}",
-    "filterRoute": "{{context}}: filter flights from {{origin}} to {{destination}}"
+    "filterRoute": "{{context}}: filter flights from {{origin}} to {{destination}}",
+    "annualArrivalDelay": "Arrival delay by year",
+    "recentDelayYears": "Latest 3 recorded years"
   },
   "import": {
     "failed": "This file cannot be imported",
