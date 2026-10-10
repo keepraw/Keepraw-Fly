@@ -425,7 +425,9 @@ export function PassportPage({
                           ?.querySelector<HTMLButtonElement>(".flight-row")
                           ?.focus({ preventScroll: true });
                       });
-                    } else setSelection(target);
+                    } else {
+                      setSelection(target);
+                    }
                   }}
                 />
               </Suspense>
