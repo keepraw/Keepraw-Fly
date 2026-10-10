@@ -24,10 +24,10 @@ export const defaultLighting: GlobeLighting = {
   surface: true,
   nightLights: true,
   atmosphere: true,
-  sunIntensity: 2.2,
+  sunIntensity: 0.7,
   twilightWidth: 0.18,
-  atmosphereIntensity: 0.65,
-  nightIntensity: 1,
+  atmosphereIntensity: 2.0,
+  nightIntensity: 2.0,
 };
 
 // Art-directed once from the existing overview, then fixed in WORLD space.
