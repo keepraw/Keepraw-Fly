@@ -20,6 +20,7 @@ import {
 } from "./globe-solar";
 
 export function GlobeMap({
+  variant = "lab",
   routes,
   flights,
   theme,
@@ -30,6 +31,7 @@ export function GlobeMap({
   highlightedRoute,
   onSelect,
 }: {
+  variant?: "lab" | "passport";
   routes: RouteSegment[];
   flights: KeeprawFlight[];
   theme: GlobeTheme;
@@ -171,7 +173,7 @@ export function GlobeMap({
   );
   return (
     <section
-      className="globe-stage"
+      className={`globe-stage ${variant === "passport" ? "globe-stage-passport" : ""}`}
       aria-label={t("globe.mapLabel")}
       data-theme={theme}
       data-solar-mode={solarMode}
@@ -203,17 +205,17 @@ export function GlobeMap({
         </div>
       ) : (
         <>
-          <div className="globe-caption">
+          {variant === "lab" ? <div className="globe-caption">
             {t("globe.surface")}
             <span>{t("globe.local")}</span>
-          </div>
+          </div> : null}
           <div className="globe-legend" hidden={lighting.earthOnly}>
             <span className="globe-legend-route" />
             {t("globe.routes")}
             <span className="globe-legend-selected" />
             {t("globe.selected")}
           </div>
-          {import.meta.env.DEV && (
+          {variant === "lab" && import.meta.env.DEV && (
             <button
               className="globe-twilight-review"
               onClick={() => controller.current?.twilightReview()}
