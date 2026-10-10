@@ -11,6 +11,7 @@ import {
   distanceForFlight,
   formatDistance,
   formatDuration,
+  flightDuration,
   groupFlightsByYear,
   localizedText,
   type DistanceUnit,
@@ -165,7 +166,7 @@ export function PassportPage({
       : stats.mostVisitedAirport;
   const mostVisitedName = mostVisited
     ? airportByIata.get(mostVisited.code)
-      ? localizedText(airportByIata.get(mostVisited.code)!.name, locale)
+      ? localizedText(airportByIata.get(mostVisited.code)!.city, locale)
       : mostVisited.code
     : "—";
   const duration = formatDuration(stats.durationMinutes, locale);
@@ -215,8 +216,12 @@ export function PassportPage({
   }, []);
 
   function routeLabel(flight: typeof longest): string {
+    const city = (code: string) => {
+      const airport = airportByIata.get(code);
+      return airport ? localizedText(airport.city, locale) : code;
+    };
     return flight
-      ? `${flight.origin.iata} → ${(flight.divertedTo ?? flight.destination).iata}`
+      ? `${city(flight.origin.iata)} → ${city((flight.divertedTo ?? flight.destination).iata)}`
       : "—";
   }
 
@@ -246,14 +251,21 @@ export function PassportPage({
     const distance = flight ? distanceForFlight(flight) : null;
     return (
       <SpotlightItem
-        context={context}
+        label={context}
         value={routeLabel(flight)}
         metadata={
-          distance === null
+          !flight
             ? undefined
-            : t(distanceKey, {
-                value: formatDistance(distance, locale, distanceUnit),
-              })
+            : [
+                formatDuration(flightDuration(flight).minutes, locale),
+                distance === null
+                  ? undefined
+                  : t(distanceKey, {
+                      value: formatDistance(distance, locale, distanceUnit),
+                    }),
+              ]
+                .filter(Boolean)
+                .join(" · ")
         }
         ariaLabel={
           target
@@ -670,6 +682,7 @@ export function PassportPage({
                       stats.totalDelayMinutes && stats.totalDelayMinutes > 0,
                     )}
                     title={t("passport.delayBasedOnArrivals")}
+                    aria-description={t("passport.delayBasedOnArrivals")}
                   >
                     <span className="passport-spotlight-label">
                       {t("passport.totalDelay")}

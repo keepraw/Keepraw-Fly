@@ -1,0 +1,352 @@
+{
+  "method": "Unedited real-browser screenshots; repository Demo; Lifetime; en; kilometers; DPR1; reduced motion",
+  "browser": "154.0.8037.99",
+  "approvedReference": {
+    "file": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+    "sha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+    "unchanged": true
+  },
+  "errors": [],
+  "records": [
+    {
+      "file": "passport-dark-1440x900.png",
+      "sha256": "712ca2fddc9858ddeaa5f8dba64413b5a91608cdf83f7fa8ae1e77649d9acc7b",
+      "bytes": 565126,
+      "theme": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pageWidth": 1440,
+      "pageHeight": 900,
+      "clientWidth": 998,
+      "scrollWidth": 998,
+      "clientHeight": 759,
+      "scrollHeight": 759,
+      "mapHeight": 578.046875,
+      "statsHeight": 64.953125,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-dark-1366x768.png",
+      "sha256": "a0c2d5e47fe6629617ecf9140a291841f460540c3c7c319b78cd1172676bb35a",
+      "bytes": 412793,
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "pageWidth": 1366,
+      "pageHeight": 768,
+      "clientWidth": 925,
+      "scrollWidth": 925,
+      "clientHeight": 627,
+      "scrollHeight": 627,
+      "mapHeight": 447.484375,
+      "statsHeight": 63.515625,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-dark-1280x720.png",
+      "sha256": "8d339c36810a3bb3c14ea8aee6270631204a25b2544396482c909e1185e96e7f",
+      "bytes": 353407,
+      "theme": "dark",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "pageWidth": 1280,
+      "pageHeight": 720,
+      "clientWidth": 862,
+      "scrollWidth": 862,
+      "clientHeight": 579,
+      "scrollHeight": 579,
+      "mapHeight": 401.125,
+      "statsHeight": 61.875,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-dark-1024x768.png",
+      "sha256": "51e5eec489357c2a757a735fb8fc756f2be6e48877ea23df01b1da03cdc7758a",
+      "bytes": 331506,
+      "theme": "dark",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "pageWidth": 1024,
+      "pageHeight": 768,
+      "clientWidth": 684,
+      "scrollWidth": 684,
+      "clientHeight": 627,
+      "scrollHeight": 627,
+      "mapHeight": 402.21875,
+      "statsHeight": 108.78125,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-dark-761x900.png",
+      "sha256": "5687e3d4f97a1c89668e9a3acaa5538bd29f4d501494d8bf476e971fdc51d3ee",
+      "bytes": 239155,
+      "theme": "dark",
+      "viewport": {
+        "width": 761,
+        "height": 900
+      },
+      "pageWidth": 761,
+      "pageHeight": 900,
+      "clientWidth": 421,
+      "scrollWidth": 421,
+      "clientHeight": 759,
+      "scrollHeight": 759,
+      "mapHeight": 520.734375,
+      "statsHeight": 108.78125,
+      "highlightsHeight": 77.484375,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-light-1440x900.png",
+      "sha256": "27a10046358fae9f9332960b23c1e7bb2fc10e3c87ce670a64008e6d1970a5a4",
+      "bytes": 559172,
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pageWidth": 1440,
+      "pageHeight": 900,
+      "clientWidth": 998,
+      "scrollWidth": 998,
+      "clientHeight": 759,
+      "scrollHeight": 759,
+      "mapHeight": 578.046875,
+      "statsHeight": 64.953125,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-light-1366x768.png",
+      "sha256": "7a31c3bf051c19c1d6aa57374bf922dbbba1f4069bab9123c2969360878b5581",
+      "bytes": 410328,
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "pageWidth": 1366,
+      "pageHeight": 768,
+      "clientWidth": 925,
+      "scrollWidth": 925,
+      "clientHeight": 627,
+      "scrollHeight": 627,
+      "mapHeight": 447.484375,
+      "statsHeight": 63.515625,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-light-1280x720.png",
+      "sha256": "418b89c26b263a11e9555761d085456a8590772790cf7aa4dd07c44a2781727e",
+      "bytes": 350777,
+      "theme": "light",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "pageWidth": 1280,
+      "pageHeight": 720,
+      "clientWidth": 862,
+      "scrollWidth": 862,
+      "clientHeight": 579,
+      "scrollHeight": 579,
+      "mapHeight": 401.125,
+      "statsHeight": 61.875,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-light-1024x768.png",
+      "sha256": "8fb54c6a27ad531ce9ff8265fc0b331d8e45152073c2e87b48cef38d8af9dc15",
+      "bytes": 326957,
+      "theme": "light",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "pageWidth": 1024,
+      "pageHeight": 768,
+      "clientWidth": 684,
+      "scrollWidth": 684,
+      "clientHeight": 627,
+      "scrollHeight": 627,
+      "mapHeight": 402.21875,
+      "statsHeight": 108.78125,
+      "highlightsHeight": 64,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    },
+    {
+      "file": "passport-light-761x900.png",
+      "sha256": "ac024008c05dadcc727cee3d6f720d81d867b6320c1c2de728520e2216b91741",
+      "bytes": 232646,
+      "theme": "light",
+      "viewport": {
+        "width": 761,
+        "height": 900
+      },
+      "pageWidth": 761,
+      "pageHeight": 900,
+      "clientWidth": 421,
+      "scrollWidth": 421,
+      "clientHeight": 759,
+      "scrollHeight": 759,
+      "mapHeight": 520.734375,
+      "statsHeight": 108.78125,
+      "highlightsHeight": 77.484375,
+      "controlsFit": true,
+      "highlightsFit": true,
+      "metrics": [
+        "143,204 kmDistance",
+        "24Flights",
+        "181h 46mFlight duration",
+        "20Airports",
+        "16Airlines",
+        "11Countries"
+      ],
+      "highlights": [
+        "Total arrival delay2h 37m",
+        "Most visitedSan FranciscoSFO9 visits→",
+        "Longest flightLos Angeles → Sydney14h 27m · 12,061 km→"
+      ]
+    }
+  ]
+}

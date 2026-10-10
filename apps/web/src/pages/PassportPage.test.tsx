@@ -4,6 +4,14 @@ import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
+  calculatePassportStatistics,
+  formatDistance,
+  formatDuration,
+  localizedText,
+  airportByIata,
+  type DistanceUnit,
+} from "@keepraw-fly/core";
+import {
   initialPassportView,
   type PassportViewState,
 } from "../data/passport-exploration";
@@ -27,8 +35,9 @@ afterEach(() => vi.unstubAllGlobals());
 async function render(
   locale: "en" | "zh-CN" | "zh-TW",
   view = initialPassportView,
-  record = flight,
+  record: KeeprawFlight | null = flight,
   desktop = true,
+  distanceUnit: DistanceUnit = "kilometers",
 ) {
   const i18n = createInstance();
   await i18n.init({
@@ -44,7 +53,7 @@ async function render(
     format: "keepraw-fly",
     formatVersion: "0.1.0",
     profile: { name: { native: "Test" } },
-    flights: [record],
+    flights: record ? [record] : [],
   };
   vi.stubGlobal("window", { matchMedia: () => ({ matches: desktop }) });
   const markup = renderToStaticMarkup(
@@ -52,7 +61,7 @@ async function render(
       <PassportPage
         document={document}
         locale={locale}
-        distanceUnit="kilometers"
+        distanceUnit={distanceUnit}
         timeFormat="24-hour"
         view={view}
         onViewChange={() => {}}
@@ -66,6 +75,114 @@ async function render(
 }
 
 describe("Passport narrative and spotlights", () => {
+  it("keeps the existing first-flight actions for an empty archive", async () => {
+    const { markup, i18n } = await render("en", initialPassportView, null);
+    expect(markup).toContain(i18n.t("passport.emptyTitle"));
+    expect(markup).toContain(i18n.t("actions.addFirstFlight"));
+    expect(markup).not.toContain("passport-highlights");
+  });
+
+  it("uses actual flight duration when both actual times are recorded", async () => {
+    const { markup } = await render("en", initialPassportView, {
+      ...flight,
+      actualDeparture: "2026-09-22T10:10:00+08:00",
+      actualArrival: "2026-09-22T12:30:00+08:00",
+    });
+    expect(markup).toContain(`<small>${formatDuration(140, "en")} ·`);
+  });
+
+  it("handles a partially populated reference without inventing distance or a longest route", async () => {
+    const { markup } = await render("en", initialPassportView, {
+      ...flight,
+      origin: { iata: "ZZZ" },
+    });
+    expect(markup).toContain("<strong>0 km</strong>");
+    expect(markup).toContain("passport-spotlight-item is-unavailable");
+    expect(markup).toContain(formatDuration(120, "en"));
+  });
+  it.each(["en", "zh-CN", "zh-TW"] as const)(
+    "shows localized longest-flight cities, duration and selected-unit distance in %s",
+    async (locale) => {
+      for (const unit of ["kilometers", "miles"] as const) {
+        const { markup, i18n } = await render(
+          locale,
+          initialPassportView,
+          flight,
+          true,
+          unit,
+        );
+        const stats = calculatePassportStatistics([flight]);
+        const highlights = markup.match(
+          /class="passport-highlights"[\s\S]*?<\/aside>/,
+        )![0];
+        expect(highlights).toContain(
+          `${localizedText(airportByIata.get("HKG")!.city, locale)} → ${localizedText(airportByIata.get("TAO")!.city, locale)}`,
+        );
+        expect(highlights).toContain(formatDuration(120, locale));
+        expect(highlights).toContain(
+          i18n.t(
+            unit === "miles"
+              ? "passport.distanceMiles"
+              : "passport.distanceKilometers",
+            { value: formatDistance(stats.distanceKilometers, locale, unit) },
+          ),
+        );
+        expect(highlights).toContain(
+          i18n.t("passport.visitFrequency", { count: 1 }),
+        );
+        const values = [
+          ...markup.matchAll(
+            /class="passport-core-stat"><strong>(.*?)<\/strong>/g,
+          ),
+        ].map((match) => match[1]);
+        expect(values).toEqual([
+          i18n.t(
+            unit === "miles"
+              ? "passport.distanceMiles"
+              : "passport.distanceKilometers",
+            { value: formatDistance(stats.distanceKilometers, locale, unit) },
+          ),
+          "1",
+          formatDuration(120, locale),
+          "2",
+          "1",
+          "2",
+        ]);
+      }
+    },
+  );
+
+  it("distinguishes unavailable arrival delay from recorded zero and positive delay", async () => {
+    for (const [actualArrival, expected] of [
+      [undefined, "—"],
+      [flight.scheduledArrival, formatDuration(0, "en")],
+      ["2026-09-22T12:30:00+08:00", formatDuration(30, "en")],
+    ] as const) {
+      const { markup } = await render("en", initialPassportView, {
+        ...flight,
+        actualArrival,
+      });
+      expect(markup).toMatch(
+        new RegExp(
+          `class="passport-delay-highlight"[^>]*>[\\s\\S]*?<strong>${expected}</strong>`,
+        ),
+      );
+    }
+  });
+
+  it("recalculates an empty year or search while retaining six metrics and unavailable highlights", async () => {
+    for (const view of [
+      { ...initialPassportView, year: 2025 },
+      { ...initialPassportView, query: "no matching flight" },
+    ] as PassportViewState[]) {
+      const { markup } = await render("en", view);
+      expect(markup.match(/class="passport-core-stat"/g)).toHaveLength(6);
+      expect(markup).toContain("<strong>0</strong>");
+      expect(
+        markup.match(/passport-spotlight-item is-unavailable/g),
+      ).toHaveLength(2);
+    }
+  });
   it.each(["en", "zh-CN", "zh-TW"] as const)(
     "removes highlights on mobile while preserving %s statistics",
     async (locale) => {
