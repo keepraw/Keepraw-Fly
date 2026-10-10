@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { Vec3 } from "./globe-math";
+import { nightResponseKernel } from "./globe-night-response";
 
 export interface GlobeLighting {
   artDirection: "A" | "B";
@@ -107,6 +108,7 @@ varying vec2 vUv;
 varying vec3 vWorldNormal;
 varying vec3 vWorldPosition;
 ${solarKernel}
+${nightResponseKernel}
 void main() {
   vec3 n = normalize(vWorldNormal);
   vec3 view = normalize(cameraPosition - vWorldPosition);
@@ -152,13 +154,11 @@ void main() {
   float specular = pow(max(dot(n, normalize(sunDirection + view)), 0.0), 90.0);
   color += vec3(.025,.06,.10) * specular * oceanReflection * day * surfaceEnabled;
 
-  // Registered Black Marble is raw non-color radiance; city visibility is
-  // driven by the same solar response in EVERY theme. Keep B3's bounded curve.
+  // Registered Black Marble is raw grayscale visualization data. Restore
+  // peripheral/mid urban detail while retaining the bounded warm-neutral peaks.
   float radiance = texture2D(nightMap, vUv).r;
   float signal = max(radiance - .012, 0.0);
-  float toe = smoothstep(0.0, .075, signal);
-  float midtone = pow(signal, 1.25);
-  float lights = .13 * midtone / (.24 + midtone) * toe;
+  float lights = cityLightResponse(radiance);
   vec3 warm = mix(vec3(.83,.77,.66), vec3(.96,.90,.79), smoothstep(.1,.8, signal));
   color += warm * lights * night * nightIntensity * nightEnabled * mix(.45,1.0,dark);
 
