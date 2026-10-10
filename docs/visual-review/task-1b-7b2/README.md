@@ -1,6 +1,6 @@
 # Task 1B — Approved Control and canonical Globe evidence
 
-The owner approved **Control** for Task 2. Camera exploration is closed. PR #34 remains Draft; production Passport still uses SVG. Task 3 requires separate owner approval after Task 2.
+The owner approved **Control** as the immutable Globe baseline for subsequent development. This is a historical Task 1B record: the Owner subsequently accepted Task 2C and Task 3, and PRs #34 and #35 were merged. The official Desktop Passport now uses the approved production 3D Globe (with SVG fallback). No frozen Control image, camera or lighting setting is changed by this documentation update.
 
 ## Canonical references
 
@@ -39,4 +39,4 @@ Historical B/C camera experiments and before/after capture manifests remain as p
 
 The checkpoint recorded passing workspace typecheck/build and 216 web + 66 core + 31 validator tests (plus CSS-token tests). Focused system-Chrome Globe verification recorded 12/12 passes after the documented solar/night threshold recalibration. Deterministic UTC tests use June/December 2026 clocks and wait for rendered lighting before sampling. These results are retained as historical facts, not claimed as Task 2 validation.
 
-Photographic cloud depth and integration into official Passport remain deferred. See the [Task 2 handoff](../task-2/README.md) for current UI, settings and validation evidence.
+Photographic cloud depth remained deferred at this historical checkpoint; the official Passport 3D integration was completed later in Task 3. See the [Task 3 screenshot index](../task-3/SCREENSHOTS.md) for the approved production evidence and [Task 4 cleanup](../CLEANUP-2026-10-10.md) for the retained screenshots.
