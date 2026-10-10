@@ -1,0 +1,3 @@
+Native browser zoom 100%: locale/theme/viewport matrix completed.
+Native browser zoom 125%: locale/theme/viewport matrix completed.
+18 final screenshots; 72 layout records; all six CSS/WOFF2 groups verified.

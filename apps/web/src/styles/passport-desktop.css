@@ -826,6 +826,14 @@
   }
 }
 
+/* Keep Chinese duration units together in the narrow, short desktop columns. */
+@media (min-width: 761px) and (max-width: 1100px) and (max-height: 700px) {
+  :root:is(:lang(zh-CN), :lang(zh-TW)) .passport-delay-highlight > strong {
+    font-size: 1.25rem;
+    white-space: nowrap;
+  }
+}
+
 /* A deliberately compact landscape presentation: six core facts, no highlights. */
 @media (min-width: 761px) and (max-height: 540px) {
   .app-shell:has(.passport-archive-page) .site-header-inner {

@@ -35,10 +35,7 @@ export async function passportTypographyBounds(page) {
       if (!r.width || !r.height) continue;
       if (r.left < viewport.x - 1 || r.right > viewport.right + 1)
         failures.push(`horizontal:${e.className}`);
-      if (
-        e.childNodes.length === 1 &&
-        e.firstChild.nodeType === Node.TEXT_NODE
-      ) {
+      if ([...e.childNodes].some((node) => node.nodeType === Node.TEXT_NODE)) {
         const range = document.createRange();
         range.selectNodeContents(e);
         for (const t of range.getClientRects())
@@ -101,7 +98,7 @@ export async function passportTypographyBounds(page) {
         required: visual.scrollHeight > visual.clientHeight + 1,
         reachableBottom,
       },
-      bottomSafety: innerHeight - viewport.bottom,
+      bottomSafety: (visualViewport?.height ?? innerHeight) - viewport.bottom,
       archiveScroll: {
         clientHeight: archive.clientHeight,
         scrollHeight: archive.scrollHeight,
@@ -159,14 +156,7 @@ export async function waitForTypography(page, language) {
       requestAnimationFrame(() => requestAnimationFrame(resolve)),
     );
   });
-  await page.waitForFunction(
-    () =>
-      Math.abs(
-        parseFloat(
-          getComputedStyle(document.querySelector(".app-shell")).height,
-        ) - innerHeight,
-      ) < 1,
-  );
+  await waitForPassportLayout(page);
   await page.evaluate(async () => {
     await Promise.all(
       document
@@ -177,5 +167,59 @@ export async function waitForTypography(page, language) {
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve)),
     );
+  });
+}
+
+/** Desktop fills the CSS viewport; Mobile retains its natural document height. */
+export async function waitForPassportLayout(page) {
+  await page.waitForFunction(() => {
+    const shell = document.querySelector(".app-shell");
+    if (!shell || !document.querySelector(".passport-archive-page"))
+      return false;
+    const height = shell.getBoundingClientRect().height;
+    const viewportHeight = visualViewport?.height ?? innerHeight;
+    return matchMedia("(min-width: 761px)").matches
+      ? Math.abs(height - viewportHeight) < 1
+      : height >= viewportHeight - 1 &&
+          getComputedStyle(shell).overflowY === "visible";
+  });
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+}
+
+export async function passportViewportDiagnostics(page) {
+  return page.evaluate(() => {
+    const shell = document.querySelector(".app-shell");
+    const style = getComputedStyle(shell);
+    return {
+      innerWidth,
+      innerHeight,
+      devicePixelRatio,
+      visualViewport: {
+        width: visualViewport.width,
+        height: visualViewport.height,
+        scale: visualViewport.scale,
+      },
+      document: {
+        clientWidth: document.documentElement.clientWidth,
+        clientHeight: document.documentElement.clientHeight,
+        scrollWidth: document.documentElement.scrollWidth,
+        scrollHeight: document.documentElement.scrollHeight,
+      },
+      shell: {
+        rect: shell.getBoundingClientRect().toJSON(),
+        height: style.height,
+        minHeight: style.minHeight,
+        overflowY: style.overflowY,
+        clientHeight: shell.clientHeight,
+        scrollHeight: shell.scrollHeight,
+      },
+      desktop: matchMedia("(min-width: 761px)").matches,
+      compact: matchMedia("(max-height: 540px)").matches,
+    };
   });
 }

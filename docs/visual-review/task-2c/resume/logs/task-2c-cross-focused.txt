@@ -1,0 +1,54 @@
+
+Running 10 tests using 1 worker
+
+(node:5160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 [firefox] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated @cross-browser (12.1s)
+(node:21064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [firefox] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser (14.3s)
+  ok  3 [firefox] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN light @cross-browser (10.3s)
+  ok  4 [firefox] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW dark @cross-browser (10.4s)
+  ok  5 [firefox] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW light @cross-browser (8.8s)
+(node:9348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  6 [webkit] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated @cross-browser (5.6s)
+  ok  7 [webkit] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN dark @cross-browser (21.6s)
+  ok  8 [webkit] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-CN light @cross-browser (23.7s)
+  ok  9 [webkit] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW dark @cross-browser (25.2s)
+  ok 10 [webkit] › e2e\typography.pw.ts:89:5 › Chinese desktop stays on one screen with unavailable CDN: zh-TW light @cross-browser (18.9s)
+
+
+  1) [firefox] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated @cross-browser
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      82 |         ),
+      83 |       ),
+    > 84 |   ).toBe(true);
+         |     ^
+      85 | });
+      86 |
+      87 | for (const locale of ["zh-CN", "zh-TW"])
+        at C:\Users\Administrator\Documents\GitHub\Keepraw-Fly\e2e\typography.pw.ts:84:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    artifacts\task-2c-cross-focused-results\typography.pw.ts-Chinese-s-a6d6f--deduplicated-cross-browser-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts\task-2c-cross-focused-results\typography.pw.ts-Chinese-s-a6d6f--deduplicated-cross-browser-firefox\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts\task-2c-cross-focused-results\typography.pw.ts-Chinese-s-a6d6f--deduplicated-cross-browser-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace artifacts\task-2c-cross-focused-results\typography.pw.ts-Chinese-s-a6d6f--deduplicated-cross-browser-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [firefox] › e2e\typography.pw.ts:26:1 › Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicated @cross-browser
+  9 passed (2.6m)
