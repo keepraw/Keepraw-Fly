@@ -1,12 +1,13 @@
 # Task 2C — PAUSED / CHECKPOINT
 
-Status: **WIP, paused by the owner on 2026-10-10. Not visually accepted.
-Local files saved; not committed or pushed.**
+Status: **WIP checkpoint committed and pushed by owner on 2026-10-10; not visually accepted.**
 
-The Git save command and its one allowed retry were both rejected before process
-creation because automatic permission review did not finish before its deadline.
-No Git add/commit/push executed. The owner then explicitly chose **keep local
-files and commit next session**. Do not retry Git writes during this session.
+Historical note: the automated Git save attempts failed permission review, but
+the owner subsequently committed and pushed the complete Task 2C checkpoint via
+GitHub Desktop (`8cda992fa1563f84d986c9a63f2555dac78bb66b`). A follow-up
+commit (`91c7ca5172a782721e8e7438d195b023babce108`) added the missing
+Stylelint blank line before `.settings-font-credit`. Do not recreate or recommit
+the already-pushed checkpoint.
 
 This checkpoint saves existing work only. Do not start Task 3, redesign Passport,
 run full browser suites repeatedly, or pursue unrelated flaky tests.
@@ -133,37 +134,26 @@ Apparent SVG route discontinuity in an earlier resize sample was not proven to
 be a product bug; map projection, route geometry and approved Globe settings were
 not changed. The current capture waits and resets map framing through existing UI.
 
-First read this local handoff and preserve the dirty working tree. Do not switch
-branches or pull over it before saving the effective work. There is **no remote
-Task 2C checkpoint to restore yet**. Use Node ≥20.19 and pnpm 10.14.0:
+## F. Remote recovery (updated 2026-10-10)
 
-```powershell
-Set-Location 'C:\Users\forgo\Documents\Keepraw-Fly'
-Get-Content docs/visual-review/task-2c/HANDOFF.md
-git branch --show-current
-git status --short
-git diff --stat
-git diff --check
-pnpm install --frozen-lockfile
-```
+The Task 2C checkpoint **is already pushed** to PR #34. Latest verified PR HEAD
+before this documentation update: `91c7ca5172a782721e8e7438d195b023babce108`.
+Do not repeat the older staging/commit/push recipe from this handoff's original
+checkpoint. Inspect the remote branch and local working-tree state first, preserve
+uncommitted local changes, and avoid force push, rebase, or main changes.
 
-After checking that only the listed effective changes are selected, save them
-when Git write approval is available. Include the untracked typography files,
-fixture, scripts, handoff, evidence JSON and PNGs; keep `artifacts/` ignored:
-
-```powershell
-git add -- README.md THIRD_PARTY_NOTICES.md apps/web/src docs/design-system.md docs/visual-review/task-2c e2e/fixtures e2e/typography.pw.ts scripts/capture-task-2c.mjs scripts/passport-typography-evidence.mjs
-git diff --cached --check
-git diff --cached --stat
-git commit -m 'wip(task-2c): checkpoint MiSans and desktop typography'
-git push origin codex/globe-prototype-experiment
-git rev-parse HEAD
-git ls-remote origin refs/heads/codex/globe-prototype-experiment
-```
-
-Compare the two HEAD values and then append the actual SHA and remote handoff
-link to PR #34, preserving its Draft state and existing history. Do not force
-push, rebase or merge. Update this handoff's status before that future commit.
+- Task 2C WIP commit: `8cda992fa1563f84d986c9a63f2555dac78bb66b`.
+- Follow-up CSS lint fix: `91c7ca5172a782721e8e7438d195b023babce108`.
+- CI #125 for `8cda992`: Verify failed at Stylelint (settings.css:826);
+  Firefox and WebKit succeeded; Deploy skipped. Downstream Verify stages were
+  not executed and cannot be claimed as passed.
+- CI #126 for `91c7ca5`: [workflow run](https://github.com/keepraw/Keepraw-Fly/actions/runs/38041402331),
+  observed in progress when this update was prepared. Inspect final job results
+  before claiming test or build success.
+- Remaining priorities: diagnose native 125% zoom wait without weakening tests;
+  validate actual MiSans TC WOFF2 requests, weight handling and CDN failure
+  fallback; complete multilingual/theme geometry, targeted browser and mobile
+  regressions, screenshot review and owner acceptance.
 
 After the owner resumes Task 2C, run each needed check once and record actual
 results. Do not automatically launch a full E2E loop:
@@ -206,28 +196,20 @@ pnpm test:e2e e2e/typography.pw.ts --project=firefox --output=artifacts/task-2c-
 pnpm test:e2e e2e/typography.pw.ts --project=webkit --output=artifacts/task-2c-webkit-results
 ```
 
-## Checkpoint identity and remote CI
+## Checkpoint identity and remote CI (updated)
 
-- Repository: `keepraw/Keepraw-Fly`.
-- Branch: `codex/globe-prototype-experiment`.
-- PR: <https://github.com/keepraw/Keepraw-Fly/pull/34> — **Draft**.
-- Previous HEAD / Task 2B baseline: `b54f1b04f936bf227f1c3882a4aee58163df2647`.
-- **Checkpoint Commit SHA: Pending — not committed / not pushed.** Current
-  committed local HEAD is the Task 2B baseline above. Planned commit message:
-  `wip(task-2c): checkpoint MiSans and desktop typography`.
-- The owner deferred committing after two automatic approval timeouts. All
-  effective Task 2C source, tests, scripts, screenshots and handoff files remain
-  modified or untracked locally. PR #34 does not contain this work yet.
-- Latest observed pre-checkpoint remote CI:
-  [run 38036355339](https://github.com/keepraw/Keepraw-Fly/actions/runs/38036355339),
-  `completed / success`, for exact previous HEAD `b54f1b0` (Verify, Firefox and
-  WebKit succeeded; deployment skipped).
-- Task 2C checkpoint CI: **Pending / not verified at document creation**.
-  This session will not wait for CI and claims no Task 2C remote pass.
-  PR checkpoint block may contain one immediate post-push snapshot.
-
-All effective modifications listed above are intended for one future WIP commit.
-Local/remote equality for a new checkpoint could not be checked because no new
-commit or push occurred. PR #34 receives a paused/local-only status note; the
-handoff link becomes available remotely only after a future successful push.
-Resume only after the owner reopens work.
+- Repository: `keepraw/Keepraw-Fly`; branch: `codex/globe-prototype-experiment`.
+- PR #34: <https://github.com/keepraw/Keepraw-Fly/pull/34>, **Open / Draft**,
+  base `codex/desktop-passport-redesign-checkpoint` (PR #33).
+- Task 2B baseline: `b54f1b04f936bf227f1c3882a4aee58163df2647`;
+  successful CI [38036355339](https://github.com/keepraw/Keepraw-Fly/actions/runs/38036355339).
+- Owner-pushed Task 2C checkpoint: `8cda992fa1563f84d986c9a63f2555dac78bb66b`;
+  failed Verify CI [38040519013](https://github.com/keepraw/Keepraw-Fly/actions/runs/38040519013).
+- Stylelint fix HEAD before this documentation update:
+  `91c7ca5172a782721e8e7438d195b023babce108`;
+  CI [38041402331](https://github.com/keepraw/Keepraw-Fly/actions/runs/38041402331)
+  was in progress at inspection time.
+- This documentation-only update makes a further commit on PR #34; consult the
+  live PR head and its CI rather than treating an earlier SHA as immutable.
+- Task 2C remains **unaccepted**. Do not begin Task 3, mark either PR ready,
+  merge, deploy or modify approved Globe visual parameters.
