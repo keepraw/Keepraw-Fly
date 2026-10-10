@@ -243,3 +243,94 @@ test("real-time minute updates stay on demand without leaking render work", asyn
   expect(await frames()).toBe(fixedA);
   expect(errors).toEqual([]);
 });
+
+async function setPageHidden(page: Page, hidden: boolean) {
+  await page.evaluate((value) => {
+    Object.defineProperty(document, "hidden", {
+      value,
+      configurable: true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  }, hidden);
+}
+
+test("real-time timer suspends while hidden and resumes on visibility", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    await expect(
+      page.getByRole("radio", { name: "Fixed", exact: true }),
+    ).toBeChecked();
+    await page.getByRole("radio", { name: "Real-time", exact: true }).check();
+    await exerciseSvgFallback(page);
+    expect(errors).toEqual([]);
+    return;
+  }
+  await ready(page);
+  // No minute timer exists in Fixed, so installing the mock clock here is safe.
+  await page.clock.install({ time: new Date("2026-06-21T11:59:30.000Z") });
+  await page.getByRole("radio", { name: "Real-time", exact: true }).check();
+  await expect
+    .poll(() => page.locator(".globe-stage").getAttribute("data-solar-mode"))
+    .toBe("realtime");
+  const camera = await page.locator(".globe-host").getAttribute("data-camera");
+  const mockedNow = async () => new Date(await page.evaluate(() => Date.now()));
+  await expectSunCloseTo(
+    page,
+    solarDirectionFromUtc(new Date("2026-06-21T11:59:30.000Z")),
+    2,
+  );
+
+  // First minute transition while visible.
+  await page.clock.runFor(45_000);
+  const afterFirst = await sun(page);
+  await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+  expect(
+    Math.hypot(
+      afterFirst[0]! -
+        solarDirectionFromUtc(new Date("2026-06-21T11:59:30.000Z"))[0]!,
+      afterFirst[1]! -
+        solarDirectionFromUtc(new Date("2026-06-21T11:59:30.000Z"))[1]!,
+      afterFirst[2]! -
+        solarDirectionFromUtc(new Date("2026-06-21T11:59:30.000Z"))[2]!,
+    ),
+  ).toBeGreaterThan(0.002);
+
+  // Second minute transition while visible.
+  await page.clock.runFor(70_000);
+  const afterSecond = await sun(page);
+  await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+  expect(afterSecond).not.toEqual(afterFirst);
+
+  // Hide across a minute boundary: no update may fire while hidden.
+  await setPageHidden(page, true);
+  const hiddenSun = await sun(page);
+  await page.clock.runFor(75_000);
+  expect(await sun(page)).toEqual(hiddenSun);
+
+  // Restore visibility: one resync, then the minute cadence resumes.
+  await setPageHidden(page, false);
+  await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+  expect(await sun(page)).not.toEqual(hiddenSun);
+  await page.clock.runFor(70_000);
+  await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
+
+  // Back to Fixed: the minute timer is cancelled.
+  await page.getByRole("radio", { name: "Fixed", exact: true }).check();
+  await expectSunCloseTo(page, FIXED_SUN_DIRECTION, 5);
+  await page.clock.runFor(130_000);
+  closeTo(await sun(page), FIXED_SUN_DIRECTION, 5);
+
+  expect(await page.locator(".globe-host").getAttribute("data-camera")).toBe(
+    camera,
+  );
+  expect(errors).toEqual([]);
+});

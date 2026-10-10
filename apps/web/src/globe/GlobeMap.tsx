@@ -14,6 +14,7 @@ import {
 import type { GlobeLighting } from "./globe-lighting";
 import {
   FIXED_SUN_DIRECTION,
+  msUntilNextUtcMinute,
   solarDirectionFromUtc,
   type SolarMode,
 } from "./globe-solar";
@@ -123,23 +124,44 @@ export function GlobeMap({
     if (solarMode !== "realtime") return;
     let disposed = false;
     let timeout: ReturnType<typeof setTimeout> | undefined;
+    const clear = () => {
+      if (timeout !== undefined) {
+        clearTimeout(timeout);
+        timeout = undefined;
+      }
+    };
+    const schedule = () => {
+      // At most one active timer: always replace, never stack.
+      clear();
+      if (disposed) return;
+      timeout = setTimeout(tick, msUntilNextUtcMinute(new Date()) + 50);
+    };
     const tick = () => {
-      if (disposed || document.hidden) return;
+      timeout = undefined;
+      if (disposed) return;
+      // Suspended while hidden: the visibility handler resynchronizes and
+      // reschedules on restoration, so do not chain another timer here.
+      if (document.hidden) return;
       controller.current?.solar(solarDirectionFromUtc(new Date()));
-      const now = Date.now();
-      timeout = setTimeout(tick, 60000 - (now % 60000) + 50);
+      schedule();
     };
-    const now = Date.now();
-    timeout = setTimeout(tick, 60000 - (now % 60000) + 50);
-    const onVisible = () => {
-      if (!document.hidden && !disposed)
-        controller.current?.solar(solarDirectionFromUtc(new Date()));
+    const onVisibility = () => {
+      if (disposed) return;
+      if (document.hidden) {
+        // Suspend updates while hidden; drop any pending minute timer.
+        clear();
+        return;
+      }
+      // Visible again: resynchronize once, then resume the minute cadence.
+      controller.current?.solar(solarDirectionFromUtc(new Date()));
+      schedule();
     };
-    document.addEventListener("visibilitychange", onVisible);
+    document.addEventListener("visibilitychange", onVisibility);
+    schedule();
     return () => {
       disposed = true;
-      if (timeout) clearTimeout(timeout);
-      document.removeEventListener("visibilitychange", onVisible);
+      clear();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [solarMode]);
   useEffect(() => controller.current?.select(selection), [selection]);
