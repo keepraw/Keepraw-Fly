@@ -6,7 +6,7 @@ The real urban information survives the NASA source and both packaged textures. 
 
 [Pre-change diagnosis and all regional source / 4K / 2K distributions](diagnosis.md) · [Texture audit and histograms](texture-audit.json) · [Final display pixels](display-pixels.json) · [Scene provenance and screenshot hashes](manifest.json) · [Tests and known CI limitations](test-results.json) · [Production isolation](production-isolation.json)
 
-Starting checkpoint: `2720002ef01845aa1b04bb31fce6d619a54a30bf`. Source commit is recorded in manifest.json after committing. Original provenance: [NASA Earth at Night maps](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/) and the checked-in texture source metadata. This is a historical grayscale visualization, not calibrated or live luminance.
+Starting checkpoint: `2720002ef01845aa1b04bb31fce6d619a54a30bf`. Rendered source commit: `9eee6efbe30c22128e16e67d8d8b4fbffc04a080`. Audit/chart scripts use the available Node 24 built-in TypeScript stripping and installed Chrome; the original JPEG stays in ignored `artifacts/task-1b-5` and is checksum-verified. Product/runtime Node requirements are unchanged. Original provenance: [NASA Earth at Night maps](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/) and the checked-in texture source metadata. This is a historical grayscale visualization, not calibrated or live luminance.
 
 ## Fixed-camera visual comparison
 
