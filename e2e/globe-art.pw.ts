@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { globeMode, exerciseSvgFallback } from "./helpers/globe-capability";
 
 test("art direction changes local light without reinitializing the globe @cross-browser", async ({
   page,
@@ -13,12 +14,42 @@ test("art direction changes local light without reinitializing the globe @cross-
     if (m.type() === "error") errors.push(m.text());
   });
   page.on("request", (r) => {
-    if (/\/(earth|night)-(2048|4096)\.webp/.test(r.url()))
+    if (
+      r.resourceType() === "image" &&
+      /\/(earth|night)-(2048|4096)\.webp/.test(r.url())
+    )
       textures.push(r.url());
     if (/^https?:/.test(r.url()) && new URL(r.url()).hostname !== "127.0.0.1")
       external.push(r.url());
   });
   await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    const svg = page.locator(".globe-fallback svg[role=group]");
+    await svg.evaluate((el) => {
+      (window as unknown as { fallbackSvg: Element }).fallbackSvg = el;
+    });
+    for (const theme of ["Light", "Dark"]) {
+      await page.getByRole("button", { name: theme, exact: true }).click();
+      for (const option of ["A", "B"]) {
+        await page
+          .getByRole("combobox", { name: "Art Direction", exact: true })
+          .selectOption(option);
+        await expect(svg).toBeVisible();
+        expect(
+          await svg.evaluate(
+            (el) =>
+              (window as unknown as { fallbackSvg: Element }).fallbackSvg ===
+              el,
+          ),
+        ).toBe(true);
+      }
+    }
+    await exerciseSvgFallback(page);
+    expect(textures).toEqual([]);
+    expect(errors).toEqual([]);
+    expect(external).toEqual([]);
+    return;
+  }
   const host = page.locator(".globe-host"),
     canvas = page.locator(".globe-webgl");
   await expect(host).toHaveAttribute("data-ready", "true");

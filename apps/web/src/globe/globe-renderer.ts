@@ -44,6 +44,24 @@ export interface GlobeMetrics {
   drawCalls: number;
   textureSize: number;
   pixelRatio: number;
+  motion?: {
+    from: number[];
+    target: number[];
+    duration: number;
+    elapsed: number;
+    progress: number[];
+    state: "running" | "completed" | "cancelled" | "instant";
+  };
+}
+export interface GlobeFailure {
+  kind: "webgl2-unavailable" | "initialization" | "texture" | "context";
+  message: string;
+  resource?: string;
+}
+export class GlobeInitializationError extends Error {
+  constructor(public failure: GlobeFailure) {
+    super(failure.message);
+  }
 }
 export interface GlobeController {
   lighting: (settings: GlobeLighting) => void;
@@ -70,12 +88,31 @@ export function createGlobe(
     airportLabel: (code: string, count: number) => string;
     routeLabel: (origin: string, destination: string, count: number) => string;
     hover: (text: string | null) => void;
-    error: (reason: string) => void;
+    error: (reason: GlobeFailure) => void;
   },
 ): GlobeController {
   const start = performance.now();
   delete host.dataset.ready;
+  const canvas = document.createElement("canvas");
+  let contextReason = "This browser could not create a WebGL2 context.";
+  const creationError = (event: Event) => {
+    contextReason = (event as WebGLContextEvent).statusMessage || contextReason;
+  };
+  canvas.addEventListener("webglcontextcreationerror", creationError);
+  const context = canvas.getContext("webgl2", {
+    antialias: true,
+    alpha: true,
+    powerPreference: "low-power",
+  });
+  canvas.removeEventListener("webglcontextcreationerror", creationError);
+  if (!context)
+    throw new GlobeInitializationError({
+      kind: "webgl2-unavailable",
+      message: contextReason,
+    });
   const renderer = new THREE.WebGLRenderer({
+    canvas,
+    context,
     antialias: true,
     alpha: true,
     powerPreference: "low-power",
@@ -84,7 +121,6 @@ export function createGlobe(
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
-  const canvas = renderer.domElement;
   canvas.className = "globe-webgl";
   canvas.tabIndex = 0;
   canvas.setAttribute("role", "img");
@@ -245,6 +281,10 @@ export function createGlobe(
   };
   (host as HTMLDivElement & { globeMetrics: GlobeMetrics }).globeMetrics =
     metrics;
+  function cancelMotion() {
+    if (moving && metrics.motion) metrics.motion.state = "cancelled";
+    moving = null;
+  }
   const isSelectedRoute = (r: RouteSegment) =>
     selected?.kind === "route" &&
     selected.origin === r.origin.iata &&
@@ -346,7 +386,12 @@ export function createGlobe(
     if (disposed) return;
     const began = performance.now();
     if (moving) {
-      const t = Math.min(1, (now - moving.start) / moving.duration),
+      // RAF's frame timestamp may precede a selection made earlier in the same
+      // frame. Never extrapolate backwards before the animation's start.
+      const t = Math.max(
+          0,
+          Math.min(1, (now - moving.start) / moving.duration),
+        ),
         eased = t * t * (3 - 2 * t);
       const from = moving.from.clone(),
         to = moving.to.clone();
@@ -354,6 +399,11 @@ export function createGlobe(
       camera.position.copy(direction);
       camera.lookAt(0, 0, 0);
       controls.update();
+      if (metrics.motion) {
+        metrics.motion.elapsed = now - moving.start;
+        metrics.motion.progress.push(t);
+        if (t === 1) metrics.motion.state = "completed";
+      }
       if (t === 1) moving = null;
     }
     renderer.render(scene, camera);
@@ -370,6 +420,8 @@ export function createGlobe(
       routes: routeLines.flatMap((item) =>
         item.directions.map((route) => ({
           key: routeKey(route),
+          origin: route.origin,
+          destination: route.destination,
           count: route.flightCount,
           maxAltitude: Math.max(
             ...item.points.map((p) => Math.hypot(...p) - 1),
@@ -400,6 +452,14 @@ export function createGlobe(
     atHome = !center;
     viewOffset = view.offset ?? { x: 0, y: 0 };
     const to = vector(view.direction).multiplyScalar(view.distance);
+    metrics.motion = {
+      from: camera.position.toArray(),
+      target: to.toArray(),
+      duration: 650,
+      elapsed: 0,
+      progress: [],
+      state: "running",
+    };
     // Selection centers the route; Home returns to the deliberately cropped composition.
     camera.setViewOffset(
       width,
@@ -411,6 +471,7 @@ export function createGlobe(
     );
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       moving = null;
+      metrics.motion.state = "instant";
       camera.position.copy(to);
       camera.lookAt(0, 0, 0);
       controls.update();
@@ -437,7 +498,7 @@ export function createGlobe(
     camera.aspect = width / height;
     home = defaultGlobeView(routes, { width, height });
     if (atHome) {
-      moving = null;
+      cancelMotion();
       camera.position.copy(
         vector(home.direction).multiplyScalar(home.distance),
       );
@@ -484,8 +545,13 @@ export function createGlobe(
       invalidate();
     },
     undefined,
-    () => {
-      if (!disposed) callbacks.error("texture");
+    (error) => {
+      if (!disposed)
+        callbacks.error({
+          kind: "texture",
+          resource: quality === "4096" ? earth4096 : earth2048,
+          message: `Day texture failed to load: ${String(error)}`,
+        });
     },
   );
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -503,15 +569,20 @@ export function createGlobe(
       invalidate();
     },
     undefined,
-    () => {
-      if (!disposed) callbacks.error("texture");
+    (error) => {
+      if (!disposed)
+        callbacks.error({
+          kind: "texture",
+          resource: quality === "4096" ? night4096 : night2048,
+          message: `Night texture failed to load: ${String(error)}`,
+        });
     },
   );
   nightTexture.colorSpace = THREE.NoColorSpace;
   const change = () => invalidate();
   const controlStart = () => {
     atHome = false;
-    moving = null;
+    cancelMotion();
     callbacks.hover(null);
   };
   controls.addEventListener("change", change);
@@ -606,7 +677,7 @@ export function createGlobe(
     if (e.key.startsWith("Arrow")) {
       atHome = false;
       e.preventDefault();
-      moving = null;
+      cancelMotion();
       if (e.key === "ArrowLeft") spherical.theta -= 0.12;
       if (e.key === "ArrowRight") spherical.theta += 0.12;
       if (e.key === "ArrowUp") spherical.phi -= 0.08;
@@ -624,7 +695,7 @@ export function createGlobe(
   };
   function zoom(factor: number) {
     atHome = false;
-    moving = null;
+    cancelMotion();
     camera.position.setLength(
       Math.max(
         controls.minDistance,
@@ -636,7 +707,10 @@ export function createGlobe(
   }
   const lost = (event: Event) => {
     event.preventDefault();
-    callbacks.error("context");
+    callbacks.error({
+      kind: "context",
+      message: "The WebGL2 context was lost.",
+    });
   };
   canvas.addEventListener("pointerdown", down);
   canvas.addEventListener("pointermove", move);

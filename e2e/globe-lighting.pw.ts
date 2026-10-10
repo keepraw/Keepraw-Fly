@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
+import { globeMode, exerciseSvgFallback } from "./helpers/globe-capability";
 
 async function imageStats(page: Page, reference?: string) {
   const png = await page.locator(".globe-webgl").screenshot();
@@ -102,6 +103,26 @@ test("cinematic layers produce real pixels and keep the world-space sun fixed @c
     if (message.type() === "error") errors.push(message.text());
   });
   await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    // Unsupported hardware still keeps the local map operational. This branch
+    // makes no claim about WebGL pixels or lighting; the report names its mode.
+    for (const name of ["Day surface", "City lights", "Atmosphere"]) {
+      await page.getByRole("checkbox", { name, exact: true }).uncheck();
+      await expect(
+        page.locator(".globe-fallback svg[role=group]"),
+      ).toBeVisible();
+    }
+    await page
+      .getByRole("button", { name: "Reset lighting", exact: true })
+      .click();
+    for (const name of ["Day surface", "City lights", "Atmosphere"])
+      await expect(
+        page.getByRole("checkbox", { name, exact: true }),
+      ).toBeChecked();
+    await exerciseSvgFallback(page);
+    expect(errors).toEqual([]);
+    return;
+  }
   await expect(page.locator(".globe-host")).toHaveAttribute(
     "data-ready",
     "true",
@@ -174,9 +195,23 @@ test("cinematic layers produce real pixels and keep the world-space sun fixed @c
 test("night texture failure falls back locally and retries both textures @cross-browser", async ({
   page,
 }) => {
-  await page.route("**/night-4096.webp", (route) => route.abort());
   await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    await exerciseSvgFallback(page);
+    return;
+  }
+  await page.route("**/night-4096.webp", (route) => route.abort());
+  await page.reload();
   await expect(page.locator('.globe-fallback svg[role="group"]')).toBeVisible();
+  await expect
+    .poll(
+      async () =>
+        JSON.parse(
+          (await page.locator(".globe-stage").getAttribute("data-error")) ||
+            "null",
+        )?.resource,
+    )
+    .toContain("night-4096.webp");
   await page.unroute("**/night-4096.webp");
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await expect(page.locator(".globe-host")).toHaveAttribute(

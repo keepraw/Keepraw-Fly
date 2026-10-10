@@ -1,11 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
+import { globeMode, exerciseSvgFallback } from "./helpers/globe-capability";
+import type { GlobeMetrics } from "../apps/web/src/globe/globe-renderer";
 import {
   add,
   cross,
   dot,
   normalize,
+  selectedRouteView,
   routeArc,
   scale,
   type Vec3,
@@ -29,6 +32,21 @@ async function metrics(page: Page) {
 async function camera(page: Page) {
   return page.locator(".globe-host").getAttribute("data-camera");
 }
+async function settledCamera(page: Page) {
+  await expect
+    .poll(async () => {
+      const motion = ((await metrics(page)) as GlobeMetrics).motion;
+      const position = JSON.parse((await camera(page)) || "null") as
+        number[] | null;
+      return Boolean(
+        motion &&
+        position &&
+        motion.state !== "running" &&
+        motion.target.every((n, i) => Math.abs(n - position[i]!) < 1e-8),
+      );
+    })
+    .toBe(true);
+}
 
 test("globe actual browser screenshots, viewports, selection and resource measurements @cross-browser", async ({
   page,
@@ -49,7 +67,30 @@ test("globe actual browser screenshots, viewports, selection and resource measur
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/globe-lab");
-  await ready(page);
+  if ((await globeMode(page)) === "svg") {
+    for (const theme of ["Light", "Dark"]) {
+      await page.getByRole("button", { name: theme, exact: true }).click();
+      for (const viewport of [
+        { width: 1440, height: 900 },
+        { width: 844, height: 390 },
+      ]) {
+        await page.setViewportSize(viewport);
+        await expect(
+          page.locator(".globe-fallback svg[role=group]"),
+        ).toBeVisible();
+        expect(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+        ).toBe(true);
+      }
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await exerciseSvgFallback(page);
+    expect(external).toEqual([]);
+    expect(errors).toEqual([]);
+    return;
+  }
   const readings: unknown[] = [];
   for (const theme of ["dark", "light"]) {
     await page
@@ -177,9 +218,23 @@ test("globe actual browser screenshots, viewports, selection and resource measur
 test("globe local SVG fallback on texture failure and context loss @cross-browser", async ({
   page,
 }) => {
-  await page.route("**/earth-4096.webp", (route) => route.abort());
   await page.goto("/globe-lab");
+  if ((await globeMode(page)) === "svg") {
+    await exerciseSvgFallback(page);
+    return;
+  }
+  await page.route("**/earth-4096.webp", (route) => route.abort());
+  await page.reload();
   await expect(page.locator(".globe-fallback")).toBeVisible();
+  await expect
+    .poll(
+      async () =>
+        JSON.parse(
+          (await page.locator(".globe-stage").getAttribute("data-error")) ||
+            "null",
+        )?.kind,
+    )
+    .toBe("texture");
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   await page.unroute("**/earth-4096.webp");
   await page.getByRole("button", { name: "Try again", exact: true }).click();
@@ -190,6 +245,15 @@ test("globe local SVG fallback on texture failure and context loss @cross-browse
       canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
     );
   await expect(page.locator(".globe-fallback")).toBeVisible();
+  await expect
+    .poll(
+      async () =>
+        JSON.parse(
+          (await page.locator(".globe-stage").getAttribute("data-error")) ||
+            "null",
+        )?.kind,
+    )
+    .toBe("context");
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await ready(page);
 });
@@ -201,15 +265,22 @@ test("globe filtering, real archive loading and formal Passport isolation @cross
   await page.getByRole("button", { name: "Try demo", exact: true }).click();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   await page.goto("/globe-lab");
-  await ready(page);
+  const mode = await globeMode(page);
+  const expectMap = async () => {
+    if (mode === "webgl") await ready(page);
+    else
+      await expect(
+        page.locator(".globe-fallback svg[role=group]"),
+      ).toBeVisible();
+  };
   await expect(page.locator(".flight-row")).toHaveCount(24);
   await page.getByRole("button", { name: "2026", exact: true }).click();
-  await ready(page);
+  await expectMap();
   await expect(page.locator(".flight-row")).toHaveCount(10);
   await page
     .getByRole("textbox", { name: "Search flights, airports, airlines…" })
     .fill("UA123");
-  await ready(page);
+  await expectMap();
   await expect(page.locator(".flight-row")).toHaveCount(1);
   await page.locator(".flight-row").click();
   await expect(
@@ -224,17 +295,34 @@ test("globe gracefully handles disabled WebGL @cross-browser", async ({
   page,
 }) => {
   await page.addInitScript(() => {
+    const reviewWindow = window as unknown as { allowGlobeWebGL: boolean };
+    reviewWindow.allowGlobeWebGL = false;
     const original = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function (
       ...args: Parameters<typeof original>
     ) {
-      if (String(args[0]).startsWith("webgl")) return null;
+      if (!reviewWindow.allowGlobeWebGL && String(args[0]).startsWith("webgl"))
+        return null;
       return original.apply(this, args);
     } as typeof original;
   });
   await page.goto("/globe-lab");
   await expect(page.locator(".globe-fallback")).toBeVisible();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+  expect(await globeMode(page)).toBe("svg");
+  await exerciseSvgFallback(page);
+  await page.evaluate(() => {
+    (window as unknown as { allowGlobeWebGL: boolean }).allowGlobeWebGL = true;
+  });
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  if ((await globeMode(page)) === "webgl") {
+    await expect(
+      page.locator(".globe-airport-label.is-selected:visible"),
+    ).toHaveText("LAX");
+  }
+  await expect(
+    page.getByRole("combobox", { name: "Airport", exact: true }),
+  ).toHaveValue("LAX");
 });
 
 test("globe direct route and airport picking, motion and accessibility @cross-browser", async ({
@@ -245,22 +333,36 @@ test("globe direct route and airport picking, motion and accessibility @cross-br
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/globe-lab");
-  await ready(page);
+  if ((await globeMode(page)) === "svg") {
+    await exerciseSvgFallback(page);
+    for (const theme of ["Light", "Dark"]) {
+      await page.getByRole("button", { name: theme, exact: true }).click();
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    }
+    return;
+  }
   await page
     .getByRole("combobox", { name: "Airport", exact: true })
     .selectOption("SFO");
-  const rows = JSON.parse(
-    await readFile("packages/core/data/airports.iata.json", "utf8"),
-  ) as [string, string, string, string, number, number][];
+  const scene = JSON.parse(
+    (await page.locator(".globe-host").getAttribute("data-scene"))!,
+  ) as {
+    routes: {
+      origin: { iata: string; latitude: number; longitude: number };
+      destination: { iata: string; latitude: number; longitude: number };
+    }[];
+  };
   const point = (code: string) => {
-    const row = rows.find((r) => r[0] === code)!;
-    return { iata: code, latitude: row[4], longitude: row[5] };
+    return scene.routes
+      .flatMap((route) => [route.origin, route.destination])
+      .find((point) => point.iata === code)!;
   };
   const midpoint = routeArc({
     origin: point("SFO"),
     destination: point("LAX"),
     flightCount: 1,
   })[48]!;
+  await settledCamera(page);
   const cam = JSON.parse((await camera(page))!) as Vec3;
   const forward = scale(normalize(cam), -1),
     right = normalize(cross(forward, [0, 1, 0])),
@@ -291,17 +393,43 @@ test("globe direct route and airport picking, motion and accessibility @cross-br
   await page.keyboard.press("+");
   await expect.poll(() => camera(page)).not.toBe(before);
   await page.keyboard.press("Home");
+  await expect
+    .poll(async () => ((await metrics(page)) as GlobeMetrics).motion?.state)
+    .toBe("instant");
+  await settledCamera(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   const motionStart = await camera(page);
   await page
     .getByRole("combobox", { name: "Route", exact: true })
     .selectOption("LHR-FRA");
-  await page.waitForTimeout(200);
-  const mid = await camera(page);
-  await page.waitForTimeout(600);
+  await expect
+    .poll(async () => ((await metrics(page)) as GlobeMetrics).motion?.state)
+    .toBe("completed");
   const end = await camera(page);
-  expect(mid).not.toBe(motionStart);
-  expect(end).not.toBe(mid);
+  const motion = ((await metrics(page)) as GlobeMetrics).motion!;
+  await test.info().attach("Completed camera motion", {
+    body: JSON.stringify(motion, null, 2),
+    contentType: "application/json",
+  });
+  const targetView = selectedRouteView(
+    { origin: point("LHR"), destination: point("FRA"), flightCount: 1 },
+    box,
+  );
+  expect(motion.from).toEqual(JSON.parse(motionStart!));
+  expect(motion.duration).toBe(650);
+  expect(motion.elapsed).toBeGreaterThanOrEqual(motion.duration);
+  expect(motion.progress.length).toBeGreaterThan(0);
+  expect(motion.progress.at(-1)).toBe(1);
+  expect(
+    motion.progress.every(
+      (p, i) => p >= 0 && p <= 1 && (i === 0 || p >= motion.progress[i - 1]!),
+    ),
+  ).toBe(true);
+  expect(end).not.toBe(motionStart);
+  const finalCamera = JSON.parse(end!) as number[];
+  finalCamera.forEach((n, i) =>
+    expect(n).toBeCloseTo(targetView.direction[i]! * targetView.distance, 8),
+  );
   const axeResults = [];
   for (const theme of ["Light", "Dark"]) {
     await page.getByRole("button", { name: theme, exact: true }).click();
@@ -317,31 +445,45 @@ test("globe direct route and airport picking, motion and accessibility @cross-br
     .locator(".globe-webgl")
     .evaluate(async (canvas) => {
       const timestamps: number[] = [];
+      let raf = 0;
+      const startedAt = performance.now();
       await new Promise<void>((resolve) => {
+        // Cadence is diagnostic, not a hardware speed requirement. Stop by wall
+        // time even if RAF is throttled; never wait for 121 expensive GPU frames.
+        const finish = () => {
+          cancelAnimationFrame(raf);
+          clearTimeout(deadline);
+          resolve();
+        };
+        const deadline = setTimeout(finish, 2000);
         const step = (now: number) => {
           timestamps.push(now);
           canvas.dispatchEvent(
             new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
           );
-          if (timestamps.length < 121) requestAnimationFrame(step);
-          else resolve();
+          if (timestamps.length < 121 && performance.now() - startedAt < 2000)
+            raf = requestAnimationFrame(step);
+          else finish();
         };
-        requestAnimationFrame(step);
+        raf = requestAnimationFrame(step);
       });
       const intervals = timestamps
         .slice(1)
         .map((n, i) => n - timestamps[i]!)
         .sort((a, b) => a - b);
       return {
-        durationMs: timestamps.at(-1)! - timestamps[0]!,
-        frames: 120,
-        medianIntervalMs: intervals[60],
-        p95IntervalMs: intervals[114],
-        observedRafHz: 120000 / (timestamps.at(-1)! - timestamps[0]!),
+        wallMs: performance.now() - startedAt,
+        durationMs:
+          timestamps.length > 1 ? timestamps.at(-1)! - timestamps[0]! : 0,
+        frames: Math.max(0, timestamps.length - 1),
+        medianIntervalMs: intervals[Math.floor(intervals.length * 0.5)],
+        p95IntervalMs: intervals[Math.floor(intervals.length * 0.95)],
       };
     });
   await writeFile(
     `${destination}/${browserName}-rotation-cadence.json`,
     JSON.stringify(cadence, null, 2),
   );
+  expect(cadence.frames).toBeGreaterThan(0);
+  await expect.poll(() => camera(page)).not.toBe(end);
 });
