@@ -44,6 +44,7 @@ Control retained. Fixed sun/lighting frozen. Applied via DEV-only `globeReviewVi
 - **C-close-asia:** `spherePoint(24N,112E)`, dist 1.75, offset `(0,-0.45)`. Tight crop on PEK/PVG/CAN/CTU/ICN/HND, night cities most expressive, domestic triangle clear, transpacific as leading diagonals, no empty space, no Europe. Selected `PEK-PVG` (real short domestic) is the closest concept analogue: central coral segment, enlarged endpoints (`comp-clean-C-...-selected-PEK-PVG-dark.png`).
 
 Captures (all 0.7/2.0/2.0, Fixed sun):
+
 - Lab: `comp-control-fixed-dark/light.png`, `comp-clean-B/C-fixed-dark/light.png`
 - Passport-size (996×574 stage): `comp-control-passport-dark.png`, `comp-B/C-europe/close-passport-dark.png`
 - Selected: control `SFO-HKG`, B `LHR-SIN`, C `PEK-PVG` (all Dark, real data, great-circle/picking/markers/filtering preserved; default selection unchanged in code)

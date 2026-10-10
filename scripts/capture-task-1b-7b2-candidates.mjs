@@ -8,13 +8,22 @@ import { chromium } from "@playwright/test";
 
 const BASE = process.env.GLOBE_LAB_URL ?? "http://127.0.0.1:5173/globe-lab";
 const PREFIX = process.env.TASK_1B_7B2_PREFIX ?? "candidate";
-const OUT_DIR = path.join(process.cwd(), "docs", "visual-review", "task-1b-7b2");
+const OUT_DIR = path.join(
+  process.cwd(),
+  "docs",
+  "visual-review",
+  "task-1b-7b2",
+);
 const executablePath = process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined;
 
 function spherePoint(lat, lon) {
   const la = (lat * Math.PI) / 180;
   const lo = (lon * Math.PI) / 180;
-  return [Math.cos(la) * Math.cos(lo), Math.sin(la), -Math.cos(la) * Math.sin(lo)];
+  return [
+    Math.cos(la) * Math.cos(lo),
+    Math.sin(la),
+    -Math.cos(la) * Math.sin(lo),
+  ];
 }
 
 // Control = current data-dependent Home (no override).
@@ -35,10 +44,18 @@ const CANDIDATES = {
 };
 
 async function meta(page) {
-  const lighting = JSON.parse(await page.locator(".globe-host").getAttribute("data-lighting"));
-  const sc = JSON.parse(await page.locator(".globe-host").getAttribute("data-scene"));
-  const camera = JSON.parse(await page.locator(".globe-host").getAttribute("data-camera"));
-  const solarMode = await page.locator(".globe-stage").getAttribute("data-solar-mode");
+  const lighting = JSON.parse(
+    await page.locator(".globe-host").getAttribute("data-lighting"),
+  );
+  const sc = JSON.parse(
+    await page.locator(".globe-host").getAttribute("data-scene"),
+  );
+  const camera = JSON.parse(
+    await page.locator(".globe-host").getAttribute("data-camera"),
+  );
+  const solarMode = await page
+    .locator(".globe-stage")
+    .getAttribute("data-solar-mode");
   return { lighting, sc, camera, solarMode };
 }
 async function shoot(page, name) {
@@ -68,20 +85,30 @@ async function shoot(page, name) {
   };
 }
 async function flyTo(page, view) {
-  await page.locator(".globe-host").evaluate((host, v) => host.globeReviewView(v), view);
+  await page
+    .locator(".globe-host")
+    .evaluate((host, v) => host.globeReviewView(v), view);
   await page.waitForTimeout(900);
 }
 
 const browser = await chromium.launch(executablePath ? { executablePath } : {});
 const errors = [];
 try {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, locale: "en-US" });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 1,
+    locale: "en-US",
+  });
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  page.on("console", (m) => {
+    if (m.type() === "error") errors.push(m.text());
+  });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(BASE);
-  await page.locator(".globe-host[data-ready=true]").waitFor({ timeout: 25000 });
+  await page
+    .locator(".globe-host[data-ready=true]")
+    .waitFor({ timeout: 25000 });
   await page.waitForTimeout(500);
   await mkdir(OUT_DIR, { recursive: true });
   await page.getByRole("radio", { name: "Fixed", exact: true }).check();
@@ -89,7 +116,9 @@ try {
   const records = [];
   for (const [key, view] of Object.entries(CANDIDATES)) {
     // Reset to Home first, then apply candidate (control stays Home).
-    await page.getByRole("button", { name: "Fit recorded routes", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fit recorded routes", exact: true })
+      .click();
     await page.waitForTimeout(800);
     if (view) await flyTo(page, view);
 
@@ -103,12 +132,16 @@ try {
 
     // Selected-route hierarchy from the same candidate viewpoint (real Demo SFO-HKG).
     await page.getByRole("button", { name: "Dark", exact: true }).click();
-    await page.getByRole("combobox", { name: "Route", exact: true }).selectOption("SFO-HKG");
+    await page
+      .getByRole("combobox", { name: "Route", exact: true })
+      .selectOption("SFO-HKG");
     await page.waitForTimeout(900);
     if (view) await flyTo(page, view); // re-assert candidate framing, keep highlight
     await page.waitForTimeout(400);
     records.push(await shoot(page, `${key}-selected-SFO-HKG-dark`));
-    await page.getByRole("combobox", { name: "Route", exact: true }).selectOption("");
+    await page
+      .getByRole("combobox", { name: "Route", exact: true })
+      .selectOption("");
     await page.waitForTimeout(400);
   }
 
@@ -116,12 +149,16 @@ try {
   await page.goto(BASE.replace(/\/globe-lab$/, "/"));
   await page.getByRole("button", { name: "Try demo", exact: true }).click();
   await page.locator(".passport-archive-page .route-map-canvas").waitFor();
-  const passport = await page.locator(".passport-archive-page .route-map").evaluate((el) => ({
-    width: el.getBoundingClientRect().width,
-    height: el.getBoundingClientRect().height,
-  }));
+  const passport = await page
+    .locator(".passport-archive-page .route-map")
+    .evaluate((el) => ({
+      width: el.getBoundingClientRect().width,
+      height: el.getBoundingClientRect().height,
+    }));
   await page.goto(BASE);
-  await page.locator(".globe-host[data-ready=true]").waitFor({ timeout: 25000 });
+  await page
+    .locator(".globe-host[data-ready=true]")
+    .waitFor({ timeout: 25000 });
   await page.waitForTimeout(400);
   await page.getByRole("radio", { name: "Fixed", exact: true }).check();
   await page.locator(".globe-stage").evaluate((el, size) => {
@@ -130,7 +167,9 @@ try {
   }, passport);
   await page.waitForTimeout(400);
   for (const [key, view] of Object.entries(CANDIDATES)) {
-    await page.getByRole("button", { name: "Fit recorded routes", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fit recorded routes", exact: true })
+      .click();
     await page.waitForTimeout(800);
     if (view) await flyTo(page, view);
     await page.getByRole("button", { name: "Dark", exact: true }).click();
@@ -138,8 +177,17 @@ try {
     records.push(await shoot(page, `${key}-passport-dark`));
   }
 
-  const manifest = { prefix: PREFIX, passport, candidates: Object.keys(CANDIDATES), records, errors };
-  await writeFile(path.join(OUT_DIR, `${PREFIX}-manifest.json`), JSON.stringify(manifest, null, 2));
+  const manifest = {
+    prefix: PREFIX,
+    passport,
+    candidates: Object.keys(CANDIDATES),
+    records,
+    errors,
+  };
+  await writeFile(
+    path.join(OUT_DIR, `${PREFIX}-manifest.json`),
+    JSON.stringify(manifest, null, 2),
+  );
   console.log(JSON.stringify(manifest, null, 2));
   if (errors.length) throw new Error(errors.join("; "));
 } finally {
