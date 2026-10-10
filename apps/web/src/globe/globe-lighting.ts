@@ -169,15 +169,21 @@ void main() {
   vec3 lightGrade = mix(illuminated, neutralLit, lightDesat) * lightBalance;
   vec3 darkGrade = mix(illuminated, neutralLit, darkDesat) * darkBalance;
   vec3 color = mix(lightGrade, darkGrade, dark) * surfaceEnabled;
-  // Ocean material response: view-dependent sky sheen plus a sharp warm sun glint.
-  // Both are ocean-selective and day-modulated — photographic fresnel luminosity
-  // for Light oceans without uniform cobalt heaviness, subtle depth in Dark.
+  // Ocean material response: view-dependent sky sheen plus a controlled warm sun
+  // glitter. Both are ocean-selective and day-modulated — photographic fresnel
+  // luminosity for Light oceans without uniform cobalt heaviness, subtle depth
+  // in Dark. The glitter uses a broader lobe than the previous pow-220 glint
+  // and is gated by facing ratio and solar diffuse so it reads as distributed
+  // water reflection rather than a localized white hotspot at the limb or
+  // mid-Pacific. Sun/atmosphere intensities and geographic texture untouched.
   vec3 halfVec = normalize(sunDirection + view);
-  float fresnel = pow(1.0 - max(dot(n, view), 0.0), 3.0);
+  float facing = max(dot(n, view), 0.0);
+  float fresnel = pow(1.0 - facing, 3.0);
   float skySheen = fresnel * oceanReflection * day * (0.30 + 0.70 * diffuse);
   color += vec3(0.20,0.42,0.68) * skySheen * 0.28 * surfaceEnabled;
-  float glint = pow(max(dot(n, halfVec), 0.0), 220.0);
-  color += vec3(1.0,0.86,0.66) * glint * oceanReflection * day * 0.38 * surfaceEnabled;
+  float glint = pow(max(dot(n, halfVec), 0.0), 60.0);
+  float glintGate = facing * (0.25 + 0.75 * diffuse);
+  color += vec3(1.0,0.86,0.66) * glint * oceanReflection * day * glintGate * 0.16 * surfaceEnabled;
 
   // Registered Black Marble is raw grayscale visualization data. Restore
   // peripheral/mid urban detail while retaining the bounded warm-neutral peaks.
