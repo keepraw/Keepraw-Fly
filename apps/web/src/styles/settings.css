@@ -823,6 +823,7 @@
     padding: var(--space-3) var(--space-4);
   }
 }
+
 .settings-font-credit {
   margin: var(--space-5) 0 0;
   color: var(--color-text-muted);
