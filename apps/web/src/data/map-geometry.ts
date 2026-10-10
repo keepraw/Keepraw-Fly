@@ -31,7 +31,7 @@ const mapProjection = geoEqualEarth()
   .precision(0.25);
 const mapPath = geoPath(mapProjection).digits(1);
 
-function projectionAt(longitude: number) {
+export function projectionAt(longitude: number) {
   return longitude === 0
     ? mapProjection
     : geoEqualEarth()

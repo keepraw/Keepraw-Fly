@@ -25,6 +25,19 @@ const LAX: RoutePoint = {
 };
 
 describe("map camera", () => {
+  it("keeps global airports and routes inside a short Passport stage", () => {
+    for (const height of [260, 320, 480]) {
+      const camera = passportMapCamera(
+        [{ origin: NRT, destination: LAX, flightCount: 1 }],
+        [NRT, LAX],
+        height,
+      );
+      expect(camera.zoom).toBeLessThan(1);
+      expect(camera.zoom * 480).toBeLessThanOrEqual(height * 0.9 + 0.1);
+      expect(camera.centerX).toBe(480);
+      expect(camera.centerY).toBe(240);
+    }
+  });
   it("keeps regional passport framing restrained", () => {
     const routes = [
       { origin: SZX, destination: TAO, flightCount: 2 },

@@ -89,17 +89,15 @@ describe("Passport narrative and spotlights", () => {
     "keeps %s summaries complete and the delay hint out of visible copy",
     async (locale) => {
       const { markup, i18n } = await render(locale);
-      expect(markup).toContain('class="passport-legend-hero"');
-      expect(markup).toContain('class="passport-legend-support"');
+      expect(markup).toContain('class="passport-legend passport-core-stats"');
+      expect(markup.match(/class="passport-core-stat"/g)).toHaveLength(6);
       expect(markup).toContain(
-        i18n.t("passport.arrivalDelayTotal", { duration: "—" }),
+        `<strong>2</strong><span>${i18n.t("passport.countries")}</span>`,
       );
-      expect(markup).toContain('class="passport-network-line"');
-      expect(markup).toContain(
-        i18n.t("passport.networkCountries", { count: 2 }),
-      );
-      expect(markup).toContain('class="passport-mobile-summary"');
-      expect(markup).toContain("passport-delay-panel");
+      expect(markup).toContain('class="passport-delay-highlight"');
+      expect(markup).not.toContain("passport-spotlight-routes");
+      expect(markup).not.toContain('class="passport-mobile-summary"');
+      expect(markup).not.toContain("passport-delay-panel");
       expect(markup).not.toContain('class="primary-stats"');
       expect(markup).not.toContain('class="passport-counts"');
       expect(markup).not.toContain('class="highlight-list"');
@@ -130,14 +128,16 @@ describe("Passport narrative and spotlights", () => {
       const selected = buttons.filter((button) =>
         button.includes('aria-pressed="true"'),
       );
-      expect(selected.length).toBeGreaterThan(0);
-      expect(selected[0]).toContain(
-        selection.kind === "airport"
-          ? "TAO"
-          : selection.kind === "airline"
-            ? "Cathay Pacific"
-            : "HKG to TAO",
-      );
+      if (selection.kind === "airline") {
+        expect(selected).toHaveLength(0);
+        expect(markup).toContain("passport-exploration");
+        expect(markup).toContain("Cathay Pacific");
+      } else {
+        expect(selected.length).toBeGreaterThan(0);
+        expect(selected[0]).toContain(
+          selection.kind === "airport" ? "TAO" : "HKG to TAO",
+        );
+      }
       expect(
         buttons.every((button) =>
           /aria-label="[^"]*[Ff]ilter flights/.test(button),
@@ -155,7 +155,7 @@ describe("Passport narrative and spotlights", () => {
       markup.match(
         /class="passport-highlight passport-spotlight-item is-unavailable"/g,
       ),
-    ).toHaveLength(4);
+    ).toHaveLength(2);
     expect(markup).not.toMatch(/<button[^>]*class="passport-highlight/);
   });
 
@@ -169,9 +169,9 @@ describe("Passport narrative and spotlights", () => {
       { ...flight, destination: { iata: "PEK" }, divertedTo: { iata: "TAO" } },
     );
     const routes =
-      markup.match(
-        /<div class="passport-spotlight-routes"[\s\S]*?<\/section>/,
-      )?.[0] ?? "";
+      markup
+        .match(/<button[^>]*class="passport-highlight[\s\S]*?<\/button>/g)
+        ?.join("") ?? "";
     expect(routes).toContain('aria-pressed="true"');
     expect(routes).toContain("filter flights from HKG to TAO");
     expect(routes).not.toContain("HKG to PEK");

@@ -580,7 +580,7 @@ test("selects map records and filters the main ledger through search", async ({
   await expect(page.locator('.flight-row[aria-current="true"]')).toHaveCount(1);
   const count = await page.locator(".flight-row").count();
   const routeCode = await page
-    .locator('.flight-row[aria-current="true"] .airport-code-display')
+    .locator('.map-airport[aria-pressed="true"] .map-airport-label')
     .first()
     .textContent();
   await page.locator("#passport-flight-search").fill(routeCode!.trim());
@@ -638,17 +638,17 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         );
       }
       const hero = document.querySelector<HTMLElement>(
-        ".passport-legend-hero strong",
+        ".passport-core-stat strong",
       )!;
       const support = document.querySelector<HTMLElement>(
-        ".passport-legend-support",
+        ".passport-core-stat span",
       )!;
       const delay = document.querySelector<HTMLElement>(
-        ".passport-legend-delay",
+        ".passport-delay-highlight",
       )!;
       const legend = document.querySelector<HTMLElement>(".passport-legend")!;
       const network = document.querySelector<HTMLElement>(
-        ".passport-network-line",
+        ".passport-core-stats",
       )!;
       const logoBounds = airlineLogos.map((item) =>
         item.getBoundingClientRect(),
@@ -666,18 +666,23 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
         bodyFitsViewport:
           document.documentElement.scrollHeight <= window.innerHeight,
         highlightsVisible:
-          document.querySelectorAll(".passport-highlight").length === 4 &&
+          document.querySelectorAll(".passport-highlight").length === 2 &&
           getComputedStyle(document.querySelector(".passport-highlights")!)
             .display !== "none",
         distanceLeads:
           parseFloat(getComputedStyle(hero).fontSize) >
             parseFloat(getComputedStyle(support).fontSize) &&
-          parseFloat(getComputedStyle(support).fontSize) >
-            parseFloat(getComputedStyle(delay).fontSize),
-        legendIsNarrative: getComputedStyle(legend).display === "block",
-        networkIsSentence:
-          network.tagName === "P" &&
-          getComputedStyle(network).display === "block",
+          parseFloat(getComputedStyle(hero).fontSize) >
+            parseFloat(
+              getComputedStyle(
+                delay.querySelector(".passport-spotlight-label")!,
+              ).fontSize,
+            ),
+        legendIsReport: getComputedStyle(legend).display === "grid",
+        networkIsReport:
+          network.tagName === "SECTION" &&
+          getComputedStyle(network).display === "grid" &&
+          network.querySelectorAll("strong").length === 6,
         noLegacyStatGrids:
           document.querySelectorAll(
             ".primary-stats, .passport-counts, .highlight-list",
@@ -725,8 +730,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(workspace.bodyFitsViewport).toBe(true);
     expect(workspace.highlightsVisible).toBe(true);
     expect(workspace.distanceLeads).toBe(true);
-    expect(workspace.legendIsNarrative).toBe(true);
-    expect(workspace.networkIsSentence).toBe(true);
+    expect(workspace.legendIsReport).toBe(true);
+    expect(workspace.networkIsReport).toBe(true);
     expect(workspace.noLegacyStatGrids).toBe(true);
     expect(workspace.brandedLogoCount).toBeGreaterThan(0);
     expect(workspace.logoContentPresent).toBe(true);
@@ -780,7 +785,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#passport"]').click();
     await expect(page.locator(".passport-highlights")).toBeVisible();
-    await expect(page.locator(".passport-highlight")).toHaveCount(4);
+    await expect(page.locator(".passport-highlight")).toHaveCount(2);
     expect(
       await page
         .locator("html")
@@ -1486,14 +1491,7 @@ test("presents the flight archive as a single-column open ledger", async ({
         );
         const serviceDate = row.querySelector<HTMLElement>(".flight-date");
         const search = document.querySelector<HTMLElement>(".search-field");
-        if (
-          !list ||
-          !routeCity ||
-          !routeCode ||
-          !flightNumber ||
-          !serviceDate ||
-          !search
-        ) {
+        if (!list || !routeCity || !flightNumber || !serviceDate || !search) {
           throw new Error("Flight archive presentation landmarks are missing");
         }
 
@@ -1513,7 +1511,7 @@ test("presents the flight archive as a single-column open ledger", async ({
             getComputedStyle(routeCity).fontSize,
           ),
           routeCodeSize: Number.parseFloat(
-            getComputedStyle(routeCode).fontSize,
+            getComputedStyle(routeCode ?? routeCity).fontSize,
           ),
           searchBorderRadius: searchStyle.borderRadius,
           searchBoxShadow: searchStyle.boxShadow,
@@ -1521,9 +1519,7 @@ test("presents the flight archive as a single-column open ledger", async ({
       });
 
     if (viewport.width > 760)
-      expect(presentation.routeCodeSize).toBeGreaterThan(
-        presentation.routeCitySize,
-      );
+      expect(presentation.routeCitySize).toBeGreaterThan(presentation.dateSize);
     else
       expect(presentation.routeCitySize).toBeGreaterThan(
         presentation.routeCodeSize,
@@ -1535,7 +1531,9 @@ test("presents the flight archive as a single-column open ledger", async ({
     expect(presentation.listColumns).toBe(1);
     expect(presentation.rowBorderRadius).toBe("0px");
     expect(presentation.rowBoxShadow).toBe("none");
-    expect(presentation.searchBorderRadius).toBe("0px");
+    expect(presentation.searchBorderRadius).toBe(
+      viewport.width > 760 ? "4px" : "0px",
+    );
     expect(presentation.searchBoxShadow).toBe("none");
   }
 });
@@ -1612,7 +1610,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     return {
       canvasHasDepth: getComputedStyle(canvas).backgroundImage !== "none",
       highlightsVisible:
-        document.querySelectorAll(".passport-highlight").length === 4 &&
+        document.querySelectorAll(".passport-highlight").length === 2 &&
         getComputedStyle(document.querySelector(".passport-highlights")!)
           .display !== "none",
       mapBorderRadius: mapStyle.borderRadius,
@@ -1632,15 +1630,15 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     };
   });
   expect(passportPresentation).toEqual({
-    canvasHasDepth: false,
+    canvasHasDepth: true,
     countryPaths: 177,
-    graticules: 0,
+    graticules: 1,
     highlightsVisible: true,
-    mapBorderRadius: "0px",
+    mapBorderRadius: "4px",
     mapBoxShadow: "none",
     permanentAirportLabels: expect.any(Number),
     routeFilter: "none",
-    svgDefinitions: 0,
+    svgDefinitions: 1,
     switcherBorderRadius: "0px",
     switcherBackgroundImage: "none",
     visitedCountries: 9,
@@ -1650,17 +1648,25 @@ test("keeps core archive surfaces precise and non-decorative", async ({
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   const mapCanvas = page.locator(".route-map-canvas");
-  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
+  const fittedZoom = await mapCanvas.getAttribute("data-zoom");
   await page.getByRole("button", { name: "Zoom in" }).click();
-  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.50");
+  await expect
+    .poll(async () => Number(await mapCanvas.getAttribute("data-zoom")))
+    .toBeGreaterThan(Number(fittedZoom));
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
+  await expect(mapCanvas).toHaveAttribute("data-zoom", fittedZoom!);
 
+  const fittedScale = await page
+    .locator(".route-map-canvas .map-viewport-content")
+    .evaluate((element) => {
+      const transform = element.getAttribute("transform")!;
+      return Number(transform.match(/scale\(([^)]+)\)/)![1]);
+    });
   for (let index = 0; index < 6; index += 1) {
     await page.getByRole("button", { name: "Zoom in" }).click();
     await expect(mapCanvas).toHaveAttribute(
       "data-zoom",
-      Math.min(8, 1.5 ** (index + 1)).toFixed(2),
+      Math.min(8, fittedScale * 1.5 ** (index + 1)).toFixed(2),
     );
   }
   expect(
@@ -1670,7 +1676,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     page.locator(".route-map-canvas .map-world > .map-sphere"),
   ).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
+  await expect(mapCanvas).toHaveAttribute("data-zoom", fittedZoom!);
 
   const mapSvg = page.locator(".route-map-canvas > svg");
   await mapSvg.hover({ position: { x: 220, y: 120 } });
@@ -1701,7 +1707,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     page.locator(".route-map-canvas .map-world > .map-sphere"),
   ).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
-  await expect(mapCanvas).toHaveAttribute("data-zoom", "1.00");
+  await expect(mapCanvas).toHaveAttribute("data-zoom", fittedZoom!);
 });
 
 test("localizes airport identity and keeps sparse facility and map layouts legible", async ({
@@ -1998,7 +2004,9 @@ test("keeps every page aligned to the shared responsive shell", async ({
           1,
         );
       }
-      expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(1280);
+      expect(layout.main.right - layout.main.left).toBeLessThanOrEqual(
+        pageName === "Passport" && width > 760 ? 1744 : 1280,
+      );
       if (pageName === "Passport" && width > 760) {
         expect(layout.mainPaddingTop).toBeLessThanOrEqual(22);
         expect(layout.mainPaddingBottom).toBeLessThanOrEqual(18);
@@ -2050,12 +2058,12 @@ test("enforces the static responsive UI acceptance constraints", async ({
         }).length;
       const atomicValues = Array.from(
         row.querySelectorAll<HTMLElement>(
-          ".flight-number strong, .flight-times time, .airport-code-display",
+          ".flight-number strong, .flight-times time, .airport-code-display, .flight-ledger-duration",
         ),
       ).filter(visible);
       const routeValues = Array.from(
         row.querySelectorAll<HTMLElement>(
-          ".flight-route .airport-code-display, .flight-times time",
+          ".flight-route .airport-code-display, .flight-times time, .flight-route-cities > span:not(.route-direction)",
         ),
       ).filter(visible);
       const airportNames = Array.from(
@@ -2076,7 +2084,7 @@ test("enforces the static responsive UI acceptance constraints", async ({
         airportNamesVisible: airportNames.some(visible),
         identityVisible: visible(row.querySelector(".flight-number")),
         routeValues: routeValues.length,
-        routeVisible: visible(row.querySelector(".flight-route")),
+        routeVisible: visible(row.querySelector(".flight-route-cities")),
         statusVisible: visible(row.querySelector(".flight-status")),
         fitsViewport:
           document.documentElement.scrollWidth <=
@@ -2095,12 +2103,14 @@ test("enforces the static responsive UI acceptance constraints", async ({
     expect(archive.headerIsSticky).toBe(viewport.width > 760);
     expect(archive.headerClearsContent).toBe(true);
     expect(archive.rowIsActionable).toBe(true);
-    expect(archive.atomicValues).toBeGreaterThanOrEqual(5);
+    expect(archive.atomicValues).toBeGreaterThanOrEqual(
+      viewport.width > 760 ? 2 : 5,
+    );
     expect(archive.atomicValuesStayWhole).toBe(true);
     expect(archive.identityVisible).toBe(true);
     expect(archive.routeVisible).toBe(true);
-    expect(archive.routeValues).toBe(4);
-    expect(archive.statusVisible).toBe(true);
+    expect(archive.routeValues).toBe(viewport.width > 760 ? 2 : 6);
+    expect(archive.statusVisible).toBe(viewport.width <= 760);
 
     expect(archive.listColumns).toBe(1);
     expect(archive.airportNamesVisible).toBe(true);

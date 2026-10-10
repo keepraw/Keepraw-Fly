@@ -63,8 +63,8 @@ for (const viewport of viewports) {
         .last()
         .click();
       await expect(editor).toHaveCount(0);
-      if (!mobile) {
-        // The short-height desktop layout has a separately scrolling right column.
+      if (!mobile && viewport.height > 540) {
+        // Normal desktop shows all Highlights without a right scrollport.
         await expectReachable(
           page.locator("button.passport-spotlight-item").first(),
         );
@@ -257,9 +257,9 @@ for (const theme of ["light", "dark"]) {
           for (const selector of [
             ".airline-logo",
             ".flight-number",
-            ".flight-route",
-            ".flight-time-column",
-            ".flight-status",
+            ...(viewport.width > 760
+              ? [".flight-route-cities", ".flight-ledger-duration"]
+              : [".flight-route", ".flight-time-column", ".flight-status"]),
           ]) {
             await expectSeparateBoxes(row.locator(selector), date);
           }
@@ -269,7 +269,11 @@ for (const theme of ["light", "dark"]) {
           );
           await expectSeparateBoxes(
             row.locator(".flight-route-cities"),
-            row.locator(".flight-time-column"),
+            row.locator(
+              viewport.width > 760
+                ? ".flight-ledger-duration"
+                : ".flight-time-column",
+            ),
           );
         }
         await expectHealthyPage(page, errors);

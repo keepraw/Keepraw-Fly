@@ -75,7 +75,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     buffer: Buffer.from(JSON.stringify(archive)),
   });
   await page.getByRole("button", { name: "Import this archive" }).click();
-  await expect(page.locator(".passport-scope")).toHaveText(
+  await expect(page.locator(".passport-scope > span:last-child")).toHaveText(
     "All flights · 4 records",
   );
   await expect(page.locator(".flight-row")).toHaveCount(4);
@@ -84,19 +84,22 @@ test("shares search and year scope, map selection and adjacent detail navigation
     .locator(".passport-period")
     .getByRole("button", { name: "2026" })
     .click();
-  await expect(page.locator(".passport-scope")).toHaveText("2026 · 3 records");
-  await expect(page.locator(".passport-legend-support")).toContainText("3");
+  await expect(page.locator(".passport-scope > span:last-child")).toHaveText(
+    "2026 · 3 records",
+  );
+  await expect(page.locator(".passport-core-stat").nth(1)).toHaveText(
+    "3Flights",
+  );
   await expect(page.locator(".flight-row")).toHaveCount(3);
+  await expect(page.locator(".flight-times, .flight-status")).toHaveCount(0);
   await expect(
-    page.locator('.flight-record[data-flight-id="zh9911"] .flight-times'),
-  ).toHaveText("20:56—23:30");
-  await expect(
-    page.locator('.flight-record[data-flight-id="cz3964"] .flight-times'),
-  ).toContainText("+1");
-  await expect(
-    page.locator('.flight-record[data-flight-id="cx696"] .flight-times'),
-  ).toContainText("+1");
-  await expect(page.locator(".passport-legend-delay")).toContainText("0h 11m");
+    page.locator(
+      '.flight-record[data-flight-id="zh9911"] .flight-route-cities',
+    ),
+  ).toHaveText("Shenzhen→Qingdao");
+  await expect(page.locator(".passport-delay-highlight")).toContainText(
+    "0h 11m",
+  );
 
   await page
     .locator('.flight-record[data-flight-id="zh9911"] .flight-row')
