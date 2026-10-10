@@ -1,8 +1,8 @@
 # Task 3 — Production Desktop Globe integration
 
-Status: **Implemented and validated locally and in remote CI at implementation commit `7578541`; awaiting Owner final visual acceptance. PR #35 remains Draft. No merge or deployment authorized.**
+Status: **Task 3 visually approved by the Owner; PR #35 merged into `main` as `0bb6660d41605dbeb1da3bc3f15df5b56798aba8`. GitHub Pages automatic deployment was still paused at this checkpoint; merging is not a publishing instruction.**
 
-Task 2C was visually accepted and Task 3 development authorized on 2026-10-10. This continues the existing integration at `3e0b85590dc6625b67c0e8bf56e857bec9883b2b`, on `codex/desktop-passport-task-3-globe-integration`, based on `codex/globe-prototype-experiment` at `2b9378d0a27146a8650508c0a54f04b709b9d976`. PR #33, #34 and #35 must not be merged automatically.
+Task 2C was visually accepted and Task 3 development authorized on 2026-10-10. Implementation history began at `3e0b85590dc6625b67c0e8bf56e857bec9883b2b` on the former `codex/desktop-passport-task-3-globe-integration` branch, based on `codex/globe-prototype-experiment` at `2b9378d0a27146a8650508c0a54f04b709b9d976`. PR #33, #34 and #35 have since been merged in order; the old branch and Draft instructions below refer to earlier checkpoints.
 
 ## Production behavior
 
@@ -20,11 +20,11 @@ Task 2C was visually accepted and Task 3 development authorized on 2026-10-10. T
 
 [Screenshot index](SCREENSHOTS.md) · [Browser measurements and image hashes](browser-evidence.json)
 
-The 63 images are actual `/#passport` captures, never Lab substitutes: English/Simplified/Traditional, Dark/Light, 1440×900, 1366×768, 1280×720, 1024×768 and 761×900 at 100% and native 125%, plus three long-city archives at 1280×720. Zoom uses Chromium profile preferences and verifies DPR plus the effective CSS viewport; no CSS zoom or DPR-only emulation.
+The original 63 images were actual `/#passport` captures, never Lab substitutes: English/Simplified/Traditional, Dark/Light, 1440×900, 1366×768, 1280×720, 1024×768 and 761×900 at 100% and native 125%, plus three long-city archives at 1280×720. Task 4 retained 12 representative PNGs in the current tree and moved the rest to [historical Git evidence](../CLEANUP-2026-10-10.md); the complete browser-evidence JSON is unchanged. Zoom uses Chromium profile preferences and verifies DPR plus the effective CSS viewport; no CSS zoom or DPR-only emulation.
 
 At native 125%, physical 761×900 becomes an effective CSS width of 609px and intentionally uses the existing Mobile design. All other matrix entries mount real WebGL 3D. There are 57 Desktop captures and six Mobile captures. Desktop checks assert a filled renderer host, actual route data, six KPI, all three Highlights, complete text, no right scrolling and a bottom safety margin of at least 24 CSS pixels (fractional rounding accounted for). Small map cells retain the approved collision suppression; all airports and both route directions remain available through the picker.
 
-The default Globe keeps the approved cinematic crop, including the cropped lower hemisphere. This is not a new camera or lighting design. Owner must review the formal-page composition at the smaller cells and 125% zoom before acceptance.
+The default Globe keeps the approved cinematic crop, including the cropped lower hemisphere. This is not a new camera or lighting design. The Owner has approved the formal-page composition, including narrower viewports and 125% native zoom.
 
 ## Validation
 
@@ -40,4 +40,4 @@ Task 3 E2E covers real duplicate/reverse/diverted data, period/search updates, A
 
 ## Delivery boundary
 
-Await **Owner's final visual acceptance** of the actual Passport screenshots. Keep PR #35 Draft; do not merge any of PR #33/#34/#35 and do not publish. Normal commit/push only, with no reset, clean, rebase or force push.
+**Final outcome:** Owner visually accepted Task 3 and all three implementation PRs were subsequently merged. The approved Globe render, textures, shaders and Control baseline remain frozen. Task 4 trims redundant review PNGs without changing any runtime code or image bytes. Publication remains a separate Owner decision.

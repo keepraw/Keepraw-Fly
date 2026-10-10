@@ -1,0 +1,1305 @@
+{
+  "baselineCommit": "0bb6660d41605dbeb1da3bc3f15df5b56798aba8",
+  "scope": "Tracked PNG files under docs/visual-review/ only",
+  "historyRewritten": false,
+  "counts": {
+    "before": 183,
+    "retained": 22,
+    "removed": 161
+  },
+  "bytes": {
+    "before": 73795395,
+    "retained": 11530221,
+    "removed": 62265174
+  },
+  "approvedControlSha256": "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5",
+  "notes": [
+    "This inventory records Git blob SHA identifiers and byte sizes, not SHA-256 of each image.",
+    "Historical screenshot matrix JSON records and source image hashes remain unchanged; removed file paths there are audit identifiers.",
+    "Full original PNG files are recoverable from the baseline commit; no force push or Git history rewrite.",
+    "No runtime assets, e2e tests, globe shader/camera, approved images or workflow files are changed."
+  ],
+  "files": [
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png",
+      "bytes": 649976,
+      "gitBlobSha": "9f5ede8e402386738a12e5330dab2a5b527fc86d",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-fixed-light.png",
+      "bytes": 685246,
+      "gitBlobSha": "a3e5cc9e1e28e8b0fff5cb3c3f8c291373afc0d6",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-passport-dark.png",
+      "bytes": 600439,
+      "gitBlobSha": "f153b4c9402356aad211d07914fc0525cb78114c",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/comp-control-selected-SFO-HKG-dark.png",
+      "bytes": 639364,
+      "gitBlobSha": "f1aee76c099423a5dfedbf4d5198d900f51e4012",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-passport-light.png",
+      "bytes": 637461,
+      "gitBlobSha": "d83e4b19c4c61f3153ebc1138579655c2e448fc7",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-1b-7b2/specular-fixed-selected-PEK-PVG-dark.png",
+      "bytes": 788505,
+      "gitBlobSha": "443fd652a77d3f3943f6ac703abb268e9785a634",
+      "status": "retained",
+      "reason": "Owner-approved immutable Globe reference"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-dark-1024x768.png",
+      "bytes": 241204,
+      "gitBlobSha": "555627225f61319a3dca892206e750d0be18420c",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-dark-1280x720.png",
+      "bytes": 283293,
+      "gitBlobSha": "983044cfbaecbacb21d9d777b4400eabecb52e86",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-dark-1366x768.png",
+      "bytes": 336162,
+      "gitBlobSha": "ed102ea525bc99a7b4461920b4f8b77a28f36a27",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-dark-1440x900.png",
+      "bytes": 498260,
+      "gitBlobSha": "a83f7feb9924187d62209da27744bb7e4a84e2e1",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-dark-761x900.png",
+      "bytes": 223143,
+      "gitBlobSha": "52c2cae68f273db6b692e3f87fc3562c98d1ab27",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-light-1024x768.png",
+      "bytes": 238520,
+      "gitBlobSha": "65689f2b8f6a6e1a92276275ff95cfa2c12bb3d1",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-light-1280x720.png",
+      "bytes": 280991,
+      "gitBlobSha": "16a4e7031161bc02c9f278076378d5cf46f2e2bb",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-light-1366x768.png",
+      "bytes": 335325,
+      "gitBlobSha": "4c44209594c74e0482328cafc63e2d2298aa7fd9",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-light-1440x900.png",
+      "bytes": 490675,
+      "gitBlobSha": "c66690201599c73de450d53dadbec96686023c7e",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2/passport-light-761x900.png",
+      "bytes": 218247,
+      "gitBlobSha": "3696861f1905cb34502600109c02c74282e48167",
+      "status": "removed",
+      "reason": "Task 2B intermediate 2D screenshot, superseded by approved Passport 3D"
+    },
+    {
+      "path": "docs/visual-review/task-2c/before-zh-CN-dark-1440x900.png",
+      "bytes": 582666,
+      "gitBlobSha": "958185a0d2b71124060553aececeae77b8665d8c",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/before-zh-CN-light-1440x900.png",
+      "bytes": 560302,
+      "gitBlobSha": "e6cc0ac6dff77b513bf47bf50b991bf5a96a3764",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/before-zh-TW-dark-1440x900.png",
+      "bytes": 583512,
+      "gitBlobSha": "00fe3217a9d345120dca06a059da55b0873aab45",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/before-zh-TW-light-1440x900.png",
+      "bytes": 561184,
+      "gitBlobSha": "af099029a1fd842440f85ac1090c3c867bcdfa09",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-en-dark-1440x900.png",
+      "bytes": 588566,
+      "gitBlobSha": "d05a68c930f22478e7b39e252243af090e730015",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-en-light-1440x900.png",
+      "bytes": 566704,
+      "gitBlobSha": "c38693ec28e385f857e2838cf42173a47d968993",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-CN-dark-1440x900.png",
+      "bytes": 592057,
+      "gitBlobSha": "faeeb1f9d08234bd5e7de03854a3001a7c8a49a4",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-CN-dark-1646x928.png",
+      "bytes": 687029,
+      "gitBlobSha": "87a4438ce6162cd6ecbd11e1bcf9616f82338adb",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-CN-light-1440x900.png",
+      "bytes": 569742,
+      "gitBlobSha": "de949e0fcd8691bc046d70772a4cf93b20496e0d",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-CN-light-1646x928.png",
+      "bytes": 656196,
+      "gitBlobSha": "ad0b8edddd494a02bb84dd0f6a8b8a418c38a2fe",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-TW-dark-1440x900.png",
+      "bytes": 569672,
+      "gitBlobSha": "10623d8ff2122957a5f55dbe2f49af8c269b94f6",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-TW-dark-1646x928.png",
+      "bytes": 663707,
+      "gitBlobSha": "d829e442ad945794e209869fe168be836b77bd80",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-TW-light-1440x900.png",
+      "bytes": 547043,
+      "gitBlobSha": "0f5d7197143ab514f5e7b96ab151cbae35e58e05",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/passport-zh-TW-light-1646x928.png",
+      "bytes": 632114,
+      "gitBlobSha": "b7cb30d33b60cca87faffec510e680731f7c8add",
+      "status": "removed",
+      "reason": "Preliminary Task 2C checkpoint screenshot, superseded by resumed verification"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1024x768-zoom125.png",
+      "bytes": 198488,
+      "gitBlobSha": "0a886dd20494cd2f11ebec9f869830df7e9d6f37",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1440x900-zoom100.png",
+      "bytes": 617693,
+      "gitBlobSha": "ccafbe01bf8da2602888beb252c2c8e8e3627320",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-dark-1440x900-zoom125.png",
+      "bytes": 429508,
+      "gitBlobSha": "eac5fb12e45ea1b968b6b24c66b8bf5c382cebf6",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1024x768-zoom125.png",
+      "bytes": 194989,
+      "gitBlobSha": "a31e321e55431904e596283eccca31a47316f050",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1440x900-zoom100.png",
+      "bytes": 618058,
+      "gitBlobSha": "ecb67ac2542fa0979d47219a79e28e19d62b8b2e",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-en-light-1440x900-zoom125.png",
+      "bytes": 421443,
+      "gitBlobSha": "c205a1a9b73529886880322206970a425c905759",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1024x768-zoom125.png",
+      "bytes": 193515,
+      "gitBlobSha": "1e7d51580daf70da79b9c50e09ae3c02dab4b1f1",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1440x900-zoom100.png",
+      "bytes": 637548,
+      "gitBlobSha": "4ba066ff30f89961860ffaa9bf71993e01ce134e",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-dark-1440x900-zoom125.png",
+      "bytes": 447118,
+      "gitBlobSha": "e4d44ca0894fe22253eb11f4223c2e8cc6dba8da",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1024x768-zoom125.png",
+      "bytes": 190644,
+      "gitBlobSha": "e70687976061de0846c799c7b930d455cdcaceff",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1440x900-zoom100.png",
+      "bytes": 637884,
+      "gitBlobSha": "1641348c59206cf7c769eca619637b3f62de31c2",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-CN-light-1440x900-zoom125.png",
+      "bytes": 439486,
+      "gitBlobSha": "025cdf3f6f9f02aa11f1de712c3627faf2a63d02",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1024x768-zoom125.png",
+      "bytes": 172622,
+      "gitBlobSha": "b9fa8b78df39e0f2f51f6ef07a453b01d55f83d5",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1440x900-zoom100.png",
+      "bytes": 605330,
+      "gitBlobSha": "582de5deb2e40620b5e01d038122c1626f1f4324",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-dark-1440x900-zoom125.png",
+      "bytes": 425635,
+      "gitBlobSha": "928673e4af8c9a2c6d5eceb0d8c6426e1385fb84",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1024x768-zoom125.png",
+      "bytes": 169727,
+      "gitBlobSha": "c44e9a7da9806aad62381c3ecd7066aed723299c",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1440x900-zoom100.png",
+      "bytes": 606579,
+      "gitBlobSha": "a1d003b4fa621c1a3504918f21c849bf780edcdd",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/long-cities/passport-zh-TW-light-1440x900-zoom125.png",
+      "bytes": 418246,
+      "gitBlobSha": "03331889da598903b958219fc2721faac004d456",
+      "status": "removed",
+      "reason": "Task 2C long-city matrix screenshot, numeric evidence retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1024x768-zoom100.png",
+      "bytes": 309254,
+      "gitBlobSha": "598cf339b7caceabf1bc1a552e06ec0e89e85bbd",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1024x768-zoom125.png",
+      "bytes": 253440,
+      "gitBlobSha": "cd4f06437db5dc1d2444830218d9c327660e387c",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1280x720-zoom100.png",
+      "bytes": 381962,
+      "gitBlobSha": "5aa4c8f54186a2d6dc7223ff92a29e98f587d8de",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1280x720-zoom125.png",
+      "bytes": 320187,
+      "gitBlobSha": "fb37bc80d6e252f7edbdfc8e5bb8812e33e4a457",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1366x768-zoom100.png",
+      "bytes": 441505,
+      "gitBlobSha": "53fa1d5f3f2bccbb8f61c3ab22d14b4183a062ad",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1366x768-zoom125.png",
+      "bytes": 386462,
+      "gitBlobSha": "87a0d8cf3653ca05b31a0be52c7972652246d656",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1440x900-zoom100.png",
+      "bytes": 571962,
+      "gitBlobSha": "9c40cd7e824314b76f2dbed6bdcc4f934eccdb1c",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1440x900-zoom125.png",
+      "bytes": 503252,
+      "gitBlobSha": "2534d34a6e5a0145bc7740684f71ec8112cc02fe",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1646x928-zoom100.png",
+      "bytes": 666915,
+      "gitBlobSha": "d18a37a2cb071444e3e2571660fb4597b1bf26e4",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-1646x928-zoom125.png",
+      "bytes": 574828,
+      "gitBlobSha": "e2438c1eec3afcdecaa4d58a611e4d9377751b6a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-761x900-zoom100.png",
+      "bytes": 276867,
+      "gitBlobSha": "1cf4b34575eba4ab1d752e8db64a362c818f06f5",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-dark-761x900-zoom125.png",
+      "bytes": 46517,
+      "gitBlobSha": "ca205145af826d0baa11a98bddb56dce742d090c",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1024x768-zoom100.png",
+      "bytes": 297406,
+      "gitBlobSha": "35dec5cec67acc7d255f6d6f371f3b4b4946e381",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1024x768-zoom125.png",
+      "bytes": 246328,
+      "gitBlobSha": "ef77d0621c3935042cac6f6df0a43313c848dd34",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1280x720-zoom100.png",
+      "bytes": 366129,
+      "gitBlobSha": "d8e2f2ff9b49f940e911b93f41825ce7969a2d60",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1280x720-zoom125.png",
+      "bytes": 306248,
+      "gitBlobSha": "ec217c3d2dc5eeeeaedb30cf8ef5949645d43e4a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1366x768-zoom100.png",
+      "bytes": 422203,
+      "gitBlobSha": "c005b4ce0d17786fd7d8183b0fc4e99821edfbf2",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1366x768-zoom125.png",
+      "bytes": 369189,
+      "gitBlobSha": "fa55ee14cfe192ed85aa9d99e96cebc886c7608f",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1440x900-zoom100.png",
+      "bytes": 551878,
+      "gitBlobSha": "ccbc7b334604c036182e059d71bc01142abcda1e",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1440x900-zoom125.png",
+      "bytes": 485246,
+      "gitBlobSha": "3057e6ea0d52800c0cbc510ba538500864d915a6",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1646x928-zoom100.png",
+      "bytes": 639952,
+      "gitBlobSha": "1098afe7a510e29a00b64ab82a8c2d04a172debb",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-1646x928-zoom125.png",
+      "bytes": 550094,
+      "gitBlobSha": "288e7f519f8a994b1be9b3ae3c7d8c3e8d203fa7",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-761x900-zoom100.png",
+      "bytes": 268122,
+      "gitBlobSha": "57e8c3ab661641e5f5af8c78b97ec511753cd194",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-en-light-761x900-zoom125.png",
+      "bytes": 46568,
+      "gitBlobSha": "0eb730c1dbf1509ab7cb9160a532386308a87eeb",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1024x768-zoom100.png",
+      "bytes": 316775,
+      "gitBlobSha": "02c2ca467d76b0c4241ed2dea8e1385d49538ddf",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1024x768-zoom125.png",
+      "bytes": 268556,
+      "gitBlobSha": "13317e9854835e080394c557642896e9e272ceb9",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1280x720-zoom100.png",
+      "bytes": 391869,
+      "gitBlobSha": "4ef4c436776c91e9b326d7d89fad88c1ef7637c6",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1280x720-zoom125.png",
+      "bytes": 329411,
+      "gitBlobSha": "1556a9b49f077232a44603513c8bac62dabb5d3d",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1366x768-zoom100.png",
+      "bytes": 448774,
+      "gitBlobSha": "ac940aadaefcc8a4922201b88f2252e95f15f575",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1366x768-zoom125.png",
+      "bytes": 398873,
+      "gitBlobSha": "35016343b756da265faafd0576bf69a31628c05a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1440x900-zoom100.png",
+      "bytes": 583234,
+      "gitBlobSha": "36a8b805c6669ccd4995c45638d8dc0bc61287d2",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1440x900-zoom125.png",
+      "bytes": 513117,
+      "gitBlobSha": "8101972a7f391d80bec7bba1a9cbf5b18adb2b7e",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1646x928-zoom100.png",
+      "bytes": 676940,
+      "gitBlobSha": "297ea7638cd13c7e2d90e9d0c42f3d1256778aa8",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-1646x928-zoom125.png",
+      "bytes": 584518,
+      "gitBlobSha": "9e1568077684c2275c9e967d73781c1758bfef5a",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-761x900-zoom100.png",
+      "bytes": 290019,
+      "gitBlobSha": "e6d8fe1fac0e7bf2e794f93c5df301f83b9461ff",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-dark-761x900-zoom125.png",
+      "bytes": 62994,
+      "gitBlobSha": "6a32f986dd809b3ca4f771e9bb8f1cc62c01223f",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1024x768-zoom100.png",
+      "bytes": 303593,
+      "gitBlobSha": "b72e53da7fb8182149a0c46dd4fe1b25ec3e1739",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1024x768-zoom125.png",
+      "bytes": 260191,
+      "gitBlobSha": "8268fad23249df380cc3b278675ed50c7b0e86ff",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1280x720-zoom100.png",
+      "bytes": 374697,
+      "gitBlobSha": "01a387f587f2690f881b32179d611b2f5cd6aeb3",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1280x720-zoom125.png",
+      "bytes": 314914,
+      "gitBlobSha": "7ce6166697b781676f4110fa134e8a9c56d5588c",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1366x768-zoom100.png",
+      "bytes": 429737,
+      "gitBlobSha": "1bb699f5eae51a833e801e4f8d7e29e0fa78a8f6",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1366x768-zoom125.png",
+      "bytes": 380559,
+      "gitBlobSha": "dd1ef4d1d3aa0c060598028b96beac85c4a961ed",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1440x900-zoom100.png",
+      "bytes": 562983,
+      "gitBlobSha": "796c7b8d32c594c62f4b6740220b7e2de8fb17e2",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1440x900-zoom125.png",
+      "bytes": 493945,
+      "gitBlobSha": "c5c853fb7020828188316a36749621a92c976a31",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1646x928-zoom100.png",
+      "bytes": 648158,
+      "gitBlobSha": "d4dca8daf1279839ceb193edddc4de6693a85b1e",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-1646x928-zoom125.png",
+      "bytes": 557906,
+      "gitBlobSha": "1a17ede83768e4bee1b5ba77b406737879d4df1f",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-761x900-zoom100.png",
+      "bytes": 280520,
+      "gitBlobSha": "f6f91e9c4f65b6efc9c3e24d5d239f73e759f2f8",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-CN-light-761x900-zoom125.png",
+      "bytes": 62955,
+      "gitBlobSha": "b72767e68df8f694ca0b46395d3efc10ab275499",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1024x768-zoom100.png",
+      "bytes": 296552,
+      "gitBlobSha": "a95fe6c4f99f0e1fb58fc0c18e4a10ebe6a0958a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1024x768-zoom125.png",
+      "bytes": 249896,
+      "gitBlobSha": "4ac404f6fa2220fe41405ea650879f26effd23e9",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1280x720-zoom100.png",
+      "bytes": 370899,
+      "gitBlobSha": "cd7b3206c075596ca009a4a836ea992006d8ffa0",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1280x720-zoom125.png",
+      "bytes": 312458,
+      "gitBlobSha": "8ebea3d53992df754fae92798fa6c699535c40a8",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1366x768-zoom100.png",
+      "bytes": 428162,
+      "gitBlobSha": "48bfd4a32dd7faad09cc978fd80bbadd911567f8",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1366x768-zoom125.png",
+      "bytes": 381046,
+      "gitBlobSha": "62401ac095abb4959201974b42c7ebd85d95b26f",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1440x900-zoom100.png",
+      "bytes": 559511,
+      "gitBlobSha": "0eb7d90e7cb2498ca7659687b63757444e627e90",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1440x900-zoom125.png",
+      "bytes": 493265,
+      "gitBlobSha": "14b43905cfd48aff91d9ebf1bbd5d08e0e640f38",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1646x928-zoom100.png",
+      "bytes": 652573,
+      "gitBlobSha": "a022a72333d769a0a71b920d791f1e2642b4365a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-1646x928-zoom125.png",
+      "bytes": 565255,
+      "gitBlobSha": "4100d9094802dfa95ccb792bd1b8e487dfdd5138",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-761x900-zoom100.png",
+      "bytes": 266112,
+      "gitBlobSha": "909af95b3c56f7b0d81014175224aec4ed0b7eda",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-dark-761x900-zoom125.png",
+      "bytes": 64506,
+      "gitBlobSha": "f4a449d14f0d41a2308958d77ab07ff555fdce30",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1024x768-zoom100.png",
+      "bytes": 284233,
+      "gitBlobSha": "a0cc4463cdf1b1960077a4d68e2e6d41d0d951c2",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1024x768-zoom125.png",
+      "bytes": 241927,
+      "gitBlobSha": "90c7b7786c012eafa3b75095e193fca2f823851b",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1280x720-zoom100.png",
+      "bytes": 353746,
+      "gitBlobSha": "3e2de18da4754ee68601def54d42b8c1e96d38b1",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1280x720-zoom125.png",
+      "bytes": 297039,
+      "gitBlobSha": "8eed420ac1f60529809cf60741ccbe1d0c2e694e",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1366x768-zoom100.png",
+      "bytes": 408965,
+      "gitBlobSha": "e8b9176e3eb5717399c6da76cc6f82038304040b",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1366x768-zoom125.png",
+      "bytes": 362631,
+      "gitBlobSha": "221ffe863e4c23ec23db47f800ef63c93d364593",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1440x900-zoom100.png",
+      "bytes": 539098,
+      "gitBlobSha": "2cad8fe0a278617ce750d8fec5dd16bb7aadce45",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1440x900-zoom125.png",
+      "bytes": 474931,
+      "gitBlobSha": "a5477daf7a0535d99b441d15472815846fdc8462",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1646x928-zoom100.png",
+      "bytes": 624532,
+      "gitBlobSha": "b05adc9e34846950eddc4b4dbb071975ed1af50a",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-1646x928-zoom125.png",
+      "bytes": 539520,
+      "gitBlobSha": "cca9a3acb01be7ae0efe2e0d01c6a3e92e9847d1",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-761x900-zoom100.png",
+      "bytes": 256645,
+      "gitBlobSha": "b8937295beae86e5372770b4d0e0d85ebb56af1c",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-2c/resume/passport-zh-TW-light-761x900-zoom125.png",
+      "bytes": 64413,
+      "gitBlobSha": "9a86980aceb1e45b8e1c7b9713a2e093960e7913",
+      "status": "removed",
+      "reason": "Task 2C full browser matrix; four representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1024x768-zoom100.png",
+      "bytes": 312968,
+      "gitBlobSha": "d7d76be1507f4b529f1bad62786112f09186bf53",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1024x768-zoom125.png",
+      "bytes": 240650,
+      "gitBlobSha": "923c29f0882cdb74cb3a81b2b98c781b59fce861",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1280x720-zoom100.png",
+      "bytes": 378251,
+      "gitBlobSha": "2c2061d8ccfe9654944349766c13a0a4c4aaf39f",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1280x720-zoom125.png",
+      "bytes": 279699,
+      "gitBlobSha": "e5c4230aa5bb879ba0bf03d97838d10d0d22f7bf",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1366x768-zoom100.png",
+      "bytes": 456564,
+      "gitBlobSha": "49d5637bdba7c4be3b616db7451c53f1c5c055e9",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1366x768-zoom125.png",
+      "bytes": 352097,
+      "gitBlobSha": "36f1c7c999c198516e8958f761cb20f9f951435c",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1440x900-zoom100.png",
+      "bytes": 656414,
+      "gitBlobSha": "a6e03a12bd2094448e70a04f87c3d78a62bb6a94",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-1440x900-zoom125.png",
+      "bytes": 525402,
+      "gitBlobSha": "683735eabec73d6e7956eb045fed71aab2189dd2",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-761x900-zoom100.png",
+      "bytes": 310929,
+      "gitBlobSha": "9f725e404fd5b3f8b7620789c25ec5aced086176",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-761x900-zoom125.png",
+      "bytes": 46517,
+      "gitBlobSha": "ca205145af826d0baa11a98bddb56dce742d090c",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-dark-long-cities-1280x720.png",
+      "bytes": 423466,
+      "gitBlobSha": "b58e024b8c8606a6627c96fab9b97a06706571f8",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1024x768-zoom100.png",
+      "bytes": 326084,
+      "gitBlobSha": "d9c760bdbeadea8c56e72d9ec05fcce5f881db01",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1024x768-zoom125.png",
+      "bytes": 250278,
+      "gitBlobSha": "c797905520552463564519ba69bcd0c345c3ece8",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1280x720-zoom100.png",
+      "bytes": 394880,
+      "gitBlobSha": "4a408f1b2f642762ae66b5136a9789c423742523",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1280x720-zoom125.png",
+      "bytes": 290265,
+      "gitBlobSha": "e8568bdb2e679503f96bdaf21e174de98acb9084",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1366x768-zoom100.png",
+      "bytes": 476949,
+      "gitBlobSha": "c27baf93edfabb823beb8aaaa5d535a99b169be6",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1366x768-zoom125.png",
+      "bytes": 365240,
+      "gitBlobSha": "a9d1cabcc8ddd7e29145d9a0413a2c249d972b19",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1440x900-zoom100.png",
+      "bytes": 687267,
+      "gitBlobSha": "10185b9adca9dd4c21c077a0ebd50ca21e35a7b0",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-1440x900-zoom125.png",
+      "bytes": 545194,
+      "gitBlobSha": "1235f59fe0085c8d3592019da54e79aa03fa5d89",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-761x900-zoom100.png",
+      "bytes": 328260,
+      "gitBlobSha": "7942fa7ea4fcc4285ef8937cf437cb0be07fdd25",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-en-light-761x900-zoom125.png",
+      "bytes": 46568,
+      "gitBlobSha": "0eb730c1dbf1509ab7cb9160a532386308a87eeb",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1024x768-zoom100.png",
+      "bytes": 313818,
+      "gitBlobSha": "dac78c5fc34989990a382c74bfcf42102de5a39f",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1024x768-zoom125.png",
+      "bytes": 248933,
+      "gitBlobSha": "a32eee27c832db0b9997cf5253574e04347e8e90",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1280x720-zoom100.png",
+      "bytes": 381994,
+      "gitBlobSha": "bced15337e5607e78efddf3e8a447379e3cd3bbf",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1280x720-zoom125.png",
+      "bytes": 292785,
+      "gitBlobSha": "8e39570bc0f7bd6c50c7ceeff022f89b64a8a55f",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1366x768-zoom100.png",
+      "bytes": 457253,
+      "gitBlobSha": "28a3f872488a1f25a50aef3fe8f9bc1c92038fce",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1366x768-zoom125.png",
+      "bytes": 356503,
+      "gitBlobSha": "fc8a805ac2727d04d0c00391041f7bad5a0043a5",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1440x900-zoom100.png",
+      "bytes": 657696,
+      "gitBlobSha": "672f91078b608d93a3e82139b305adca11c9606f",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-1440x900-zoom125.png",
+      "bytes": 535215,
+      "gitBlobSha": "301dc9e3d59b6ea7cd6c25b0ef3b5a24a9d24558",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-761x900-zoom100.png",
+      "bytes": 318310,
+      "gitBlobSha": "1bc157ee753535172b3f2e90a5fdaecf1fa95584",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-761x900-zoom125.png",
+      "bytes": 62994,
+      "gitBlobSha": "6a32f986dd809b3ca4f771e9bb8f1cc62c01223f",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-dark-long-cities-1280x720.png",
+      "bytes": 436771,
+      "gitBlobSha": "4c96a7e9342dd79ae325cb01bc95ab0e68e0bc1f",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1024x768-zoom100.png",
+      "bytes": 326226,
+      "gitBlobSha": "34a7e758aef21dedd80c047cbdc05c9700bc3449",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1024x768-zoom125.png",
+      "bytes": 257303,
+      "gitBlobSha": "1c167bdc7019fa3c4260c547c023e3518d8484a4",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1280x720-zoom100.png",
+      "bytes": 394784,
+      "gitBlobSha": "bb7f1b45e76a7bf8285a0edb2881933219d19f68",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1280x720-zoom125.png",
+      "bytes": 301518,
+      "gitBlobSha": "7304ed1e8f571123c6d1d9066fcca21679562e52",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1366x768-zoom100.png",
+      "bytes": 476108,
+      "gitBlobSha": "a9c7e1d9f70d6dd6514e0ae1f416d84f29bb6400",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1366x768-zoom125.png",
+      "bytes": 369168,
+      "gitBlobSha": "79ac4d23017f975708c0f212cf4a897717e64346",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1440x900-zoom100.png",
+      "bytes": 688832,
+      "gitBlobSha": "b93576dd220a7f6e5a3e85251f21f75ba10b42c2",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-1440x900-zoom125.png",
+      "bytes": 552448,
+      "gitBlobSha": "e9820580e957687f69cd50e1fe0bd9a1a6e85df6",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-761x900-zoom100.png",
+      "bytes": 333756,
+      "gitBlobSha": "be9931e21d20f442295d6b63bb2005e664c70e88",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-CN-light-761x900-zoom125.png",
+      "bytes": 62955,
+      "gitBlobSha": "b72767e68df8f694ca0b46395d3efc10ab275499",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1024x768-zoom100.png",
+      "bytes": 292288,
+      "gitBlobSha": "098d1aad03830c3847abdb167b1ecce25200ca61",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1024x768-zoom125.png",
+      "bytes": 230715,
+      "gitBlobSha": "ca21dbefc2a99e608784769ae66f137aa9c577a8",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1280x720-zoom100.png",
+      "bytes": 360956,
+      "gitBlobSha": "663cd6f7bab3570f0da2c00241d727da36be187a",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1280x720-zoom125.png",
+      "bytes": 275962,
+      "gitBlobSha": "b74a62cc79c7f1a0172dd32e05ba78edaea2f2b6",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1366x768-zoom100.png",
+      "bytes": 435117,
+      "gitBlobSha": "f0662f41069c0b32c1869ed7d977fd48ad6f9d8d",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1366x768-zoom125.png",
+      "bytes": 338983,
+      "gitBlobSha": "f59ac171e057561da88fbe581f48a1689fa00792",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1440x900-zoom100.png",
+      "bytes": 634260,
+      "gitBlobSha": "da9bf20fb06b7a184cc3ba4b7b4bade89b413335",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-1440x900-zoom125.png",
+      "bytes": 515961,
+      "gitBlobSha": "494a9cbdcd5c0e34aedc7ad90a730e473c4ffb99",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-761x900-zoom100.png",
+      "bytes": 294603,
+      "gitBlobSha": "7d5621479e337b8a90896fa5656daa1cbe1660c8",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-761x900-zoom125.png",
+      "bytes": 64506,
+      "gitBlobSha": "f4a449d14f0d41a2308958d77ab07ff555fdce30",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-dark-long-cities-1280x720.png",
+      "bytes": 411294,
+      "gitBlobSha": "047938095c7378cd2637d5c8ff3defa62c5b1e9a",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1024x768-zoom100.png",
+      "bytes": 306375,
+      "gitBlobSha": "0d049f43af4f0d8685c8aef7d6979a29c4493c71",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1024x768-zoom125.png",
+      "bytes": 239192,
+      "gitBlobSha": "1837ceb996d41ac62815f3a96ced4bab1e8d270d",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1280x720-zoom100.png",
+      "bytes": 373940,
+      "gitBlobSha": "7b9c292d959d85593aaf63b23a0a03d29107e484",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1280x720-zoom125.png",
+      "bytes": 284430,
+      "gitBlobSha": "705543c0a0b0fec1bbd90df7e90b1931627a32aa",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1366x768-zoom100.png",
+      "bytes": 454689,
+      "gitBlobSha": "69924e380dfbc8edae94d9278dd12d3c74300f97",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1366x768-zoom125.png",
+      "bytes": 350434,
+      "gitBlobSha": "4388a6b390363a8ae303e1a5ab4cdb1cbe586d94",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1440x900-zoom100.png",
+      "bytes": 665684,
+      "gitBlobSha": "25d3eded5ec43dc8fc04ca49eac5e543a3d990ff",
+      "status": "retained",
+      "reason": "Representative final visual evidence"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-1440x900-zoom125.png",
+      "bytes": 534189,
+      "gitBlobSha": "99eeca8f66d94a805f17922c134f61471ec4c1ee",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-761x900-zoom100.png",
+      "bytes": 310607,
+      "gitBlobSha": "f81bdbcd7b1f086ec47345bdd82dc59fbb05a8f3",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    },
+    {
+      "path": "docs/visual-review/task-3/screenshots/passport-zh-TW-light-761x900-zoom125.png",
+      "bytes": 64413,
+      "gitBlobSha": "9a86980aceb1e45b8e1c7b9713a2e093960e7913",
+      "status": "removed",
+      "reason": "Task 3 full screenshot matrix; twelve representative images retained"
+    }
+  ]
+}
