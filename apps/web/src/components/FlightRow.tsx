@@ -189,15 +189,11 @@ export function FlightRow({
                   })}
                 >
                   <div className="flight-route-cities">
-                    <span>
-                      {originCity}
-                    </span>
+                    <span>{originCity}</span>
                     <span className="route-direction" aria-hidden="true">
                       →
                     </span>
-                    <span>
-                      {destinationCity}
-                    </span>
+                    <span>{destinationCity}</span>
                   </div>
                   <div className="flight-route-codes">
                     <AirportCode code={flight.origin.iata} size="compact" />
