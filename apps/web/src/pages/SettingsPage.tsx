@@ -771,6 +771,7 @@ export function SettingsPage({
       </div>
       {confirmClear ? (
         <ConfirmationDialog
+          themeScope="settings"
           title={t("settings.clearTitle")}
           description={t("settings.clearConfirmation")}
           confirmLabel={t("actions.clearData")}

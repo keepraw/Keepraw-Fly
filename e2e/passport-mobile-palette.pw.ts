@@ -197,13 +197,14 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     }
   });
 
-  test("Passport palette releases its scope on Settings and Flight Detail", async ({
+  test("Passport palette is shared by Settings and Flight Detail", async ({
     page,
   }) => {
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
       await page.locator(".settings-fields select").nth(1).selectOption(theme);
-      const canvas = theme === "dark" ? "rgb(9, 11, 14)" : "rgb(250, 249, 246)";
+      const canvas =
+        theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)";
       await expect(page.locator(".site-header")).toHaveCSS(
         "background-color",
         canvas,
@@ -217,7 +218,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
       await page.locator(".flight-row").first().click();
       await expect(page.locator(".app-shell")).toHaveCSS(
         "background-color",
-        "rgba(0, 0, 0, 0)",
+        canvas,
       );
       expect(
         await page
