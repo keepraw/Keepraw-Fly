@@ -3,11 +3,13 @@ import { createRoot } from "react-dom/client";
 import { useTranslation } from "react-i18next";
 import { App } from "./App";
 import { loadAirportDirectory } from "./data/airport-directory";
+import { browserStorage } from "./storage/browser";
+import { applyAppearance } from "./appearance";
 import "./i18n";
 import "./design-system.css";
 import "./styles/base.css";
 import "./styles/shell.css";
-// Page-scoped Passport colors precede feature rules; global defaults remain intact.
+// Keep the same cascade after base tokens; the head link covers the first paint.
 import "./styles/shared-page-theme.css";
 // Shared defaults must precede feature layout and visibility overrides.
 import "./styles/controls.css";
@@ -40,6 +42,19 @@ function Bootstrap() {
 
   useEffect(() => {
     let active = true;
+    // Restore preferences from existing installations without waiting for the
+    // airport request. App retains its normal read/error handling afterward.
+    void browserStorage
+      .loadSettings()
+      .then((settings) => {
+        if (
+          active &&
+          settings &&
+          document.documentElement.hasAttribute("data-startup-theme")
+        )
+          applyAppearance(settings.appearance);
+      })
+      .catch(() => {});
     void loadAirportDirectory()
       .then(() => {
         if (active) setStatus("ready");
@@ -55,7 +70,10 @@ function Bootstrap() {
   if (status === "ready") return <App />;
 
   return (
-    <main className="bootstrap-screen" aria-live="polite">
+    <main
+      className={`bootstrap-screen${status === "failed" ? " bootstrap-screen--failed" : ""}`}
+      aria-live="polite"
+    >
       <span className="wordmark-mark" aria-hidden="true">
         K
       </span>
@@ -64,7 +82,7 @@ function Bootstrap() {
         <p>{t("app.loadingAirportDirectory")}</p>
       ) : (
         <>
-          <p>{t("app.airportDirectoryUnavailable")}</p>
+          <p role="alert">{t("app.airportDirectoryUnavailable")}</p>
           <button
             type="button"
             className="button-primary"
