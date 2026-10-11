@@ -209,6 +209,9 @@ test("real-time minute updates stay on demand without leaking render work", asyn
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
+  // Keep this idle interval away from a legitimate UTC-minute update.
+  // Date is fixed; native timers and rendering still run normally.
+  await page.clock.setFixedTime(new Date("2026-06-21T12:00:10.000Z"));
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
