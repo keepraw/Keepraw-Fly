@@ -7,6 +7,8 @@ import "./i18n";
 import "./design-system.css";
 import "./styles/base.css";
 import "./styles/shell.css";
+// Page-scoped Passport colors precede feature rules; global defaults remain intact.
+import "./styles/shared-page-theme.css";
 // Shared defaults must precede feature layout and visibility overrides.
 import "./styles/controls.css";
 import "./styles/welcome.css";

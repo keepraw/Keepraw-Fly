@@ -1,0 +1,70 @@
+[
+  {
+    "filename": "passport-390x844-light.png",
+    "beforeSource": "802c5d510d1e4c96633a4259e58fccb0fb83522b",
+    "afterSource": "4ae21f88a2b317d1bea24b416995ee32f09246c2",
+    "computedStylesIdentical": true,
+    "computedStyleDifferences": [],
+    "allColorPropertiesIdentical": true,
+    "changedPixels": 0,
+    "totalPixels": 1313520,
+    "differenceBounds": null,
+    "maxChannelDelta": 0,
+    "renderer": "mobile panels"
+  },
+  {
+    "filename": "passport-390x844-dark.png",
+    "beforeSource": "802c5d510d1e4c96633a4259e58fccb0fb83522b",
+    "afterSource": "4ae21f88a2b317d1bea24b416995ee32f09246c2",
+    "computedStylesIdentical": true,
+    "computedStyleDifferences": [],
+    "allColorPropertiesIdentical": true,
+    "changedPixels": 0,
+    "totalPixels": 1313520,
+    "differenceBounds": null,
+    "maxChannelDelta": 0,
+    "renderer": "mobile panels"
+  },
+  {
+    "filename": "passport-1440x1000-light.png",
+    "beforeSource": "802c5d510d1e4c96633a4259e58fccb0fb83522b",
+    "afterSource": "4ae21f88a2b317d1bea24b416995ee32f09246c2",
+    "computedStylesIdentical": false,
+    "computedStyleDifferences": [
+      {
+        "element": "DIV",
+        "className": "passport-globe-picker",
+        "property": "width",
+        "before": "0px",
+        "after": "118.828px"
+      }
+    ],
+    "allColorPropertiesIdentical": true,
+    "changedPixels": 15,
+    "totalPixels": 1440000,
+    "differenceBounds": [418, 161, 1416, 749],
+    "maxChannelDelta": 1,
+    "renderer": "production WebGL"
+  },
+  {
+    "filename": "passport-1440x1000-dark.png",
+    "beforeSource": "802c5d510d1e4c96633a4259e58fccb0fb83522b",
+    "afterSource": "4ae21f88a2b317d1bea24b416995ee32f09246c2",
+    "computedStylesIdentical": false,
+    "computedStyleDifferences": [
+      {
+        "element": "DIV",
+        "className": "passport-globe-picker",
+        "property": "width",
+        "before": "118.828px",
+        "after": "0px"
+      }
+    ],
+    "allColorPropertiesIdentical": true,
+    "changedPixels": 3,
+    "totalPixels": 1440000,
+    "differenceBounds": [35, 223, 36, 230],
+    "maxChannelDelta": 13,
+    "renderer": "production WebGL"
+  }
+]

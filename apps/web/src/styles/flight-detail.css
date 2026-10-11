@@ -766,7 +766,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: color-mix(in srgb, var(--color-warning) 80%, #5b2e00);
+  color: var(--color-warning);
   font-size: 0.625rem;
   font-weight: 800;
   letter-spacing: 0.065em;
@@ -783,7 +783,7 @@
   padding: 3px 9px;
   border: 1px solid color-mix(in srgb, var(--color-gate-sign) 55%, transparent);
   border-radius: 5px;
-  color: color-mix(in srgb, var(--color-warning) 85%, #402000);
+  color: var(--color-warning);
   background: color-mix(in srgb, var(--color-gate-sign) 18%, transparent);
   font-size: 0.625rem;
   font-weight: 800;
@@ -806,7 +806,7 @@
 
 .frequent-flyer-card-main em {
   margin-left: 4px;
-  color: #d97706;
+  color: var(--color-warning);
   font-style: normal;
 }
 

@@ -5,10 +5,13 @@ import {
   aircraftFacts,
   airlineNames,
   airportByIata,
+  airportCityGroupForAirport,
+  airportCityGroupName,
   baggageFacts,
   distanceForFlight,
   flightDuration,
   flightTimeDisplay,
+  formatCityDisplayName,
   formatDistance,
   formatDuration,
   formatServiceDate,
@@ -234,6 +237,22 @@ function airportNameLabel(
   return localizedText(airport.name, locale) || iata;
 }
 
+// Match FlightRow's display rules without changing airport data or route semantics.
+function airportCityLabel(iata: string, locale: SupportedLocale): string {
+  const airport = airportByIata.get(iata);
+  const cityGroup = airportCityGroupForAirport(iata);
+  const name = cityGroup
+    ? airportCityGroupName(cityGroup, locale)
+    : airport && localizedText(airport.city, locale);
+  return name
+    ? formatCityDisplayName(
+        name,
+        cityGroup?.country ?? airport?.country ?? "",
+        locale,
+      )
+    : iata;
+}
+
 function cabinTranslationKey(cabin: string): string | undefined {
   if (cabin === "economy") return "flightEditor.cabins.economy";
   if (cabin === "premium economy") return "flightEditor.cabins.premiumEconomy";
@@ -264,7 +283,6 @@ export function FlightDetailPage({
     return () => media.removeEventListener("change", update);
   }, []);
   const origin = airportByIata.get(flight.origin.iata);
-  const destination = airportByIata.get(flight.destination.iata);
   const actualDestination = airportByIata.get(
     flight.divertedTo?.iata ?? flight.destination.iata,
   );
@@ -334,11 +352,9 @@ export function FlightDetailPage({
             </time>
           </div>
           <h1 id="flight-detail-title">
-            {origin ? localizedText(origin.city, locale) : flight.origin.iata}{" "}
+            {airportCityLabel(flight.origin.iata, locale)}{" "}
             <span>{t("flightDetail.to")}</span>{" "}
-            {destination
-              ? localizedText(destination.city, locale)
-              : flight.destination.iata}
+            {airportCityLabel(flight.destination.iata, locale)}
           </h1>
           {flight.divertedTo ? (
             <p className="detail-diversion-note">
@@ -348,7 +364,11 @@ export function FlightDetailPage({
             </p>
           ) : null}
           <div className="detail-heading-summary">
-            <strong>{phase}</strong>
+            <strong
+              className={`detail-flight-phase${flight.cancelled ? " is-cancelled" : flight.divertedTo ? " is-diverted" : ""}`}
+            >
+              {phase}
+            </strong>
             {!flight.cancelled && !flight.divertedTo ? (
               <>
                 <FlightDeviation
@@ -374,9 +394,7 @@ export function FlightDetailPage({
             <AirportStop
               kind="departure"
               iata={flight.origin.iata}
-              city={
-                origin ? localizedText(origin.city, locale) : flight.origin.iata
-              }
+              city={airportCityLabel(flight.origin.iata, locale)}
               airport={airportNameLabel(origin, flight.origin.iata, locale)}
               terminal={flight.origin.terminal}
               gate={flight.origin.gate}
@@ -394,11 +412,10 @@ export function FlightDetailPage({
             <AirportStop
               kind="arrival"
               iata={flight.divertedTo?.iata ?? flight.destination.iata}
-              city={
-                actualDestination
-                  ? localizedText(actualDestination.city, locale)
-                  : (flight.divertedTo?.iata ?? flight.destination.iata)
-              }
+              city={airportCityLabel(
+                flight.divertedTo?.iata ?? flight.destination.iata,
+                locale,
+              )}
               airport={airportNameLabel(
                 actualDestination,
                 flight.divertedTo?.iata ?? flight.destination.iata,

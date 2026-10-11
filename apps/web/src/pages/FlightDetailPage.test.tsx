@@ -2,9 +2,19 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import { beforeAll, describe, expect, it } from "vitest";
+import {
+  installAirportDirectory,
+  type CompactAirportRow,
+  type SupportedLocale,
+} from "@keepraw-fly/core";
+import airportRows from "@keepraw-fly/core/airport-directory";
+import en from "../locales/en.json";
+import zhTW from "../locales/zh-TW.json";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import zhCN from "../locales/zh-CN.json";
 import { FlightDetailPage } from "./FlightDetailPage";
+
+installAirportDirectory(airportRows as CompactAirportRow[]);
 
 const i18n = createInstance();
 const flight: KeeprawFlight = {
@@ -25,18 +35,22 @@ const flight: KeeprawFlight = {
 };
 beforeAll(async () => {
   await i18n.init({
-    resources: { "zh-CN": { translation: zhCN } },
+    resources: {
+      en: { translation: en },
+      "zh-CN": { translation: zhCN },
+      "zh-TW": { translation: zhTW },
+    },
     lng: "zh-CN",
     interpolation: { escapeValue: false },
   });
 });
-function markup(record = flight) {
+function markup(record = flight, locale: SupportedLocale = "zh-CN") {
   return renderToStaticMarkup(
     <I18nextProvider i18n={i18n}>
       <FlightDetailPage
         flight={record}
         memberships={[]}
-        locale="zh-CN"
+        locale={locale}
         distanceUnit="kilometers"
         timeFormat="24-hour"
       />
@@ -92,4 +106,56 @@ describe("Flight Detail timing and facts", () => {
     expect(markup()).toContain("737-8 AL");
     expect(markup()).toContain("注册号 B5379");
   });
+});
+
+describe("Flight Detail city display matches the archive", () => {
+  const cities = [
+    ["KHN", "Nanchang", "南昌", "南昌"],
+    ["TAO", "Qingdao", "青岛", "青島"],
+    ["CAN", "Guangzhou", "广州", "廣州"],
+    ["TPE", "Taipei", "台北", "臺北"],
+    ["TSA", "Taipei", "台北", "臺北"],
+    ["EWR", "New York", "纽约", "紐約"],
+    ["JFK", "New York", "纽约", "紐約"],
+    ["NRT", "Tokyo", "东京", "東京"],
+    ["HND", "Tokyo", "东京", "東京"],
+    ["SGN", "Ho Chi Minh City", "胡志明市", "胡志明市"],
+    ["ZZZ", "ZZZ", "ZZZ", "ZZZ"],
+  ] as const;
+  for (const [index, locale] of (["en", "zh-CN", "zh-TW"] as const).entries()) {
+    it.each(cities)(
+      `${locale}: uses the same %s label in title and both stops`,
+      async (iata, ...names) => {
+        await i18n.changeLanguage(locale);
+        const record = { ...flight, origin: { iata }, destination: { iata } };
+        const html = markup(record, locale);
+        const name = names[index]!;
+        expect(html).toContain(`<h1 id="flight-detail-title">${name} <span>`);
+        expect(html).toContain(`</span> ${name}</h1>`);
+        expect(html).toContain(`class="route-origin-city">${name}</span>`);
+        expect(html).toContain(`class="route-arrival-city">${name}</span>`);
+        expect(html).toContain(`<strong>${iata}</strong>`);
+        if (iata === "ZZZ") expect(html).not.toContain("route-origin-airport");
+      },
+    );
+    it(`${locale}: retains the planned destination in the title and the actual diversion at arrival`, async () => {
+      await i18n.changeLanguage(locale);
+      const html = markup(
+        {
+          ...flight,
+          origin: { iata: "KHN" },
+          destination: { iata: "TPE" },
+          divertedTo: { iata: "CAN" },
+        },
+        locale,
+      );
+      expect(html).toContain(`</span> ${cities[3]![index + 1]}</h1>`);
+      expect(html).toContain(
+        `class="route-arrival-city">${cities[2]![index + 1]}</span>`,
+      );
+      expect(html).toContain("<strong>CAN</strong>");
+      expect(html).toContain('class="detail-diversion-note"');
+      expect(html).toContain('class="route-arrival-airport"');
+    });
+  }
 });

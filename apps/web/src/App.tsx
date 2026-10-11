@@ -603,6 +603,7 @@ export function App() {
       ) : null}
       {confirmDemoExport ? (
         <ConfirmationDialog
+          themeScope={page === "settings" ? "settings" : undefined}
           title={t("demo.exportTitle")}
           description={t("demo.exportConfirmation")}
           confirmLabel={t("actions.export")}
