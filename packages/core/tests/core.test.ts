@@ -13,6 +13,7 @@ import {
   calculatePassportStatistics,
   departureDelayMinutes,
   distanceKilometers,
+  formatCityDisplayName,
   formatTimeAtAirport,
   formatDuration,
   flightOperationalStatus,
@@ -56,6 +57,36 @@ const flight: KeeprawFlight = {
     "keepraw-fly.aircraft": { type: "B789", registration: "N12345" },
   },
 };
+
+describe("flight list city display names", () => {
+  it.each([
+    ["南昌市", "CN", "zh-CN", "南昌"],
+    ["南昌市", "CN", "zh-TW", "南昌"],
+    ["青岛", "CN", "zh-CN", "青岛"],
+    ["臺北市", "TW", "zh-TW", "臺北"],
+    ["福岡市", "JP", "zh-TW", "福岡"],
+    ["胡志明市", "VN", "zh-CN", "胡志明市"],
+    ["伯利兹市", "BZ", "zh-CN", "伯利兹市"],
+    ["旧金山市", "US", "zh-CN", "旧金山市"],
+    ["Nanchang City", "CN", "en", "Nanchang City"],
+    ["市", "CN", "zh-CN", "市"],
+  ] as const)(
+    "formats %s from %s in %s as %s",
+    (city, country, locale, expected) => {
+      expect(formatCityDisplayName(city, country, locale)).toBe(expected);
+    },
+  );
+
+  it("normalizes a real airport label without mutating the source directory", () => {
+    const airport = airportByIata.get("KHN")!;
+    const original = localizedText(airport.city, "zh-CN");
+    expect(original).toBe("南昌市");
+    expect(formatCityDisplayName(original, airport.country, "zh-CN")).toBe(
+      "南昌",
+    );
+    expect(localizedText(airport.city, "zh-CN")).toBe("南昌市");
+  });
+});
 
 describe("flight calculations", () => {
   it("derives delay and actual duration from offset datetimes", () => {
