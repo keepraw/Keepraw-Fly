@@ -1,82 +1,11 @@
-/* Passport's mobile shell shares the desktop palette; the three identity
-   panels keep their own surface/text tokens and existing layout. */
+/* Passport mobile focus; palette and original aliases live in shared-page-theme.css. */
 @media (max-width: 760px) {
-  .app-shell:has(.passport-archive-page) {
-    --color-text: #1e2b3e;
-    --color-text-muted: #57677b;
-    --color-text-faint: #566982;
-    --color-canvas: #f3f6fa;
-    --color-surface: #f7f9fc;
-    --color-surface-raised: #fff;
-    --color-surface-sunken: #e9eef5;
-    --color-line: #d9e1ec;
-    --color-line-strong: #afbdcf;
-    --color-accent: #254d84;
-    --color-accent-soft: #e5edf8;
-    --color-focus: #6558c7;
-    --color-positive: #28795d;
-    --color-warning: #895408;
-    --color-danger: #b44036;
-    --color-brand-mark: var(--color-canvas);
-
-    /* Rebind inherited aliases where the Passport palette is resolved. */
-    --ink: var(--color-text);
-    --muted: var(--color-text-muted);
-    --faint: var(--color-text-faint);
-    --surface: var(--color-surface);
-    --line: var(--color-line);
-    --green: var(--color-accent);
-    --green-soft: var(--color-accent-soft);
-    --red: var(--color-danger);
-    --focus-ring: 3px solid var(--color-focus);
-
-    color: var(--color-text);
-    background: var(--color-canvas);
-  }
-
   .passport-search-field:focus-within {
     border-color: var(--color-focus);
     background: var(--color-surface);
     box-shadow: 0 0 0 1px var(--color-focus);
   }
-
-  :root[data-theme="dark"] .app-shell:has(.passport-archive-page) {
-    --color-text: #e5eaf2;
-    --color-text-muted: #a5b1c2;
-    --color-text-faint: #94a3b7;
-    --color-canvas: #121923;
-    --color-surface: #151e2a;
-    --color-surface-raised: #1c2735;
-    --color-surface-sunken: #1b2736;
-    --color-line: #2a3647;
-    --color-line-strong: #4a5b73;
-    --color-accent: #a4bbdf;
-    --color-accent-soft: #202f44;
-    --color-focus: #b7a7f5;
-    --color-positive: #74ba95;
-    --color-warning: #dbad66;
-    --color-danger: #ed8b7c;
-  }
 }
 
 /* Follow the existing explicit/System selectors without adding a newer
    color-function requirement for mobile browsers. */
-@media (max-width: 760px) and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .app-shell:has(.passport-archive-page) {
-    --color-text: #e5eaf2;
-    --color-text-muted: #a5b1c2;
-    --color-text-faint: #94a3b7;
-    --color-canvas: #121923;
-    --color-surface: #151e2a;
-    --color-surface-raised: #1c2735;
-    --color-surface-sunken: #1b2736;
-    --color-line: #2a3647;
-    --color-line-strong: #4a5b73;
-    --color-accent: #a4bbdf;
-    --color-accent-soft: #202f44;
-    --color-focus: #b7a7f5;
-    --color-positive: #74ba95;
-    --color-warning: #dbad66;
-    --color-danger: #ed8b7c;
-  }
-}

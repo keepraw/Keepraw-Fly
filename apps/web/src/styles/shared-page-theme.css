@@ -1,0 +1,298 @@
+/* Approved Passport palette, shared only by Passport, Flight Detail and Settings.
+   Preserve the original 760/761px differences, aliases and explicit/System cascade.
+   Recovery reuses Settings layout classes, so exclude it at zero specificity.
+   Portal confirmations opt in via their own Settings scope; root defaults stay intact. */
+@media (max-width: 760px) {
+  :is(
+    .app-shell:has(
+      .passport-archive-page,
+      .detail-page,
+      .settings-page:where(:not(.recovery-page))
+    ),
+    .confirmation-backdrop--settings
+  ) {
+    --color-text: #1e2b3e;
+    --color-text-muted: #57677b;
+    --color-text-faint: #566982;
+    --color-canvas: #f3f6fa;
+    --color-surface: #f7f9fc;
+    --color-surface-raised: #fff;
+    --color-surface-sunken: #e9eef5;
+    --color-line: #d9e1ec;
+    --color-line-strong: #afbdcf;
+    --color-accent: #254d84;
+    --color-accent-soft: #e5edf8;
+    --color-focus: #6558c7;
+    --color-positive: #28795d;
+    --color-warning: #895408;
+    --color-danger: #b44036;
+    --color-brand-mark: var(--color-canvas);
+
+    /* Rebind inherited aliases where the Passport palette is resolved. */
+    --ink: var(--color-text);
+    --muted: var(--color-text-muted);
+    --faint: var(--color-text-faint);
+    --surface: var(--color-surface);
+    --line: var(--color-line);
+    --green: var(--color-accent);
+    --green-soft: var(--color-accent-soft);
+    --red: var(--color-danger);
+    --focus-ring: 3px solid var(--color-focus);
+  }
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="dark"]
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .confirmation-backdrop--settings
+    ) {
+    --color-text: #e5eaf2;
+    --color-text-muted: #a5b1c2;
+    --color-text-faint: #94a3b7;
+    --color-canvas: #121923;
+    --color-surface: #151e2a;
+    --color-surface-raised: #1c2735;
+    --color-surface-sunken: #1b2736;
+    --color-line: #2a3647;
+    --color-line-strong: #4a5b73;
+    --color-accent: #a4bbdf;
+    --color-accent-soft: #202f44;
+    --color-focus: #b7a7f5;
+    --color-positive: #74ba95;
+    --color-warning: #dbad66;
+    --color-danger: #ed8b7c;
+  }
+}
+
+@media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .confirmation-backdrop--settings
+    ) {
+    --color-text: #e5eaf2;
+    --color-text-muted: #a5b1c2;
+    --color-text-faint: #94a3b7;
+    --color-canvas: #121923;
+    --color-surface: #151e2a;
+    --color-surface-raised: #1c2735;
+    --color-surface-sunken: #1b2736;
+    --color-line: #2a3647;
+    --color-line-strong: #4a5b73;
+    --color-accent: #a4bbdf;
+    --color-accent-soft: #202f44;
+    --color-focus: #b7a7f5;
+    --color-positive: #74ba95;
+    --color-warning: #dbad66;
+    --color-danger: #ed8b7c;
+  }
+}
+
+@media (min-width: 761px) {
+  :is(
+    .app-shell:has(
+      .passport-archive-page,
+      .detail-page,
+      .settings-page:where(:not(.recovery-page))
+    ),
+    .confirmation-backdrop--settings
+  ) {
+    --color-text: #1e2b3e;
+    --color-text-muted: #57677b;
+    --color-text-faint: #566982;
+    --color-canvas: #f3f6fa;
+    --color-surface: #f7f9fc;
+    --color-surface-raised: #fff;
+    --color-surface-sunken: #e9eef5;
+    --color-line: #d9e1ec;
+    --color-line-strong: #afbdcf;
+    --color-accent: #254d84;
+    --color-accent-soft: #e5edf8;
+    --color-focus: #6558c7;
+    --color-positive: #28795d;
+    --color-warning: #895408;
+    --color-danger: #bd443a;
+    --passport-selection: #3b69a8;
+    --passport-route-selected: #c24938;
+    --color-map-surface: #e6eff8;
+    --color-map-ocean: #dce9f5;
+    --color-map-land: #d9e8f6;
+    --color-map-land-light: #f3f8fd;
+    --color-map-land-shadow: #aac6e2;
+    --color-map-land-line: #c7d7e8;
+    --color-map-outline: #a7bfd7;
+    --color-map-route: #29578c;
+    --color-map-route-underlay: #edf5fc;
+    --color-map-airport: #244f85;
+    --color-map-text: #1b3658;
+    --color-map-muted: #435e7d;
+    --color-map-faint: #506887;
+    --color-map-tooltip: #f4f8fd;
+    --color-map-tooltip-line: #b5c9dd;
+    --color-map-visited-low: #d5e2ef;
+    --color-map-visited-medium: #cadbed;
+    --color-map-visited-high: #bbd2e8;
+    --ink: var(--color-text);
+    --muted: var(--color-text-muted);
+    --faint: var(--color-text-faint);
+    --surface: var(--color-surface);
+    --line: var(--color-line);
+    --green: var(--color-accent);
+    --green-soft: var(--color-accent-soft);
+    --focus-ring: 2px solid var(--color-focus);
+  }
+}
+
+@media (min-width: 761px) {
+  :root[data-theme="dark"]
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .confirmation-backdrop--settings
+    ) {
+    --color-text: #e5eaf2;
+    --color-text-muted: #a5b1c2;
+    --color-text-faint: #94a3b7;
+    --color-canvas: #121923;
+    --color-surface: #151e2a;
+    --color-surface-raised: #1c2735;
+    --color-surface-sunken: #1b2736;
+    --color-line: #2a3647;
+    --color-line-strong: #4a5b73;
+    --color-accent: #a4bbdf;
+    --color-accent-soft: #202f44;
+    --color-focus: #b7a7f5;
+    --color-positive: #74ba95;
+    --color-warning: #dbad66;
+    --color-danger: #ed8b7c;
+    --passport-selection: #83a8dc;
+    --passport-route-selected: #f18c78;
+    --color-map-surface: #122b48;
+    --color-map-ocean: #09192d;
+    --color-map-land: #2b4661;
+    --color-map-land-light: #426583;
+    --color-map-land-shadow: #14263c;
+    --color-map-land-line: #32465e;
+    --color-map-outline: #46617f;
+    --color-map-route: #87bce9;
+    --color-map-route-underlay: #11243b;
+    --color-map-airport: #c7dcf5;
+    --color-map-text: #e0ecfa;
+    --color-map-muted: #b4c9e0;
+    --color-map-faint: #a5bad4;
+    --color-map-tooltip: #142740;
+    --color-map-tooltip-line: #3e5672;
+    --color-map-visited-low: #293e56;
+    --color-map-visited-medium: #2d455f;
+    --color-map-visited-high: #324d6a;
+  }
+}
+
+@media (min-width: 761px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .confirmation-backdrop--settings
+    ) {
+    --color-text: #e5eaf2;
+    --color-text-muted: #a5b1c2;
+    --color-text-faint: #94a3b7;
+    --color-canvas: #121923;
+    --color-surface: #151e2a;
+    --color-surface-raised: #1c2735;
+    --color-surface-sunken: #1b2736;
+    --color-line: #2a3647;
+    --color-line-strong: #4a5b73;
+    --color-accent: #a4bbdf;
+    --color-accent-soft: #202f44;
+    --color-focus: #b7a7f5;
+    --color-positive: #74ba95;
+    --color-warning: #dbad66;
+    --color-danger: #ed8b7c;
+    --passport-selection: #83a8dc;
+    --passport-route-selected: #f18c78;
+    --color-map-surface: #122b48;
+    --color-map-ocean: #09192d;
+    --color-map-land: #2b4661;
+    --color-map-land-light: #426583;
+    --color-map-land-shadow: #14263c;
+    --color-map-land-line: #32465e;
+    --color-map-outline: #46617f;
+    --color-map-route: #87bce9;
+    --color-map-route-underlay: #11243b;
+    --color-map-airport: #c7dcf5;
+    --color-map-text: #e0ecfa;
+    --color-map-muted: #b4c9e0;
+    --color-map-faint: #a5bad4;
+    --color-map-tooltip: #142740;
+    --color-map-tooltip-line: #3e5672;
+    --color-map-visited-low: #293e56;
+    --color-map-visited-medium: #2d455f;
+    --color-map-visited-high: #324d6a;
+  }
+}
+
+.app-shell:has(
+  .passport-archive-page,
+  .detail-page,
+  .settings-page:where(:not(.recovery-page))
+) {
+  color: var(--color-text);
+  background: var(--color-canvas);
+}
+
+/* Additional aliases belong only to the newly themed pages and Settings portals.
+   Do not rebind Passport's inherited desktop danger/brand aliases or map roles. */
+.app-shell:has(.detail-page, .settings-page:where(:not(.recovery-page))),
+.confirmation-backdrop--settings {
+  --red: var(--color-danger);
+  --red-soft: var(--color-danger-soft);
+  --color-brand-mark: var(--color-canvas);
+  --color-info: var(--color-accent);
+  --color-info-soft: var(--color-accent-soft);
+}
+
+.settings-page:where(:not(.recovery-page))
+  .settings-storage-status.is-protected,
+.settings-page:where(:not(.recovery-page))
+  .import-preflight-stats
+  :is(.import-stat-valid, .import-stat-new)
+  dd,
+.settings-page:where(:not(.recovery-page)) .import-disposition-new,
+.detail-page .flight-deviation.is-early,
+.detail-page .flight-deviation.is-onTime {
+  color: var(--color-positive);
+}
+
+.detail-page .detail-flight-phase.is-cancelled {
+  color: var(--color-danger);
+}
+
+.detail-page .detail-flight-phase.is-diverted {
+  color: var(--color-warning);
+}
+
+.confirmation-backdrop--settings .confirmation-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger) 88%, var(--color-text));
+}
+
+.confirmation-backdrop--settings .button-secondary:hover:not(:disabled) {
+  border-color: var(--color-line-strong);
+  background: var(--color-surface-sunken);
+}
