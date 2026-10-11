@@ -9,6 +9,7 @@ import {
   flightOperationalStatus,
   flightDuration,
   flightTimeDisplay,
+  formatCityDisplayName,
   formatDuration,
   formatServiceDate,
   localizedText,
@@ -87,11 +88,16 @@ export function FlightRow({
   const specialStatus = flight.cancelled || flight.divertedTo;
   const cityName = (code: string, airport: typeof origin) => {
     const cityGroup = airportCityGroupForAirport(code);
-    return (
-      (cityGroup
-        ? airportCityGroupName(cityGroup, locale)
-        : airport && localizedText(airport.city, locale)) || code
-    );
+    const name = cityGroup
+      ? airportCityGroupName(cityGroup, locale)
+      : airport && localizedText(airport.city, locale);
+    return name
+      ? formatCityDisplayName(
+          name,
+          cityGroup?.country ?? airport?.country ?? "",
+          locale,
+        )
+      : code;
   };
   const originCity = cityName(flight.origin.iata, origin);
   const destinationCity = cityName(flight.destination.iata, destination);
@@ -183,19 +189,11 @@ export function FlightRow({
                   })}
                 >
                   <div className="flight-route-cities">
-                    <span>
-                      {origin
-                        ? localizedText(origin.city, locale)
-                        : flight.origin.iata}
-                    </span>
+                    <span>{originCity}</span>
                     <span className="route-direction" aria-hidden="true">
                       →
                     </span>
-                    <span>
-                      {destination
-                        ? localizedText(destination.city, locale)
-                        : flight.destination.iata}
-                    </span>
+                    <span>{destinationCity}</span>
                   </div>
                   <div className="flight-route-codes">
                     <AirportCode code={flight.origin.iata} size="compact" />

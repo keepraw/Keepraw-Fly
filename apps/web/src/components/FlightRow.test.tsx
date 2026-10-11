@@ -3,10 +3,17 @@ import { createInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import {
+  installAirportDirectory,
+  type CompactAirportRow,
+} from "@keepraw-fly/core";
+import airportRows from "@keepraw-fly/core/airport-directory";
 import { FlightRow } from "./FlightRow";
 import en from "../locales/en.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
+
+installAirportDirectory(airportRows as CompactAirportRow[]);
 
 const flight: KeeprawFlight = {
   id: "overnight",
@@ -24,6 +31,7 @@ describe("FlightRow", () => {
   async function archiveMarkup(
     locale: "en" | "zh-CN" | "zh-TW",
     changes: Partial<KeeprawFlight> = {},
+    presentation: "passport" | "standard" = "passport",
   ) {
     const i18n = createInstance();
     await i18n.init({
@@ -45,7 +53,7 @@ describe("FlightRow", () => {
           }}
           locale={locale}
           timeFormat="24-hour"
-          presentation="passport"
+          presentation={presentation}
           onOpen={() => {}}
         />
       </I18nextProvider>,
@@ -79,6 +87,40 @@ describe("FlightRow", () => {
     expect(await archiveMarkup("en", { origin: { iata: "ZZZ" } })).toContain(
       "<span>ZZZ</span>",
     );
+  });
+
+  it.each([
+    ["KHN", "TAO", "南昌", "青岛"],
+    ["DAD", "SGN", "岘港", "胡志明市"],
+    ["KWJ", "USN", "光州", "蔚山"],
+    ["EWR", "JFK", "纽约", "纽约"],
+    ["TPE", "TSA", "台北", "台北"],
+    ["NRT", "HND", "东京", "东京"],
+  ] as const)(
+    "shows consistent %s -> %s city labels across desktop and mobile",
+    async (from, to, expectedFrom, expectedTo) => {
+      for (const presentation of ["passport", "standard"] as const) {
+        const markup = await archiveMarkup(
+          "zh-CN",
+          { origin: { iata: from }, destination: { iata: to } },
+          presentation,
+        );
+        expect(markup).toContain(`<span>${expectedFrom}</span>`);
+        expect(markup).toContain(`<span>${expectedTo}</span>`);
+      }
+    },
+  );
+
+  it("localizes Taipei in traditional Chinese instead of falling back to English", async () => {
+    for (const presentation of ["passport", "standard"] as const) {
+      const markup = await archiveMarkup(
+        "zh-TW",
+        { origin: { iata: "TPE" }, destination: { iata: "TSA" } },
+        presentation,
+      );
+      expect(markup).toContain("<span>臺北</span>");
+      expect(markup).not.toContain("<span>Taipei</span>");
+    }
   });
 
   it("flags only substantial arrival delays, cancellations and diversions", async () => {
