@@ -68,7 +68,9 @@ jobs:
 
   chromium:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The expanded Hero screenshot matrix needs time for tests and artifact upload.
+    # Individual test timeouts and the no-failure/no-flaky gate remain unchanged.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
