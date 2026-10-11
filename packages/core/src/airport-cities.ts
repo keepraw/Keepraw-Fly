@@ -69,3 +69,16 @@ export function airportCityGroupName(
 ): string {
   return localizedText(group.name, locale);
 }
+
+/** Short UI labels only: preserve the original administrative city names in airport data. */
+const shortCitySuffixCountries = new Set(["CN", "TW", "JP"]);
+
+export function formatCityDisplayName(
+  name: string,
+  country: string,
+  locale: SupportedLocale,
+): string {
+  if (locale === "en" || !shortCitySuffixCountries.has(country)) return name;
+  // A global trim is incorrect: e.g. 胡志明市 and 伯利兹市 are established names.
+  return name.length > 1 && name.endsWith("市") ? name.slice(0, -1) : name;
+}
