@@ -1,5 +1,7 @@
 # Task A — shared page theme evidence
 
+Historical PNGs were removed from the current tree during the [post-Task A cleanup](../CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
+
 The before captures use main `802c5d510d1e4c96633a4259e58fccb0fb83522b`.
 The after source revision is recorded separately for every image in
 [after/manifest.json](after/manifest.json). These are real Chromium 153 screenshots,
@@ -16,24 +18,24 @@ colors, SVG fill/stroke, borders, outlines, typography, dimensions and visibilit
 
 ## Before and after
 
-| Page               | Viewport    | Theme | Before                                         | After                                         |
-| ------------------ | ----------- | ----- | ---------------------------------------------- | --------------------------------------------- |
-| Passport           | 390 × 844   | Light | [PNG](before/passport-390x844-light.png)       | [PNG](after/passport-390x844-light.png)       |
-| Passport           | 390 × 844   | Dark  | [PNG](before/passport-390x844-dark.png)        | [PNG](after/passport-390x844-dark.png)        |
-| Passport           | 1440 × 1000 | Light | [PNG](before/passport-1440x1000-light.png)     | [PNG](after/passport-1440x1000-light.png)     |
-| Passport           | 1440 × 1000 | Dark  | [PNG](before/passport-1440x1000-dark.png)      | [PNG](after/passport-1440x1000-dark.png)      |
-| Flight Detail      | 390 × 844   | Light | [PNG](before/detail-390x844-light.png)         | [PNG](after/detail-390x844-light.png)         |
-| Flight Detail      | 390 × 844   | Dark  | [PNG](before/detail-390x844-dark.png)          | [PNG](after/detail-390x844-dark.png)          |
-| Flight Detail      | 1440 × 1000 | Light | [PNG](before/detail-1440x1000-light.png)       | [PNG](after/detail-1440x1000-light.png)       |
-| Flight Detail      | 1440 × 1000 | Dark  | [PNG](before/detail-1440x1000-dark.png)        | [PNG](after/detail-1440x1000-dark.png)        |
-| Settings           | 390 × 844   | Light | [PNG](before/settings-390x844-light.png)       | [PNG](after/settings-390x844-light.png)       |
-| Settings           | 390 × 844   | Dark  | [PNG](before/settings-390x844-dark.png)        | [PNG](after/settings-390x844-dark.png)        |
-| Settings           | 1440 × 1000 | Light | [PNG](before/settings-1440x1000-light.png)     | [PNG](after/settings-1440x1000-light.png)     |
-| Settings           | 1440 × 1000 | Dark  | [PNG](before/settings-1440x1000-dark.png)      | [PNG](after/settings-1440x1000-dark.png)      |
-| Clear confirmation | 390 × 844   | Light | [PNG](before/clear-dialog-390x844-light.png)   | [PNG](after/clear-dialog-390x844-light.png)   |
-| Clear confirmation | 390 × 844   | Dark  | [PNG](before/clear-dialog-390x844-dark.png)    | [PNG](after/clear-dialog-390x844-dark.png)    |
-| Clear confirmation | 1440 × 1000 | Light | [PNG](before/clear-dialog-1440x1000-light.png) | [PNG](after/clear-dialog-1440x1000-light.png) |
-| Clear confirmation | 1440 × 1000 | Dark  | [PNG](before/clear-dialog-1440x1000-dark.png)  | [PNG](after/clear-dialog-1440x1000-dark.png)  |
+| Page               | Viewport    | Theme | Before                                                                                                                                                        | After                                                                                                                                                        |
+| ------------------ | ----------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Passport           | 390 × 844   | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/passport-390x844-light.png)       | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/passport-390x844-light.png)       |
+| Passport           | 390 × 844   | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/passport-390x844-dark.png)        | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/passport-390x844-dark.png)        |
+| Passport           | 1440 × 1000 | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/passport-1440x1000-light.png)     | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/passport-1440x1000-light.png)     |
+| Passport           | 1440 × 1000 | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/passport-1440x1000-dark.png)      | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/passport-1440x1000-dark.png)      |
+| Flight Detail      | 390 × 844   | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/detail-390x844-light.png)         | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/detail-390x844-light.png)         |
+| Flight Detail      | 390 × 844   | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/detail-390x844-dark.png)          | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/detail-390x844-dark.png)          |
+| Flight Detail      | 1440 × 1000 | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/detail-1440x1000-light.png)       | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/detail-1440x1000-light.png)       |
+| Flight Detail      | 1440 × 1000 | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/detail-1440x1000-dark.png)        | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/detail-1440x1000-dark.png)        |
+| Settings           | 390 × 844   | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/settings-390x844-light.png)       | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/settings-390x844-light.png)       |
+| Settings           | 390 × 844   | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/settings-390x844-dark.png)        | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/settings-390x844-dark.png)        |
+| Settings           | 1440 × 1000 | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/settings-1440x1000-light.png)     | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/settings-1440x1000-light.png)     |
+| Settings           | 1440 × 1000 | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/settings-1440x1000-dark.png)      | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/settings-1440x1000-dark.png)      |
+| Clear confirmation | 390 × 844   | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/clear-dialog-390x844-light.png)   | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/clear-dialog-390x844-light.png)   |
+| Clear confirmation | 390 × 844   | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/clear-dialog-390x844-dark.png)    | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/clear-dialog-390x844-dark.png)    |
+| Clear confirmation | 1440 × 1000 | Light | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/clear-dialog-1440x1000-light.png) | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/clear-dialog-1440x1000-light.png) |
+| Clear confirmation | 1440 × 1000 | Dark  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/before/clear-dialog-1440x1000-dark.png)  | [PNG](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-a/after/clear-dialog-1440x1000-dark.png)  |
 
 ## Passport freeze check
 

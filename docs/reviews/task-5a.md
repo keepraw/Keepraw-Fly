@@ -1,5 +1,7 @@
 # Task 5A: mobile Passport palette review
 
+Historical PNGs were removed from the current tree during the [post-Task A cleanup](../visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
+
 Review baseline: `main` at `792e6295a645adca12bed5ba19118f50eda324c4`.
 This draft adapts the desktop Passport's cool blue-gray palette to the mobile
 Passport shell. The existing three identity panels retain their deep blue,
@@ -14,17 +16,17 @@ the panels, search, buttons and first flight rows.
 Captures wait for the selected appearance and flight/year text colors to settle
 before measuring and taking screenshots. Theme transition frames are excluded.
 
-| Language            | Viewport | Appearance | Comparison                                        |
-| ------------------- | -------- | ---------- | ------------------------------------------------- |
-| English             | 390×844  | Light      | [Before / after](task-5a/en-light-390x844.png)    |
-| English             | 390×844  | Dark       | [Before / after](task-5a/en-dark-390x844.png)     |
-| English             | 430×932  | Light      | [Before / after](task-5a/en-light-430x932.png)    |
-| English             | 430×932  | Dark       | [Before / after](task-5a/en-dark-430x932.png)     |
-| English             | 375×812  | Dark       | [Before / after](task-5a/en-dark-375x812.png)     |
-| Simplified Chinese  | 390×844  | Light      | [Before / after](task-5a/zh-CN-light-390x844.png) |
-| Simplified Chinese  | 390×844  | Dark       | [Before / after](task-5a/zh-CN-dark-390x844.png)  |
-| Traditional Chinese | 390×844  | Light      | [Before / after](task-5a/zh-TW-light-390x844.png) |
-| Traditional Chinese | 390×844  | Dark       | [Before / after](task-5a/zh-TW-dark-390x844.png)  |
+| Language            | Viewport | Appearance | Comparison                                                                                                                                          |
+| ------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| English             | 390×844  | Light      | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/en-light-390x844.png)    |
+| English             | 390×844  | Dark       | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/en-dark-390x844.png)     |
+| English             | 430×932  | Light      | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/en-light-430x932.png)    |
+| English             | 430×932  | Dark       | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/en-dark-430x932.png)     |
+| English             | 375×812  | Dark       | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/en-dark-375x812.png)     |
+| Simplified Chinese  | 390×844  | Light      | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/zh-CN-light-390x844.png) |
+| Simplified Chinese  | 390×844  | Dark       | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/zh-CN-dark-390x844.png)  |
+| Traditional Chinese | 390×844  | Light      | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/zh-TW-light-390x844.png) |
+| Traditional Chinese | 390×844  | Dark       | [Before / after](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5a/zh-TW-dark-390x844.png)  |
 
 Only these nine review comparisons are retained in the repository. Full-page
 before/after captures for all three languages at all five viewport/appearance
