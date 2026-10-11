@@ -31,7 +31,7 @@ export function GlobeMap({
   highlightedRoute,
   onSelect,
 }: {
-  variant?: "lab" | "passport";
+  variant?: "lab" | "passport" | "detail";
   routes: RouteSegment[];
   flights: KeeprawFlight[];
   theme: GlobeTheme;
@@ -53,6 +53,7 @@ export function GlobeMap({
     highlightedRoute,
     lighting,
     solarMode,
+    t,
   });
   latest.current = {
     onSelect,
@@ -61,6 +62,7 @@ export function GlobeMap({
     highlightedRoute,
     lighting,
     solarMode,
+    t,
   };
   const [error, setError] = useState<GlobeFailure | null>(null),
     [hover, setHover] = useState<string | null>(null),
@@ -91,14 +93,17 @@ export function GlobeMap({
         quality,
         {
           select: (s) => latest.current.onSelect(s),
-          canvasLabel: t("globe.keyboard"),
+          get canvasLabel() {
+            return latest.current.t("globe.keyboard");
+          },
           airportLabel: (code, count) =>
-            `${code} · ${t("passport.visitFrequency", { count })}`,
+            `${code} · ${latest.current.t("passport.visitFrequency", { count })}`,
           routeLabel: (origin, destination, count) =>
-            `${origin} → ${destination} · ${t("passport.flightFrequency", { count })}`,
+            `${origin} → ${destination} · ${latest.current.t("passport.flightFrequency", { count })}`,
           hover: setHover,
           error: fail,
         },
+        variant === "detail" ? "detail" : "passport",
       );
       controller.current = instance;
       instance.lighting(latest.current.lighting);
@@ -121,7 +126,17 @@ export function GlobeMap({
       active = false;
       dispose();
     };
-  }, [routes, quality, retry, i18n.resolvedLanguage]);
+  }, [
+    routes,
+    quality,
+    retry,
+    variant,
+    variant === "detail" ? null : i18n.resolvedLanguage,
+  ]);
+  useEffect(
+    () => controller.current?.accessibility(),
+    [t, i18n.resolvedLanguage],
+  );
   useEffect(() => controller.current?.theme(theme), [theme]);
   useEffect(() => controller.current?.lighting(lighting), [lighting]);
   useEffect(() => {
@@ -169,7 +184,7 @@ export function GlobeMap({
       schedule();
     };
     document.addEventListener("visibilitychange", onVisibility);
-    schedule();
+    if (!document.hidden) schedule();
     return () => {
       disposed = true;
       clear();
@@ -183,8 +198,10 @@ export function GlobeMap({
   );
   return (
     <section
-      className={`globe-stage ${variant === "passport" ? "globe-stage-passport" : ""}`}
-      aria-label={t("globe.mapLabel")}
+      className={`globe-stage ${variant === "passport" ? "globe-stage-passport" : variant === "detail" ? "globe-stage-detail" : ""}`}
+      aria-label={t(
+        variant === "detail" ? "globe.detailLabel" : "globe.mapLabel",
+      )}
       data-theme={theme}
       data-solar-mode={solarMode}
       data-attempt={retry}
@@ -195,31 +212,39 @@ export function GlobeMap({
       {error ? (
         <div className="globe-fallback">
           <p role="status">
-            {t("globe.fallback")}{" "}
+            {t(
+              variant === "detail"
+                ? `globe.errors.${error.kind}`
+                : "globe.fallback",
+            )}{" "}
             <button onClick={() => setRetry((n) => n + 1)}>
               {t("actions.retry")}
             </button>
           </p>
-          <PassportRouteMap
-            routes={routes}
-            flights={flights}
-            selectedAirport={
-              selection?.kind === "airport" ? selection.code : undefined
-            }
-            selectedRoute={selection?.kind === "route" ? selection : undefined}
-            highlightedRoute={
-              highlightedRoute
-                ? {
-                    origin: highlightedRoute.split("-")[0]!,
-                    destination: highlightedRoute.split("-")[1]!,
-                  }
-                : undefined
-            }
-            onSelectAirport={(code) => onSelect({ kind: "airport", code })}
-            onSelectRoute={(origin, destination) =>
-              onSelect({ kind: "route", origin, destination })
-            }
-          />
+          {variant !== "detail" && (
+            <PassportRouteMap
+              routes={routes}
+              flights={flights}
+              selectedAirport={
+                selection?.kind === "airport" ? selection.code : undefined
+              }
+              selectedRoute={
+                selection?.kind === "route" ? selection : undefined
+              }
+              highlightedRoute={
+                highlightedRoute
+                  ? {
+                      origin: highlightedRoute.split("-")[0]!,
+                      destination: highlightedRoute.split("-")[1]!,
+                    }
+                  : undefined
+              }
+              onSelectAirport={(code) => onSelect({ kind: "airport", code })}
+              onSelectRoute={(origin, destination) =>
+                onSelect({ kind: "route", origin, destination })
+              }
+            />
+          )}
         </div>
       ) : (
         <>
@@ -229,7 +254,10 @@ export function GlobeMap({
               <span>{t("globe.local")}</span>
             </div>
           ) : null}
-          <div className="globe-legend" hidden={lighting.earthOnly}>
+          <div
+            className="globe-legend"
+            hidden={lighting.earthOnly || variant === "detail"}
+          >
             <span className="globe-legend-route" />
             {t("globe.routes")}
             <span className="globe-legend-selected" />

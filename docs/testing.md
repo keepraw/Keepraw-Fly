@@ -2,21 +2,22 @@
 
 Chromium owns the full regression suite. The Firefox and WebKit projects select
 only tests explicitly tagged `@cross-browser` in [Playwright configuration](../playwright.config.ts).
-An untagged new E2E runs in Chromium automatically. No existing test is deleted,
-skipped, or removed from Chromium by this split.
+An untagged new E2E runs in Chromium automatically. The browser-layer split retains
+the regression coverage; Task B replaces the retired Detail SVG assertions with
+the 3D Globe tests described below.
 
 ```bash
 pnpm exec playwright install chromium firefox webkit
-pnpm test:e2e --project=chromium
-pnpm test:e2e --project=firefox
-pnpm test:e2e --project=webkit
+pnpm test:e2e --project=chromium --workers=1
+pnpm test:e2e --project=firefox --workers=1
+pnpm test:e2e --project=webkit --workers=1
 pnpm test:e2e --list
 ```
 
 `pnpm test:e2e` runs all three projects with their respective layers. CI runs
 static checks and the production build in `checks`, two file-level Chromium shards
 in `chromium`, and the existing Firefox/WebKit matrix in `cross-browser`. Both
-matrices keep `fail-fast: false`. Playwright's default worker count, retries and
+matrices keep `fail-fast: false`. Browser jobs use `--workers=1`; retries and
 `fullyParallel: false` remain unchanged. Each Chromium shard uses
 `--shard=1/2` or `--shard=2/2`; their disjoint union must include every Chromium test.
 
@@ -33,6 +34,25 @@ names. `scripts/report-playwright.mjs` adds counts, per-file test durations (inc
 retries) and failure diagnostics to the job summary and a check annotation. It fails
 on skipped/unexpected tests, global errors or an empty report. Browser installation
 remains `install --with-deps`; no browser cache or new dependency is introduced.
+
+## Flight Detail 3D Globe (Task B)
+
+`detail-map-curve.pw.ts` now contains 12 Chromium tests requiring a real, ready
+WebGL canvas. Unavailable WebGL fails those tests; there is no capability skip or
+SVG substitute. They cover single-route framing and Home at 761/1024/1440px,
+resize after interaction, pointer/wheel/keyboard controls, diversion, cancellation,
+unknown airports, three languages, Light/Dark/System, Fixed/Realtime solar,
+760/761px lazy loading, all renderer failures and retry, StrictMode, hidden tabs,
+navigation and delayed texture cleanup. Mounted preference and language changes
+must preserve the canvas and user's camera. Unit tests additionally sample the
+entire arc for short, long, date-line, polar, antipodal and coincident routes,
+and reject invalid coordinates while accepting `(0,0)`.
+
+Shared layout journeys independently probe WebGL capability before requiring a
+ready canvas or the explicit localized error/retry UI. Passport's existing SVG
+failure tests and real WebGL regression remain in place. The historical inventory
+below records the earlier split, including the superseded Detail SVG case; it is
+not the current test count. Screenshot output stays in ignored `test-results/`.
 
 The CI optimization starts from main `792e629`: **134 Chromium tests and 38 tests
 per compatibility engine**. PR #38's 140/44/44 inventory belongs to a separate
