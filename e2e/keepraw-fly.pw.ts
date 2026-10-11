@@ -1087,7 +1087,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     await page.setViewportSize(viewport);
     await expect(
       page.locator(".detail-route-map, .detail-route-map-loading"),
-    ).toHaveCount(viewport.width <= 760 ? 0 : 1);
+    ).toHaveCount(viewport.width < 1024 ? 0 : 1);
     // Viewport metadata can update before the engine's vh/grid layout does.
     await expect
       .poll(() =>
@@ -1137,7 +1137,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     });
 
     expect(layout.gridColumns).toBe(viewport.width < 1024 ? 1 : 2);
-    if (viewport.width <= 760) {
+    if (viewport.width < 1024) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
       await expect(page.locator(".detail-segment-meta")).toBeVisible();

@@ -102,7 +102,8 @@ async function expectTimeGrid(page: Page, width: number) {
   const informationWidth = (await page
     .locator(".detail-hero-information")
     .boundingBox())!.width;
-  const captionRows = width <= 480 || (width > 760 && informationWidth <= 660);
+  const captionRows =
+    width <= 480 || (width >= 1024 && informationWidth <= 660);
   const rows = await page
     .locator(".detail-airport-time, .detail-scheduled-time")
     .evaluateAll((elements) =>
@@ -183,7 +184,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         .click();
       // Visit mobile before any desktop mount to prove code is not requested.
       for (const width of [
-        360, 390, 430, 761, 900, 1024, 1199, 1200, 1280, 1440, 1920,
+        360, 390, 430, 761, 900, 1023, 1024, 1199, 1200, 1280, 1440, 1920,
       ]) {
         await page.setViewportSize({ width, height: 900 });
         await expect(
@@ -203,7 +204,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         await expect(page.locator(".detail-metadata-shelf")).toContainText(
           "12A",
         );
-        if (width <= 760) {
+        if (width < 1024) {
           await expect(page.locator(".detail-route-map, canvas")).toHaveCount(
             0,
           );
@@ -225,12 +226,10 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           body: JSON.stringify(heroGeometry, null, 2),
           contentType: "application/json",
         });
-        if (width > 760) {
+        if (width >= 1024) {
           const stops = (await page.locator(".detail-stops").boundingBox())!;
           const map = (await page.locator(".detail-route-map").boundingBox())!;
-          if (width < 1024)
-            expect(map.y).toBeGreaterThanOrEqual(stops.y + stops.height);
-          else expect(map.x).toBeGreaterThan(stops.x + stops.width);
+          expect(map.x).toBeGreaterThan(stops.x + stops.width);
           await expect(
             page.locator(".detail-globe-frame .globe-stage"),
           ).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
@@ -293,7 +292,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           .click();
         for (const width of [360, 390, 430, 761, 1024, 1440]) {
           await page.setViewportSize({ width, height: 900 });
-          if (width > 760 && !record.cancelled)
+          if (width >= 1024 && !record.cancelled)
             await expect(
               page.locator(".detail-globe-frame .globe-host"),
             ).toHaveAttribute("data-ready", "true", { timeout: 25000 });

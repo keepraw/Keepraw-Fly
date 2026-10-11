@@ -22,14 +22,10 @@ export async function expectDetailHero(page: Page, width: number) {
       ),
     )
     .toBe(width >= 1024 ? 2 : 1);
-  // Mobile and tablet both have one column. Wait for the distinct breakpoint
-  // styles and React's map mount/unmount before taking a geometry snapshot.
-  await expect(hero).toHaveCSS(
-    "row-gap",
-    width >= 1024 ? "32px" : width > 760 ? "28px" : "0px",
-  );
+  // Wait for breakpoint styles and React's mount/unmount before measuring.
+  await expect(hero).toHaveCSS("row-gap", width >= 1024 ? "32px" : "0px");
   const map = page.locator(".detail-hero-grid > .detail-route-map");
-  if (width > 760) await expect(map).toBeVisible();
+  if (width >= 1024) await expect(map).toBeVisible();
   else await expect(map).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   const geometry = await hero.evaluate((element) => {
@@ -58,40 +54,39 @@ export async function expectDetailHero(page: Page, width: number) {
     };
   });
   expect(geometry.overflow).toBeLessThanOrEqual(0);
-  if (width > 760) {
+  if (width >= 1024) {
     const map = geometry.map!;
     expect(map).not.toBeNull();
     expect(map.width).toBeGreaterThan(0);
     expect(map.height).toBeGreaterThan(0);
-    if (width >= 1024) {
-      expect(map.x).toBeGreaterThan(geometry.information.right);
-      expect(Math.abs(map.top - geometry.heading.top)).toBeLessThanOrEqual(8);
-      const contentHeight = geometry.stops.bottom - geometry.heading.top;
-      if (contentHeight <= 640) {
-        expect(
-          Math.abs(map.bottom - geometry.stops.bottom),
-        ).toBeLessThanOrEqual(12);
-      } else {
-        // Exceptional content keeps reading in full; the Globe stops growing.
-        expect(map.height).toBeLessThanOrEqual(640);
-      }
-      const ratio =
-        geometry.information.width / (geometry.information.width + map.width);
-      expect(ratio).toBeGreaterThanOrEqual(0.55);
-      expect(ratio).toBeLessThanOrEqual(0.6);
+    expect(map.x).toBeGreaterThan(geometry.information.right);
+    expect(Math.abs(map.top - geometry.heading.top)).toBeLessThanOrEqual(8);
+    const contentHeight = geometry.stops.bottom - geometry.heading.top;
+    if (contentHeight <= 640) {
+      expect(Math.abs(map.bottom - geometry.stops.bottom)).toBeLessThanOrEqual(
+        12,
+      );
     } else {
-      expect(map.top).toBeGreaterThanOrEqual(geometry.stops.bottom + 27);
-      expect(map.width).toBeLessThanOrEqual(600);
-      expect(Math.abs(map.width / map.height - 4 / 3)).toBeLessThan(0.01);
-      expect(
-        Math.abs(
-          (map.x + map.right) / 2 -
-            (geometry.information.x + geometry.information.right) / 2,
-        ),
-      ).toBeLessThanOrEqual(1);
+      // Exceptional content keeps reading in full; the Globe stops growing.
+      expect(map.height).toBeLessThanOrEqual(640);
     }
+    const ratio =
+      geometry.information.width / (geometry.information.width + map.width);
+    expect(ratio).toBeGreaterThanOrEqual(0.55);
+    expect(ratio).toBeLessThanOrEqual(0.6);
   } else {
     expect(geometry.map).toBeNull();
+    await expect(page.locator(".detail-stop").first()).toHaveCSS(
+      "grid-template-columns",
+      /^(\d+(?:\.\d+)?px)$/,
+    );
+    await expect(page.locator(".detail-header-more")).toBeVisible();
+    await expect(page.locator(".detail-adjacent-navigation")).toBeHidden();
+    if (geometry.shelf)
+      await expect(page.locator(".detail-metadata-shelf")).toHaveCSS(
+        "grid-template-columns",
+        /^(\d+(?:\.\d+)?px)$/,
+      );
   }
   if (geometry.shelf) {
     expect(geometry.shelf.top).toBeGreaterThanOrEqual(geometry.heroBottom + 23);

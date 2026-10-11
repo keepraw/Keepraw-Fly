@@ -77,7 +77,7 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
 }) => {
   await open(page);
   await ready(page);
-  for (const width of [761, 1024, 1440]) {
+  for (const width of [1024, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect
       .poll(
@@ -231,7 +231,7 @@ test("flight switching reframes long, diverted and coincident routes; cancelled 
   }
 });
 
-test("760px loads no Globe code, textures, canvas or WebGL; 761px mounts and releases on breakpoint changes", async ({
+test("narrow widths through 1023px load no Globe resources; 1024px mounts and releases on breakpoint changes", async ({
   page,
 }) => {
   const resources: string[] = [];
@@ -252,21 +252,24 @@ test("760px loads no Globe code, textures, canvas or WebGL; 761px mounts and rel
     } as typeof original;
   });
   await open(page, [flight], false);
-  await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
-  expect(resources).toEqual([]);
-  expect(await page.evaluate(() => (window as any).detailContexts)).toBe(0);
-  await page.setViewportSize({ width: 761, height: 900 });
+  for (const width of [360, 390, 430, 760, 761, 900, 1023]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
+    expect(resources).toEqual([]);
+    expect(await page.evaluate(() => (window as any).detailContexts)).toBe(0);
+  }
+  await page.setViewportSize({ width: 1024, height: 900 });
   await ready(page);
   expect(resources.length).toBeGreaterThan(0);
   await page.evaluate(() => {
     (window as any).oldHost = document.querySelector(".globe-host");
   });
-  await page.setViewportSize({ width: 760, height: 900 });
+  await page.setViewportSize({ width: 1023, height: 900 });
   await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
   expect(
     await page.evaluate(() => (window as any).oldHost.dataset.ready),
   ).toBeUndefined();
-  await page.setViewportSize({ width: 761, height: 900 });
+  await page.setViewportSize({ width: 1024, height: 900 });
   await ready(page);
   await expectFramed(page, "SFO-LAX");
 });
@@ -566,7 +569,7 @@ test("StrictMode, visibility and page navigation release contexts and observers 
   await page.setViewportSize({ width: 760, height: 900 });
   await page.goto("/#passport");
   await page.locator(".flight-row").click();
-  await page.setViewportSize({ width: 761, height: 900 });
+  await page.setViewportSize({ width: 1024, height: 900 });
   await expect(page.locator(".globe-webgl")).toBeVisible();
   await page.evaluate(() => {
     (window as any).pendingHost = document.querySelector(".globe-host");

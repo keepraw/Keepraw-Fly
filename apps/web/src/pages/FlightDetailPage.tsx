@@ -45,6 +45,9 @@ const DetailGlobe = lazy(() =>
   })),
 );
 
+// The Globe is part of the two-column Hero, so narrow details never mount it.
+const DETAIL_DESKTOP_QUERY = "(min-width: 1024px)";
+
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
   memberships: readonly FrequentFlyerMembership[];
@@ -298,10 +301,10 @@ export function FlightDetailPage({
   const [showDesktopMap, setShowDesktopMap] = useState(
     () =>
       typeof window !== "undefined" &&
-      Boolean(window.matchMedia?.("(min-width: 761px)").matches),
+      Boolean(window.matchMedia?.(DETAIL_DESKTOP_QUERY).matches),
   );
   useEffect(() => {
-    const media = window.matchMedia?.("(min-width: 761px)");
+    const media = window.matchMedia?.(DETAIL_DESKTOP_QUERY);
     if (!media) return;
     const update = () => setShowDesktopMap(media.matches);
     media.addEventListener("change", update);
