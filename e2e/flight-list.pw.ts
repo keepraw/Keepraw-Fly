@@ -103,25 +103,76 @@ for (const [locale, origin, destination] of [
       await expect(
         scheduled.locator(".flight-route-cities > span:not(.route-direction)"),
       ).toHaveText([origin, destination]);
+      await page.evaluate(() => document.fonts.ready);
       await scheduled.scrollIntoViewIfNeeded();
       await expectFlightRowGeometry(scheduled, sample.width > 760);
-      const readability = await rows.evaluateAll((elements) =>
-        elements.every((row) => {
-          const fits = (el: Element) => el.scrollWidth <= el.clientWidth + 1;
-          return (
-            fits(row) &&
-            [
-              ...row.querySelectorAll(
-                ".flight-route-cities > span:not(.route-direction), .flight-date, .flight-times time",
-              ),
-            ].every(
-              (el) =>
-                fits(el) && getComputedStyle(el).textOverflow !== "ellipsis",
-            )
-          );
+      const clippedValues = await rows.evaluateAll((elements) =>
+        elements.flatMap((row) => {
+          // Inline boxes have no clientWidth in Firefox, and visible glyphs can
+          // exceed their line box. Measure text against the row and actual clips.
+          const rowBounds = row.getBoundingClientRect();
+          const exceeds = (
+            rect: DOMRect,
+            bounds: DOMRect,
+            x: boolean,
+            y: boolean,
+          ) =>
+            (x &&
+              (rect.left < bounds.left - 1 || rect.right > bounds.right + 1)) ||
+            (y &&
+              (rect.top < bounds.top - 1 || rect.bottom > bounds.bottom + 1));
+          const targets = [
+            row,
+            ...row.querySelectorAll(
+              ".flight-route-cities > span:not(.route-direction), .flight-date, .flight-times time, .airport-code-display",
+            ),
+          ];
+          return targets
+            .filter((el) => {
+              const bounds = el.getBoundingClientRect();
+              const style = getComputedStyle(el);
+              const range = document.createRange();
+              range.selectNodeContents(el);
+              const fragments = [...range.getClientRects()];
+              return (
+                bounds.width === 0 ||
+                fragments.length === 0 ||
+                style.textOverflow === "ellipsis" ||
+                (style.display !== "inline" &&
+                  el.scrollWidth > el.clientWidth + 1) ||
+                fragments.some((rect) => {
+                  if (exceeds(rect, rowBounds, true, true)) return true;
+                  for (
+                    let container: Element | null = el;
+                    container && container !== row;
+                    container = container.parentElement
+                  ) {
+                    const clip = getComputedStyle(container);
+                    if (
+                      exceeds(
+                        rect,
+                        container.getBoundingClientRect(),
+                        clip.overflowX !== "visible",
+                        clip.overflowY !== "visible",
+                      )
+                    )
+                      return true;
+                  }
+                  return false;
+                })
+              );
+            })
+            .map((el) => ({
+              tag: el.tagName,
+              class: el.className,
+              text: el.textContent,
+            }));
         }),
       );
-      expect(readability).toBe(true);
+      expect(
+        clippedValues,
+        `${locale} ${sample.width}px ${sample.theme} ${sample.timeFormat}`,
+      ).toEqual([]);
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
