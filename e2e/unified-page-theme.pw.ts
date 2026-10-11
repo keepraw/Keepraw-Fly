@@ -113,7 +113,7 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1440]) {
         await expect(
           page.locator(".flight-deviation.is-late").first(),
         ).toHaveCSS("color", colors[dark ? "dark" : "light"].warning);
-        if (width > 760) {
+        if (width >= 1024) {
           await expectDetailGlobe(page);
           await expect(
             page.locator(".detail-globe-frame .globe-stage"),
@@ -126,6 +126,10 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1440]) {
           await expect(page.locator(".detail-heading-eyebrow")).toContainText(
             "UA123",
           );
+          if (width < 1024)
+            await expect(
+              page.locator(".detail-route-map, .detail-globe-frame, canvas"),
+            ).toHaveCount(0);
         }
         await page.locator(".detail-header-back").click();
         await expect(page.locator(".flight-row")).toHaveCount(12);
