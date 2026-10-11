@@ -112,16 +112,12 @@ describe("flight list city display names", () => {
       expect(outputCn.endsWith("市")).toBe(outputTw.endsWith("市"));
       if (outputCn.endsWith("市")) preservedCodes.push(iata);
       else {
-        const administrativeEnding = country === "KR" && /(?:广域|廣域)市$/;
+        const isMetropolitan = country === "KR" && /(?:广域|廣域)市$/.test(cityZhCn);
         expect(outputCn).toBe(
-          administrativeEnding && administrativeEnding.test(cityZhCn)
-            ? cityZhCn.slice(0, -3)
-            : cityZhCn.slice(0, -1),
+          isMetropolitan ? cityZhCn.slice(0, -3) : cityZhCn.slice(0, -1),
         );
         expect(outputTw).toBe(
-          administrativeEnding && administrativeEnding.test(cityZhTw)
-            ? cityZhTw.slice(0, -3)
-            : cityZhTw.slice(0, -1),
+          isMetropolitan ? cityZhTw.slice(0, -3) : cityZhTw.slice(0, -1),
         );
       }
       expect(formatCityDisplayName(airport!.city.en, country, "en")).toBe(
@@ -141,7 +137,7 @@ describe("flight list city display names", () => {
       for (const locale of ["zh-CN", "zh-TW"] as const) {
         const label = airportCityGroupName(group, locale);
         expect(label, `Missing ${locale} for ${group.code}`).toMatch(
-          /[\\p{Script=Han}]/u,
+          /[\p{Script=Han}]/u,
         );
       }
     }
