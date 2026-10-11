@@ -114,7 +114,7 @@ describe("Flight Detail timing and facts", () => {
     expect(markup()).toContain("737-8 AL");
     expect(markup()).toContain("<dt>注册号</dt><dd>B5379</dd>");
   });
-  it("shows both sources even when the flight is exactly on time", () => {
+  it("shows both sources on time without a redundant deviation row", () => {
     const record = {
       ...flight,
       actualDeparture: flight.scheduledDeparture,
@@ -122,8 +122,8 @@ describe("Flight Detail timing and facts", () => {
     };
     expect(stop(record, "departure")).toContain("实际");
     expect(stop(record, "departure")).toContain("计划");
-    expect(stop(record, "departure")).toContain("出发准点");
-    expect(stop(record, "arrival")).toContain("到达准点");
+    expect(stop(record, "departure")).not.toContain("detail-stop-meta");
+    expect(stop(record, "arrival")).not.toContain("detail-stop-meta");
     expect(stop(record, "departure").match(/>20:45<\/time>/g)).toHaveLength(2);
   });
   it("uses the airport zone for UTC-stored timestamps and preserves the 12-hour preference", () => {

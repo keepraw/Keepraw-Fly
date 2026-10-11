@@ -141,15 +141,25 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
     await page.keyboard.press("Home");
     await expect.poll(async () => (await scene(page)).atHome).toBe(true);
   }
+  // Tablet Detail now stacks the Globe below the itinerary. Control clicks can
+  // scroll there; after a desktop resize, reveal the canvas before raw pointers.
+  await page.locator(".globe-webgl").scrollIntoViewIfNeeded();
+  await expect(page.locator(".globe-webgl")).toBeInViewport({ ratio: 0.99 });
   const box = (await page.locator(".globe-webgl").boundingBox())!,
     before = (await scene(page)).camera;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  // Short-route endpoint buttons sit near the center; drag exposed earth rather
+  // than pressing an airport label (which intentionally selects that airport).
+  const dragStart = { x: box.x + box.width * 0.3, y: box.y + box.height * 0.6 };
+  expect(
+    await page.evaluate(
+      ({ x, y }) =>
+        document.elementFromPoint(x, y)?.classList.contains("globe-webgl"),
+      dragStart,
+    ),
+  ).toBe(true);
+  await page.mouse.move(dragStart.x, dragStart.y);
   await page.mouse.down();
-  await page.mouse.move(
-    box.x + box.width / 2 + 55,
-    box.y + box.height / 2 + 20,
-    { steps: 8 },
-  );
+  await page.mouse.move(dragStart.x + 55, dragStart.y + 20, { steps: 8 });
   await page.mouse.up();
   await expect
     .poll(async () => JSON.stringify((await scene(page)).camera))

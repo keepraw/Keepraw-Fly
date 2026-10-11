@@ -60,9 +60,10 @@ export function detailGlobeView(
   );
   const lens = Math.max(
     fit * 1.01,
-    // A slightly wider lens reveals the curved limb while the route fit still
-    // sets the lens for long, polar and antipodal arcs.
-    (Math.tan((22 * Math.PI) / 180) * 2.49) / distance,
+    // A sphere's perspective silhouette has radius 1/sqrt(distance² - 1).
+    // Keep ordinary routes at 88% of the short side, leaving visible space;
+    // the actual route fit still takes priority for long/polar/antipodal arcs.
+    1 / (Math.sqrt(distance * distance - 1) * 0.88 * Math.min(1, aspect)),
   );
   return {
     direction,

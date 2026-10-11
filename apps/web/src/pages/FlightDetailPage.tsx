@@ -1,4 +1,11 @@
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import {
+  Children,
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -113,6 +120,28 @@ function AirportStop({
             </p>
           ) : null}
         </div>
+        {terminal || gate || baggageCarousel ? (
+          <dl className="detail-stop-facts">
+            {terminal ? (
+              <div>
+                <dt>{t("flightDetail.terminal")}</dt>
+                <dd>{terminal}</dd>
+              </div>
+            ) : null}
+            {gate ? (
+              <div>
+                <dt>{t("flightDetail.gate")}</dt>
+                <dd>{gate}</dd>
+              </div>
+            ) : null}
+            {baggageCarousel ? (
+              <div>
+                <dt>{t("flightDetail.baggageCarousel")}</dt>
+                <dd>{baggageCarousel}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
       </div>
       <div className="detail-stop-timing">
         <div className="detail-stop-times">
@@ -151,34 +180,12 @@ function AirportStop({
             />
           ) : null}
         </div>
-        {times.delayMinutes !== null ? (
+        {times.delayMinutes !== null && times.delayMinutes !== 0 ? (
           <div className="detail-stop-meta">
             <FlightDeviation kind={kind} minutes={times.delayMinutes} />
           </div>
         ) : null}
       </div>
-      {terminal || gate || baggageCarousel ? (
-        <dl className="detail-stop-facts">
-          {terminal ? (
-            <div>
-              <dt>{t("flightDetail.terminal")}</dt>
-              <dd>{terminal}</dd>
-            </div>
-          ) : null}
-          {gate ? (
-            <div>
-              <dt>{t("flightDetail.gate")}</dt>
-              <dd>{gate}</dd>
-            </div>
-          ) : null}
-          {baggageCarousel ? (
-            <div>
-              <dt>{t("flightDetail.baggageCarousel")}</dt>
-              <dd>{baggageCarousel}</dd>
-            </div>
-          ) : null}
-        </dl>
-      ) : null}
       {plannedAirport ? (
         <div className="detail-planned-arrival">
           <p className="detail-planned-airport">
@@ -221,24 +228,24 @@ function MetadataColumn({
   return (
     <section className="detail-metadata-column" aria-label={title}>
       <h2>{title}</h2>
-      <dl className="detail-record-facts">{children}</dl>
+      <div className="detail-record-groups">{children}</div>
     </section>
   );
 }
 
-function DetailFact({
-  label,
-  value,
-  wide = false,
-}: {
-  label: string;
-  value: string;
-  wide?: boolean;
-}) {
+function DetailFactGroup({ children }: { children: ReactNode }) {
+  const facts = Children.toArray(children);
+  if (!facts.length) return null;
   return (
-    <div
-      className={`detail-record-item${wide ? " detail-record-item--wide" : ""}`}
-    >
+    <dl className="detail-record-facts" data-count={facts.length}>
+      {facts}
+    </dl>
+  );
+}
+
+function DetailFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="detail-record-item">
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
@@ -366,7 +373,10 @@ export function FlightDetailPage({
             <div className="detail-heading-eyebrow">
               <strong>{flight.flightNumber}</strong>
               {airlineName ? (
-                <span className="detail-airline-name">{airlineName}</span>
+                <>
+                  <i aria-hidden="true">·</i>
+                  <span className="detail-airline-name">{airlineName}</span>
+                </>
               ) : null}
               <i aria-hidden="true">·</i>
               <time dateTime={flight.serviceDate}>
@@ -377,21 +387,22 @@ export function FlightDetailPage({
                   day: "2-digit",
                 })}
               </time>
+              <i aria-hidden="true">·</i>
+              <span className="detail-heading-summary">
+                <strong
+                  className={`detail-flight-phase${flight.cancelled ? " is-cancelled" : flight.divertedTo ? " is-diverted" : ""}`}
+                >
+                  {phase}
+                </strong>
+                {flight.divertedTo ? (
+                  <span className="detail-diversion-note">
+                    {t("flightDetail.divertedTo", {
+                      airport: flight.divertedTo.iata,
+                    })}
+                  </span>
+                ) : null}
+              </span>
             </div>
-          </div>
-          <div className="detail-heading-summary">
-            <strong
-              className={`detail-flight-phase${flight.cancelled ? " is-cancelled" : flight.divertedTo ? " is-diverted" : ""}`}
-            >
-              {phase}
-            </strong>
-            {flight.divertedTo ? (
-              <p className="detail-diversion-note">
-                {t("flightDetail.divertedTo", {
-                  airport: flight.divertedTo.iata,
-                })}
-              </p>
-            ) : null}
           </div>
         </header>
 
@@ -497,77 +508,92 @@ export function FlightDetailPage({
         </div>
 
         {hasExperience || hasTripRecord || frequentFlyer ? (
-          <div className="detail-metadata-shelf">
+          <div
+            className="detail-metadata-shelf"
+            data-count={
+              Number(hasExperience) +
+              Number(hasTripRecord) +
+              Number(Boolean(frequentFlyer))
+            }
+          >
             {hasExperience ? (
               <MetadataColumn title={t("flightDetail.flightExperience")}>
-                {aircraft?.type ? (
-                  <DetailFact
-                    label={t("flightDetail.aircraft")}
-                    value={aircraft.type}
-                  />
-                ) : null}
-                {aircraft?.registration ? (
-                  <DetailFact
-                    label={t("flightDetail.registration")}
-                    value={aircraft.registration}
-                  />
-                ) : null}
-                {seat?.seat ? (
-                  <DetailFact
-                    label={t("flightDetail.seat")}
-                    value={seat.seat}
-                  />
-                ) : null}
-                {cabinLabel ? (
-                  <DetailFact
-                    label={t("flightDetail.cabinClass")}
-                    value={cabinLabel}
-                  />
-                ) : null}
-                {seat?.bookingClass ? (
-                  <DetailFact
-                    label={t("flightDetail.bookingClass")}
-                    value={seat.bookingClass}
-                  />
-                ) : null}
+                <DetailFactGroup>
+                  {aircraft?.type ? (
+                    <DetailFact
+                      label={t("flightDetail.aircraft")}
+                      value={aircraft.type}
+                    />
+                  ) : null}
+                  {aircraft?.registration ? (
+                    <DetailFact
+                      label={t("flightDetail.registration")}
+                      value={aircraft.registration}
+                    />
+                  ) : null}
+                </DetailFactGroup>
+                <DetailFactGroup>
+                  {seat?.seat ? (
+                    <DetailFact
+                      label={t("flightDetail.seat")}
+                      value={seat.seat}
+                    />
+                  ) : null}
+                  {cabinLabel ? (
+                    <DetailFact
+                      label={t("flightDetail.cabinClass")}
+                      value={cabinLabel}
+                    />
+                  ) : null}
+                  {seat?.bookingClass ? (
+                    <DetailFact
+                      label={t("flightDetail.bookingClass")}
+                      value={seat.bookingClass}
+                    />
+                  ) : null}
+                </DetailFactGroup>
               </MetadataColumn>
             ) : null}
             {hasTripRecord ? (
               <MetadataColumn title={t("flightDetail.tripRecord")}>
-                {ticket ? (
-                  <DetailFact
-                    label={t("flightDetail.ticketNumber")}
-                    value={formatTicketNumber(ticket.number)}
-                    wide
-                  />
-                ) : null}
-                {flight.bookingReference ? (
-                  <DetailFact
-                    label={t("flightDetail.bookingReference")}
-                    value={flight.bookingReference}
-                    wide={flight.bookingReference.length > 12}
-                  />
-                ) : null}
+                <DetailFactGroup>
+                  {ticket ? (
+                    <DetailFact
+                      label={t("flightDetail.ticketNumber")}
+                      value={formatTicketNumber(ticket.number)}
+                    />
+                  ) : null}
+                </DetailFactGroup>
+                <DetailFactGroup>
+                  {flight.bookingReference ? (
+                    <DetailFact
+                      label={t("flightDetail.bookingReference")}
+                      value={flight.bookingReference}
+                    />
+                  ) : null}
+                </DetailFactGroup>
               </MetadataColumn>
             ) : null}
             {frequentFlyer ? (
               <MetadataColumn title={t("flightDetail.frequentFlyer")}>
-                <DetailFact
-                  label={t("flightDetail.frequentFlyerProgram")}
-                  value={frequentFlyer.programName}
-                  wide
-                />
-                {frequentFlyer.tierAtFlight ? (
+                <DetailFactGroup>
                   <DetailFact
-                    label={t("flightDetail.tier")}
-                    value={frequentFlyer.tierAtFlight}
+                    label={t("flightDetail.frequentFlyerProgram")}
+                    value={frequentFlyer.programName}
                   />
-                ) : null}
-                <DetailFact
-                  label={t("flightDetail.memberNumber")}
-                  value={frequentFlyer.memberNumber}
-                  wide
-                />
+                </DetailFactGroup>
+                <DetailFactGroup>
+                  {frequentFlyer.tierAtFlight ? (
+                    <DetailFact
+                      label={t("flightDetail.tier")}
+                      value={frequentFlyer.tierAtFlight}
+                    />
+                  ) : null}
+                  <DetailFact
+                    label={t("flightDetail.memberNumber")}
+                    value={frequentFlyer.memberNumber}
+                  />
+                </DetailFactGroup>
               </MetadataColumn>
             ) : null}
           </div>

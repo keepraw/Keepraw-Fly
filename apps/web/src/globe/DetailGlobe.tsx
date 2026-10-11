@@ -11,6 +11,16 @@ import "./globe-lab.css";
 import "./detail-globe.css";
 import "./lab-locales";
 
+// Static, deterministic points: no texture request, animation or extra WebGL work.
+// This module and its CSS are imported only with the desktop Detail Globe.
+const stars = Array.from({ length: 56 }, (_, index) => ({
+  left: `${((index * 73 + 19) % 997) / 10}%`,
+  top: `${((index * index * 37 + index * 61 + 43) % 991) / 10}%`,
+  width: `${0.8 + (index % 4) * 0.4}px`,
+  height: `${0.8 + (index % 4) * 0.4}px`,
+  opacity: 0.2 + ((index * 17) % 39) / 100,
+}));
+
 export function DetailGlobe({
   flight,
   appearance,
@@ -49,6 +59,11 @@ export function DetailGlobe({
     appearance === "system" ? (systemDark ? "dark" : "light") : appearance;
   return (
     <div className="detail-route-map detail-globe-frame" data-theme={theme}>
+      <div className="detail-globe-space" aria-hidden="true">
+        {stars.map((style, index) => (
+          <i key={index} style={style} />
+        ))}
+      </div>
       {routes.length ? (
         <GlobeMap
           key={id}

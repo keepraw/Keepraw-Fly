@@ -1,6 +1,46 @@
 .detail-globe-frame {
+  --detail-galaxy-opacity: 0.45;
+
   position: relative;
   min-width: 0;
+  isolation: isolate;
+  color-scheme: dark;
+  color: #dcecff;
+  background: radial-gradient(ellipse at 22% 75%, #0b1a2c, #060e1b 76%);
+}
+
+.detail-globe-frame .detail-globe-space {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.detail-globe-frame .detail-globe-space::before {
+  position: absolute;
+  inset: 12% -35%;
+  transform: rotate(-28deg);
+  background:
+    radial-gradient(
+      ellipse at 28% 52%,
+      rgb(110 149 183 / 24%),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 73% 43%,
+      rgb(139 163 186 / 18%),
+      transparent 38%
+    ),
+    radial-gradient(ellipse at 50% 50%, rgb(91 128 161 / 17%), transparent 62%);
+  opacity: var(--detail-galaxy-opacity);
+  filter: blur(14px);
+  content: "";
+}
+
+.detail-globe-frame .detail-globe-space i {
+  position: absolute;
+  border-radius: 50%;
+  background: #d9e6f3;
 }
 
 .detail-globe-frame .globe-stage {
@@ -8,6 +48,8 @@
   height: 100%;
   border: 0;
   border-radius: 0;
+  color: #dcecff;
+  background: transparent;
 }
 
 .detail-globe-frame .globe-airport-label {
@@ -35,6 +77,13 @@
 .detail-globe-frame .globe-controls button {
   cursor: pointer;
   color: inherit;
+  border-color: #3f5b74;
+  background: rgb(19 40 58 / 93%);
+}
+
+.detail-globe-frame .globe-tooltip {
+  color: #dcecff;
+  background: rgb(16 37 55 / 93%);
 }
 
 .detail-globe-frame :focus-visible {
@@ -52,5 +101,12 @@
 }
 
 .detail-globe-message {
-  color: var(--muted);
+  position: relative;
+  color: #a9bdd3;
+}
+
+@media (min-width: 1200px) {
+  .detail-globe-frame .detail-globe-space i:nth-child(n + 49) {
+    display: none;
+  }
 }

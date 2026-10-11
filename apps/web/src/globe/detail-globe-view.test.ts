@@ -24,6 +24,7 @@ describe("single-flight composition", () => {
         { width: 280, height: 432 },
         { width: 430, height: 368 },
         { width: 670, height: 432 },
+        { width: 1240, height: 440 },
       ]) {
         const view = detailGlobeView(route, viewport);
         expect(view).toEqual(detailGlobeView(route, viewport));
@@ -32,6 +33,14 @@ describe("single-flight composition", () => {
         expect(view.distance).toBeLessThan(40);
         expect(view.fov).toBeGreaterThan(1);
         expect(view.fov).toBeLessThan(90);
+        const shortSideRatio =
+          1 /
+          (Math.sqrt(view.distance ** 2 - 1) *
+            Math.tan((view.fov! * Math.PI) / 360) *
+            Math.min(1, viewport.width / viewport.height));
+        expect(shortSideRatio).toBeLessThanOrEqual(0.9);
+        if (name === "short" || name === "same airport")
+          expect(shortSideRatio).toBeGreaterThanOrEqual(0.85);
         for (const point of routeArc(route)) {
           const p = projectGlobePoint(point, view, viewport);
           expect(p.visible).toBe(true);

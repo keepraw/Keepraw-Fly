@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   importArchive,
@@ -96,6 +96,55 @@ const records: KeeprawFlight[] = [
   },
 ];
 
+// Geometry supports (and never replaces) the attached real-browser screenshots.
+async function expectTimeGrid(page: Page, width: number) {
+  const rows = await page
+    .locator(".detail-airport-time, .detail-scheduled-time")
+    .evaluateAll((elements) =>
+      elements.map((element) => {
+        const bounds = element.getBoundingClientRect();
+        const children = [".time-source", "time", ".time-zone"].map(
+          (selector) => {
+            const child = element.querySelector(selector)!;
+            const rect = child.getBoundingClientRect();
+            return {
+              x: rect.x,
+              y: rect.y,
+              right: rect.right,
+              bottom: rect.bottom,
+            };
+          },
+        );
+        return {
+          display: getComputedStyle(element).display,
+          left: bounds.left,
+          right: bounds.right,
+          children,
+        };
+      }),
+    );
+  for (const row of rows) {
+    expect(row.display).toBe("grid");
+    for (const child of row.children) {
+      expect(child.x).toBeGreaterThanOrEqual(row.left - 1);
+      expect(child.right).toBeLessThanOrEqual(row.right + 1);
+    }
+    if (width <= 480) {
+      expect(row.children[1].y).toBeGreaterThanOrEqual(
+        row.children[0].bottom - 1,
+      );
+      expect(row.children[2].y).toBeCloseTo(row.children[0].y, 0);
+    } else {
+      expect(row.children[0].right).toBeLessThanOrEqual(row.children[1].x);
+      expect(row.children[1].right).toBeLessThanOrEqual(row.children[2].x);
+    }
+  }
+  for (let column = 0; column < 3; column++) {
+    for (const row of rows.slice(1))
+      expect(row.children[column].x).toBeCloseTo(rows[0].children[column].x, 0);
+  }
+}
+
 for (const language of ["en", "zh-CN", "zh-TW"] as const) {
   for (const appearance of ["light", "dark", "system"] as const) {
     test(`detail hierarchy visual review: ${language} / ${appearance}`, async ({
@@ -163,6 +212,17 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           for (const label of await page.locator(".globe-airport-label").all())
             await expect(label).toBeVisible();
         }
+        await expectTimeGrid(page, width);
+        if (width > 760) {
+          const stops = (await page.locator(".detail-stops").boundingBox())!;
+          const map = (await page.locator(".detail-route-map").boundingBox())!;
+          if (width < 1200)
+            expect(map.y).toBeGreaterThanOrEqual(stops.y + stops.height);
+          else expect(map.x).toBeGreaterThan(stops.x + stops.width);
+          await expect(
+            page.locator(".detail-globe-frame .globe-stage"),
+          ).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+        }
         await expectHealthyPage(page, errors);
         const path = testInfo.outputPath(`ca1831-${width}.png`);
         await page.evaluate(() => document.fonts.ready);
@@ -171,6 +231,30 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           path,
           contentType: "image/png",
         });
+        if (width === 1440 && language === "en" && appearance !== "system") {
+          // Review-only candidate B; restore A before continuing the matrix.
+          const frame = page.locator(".detail-globe-frame");
+          await frame.evaluate((element) =>
+            (element as HTMLElement).style.setProperty(
+              "--detail-galaxy-opacity",
+              "0.9",
+            ),
+          );
+          try {
+            const candidate = testInfo.outputPath("ca1831-1440-galaxy-B.png");
+            await page.screenshot({ path: candidate, fullPage: true });
+            await testInfo.attach("CA1831 galaxy B", {
+              path: candidate,
+              contentType: "image/png",
+            });
+          } finally {
+            await frame.evaluate((element) =>
+              (element as HTMLElement).style.removeProperty(
+                "--detail-galaxy-opacity",
+              ),
+            );
+          }
+        }
       }
       if (appearance === "system") {
         await page.emulateMedia({ colorScheme: "light" });
@@ -230,7 +314,9 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
               "71",
             );
             await expect(
-              page.locator(".detail-stop--arrival > .detail-stop-facts"),
+              page.locator(
+                ".detail-stop--arrival .detail-stop-heading > .detail-stop-facts",
+              ),
             ).toContainText("B22");
           }
           if (record.cancelled) {
@@ -251,8 +337,8 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           }
           if (record.id === "cz3964")
             await expect(
-              page.locator(".flight-deviation.is-onTime"),
-            ).toHaveCount(2);
+              page.locator(".detail-stop-meta, .flight-deviation"),
+            ).toHaveCount(0);
           await expectHealthyPage(page, errors);
           const path = testInfo.outputPath(`${record.id}-${width}.png`);
           await page.evaluate(() => document.fonts.ready);

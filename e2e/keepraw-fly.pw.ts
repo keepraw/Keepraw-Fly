@@ -1097,7 +1097,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
               getComputedStyle(element).gridTemplateColumns.split(" ").length,
           ),
       )
-      .toBe(viewport.width <= 760 ? 1 : 2);
+      .toBe(viewport.width < 1200 ? 1 : 2);
     if (viewport.width > 760) {
       await expect
         .poll(() =>
@@ -1105,7 +1105,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
             .locator(".detail-route-map")
             .evaluate((element) => element.getBoundingClientRect().height),
         )
-        .toBeCloseTo(Math.min(440, Math.max(340, viewport.height * 0.48)), 1);
+        .toBeCloseTo(viewport.width >= 1200 ? 400 : 440, 1);
     }
     const layout = await page.evaluate(() => {
       const style = (selector: string) =>
@@ -1146,7 +1146,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       };
     });
 
-    expect(layout.gridColumns).toBe(viewport.width <= 760 ? 1 : 2);
+    expect(layout.gridColumns).toBe(viewport.width < 1200 ? 1 : 2);
     if (viewport.width <= 760) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
@@ -1154,7 +1154,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
       expect(layout.mapHeight).toBeCloseTo(
-        Math.min(440, Math.max(340, viewport.height * 0.48)),
+        viewport.width >= 1200 ? 400 : 440,
         1,
       );
       expect(layout.mapRadius).toBe("0px");
@@ -1845,7 +1845,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   expect(simplifiedTypography.titleFamily).toContain("Microsoft YaHei UI");
   expect(simplifiedTypography.titleFamily).not.toContain("SimSun");
   expect(simplifiedTypography.timeFamily).toContain("Inter");
-  expect(simplifiedTypography.titleWeight).toBe("700");
+  expect(simplifiedTypography.titleWeight).toBe("600");
   expect(simplifiedTypography.chineseStack).toBe(
     '"MiSans", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
   );
@@ -1898,7 +1898,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         channels.reduce((sum, channel) => sum + channel, 0) / channels.length
       );
     });
-  expect(mapSurface).toBeGreaterThan(180);
+  expect(mapSurface).toBeLessThan(30);
   await expectDetailGlobe(page);
   await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
 
@@ -1946,7 +1946,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   expect(traditionalTypography.titleFamily).toContain("PingFang TC");
   expect(traditionalTypography.titleFamily).toContain("Microsoft JhengHei UI");
   expect(traditionalTypography.titleFamily).not.toContain("SimSun");
-  expect(traditionalTypography.titleWeight).toBe("700");
+  expect(traditionalTypography.titleWeight).toBe("600");
   expect(traditionalTypography.chineseStack).toBe(
     '"MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
   );
