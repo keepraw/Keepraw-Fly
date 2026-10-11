@@ -1,0 +1,46 @@
+import { describe, expect, it } from "vitest";
+import { detailGlobeView } from "./detail-globe-view";
+import { projectGlobePoint, routeArc } from "./globe-math";
+
+describe("single-flight composition", () => {
+  for (const [name, a, b] of [
+    ["short", [37.62, -122.38], [33.94, -118.41]],
+    ["long", [22.3, 113.92], [19.09, 72.87]],
+    ["date line", [20, 179], [30, -179]],
+    ["polar", [85, 90], [85, -90]],
+    ["polar long haul", [0.1, 0], [0.1, 180]],
+    ["asymmetric polar", [79, 25], [85, -158]],
+    ["antipodal", [0, 0], [0, 180]],
+    ["near antipodal", [37.62, -122.38], [-37.61, 57.61]],
+    ["same airport", [0, 0], [0, 0]],
+  ] as const) {
+    it(`keeps the ${name} arc visible inside margins across Detail aspects`, () => {
+      const route = {
+        origin: { iata: "AAA", latitude: a[0], longitude: a[1] },
+        destination: { iata: "BBB", latitude: b[0], longitude: b[1] },
+        flightCount: 1,
+      };
+      for (const viewport of [
+        { width: 280, height: 432 },
+        { width: 430, height: 368 },
+        { width: 670, height: 432 },
+      ]) {
+        const view = detailGlobeView(route, viewport);
+        expect(view).toEqual(detailGlobeView(route, viewport));
+        expect(view.direction.every(Number.isFinite)).toBe(true);
+        expect(view.distance).toBeGreaterThan(2);
+        expect(view.distance).toBeLessThan(40);
+        expect(view.fov).toBeGreaterThan(1);
+        expect(view.fov).toBeLessThan(90);
+        for (const point of routeArc(route)) {
+          const p = projectGlobePoint(point, view, viewport);
+          expect(p.visible).toBe(true);
+          expect(p.x).toBeGreaterThanOrEqual(0.16);
+          expect(p.x).toBeLessThanOrEqual(0.84);
+          expect(p.y).toBeGreaterThanOrEqual(0.16);
+          expect(p.y).toBeLessThanOrEqual(0.84);
+        }
+      }
+    });
+  }
+});

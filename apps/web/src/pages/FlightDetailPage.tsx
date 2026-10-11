@@ -29,10 +29,12 @@ import {
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
 import { PageShell } from "../components/PageShell";
+import type { Appearance } from "../storage/types";
+import type { SolarMode } from "../globe/globe-solar";
 
-const FlightRouteMap = lazy(() =>
-  import("../components/FlightRouteMap").then((module) => ({
-    default: module.FlightRouteMap,
+const DetailGlobe = lazy(() =>
+  import("../globe/DetailGlobe").then((module) => ({
+    default: module.DetailGlobe,
   })),
 );
 
@@ -42,6 +44,8 @@ interface FlightDetailPageProps {
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
+  appearance: Appearance;
+  solarMode: SolarMode;
 }
 
 type IconKind =
@@ -267,6 +271,8 @@ export function FlightDetailPage({
   locale,
   distanceUnit,
   timeFormat,
+  appearance,
+  solarMode,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const [showDesktopMap, setShowDesktopMap] = useState(
@@ -439,7 +445,12 @@ export function FlightDetailPage({
                 </section>
               }
             >
-              <FlightRouteMap flight={flight} />
+              <DetailGlobe
+                key={flight.id}
+                flight={flight}
+                appearance={appearance}
+                solarMode={solarMode}
+              />
             </Suspense>
           ) : null}
         </div>

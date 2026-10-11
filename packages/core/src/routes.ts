@@ -28,7 +28,18 @@ export function buildRouteSegments(flights: KeeprawFlight[]): RouteSegment[] {
       const destination = destinationIata
         ? airportByIata.get(destinationIata)
         : undefined;
-      if (!origin || !destination) return null;
+      if (
+        !origin ||
+        !destination ||
+        ![origin, destination].every(
+          (point) =>
+            Number.isFinite(point.latitude) &&
+            Number.isFinite(point.longitude) &&
+            Math.abs(point.latitude) <= 90 &&
+            Math.abs(point.longitude) <= 180,
+        )
+      )
+        return null;
       return {
         origin: {
           iata: origin.iata,

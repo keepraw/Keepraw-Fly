@@ -131,55 +131,6 @@
   color: var(--color-map-faint);
 }
 
-.detail-route-map-canvas {
-  margin-top: 22px;
-  aspect-ratio: 2.95;
-}
-
-.detail-map-route-group path {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.detail-route-map-canvas .map-country {
-  fill: color-mix(in srgb, var(--color-map-land) 82%, var(--color-map-ocean));
-  stroke: color-mix(in srgb, var(--color-map-land-line) 66%, transparent);
-}
-
-.detail-route-map-canvas .map-coastline {
-  stroke: color-mix(in srgb, var(--color-map-outline) 78%, transparent);
-}
-
-.detail-map-route-underlay {
-  stroke: var(--color-map-route-underlay);
-  stroke-width: 5;
-}
-
-.detail-map-route {
-  stroke: url("#detail-route-gradient");
-  stroke-width: 1.85;
-}
-
-.detail-map-airport-point {
-  fill: var(--color-map-airport);
-  stroke: var(--color-map-ocean);
-  stroke-width: 1;
-}
-
-.detail-map-airport text {
-  fill: var(--color-map-text);
-  paint-order: stroke;
-  stroke: var(--color-map-ocean);
-  stroke-linejoin: round;
-  stroke-width: 2.2px;
-  font-family: var(--font-family-data);
-  font-size: var(--type-size-map-label);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--tracking-airport);
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .detail-flight-card {
     animation: content-enter 440ms var(--ease-out) both;
@@ -219,11 +170,6 @@
 
   .detail-route-map {
     padding: 30px var(--detail-inline) 26px;
-  }
-
-  .detail-route-map-canvas {
-    margin-top: 18px;
-    aspect-ratio: 1.45;
   }
 }
 
@@ -578,77 +524,6 @@
   min-height: 380px;
   place-items: center;
   color: var(--color-map-faint);
-}
-
-.detail-route-map-canvas {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  aspect-ratio: auto;
-  background: var(--color-map-ocean);
-}
-
-.detail-route-map-canvas .map-country {
-  fill: var(--color-map-land);
-  stroke: color-mix(in srgb, var(--color-map-land-line) 38%, transparent);
-}
-
-.detail-route-map-canvas .map-coastline {
-  stroke: color-mix(in srgb, var(--color-map-outline) 54%, transparent);
-}
-
-.detail-map-route-underlay {
-  stroke: var(--color-map-route-underlay);
-  stroke-width: 4;
-}
-
-.detail-map-route {
-  stroke: var(--color-accent);
-  stroke-width: 2.4;
-}
-
-.detail-map-airport-label rect {
-  fill: color-mix(in srgb, var(--color-surface-raised) 96%, transparent);
-  stroke: color-mix(in srgb, var(--color-map-outline) 42%, transparent);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 5%));
-}
-
-.detail-map-airport text {
-  fill: var(--color-map-text);
-  stroke: none;
-  font-family: var(--font-family-ui);
-  font-size: 0.625rem;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.04em;
-}
-
-.detail-route-map .map-zoom-controls {
-  right: 17px;
-  bottom: 16px;
-  gap: 0;
-  overflow: hidden;
-  border: 1px solid
-    color-mix(in srgb, var(--color-map-outline) 48%, transparent);
-  border-radius: 8px;
-  opacity: 0.9;
-  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
-}
-
-.detail-route-map .map-zoom-controls button {
-  width: 30px;
-  height: 30px;
-  border: 0;
-  border-right: 1px solid
-    color-mix(in srgb, var(--color-map-outline) 38%, transparent);
-  border-radius: 0;
-  background: transparent;
-}
-
-.detail-route-map .map-zoom-controls button:last-child {
-  border-right: 0;
 }
 
 .detail-metadata-shelf {

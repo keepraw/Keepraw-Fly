@@ -2,20 +2,14 @@ import { describe, expect, it } from "vitest";
 import type { RoutePoint } from "@keepraw-fly/core";
 import {
   fitProjectedPoints,
-  flightRouteCamera,
   passportMapCamera,
   WORLD_CAMERA,
 } from "./map-camera";
-import {
-  greatCirclePath,
-  sampleGreatCircle,
-  regionalCenterLongitude,
-} from "./map-geometry";
+import { greatCirclePath } from "./map-geometry";
 
 const SZX: RoutePoint = { iata: "SZX", latitude: 22.6393, longitude: 113.8107 };
 const TAO: RoutePoint = { iata: "TAO", latitude: 36.2661, longitude: 120.3744 };
 const HKG: RoutePoint = { iata: "HKG", latitude: 22.308, longitude: 113.9185 };
-const LHR: RoutePoint = { iata: "LHR", latitude: 51.47, longitude: -0.4543 };
 const SFO: RoutePoint = { iata: "SFO", latitude: 37.6213, longitude: -122.379 };
 const NRT: RoutePoint = { iata: "NRT", latitude: 35.772, longitude: 140.3929 };
 const LAX: RoutePoint = {
@@ -50,44 +44,6 @@ describe("map camera", () => {
     expect(camera.zoom).toBeLessThanOrEqual(8);
   });
 
-  it("frames a short flight more tightly than a passport", () => {
-    const detail = flightRouteCamera(SZX, TAO);
-    const passport = passportMapCamera(
-      [{ origin: SZX, destination: TAO, flightCount: 1 }],
-      [SZX, TAO],
-    );
-
-    expect(detail.zoom).toBeGreaterThan(passport.zoom);
-    expect(detail.zoom).toBeLessThanOrEqual(12);
-  });
-
-  it("fits a long-haul route with surrounding geography", () => {
-    const camera = flightRouteCamera(HKG, LHR);
-
-    expect(camera.zoom).toBeGreaterThan(1);
-    expect(camera.zoom).toBeLessThan(4);
-  });
-
-  it("fits every sampled short-route point inside equal horizontal and vertical padding", () => {
-    for (const height of [320, 480, 720]) {
-      const camera = flightRouteCamera(SZX, TAO, height);
-      expect(camera.zoom).toBeGreaterThan(2.5);
-      for (const point of sampleGreatCircle(
-        SZX,
-        TAO,
-        72,
-        regionalCenterLongitude([SZX, TAO]),
-      )) {
-        const x = (point.x - camera.centerX) * camera.zoom + 480;
-        const y = (point.y - camera.centerY) * camera.zoom + height / 2;
-        expect(x).toBeGreaterThanOrEqual(960 * 0.09 - 0.1);
-        expect(x).toBeLessThanOrEqual(960 * 0.91 + 0.1);
-        expect(y).toBeGreaterThanOrEqual(height * 0.09 - 0.1);
-        expect(y).toBeLessThanOrEqual(height * 0.91 + 0.1);
-      }
-    }
-  });
-
   it("retains a regional center when fit zoom is just above world scale", () => {
     const camera = fitProjectedPoints(
       [
@@ -104,12 +60,10 @@ describe("map camera", () => {
     [HKG, SFO],
     [NRT, LAX],
   ])(
-    "keeps the fixed world camera when a route crosses the antimeridian",
+    "splits Passport geometry when a route crosses the antimeridian",
     (origin, destination) => {
-      const camera = flightRouteCamera(origin, destination);
       const path = greatCirclePath(origin, destination);
 
-      expect(camera).toEqual(WORLD_CAMERA);
       expect(path.match(/M/g)?.length).toBeGreaterThan(1);
     },
   );
