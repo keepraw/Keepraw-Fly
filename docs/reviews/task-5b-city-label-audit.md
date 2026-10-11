@@ -33,17 +33,17 @@ These are not necessarily ideal final consumer labels.
 
 Examples of changed display labels:
 
-| IATA | Source | Compact list label |
-| --- | --- | --- |
-| KHN | 南昌市 | 南昌 |
-| CAN | 广州市 | 广州 |
-| TSA | 台北市 / 臺北市 | 台北 / 臺北 |
-| DAD | 岘港市 / 峴港市 | 岘港 / 峴港 |
-| DAC | 达卡市 / 達卡市 | 达卡 / 達卡 |
-| DRS | 德累斯顿市 / 德累斯頓市 | 德累斯顿 / 德累斯頓 |
-| CJJ | 清州市 | 清州 |
-| KWJ | 光州广域市 / 光州廣域市 | 光州 |
-| OKS | 冈山市 / 岡山市 | 冈山 / 岡山 (source anomaly; see below) |
+| IATA | Source                  | Compact list label                      |
+| ---- | ----------------------- | --------------------------------------- |
+| KHN  | 南昌市                  | 南昌                                    |
+| CAN  | 广州市                  | 广州                                    |
+| TSA  | 台北市 / 臺北市         | 台北 / 臺北                             |
+| DAD  | 岘港市 / 峴港市         | 岘港 / 峴港                             |
+| DAC  | 达卡市 / 達卡市         | 达卡 / 達卡                             |
+| DRS  | 德累斯顿市 / 德累斯頓市 | 德累斯顿 / 德累斯頓                     |
+| CJJ  | 清州市                  | 清州                                    |
+| KWJ  | 光州广域市 / 光州廣域市 | 光州                                    |
+| OKS  | 冈山市 / 岡山市         | 冈山 / 岡山 (source anomaly; see below) |
 
 The same city-group display labels now drive both mobile and desktop
 `FlightRow` presentations. All 41 multi-airport city groups have explicit
