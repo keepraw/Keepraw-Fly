@@ -94,7 +94,9 @@ test("shares search and year scope, map selection and adjacent detail navigation
     "3Flights",
   );
   await expect(page.locator(".flight-row")).toHaveCount(3);
-  await expect(page.locator(".flight-times, .flight-status")).toHaveCount(0);
+  await expect(page.locator(".flight-times")).toHaveCount(3);
+  await expect(page.locator(".flight-route-codes")).toHaveCount(3);
+  await expect(page.locator(".flight-status")).toHaveCount(0);
   await expect(
     page.locator(
       '.flight-record[data-flight-id="zh9911"] .flight-route-cities',

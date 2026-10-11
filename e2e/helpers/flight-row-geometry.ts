@@ -6,15 +6,13 @@ export async function expectFlightRowGeometry(row: Locator, desktop: boolean) {
     ...[
       ".airline-logo",
       ".flight-number",
-      ...(desktop
-        ? [".flight-route-cities", ".flight-ledger-duration"]
-        : [".flight-route", ".flight-time-column", ".flight-status"]),
+      ".flight-route-cities",
+      ".flight-route-codes",
+      ".flight-time-column",
     ].map((selector): [string, string] => [selector, ".flight-date"]),
     [".flight-route-cities", ".flight-number"],
-    [
-      ".flight-route-cities",
-      desktop ? ".flight-ledger-duration" : ".flight-time-column",
-    ],
+    [".flight-route-cities", ".flight-time-column"],
+    [".flight-route-codes", ".flight-time-column"],
   ];
   const snapshot = await row.evaluate(
     (element, { pairs, desktop }) => {

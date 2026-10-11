@@ -1,0 +1,159 @@
+{
+  "phase": "before",
+  "baseCommit": "b87b338a040ccd7b955a5b3609156591d08bdeae",
+  "cases": [
+    {
+      "width": 1440,
+      "height": 900,
+      "locale": "zh-CN",
+      "theme": "light",
+      "documentFits": true,
+      "rowHeights": [68, 68, 68, 68, 68, 82.234375, 82.234375],
+      "renderer": "webgl",
+      "rows": [
+        "ZH9911青岛→南昌9月17日2小时 34分",
+        "CX954香港→青岛9月15日2小时 34分",
+        "CX696孟买→香港9月13日4小时 6分",
+        "ET809亚的斯亚贝巴→约翰内斯堡9月12日2小时 45分",
+        "CA128东京→台北9月11日2小时 34分",
+        "AF123巴黎→伦敦9月10日—已取消",
+        "CA156北京→上海9月9日2小时 34分备降"
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "locale": "zh-CN",
+      "theme": "dark",
+      "documentFits": true,
+      "rowHeights": [68, 68, 68, 68, 68, 82.234375, 82.234375],
+      "renderer": "webgl",
+      "rows": [
+        "ZH9911青岛→南昌9月17日2小时 34分",
+        "CX954香港→青岛9月15日2小时 34分",
+        "CX696孟买→香港9月13日4小时 6分",
+        "ET809亚的斯亚贝巴→约翰内斯堡9月12日2小时 45分",
+        "CA128东京→台北9月11日2小时 34分",
+        "AF123巴黎→伦敦9月10日—已取消",
+        "CA156北京→上海9月9日2小时 34分备降"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "locale": "zh-CN",
+      "theme": "light",
+      "documentFits": true,
+      "rowHeights": [
+        130.875, 130.875, 146.8125, 112.9375, 130.875, 112.9375, 179.390625
+      ],
+      "renderer": "none",
+      "rows": [
+        "ZH9911深圳航空青岛→南昌TAO→KHN9月17日10:57—13:31计划 10:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "CX954国泰航空香港→青岛HKG→TAO9月15日10:57—13:31计划 10:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "CX696国泰航空孟买→香港BOM→HKG9月13日23:39—06:15 +1计划 23:28 — 06:50 +1过夜航班到达提前 35 分出发晚点 11 分",
+        "ET809埃塞俄比亚航空亚的斯亚贝巴→约翰内斯堡ADD→JNB9月12日05:20—07:05计划",
+        "CA128中国国际航空东京→台北NRT→TPE9月11日11:57—13:31计划 11:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "AF123法国航空巴黎→伦敦CDG→LHR9月10日04:20—06:05已取消",
+        "CA156中国国际航空北京→上海PEK→SHA9月9日10:57—13:31计划 10:20 — 13:05备降备降至 NKG"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "locale": "zh-CN",
+      "theme": "dark",
+      "documentFits": true,
+      "rowHeights": [
+        130.875, 130.875, 146.8125, 112.9375, 130.875, 112.9375, 179.390625
+      ],
+      "renderer": "none",
+      "rows": [
+        "ZH9911深圳航空青岛→南昌TAO→KHN9月17日10:57—13:31计划 10:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "CX954国泰航空香港→青岛HKG→TAO9月15日10:57—13:31计划 10:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "CX696国泰航空孟买→香港BOM→HKG9月13日23:39—06:15 +1计划 23:28 — 06:50 +1过夜航班到达提前 35 分出发晚点 11 分",
+        "ET809埃塞俄比亚航空亚的斯亚贝巴→约翰内斯堡ADD→JNB9月12日05:20—07:05计划",
+        "CA128中国国际航空东京→台北NRT→TPE9月11日11:57—13:31计划 11:20 — 13:05到达晚点 26 分出发晚点 37 分",
+        "AF123法国航空巴黎→伦敦CDG→LHR9月10日04:20—06:05已取消",
+        "CA156中国国际航空北京→上海PEK→SHA9月9日10:57—13:31计划 10:20 — 13:05备降备降至 NKG"
+      ]
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "locale": "en",
+      "theme": "light",
+      "documentFits": true,
+      "rowHeights": [68, 68, 68, 68, 68, 82.234375, 82.234375],
+      "renderer": "webgl",
+      "rows": [
+        "ZH9911Qingdao→NanchangSep 172h 34m",
+        "CX954Hong Kong→QingdaoSep 152h 34m",
+        "CX696Mumbai→Hong KongSep 134h 06m",
+        "ET809Addis Ababa→JohannesburgSep 122h 45m",
+        "CA128Tokyo→TaipeiSep 112h 34m",
+        "AF123Paris→LondonSep 10—Cancelled",
+        "CA156Beijing→ShanghaiSep 92h 34mDiverted"
+      ]
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "locale": "en",
+      "theme": "dark",
+      "documentFits": true,
+      "rowHeights": [
+        170.84375, 170.84375, 170.84375, 121.484375, 160.25, 110.890625,
+        176.390625
+      ],
+      "renderer": "none",
+      "rows": [
+        "ZH9911Shenzhen AirlinesQingdao→NanchangTAO→KHNSep 1710:57—13:31Sched. 10:20 — 13:05Arrival delayed 26 minDeparture delayed 37 min",
+        "CX954Cathay PacificHong Kong→QingdaoHKG→TAOSep 1510:57—13:31Sched. 10:20 — 13:05Arrival delayed 26 minDeparture delayed 37 min",
+        "CX696Cathay PacificMumbai→Hong KongBOM→HKGSep 1323:39—06:15 +1Sched. 23:28 — 06:50 +1OvernightArrived 35 min earlyDeparture delayed 11 min",
+        "ET809Ethiopian AirlinesAddis Ababa→JohannesburgADD→JNBSep 1205:20—07:05Scheduled",
+        "CA128Air ChinaTokyo→TaipeiNRT→TPESep 1111:57—13:31Sched. 11:20 — 13:05Arrival delayed 26 minDeparture delayed 37 min",
+        "AF123Air FranceParis→LondonCDG→LHRSep 1004:20—06:05Cancelled",
+        "CA156Air ChinaBeijing→ShanghaiPEK→SHASep 910:57—13:31Sched. 10:20 — 13:05DivertedDiverted to NKG"
+      ]
+    },
+    {
+      "width": 761,
+      "height": 900,
+      "locale": "zh-TW",
+      "theme": "dark",
+      "documentFits": true,
+      "rowHeights": [68, 68, 68, 68, 68, 82.234375, 82.234375],
+      "renderer": "webgl",
+      "rows": [
+        "ZH9911青島→南昌9月17日2小時 34分",
+        "CX954香港→青島9月15日2小時 34分",
+        "CX696孟買→香港9月13日4小時 6分",
+        "ET809亞的斯亞貝巴→約翰內斯堡9月12日2小時 45分",
+        "CA128東京→臺北9月11日2小時 34分",
+        "AF123巴黎→倫敦9月10日—已取消",
+        "CA156北京→上海9月9日2小時 34分備降"
+      ]
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "locale": "zh-TW",
+      "theme": "light",
+      "documentFits": true,
+      "rowHeights": [
+        130.875, 130.875, 146.8125, 112.9375, 130.875, 112.9375, 179.390625
+      ],
+      "renderer": "none",
+      "rows": [
+        "ZH9911深圳航空青島→南昌TAO→KHN9月17日10:57—13:31計畫 10:20 — 13:05抵達延誤 26 分出發延誤 37 分",
+        "CX954國泰航空香港→青島HKG→TAO9月15日10:57—13:31計畫 10:20 — 13:05抵達延誤 26 分出發延誤 37 分",
+        "CX696國泰航空孟買→香港BOM→HKG9月13日23:39—06:15 +1計畫 23:28 — 06:50 +1過夜航班抵達提前 35 分出發延誤 11 分",
+        "ET809埃塞俄比亞航空亞的斯亞貝巴→約翰內斯堡ADD→JNB9月12日05:20—07:05計劃",
+        "CA128中國國際航空東京→臺北NRT→TPE9月11日11:57—13:31計畫 11:20 — 13:05抵達延誤 26 分出發延誤 37 分",
+        "AF123法國航空巴黎→倫敦CDG→LHR9月10日04:20—06:05已取消",
+        "CA156中國國際航空北京→上海PEK→SHA9月9日10:57—13:31計畫 10:20 — 13:05備降備降至 NKG"
+      ]
+    }
+  ]
+}

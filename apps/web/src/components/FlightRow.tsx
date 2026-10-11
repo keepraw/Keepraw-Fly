@@ -2,23 +2,18 @@ import { useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
-  airlineNames,
   airportByIata,
   airportCityGroupForAirport,
   airportCityGroupName,
-  flightOperationalStatus,
-  flightDuration,
   flightTimeDisplay,
   formatCityDisplayName,
-  formatDuration,
   formatServiceDate,
   localizedText,
-  resolveAirline,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { AirportCode } from "./AviationPrimitives";
-import { FlightDeviation, FlightTime } from "./FlightTime";
+import { FlightTime } from "./FlightTime";
 import {
   airlineLogoByCode,
   type AirlineLogoAsset,
@@ -76,16 +71,17 @@ export function FlightRow({
 }: FlightRowProps) {
   const { t } = useTranslation();
   const times = flightTimeDisplay(flight, locale, timeFormat);
-  const operationalStatus = flightOperationalStatus(flight);
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
   const airlineMark = airlineCode.slice(0, 2).toUpperCase() || "--";
   const airlineLogo =
     airlineLogoByCode[flight.airline.iata?.toUpperCase() ?? ""];
-  const airline = resolveAirline(flight.airline);
-  const airlineName = airline ? airlineNames(airline, locale)[0] : undefined;
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
-  const specialStatus = flight.cancelled || flight.divertedTo;
+  const specialStatus = flight.cancelled
+    ? "cancelled"
+    : flight.divertedTo
+      ? "diverted"
+      : undefined;
   const cityName = (code: string, airport: typeof origin) => {
     const cityGroup = airportCityGroupForAirport(code);
     const name = cityGroup
@@ -101,13 +97,6 @@ export function FlightRow({
   };
   const originCity = cityName(flight.origin.iata, origin);
   const destinationCity = cityName(flight.destination.iata, destination);
-  // The archive is an index. Only a substantial arrival delay needs a flag;
-  // the full timing and every deviation remain available in Flight Detail.
-  const archiveException = specialStatus
-    ? t(`status.${operationalStatus}`)
-    : times.arrival.delayMinutes !== null && times.arrival.delayMinutes >= 30
-      ? `${t("status.delayed")} · ${formatDuration(times.arrival.delayMinutes, locale)}`
-      : undefined;
 
   return (
     <div
@@ -115,7 +104,7 @@ export function FlightRow({
       data-flight-id={flight.id}
     >
       <button
-        className={`flight-row${selected ? " is-selected" : ""}`}
+        className={`flight-row flight-row--${presentation}${selected ? " is-selected" : ""}`}
         type="button"
         onClick={onOpen}
         aria-current={selected ? "true" : undefined}
@@ -137,139 +126,57 @@ export function FlightRow({
           asset={airlineLogo}
         />
         <div className="flight-row-content">
-          {presentation === "passport" ? (
-            <>
-              <div className="flight-number">
-                <strong>{flight.flightNumber}</strong>
-              </div>
-              <div
-                className="flight-route-cities"
-                title={`${originCity} → ${destinationCity}`}
-              >
-                <span>{originCity}</span>
-                <span className="route-direction" aria-hidden="true">
-                  →
-                </span>
-                <span>{destinationCity}</span>
-              </div>
-              <time className="flight-date" dateTime={flight.serviceDate}>
-                {formatServiceDate(flight.serviceDate, locale, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </time>
-              <span
-                className="flight-ledger-duration"
-                aria-label={t("passport.timeInAir")}
-              >
-                {flight.cancelled
-                  ? "—"
-                  : formatDuration(flightDuration(flight).minutes, locale)}
-              </span>
-              {archiveException ? (
-                <span
-                  className={`flight-ledger-exception is-${operationalStatus}`}
-                >
-                  {archiveException}
+          <div className="flight-row-primary">
+            <div className="flight-number">
+              <strong>{flight.flightNumber}</strong>
+              {specialStatus ? (
+                <span className={`flight-status is-${specialStatus}`}>
+                  {t(`status.${specialStatus}`)}
+                  {specialStatus === "diverted"
+                    ? ` ${flight.divertedTo?.iata}`
+                    : null}
                 </span>
               ) : null}
-            </>
-          ) : (
-            <>
-              <div className="flight-row-primary">
-                <div className="flight-number">
-                  <strong>{flight.flightNumber}</strong>
-                  <span>{airlineName ?? airlineCode}</span>
-                </div>
-                <div
-                  className="flight-route"
-                  aria-label={t("flights.routeLabel", {
-                    origin: flight.origin.iata,
-                    destination: flight.destination.iata,
-                  })}
-                >
-                  <div className="flight-route-cities">
-                    <span>{originCity}</span>
-                    <span className="route-direction" aria-hidden="true">
-                      →
-                    </span>
-                    <span>{destinationCity}</span>
-                  </div>
-                  <div className="flight-route-codes">
-                    <AirportCode code={flight.origin.iata} size="compact" />
-                    <span aria-hidden="true">→</span>
-                    <AirportCode
-                      code={flight.destination.iata}
-                      size="compact"
-                    />
-                  </div>
-                </div>
-                <time className="flight-date" dateTime={flight.serviceDate}>
-                  {formatServiceDate(flight.serviceDate, locale, {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </time>
+            </div>
+            <time className="flight-date" dateTime={flight.serviceDate}>
+              {formatServiceDate(flight.serviceDate, locale, {
+                month: "short",
+                day: "numeric",
+              })}
+            </time>
+          </div>
+          <div
+            className="flight-route"
+            aria-label={t("flights.routeLabel", {
+              origin: flight.origin.iata,
+              destination: flight.destination.iata,
+            })}
+          >
+            <div
+              className="flight-route-cities"
+              title={`${originCity} ${flight.origin.iata} → ${destinationCity} ${flight.destination.iata}`}
+            >
+              <span>{originCity}</span>
+              <span className="route-direction" aria-hidden="true">
+                →
+              </span>
+              <span>{destinationCity}</span>
+            </div>
+            <div className="flight-row-meta">
+              <div className="flight-route-codes">
+                <AirportCode code={flight.origin.iata} size="compact" />
+                <span aria-hidden="true">→</span>
+                <AirportCode code={flight.destination.iata} size="compact" />
               </div>
-              <div className="flight-row-secondary">
-                <div className="flight-time-column">
-                  <span className="flight-times">
-                    <FlightTime value={times.departure.primary} />
-                    <span aria-hidden="true">—</span>
-                    <FlightTime value={times.arrival.primary} />
-                  </span>
-                  <span className="flight-scheduled-times">
-                    {times.departure.scheduled || times.arrival.scheduled ? (
-                      <>
-                        <span>{t("flightTiming.scheduled")} </span>
-                        <FlightTime value={times.scheduled.departure} />
-                        <span aria-hidden="true"> — </span>
-                        <FlightTime value={times.scheduled.arrival} />
-                      </>
-                    ) : null}
-                    {times.overnight ? (
-                      <small className="flight-overnight">
-                        {t("flightTiming.overnight")}
-                      </small>
-                    ) : null}
-                  </span>
-                </div>
-                <span
-                  className={`flight-status detail-operational-status is-${operationalStatus}`}
-                >
-                  {specialStatus ? (
-                    t(`status.${operationalStatus}`)
-                  ) : (
-                    <>
-                      <FlightDeviation
-                        kind="arrival"
-                        minutes={times.arrival.delayMinutes}
-                      />
-                      {times.departure.delayMinutes !== null &&
-                      (times.departure.delayMinutes > 0 ||
-                        times.arrival.delayMinutes === null) ? (
-                        <FlightDeviation
-                          kind="departure"
-                          minutes={times.departure.delayMinutes}
-                        />
-                      ) : null}
-                      {times.arrival.delayMinutes === null &&
-                      times.departure.delayMinutes === null
-                        ? t("status.scheduled")
-                        : null}
-                    </>
-                  )}
+              <div className="flight-time-column">
+                <span className="flight-times">
+                  <FlightTime value={times.departure.primary} />
+                  <span aria-hidden="true">—</span>
+                  <FlightTime value={times.arrival.primary} />
                 </span>
-                {flight.divertedTo ? (
-                  <small className="flight-diverted-note">
-                    {t("status.divertedTo", {
-                      airport: flight.divertedTo.iata,
-                    })}
-                  </small>
-                ) : null}
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </button>
     </div>
