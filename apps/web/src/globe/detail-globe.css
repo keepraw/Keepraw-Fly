@@ -17,9 +17,10 @@
   left: 0;
   top: 0;
   border: 0;
-  padding: 4px;
-  background: transparent;
-  font: 600 11px var(--font-family-data);
+  padding: 5px 6px;
+  border-radius: 3px;
+  background: rgb(4 19 37 / 76%);
+  font: 600 12px var(--font-family-data);
   line-height: 1;
   color: #dcecff;
   text-shadow:

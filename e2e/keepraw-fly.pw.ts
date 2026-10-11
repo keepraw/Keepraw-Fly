@@ -1020,9 +1020,7 @@ test.describe("Chinese distance defaults", () => {
       .getByRole("button", { name: /Open |打开 |打開 / })
       .first()
       .click();
-    await expect(page.locator(".detail-heading-route-summary")).toContainText(
-      "公里",
-    );
+    await expect(page.locator(".detail-segment-meta")).toContainText("公里");
 
     await page.locator(".detail-header-back").click();
     await page.locator('.site-navigation a[href="#settings"]').click();
@@ -1038,29 +1036,23 @@ test.describe("Chinese distance defaults", () => {
       .getByRole("button", { name: /Open |打开 |打開 / })
       .first()
       .click();
-    await expect(page.locator(".detail-heading-route-summary")).toContainText(
-      "英里",
-    );
+    await expect(page.locator(".detail-segment-meta")).toContainText("英里");
   });
 });
 
-test("keeps the operational summary inside the flight header at desktop and mobile widths", async ({
+test("keeps operational deviations inside the corresponding flight stops at desktop and mobile widths", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open / }).first().click();
 
-  const delaySummary = page
-    .locator(".detail-heading-summary .flight-deviation")
-    .first();
+  const delaySummary = page.locator(".detail-stops .flight-deviation").first();
   await expect(delaySummary).toBeVisible();
 
   const expectContentContained = async () => {
     const insets = await delaySummary.evaluate((summary) => {
-      const bounds = summary
-        .closest(".detail-heading")!
-        .getBoundingClientRect();
+      const bounds = summary.closest(".detail-stop")!.getBoundingClientRect();
       const item = summary.getBoundingClientRect();
       return [item.left - bounds.left, bounds.right - item.right];
     });
@@ -1158,7 +1150,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     if (viewport.width <= 760) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
-      await expect(page.locator(".detail-heading-route-summary")).toBeVisible();
+      await expect(page.locator(".detail-segment-meta")).toBeVisible();
       await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
       expect(layout.mapHeight).toBeCloseTo(
@@ -1574,7 +1566,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
   const detailPresentation = await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".detail-flight-card");
     const performance = document.querySelector<HTMLElement>(
-      ".detail-heading-summary .flight-deviation",
+      ".detail-stops .flight-deviation",
     );
     const map = document.querySelector<HTMLElement>(".detail-route-map");
     if (!hero || !performance)
@@ -1810,11 +1802,11 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     page.getByRole("heading", { name: "深圳 飞往 青岛" }),
   ).toBeVisible();
   await expect(page.locator(".detail-heading-summary")).toContainText("已到达");
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--arrival")).toContainText(
     "到达提前 35 分",
   );
-  await expect(page.locator(".detail-heading-summary")).toContainText("英里");
-  await expect(page.locator(".detail-heading-route-summary")).toHaveCount(1);
+  await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+  await expect(page.locator(".detail-segment-meta")).toHaveCount(1);
   await expect(page.locator(".detail-journey-summary")).toHaveCount(0);
   await expect(page.locator(".detail-metadata-column").first()).toContainText(
     "商务舱",

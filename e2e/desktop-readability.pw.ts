@@ -136,10 +136,10 @@ test("shares search and year scope, map selection and adjacent detail navigation
     page.getByRole("button", { name: "Next", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Previous", exact: true }).click();
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--departure")).toContainText(
     "Departure delayed 11 min",
   );
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--arrival")).toContainText(
     "Arrived 35 min early",
   );
   await expect(
@@ -212,7 +212,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     await page
       .locator('.flight-record[data-flight-id="zh9911"] .flight-row')
       .click();
-    await expect(page.locator(".detail-heading-summary")).toContainText(
+    await expect(page.locator(".detail-stop--departure")).toContainText(
       locale === "en"
         ? "Departure delayed 11 min"
         : locale === "zh-CN"

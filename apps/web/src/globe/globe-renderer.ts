@@ -270,7 +270,9 @@ function initializeGlobe(
   );
   scene.add(atmosphere);
   const airports = globeAirports(routes);
-  const airportGeometry = track(new THREE.SphereGeometry(0.005, 10, 8));
+  const airportGeometry = track(
+    new THREE.SphereGeometry(viewMode === "detail" ? 0.009 : 0.005, 10, 8),
+  );
   const airportMaterials = airports.map(() =>
     track(new THREE.MeshBasicMaterial({ color: 0xa6dbff })),
   );
@@ -396,9 +398,11 @@ function initializeGlobe(
             ? dark
               ? 0xc7eeff
               : 0xd6edff
-            : dark
-              ? 0x70b7e6
-              : 0x82c5ed,
+            : viewMode === "detail"
+              ? 0xa5e2ff
+              : dark
+                ? 0x70b7e6
+                : 0x82c5ed,
       );
       const level = Math.min(
         Math.log2(
@@ -406,17 +410,27 @@ function initializeGlobe(
         ),
         3,
       );
-      item.line.material.linewidth = active
-        ? 1.65
-        : hovered
-          ? 1.3
-          : 0.93 + level * 0.06;
-      item.line.material.opacity = active
-        ? 0.92
-        : hovered
-          ? 0.8
-          : (selected?.kind === "route" ? 0.36 : dark ? 0.62 : 0.64) +
-            level * 0.07;
+      item.line.material.linewidth =
+        viewMode === "detail"
+          ? active
+            ? 2.6
+            : hovered
+              ? 2.4
+              : 2.1
+          : active
+            ? 1.65
+            : hovered
+              ? 1.3
+              : 0.93 + level * 0.06;
+      item.line.material.opacity =
+        viewMode === "detail"
+          ? 0.95
+          : active
+            ? 0.92
+            : hovered
+              ? 0.8
+              : (selected?.kind === "route" ? 0.36 : dark ? 0.62 : 0.64) +
+                level * 0.07;
       item.line.renderOrder = active ? 3 : hovered ? 2 : 1;
     }
     for (const item of markers) {

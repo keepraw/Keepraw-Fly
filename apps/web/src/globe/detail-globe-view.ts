@@ -40,7 +40,7 @@ export function detailGlobeView(
   // At antipodes the elevated endpoints lie on opposite limbs. Pull back
   // until the entire actual arc clears the sphere, then narrow the lens to
   // retain a useful globe size instead of an extreme tiny-globe zoom-out.
-  let low = 2.05,
+  let low = 2.45,
     high = 40;
   for (let i = 0; i < 40; i++) {
     const distance = (low + high) / 2;
@@ -60,7 +60,9 @@ export function detailGlobeView(
   );
   const lens = Math.max(
     fit * 1.01,
-    (Math.tan((17 * Math.PI) / 180) * 2.09) / distance,
+    // A slightly wider lens reveals the curved limb while the route fit still
+    // sets the lens for long, polar and antipodal arcs.
+    (Math.tan((22 * Math.PI) / 180) * 2.49) / distance,
   );
   return {
     direction,
