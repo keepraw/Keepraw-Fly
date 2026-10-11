@@ -1,0 +1,55 @@
+.detail-globe-frame {
+  position: relative;
+  min-width: 0;
+}
+
+.detail-globe-frame .globe-stage {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+.detail-globe-frame .globe-airport-label {
+  pointer-events: auto;
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  top: 0;
+  border: 0;
+  padding: 4px;
+  background: transparent;
+  font: 600 11px var(--font-family-data);
+  line-height: 1;
+  color: #dcecff;
+  text-shadow:
+    0 1px 4px #041325,
+    0 1px 2px #041325;
+}
+
+.detail-globe-frame .globe-airport-label.is-selected {
+  color: #ffb0a5;
+}
+
+.detail-globe-frame .globe-controls button {
+  cursor: pointer;
+  color: inherit;
+}
+
+.detail-globe-frame :focus-visible {
+  outline: 2px solid #6eacdf;
+  outline-offset: 3px;
+}
+
+.detail-globe-message,
+.detail-globe-frame .globe-fallback {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.detail-globe-message {
+  color: var(--muted);
+}

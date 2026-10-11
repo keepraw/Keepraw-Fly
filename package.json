@@ -23,7 +23,7 @@
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
-    "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\"",
+    "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\" \"apps/web/src/globe/detail-globe.css\"",
     "check:css-tokens": "node scripts/check-css-tokens.mjs"
   },
   "devDependencies": {

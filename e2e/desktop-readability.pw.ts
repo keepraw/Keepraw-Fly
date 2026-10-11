@@ -1,3 +1,4 @@
+import { expectDetailGlobe } from "./helpers/detail-globe";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -147,15 +148,12 @@ test("shares search and year scope, map selection and adjacent detail navigation
   await expect(
     page.locator(".detail-stop--departure .detail-stop-facts"),
   ).toContainText("Gate338");
-  await expect(page.locator(".detail-map-airport text")).toHaveText([
-    "SZX",
-    "TAO",
-  ]);
-  expect(
-    Number(
-      await page.locator(".detail-route-map-canvas").getAttribute("data-zoom"),
-    ),
-  ).toBeGreaterThan(4);
+  if (await expectDetailGlobe(page)) {
+    await expect(page.locator(".globe-airport-label")).toHaveText([
+      "SZX",
+      "TAO",
+    ]);
+  }
   await mkdir("test-results/desktop-readability", { recursive: true });
   for (const width of [1440, 1280, 1024, 390]) {
     await page.setViewportSize({ width, height: 720 });

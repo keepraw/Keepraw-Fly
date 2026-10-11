@@ -29,6 +29,7 @@ import {
   type GlobeLighting,
 } from "./globe-lighting";
 import { FIXED_SUN_DIRECTION } from "./globe-solar";
+import { detailGlobeView } from "./detail-globe-view";
 
 export type GlobeTheme = "light" | "dark";
 export type GlobeSelection =
@@ -71,6 +72,7 @@ export interface GlobeController {
   highlight: (key?: string) => void;
   zoom: (factor: number) => void;
   home: () => void;
+  accessibility: () => void;
   twilightReview: () => void;
   dispose: () => void;
 }
@@ -91,10 +93,58 @@ export function createGlobe(
     hover: (text: string | null) => void;
     error: (reason: GlobeFailure) => void;
   },
+  viewMode: "passport" | "detail" = "passport",
+): GlobeController {
+  const cleanup: (() => void)[] = [];
+  try {
+    return initializeGlobe(
+      host,
+      labels,
+      routes,
+      initialTheme,
+      quality,
+      callbacks,
+      viewMode,
+      cleanup,
+    );
+  } catch (cause) {
+    for (const release of cleanup.reverse()) {
+      try {
+        release();
+      } catch {
+        /* Continue releasing sibling resources. */
+      }
+    }
+    delete host.dataset.ready;
+    if (cause instanceof GlobeInitializationError) throw cause;
+    throw new GlobeInitializationError({
+      kind: "initialization",
+      message: String(cause),
+    });
+  }
+}
+
+function initializeGlobe(
+  host: HTMLDivElement,
+  labels: HTMLDivElement,
+  routes: RouteSegment[],
+  initialTheme: GlobeTheme,
+  quality: "2048" | "4096",
+  callbacks: {
+    select: (s: GlobeSelection) => void;
+    canvasLabel: string;
+    airportLabel: (code: string, count: number) => string;
+    routeLabel: (origin: string, destination: string, count: number) => string;
+    hover: (text: string | null) => void;
+    error: (reason: GlobeFailure) => void;
+  },
+  viewMode: "passport" | "detail",
+  cleanup: (() => void)[],
 ): GlobeController {
   const start = performance.now();
   delete host.dataset.ready;
   const canvas = document.createElement("canvas");
+  canvas.dataset.globeView = viewMode;
   let contextReason = "This browser could not create a WebGL2 context.";
   const creationError = (event: Event) => {
     contextReason = (event as WebGLContextEvent).statusMessage || contextReason;
@@ -111,13 +161,32 @@ export function createGlobe(
       kind: "webgl2-unavailable",
       message: contextReason,
     });
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    context,
-    antialias: true,
-    alpha: true,
-    powerPreference: "low-power",
-  });
+  let renderer: THREE.WebGLRenderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      context,
+      antialias: true,
+      alpha: true,
+      powerPreference: "low-power",
+    });
+  } catch (cause) {
+    context.getExtension("WEBGL_lose_context")?.loseContext();
+    throw new GlobeInitializationError({
+      kind: "initialization",
+      message: String(cause),
+    });
+  }
+  cleanup.push(
+    () => renderer.forceContextLoss(),
+    () => renderer.dispose(),
+    () => canvas.remove(),
+    () => labels.replaceChildren(),
+  );
+  const track = <T extends { dispose: () => void }>(resource: T): T => {
+    cleanup.push(() => resource.dispose());
+    return resource;
+  };
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -128,26 +197,36 @@ export function createGlobe(
   canvas.setAttribute("aria-label", callbacks.canvasLabel);
   host.append(canvas);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 20);
-  let home = defaultGlobeView(routes, {
+  const camera = new THREE.PerspectiveCamera(
+    34,
+    1,
+    0.1,
+    viewMode === "detail" ? 100 : 20,
+  );
+  const initialView = (viewport: { width: number; height: number }) =>
+    viewMode === "detail" && routes[0]
+      ? detailGlobeView(routes[0], viewport)
+      : defaultGlobeView(routes, viewport);
+  let home = initialView({
     width: host.clientWidth || 1008,
     height: host.clientHeight || 610,
   });
+  camera.fov = home.fov ?? 34;
   camera.position.copy(vector(home.direction).multiplyScalar(home.distance));
   camera.lookAt(0, 0, 0);
-  const controls = new OrbitControls(camera, canvas);
+  const controls = track(new OrbitControls(camera, canvas));
   controls.enablePan = false;
   controls.enableDamping = false;
   controls.enableRotate = true;
   controls.minDistance = 1.45;
-  controls.maxDistance = 6.2;
+  controls.maxDistance = viewMode === "detail" ? 40 : 6.2;
   controls.rotateSpeed = 0.55;
   controls.zoomSpeed = 0.65;
-  controls.minPolarAngle = 0.04;
-  controls.maxPolarAngle = Math.PI - 0.04;
+  controls.minPolarAngle = viewMode === "detail" ? 0.001 : 0.04;
+  controls.maxPolarAngle = Math.PI - controls.minPolarAngle;
   const uniforms = {
-    earth: { value: new THREE.Texture() },
-    nightMap: { value: new THREE.Texture() },
+    earth: { value: track(new THREE.Texture()) },
+    nightMap: { value: track(new THREE.Texture()) },
     nightTexelSize: {
       value: new THREE.Vector2(1 / Number(quality), 2 / Number(quality)),
     },
@@ -166,30 +245,34 @@ export function createGlobe(
     nightEnabled: { value: 1 },
     atmosphereEnabled: { value: 1 },
   };
-  const geometry = new THREE.SphereGeometry(1, 160, 96);
-  const material = new THREE.ShaderMaterial({
-    uniforms,
-    vertexShader: globeVertex,
-    fragmentShader: surfaceFragment,
-  });
-  const globe = new THREE.Mesh(geometry, material);
-  scene.add(globe);
-  const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(1.026, 128, 80),
+  const geometry = track(new THREE.SphereGeometry(1, 160, 96));
+  const material = track(
     new THREE.ShaderMaterial({
       uniforms,
       vertexShader: globeVertex,
-      fragmentShader: atmosphereFragment,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.BackSide,
+      fragmentShader: surfaceFragment,
     }),
+  );
+  const globe = new THREE.Mesh(geometry, material);
+  scene.add(globe);
+  const atmosphere = new THREE.Mesh(
+    track(new THREE.SphereGeometry(1.026, 128, 80)),
+    track(
+      new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: globeVertex,
+        fragmentShader: atmosphereFragment,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.BackSide,
+      }),
+    ),
   );
   scene.add(atmosphere);
   const airports = globeAirports(routes);
-  const airportGeometry = new THREE.SphereGeometry(0.005, 10, 8);
-  const airportMaterials = airports.map(
-    () => new THREE.MeshBasicMaterial({ color: 0xa6dbff }),
+  const airportGeometry = track(new THREE.SphereGeometry(0.005, 10, 8));
+  const airportMaterials = airports.map(() =>
+    track(new THREE.MeshBasicMaterial({ color: 0xa6dbff })),
   );
   const markers = airports.map((point, index) => {
     const marker = new THREE.Mesh(airportGeometry, airportMaterials[index]);
@@ -212,17 +295,19 @@ export function createGlobe(
   const routeLines = physicalGlobeRoutes(routes).map((directions) => {
     const route = directions[0]!;
     const points = routeArc(route);
-    const lineGeometry = new LineGeometry();
+    const lineGeometry = track(new LineGeometry());
     lineGeometry.setPositions(points.flat());
-    const lineMaterial = new LineMaterial({
-      color: 0x529bd0,
-      linewidth: 1,
-      transparent: true,
-      opacity: 0.6,
-      depthTest: true,
-      depthWrite: false,
-      toneMapped: false,
-    });
+    const lineMaterial = track(
+      new LineMaterial({
+        color: 0x529bd0,
+        linewidth: 1,
+        transparent: true,
+        opacity: 0.6,
+        depthTest: true,
+        depthWrite: false,
+        toneMapped: false,
+      }),
+    );
     const selectedUniform = { value: 0 };
     lineMaterial.onBeforeCompile = (shader) => {
       shader.uniforms.sceneSelected = selectedUniform;
@@ -262,6 +347,10 @@ export function createGlobe(
     height = 1,
     selected: GlobeSelection | null = null,
     highlight: string | undefined;
+  cleanup.push(() => {
+    disposed = true;
+    cancelAnimationFrame(frame);
+  });
   let lighting = { ...defaultLighting };
   let moving: {
     from: THREE.Vector3;
@@ -346,7 +435,11 @@ export function createGlobe(
   }
   function project(v: Vec3) {
     const p = vector(v).project(camera);
-    return { x: ((p.x + 1) * width) / 2, y: ((1 - p.y) * height) / 2, z: p.z };
+    return {
+      x: ((p.x + 1) * width) / 2,
+      y: ((1 - p.y) * height) / 2,
+      z: p.z,
+    };
   }
   function layoutLabels() {
     if (lighting.earthOnly) {
@@ -364,7 +457,8 @@ export function createGlobe(
     for (const item of sorted) {
       const v = item.marker.position.toArray() as unknown as Vec3,
         p = project(v);
-      const required = item.label.classList.contains("is-selected");
+      const required =
+        viewMode === "detail" || item.label.classList.contains("is-selected");
       const visible =
         visibleFrom(v, cam) &&
         p.x > 12 &&
@@ -379,14 +473,15 @@ export function createGlobe(
         visible && (!collision || required) && (required || boxes.length < 12);
       item.label.hidden = !show;
       if (show) {
-        item.label.style.transform = `translate(${p.x + 7}px,${p.y - 16}px)`;
+        const labelY = viewMode === "detail" && collision ? p.y + 8 : p.y - 16;
+        item.label.style.transform = `translate(${p.x + 7}px,${labelY}px)`;
         boxes.push(p);
       }
     }
   }
   function render(now: number) {
     frame = 0;
-    if (disposed) return;
+    if (disposed || document.hidden) return;
     const began = performance.now();
     if (moving) {
       // RAF's frame timestamp may precede a selection made earlier in the same
@@ -449,11 +544,13 @@ export function createGlobe(
     if (moving) invalidate();
   }
   function invalidate() {
-    if (!disposed && !frame) frame = requestAnimationFrame(render);
+    if (!disposed && !document.hidden && !frame)
+      frame = requestAnimationFrame(render);
   }
   function flyTo(view: GlobeView, center = true) {
     atHome = !center;
     viewOffset = view.offset ?? { x: 0, y: 0 };
+    camera.fov = view.fov ?? 34;
     const to = vector(view.direction).multiplyScalar(view.distance);
     metrics.motion = {
       from: camera.position.toArray(),
@@ -499,7 +596,7 @@ export function createGlobe(
     height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height);
     camera.aspect = width / height;
-    home = defaultGlobeView(routes, { width, height });
+    home = initialView({ width, height });
     if (atHome) {
       cancelMotion();
       camera.position.copy(
@@ -507,6 +604,7 @@ export function createGlobe(
       );
       camera.lookAt(0, 0, 0);
       viewOffset = home.offset ?? { x: 0, y: 0 };
+      camera.fov = home.fov ?? 34;
       controls.update();
     }
     camera.setViewOffset(
@@ -523,7 +621,20 @@ export function createGlobe(
     invalidate();
   }
   const observer = new ResizeObserver(resize);
+  cleanup.push(() => observer.disconnect());
   observer.observe(host);
+  const visibility = () => {
+    if (document.hidden) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      // Preserve the last visible pose instead of jumping through a hidden animation.
+      cancelMotion();
+    } else invalidate();
+  };
+  document.addEventListener("visibilitychange", visibility);
+  cleanup.push(() =>
+    document.removeEventListener("visibilitychange", visibility),
+  );
   let loadedTextures = 0;
   const textureReady = () => {
     if (++loadedTextures !== 2) return;
@@ -557,6 +668,7 @@ export function createGlobe(
         });
     },
   );
+  track(texture);
   texture.colorSpace = THREE.SRGBColorSpace;
   const nightTexture = new THREE.TextureLoader().load(
     quality === "4096" ? night4096 : night2048,
@@ -581,6 +693,7 @@ export function createGlobe(
         });
     },
   );
+  track(nightTexture);
   nightTexture.colorSpace = THREE.NoColorSpace;
   const change = () => invalidate();
   const controlStart = () => {
@@ -721,6 +834,15 @@ export function createGlobe(
   canvas.addEventListener("pointerleave", leave);
   canvas.addEventListener("keydown", key);
   canvas.addEventListener("webglcontextlost", lost);
+  cleanup.push(() => {
+    canvas.removeEventListener("pointerdown", down);
+    canvas.removeEventListener("pointermove", move);
+    canvas.removeEventListener("pointerup", up);
+    canvas.removeEventListener("pointerleave", leave);
+    canvas.removeEventListener("keydown", key);
+    canvas.removeEventListener("webglcontextlost", lost);
+    delete reviewHost.globeReviewView;
+  });
   resize();
   paintStyles();
   return {
@@ -762,13 +884,19 @@ export function createGlobe(
             r.origin.iata === selection.origin &&
             r.destination.iata === selection.destination,
         );
-        if (route) flyTo(selectedRouteView(route, { width, height }));
+        if (route)
+          flyTo(
+            viewMode === "detail"
+              ? detailGlobeView(route, { width, height })
+              : selectedRouteView(route, { width, height }),
+          );
       } else if (selection?.kind === "airport") {
         const airport = airports.find((a) => a.iata === selection.code);
         if (airport)
           flyTo({
             direction: spherePoint(airport),
             distance: Math.max(2.4, camera.position.length()),
+            ...(viewMode === "detail" ? { fov: camera.fov } : {}),
           });
       }
     },
@@ -783,10 +911,20 @@ export function createGlobe(
     home() {
       flyTo(home, false);
     },
+    accessibility() {
+      canvas.setAttribute("aria-label", callbacks.canvasLabel);
+      for (const item of markers)
+        item.label.setAttribute(
+          "aria-label",
+          callbacks.airportLabel(item.point.iata, item.point.flightCount),
+        );
+    },
     dispose() {
+      if (disposed) return;
       disposed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      document.removeEventListener("visibilitychange", visibility);
       controls.dispose();
       canvas.removeEventListener("pointerdown", down);
       canvas.removeEventListener("pointermove", move);
@@ -811,6 +949,7 @@ export function createGlobe(
       texture.dispose();
       nightTexture.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       canvas.remove();
       labels.replaceChildren();
       delete host.dataset.ready;

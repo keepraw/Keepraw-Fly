@@ -53,6 +53,8 @@ function markup(record = flight, locale: SupportedLocale = "zh-CN") {
         locale={locale}
         distanceUnit="kilometers"
         timeFormat="24-hour"
+        appearance="light"
+        solarMode="fixed"
       />
     </I18nextProvider>,
   );

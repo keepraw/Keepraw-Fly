@@ -1,6 +1,19 @@
 import { i18n } from "../i18n";
 const resources = {
   en: {
+    keyboard:
+      "Drag to rotate, scroll or use + and - to zoom, arrow keys to rotate, Home to fit this view",
+    detailLabel: "Interactive 3D globe of this flight's route",
+    detailCancelled: "This flight was cancelled. No flown route to display.",
+    detailUnavailable:
+      "The flight route is unavailable: an airport is unknown or has invalid coordinates.",
+    errors: {
+      "webgl2-unavailable":
+        "3D globe unavailable: this browser could not start WebGL. Try again.",
+      initialization: "The 3D globe could not start. Try again.",
+      texture: "The globe imagery could not load. Try again.",
+      context: "The 3D globe connection was lost. Try again.",
+    },
     twilightReview: "Twilight Review",
     solarMode: "Solar Mode",
     solarFixed: "Fixed",
@@ -45,6 +58,16 @@ const resources = {
     empty: "No matching flights.",
   },
   "zh-CN": {
+    keyboard: "拖动旋转，滚轮或 + 和 - 缩放，方向键旋转，Home 恢复初始视角",
+    detailLabel: "当前航班航线的交互式三维地球",
+    detailCancelled: "航班已取消，没有可显示的实际飞行航线。",
+    detailUnavailable: "航线不可用：机场未知或坐标无效。",
+    errors: {
+      "webgl2-unavailable": "三维地球不可用：浏览器无法启动 WebGL，请重试。",
+      initialization: "三维地球启动失败，请重试。",
+      texture: "地球影像加载失败，请重试。",
+      context: "三维地球连接已丢失，请重试。",
+    },
     twilightReview: "暮光审查视角",
     solarMode: "太阳模式",
     solarFixed: "固定",
@@ -88,6 +111,16 @@ const resources = {
     empty: "没有匹配的航班。",
   },
   "zh-TW": {
+    keyboard: "拖曳旋轉，滾輪或 + 和 - 縮放，方向鍵旋轉，Home 恢復初始視角",
+    detailLabel: "目前航班航線的互動三維地球",
+    detailCancelled: "航班已取消，沒有可顯示的實際飛行航線。",
+    detailUnavailable: "航線無法使用：機場未知或座標無效。",
+    errors: {
+      "webgl2-unavailable": "三維地球無法使用：瀏覽器無法啟動 WebGL，請重試。",
+      initialization: "三維地球啟動失敗，請重試。",
+      texture: "地球影像載入失敗，請重試。",
+      context: "三維地球連線已中斷，請重試。",
+    },
     twilightReview: "暮光審查視角",
     solarMode: "太陽模式",
     solarFixed: "固定",

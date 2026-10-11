@@ -1,4 +1,4 @@
-import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
+import type { RouteSegment } from "@keepraw-fly/core";
 import {
   projectPoint,
   sampleGreatCircle,
@@ -60,34 +60,12 @@ export function passportMapCamera(
 }
 
 function passportWorldCamera(viewportHeight: number): MapCamera {
-  // A wide, short stage needs a scale below 1 to retain polar routes. Detail
-  // keeps its original camera; only Passport opts into this overview scale.
+  // The SVG Passport overview needs a scale below 1 to retain polar routes
+  // in a wide, short stage.
   return {
     ...WORLD_CAMERA,
     zoom: Math.min(0.94, (viewportHeight / WORLD_HEIGHT) * 0.9),
   };
-}
-
-export function flightRouteCamera(
-  origin: RoutePoint,
-  destination: RoutePoint,
-  viewportHeight = WORLD_HEIGHT,
-): MapCamera {
-  if (Math.abs(origin.longitude - destination.longitude) > 180)
-    return WORLD_CAMERA;
-  return fitProjectedPoints(
-    sampleGreatCircle(
-      origin,
-      destination,
-      72,
-      regionalCenterLongitude([origin, destination]),
-    ),
-    {
-      maxZoom: 12,
-      padding: 0.09,
-      viewportHeight,
-    },
-  );
 }
 
 export function fitProjectedPoints(

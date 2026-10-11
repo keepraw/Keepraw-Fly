@@ -102,10 +102,21 @@ texture with that same projection and geographic center. It is clipped to the
 vector land geometry and transformed together with the routes while panning
 and zooming. `MapRelief` caches up to three projected images and yields between
 pixel strips; a failed texture load leaves the interactive vector map usable.
-The texture is 554 KiB and does not replace airport/route geometry. Flight Detail
-uses the original map appearance. Regenerate the texture with Pillow using
+The texture is 554 KiB and does not replace airport/route geometry. Regenerate the texture with Pillow using
 `python scripts/generate-map-relief.py /path/to/SR_50M.tif`; the pinned download,
 archive checksum and public-domain license are in `map-relief.source.json`.
+
+Desktop Flight Detail (at least 761px) lazily loads `DetailGlobe`, reusing the
+Passport Three.js renderer and `buildRouteSegments([flight])`. It draws only the
+current route, including the actual diversion airport; cancelled flights and
+unknown or invalid coordinates show localized explanations. Its independent
+camera fits the sampled great-circle arc to the container, including polar,
+date-line, coincident and antipodal routes. Home restores that route's composition;
+resize recomposes Home while preserving a user-operated camera. Theme, language
+and solar updates preserve the renderer. Mobile Detail creates no map or WebGL
+context and requests no Globe code or imagery. Detail has no SVG map or fallback:
+WebGL, context and texture failures provide localized retry. Passport keeps its
+existing default composition, materials, interaction and SVG failure path.
 
 Passport alone permits an overview zoom below 1 to fit the full world into wide
 stages; regional cameras retain 16% padding and a maximum initial zoom of 6 for

@@ -96,7 +96,7 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run full Chromium regression journeys
-        run: pnpm test:e2e --project=chromium --shard=${{ matrix.shard }}/2 --reporter=list,html,json
+        run: pnpm test:e2e --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --reporter=list,html,json
 
       - name: Summarize Chromium results
         if: always()
@@ -152,7 +152,7 @@ jobs:
       # Each project selects @cross-browser tests in playwright.config.ts.
       # Keep engine diagnostics independent; Chromium shards run all E2E.
       - name: Run cross-browser smoke journeys
-        run: pnpm test:e2e --project=${{ matrix.browser }} --reporter=list,html,json
+        run: pnpm test:e2e --project=${{ matrix.browser }} --workers=1 --reporter=list,html,json
 
       - name: Summarize browser results
         if: always()

@@ -7,7 +7,7 @@ export async function disablePassportWebGL(page: Page) {
   await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function (type, ...args) {
-      if (type === "webgl2") return null;
+      if (type === "webgl2" && this.dataset.globeView !== "detail") return null;
       return Reflect.apply(original, this, [type, ...args]);
     } as typeof original;
   });

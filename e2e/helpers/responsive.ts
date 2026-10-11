@@ -1,3 +1,4 @@
+import { expectDetailGlobe } from "./detail-globe";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -260,7 +261,7 @@ export async function expectDetailLayout(page: Page, mobile: boolean) {
       page.locator(".detail-route-map, .detail-route-map-loading"),
     ).toHaveCount(0);
   } else {
-    await expect(page.locator(".detail-route-map-canvas")).toBeVisible();
+    await expectDetailGlobe(page);
   }
   await expect(page.locator(".detail-stop--departure")).toContainText("SFO");
   await expect(page.locator(".detail-stop--arrival")).toContainText("LAX");

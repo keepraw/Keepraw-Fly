@@ -1,3 +1,4 @@
+import { expectDetailGlobe } from "./helpers/detail-globe";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -113,16 +114,10 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1440]) {
           page.locator(".flight-deviation.is-late").first(),
         ).toHaveCSS("color", colors[dark ? "dark" : "light"].warning);
         if (width > 760) {
+          await expectDetailGlobe(page);
           await expect(
-            page.locator(".detail-route-map-canvas > svg"),
-          ).toBeVisible();
-          await expect(page.locator(".detail-route-map-canvas")).toHaveCSS(
-            "background-color",
-            colors[dark ? "dark" : "light"].map,
-          );
-          await expect(
-            page.locator(".map-zoom-controls button").last(),
-          ).toBeEnabled();
+            page.locator(".detail-globe-frame .globe-stage"),
+          ).toHaveAttribute("data-theme", dark ? "dark" : "light");
         } else await expect(page.locator(".detail-route-map")).toHaveCount(0);
         // Switch the OS on the mounted Detail page, without a reload or navigation.
         if (mode === "system") {

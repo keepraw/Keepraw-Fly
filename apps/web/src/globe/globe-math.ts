@@ -118,6 +118,7 @@ export function globeAirports(routes: RouteSegment[]) {
 export interface GlobeView {
   direction: Vec3;
   distance: number;
+  fov?: number;
   offset?: { x: number; y: number };
 }
 
@@ -136,18 +137,22 @@ export function projectGlobePoint(
 ) {
   const forward = scale(view.direction, -1);
   const right = normalize(
-    cross(forward, Math.abs(view.direction[1]) > 0.999 ? [0, 0, 1] : [0, 1, 0]),
+    cross(
+      forward,
+      !view.fov && Math.abs(view.direction[1]) > 0.999 ? [0, 0, 1] : [0, 1, 0],
+    ),
   );
   const up = cross(right, forward);
   const delta = add(point, scale(view.direction, -view.distance));
   const depth = dot(delta, forward);
+  const viewTangent = view.fov ? Math.tan((view.fov * Math.PI) / 360) : tangent;
   return {
     x:
       0.5 +
       dot(delta, right) /
-        ((2 * tangent * depth * viewport.width) / viewport.height) -
+        ((2 * viewTangent * depth * viewport.width) / viewport.height) -
       (view.offset?.x ?? 0),
-    y: 0.5 - dot(delta, up) / (2 * tangent * depth) - (view.offset?.y ?? 0),
+    y: 0.5 - dot(delta, up) / (2 * viewTangent * depth) - (view.offset?.y ?? 0),
     visible: visibleFrom(point, scale(view.direction, view.distance)),
   };
 }
