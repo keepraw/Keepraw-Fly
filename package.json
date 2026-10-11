@@ -22,7 +22,7 @@
     "test:e2e": "playwright test",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
-    "format:check": "prettier --write apps/web/src/components/FlightRow.tsx packages/core/src/airport-cities.ts packages/core/tests/core.test.ts docs/reviews/task-5b-city-label-audit.md && node -e 'const fs=require(\"node:fs\"); for(const f of [\"apps/web/src/components/FlightRow.tsx\",\"packages/core/src/airport-cities.ts\",\"packages/core/tests/core.test.ts\",\"docs/reviews/task-5b-city-label-audit.md\"]) console.log(\"PRETTIER_RESULT\",f,fs.readFileSync(f).toString(\"base64\"));' && prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
     "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\"",
     "check:css-tokens": "node scripts/check-css-tokens.mjs"
   },
