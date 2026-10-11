@@ -22,6 +22,15 @@ export async function expectDetailHero(page: Page, width: number) {
       ),
     )
     .toBe(width >= 1024 ? 2 : 1);
+  // Mobile and tablet both have one column. Wait for the distinct breakpoint
+  // styles and React's map mount/unmount before taking a geometry snapshot.
+  await expect(hero).toHaveCSS(
+    "row-gap",
+    width >= 1024 ? "32px" : width > 760 ? "28px" : "0px",
+  );
+  const map = page.locator(".detail-hero-grid > .detail-route-map");
+  if (width > 760) await expect(map).toBeVisible();
+  else await expect(map).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   const geometry = await hero.evaluate((element) => {
     const bounds = (selector: string) => {
