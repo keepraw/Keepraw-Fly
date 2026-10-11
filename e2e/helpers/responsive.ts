@@ -247,7 +247,10 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
 }
 
 export async function expectDetailLayout(page: Page, mobile: boolean) {
-  await expectColumns(page.locator(".detail-operational-grid"), mobile ? 1 : 2);
+  const split = await page.evaluate(
+    () => window.matchMedia("(min-width: 1200px)").matches,
+  );
+  await expectColumns(page.locator(".detail-operational-grid"), split ? 2 : 1);
   await expect(page.locator(".detail-adjacent-navigation")).toHaveCSS(
     "display",
     mobile ? "none" : "flex",

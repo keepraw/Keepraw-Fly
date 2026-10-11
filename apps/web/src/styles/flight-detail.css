@@ -157,6 +157,7 @@
 .detail-flight-phase {
   font-size: var(--detail-note-size);
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .detail-flight-phase.is-cancelled {
