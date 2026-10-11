@@ -190,25 +190,13 @@ export function FlightRow({
                 >
                   <div className="flight-route-cities">
                     <span>
-                      {origin
-                        ? formatCityDisplayName(
-                            localizedText(origin.city, locale),
-                            origin.country,
-                            locale,
-                          )
-                        : flight.origin.iata}
+                      {originCity}
                     </span>
                     <span className="route-direction" aria-hidden="true">
                       →
                     </span>
                     <span>
-                      {destination
-                        ? formatCityDisplayName(
-                            localizedText(destination.city, locale),
-                            destination.country,
-                            locale,
-                          )
-                        : flight.destination.iata}
+                      {destinationCity}
                     </span>
                   </div>
                   <div className="flight-route-codes">
