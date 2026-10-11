@@ -58,12 +58,19 @@ export function detailGlobeView(
       );
     }),
   );
+  // Near-square frames need less limb crop than wide/tall frames. Smoothly
+  // grow from 105% to 110% of the short side as the aspect approaches 2:1.
+  const silhouetteDiameter =
+    1.05 + 0.05 * Math.min(1, Math.abs(Math.log2(aspect)));
   const lens = Math.max(
     fit * 1.01,
     // A sphere's perspective silhouette has radius 1/sqrt(distance² - 1).
-    // Keep ordinary routes at 88% of the short side, leaving visible space;
-    // the actual route fit still takes priority for long/polar/antipodal arcs.
-    1 / (Math.sqrt(distance * distance - 1) * 0.88 * Math.min(1, aspect)),
+    // Ordinary routes dominate the frame, with a modest limb crop.
+    // The actual route fit takes priority for long/polar/antipodal arcs.
+    1 /
+      (Math.sqrt(distance * distance - 1) *
+        silhouetteDiameter *
+        Math.min(1, aspect)),
   );
   return {
     direction,

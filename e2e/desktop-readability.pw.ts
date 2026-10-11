@@ -155,7 +155,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     ]);
   }
   await mkdir("test-results/desktop-readability", { recursive: true });
-  for (const width of [1440, 1280, 1024, 1023, 390]) {
+  for (const width of [1440, 1280, 1200, 1199, 1024, 1023, 390]) {
     await page.setViewportSize({ width, height: 720 });
     expect(
       await page
@@ -163,7 +163,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
         .evaluate((e) => e.scrollWidth <= e.clientWidth),
     ).toBe(true);
     await expect(page.locator(".detail-route-map")).toHaveCount(
-      width < 1024 ? 0 : 1,
+      width < 1200 ? 0 : 1,
     );
     await page.screenshot({
       path: `test-results/desktop-readability/detail-${width}.png`,

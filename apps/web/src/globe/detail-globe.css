@@ -6,7 +6,7 @@
   isolation: isolate;
   color-scheme: dark;
   color: #dcecff;
-  background: radial-gradient(ellipse at 22% 75%, #0b1a2c, #060e1b 76%);
+  background: transparent;
 }
 
 .detail-globe-frame .detail-globe-space {
@@ -14,6 +14,17 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  background: radial-gradient(ellipse at 22% 75%, #0b1a2c, #060e1b 76%);
+
+  /* Only space fades; the sibling WebGL stage and its controls stay opaque.
+     Transparent edges reveal the actual Light/Dark page canvas underneath. */
+  mask-image: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    #000 35%,
+    rgb(0 0 0 / 65%) 52%,
+    rgb(0 0 0 / 12%) 75%,
+    transparent 100%
+  );
 }
 
 .detail-globe-frame .detail-globe-space::before {
@@ -74,11 +85,17 @@
   color: #ffb0a5;
 }
 
+.detail-globe-frame .globe-controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 180ms ease;
+}
+
 .detail-globe-frame .globe-controls button {
   cursor: pointer;
-  color: inherit;
-  border-color: #3f5b74;
-  background: rgb(19 40 58 / 93%);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 72%, transparent);
 }
 
 .detail-globe-frame .globe-tooltip {
@@ -103,6 +120,25 @@
 .detail-globe-message {
   position: relative;
   color: #a9bdd3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .detail-globe-frame .globe-controls {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .detail-globe-frame:hover .globe-controls,
+  .detail-globe-frame:focus-within .globe-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-globe-frame .globe-controls {
+    transition: none;
+  }
 }
 
 @media (min-width: 1200px) {

@@ -21,11 +21,11 @@ export async function expectDetailHero(page: Page, width: number) {
           getComputedStyle(element).gridTemplateColumns.split(/\s+/).length,
       ),
     )
-    .toBe(width >= 1024 ? 2 : 1);
+    .toBe(width >= 1200 ? 2 : 1);
   // Wait for breakpoint styles and React's mount/unmount before measuring.
-  await expect(hero).toHaveCSS("row-gap", width >= 1024 ? "32px" : "0px");
+  await expect(hero).toHaveCSS("row-gap", width >= 1200 ? "32px" : "0px");
   const map = page.locator(".detail-hero-grid > .detail-route-map");
-  if (width >= 1024) await expect(map).toBeVisible();
+  if (width >= 1200) await expect(map).toBeVisible();
   else await expect(map).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   const geometry = await hero.evaluate((element) => {
@@ -54,7 +54,7 @@ export async function expectDetailHero(page: Page, width: number) {
     };
   });
   expect(geometry.overflow).toBeLessThanOrEqual(0);
-  if (width >= 1024) {
+  if (width >= 1200) {
     const map = geometry.map!;
     expect(map).not.toBeNull();
     expect(map.width).toBeGreaterThan(0);

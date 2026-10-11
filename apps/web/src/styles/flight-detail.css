@@ -398,10 +398,10 @@
   min-width: 0;
   overflow: hidden;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 0;
   color: #dcecff;
-  background: #060e1b;
+  background: transparent;
   box-shadow: none;
 }
 
@@ -532,7 +532,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   @container detail-information (max-width: 660px) {
     .detail-stop {
       grid-template-columns: minmax(0, 1fr) minmax(230px, 1.15fr);
@@ -574,7 +574,7 @@
 }
 
 /* Complement the Globe mount query, including fractional viewport widths. */
-@media not all and (min-width: 1024px) {
+@media not all and (min-width: 1200px) {
   .detail-page {
     --detail-title-size: 1.625rem;
     --detail-time-size: 2rem;
@@ -632,10 +632,6 @@
     margin-block: 20px;
   }
 
-  .detail-route-map {
-    display: none;
-  }
-
   .detail-metadata-shelf {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
@@ -679,7 +675,7 @@
   }
 }
 
-@media not all and (min-width: 1024px) {
+@media not all and (min-width: 1200px) {
   .site-header--detail {
     position: relative;
     background: var(--color-canvas);

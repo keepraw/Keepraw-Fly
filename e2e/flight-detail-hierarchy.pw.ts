@@ -103,7 +103,7 @@ async function expectTimeGrid(page: Page, width: number) {
     .locator(".detail-hero-information")
     .boundingBox())!.width;
   const captionRows =
-    width <= 480 || (width >= 1024 && informationWidth <= 660);
+    width <= 480 || (width >= 1200 && informationWidth <= 660);
   const rows = await page
     .locator(".detail-airport-time, .detail-scheduled-time")
     .evaluateAll((elements) =>
@@ -163,7 +163,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
       const globeRequests: string[] = [];
       page.on("request", (r) => {
         if (
-          /DetailGlobe|GlobeMap|globe-renderer|three(?:[./-])|earth-\d|night-\d/.test(
+          /DetailGlobe|GlobeMap|globe-renderer|lab-locales|three(?:[./-])|earth-\d|night-\d/.test(
             r.url(),
           )
         )
@@ -204,7 +204,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         await expect(page.locator(".detail-metadata-shelf")).toContainText(
           "12A",
         );
-        if (width < 1024) {
+        if (width < 1200) {
           await expect(page.locator(".detail-route-map, canvas")).toHaveCount(
             0,
           );
@@ -226,7 +226,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           body: JSON.stringify(heroGeometry, null, 2),
           contentType: "application/json",
         });
-        if (width >= 1024) {
+        if (width >= 1200) {
           const stops = (await page.locator(".detail-stops").boundingBox())!;
           const map = (await page.locator(".detail-route-map").boundingBox())!;
           expect(map.x).toBeGreaterThan(stops.x + stops.width);
@@ -290,9 +290,9 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         await page
           .locator(`.flight-record[data-flight-id="${record.id}"] .flight-row`)
           .click();
-        for (const width of [360, 390, 430, 761, 1024, 1440]) {
+        for (const width of [360, 390, 430, 761, 1024, 1199, 1200, 1440]) {
           await page.setViewportSize({ width, height: 900 });
-          if (width >= 1024 && !record.cancelled)
+          if (width >= 1200 && !record.cancelled)
             await expect(
               page.locator(".detail-globe-frame .globe-host"),
             ).toHaveAttribute("data-ready", "true", { timeout: 25000 });

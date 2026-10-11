@@ -77,7 +77,7 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
 }) => {
   await open(page);
   await ready(page);
-  for (const width of [1024, 1280, 1440]) {
+  for (const width of [1200, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect
       .poll(
@@ -110,6 +110,9 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
     }
     const controls = page.locator(".globe-controls"),
       initial = (await scene(page)).camera;
+    await page
+      .locator(".detail-globe-frame")
+      .hover({ position: { x: 12, y: 12 } });
     await controls
       .getByRole("button", { name: "Zoom in", exact: true })
       .click();
@@ -141,8 +144,7 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
     await page.keyboard.press("Home");
     await expect.poll(async () => (await scene(page)).atHome).toBe(true);
   }
-  // Tablet Detail now stacks the Globe below the itinerary. Control clicks can
-  // scroll there; after a desktop resize, reveal the canvas before raw pointers.
+  // Reveal the canvas before raw pointer coordinates after desktop resizes.
   await page.locator(".globe-webgl").scrollIntoViewIfNeeded();
   await expect(page.locator(".globe-webgl")).toBeInViewport({ ratio: 0.99 });
   const box = (await page.locator(".globe-webgl").boundingBox())!,
@@ -231,48 +233,52 @@ test("flight switching reframes long, diverted and coincident routes; cancelled 
   }
 });
 
-test("narrow widths through 1023px load no Globe resources; 1024px mounts and releases on breakpoint changes", async ({
-  page,
-}) => {
-  const resources: string[] = [];
-  page.on("request", (r) => {
-    if (
-      /DetailGlobe|GlobeMap|globe-renderer|three(?:[./-])|earth-\d|night-\d/.test(
-        r.url(),
+test(
+  "narrow widths through 1199px load no Globe resources; 1200px mounts and releases on breakpoint changes",
+  { tag: "@cross-browser" },
+  async ({ page }) => {
+    const resources: string[] = [];
+    page.on("request", (r) => {
+      if (
+        /DetailGlobe|GlobeMap|globe-renderer|lab-locales|three(?:[./-])|earth-\d|night-\d/.test(
+          r.url(),
+        )
       )
-    )
-      resources.push(r.url());
-  });
-  await page.addInitScript(() => {
-    const original = HTMLCanvasElement.prototype.getContext;
-    (window as any).detailContexts = 0;
-    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
-      if (type.startsWith("webgl")) (window as any).detailContexts++;
-      return Reflect.apply(original, this, [type, ...args]);
-    } as typeof original;
-  });
-  await open(page, [flight], false);
-  for (const width of [360, 390, 430, 760, 761, 900, 1023]) {
-    await page.setViewportSize({ width, height: 900 });
+        resources.push(r.url());
+    });
+    await page.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      (window as any).detailContexts = 0;
+      HTMLCanvasElement.prototype.getContext = function (type, ...args) {
+        if (type.startsWith("webgl")) (window as any).detailContexts++;
+        return Reflect.apply(original, this, [type, ...args]);
+      } as typeof original;
+    });
+    await open(page, [flight], false);
+    for (const width of [360, 390, 430, 760, 761, 900, 1023, 1024, 1199]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(
+        page.locator("canvas, .detail-route-map, .detail-globe-space"),
+      ).toHaveCount(0);
+      expect(resources).toEqual([]);
+      expect(await page.evaluate(() => (window as any).detailContexts)).toBe(0);
+    }
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await ready(page);
+    expect(resources.length).toBeGreaterThan(0);
+    await page.evaluate(() => {
+      (window as any).oldHost = document.querySelector(".globe-host");
+    });
+    await page.setViewportSize({ width: 1199, height: 900 });
     await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
-    expect(resources).toEqual([]);
-    expect(await page.evaluate(() => (window as any).detailContexts)).toBe(0);
-  }
-  await page.setViewportSize({ width: 1024, height: 900 });
-  await ready(page);
-  expect(resources.length).toBeGreaterThan(0);
-  await page.evaluate(() => {
-    (window as any).oldHost = document.querySelector(".globe-host");
-  });
-  await page.setViewportSize({ width: 1023, height: 900 });
-  await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
-  expect(
-    await page.evaluate(() => (window as any).oldHost.dataset.ready),
-  ).toBeUndefined();
-  await page.setViewportSize({ width: 1024, height: 900 });
-  await ready(page);
-  await expectFramed(page, "SFO-LAX");
-});
+    expect(
+      await page.evaluate(() => (window as any).oldHost.dataset.ready),
+    ).toBeUndefined();
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await ready(page);
+    await expectFramed(page, "SFO-LAX");
+  },
+);
 
 for (const language of ["en", "zh-CN", "zh-TW"]) {
   test(`uses ${language}, Light/Dark/System and Fixed/Realtime preferences`, async ({
@@ -298,7 +304,7 @@ for (const language of ["en", "zh-CN", "zh-TW"]) {
         await page.setViewportSize({ width: 760, height: 900 });
         await page.goto("/#passport");
         await page.locator(".flight-row").click();
-        await page.setViewportSize({ width: 1024, height: 900 });
+        await page.setViewportSize({ width: 1200, height: 900 });
         await ready(page);
         await expect(page.locator(".globe-stage")).toHaveAttribute(
           "data-theme",
@@ -526,6 +532,9 @@ test("StrictMode, visibility and page navigation release contexts and observers 
     document.dispatchEvent(new Event("visibilitychange"));
   });
   const frames = await host(page).evaluate((e: any) => e.globeMetrics.frames);
+  await page
+    .locator(".detail-globe-frame")
+    .hover({ position: { x: 12, y: 12 } });
   await page.locator(".globe-controls button").first().click();
   await page.waitForTimeout(100);
   expect(await host(page).evaluate((e: any) => e.globeMetrics.frames)).toBe(
@@ -538,6 +547,20 @@ test("StrictMode, visibility and page navigation release contexts and observers 
   await expect
     .poll(() => host(page).evaluate((e: any) => e.globeMetrics.frames))
     .toBeGreaterThan(frames);
+  await page.setViewportSize({ width: 1199, height: 900 });
+  await expect(page.locator("canvas, .detail-route-map")).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => (window as any).globeAudit.active))
+    .toBe(0);
+  expect(await page.evaluate(() => (window as any).globeAudit.observers)).toBe(
+    0,
+  );
+  expect(
+    await page.evaluate(() => (window as any).oldHost.dataset.ready),
+  ).toBeUndefined();
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await ready(page);
+  await expectFramed(page, "SFO-LAX");
   await page.goto("/#settings");
   await expect(page.locator("canvas")).toHaveCount(0);
   await expect
@@ -569,7 +592,7 @@ test("StrictMode, visibility and page navigation release contexts and observers 
   await page.setViewportSize({ width: 760, height: 900 });
   await page.goto("/#passport");
   await page.locator(".flight-row").click();
-  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.setViewportSize({ width: 1200, height: 900 });
   await expect(page.locator(".globe-webgl")).toBeVisible();
   await page.evaluate(() => {
     (window as any).pendingHost = document.querySelector(".globe-host");
@@ -595,7 +618,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
 }) => {
   await open(page, [flight], false);
   await page.goto("/#settings");
-  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.setViewportSize({ width: 1200, height: 900 });
   await page.evaluate(async (record) => {
     const dependency = (name: string) =>
       performance

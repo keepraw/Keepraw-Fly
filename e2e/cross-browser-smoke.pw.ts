@@ -46,8 +46,8 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
   for (const viewport of [
     { width: 760, height: 900, theme: "light" },
     { width: 761, height: 900, theme: "light" },
-    { width: 1023, height: 900, theme: "light" },
-    { width: 1024, height: 900, theme: "dark" },
+    { width: 1199, height: 900, theme: "light" },
+    { width: 1200, height: 900, theme: "dark" },
     { width: 844, height: 390, theme: "dark" },
   ]) {
     test(`boundary layout and scrolling at ${viewport.width}x${viewport.height} in ${viewport.theme}`, async ({

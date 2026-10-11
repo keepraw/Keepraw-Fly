@@ -249,7 +249,7 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
 
 export async function expectDetailLayout(page: Page) {
   const width = page.viewportSize()!.width;
-  const mobile = width < 1024;
+  const mobile = width < 1200;
   await expectDetailHero(page, width);
   await expect(page.locator(".detail-adjacent-navigation")).toHaveCSS(
     "display",

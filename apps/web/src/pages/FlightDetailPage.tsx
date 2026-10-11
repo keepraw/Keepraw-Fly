@@ -46,7 +46,7 @@ const DetailGlobe = lazy(() =>
 );
 
 // The Globe is part of the two-column Hero, so narrow details never mount it.
-const DETAIL_DESKTOP_QUERY = "(min-width: 1024px)";
+const DETAIL_DESKTOP_QUERY = "(min-width: 1200px)";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
