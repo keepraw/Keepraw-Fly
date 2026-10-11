@@ -65,16 +65,17 @@ describe("FlightRow", () => {
     ["zh-CN", "深圳", "青岛"],
     ["zh-TW", "深圳", "青島"],
   ] as const)(
-    "uses one localized city route without timing/code repetition in %s",
+    "shows localized cities, airport codes and one time pair in %s",
     async (locale, origin, destination) => {
       const markup = await archiveMarkup(locale);
       expect(markup).toContain(`<span>${origin}</span>`);
       expect(markup).toContain(`<span>${destination}</span>`);
+      expect(markup).toContain("flight-route-codes");
+      expect(markup).toContain("flight-time-column");
+      expect(markup.match(/<time dateTime=/g)).toHaveLength(2);
       expect(markup).not.toMatch(
-        /flight-route-codes|flight-time-column|flight-scheduled-times|flight-status|flight-deviation/,
+        /flight-scheduled-times|flight-status|flight-deviation|flight-ledger/,
       );
-      expect(markup).not.toContain("flight-ledger-exception");
-      expect(markup).toContain("flight-ledger-duration");
       expect(markup).toContain("SZX");
       expect(markup).toContain("TAO");
     },
@@ -123,22 +124,63 @@ describe("FlightRow", () => {
     }
   });
 
-  it("flags only substantial arrival delays, cancellations and diversions", async () => {
-    expect(
-      await archiveMarkup("en", { actualArrival: "2026-09-22T07:19:00+08:00" }),
-    ).not.toContain("flight-ledger-exception");
-    expect(
-      await archiveMarkup("en", { actualArrival: "2026-09-22T07:20:00+08:00" }),
-    ).toContain("Delayed · 0h 30m");
-    expect(await archiveMarkup("en", { cancelled: true })).toContain(
-      "Cancelled",
-    );
-    expect(
-      await archiveMarkup("en", { divertedTo: { iata: "PEK" } }),
-    ).toContain("Diverted");
+  it("keeps even large delays in Detail and marks only cancellation or diversion", async () => {
+    for (const presentation of ["passport", "standard"] as const) {
+      const delayed = await archiveMarkup(
+        "en",
+        { actualArrival: "2026-09-22T09:20:00+08:00" },
+        presentation,
+      );
+      expect(delayed).not.toMatch(
+        /Delayed|Early|On Time|flight-status|flight-deviation/,
+      );
+      expect(
+        await archiveMarkup("en", { cancelled: true }, presentation),
+      ).toContain("Cancelled");
+      const diverted = await archiveMarkup(
+        "en",
+        { divertedTo: { iata: "PEK" } },
+        presentation,
+      );
+      expect(diverted).toContain("Diverted PEK");
+      expect(diverted).not.toContain("Diverted to");
+    }
   });
+
+  it.each([
+    [{}, "23:39", "06:15", "23:28", "06:50"],
+    [
+      { actualDeparture: undefined, actualArrival: undefined },
+      "23:28",
+      "06:50",
+      "23:39",
+      "06:15",
+    ],
+    [{ actualArrival: undefined }, "23:39", "06:50", "23:28", "06:15"],
+    [{ actualDeparture: undefined }, "23:28", "06:15", "23:39", "06:50"],
+  ] as const)(
+    "chooses actual or scheduled time independently for each endpoint: %j",
+    async (changes, departure, arrival, hiddenDeparture, hiddenArrival) => {
+      for (const presentation of ["passport", "standard"] as const) {
+        const markup = await archiveMarkup(
+          "en",
+          {
+            origin: flight.origin,
+            destination: flight.destination,
+            ...changes,
+          },
+          presentation,
+        );
+        expect(markup).toContain(`>${departure}</time>`);
+        expect(markup).toContain(`>${arrival}<`);
+        expect(markup).not.toContain(`>${hiddenDeparture}</time>`);
+        expect(markup).not.toContain(`>${hiddenArrival}<`);
+        expect(markup.match(/<time dateTime=/g)).toHaveLength(2);
+      }
+    },
+  );
   it.each(["en", "zh-CN", "zh-TW"] as const)(
-    "renders selection, labelled schedule and overnight text in %s",
+    "retains selection, accessible activation and overnight day offset in %s",
     async (locale) => {
       const i18n = createInstance();
       await i18n.init({
@@ -173,12 +215,14 @@ describe("FlightRow", () => {
       );
       expect(markup).toContain('data-flight-id="overnight"');
       expect(markup).toContain("+1");
-      expect(markup).toContain(i18n.t("flightTiming.scheduled"));
-      expect(markup).toContain(i18n.t("flightTiming.overnight"));
-      expect(markup).toContain(
+      expect(markup).toContain(">23:39</time>");
+      expect(markup).toContain(">06:15<");
+      expect(markup).not.toContain(i18n.t("flightTiming.scheduled"));
+      expect(markup).not.toContain(i18n.t("flightTiming.overnight"));
+      expect(markup).not.toContain(
         i18n.t("flightTiming.departure.late", { count: 11 }),
       );
-      expect(markup).toContain(
+      expect(markup).not.toContain(
         i18n.t("flightTiming.arrival.early", { count: 35 }),
       );
     },
