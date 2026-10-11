@@ -1,3 +1,4 @@
+import { expectDetailGlobe } from "./helpers/detail-globe";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -1082,7 +1083,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open UA123/ }).click();
-  await expect(page.locator(".detail-route-map-canvas > svg")).toBeVisible();
+  await expectDetailGlobe(page);
 
   for (const viewport of [
     { width: 1440, height: 900 },
@@ -1158,7 +1159,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
       await expect(page.locator(".detail-heading-route-summary")).toBeVisible();
-      await expect(page.locator(".detail-route-map-canvas")).toHaveCount(0);
+      await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
       expect(layout.mapHeight).toBeCloseTo(
         Math.min(440, Math.max(340, viewport.height * 0.48)),
@@ -1565,8 +1566,8 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     .getByRole("button", { name: /Open |打开 |打開 / })
     .first()
     .click();
-  await expect(page.locator(".detail-route-map-canvas > svg")).toBeVisible();
-  await expect(page.locator(".detail-map-route")).toHaveCount(1);
+  await expectDetailGlobe(page);
+  await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
   await expect(
     page.locator(".detail-stop--departure .detail-stop-facts"),
   ).toContainText("F12");
@@ -1906,16 +1907,12 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
       );
     });
   expect(mapSurface).toBeGreaterThan(180);
-  expect(
-    Number(
-      await page.locator(".detail-route-map-canvas").getAttribute("data-zoom"),
-    ),
-  ).toBeGreaterThan(4);
-  await expect(page.locator(".detail-map-route")).toHaveCount(1);
+  await expectDetailGlobe(page);
+  await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(
-    page.locator(".detail-route-map-canvas, .detail-route-map-loading"),
+    page.locator(".detail-globe-frame, .detail-route-map-loading"),
   ).toHaveCount(0);
   await expect(page.locator(".detail-metadata-column").first()).toContainText(
     "B-1234",
