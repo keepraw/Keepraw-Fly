@@ -2075,7 +2075,7 @@ test("enforces the static responsive UI acceptance constraints", async ({
         }).length;
       const atomicValues = Array.from(
         row.querySelectorAll<HTMLElement>(
-          ".flight-number strong, .flight-times time, .airport-code-display, .flight-ledger-duration",
+          ".flight-number strong, .flight-times time, .airport-code-display",
         ),
       ).filter(visible);
       const routeValues = Array.from(
@@ -2120,14 +2120,12 @@ test("enforces the static responsive UI acceptance constraints", async ({
     expect(archive.headerIsSticky).toBe(viewport.width > 760);
     expect(archive.headerClearsContent).toBe(true);
     expect(archive.rowIsActionable).toBe(true);
-    expect(archive.atomicValues).toBeGreaterThanOrEqual(
-      viewport.width > 760 ? 2 : 5,
-    );
+    expect(archive.atomicValues).toBe(5);
     expect(archive.atomicValuesStayWhole).toBe(true);
     expect(archive.identityVisible).toBe(true);
     expect(archive.routeVisible).toBe(true);
-    expect(archive.routeValues).toBe(viewport.width > 760 ? 2 : 6);
-    expect(archive.statusVisible).toBe(viewport.width <= 760);
+    expect(archive.routeValues).toBe(6);
+    expect(archive.statusVisible).toBe(false);
 
     expect(archive.listColumns).toBe(1);
     expect(archive.airportNamesVisible).toBe(true);

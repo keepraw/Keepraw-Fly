@@ -1,0 +1,158 @@
+/* The Passport index shares one hierarchy across its sidebar and mobile list.
+   Keep every override scoped here; Detail retains its full timing/status UI. */
+.passport-archive .year-heading {
+  color: var(--ink);
+}
+
+.passport-archive .flight-row {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 82px;
+  align-items: center;
+  padding: 12px 8px;
+  color: var(--ink);
+}
+
+.passport-archive .flight-row .airline-logo {
+  grid-column: 1;
+  grid-row: 1;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+}
+
+.passport-archive .flight-row-content {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  min-width: 0;
+}
+
+.passport-archive .flight-row-primary {
+  display: flex;
+  grid-column: 1;
+  grid-row: auto;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.passport-archive .flight-number {
+  flex-flow: row wrap;
+  gap: 3px 6px;
+  align-items: baseline;
+  padding: 0;
+}
+
+.passport-archive .flight-number strong {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  letter-spacing: var(--tracking-flight);
+}
+
+.passport-archive .flight-row .flight-date {
+  flex: 0 0 auto;
+  max-width: none;
+  padding: 0;
+  color: var(--muted);
+  font-family: var(--font-family-ui);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.passport-archive .flight-row .flight-route {
+  display: block;
+  grid-column: 1;
+  grid-row: auto;
+  min-width: 0;
+}
+
+.passport-archive .flight-route-cities {
+  gap: 6px;
+  align-items: baseline;
+  color: var(--ink);
+  font-family: var(--font-family-ui);
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+}
+
+.passport-archive .flight-route-cities span:not(.route-direction) {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.passport-archive .flight-row .route-direction {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.passport-archive .flight-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+
+.passport-archive .flight-route-codes {
+  gap: 5px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.passport-archive .flight-row .flight-route .airport-code-display {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-airport);
+}
+
+.passport-archive .flight-times {
+  flex-wrap: nowrap;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.passport-archive .flight-row .flight-status {
+  display: inline-flex;
+  flex-direction: row;
+  overflow: visible;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.passport-archive .flight-row .flight-status.is-diverted {
+  color: var(--color-warning);
+}
+
+.passport-archive .flight-row .flight-status.is-cancelled {
+  color: var(--color-danger);
+}
+
+@media (min-width: 761px) {
+  .passport-archive .flight-row {
+    min-height: 78px;
+    padding-block: 10px;
+  }
+
+  .passport-archive .flight-route-cities {
+    font-size: 0.9375rem;
+  }
+
+  .passport-archive .flight-row .flight-date {
+    font-size: 0.6875rem;
+  }
+}

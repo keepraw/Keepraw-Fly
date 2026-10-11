@@ -47,9 +47,7 @@ for (const theme of ["light", "dark"]) {
       await page.locator(".passport-archive-scroll").evaluate((el) => {
         el.scrollTop = 0;
       });
-      await expect(
-        page.locator(".flight-ledger-duration").first(),
-      ).toBeVisible();
+      await expect(page.locator(".flight-time-column").first()).toBeVisible();
       const geometry = await page.evaluate(() => {
         const archive = document
           .querySelector(".passport-archive")!
@@ -108,7 +106,7 @@ for (const theme of ["light", "dark"]) {
       expect(geometry.statsCount).toBe(6);
       await expect(
         page.locator(
-          ".flight-time-column, .flight-route-codes, .flight-status",
+          ".flight-ledger-duration, .flight-ledger-exception, .flight-scheduled-times, .flight-deviation",
         ),
       ).toHaveCount(0);
       await expect(page.locator(".passport-highlights"))[
@@ -176,9 +174,11 @@ for (const theme of ["light", "dark"]) {
           .analyze()
       ).violations,
     ).toEqual([]);
-    // The desktop-only duration and palette must disappear across the boundary.
+    // The same concise list remains visible when switching to the mobile panels.
     await page.setViewportSize({ width: 760, height: 900 });
     await expect(page.locator(".flight-ledger-duration")).toHaveCount(0);
+    await expect(page.locator(".flight-times").first()).toBeVisible();
+    await expect(page.locator(".flight-route-codes").first()).toBeVisible();
     await expect(page.locator(".passport-mobile-summary")).toBeVisible();
     await expect(page.locator(".passport-map-title")).toHaveCount(0);
     await expect(page.locator(".map-world--aviation")).toHaveCount(0);
@@ -267,7 +267,9 @@ test("regional and Asia cameras retain accurate interactive relief and localized
           `.flight-record[data-flight-id="${first.id}"] .flight-route-cities`,
         ),
       ).toContainText(/[\u3400-\u9fff]/);
-      await expect(page.locator(".flight-route-codes")).toHaveCount(0);
+      await expect(page.locator(".flight-route-codes")).toHaveCount(
+        flights.length,
+      );
       for (const viewport of [
         { width: 1440, height: 900 },
         { width: 844, height: 390 },
