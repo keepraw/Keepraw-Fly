@@ -17,11 +17,19 @@ export interface AirportCityGroup {
 const localizedCityNames: Record<string, LocalizedText> = {
   ANK: { en: "Ankara", "zh-CN": "安卡拉", "zh-TW": "安卡拉" },
   BFS: { en: "Belfast", "zh-CN": "贝尔法斯特", "zh-TW": "貝爾法斯特" },
-  BHZ: { en: "Belo Horizonte", "zh-CN": "贝洛奥里藏特", "zh-TW": "貝洛奧裡藏特" },
+  BHZ: {
+    en: "Belo Horizonte",
+    "zh-CN": "贝洛奥里藏特",
+    "zh-TW": "貝洛奧裡藏特",
+  },
   BJS: { en: "Beijing", "zh-CN": "北京", "zh-TW": "北京" },
   BKK: { en: "Bangkok", "zh-CN": "曼谷", "zh-TW": "曼谷" },
   BRU: { en: "Brussels", "zh-CN": "布鲁塞尔", "zh-TW": "布魯塞爾" },
-  BUE: { en: "Buenos Aires", "zh-CN": "布宜诺斯艾利斯", "zh-TW": "布宜諾斯艾利斯" },
+  BUE: {
+    en: "Buenos Aires",
+    "zh-CN": "布宜诺斯艾利斯",
+    "zh-TW": "布宜諾斯艾利斯",
+  },
   CHI: { en: "Chicago", "zh-CN": "芝加哥", "zh-TW": "芝加哥" },
   CTU: { en: "Chengdu", "zh-CN": "成都", "zh-TW": "成都" },
   DFW: { en: "Dallas", "zh-CN": "达拉斯", "zh-TW": "達拉斯" },
