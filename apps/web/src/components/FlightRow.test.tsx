@@ -3,10 +3,17 @@ import { createInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import {
+  installAirportDirectory,
+  type CompactAirportRow,
+} from "@keepraw-fly/core";
+import airportRows from "@keepraw-fly/core/airport-directory";
 import { FlightRow } from "./FlightRow";
 import en from "../locales/en.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
+
+installAirportDirectory(airportRows as CompactAirportRow[]);
 
 const flight: KeeprawFlight = {
   id: "overnight",
