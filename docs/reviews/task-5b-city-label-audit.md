@@ -48,7 +48,7 @@ Examples of changed display labels:
 The same city-group display labels now drive both mobile and desktop
 `FlightRow` presentations. All 41 multi-airport city groups have explicit
 English, simplified Chinese and traditional Chinese display names. Previously,
-34 groups lacked curated Chinese names and fell back to English.
+33 groups lacked curated Chinese names and fell back to English.
 
 Airport IATA codes still distinguish airports within one displayed city:
 `PEK/PKX`, `SHA/PVG`, `TPE/TSA`, `EWR/JFK/LGA` and `HND/NRT`.
