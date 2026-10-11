@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ github.event.head_commit.message == 'chore: publish current main to Pages once (Owner approved)' }}
+    if: >-
+      github.event.head_commit.message == 'chore: publish current main to Pages once (Owner approved)'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
