@@ -1,5 +1,7 @@
 # Task 5B — Flighty 风格航班列表
 
+Historical PNGs were removed from the current tree during the [post-Task A cleanup](../../visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
+
 基于 PR #40 合并后的 main `b87b338`。改造前后均使用同一份
 [七条合成航班数据](../../../e2e/fixtures/flight-list-review.keepraw-fly.json)，包含实际时间、仅计划时间、跨日到达、长城市名、取消及备降。
 
@@ -15,18 +17,18 @@
 
 桌面列表截图包含搜索和年份分组；移动截图滚动到航班列表。桌面完整 Passport 截图见下方链接。
 
-| 布局 / 语言 / 主题           | 改造前                                                   | 改造后                                                  |
-| ---------------------------- | -------------------------------------------------------- | ------------------------------------------------------- |
-| 桌面 1440×900 · 简体 · Light | ![桌面改造前](before/zh-CN-light-1440x900-list.png)      | ![桌面改造后](after/zh-CN-light-1440x900-list.png)      |
-| 桌面 1440×900 · 简体 · Dark  | ![桌面 Dark 改造前](before/zh-CN-dark-1440x900-list.png) | ![桌面 Dark 改造后](after/zh-CN-dark-1440x900-list.png) |
-| 移动 390×844 · 简体 · Light  | ![移动改造前](before/zh-CN-light-390x844.png)            | ![移动改造后](after/zh-CN-light-390x844.png)            |
-| 移动 390×844 · 简体 · Dark   | ![移动 Dark 改造前](before/zh-CN-dark-390x844.png)       | ![移动 Dark 改造后](after/zh-CN-dark-390x844.png)       |
-| 桌面 1024×768 · 英文 · Light | [截图](before/en-light-1024x768-list.png)                | [截图](after/en-light-1024x768-list.png)                |
-| 移动 430×932 · 英文 · Dark   | [截图](before/en-dark-430x932.png)                       | [截图](after/en-dark-430x932.png)                       |
-| 桌面 761×900 · 繁体 · Dark   | [截图](before/zh-TW-dark-761x900-list.png)               | [截图](after/zh-TW-dark-761x900-list.png)               |
-| 移动 360×800 · 繁体 · Light  | [截图](before/zh-TW-light-360x800.png)                   | [截图](after/zh-TW-light-360x800.png)                   |
+| 布局 / 语言 / 主题           | 改造前                                                                                                                                                            | 改造后                                                                                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 桌面 1440×900 · 简体 · Light | [桌面改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-light-1440x900-list.png)      | [桌面改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-light-1440x900-list.png)      |
+| 桌面 1440×900 · 简体 · Dark  | [桌面 Dark 改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-dark-1440x900-list.png) | [桌面 Dark 改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-dark-1440x900-list.png) |
+| 移动 390×844 · 简体 · Light  | [移动改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-light-390x844.png)            | [移动改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-light-390x844.png)            |
+| 移动 390×844 · 简体 · Dark   | [移动 Dark 改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-dark-390x844.png)       | [移动 Dark 改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-dark-390x844.png)       |
+| 桌面 1024×768 · 英文 · Light | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/en-light-1024x768-list.png)               | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/en-light-1024x768-list.png)               |
+| 移动 430×932 · 英文 · Dark   | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/en-dark-430x932.png)                      | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/en-dark-430x932.png)                      |
+| 桌面 761×900 · 繁体 · Dark   | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-TW-dark-761x900-list.png)              | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-TW-dark-761x900-list.png)              |
+| 移动 360×800 · 繁体 · Light  | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-TW-light-360x800.png)                  | [截图](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-TW-light-360x800.png)                  |
 
-完整桌面 Passport：Light [改造前](before/zh-CN-light-1440x900.png) / [改造后](after/zh-CN-light-1440x900.png)；Dark [改造前](before/zh-CN-dark-1440x900.png) / [改造后](after/zh-CN-dark-1440x900.png)。
+完整桌面 Passport：Light [改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-light-1440x900.png) / [改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-light-1440x900.png)；Dark [改造前](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/before/zh-CN-dark-1440x900.png) / [改造后](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/reviews/task-5b/after/zh-CN-dark-1440x900.png)。
 
 截图使用真实 Chromium 浏览器、已加载字体及航空公司 Logo。桌面使用 WebGL Globe，移动端不创建地图。
 [改造前测量](before/measurements.json)和[改造后测量](after/measurements.json)记录完整行文字、行高、页面溢出及渲染器；`baseCommit` 标识比较基线。

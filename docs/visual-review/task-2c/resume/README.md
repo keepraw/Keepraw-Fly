@@ -1,15 +1,15 @@
 # Task 2C — resumed review (historical evidence)
 
-Task 2C was visually approved by the Owner and merged through PR #34. Its original verification covered 72 normal screenshots (six viewport sizes × three languages × two themes × native 100%/125% zoom), plus 18 long-city screenshots. The full PNG capture set is preserved in the [pre-cleanup Git snapshot](https://github.com/keepraw/Keepraw-Fly/tree/0bb6660d41605dbeb1da3bc3f15df5b56798aba8/docs/visual-review/task-2c/resume). The current checkout retains four representative images; redundant PNGs were removed in [Task 4 evidence cleanup](../../CLEANUP-2026-10-10.md).
+Task 2C was visually approved by the Owner and merged through PR #34. Its original verification covered 72 normal screenshots (six viewport sizes × three languages × two themes × native 100%/125% zoom), plus 18 long-city screenshots. The full PNG capture set is preserved in the [pre-cleanup Git snapshot](https://github.com/keepraw/Keepraw-Fly/tree/0bb6660d41605dbeb1da3bc3f15df5b56798aba8/docs/visual-review/task-2c/resume). Task 4 retained four representative images. These were subsequently removed from the current tree during the [post-Task A cleanup](../../CLEANUP-2026-10-11.md); their links below point to a fixed historical commit. Measurements and validation reports remain local.
 
 [Validation record](validation-results.json) · [Complete browser/font evidence](browser-evidence.json) · [Long city evidence](long-cities/browser-evidence.json) · [Native zoom minimum reproduction](native-zoom-probe.json)
 
-## Retained Task 2C images
+## Historical Task 2C images
 
-- [Simplified Chinese Dark · 1440×900 · 100%](passport-zh-CN-dark-1440x900-zoom100.png)
-- [Traditional Chinese Light · 1440×900 · 100%](passport-zh-TW-light-1440x900-zoom100.png)
-- [Simplified Chinese Dark · 1646×928 · native 125%](passport-zh-CN-dark-1646x928-zoom125.png)
-- [English Light · 1024×768 · native 125%](passport-en-light-1024x768-zoom125.png)
+- [Simplified Chinese Dark · 1440×900 · 100%](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-2c/resume/passport-zh-CN-dark-1440x900-zoom100.png)
+- [Traditional Chinese Light · 1440×900 · 100%](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-2c/resume/passport-zh-TW-light-1440x900-zoom100.png)
+- [Simplified Chinese Dark · 1646×928 · native 125%](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-2c/resume/passport-zh-CN-dark-1646x928-zoom125.png)
+- [English Light · 1024×768 · native 125%](https://github.com/keepraw/Keepraw-Fly/blob/e002f9d08ca43f153eccadffd0fcfdb7c1ee4c07/docs/visual-review/task-2c/resume/passport-en-light-1024x768-zoom125.png)
 
 At physical 761×900 and native 125%, CSS width is about 608.8px and the existing Mobile layout is expected. Desktop retains independent Archive scrolling, six KPIs, three Highlights above the existing ≤540px compact exception, and no right-side scrolling or Longest Flight map.
 
