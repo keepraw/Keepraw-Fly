@@ -94,9 +94,9 @@ describe("flight list city display names", () => {
   );
 
   it("audits every localized airport city ending in 市 in both Chinese scripts", () => {
-    const endingInCity = (airportLocaleRows as string[][]).filter(
-      (row) => row[2].endsWith("市"),
-    );
+    const endingInCity = (
+      airportLocaleRows as [string, string, string, string, string][]
+    ).filter((row) => row[2].endsWith("市"));
     expect(airportLocaleRows).toHaveLength(4469);
     expect(endingInCity).toHaveLength(353);
 
@@ -112,7 +112,8 @@ describe("flight list city display names", () => {
       expect(outputCn.endsWith("市")).toBe(outputTw.endsWith("市"));
       if (outputCn.endsWith("市")) preservedCodes.push(iata);
       else {
-        const isMetropolitan = country === "KR" && /(?:广域|廣域)市$/.test(cityZhCn);
+        const isMetropolitan =
+          country === "KR" && /(?:广域|廣域)市$/.test(cityZhCn);
         expect(outputCn).toBe(
           isMetropolitan ? cityZhCn.slice(0, -3) : cityZhCn.slice(0, -1),
         );
@@ -125,8 +126,21 @@ describe("flight list city display names", () => {
       );
     }
     expect(preservedCodes.sort()).toEqual([
-      "BWU", "BZE", "GDN", "JIB", "KRP", "LOE", "LUX", "MKZ",
-      "SGN", "TED", "TUN", "VII", "YMM", "YQB", "ZVK",
+      "BWU",
+      "BZE",
+      "GDN",
+      "JIB",
+      "KRP",
+      "LOE",
+      "LUX",
+      "MKZ",
+      "SGN",
+      "TED",
+      "TUN",
+      "VII",
+      "YMM",
+      "YQB",
+      "ZVK",
     ]);
     expect(endingInCity.length - preservedCodes.length).toBe(338);
   });
@@ -141,8 +155,12 @@ describe("flight list city display names", () => {
         );
       }
     }
-    expect(airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-CN")).toBe("台北");
-    expect(airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-TW")).toBe("臺北");
+    expect(
+      airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-CN"),
+    ).toBe("台北");
+    expect(
+      airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-TW"),
+    ).toBe("臺北");
   });
 
   it("normalizes a real airport label without mutating the source directory", () => {
