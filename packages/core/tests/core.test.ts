@@ -1,10 +1,13 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
 import airportRows from "../data/airports.iata.json";
+import airportLocaleRows from "../data/airport-locales.json";
 import {
   airportByIata,
   airportCityGroupByCode,
   airportCityGroupForAirport,
+  airportCityGroupName,
+  airportCityGroups,
   airports,
   aircraftFacts,
   baggageFacts,
@@ -67,7 +70,20 @@ describe("flight list city display names", () => {
     ["福岡市", "JP", "zh-TW", "福岡"],
     ["胡志明市", "VN", "zh-CN", "胡志明市"],
     ["伯利兹市", "BZ", "zh-CN", "伯利兹市"],
-    ["旧金山市", "US", "zh-CN", "旧金山市"],
+    ["旧金山市", "US", "zh-CN", "旧金山"],
+    ["达卡市", "BD", "zh-CN", "达卡"],
+    ["德累斯顿市", "DE", "zh-CN", "德累斯顿"],
+    ["清州市", "KR", "zh-CN", "清州"],
+    ["光州广域市", "KR", "zh-CN", "光州"],
+    ["光州廣域市", "KR", "zh-TW", "光州"],
+    ["蔚山广域市", "KR", "zh-CN", "蔚山"],
+    ["萩市", "JP", "zh-CN", "萩"],
+    ["黎市", "TH", "zh-CN", "黎市"],
+    ["荣市", "VN", "zh-CN", "荣市"],
+    ["三联市", "PL", "zh-CN", "三联市"],
+    ["魁北克市", "CA", "zh-CN", "魁北克市"],
+    ["坎特伯雷-班克斯镇市", "AU", "zh-CN", "坎特伯雷-班克斯镇市"],
+    ["维堡自治市", "DK", "zh-CN", "维堡自治市"],
     ["Nanchang City", "CN", "en", "Nanchang City"],
     ["市", "CN", "zh-CN", "市"],
   ] as const)(
@@ -76,6 +92,62 @@ describe("flight list city display names", () => {
       expect(formatCityDisplayName(city, country, locale)).toBe(expected);
     },
   );
+
+  it("audits every localized airport city ending in 市 in both Chinese scripts", () => {
+    const endingInCity = (airportLocaleRows as string[][]).filter(
+      (row) => row[2].endsWith("市"),
+    );
+    expect(airportLocaleRows).toHaveLength(4469);
+    expect(endingInCity).toHaveLength(353);
+
+    const preservedCodes: string[] = [];
+    for (const [iata, , cityZhCn, , cityZhTw] of endingInCity) {
+      const airport = airportByIata.get(iata);
+      expect(airport, `Airport not found: ${iata}`).toBeDefined();
+      const country = airport!.country;
+      const outputCn = formatCityDisplayName(cityZhCn, country, "zh-CN");
+      const outputTw = formatCityDisplayName(cityZhTw, country, "zh-TW");
+      expect(outputCn).toBeTruthy();
+      expect(outputTw).toBeTruthy();
+      expect(outputCn.endsWith("市")).toBe(outputTw.endsWith("市"));
+      if (outputCn.endsWith("市")) preservedCodes.push(iata);
+      else {
+        const administrativeEnding = country === "KR" && /(?:广域|廣域)市$/;
+        expect(outputCn).toBe(
+          administrativeEnding && administrativeEnding.test(cityZhCn)
+            ? cityZhCn.slice(0, -3)
+            : cityZhCn.slice(0, -1),
+        );
+        expect(outputTw).toBe(
+          administrativeEnding && administrativeEnding.test(cityZhTw)
+            ? cityZhTw.slice(0, -3)
+            : cityZhTw.slice(0, -1),
+        );
+      }
+      expect(formatCityDisplayName(airport!.city.en, country, "en")).toBe(
+        airport!.city.en,
+      );
+    }
+    expect(preservedCodes.sort()).toEqual([
+      "BWU", "BZE", "GDN", "JIB", "KRP", "LOE", "LUX", "MKZ",
+      "SGN", "TED", "TUN", "VII", "YMM", "YQB", "ZVK",
+    ]);
+    expect(endingInCity.length - preservedCodes.length).toBe(338);
+  });
+
+  it("has Chinese translations for every multi-airport city group", () => {
+    expect(airportCityGroups).toHaveLength(41);
+    for (const group of airportCityGroups) {
+      for (const locale of ["zh-CN", "zh-TW"] as const) {
+        const label = airportCityGroupName(group, locale);
+        expect(label, `Missing ${locale} for ${group.code}`).toMatch(
+          /[\\p{Script=Han}]/u,
+        );
+      }
+    }
+    expect(airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-CN")).toBe("台北");
+    expect(airportCityGroupName(airportCityGroupByCode.get("TPE")!, "zh-TW")).toBe("臺北");
+  });
 
   it("normalizes a real airport label without mutating the source directory", () => {
     const airport = airportByIata.get("KHN")!;
