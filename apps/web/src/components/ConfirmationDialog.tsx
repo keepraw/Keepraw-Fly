@@ -9,6 +9,8 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
   tone?: "default" | "danger";
+  /** Portals cannot inherit the Settings shell's page-scoped palette. */
+  themeScope?: "settings";
 }
 
 const focusableSelector = [
@@ -28,6 +30,7 @@ export function ConfirmationDialog({
   onConfirm,
   onCancel,
   tone = "default",
+  themeScope,
 }: ConfirmationDialogProps) {
   const titleId = useId();
   const descriptionId = useId();
@@ -91,10 +94,15 @@ export function ConfirmationDialog({
 
   return createPortal(
     <div
-      className="confirmation-backdrop"
+      className={`confirmation-backdrop${themeScope === "settings" ? " confirmation-backdrop--settings" : ""}`}
       role="presentation"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onCancel();
+        if (event.target === event.currentTarget) {
+          // A backdrop mousedown would otherwise move focus to body after the
+          // Settings dialog's cleanup has restored its invoking button.
+          if (themeScope === "settings") event.preventDefault();
+          onCancel();
+        }
       }}
     >
       <section

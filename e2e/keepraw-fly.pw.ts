@@ -546,7 +546,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   // its actual text color has updated, including in WebKit.
   const settingsHeading = page.locator(".settings-page-heading h1");
   await settingsHeading.scrollIntoViewIfNeeded();
-  await expect(settingsHeading).toHaveCSS("color", "rgb(244, 246, 248)");
+  await expect(settingsHeading).toHaveCSS("color", "rgb(229, 234, 242)");
   expect(
     await page
       .locator("html")
@@ -1340,7 +1340,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
   // Audit the rendered theme after inherited text styles have updated.
   await expect(page.locator(".settings-page-heading h1")).toHaveCSS(
     "color",
-    "rgb(244, 246, 248)",
+    "rgb(229, 234, 242)",
   );
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
