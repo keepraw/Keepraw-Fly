@@ -38,7 +38,13 @@ export function DetailGlobe({
     () => buildRouteSegments([flight]),
     [id, origin.iata, destination.iata, divertedTo?.iata, cancelled],
   );
-  const [selection, setSelection] = useState<GlobeSelection | null>(null);
+  const [selected, setSelected] = useState<{
+    routes: typeof routes;
+    value: GlobeSelection;
+  } | null>(null);
+  // Scope selection to the actual route before the replacement scene mounts.
+  // A later effect reset would let a retained airport redirect its initial view.
+  const selection = selected?.routes === routes ? selected.value : null;
   const theme =
     appearance === "system" ? (systemDark ? "dark" : "light") : appearance;
   return (
@@ -54,7 +60,7 @@ export function DetailGlobe({
           lighting={defaultLighting}
           solarMode={solarMode}
           selection={selection}
-          onSelect={setSelection}
+          onSelect={(value) => setSelected({ routes, value })}
         />
       ) : (
         <div className="detail-globe-message" role="status">

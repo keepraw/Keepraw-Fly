@@ -660,6 +660,27 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
           : /拖曳旋轉/,
     );
   }
+  await page.locator(".globe-airport-label").filter({ hasText: "SFO" }).click();
+  await expect(page.locator(".globe-tooltip")).toHaveText("SFO");
+  await expect.poll(async () => (await scene(page)).camera).not.toEqual(camera);
+  const airportLabel = (await page
+    .locator(".globe-airport-label")
+    .filter({ hasText: "SFO" })
+    .boundingBox())!;
+  await page.mouse.move(airportLabel.x - 7, airportLabel.y + 16);
+  await expect(page.locator(".globe-tooltip")).toHaveText("SFO · 1 visit");
+  await page.evaluate(
+    (record) =>
+      (window as any).renderDetail({
+        flight: { ...record, destination: { iata: "HKG" } },
+        appearance: "light",
+        solarMode: "fixed",
+      }),
+    flight,
+  );
+  await ready(page);
+  await expect(page.locator(".globe-tooltip")).toBeEmpty();
+  await expectFramed(page, "SFO-HKG");
   await page.evaluate(
     (record) =>
       (window as any).renderDetail({

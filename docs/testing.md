@@ -44,7 +44,9 @@ resize after interaction, pointer/wheel/keyboard controls, diversion, cancellati
 unknown airports, three languages, Light/Dark/System, Fixed/Realtime solar,
 760/761px lazy loading, all renderer failures and retry, StrictMode, hidden tabs,
 navigation and delayed texture cleanup. Mounted preference and language changes
-must preserve the canvas and user's camera. Unit tests additionally sample the
+must preserve the canvas and user's camera.
+Changing the route of the same flight clears selected and hovered airports before
+the replacement scene focuses the new route. Unit tests additionally sample the
 entire arc for short, long, date-line, polar, antipodal and coincident routes,
 and reject invalid coordinates while accepting `(0,0)`.
 

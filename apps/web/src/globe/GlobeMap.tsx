@@ -70,6 +70,7 @@ export function GlobeMap({
   useEffect(() => {
     if (!host.current || !labels.current) return;
     setError(null);
+    if (variant === "detail") setHover(null);
     let active = true;
     let instance: GlobeController | undefined;
     const dispose = () => {
