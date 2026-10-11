@@ -1,4 +1,4 @@
-/* Approved Passport palette, shared only by Passport, Flight Detail and Settings.
+/* Approved Passport palette, scoped to the shared pages and onboarding/loading.
    Preserve the original 760/761px differences, aliases and explicit/System cascade.
    Recovery reuses Settings layout classes, so exclude it at zero specificity.
    Portal confirmations opt in via their own Settings scope; root defaults stay intact. */
@@ -6,9 +6,17 @@
   :is(
     .app-shell:has(
       .passport-archive-page,
+      .welcome,
+      .passport-empty-page,
       .detail-page,
       .settings-page:where(:not(.recovery-page))
     ),
+    :root:where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
+    .bootstrap-screen,
+    .loading-screen,
     .confirmation-backdrop--settings
   ) {
     --color-text: #1e2b3e;
@@ -42,13 +50,21 @@
 }
 
 @media (max-width: 760px) {
+  :root[data-theme="dark"]:where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
   :root[data-theme="dark"]
     :is(
       .app-shell:has(
         .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
         .detail-page,
         .settings-page:where(:not(.recovery-page))
       ),
+      .bootstrap-screen,
+      .loading-screen,
       .confirmation-backdrop--settings
     ) {
     --color-text: #e5eaf2;
@@ -70,13 +86,21 @@
 }
 
 @media (max-width: 760px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
   :root:not([data-theme="light"])
     :is(
       .app-shell:has(
         .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
         .detail-page,
         .settings-page:where(:not(.recovery-page))
       ),
+      .bootstrap-screen,
+      .loading-screen,
       .confirmation-backdrop--settings
     ) {
     --color-text: #e5eaf2;
@@ -101,9 +125,17 @@
   :is(
     .app-shell:has(
       .passport-archive-page,
+      .welcome,
+      .passport-empty-page,
       .detail-page,
       .settings-page:where(:not(.recovery-page))
     ),
+    :root:where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
+    .bootstrap-screen,
+    .loading-screen,
     .confirmation-backdrop--settings
   ) {
     --color-text: #1e2b3e;
@@ -153,13 +185,21 @@
 }
 
 @media (min-width: 761px) {
+  :root[data-theme="dark"]:where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
   :root[data-theme="dark"]
     :is(
       .app-shell:has(
         .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
         .detail-page,
         .settings-page:where(:not(.recovery-page))
       ),
+      .bootstrap-screen,
+      .loading-screen,
       .confirmation-backdrop--settings
     ) {
     --color-text: #e5eaf2;
@@ -201,13 +241,21 @@
 }
 
 @media (min-width: 761px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):where(
+      [data-startup-theme],
+      :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
+    ),
   :root:not([data-theme="light"])
     :is(
       .app-shell:has(
         .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
         .detail-page,
         .settings-page:where(:not(.recovery-page))
       ),
+      .bootstrap-screen,
+      .loading-screen,
       .confirmation-backdrop--settings
     ) {
     --color-text: #e5eaf2;
@@ -248,8 +296,13 @@
   }
 }
 
+:root:where([data-startup-theme]),
+.bootstrap-screen,
+.loading-screen,
 .app-shell:has(
   .passport-archive-page,
+  .welcome,
+  .passport-empty-page,
   .detail-page,
   .settings-page:where(:not(.recovery-page))
 ) {
@@ -257,9 +310,22 @@
   background: var(--color-canvas);
 }
 
+/* Cover the blank document while the entry module is still downloading. */
+:root:where([data-startup-theme]) body {
+  color: var(--color-text);
+  background: var(--color-canvas);
+}
+
 /* Additional aliases belong only to the newly themed pages and Settings portals.
    Do not rebind Passport's inherited desktop danger/brand aliases or map roles. */
-.app-shell:has(.detail-page, .settings-page:where(:not(.recovery-page))),
+.app-shell:has(
+  .welcome,
+  .passport-empty-page,
+  .detail-page,
+  .settings-page:where(:not(.recovery-page))
+),
+.bootstrap-screen,
+.loading-screen,
 .confirmation-backdrop--settings {
   --red: var(--color-danger);
   --red-soft: var(--color-danger-soft);
@@ -270,6 +336,8 @@
 
 .settings-page:where(:not(.recovery-page))
   .settings-storage-status.is-protected,
+.welcome .import-preflight-stats :is(.import-stat-valid, .import-stat-new) dd,
+.welcome .import-disposition-new,
 .settings-page:where(:not(.recovery-page))
   .import-preflight-stats
   :is(.import-stat-valid, .import-stat-new)

@@ -31,6 +31,21 @@
   display: none;
 }
 
+.welcome .button-secondary:hover:not(:disabled) {
+  border-color: var(--color-line-strong);
+  background: var(--color-surface-sunken);
+}
+
+.welcome-import .import-primary:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.welcome-import input:focus-visible + .import-primary {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
 .privacy-note {
   margin-top: 18px;
   color: var(--faint);

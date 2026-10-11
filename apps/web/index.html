@@ -1,9 +1,31 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-startup-theme>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f5f4f0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <script>
+      try {
+        const appearance = localStorage.getItem("keepraw-fly-appearance");
+        if (appearance === "light" || appearance === "dark")
+          document.documentElement.dataset.theme = appearance;
+      } catch {
+        // System appearance also works when the cosmetic cache is unavailable.
+      }
+    </script>
+    <link rel="stylesheet" href="/src/styles/shared-page-theme.css" />
+    <meta
+      name="theme-color"
+      content="#f3f6fa"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121923"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="./site.webmanifest" />
     <meta

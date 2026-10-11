@@ -31,6 +31,7 @@ import {
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
+import { applyAppearance, initialAppearance } from "./appearance";
 import {
   frequentFlyerMemberships,
   recentAirportCodes,
@@ -61,9 +62,10 @@ export function App() {
     useState<RecoveryArchive | null>(null);
   const [recoveryBusy, setRecoveryBusy] = useState(false);
   const recoveryOperationRef = useRef(false);
-  const [settings, setSettings] = useState<ViewerSettings>(
-    defaultViewerSettings,
-  );
+  const [settings, setSettings] = useState<ViewerSettings>(() => ({
+    ...defaultViewerSettings(),
+    appearance: initialAppearance(),
+  }));
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [documentPersistence, setDocumentPersistence] =
@@ -236,12 +238,10 @@ export function App() {
   }, [i18n, settings.language]);
 
   useEffect(() => {
-    if (settings.appearance === "system") {
-      delete window.document.documentElement.dataset.theme;
-    } else {
-      window.document.documentElement.dataset.theme = settings.appearance;
-    }
-  }, [settings.appearance]);
+    if (!loaded) return;
+    applyAppearance(settings.appearance);
+    delete window.document.documentElement.dataset.startupTheme;
+  }, [loaded, settings.appearance]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
