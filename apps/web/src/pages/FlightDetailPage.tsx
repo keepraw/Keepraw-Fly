@@ -363,127 +363,129 @@ export function FlightDetailPage({
         className="detail-flight-card"
         aria-labelledby="flight-detail-title"
       >
-        <header className="detail-heading">
-          <div className="detail-heading-identity">
-            <h1 id="flight-detail-title">
-              {airportCityLabel(flight.origin.iata, locale)}{" "}
-              <span>{t("flightDetail.to")}</span>{" "}
-              {airportCityLabel(flight.destination.iata, locale)}
-            </h1>
-            <div className="detail-heading-eyebrow">
-              <strong>{flight.flightNumber}</strong>
-              {airlineName ? (
-                <>
+        <div className="detail-hero-grid">
+          <div className="detail-hero-information">
+            <header className="detail-heading">
+              <div className="detail-heading-identity">
+                <h1 id="flight-detail-title">
+                  {airportCityLabel(flight.origin.iata, locale)}{" "}
+                  <span>{t("flightDetail.to")}</span>{" "}
+                  {airportCityLabel(flight.destination.iata, locale)}
+                </h1>
+                <div className="detail-heading-eyebrow">
+                  <strong>{flight.flightNumber}</strong>
+                  {airlineName ? (
+                    <>
+                      <i aria-hidden="true">·</i>
+                      <span className="detail-airline-name">{airlineName}</span>
+                    </>
+                  ) : null}
                   <i aria-hidden="true">·</i>
-                  <span className="detail-airline-name">{airlineName}</span>
-                </>
-              ) : null}
-              <i aria-hidden="true">·</i>
-              <time dateTime={flight.serviceDate}>
-                {formatServiceDate(flight.serviceDate, locale, {
-                  weekday: "short",
-                  year: "numeric",
-                  month: "short",
-                  day: "2-digit",
-                })}
-              </time>
-              <i aria-hidden="true">·</i>
-              <span className="detail-heading-summary">
-                <strong
-                  className={`detail-flight-phase${flight.cancelled ? " is-cancelled" : flight.divertedTo ? " is-diverted" : ""}`}
-                >
-                  {phase}
-                </strong>
-                {flight.divertedTo ? (
-                  <span className="detail-diversion-note">
-                    {t("flightDetail.divertedTo", {
-                      airport: flight.divertedTo.iata,
+                  <time dateTime={flight.serviceDate}>
+                    {formatServiceDate(flight.serviceDate, locale, {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
                     })}
+                  </time>
+                  <i aria-hidden="true">·</i>
+                  <span className="detail-heading-summary">
+                    <strong
+                      className={`detail-flight-phase${flight.cancelled ? " is-cancelled" : flight.divertedTo ? " is-diverted" : ""}`}
+                    >
+                      {phase}
+                    </strong>
+                    {flight.divertedTo ? (
+                      <span className="detail-diversion-note">
+                        {t("flightDetail.divertedTo", {
+                          airport: flight.divertedTo.iata,
+                        })}
+                      </span>
+                    ) : null}
                   </span>
-                ) : null}
-              </span>
-            </div>
-          </div>
-        </header>
+                </div>
+              </div>
+            </header>
 
-        <div className="detail-operational-grid">
-          <div
-            className="detail-stops"
-            role="group"
-            aria-label={t("flightDetail.timeline")}
-          >
-            <AirportStop
-              kind="departure"
-              iata={flight.origin.iata}
-              city={airportCityLabel(flight.origin.iata, locale)}
-              airport={airportNameLabel(origin, flight.origin.iata, locale)}
-              terminal={flight.origin.terminal}
-              gate={flight.origin.gate}
-              times={times.departure}
-              scheduled={
-                times.departure.primary.source === "actual"
-                  ? times.scheduled.departure
-                  : undefined
-              }
-            />
             <div
-              className="detail-segment-meta"
-              aria-label={t("flightDetail.journey")}
+              className="detail-stops"
+              role="group"
+              aria-label={t("flightDetail.timeline")}
             >
-              <span>
-                {t(`flightDetail.durationSource.${duration.source}`)}{" "}
-                {durationLabel}
-              </span>
-              {distanceLabel ? <span>{distanceLabel}</span> : null}
-              {times.overnight ? (
-                <span>{t("flightTiming.overnight")}</span>
-              ) : null}
+              <AirportStop
+                kind="departure"
+                iata={flight.origin.iata}
+                city={airportCityLabel(flight.origin.iata, locale)}
+                airport={airportNameLabel(origin, flight.origin.iata, locale)}
+                terminal={flight.origin.terminal}
+                gate={flight.origin.gate}
+                times={times.departure}
+                scheduled={
+                  times.departure.primary.source === "actual"
+                    ? times.scheduled.departure
+                    : undefined
+                }
+              />
+              <div
+                className="detail-segment-meta"
+                aria-label={t("flightDetail.journey")}
+              >
+                <span>
+                  {t(`flightDetail.durationSource.${duration.source}`)}{" "}
+                  {durationLabel}
+                </span>
+                {distanceLabel ? <span>{distanceLabel}</span> : null}
+                {times.overnight ? (
+                  <span>{t("flightTiming.overnight")}</span>
+                ) : null}
+              </div>
+              <AirportStop
+                kind="arrival"
+                iata={flight.divertedTo?.iata ?? flight.destination.iata}
+                city={airportCityLabel(
+                  flight.divertedTo?.iata ?? flight.destination.iata,
+                  locale,
+                )}
+                airport={airportNameLabel(
+                  actualDestination,
+                  flight.divertedTo?.iata ?? flight.destination.iata,
+                  locale,
+                )}
+                terminal={arrivalEndpoint.terminal}
+                gate={arrivalEndpoint.gate}
+                baggageCarousel={baggage?.carousel}
+                times={times.arrival}
+                scheduled={
+                  times.arrival.primary.source === "actual"
+                    ? times.scheduled.arrival
+                    : undefined
+                }
+                plannedAirport={
+                  flight.divertedTo ? flight.destination.iata : undefined
+                }
+                plannedCity={
+                  flight.divertedTo
+                    ? airportCityLabel(flight.destination.iata, locale)
+                    : undefined
+                }
+                plannedName={
+                  flight.divertedTo
+                    ? airportNameLabel(
+                        airportByIata.get(flight.destination.iata),
+                        flight.destination.iata,
+                        locale,
+                      )
+                    : undefined
+                }
+                plannedTerminal={
+                  flight.divertedTo ? flight.destination.terminal : undefined
+                }
+                plannedGate={
+                  flight.divertedTo ? flight.destination.gate : undefined
+                }
+              />
             </div>
-            <AirportStop
-              kind="arrival"
-              iata={flight.divertedTo?.iata ?? flight.destination.iata}
-              city={airportCityLabel(
-                flight.divertedTo?.iata ?? flight.destination.iata,
-                locale,
-              )}
-              airport={airportNameLabel(
-                actualDestination,
-                flight.divertedTo?.iata ?? flight.destination.iata,
-                locale,
-              )}
-              terminal={arrivalEndpoint.terminal}
-              gate={arrivalEndpoint.gate}
-              baggageCarousel={baggage?.carousel}
-              times={times.arrival}
-              scheduled={
-                times.arrival.primary.source === "actual"
-                  ? times.scheduled.arrival
-                  : undefined
-              }
-              plannedAirport={
-                flight.divertedTo ? flight.destination.iata : undefined
-              }
-              plannedCity={
-                flight.divertedTo
-                  ? airportCityLabel(flight.destination.iata, locale)
-                  : undefined
-              }
-              plannedName={
-                flight.divertedTo
-                  ? airportNameLabel(
-                      airportByIata.get(flight.destination.iata),
-                      flight.destination.iata,
-                      locale,
-                    )
-                  : undefined
-              }
-              plannedTerminal={
-                flight.divertedTo ? flight.destination.terminal : undefined
-              }
-              plannedGate={
-                flight.divertedTo ? flight.destination.gate : undefined
-              }
-            />
           </div>
 
           {showDesktopMap ? (

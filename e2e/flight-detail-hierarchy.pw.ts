@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { expectDetailHero } from "./helpers/detail-hero";
 import {
   importArchive,
   collectBrowserErrors,
@@ -98,6 +99,10 @@ const records: KeeprawFlight[] = [
 
 // Geometry supports (and never replaces) the attached real-browser screenshots.
 async function expectTimeGrid(page: Page, width: number) {
+  const informationWidth = (await page
+    .locator(".detail-hero-information")
+    .boundingBox())!.width;
+  const captionRows = width <= 480 || (width > 760 && informationWidth <= 660);
   const rows = await page
     .locator(".detail-airport-time, .detail-scheduled-time")
     .evaluateAll((elements) =>
@@ -129,7 +134,7 @@ async function expectTimeGrid(page: Page, width: number) {
       expect(child.x).toBeGreaterThanOrEqual(row.left - 1);
       expect(child.right).toBeLessThanOrEqual(row.right + 1);
     }
-    if (width <= 480) {
+    if (captionRows) {
       expect(row.children[1].y).toBeGreaterThanOrEqual(
         row.children[0].bottom - 1,
       );
@@ -177,7 +182,9 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         .locator('.flight-record[data-flight-id="ca1831"] .flight-row')
         .click();
       // Visit mobile before any desktop mount to prove code is not requested.
-      for (const width of [360, 390, 430, 761, 1024, 1440]) {
+      for (const width of [
+        360, 390, 430, 761, 900, 1024, 1199, 1200, 1280, 1440, 1920,
+      ]) {
         await page.setViewportSize({ width, height: 900 });
         await expect(
           page.locator(".detail-heading-summary .flight-deviation"),
@@ -213,10 +220,15 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
             await expect(label).toBeVisible();
         }
         await expectTimeGrid(page, width);
+        const heroGeometry = await expectDetailHero(page, width);
+        await testInfo.attach(`CA1831 Hero ${width}`, {
+          body: JSON.stringify(heroGeometry, null, 2),
+          contentType: "application/json",
+        });
         if (width > 760) {
           const stops = (await page.locator(".detail-stops").boundingBox())!;
           const map = (await page.locator(".detail-route-map").boundingBox())!;
-          if (width < 1200)
+          if (width < 1024)
             expect(map.y).toBeGreaterThanOrEqual(stops.y + stops.height);
           else expect(map.x).toBeGreaterThan(stops.x + stops.width);
           await expect(
@@ -257,6 +269,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         }
       }
       if (appearance === "system") {
+        await page.setViewportSize({ width: 1440, height: 900 });
         await page.emulateMedia({ colorScheme: "light" });
         await expect(page.locator(".detail-globe-frame")).toHaveAttribute(
           "data-theme",
@@ -339,6 +352,8 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
             await expect(
               page.locator(".detail-stop-meta, .flight-deviation"),
             ).toHaveCount(0);
+          await expectTimeGrid(page, width);
+          await expectDetailHero(page, width);
           await expectHealthyPage(page, errors);
           const path = testInfo.outputPath(`${record.id}-${width}.png`);
           await page.evaluate(() => document.fonts.ready);

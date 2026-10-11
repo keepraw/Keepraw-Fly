@@ -609,6 +609,10 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
     const detailI18n = i18n.cloneInstance();
     const mount = document.createElement("div");
     mount.style.width = "600px";
+    // Detail now receives its height from the Hero Grid, including in this
+    // isolated prop-update fixture. Keep the real canvas/selection assertions.
+    mount.style.display = "grid";
+    mount.style.aspectRatio = "4 / 3";
     document.body.append(mount);
     const root = createRoot(mount);
     (window as any).renderDetail = (props: object) =>

@@ -1,3 +1,4 @@
+import { expectDetailHero } from "./helpers/detail-hero";
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
@@ -1091,28 +1092,18 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     await expect
       .poll(() =>
         page
-          .locator(".detail-operational-grid")
+          .locator(".detail-hero-grid")
           .evaluate(
             (element) =>
               getComputedStyle(element).gridTemplateColumns.split(" ").length,
           ),
       )
-      .toBe(viewport.width < 1200 ? 1 : 2);
-    if (viewport.width > 760) {
-      await expect
-        .poll(() =>
-          page
-            .locator(".detail-route-map")
-            .evaluate((element) => element.getBoundingClientRect().height),
-        )
-        .toBeCloseTo(viewport.width >= 1200 ? 400 : 440, 1);
-    }
+      .toBe(viewport.width < 1024 ? 1 : 2);
+    await expectDetailHero(page, viewport.width);
     const layout = await page.evaluate(() => {
       const style = (selector: string) =>
         getComputedStyle(document.querySelector<HTMLElement>(selector)!);
-      const grid = document.querySelector<HTMLElement>(
-        ".detail-operational-grid",
-      )!;
+      const grid = document.querySelector<HTMLElement>(".detail-hero-grid")!;
       const map = document.querySelector<HTMLElement>(".detail-route-map");
       const actual = document.querySelector<HTMLElement>(
         ".detail-airport-time",
@@ -1122,9 +1113,8 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       )!;
       const card = document.querySelector<HTMLElement>(".detail-flight-card")!;
       return {
-        gridColumns: style(
-          ".detail-operational-grid",
-        ).gridTemplateColumns.split(" ").length,
+        gridColumns:
+          style(".detail-hero-grid").gridTemplateColumns.split(" ").length,
         mapHeight: map?.getBoundingClientRect().height ?? 0,
         mapRadius: map ? getComputedStyle(map).borderRadius : null,
         actualDominatesSchedule:
@@ -1146,17 +1136,14 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       };
     });
 
-    expect(layout.gridColumns).toBe(viewport.width < 1200 ? 1 : 2);
+    expect(layout.gridColumns).toBe(viewport.width < 1024 ? 1 : 2);
     if (viewport.width <= 760) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
       await expect(page.locator(".detail-segment-meta")).toBeVisible();
       await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
-      expect(layout.mapHeight).toBeCloseTo(
-        viewport.width >= 1200 ? 400 : 440,
-        1,
-      );
+      expect(layout.mapHeight).toBeGreaterThan(0);
       expect(layout.mapRadius).toBe("0px");
     }
     expect(layout.actualDominatesSchedule).toBe(true);

@@ -173,12 +173,20 @@
   font-size: var(--detail-label-size);
 }
 
-.detail-operational-grid {
+.detail-hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr);
   gap: 32px;
-  align-items: start;
-  margin-block: 32px;
+  align-items: stretch;
+  margin-bottom: 32px;
+}
+
+.detail-hero-information {
+  container: detail-information / inline-size;
+  display: grid;
+  align-content: start;
+  gap: 32px;
+  min-width: 0;
 }
 
 .detail-stops {
@@ -191,7 +199,7 @@
 .detail-stop {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 1.2fr);
   gap: 10px 24px;
   min-width: 0;
   align-items: start;
@@ -384,7 +392,9 @@
 }
 
 .detail-route-map {
-  height: 400px;
+  height: auto;
+  max-height: 640px;
+  min-height: 0;
   min-width: 0;
   overflow: hidden;
   padding: 0;
@@ -516,22 +526,64 @@
 }
 
 @media (max-width: 1199px) {
-  .detail-operational-grid {
+  .detail-metadata-shelf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+}
+
+@media (min-width: 761px) {
+  @container detail-information (max-width: 660px) {
+    .detail-stop {
+      grid-template-columns: minmax(0, 1fr) minmax(230px, 1.15fr);
+      column-gap: 20px;
+    }
+
+    .detail-stop-facts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .detail-airport-time,
+    .detail-scheduled-time {
+      grid-template-columns: minmax(0, 1fr) var(--detail-time-zone-width);
+      row-gap: 2px;
+    }
+
+    .detail-airport-time .time-source,
+    .detail-scheduled-time .time-source {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .detail-airport-time .time-zone,
+    .detail-scheduled-time .time-zone {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .detail-airport-time time,
+    .detail-scheduled-time time {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .detail-stop-meta {
+      padding-left: 0;
+    }
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1023px) {
+  .detail-hero-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 28px;
   }
 
-  .detail-stop {
-    grid-template-columns: minmax(0, 1fr) 360px;
-  }
-
   .detail-route-map {
-    height: 440px;
-  }
-
-  .detail-metadata-shelf {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 32px;
+    justify-self: center;
+    width: min(100%, 600px);
+    max-height: none;
+    aspect-ratio: 4 / 3;
   }
 }
 
@@ -558,9 +610,14 @@
     gap: 2px;
   }
 
-  .detail-operational-grid {
+  .detail-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    margin-block: 24px;
+    margin-bottom: 24px;
+  }
+
+  .detail-hero-information {
+    gap: 24px;
   }
 
   .detail-stops {
