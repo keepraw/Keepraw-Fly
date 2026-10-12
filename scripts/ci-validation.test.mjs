@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -117,5 +123,19 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
       );
   assert.match(gate, /needs: \[checks, chromium, cross-browser\]/);
   assert.match(gate, /if: \$\{\{ always\(\) \}\}/);
-  assert.match(workflow.split("  deploy:\n")[1], /if: \$\{\{ false \}\}/);
+  const deploy = workflow.split("  deploy:\n")[1];
+  assert.ok(
+    deploy.includes(
+      "if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}",
+    ),
+  );
+  assert.ok(
+    deploy.includes("needs: [verify, checks, chromium, cross-browser]"),
+  );
+  assert.ok(deploy.includes("uses: actions/deploy-pages@v5"));
+  assert.ok(workflow.includes("uses: actions/upload-pages-artifact@v4"));
+  assert.ok(workflow.includes("path: apps/web/dist"));
+  assert.ok(workflow.includes("  push:\n    branches: [main]"));
+  assert.ok(workflow.includes("group: ci-${{ github.ref }}"));
+  assert.equal(existsSync(".github/workflows/pages.yml"), false);
 });
