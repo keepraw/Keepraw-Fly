@@ -112,13 +112,6 @@ test("globe actual browser screenshots, viewports, selection and resource measur
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
-      await page.screenshot({
-        path: `${destination}/${browserName}-${theme}-${viewport.width}x${viewport.height}.png`,
-      });
-      if (viewport.width === 1440)
-        await page.locator(".globe-stage").screenshot({
-          path: `${destination}/${browserName}-${theme}-map.png`,
-        });
       readings.push({
         theme,
         viewport,
@@ -146,12 +139,6 @@ test("globe actual browser screenshots, viewports, selection and resource measur
     .selectOption(backside);
   await expect.poll(() => camera(page)).not.toBe(before);
   await page.waitForTimeout(150);
-  await page.screenshot({
-    path: `${destination}/${browserName}-dark-selected-backside.png`,
-  });
-  await page.locator(".globe-stage").screenshot({
-    path: `${destination}/${browserName}-dark-selected-backside-map.png`,
-  });
   await page
     .getByRole("combobox", { name: "Airport", exact: true })
     .selectOption("SFO");
@@ -203,9 +190,6 @@ test("globe actual browser screenshots, viewports, selection and resource measur
       ((await metrics(page)) as { frames: number }).frames -
       interactionFrameStart,
     metrics: await metrics(page),
-  });
-  await page.screenshot({
-    path: `${destination}/${browserName}-dark-manual-rotation.png`,
   });
   expect(external).toEqual([]);
   expect(errors).toEqual([]);

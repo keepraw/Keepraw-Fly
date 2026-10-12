@@ -68,7 +68,7 @@ jobs:
 
   chromium:
     runs-on: ubuntu-latest
-    # Spread the full regression and Hero screenshot matrices across runners.
+    # Spread the full regression and responsive Hero checks across runners.
     # Keep one worker per runner and preserve all test/job timeouts and gates.
     timeout-minutes: 20
     strategy:
@@ -113,14 +113,6 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
-
-      - name: Upload Passport mobile review screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: passport-mobile-review-shard-${{ matrix.shard }}
-          path: test-results/review/passport-mobile-*.png
-          if-no-files-found: warn
 
   cross-browser:
     runs-on: ubuntu-latest

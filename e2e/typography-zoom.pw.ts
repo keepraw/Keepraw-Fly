@@ -1,5 +1,5 @@
 import { chromium, expect, test } from "@playwright/test";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { globeMode } from "./helpers/globe-capability";
 import {
   passportTypographyBounds,
@@ -120,5 +120,7 @@ for (const zoom of [1, 1.25]) {
       });
       await context.close();
     }
+    // Failed runs retain the profile; successful browser caches are not evidence.
+    await rm(profile, { recursive: true, force: true });
   });
 }
