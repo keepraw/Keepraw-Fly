@@ -167,7 +167,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .detail-globe-frame .globe-controls {
+  .detail-globe-frame:not([data-touch-controls="true"]) .globe-controls {
     opacity: 0;
     pointer-events: none;
   }

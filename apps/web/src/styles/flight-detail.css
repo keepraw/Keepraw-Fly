@@ -197,14 +197,15 @@
   .detail-hero-grid {
     --detail-globe-max-height: clamp(360px, 52svh, 560px);
     --detail-hero-gutter: clamp(24px, calc(25svh - 168px), 76px);
-
-    /* Reserve exactly the first screen after the header (including its border)
-       and page inset. Only unusually tall flight information can grow the Hero;
-       the absolutely positioned Globe never supplies intrinsic height. */
-    height: calc(
-      100svh - var(--layout-header-height) - 1px -
-        var(--detail-page-start, 36px) - env(safe-area-inset-top)
+    --detail-hero-start: calc(
+      var(--layout-header-height) + 1px + var(--detail-page-start, 36px) +
+        env(safe-area-inset-top)
     );
+
+    /* Reserve the rest of the first screen after the measured page inset,
+       header and notices. Unusually tall flight information can grow the Hero;
+       the absolutely positioned Globe never supplies intrinsic height. */
+    height: calc(100svh - var(--detail-hero-start));
     min-height: min-content;
 
     /* Preserve the information's content minimum so centering cannot push it
