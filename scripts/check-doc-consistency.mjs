@@ -79,7 +79,7 @@ if (
     const content = documents[path] ?? "";
     for (const name of ["`main`", "`verify`", "`deploy`"]) {
       if (!content.includes(name))
-        problems.push(`${path} must document the current ${name} deployment gate.`);
+        problems.push(`${path} missing ${name} deployment gate documentation.`);
     }
     if (
       /automatic deployment is deliberately paused|paused `deploy`|deploy.if.*false|mobile review screenshots also have shard-specific names/i.test(content)
