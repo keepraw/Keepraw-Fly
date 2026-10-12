@@ -194,18 +194,24 @@
 }
 
 @media (min-width: 1200px) {
+  .app-shell:has(.detail-page) > .page-notices {
+    /* Include the banners' margins in the measured notice height. */
+    display: flow-root;
+  }
+
   .detail-hero-grid {
     --detail-globe-max-height: clamp(360px, 52svh, 560px);
     --detail-hero-gutter: clamp(24px, calc(25svh - 168px), 76px);
-    --detail-hero-start: calc(
-      var(--layout-header-height) + 1px + var(--detail-page-start, 36px) +
-        env(safe-area-inset-top)
-    );
+    --detail-hero-notices-height: 0px;
 
-    /* Reserve the rest of the first screen after the measured page inset,
-       header and notices. Unusually tall flight information can grow the Hero;
+    /* Reserve the rest of the first screen after the CSS header/page insets
+       and measured notices. Tall flight information can still grow the Hero;
        the absolutely positioned Globe never supplies intrinsic height. */
-    height: calc(100svh - var(--detail-hero-start));
+    height: calc(
+      100svh - var(--layout-header-height) - 1px -
+        var(--detail-page-start, 36px) - env(safe-area-inset-top) -
+        var(--detail-hero-notices-height)
+    );
     min-height: min-content;
 
     /* Preserve the information's content minimum so centering cannot push it
