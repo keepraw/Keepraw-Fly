@@ -84,6 +84,12 @@
   padding-bottom: 56px;
 }
 
+/* The sky can reach the viewport edge, including browsers that reserve space
+   for a vertical scrollbar. Clip paint there, not at the Globe's layout box. */
+.app-shell:has(.detail-page) {
+  overflow-x: clip;
+}
+
 .detail-flight-card {
   min-width: 0;
   border: 0;
@@ -174,14 +180,34 @@
 }
 
 .detail-hero-grid {
+  --detail-globe-max-height: 640px;
+  --detail-space-bleed-inline: 32px;
+
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.225fr) minmax(0, 1fr);
   gap: 32px;
   align-items: stretch;
   margin-bottom: 32px;
 }
 
+@media (min-width: 1200px) {
+  .detail-hero-grid {
+    /* The sky needs peripheral space of its own. The foreground columns and
+       WebGL viewport remain content-sized; these gutters hold only the fade. */
+    padding-block: 76px 88px;
+  }
+
+  .detail-hero-grid:has(.detail-globe-message, .globe-fallback) {
+    /* Status-only views have no sky to accommodate. */
+    padding-block: 0;
+  }
+}
+
 .detail-hero-information {
+  position: relative;
+  z-index: 1;
   container: detail-information / inline-size;
   display: grid;
   align-content: start;
@@ -393,7 +419,7 @@
 
 .detail-route-map {
   height: auto;
-  max-height: 640px;
+  max-height: var(--detail-globe-max-height, 640px);
   min-height: 0;
   min-width: 0;
   overflow: hidden;

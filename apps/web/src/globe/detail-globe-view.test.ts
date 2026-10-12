@@ -39,9 +39,17 @@ describe("single-flight composition", () => {
           (Math.sqrt(view.distance ** 2 - 1) *
             Math.tan((view.fov! * Math.PI) / 360) *
             Math.min(1, viewport.width / viewport.height));
-        expect(shortSideRatio).toBeLessThanOrEqual(1.1 + 1e-10);
+        expect(shortSideRatio).toBeLessThan(1);
+        // Verify the full physical atmosphere silhouette fits, not just the
+        // route or the earth's centre. This catches a clipped default/Home view.
+        const atmosphereRatio =
+          1.026 /
+          (Math.sqrt(view.distance ** 2 - 1.026 ** 2) *
+            Math.tan((view.fov! * Math.PI) / 360) *
+            Math.min(1, viewport.width / viewport.height));
+        expect(atmosphereRatio).toBeLessThanOrEqual(0.97);
         if (name === "short" || name === "same airport")
-          expect(shortSideRatio).toBeGreaterThanOrEqual(1.05 - 1e-10);
+          expect(shortSideRatio).toBeGreaterThanOrEqual(0.9);
         for (const point of routeArc(route)) {
           const p = projectGlobePoint(point, view, viewport);
           expect(p.visible).toBe(true);

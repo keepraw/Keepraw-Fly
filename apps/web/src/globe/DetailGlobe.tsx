@@ -58,30 +58,34 @@ export function DetailGlobe({
   const theme =
     appearance === "system" ? (systemDark ? "dark" : "light") : appearance;
   return (
-    <div className="detail-route-map detail-globe-frame" data-theme={theme}>
-      <div className="detail-globe-space" aria-hidden="true">
-        {stars.map((style, index) => (
-          <i key={index} style={style} />
-        ))}
-      </div>
-      {routes.length ? (
-        <GlobeMap
-          key={id}
-          variant="detail"
-          routes={routes}
-          flights={[flight]}
-          theme={theme}
-          quality="4096"
-          lighting={defaultLighting}
-          solarMode={solarMode}
-          selection={selection}
-          onSelect={(value) => setSelected({ routes, value })}
-        />
-      ) : (
-        <div className="detail-globe-message" role="status">
-          {t(cancelled ? "globe.detailCancelled" : "globe.detailUnavailable")}
+    <>
+      <div className="detail-hero-space" aria-hidden="true">
+        <div className="detail-globe-space">
+          {stars.map((style, index) => (
+            <i key={index} style={style} />
+          ))}
         </div>
-      )}
-    </div>
+      </div>
+      <div className="detail-route-map detail-globe-frame" data-theme={theme}>
+        {routes.length ? (
+          <GlobeMap
+            key={id}
+            variant="detail"
+            routes={routes}
+            flights={[flight]}
+            theme={theme}
+            quality="4096"
+            lighting={defaultLighting}
+            solarMode={solarMode}
+            selection={selection}
+            onSelect={(value) => setSelected({ routes, value })}
+          />
+        ) : (
+          <div className="detail-globe-message" role="status">
+            {t(cancelled ? "globe.detailCancelled" : "globe.detailUnavailable")}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

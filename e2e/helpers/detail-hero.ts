@@ -74,8 +74,38 @@ export async function expectDetailHero(page: Page, width: number) {
       geometry.information.width / (geometry.information.width + map.width);
     expect(ratio).toBeGreaterThanOrEqual(0.55);
     expect(ratio).toBeLessThanOrEqual(0.6);
+    const sky = page.locator(".detail-hero-grid > .detail-hero-space");
+    await expect(sky).toHaveCount(1);
+    await expect(sky).toHaveCSS("pointer-events", "none");
+    const skyBounds = (await sky.boundingBox())!;
+    expect(skyBounds.x).toBeGreaterThanOrEqual(geometry.information.right - 1);
+    expect(skyBounds.x + skyBounds.width).toBeLessThanOrEqual(width + 1);
+    if (geometry.shelf)
+      expect(skyBounds.y + skyBounds.height).toBeLessThanOrEqual(
+        geometry.shelf.top + 1,
+      );
+    const host = page.locator(".detail-globe-frame .globe-host");
+    if (await host.count()) {
+      await expect(host).toHaveAttribute("data-ready", "true", {
+        timeout: 25000,
+      });
+      // Verify the physical atmosphere fits inside the real rendering viewport.
+      // This does not infer clipping from a stretched wrapper or a CSS mask.
+      const atmosphereRatio = await host.evaluate((element) => {
+        const scene = JSON.parse((element as HTMLElement).dataset.scene!);
+        const distance = Math.hypot(...scene.camera);
+        return (
+          1.026 /
+          (Math.sqrt(distance ** 2 - 1.026 ** 2) *
+            Math.tan((scene.fov * Math.PI) / 360) *
+            Math.min(1, scene.viewport.width / scene.viewport.height))
+        );
+      });
+      expect(atmosphereRatio).toBeLessThanOrEqual(0.98);
+    }
   } else {
     expect(geometry.map).toBeNull();
+    await expect(page.locator(".detail-hero-space")).toHaveCount(0);
     await expect(page.locator(".detail-stop").first()).toHaveCSS(
       "grid-template-columns",
       /^(\d+(?:\.\d+)?px)$/,

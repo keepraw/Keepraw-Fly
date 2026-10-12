@@ -58,18 +58,19 @@ export function detailGlobeView(
       );
     }),
   );
-  // Near-square frames need less limb crop than wide/tall frames. Smoothly
-  // grow from 105% to 110% of the short side as the aspect approaches 2:1.
-  const silhouetteDiameter =
-    1.05 + 0.05 * Math.min(1, Math.abs(Math.log2(aspect)));
+  // Fit the actual outer atmosphere (radius 1.026), not just the earth surface.
+  // Leave a small screen-space inset while maximizing a complete silhouette.
+  const outerRadius = 1.026;
+  const shortSide = Math.max(1, Math.min(viewport.width, viewport.height));
+  const safeInset = Math.min(10, shortSide * 0.02);
+  const availableDiameter = (shortSide - safeInset * 2) / shortSide;
   const lens = Math.max(
     fit * 1.01,
-    // A sphere's perspective silhouette has radius 1/sqrt(distance² - 1).
-    // Ordinary routes dominate the frame, with a modest limb crop.
-    // The actual route fit takes priority for long/polar/antipodal arcs.
-    1 /
-      (Math.sqrt(distance * distance - 1) *
-        silhouetteDiameter *
+    // Perspective silhouette radius: R / sqrt(distance² - R²).
+    // Full route/endpoint fit still takes priority for long/polar/antipodal arcs.
+    outerRadius /
+      (Math.sqrt(distance * distance - outerRadius * outerRadius) *
+        availableDiameter *
         Math.min(1, aspect)),
   );
   return {

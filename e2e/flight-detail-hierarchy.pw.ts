@@ -244,7 +244,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         });
         if (width === 1440 && language === "en" && appearance !== "system") {
           // Review-only candidate B; restore A before continuing the matrix.
-          const frame = page.locator(".detail-globe-frame");
+          const frame = page.locator(".detail-hero-space");
           await frame.evaluate((element) =>
             (element as HTMLElement).style.setProperty(
               "--detail-galaxy-opacity",

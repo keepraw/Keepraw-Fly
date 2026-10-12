@@ -29,6 +29,8 @@ test(
     test.setTimeout(90_000);
     await open(page);
     const frame = page.locator(".detail-globe-frame");
+    const sky = page.locator(".detail-hero-grid > .detail-hero-space");
+    const space = sky.locator(".detail-globe-space");
     const controls = frame.locator(".globe-controls");
     const buttons = controls.getByRole("button");
     expect(
@@ -45,14 +47,8 @@ test(
     ]) {
       await expect(page.locator(selector)).toHaveCSS("mask-image", "none");
     }
-    await expect(frame.locator(".detail-globe-space")).toHaveCSS(
-      "mask-image",
-      /radial-gradient/,
-    );
-    await expect(frame.locator(".detail-globe-space")).toHaveCSS(
-      "pointer-events",
-      "none",
-    );
+    await expect(space).toHaveCSS("mask-image", /radial-gradient/);
+    await expect(space).toHaveCSS("pointer-events", "none");
     await expect(frame).toHaveCSS("border-top-width", "0px");
     await expect(frame).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(frame.locator(".globe-stage")).toHaveCSS(
@@ -76,8 +72,26 @@ test(
     ).toBe(false);
     await capture(page, info, "detail-controls-default");
 
-    // Sample actual rendered corners: the space layer must blend into the page.
-    const png = await frame.screenshot();
+    // The sky is a Hero sibling and extends beyond the canvas toward the page
+    // edge. Its *outer* perimeter, not the canvas corners, must meet the page.
+    const bounds = await sky.boundingBox();
+    const foreground = (await frame.boundingBox())!;
+    const infoBounds = (await page
+      .locator(".detail-hero-information")
+      .boundingBox())!;
+    const shelf = (await page.locator(".detail-metadata-shelf").boundingBox())!;
+    expect(bounds!.x).toBeGreaterThanOrEqual(
+      infoBounds.x + infoBounds.width - 1,
+    );
+    expect(bounds!.y).toBeLessThan(foreground.y);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(shelf.y + 1);
+    expect(bounds!.x + bounds!.width).toBeCloseTo(1440, 0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBe(0);
+    const png = await sky.screenshot();
     const pageColor = await page
       .locator(".app-shell")
       .evaluate((e) => getComputedStyle(e).backgroundColor);
@@ -92,10 +106,10 @@ test(
         const context = canvas.getContext("2d")!;
         context.drawImage(image, 0, 0);
         return [
-          [3, 3],
-          [image.width - 4, 3],
-          [3, image.height - 4],
-          [image.width - 4, image.height - 4],
+          [0, 0],
+          [image.width - 1, 0],
+          [0, image.height - 1],
+          [image.width - 1, image.height - 1],
         ].map(([x, y]) => {
           const [r, g, b] = context.getImageData(x!, y!, 1, 1).data;
           return `rgb(${r}, ${g}, ${b})`;
@@ -104,6 +118,31 @@ test(
       `data:image/png;base64,${png.toString("base64")}`,
     );
     expect(corners).toEqual([pageColor, pageColor, pageColor, pageColor]);
+    // A visible, deep navy environment must exist outside the WebGL viewport;
+    // otherwise making every corner transparent could just remove the universe.
+    const exterior = await page.screenshot({
+      clip: {
+        x: foreground.x + foreground.width + 20,
+        y: foreground.y + foreground.height / 2,
+        width: 8,
+        height: 8,
+      },
+    });
+    const exteriorColor = await page.evaluate(
+      async (url) => {
+        const image = new Image();
+        image.src = url;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = 8;
+        const context = canvas.getContext("2d")!;
+        context.drawImage(image, 0, 0);
+        return Array.from(context.getImageData(4, 4, 1, 1).data).slice(0, 3);
+      },
+      `data:image/png;base64,${exterior.toString("base64")}`,
+    );
+    expect(exteriorColor[2]).toBeGreaterThan(exteriorColor[0]! + 10);
+    expect(Math.max(...exteriorColor)).toBeLessThan(100);
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await expect(controls).toHaveCSS("transition-duration", "0.18s");
     await frame.hover({ position: { x: 12, y: 12 } });
@@ -159,6 +198,21 @@ test(
       .toBeLessThanOrEqual(0.00001);
     await page.locator(".detail-header-back").focus();
     await expect(controls).toHaveCSS("opacity", "0");
+    // Native scrollbar gutters reduce the content width without changing 100vw.
+    // The extended sky must not create a second, horizontal scrollbar.
+    await page.addStyleTag({ content: ":root { scrollbar-gutter: stable; }" });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
+    for (const label of await frame.locator(".globe-airport-label").all()) {
+      const bounds = (await label.boundingBox())!;
+      expect(bounds.x).toBeGreaterThanOrEqual(0);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(
+        await page.evaluate(() => document.documentElement.clientWidth),
+      );
+    }
   },
 );
 

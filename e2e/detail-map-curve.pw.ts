@@ -215,6 +215,11 @@ test("flight switching reframes long, diverted and coincident routes; cancelled 
       await expect(
         page.locator(".detail-globe-frame canvas, .detail-globe-frame svg"),
       ).toHaveCount(0);
+      await expect(page.locator(".detail-globe-space")).toHaveCSS(
+        "opacity",
+        "0",
+      );
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     } else {
       await ready(page);
       await expectFramed(
@@ -425,6 +430,8 @@ for (const failure of [
     await expect(
       page.locator(".detail-globe-frame svg, .detail-globe-frame canvas"),
     ).toHaveCount(0);
+    await expect(page.locator(".detail-globe-space")).toHaveCSS("opacity", "0");
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.evaluate(() => {
       (window as any).blockDetail = false;
       (window as any).failObserver = false;
@@ -634,10 +641,13 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
     const { I18nextProvider } = await import(dependency("react-i18next"));
     const detailI18n = i18n.cloneInstance();
     const mount = document.createElement("div");
+    mount.className = "detail-hero-grid";
     mount.style.width = "600px";
     // Detail now receives its height from the Hero Grid, including in this
     // isolated prop-update fixture. Keep the real canvas/selection assertions.
     mount.style.display = "grid";
+    mount.style.gridTemplateColumns = "0px minmax(0, 1fr)";
+    mount.style.gap = "0";
     mount.style.aspectRatio = "4 / 3";
     document.body.append(mount);
     const root = createRoot(mount);
@@ -646,7 +656,14 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
         React.createElement(
           I18nextProvider,
           { i18n: detailI18n },
-          React.createElement(DetailGlobe, props),
+          React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("div", {
+              className: "detail-hero-information",
+            }),
+            React.createElement(DetailGlobe, props),
+          ),
         ),
       );
     (window as any).detailI18n = detailI18n;

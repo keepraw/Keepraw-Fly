@@ -1,7 +1,20 @@
-.detail-globe-frame {
+.detail-hero-space {
   --detail-galaxy-opacity: 0.45;
 
+  position: absolute;
+  z-index: 0;
+  grid-column: 2;
+  grid-row: 1;
+  inset-block: -36px -32px;
+  inset-inline: calc(-1 * var(--detail-space-bleed-inline, 32px))
+    calc(-1 * max(var(--layout-gutter), (100vw - 1240px) / 2));
+  max-height: calc(var(--detail-globe-max-height, 640px) + 232px);
+  pointer-events: none;
+}
+
+.detail-globe-frame {
   position: relative;
+  z-index: 1;
   min-width: 0;
   isolation: isolate;
   color-scheme: dark;
@@ -9,29 +22,50 @@
   background: transparent;
 }
 
-.detail-globe-frame .detail-globe-space {
+.detail-hero-space .detail-globe-space {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  background: radial-gradient(ellipse at 22% 75%, #0b1a2c, #060e1b 76%);
+  background: radial-gradient(ellipse at 82% 35%, #122b43, #071325 76%);
 
-  /* Only space fades; the sibling WebGL stage and its controls stay opaque.
-     Transparent edges reveal the actual Light/Dark page canvas underneath. */
-  mask-image: radial-gradient(
-    ellipse 50% 50% at 50% 50%,
-    #000 35%,
-    rgb(0 0 0 / 65%) 52%,
-    rgb(0 0 0 / 12%) 75%,
-    transparent 100%
-  );
+  /* A stable space core joins an offset, edge-anchored panorama. Only their
+     distant perimeter fades; the foreground canvas is a separate sibling.
+     Smooth boundary ramps have no abrupt opaque-to-fade seam. */
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgb(0 0 0 / 4%) 3%,
+      rgb(0 0 0 / 30%) 7%,
+      rgb(0 0 0 / 75%) 12%,
+      rgb(0 0 0 / 96%) 17%,
+      #000 22%,
+      #000 76%,
+      rgb(0 0 0 / 96%) 81%,
+      rgb(0 0 0 / 75%) 86%,
+      rgb(0 0 0 / 30%) 93%,
+      rgb(0 0 0 / 4%) 97%,
+      transparent
+    ),
+    linear-gradient(to right, transparent, #000 18%),
+    radial-gradient(ellipse 115% 74% at 110% 35%, #000 60%, transparent 100%),
+    radial-gradient(ellipse 47% 46% at 45% 50%, #000 70%, transparent 100%);
+  mask-composite: intersect, intersect, add;
 }
 
-.detail-globe-frame .detail-globe-space::before {
+.detail-hero-space .detail-globe-space::before {
   position: absolute;
-  inset: 12% -35%;
-  transform: rotate(-28deg);
+  inset: 0;
   background:
+    linear-gradient(
+      155deg,
+      transparent 25%,
+      rgb(83 129 166 / 18%) 38%,
+      rgb(145 179 202 / 45%) 46%,
+      rgb(83 129 166 / 20%) 55%,
+      transparent 70%
+    ),
     radial-gradient(
       ellipse at 28% 52%,
       rgb(110 149 183 / 24%),
@@ -48,10 +82,16 @@
   content: "";
 }
 
-.detail-globe-frame .detail-globe-space i {
+.detail-hero-space .detail-globe-space i {
   position: absolute;
   border-radius: 50%;
   background: #d9e6f3;
+}
+
+/* Without an earth, keep status/retry text on the actual page background. */
+.detail-hero-grid:has(.detail-globe-message, .globe-fallback)
+  .detail-globe-space {
+  opacity: 0;
 }
 
 .detail-globe-frame .globe-stage {
@@ -115,11 +155,15 @@
   place-items: center;
   padding: 16px;
   text-align: center;
+  color: var(--muted);
 }
 
 .detail-globe-message {
   position: relative;
-  color: #a9bdd3;
+}
+
+.detail-globe-frame .globe-fallback button {
+  color: var(--ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -142,7 +186,7 @@
 }
 
 @media (min-width: 1200px) {
-  .detail-globe-frame .detail-globe-space i:nth-child(n + 49) {
+  .detail-hero-space .detail-globe-space i:nth-child(n + 49) {
     display: none;
   }
 }
