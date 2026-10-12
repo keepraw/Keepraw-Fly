@@ -79,13 +79,11 @@ for (const [flight, width, theme] of [
   await expect(
     page.getByRole("button", { name: "Create my archive", exact: true }),
   ).toBeVisible();
-  await page
-    .locator("input[type=file]")
-    .setInputFiles({
-      name: "b7-review.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(archive)),
-    });
+  await page.locator("input[type=file]").setInputFiles({
+    name: "b7-review.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
   await page
     .getByRole("button", { name: "Import this archive", exact: true })
     .click();

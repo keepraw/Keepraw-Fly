@@ -2,7 +2,10 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import { importArchive } from "./helpers/responsive";
 
 async function open(page: Page) {
-  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.emulateMedia({
+    reducedMotion: "reduce",
+    colorScheme: "light",
+  });
   await page.setViewportSize({ width: 390, height: 900 });
   await importArchive(page);
   await page
@@ -47,7 +50,10 @@ test(
     ]) {
       await expect(page.locator(selector)).toHaveCSS("mask-image", "none");
     }
-    await expect(space).toHaveCSS("mask-image", /radial-gradient/);
+    // B.8 blends the local Light sky horizontally; the old radial perimeter
+    // would reintroduce the rejected oval halo. Foreground masks stay forbidden.
+    await expect(space).toHaveCSS("mask-image", /^linear-gradient\(to right/);
+    await expect(space).not.toHaveCSS("mask-image", /radial-gradient/);
     await expect(space).toHaveCSS("pointer-events", "none");
     await expect(frame).toHaveCSS("border-top-width", "0px");
     await expect(frame).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
@@ -79,11 +85,17 @@ test(
     const infoBounds = (await page
       .locator(".detail-hero-information")
       .boundingBox())!;
+    const heroBounds = (await page.locator(".detail-hero-grid").boundingBox())!;
     const shelf = (await page.locator(".detail-metadata-shelf").boundingBox())!;
     expect(bounds!.x).toBeGreaterThanOrEqual(
       infoBounds.x + infoBounds.width - 1,
     );
     expect(bounds!.y).toBeLessThan(foreground.y);
+    expect(bounds!.y).toBeCloseTo(heroBounds.y, 0);
+    expect(bounds!.y + bounds!.height).toBeCloseTo(
+      heroBounds.y + heroBounds.height,
+      0,
+    );
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(shelf.y + 1);
     expect(bounds!.x + bounds!.width).toBeCloseTo(1440, 0);
     expect(
@@ -95,6 +107,13 @@ test(
     const pageColor = await page
       .locator(".app-shell")
       .evaluate((e) => getComputedStyle(e).backgroundColor);
+    const pageInk = await page
+      .locator(".app-shell")
+      .evaluate((e) => getComputedStyle(e).color);
+    await expect(page.locator(".detail-hero-information")).toHaveCSS(
+      "color",
+      pageInk,
+    );
     const corners = await page.evaluate(
       async (url) => {
         const image = new Image();
