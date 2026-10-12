@@ -1,0 +1,427 @@
+[
+  {
+    "name": "CA1831-1440-light",
+    "errors": [],
+    "mobileGlobeRequests": 0,
+    "boxes": {
+      ".detail-hero-grid": {
+        "x": 100,
+        "y": 101,
+        "width": 1240,
+        "height": 572.765625
+      },
+      ".detail-hero-information": {
+        "x": 100,
+        "y": 177,
+        "width": 665.078125,
+        "height": 408.765625
+      },
+      ".detail-route-map": {
+        "x": 797.078125,
+        "y": 177,
+        "width": 542.921875,
+        "height": 408.765625
+      },
+      ".detail-hero-space": {
+        "x": 0,
+        "y": 101,
+        "width": 1440,
+        "height": 572.765625
+      },
+      ".detail-metadata-shelf": {
+        "x": 100,
+        "y": 705.765625,
+        "width": 1240,
+        "height": 164.5
+      }
+    },
+    "scene": {
+      "camera": [-0.9919027797892684, 1.4508996052501946, -1.7638365035062715],
+      "fov": 50.44699953166678,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 543,
+        "height": 409
+      },
+      "home": {
+        "direction": [
+          -0.39835453003038723, 0.5826906045101585, -0.708368073687582
+        ],
+        "distance": 2.4900000000341516,
+        "fov": 50.44699953166678,
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 1,
+      "routes": [
+        {
+          "key": "PEK-PVG",
+          "origin": {
+            "iata": "PEK",
+            "latitude": 40.0799,
+            "longitude": 116.6031
+          },
+          "destination": {
+            "iata": "PVG",
+            "latitude": 31.1443,
+            "longitude": 121.8083
+          },
+          "count": 1,
+          "maxAltitude": 0.010353636448704684
+        }
+      ]
+    },
+    "atmosphereRatio": 0.9600000000000002,
+    "overflow": 0,
+    "mask": "none",
+    "heroColor": "rgb(234, 242, 252)",
+    "informationColor": "rgb(234, 242, 252)",
+    "shelfColumns": "600px 600px"
+  },
+  {
+    "name": "UA857-1440-light",
+    "errors": [],
+    "mobileGlobeRequests": 0,
+    "boxes": {
+      ".detail-hero-grid": {
+        "x": 100,
+        "y": 101,
+        "width": 1240,
+        "height": 568.96875
+      },
+      ".detail-hero-information": {
+        "x": 100,
+        "y": 177,
+        "width": 665.078125,
+        "height": 404.96875
+      },
+      ".detail-route-map": {
+        "x": 797.078125,
+        "y": 177,
+        "width": 542.921875,
+        "height": 404.96875
+      },
+      ".detail-hero-space": {
+        "x": 0,
+        "y": 101,
+        "width": 1440,
+        "height": 568.96875
+      },
+      ".detail-metadata-shelf": {
+        "x": 100,
+        "y": 701.96875,
+        "width": 1240,
+        "height": 164.5
+      }
+    },
+    "scene": {
+      "camera": [-1.5255039906306544, 1.9653428445714556, -0.10180902726086008],
+      "fov": 50.44699953166678,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 543,
+        "height": 405
+      },
+      "home": {
+        "direction": [
+          -0.6126522050641491, 0.7892943150781124, -0.04088715954195326
+        ],
+        "distance": 2.4900000000341516,
+        "fov": 50.44699953166678,
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 1,
+      "routes": [
+        {
+          "key": "SFO-PVG",
+          "origin": {
+            "iata": "SFO",
+            "latitude": 37.6213,
+            "longitude": -122.379
+          },
+          "destination": {
+            "iata": "PVG",
+            "latitude": 31.1443,
+            "longitude": 121.8083
+          },
+          "count": 1,
+          "maxAltitude": 0.02867075371981076
+        }
+      ]
+    },
+    "atmosphereRatio": 0.9600000000000003,
+    "overflow": 0,
+    "mask": "none",
+    "heroColor": "rgb(234, 242, 252)",
+    "informationColor": "rgb(234, 242, 252)",
+    "shelfColumns": "600px 600px"
+  },
+  {
+    "name": "CA1831-1440-dark",
+    "errors": [],
+    "mobileGlobeRequests": 0,
+    "boxes": {
+      ".detail-hero-grid": {
+        "x": 100,
+        "y": 101,
+        "width": 1240,
+        "height": 572.765625
+      },
+      ".detail-hero-information": {
+        "x": 100,
+        "y": 177,
+        "width": 665.078125,
+        "height": 408.765625
+      },
+      ".detail-route-map": {
+        "x": 797.078125,
+        "y": 177,
+        "width": 542.921875,
+        "height": 408.765625
+      },
+      ".detail-hero-space": {
+        "x": 765.078125,
+        "y": 141,
+        "width": 674.921875,
+        "height": 564.765625
+      },
+      ".detail-metadata-shelf": {
+        "x": 100,
+        "y": 705.765625,
+        "width": 1240,
+        "height": 165.5
+      }
+    },
+    "scene": {
+      "camera": [-0.9919027797892684, 1.4508996052501946, -1.7638365035062715],
+      "fov": 50.44699953166678,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 543,
+        "height": 409
+      },
+      "home": {
+        "direction": [
+          -0.39835453003038723, 0.5826906045101585, -0.708368073687582
+        ],
+        "distance": 2.4900000000341516,
+        "fov": 50.44699953166678,
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 1,
+      "routes": [
+        {
+          "key": "PEK-PVG",
+          "origin": {
+            "iata": "PEK",
+            "latitude": 40.0799,
+            "longitude": 116.6031
+          },
+          "destination": {
+            "iata": "PVG",
+            "latitude": 31.1443,
+            "longitude": 121.8083
+          },
+          "count": 1,
+          "maxAltitude": 0.010353636448704684
+        }
+      ]
+    },
+    "atmosphereRatio": 0.9600000000000002,
+    "overflow": 0,
+    "mask": "linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.04) 3%, rgba(0, 0, 0, 0.3) 7%, rgba(0, 0, 0, 0.75) 12%, rgba(0, 0, 0, 0.96) 17%, rgb(0, 0, 0) 22%, rgb(0, 0, 0) 76%, rgba(0, 0, 0, 0.96) 81%, rgba(0, 0, 0, 0.75) 86%, rgba(0, 0, 0, 0.3) 93%, rgba(0, 0, 0, 0.04) 97%, rgba(0, 0, 0, 0)), linear-gradient(to right, rgba(0, 0, 0, 0), rgb(0, 0, 0) 18%), radial-gradient(115% 74% at 110% 35%, rgb(0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%), radial-gradient(47% 46% at 45% 50%, rgb(0, 0, 0) 70%, rgba(0, 0, 0, 0) 100%)",
+    "heroColor": "rgb(229, 234, 242)",
+    "informationColor": "rgb(229, 234, 242)",
+    "shelfColumns": "600px 600px"
+  },
+  {
+    "name": "UA857-1440-dark",
+    "errors": [],
+    "mobileGlobeRequests": 0,
+    "boxes": {
+      ".detail-hero-grid": {
+        "x": 100,
+        "y": 101,
+        "width": 1240,
+        "height": 568.96875
+      },
+      ".detail-hero-information": {
+        "x": 100,
+        "y": 177,
+        "width": 665.078125,
+        "height": 404.96875
+      },
+      ".detail-route-map": {
+        "x": 797.078125,
+        "y": 177,
+        "width": 542.921875,
+        "height": 404.96875
+      },
+      ".detail-hero-space": {
+        "x": 765.078125,
+        "y": 141,
+        "width": 674.921875,
+        "height": 560.96875
+      },
+      ".detail-metadata-shelf": {
+        "x": 100,
+        "y": 701.96875,
+        "width": 1240,
+        "height": 165.5
+      }
+    },
+    "scene": {
+      "camera": [-1.5255039906306544, 1.9653428445714556, -0.10180902726086008],
+      "fov": 50.44699953166678,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 543,
+        "height": 405
+      },
+      "home": {
+        "direction": [
+          -0.6126522050641491, 0.7892943150781124, -0.04088715954195326
+        ],
+        "distance": 2.4900000000341516,
+        "fov": 50.44699953166678,
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 1,
+      "routes": [
+        {
+          "key": "SFO-PVG",
+          "origin": {
+            "iata": "SFO",
+            "latitude": 37.6213,
+            "longitude": -122.379
+          },
+          "destination": {
+            "iata": "PVG",
+            "latitude": 31.1443,
+            "longitude": 121.8083
+          },
+          "count": 1,
+          "maxAltitude": 0.02867075371981076
+        }
+      ]
+    },
+    "atmosphereRatio": 0.9600000000000003,
+    "overflow": 0,
+    "mask": "linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.04) 3%, rgba(0, 0, 0, 0.3) 7%, rgba(0, 0, 0, 0.75) 12%, rgba(0, 0, 0, 0.96) 17%, rgb(0, 0, 0) 22%, rgb(0, 0, 0) 76%, rgba(0, 0, 0, 0.96) 81%, rgba(0, 0, 0, 0.75) 86%, rgba(0, 0, 0, 0.3) 93%, rgba(0, 0, 0, 0.04) 97%, rgba(0, 0, 0, 0)), linear-gradient(to right, rgba(0, 0, 0, 0), rgb(0, 0, 0) 18%), radial-gradient(115% 74% at 110% 35%, rgb(0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%), radial-gradient(47% 46% at 45% 50%, rgb(0, 0, 0) 70%, rgba(0, 0, 0, 0) 100%)",
+    "heroColor": "rgb(229, 234, 242)",
+    "informationColor": "rgb(229, 234, 242)",
+    "shelfColumns": "600px 600px"
+  },
+  {
+    "name": "CA1831-1200-light",
+    "errors": [],
+    "mobileGlobeRequests": 0,
+    "boxes": {
+      ".detail-hero-grid": {
+        "x": 36,
+        "y": 101,
+        "width": 1128,
+        "height": 645.171875
+      },
+      ".detail-hero-information": {
+        "x": 36,
+        "y": 177,
+        "width": 603.40625,
+        "height": 481.171875
+      },
+      ".detail-route-map": {
+        "x": 671.40625,
+        "y": 177,
+        "width": 492.59375,
+        "height": 481.171875
+      },
+      ".detail-hero-space": {
+        "x": 0,
+        "y": 101,
+        "width": 1200,
+        "height": 645.171875
+      },
+      ".detail-metadata-shelf": {
+        "x": 36,
+        "y": 778.171875,
+        "width": 1128,
+        "height": 164.5
+      }
+    },
+    "scene": {
+      "camera": [-0.9919027797892684, 1.4508996052501946, -1.7638365035062715],
+      "fov": 50.44699953166678,
+      "viewOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "viewport": {
+        "width": 493,
+        "height": 481
+      },
+      "home": {
+        "direction": [
+          -0.39835453003038723, 0.5826906045101585, -0.708368073687582
+        ],
+        "distance": 2.4900000000341516,
+        "fov": 50.44699953166678,
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "atHome": true,
+      "physicalRoutes": 1,
+      "routes": [
+        {
+          "key": "PEK-PVG",
+          "origin": {
+            "iata": "PEK",
+            "latitude": 40.0799,
+            "longitude": 116.6031
+          },
+          "destination": {
+            "iata": "PVG",
+            "latitude": 31.1443,
+            "longitude": 121.8083
+          },
+          "count": 1,
+          "maxAltitude": 0.010353636448704684
+        }
+      ]
+    },
+    "atmosphereRatio": 0.9600000000000002,
+    "overflow": 0,
+    "mask": "none",
+    "heroColor": "rgb(234, 242, 252)",
+    "informationColor": "rgb(234, 242, 252)",
+    "shelfColumns": "544px 544px"
+  }
+]

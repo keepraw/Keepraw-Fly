@@ -189,4 +189,49 @@
   .detail-hero-space .detail-globe-space i:nth-child(n + 49) {
     display: none;
   }
+
+  /* A full-width sky belongs to the whole Light Hero, never to a map tile.
+     It ends exactly at the Hero boundary. No perimeter fade or haze. */
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-hero-space {
+    grid-column: auto;
+    grid-row: auto;
+    inset-block: 0;
+    inset-inline: calc(-1 * max(var(--layout-gutter), (100vw - 1240px) / 2));
+    max-height: none;
+  }
+
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-globe-space {
+    background: linear-gradient(115deg, #172b43, #0c1b31);
+    mask-image: none;
+  }
+
+  /* A quiet belt of distant stars replaces the blurred nebula. The existing
+     individual stars remain crisp, with no glow extending into the page. */
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-globe-space::before {
+    background:
+      radial-gradient(circle, #7999ba 0.5px, transparent 0.9px) 0 0 / 67px 43px,
+      radial-gradient(circle, #526e8f 0.5px, transparent 0.9px) 19px 13px / 41px
+        71px;
+    clip-path: polygon(42% 0, 67% 0, 100% 75%, 100% 100%, 88% 100%);
+    opacity: 1;
+    filter: none;
+  }
+
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"]):has(
+      .detail-globe-message,
+      .globe-fallback
+    ) {
+    padding-block: 76px 88px;
+  }
+
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"]):has(
+      .detail-globe-message,
+      .globe-fallback
+    )
+    .detail-globe-space {
+    opacity: 1;
+  }
 }
