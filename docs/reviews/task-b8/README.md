@@ -63,7 +63,7 @@ Reproduce from the existing checkout, with `pnpm dev` running at the repository
 root:
 
 ```sh
-pnpm exec node docs/reviews/task-b7/capture.mjs /tmp/keepraw-b8-captures
+pnpm exec node docs/reviews/task-b8/capture.mjs /tmp/keepraw-b8-captures
 ```
 
 The existing capture helper uses real installed Chromium with SwiftShader WebGL2.
