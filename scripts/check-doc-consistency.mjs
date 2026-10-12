@@ -65,6 +65,30 @@ for (const [path, description] of [
   }
 }
 
+// Keep release documentation synchronized with the verified main-only Pages gate.
+const ciWorkflow = await readFile(
+  resolve(repositoryRoot, ".github/workflows/ci.yml"),
+  "utf8",
+);
+const deployJob = ciWorkflow.split("  deploy:\n")[1] ?? "";
+if (
+  deployJob.includes("github.ref == 'refs/heads/main'") &&
+  deployJob.includes("needs.verify.result == 'success'")
+) {
+  for (const path of ["docs/deployment.md", "docs/testing.md"]) {
+    const content = documents[path] ?? "";
+    for (const name of ["`main`", "`verify`", "`deploy`"]) {
+      if (!content.includes(name))
+        problems.push(`${path} must document the current ${name} deployment gate.`);
+    }
+    if (
+      /automatic deployment is deliberately paused|paused `deploy`|deploy.if.*false|mobile review screenshots also have shard-specific names/i.test(content)
+    ) {
+      problems.push(`${path} retains obsolete CI or Pages release guidance.`);
+    }
+  }
+}
+
 for (const [path, content] of Object.entries(documents)) {
   for (const destination of new Set(linkDestinations(content))) {
     const relativePath = localPath(destination);
