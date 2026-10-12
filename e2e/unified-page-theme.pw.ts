@@ -1,7 +1,7 @@
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import {
   importArchive,
   expectHealthyPage,
@@ -599,4 +599,6 @@ test("native 125% browser zoom keeps Detail and Settings themed and reachable ac
   } finally {
     await context.close();
   }
+  // Failed runs retain the profile; successful browser caches are not evidence.
+  await rm(profile, { recursive: true, force: true });
 });

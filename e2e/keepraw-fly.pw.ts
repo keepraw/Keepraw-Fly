@@ -5,8 +5,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const exampleArchive = fileURLToPath(
@@ -14,9 +13,6 @@ const exampleArchive = fileURLToPath(
 );
 const exampleCsv = fileURLToPath(
   new URL("../examples/flights.csv", import.meta.url),
-);
-const reviewScreenshotDirectory = fileURLToPath(
-  new URL("../test-results/review/", import.meta.url),
 );
 
 async function navigateTo(page: Page, destination: "passport" | "settings") {
@@ -285,10 +281,6 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     "危险操作",
   ]);
   await page.locator(".settings-membership-edit").click();
-  const screenshotDirectory = fileURLToPath(
-    new URL("../test-results/settings-review/", import.meta.url),
-  );
-  await mkdir(screenshotDirectory, { recursive: true });
 
   for (const viewport of [
     { width: 1440, height: 900, name: "desktop-1440" },
@@ -442,11 +434,6 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     } else {
       expect(layout.membershipColumns).toBe(2);
     }
-    await page.screenshot({
-      path: join(screenshotDirectory, `${viewport.name}.png`),
-      fullPage: true,
-      animations: "disabled",
-    });
   }
 
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -485,11 +472,6 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     expect(previewWidth.fits).toBe(true);
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.screenshot({
-    path: join(screenshotDirectory, "desktop-preview.png"),
-    fullPage: true,
-    animations: "disabled",
-  });
   await jsonPreview.getByRole("button", { name: "Cancel" }).click();
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const csvPreview = page.getByRole("region", { name: "Review CSV import" });
@@ -852,7 +834,6 @@ test("keeps the mobile Passport composition visually stable", async ({
   await expect(
     page.locator(".route-map-canvas, .route-map-loading"),
   ).toHaveCount(0);
-  await mkdir(reviewScreenshotDirectory, { recursive: true });
 
   for (const viewport of [
     { width: 375, height: 812 },
@@ -875,17 +856,6 @@ test("keeps the mobile Passport composition visually stable", async ({
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await page.mouse.move(0, 0);
-
-    if (viewport.width === 390 || viewport.width === 430) {
-      await page.screenshot({
-        path: join(
-          reviewScreenshotDirectory,
-          `passport-mobile-${viewport.width}x${viewport.height}.png`,
-        ),
-        animations: "disabled",
-        caret: "hide",
-      });
-    }
 
     const composition = await page.evaluate(() => {
       const summary = document.querySelector<HTMLElement>(
