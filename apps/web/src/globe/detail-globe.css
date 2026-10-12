@@ -215,12 +215,13 @@
     );
 
     /* The long blend is horizontal. Short vertical edge transitions stay
-       within the Hero gutters rather than spreading below the earth. */
+       within the Hero gutters rather than spreading below the earth. Keep
+       the outer two pixels clear, including fractional WebKit sampling. */
     mask-image:
       linear-gradient(to right, transparent, #000 180px),
       linear-gradient(
         to bottom,
-        transparent,
+        transparent 2px,
         rgb(0 0 0 / 12%) 12px,
         rgb(0 0 0 / 42%) 28px,
         rgb(0 0 0 / 80%) 44px,
@@ -229,6 +230,7 @@
         rgb(0 0 0 / 80%) calc(100% - 50px),
         rgb(0 0 0 / 42%) calc(100% - 32px),
         rgb(0 0 0 / 12%) calc(100% - 14px),
+        transparent calc(100% - 2px),
         transparent
       );
     mask-composite: intersect;
