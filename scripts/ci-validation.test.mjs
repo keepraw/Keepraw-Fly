@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -123,7 +129,9 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
       "if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}",
     ),
   );
-  assert.ok(deploy.includes("needs: [verify, checks, chromium, cross-browser]"));
+  assert.ok(
+    deploy.includes("needs: [verify, checks, chromium, cross-browser]"),
+  );
   assert.ok(deploy.includes("uses: actions/deploy-pages@v5"));
   assert.ok(workflow.includes("uses: actions/upload-pages-artifact@v4"));
   assert.ok(workflow.includes("path: apps/web/dist"));
