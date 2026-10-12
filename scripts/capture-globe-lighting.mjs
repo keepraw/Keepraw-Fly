@@ -3,11 +3,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 const phase = process.argv[2] || "before";
 const url = process.argv[3] || "http://127.0.0.1:5173/globe-lab";
 const backend = process.argv[4] || "chrome";
-const folder = "docs/visual-review/task-1b-1";
+const folder = "artifacts/globe-lighting";
 await mkdir(folder, { recursive: true });
 const browser = await chromium.launch(
   backend === "software"
-    ? {}
+    ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH }
     : {
         channel: "chrome",
         headless: true,
