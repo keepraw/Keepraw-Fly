@@ -225,7 +225,7 @@ test("shows all twelve offline routes with visible frequency encoding in both th
   }
 });
 
-test("keeps international title words whole at 390px across locales without changing desktop typography", async ({
+test("keeps international title words whole at 390px across locales with the Detail typography scale", async ({
   page,
 }) => {
   test.setTimeout(90_000);
@@ -314,17 +314,17 @@ test("keeps international title words whole at 390px across locales without chan
       });
       if (index === 0) {
         await page.setViewportSize({ width: 1440, height: 900 });
-        await expect(title).toHaveCSS("font-size", "38px");
+        await expect(title).toHaveCSS("font-size", "34px");
         const desktop = await title.evaluate((element) => ({
           fontSize: parseFloat(getComputedStyle(element).fontSize),
           lineHeight: parseFloat(getComputedStyle(element).lineHeight),
           textWrap: getComputedStyle(element).textWrap,
           fits: element.scrollWidth <= element.clientWidth,
         }));
-        expect(desktop.fontSize).toBe(38);
+        expect(desktop.fontSize).toBe(34);
         // Firefox resolves line-height in 1/60px layout units.
-        expect(Math.abs(desktop.lineHeight - 38 * 1.08)).toBeLessThan(0.02);
-        expect(desktop.textWrap).toBe("wrap");
+        expect(Math.abs(desktop.lineHeight - 34 * 1.2)).toBeLessThan(0.02);
+        expect(desktop.textWrap).toBe("balance");
         expect(desktop.fits).toBe(true);
         await page.screenshot({
           path: `test-results/title-wrapping/${locale}-HKG-BOM-1440.png`,

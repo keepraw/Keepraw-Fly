@@ -44,7 +44,11 @@ beforeAll(async () => {
     interpolation: { escapeValue: false },
   });
 });
-function markup(record = flight, locale: SupportedLocale = "zh-CN") {
+function markup(
+  record = flight,
+  locale: SupportedLocale = "zh-CN",
+  timeFormat: "12-hour" | "24-hour" = "24-hour",
+) {
   return renderToStaticMarkup(
     <I18nextProvider i18n={i18n}>
       <FlightDetailPage
@@ -52,7 +56,7 @@ function markup(record = flight, locale: SupportedLocale = "zh-CN") {
         memberships={[]}
         locale={locale}
         distanceUnit="kilometers"
-        timeFormat="24-hour"
+        timeFormat={timeFormat}
         appearance="light"
         solarMode="fixed"
       />
@@ -69,13 +73,15 @@ function stop(record: KeeprawFlight, kind: "departure" | "arrival") {
   );
 }
 describe("Flight Detail timing and facts", () => {
-  it("summarizes both departure delay and arrival early with the shared actual duration", () => {
+  it("keeps deviations next to each stop and displays the actual duration once", () => {
     const summary = markup().match(
       /class="detail-heading-summary"[\s\S]*?<\/header>/,
     )?.[0];
-    expect(summary).toContain("出发晚点 11 分");
-    expect(summary).toContain("到达提前 35 分");
-    expect(summary).toContain("2小时 34分");
+    expect(summary).not.toContain("出发晚点");
+    expect(summary).not.toContain("到达提前");
+    expect(stop(flight, "departure")).toContain("出发晚点 11 分");
+    expect(stop(flight, "arrival")).toContain("到达提前 35 分");
+    expect(markup().match(/2小时 34分/g)).toHaveLength(1);
   });
   it("labels actual and scheduled, retaining next-day schedule and its own datetime", () => {
     const arrival = stop(flight, "arrival");
@@ -106,7 +112,65 @@ describe("Flight Detail timing and facts", () => {
       "备降",
     );
     expect(markup()).toContain("737-8 AL");
-    expect(markup()).toContain("注册号 B5379");
+    expect(markup()).toContain("<dt>注册号</dt><dd>B5379</dd>");
+  });
+  it("shows both sources on time without a redundant deviation row", () => {
+    const record = {
+      ...flight,
+      actualDeparture: flight.scheduledDeparture,
+      actualArrival: flight.scheduledArrival,
+    };
+    expect(stop(record, "departure")).toContain("实际");
+    expect(stop(record, "departure")).toContain("计划");
+    expect(stop(record, "departure")).not.toContain("detail-stop-meta");
+    expect(stop(record, "arrival")).not.toContain("detail-stop-meta");
+    expect(stop(record, "departure").match(/>20:45<\/time>/g)).toHaveLength(2);
+  });
+  it("uses the airport zone for UTC-stored timestamps and preserves the 12-hour preference", () => {
+    const html = markup(
+      { ...flight, actualDeparture: "2026-09-21T12:56:00Z" },
+      "en",
+      "12-hour",
+    );
+    expect(html).toContain("08:56 PM");
+    expect(html).toContain("UTC+8");
+    expect(html).not.toContain('class="time-zone">UTC</span>');
+  });
+  it("keeps planned and diverted airport facilities and zones separate", () => {
+    const record = {
+      ...flight,
+      destination: { iata: "LAX", terminal: "7", gate: "71" },
+      divertedTo: { iata: "JFK", terminal: "4", gate: "B22" },
+      scheduledArrival: "2026-09-21T13:00:00-07:00",
+      actualArrival: "2026-09-21T16:00:00-04:00",
+    };
+    const arrival = stop(record, "arrival");
+    expect(arrival).toContain("<strong>JFK</strong>");
+    expect(arrival).toContain("计划到达：LAX");
+    expect(arrival).toContain("UTC-4");
+    expect(arrival).toContain("UTC-7");
+    expect(arrival).toContain("<dt>登机口</dt><dd>71</dd>");
+    expect(arrival).toContain("<dt>登机口</dt><dd>B22</dd>");
+    // The instants match; the planned airport still needs its own local time.
+    expect(arrival).toContain("16:00");
+    expect(arrival).toContain("13:00");
+  });
+  it("naturally omits empty supplementary groups and uses scheduled times when actuals are missing", () => {
+    const record = {
+      ...flight,
+      actualDeparture: undefined,
+      actualArrival: undefined,
+      extensions: undefined,
+    };
+    const html = markup(record);
+    expect(html).not.toContain("detail-metadata-shelf");
+    expect(html).not.toContain('class="flight-deviation');
+    expect(html).not.toContain('class="detail-scheduled-time"');
+    expect(html).toContain("计划飞行时间");
+    expect(html).toContain('class="detail-flight-phase">计划</strong>');
+    expect(
+      markup({ ...record, actualDeparture: flight.actualDeparture }),
+    ).toContain("已出发");
   });
 });
 

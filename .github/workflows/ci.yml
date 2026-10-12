@@ -68,7 +68,9 @@ jobs:
 
   chromium:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The expanded Hero screenshot matrix needs time for tests and artifact upload.
+    # Individual test timeouts and the no-failure/no-flaky gate remain unchanged.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -151,8 +153,9 @@ jobs:
 
       # Each project selects @cross-browser tests in playwright.config.ts.
       # Keep engine diagnostics independent; Chromium shards run all E2E.
+      # A virtual display lets Firefox exercise the actual WebGL scene.
       - name: Run cross-browser smoke journeys
-        run: pnpm test:e2e --project=${{ matrix.browser }} --workers=1 --reporter=list,html,json
+        run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=1 --reporter=list,html,json
 
       - name: Summarize browser results
         if: always()

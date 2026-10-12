@@ -40,7 +40,7 @@ export function detailGlobeView(
   // At antipodes the elevated endpoints lie on opposite limbs. Pull back
   // until the entire actual arc clears the sphere, then narrow the lens to
   // retain a useful globe size instead of an extreme tiny-globe zoom-out.
-  let low = 2.05,
+  let low = 2.45,
     high = 40;
   for (let i = 0; i < 40; i++) {
     const distance = (low + high) / 2;
@@ -58,9 +58,20 @@ export function detailGlobeView(
       );
     }),
   );
+  // Fit the actual outer atmosphere (radius 1.026), not just the earth surface.
+  // Leave a small screen-space inset while maximizing a complete silhouette.
+  const outerRadius = 1.026;
+  const shortSide = Math.max(1, Math.min(viewport.width, viewport.height));
+  const safeInset = Math.min(10, shortSide * 0.02);
+  const availableDiameter = (shortSide - safeInset * 2) / shortSide;
   const lens = Math.max(
     fit * 1.01,
-    (Math.tan((17 * Math.PI) / 180) * 2.09) / distance,
+    // Perspective silhouette radius: R / sqrt(distance² - R²).
+    // Full route/endpoint fit still takes priority for long/polar/antipodal arcs.
+    outerRadius /
+      (Math.sqrt(distance * distance - outerRadius * outerRadius) *
+        availableDiameter *
+        Math.min(1, aspect)),
   );
   return {
     direction,

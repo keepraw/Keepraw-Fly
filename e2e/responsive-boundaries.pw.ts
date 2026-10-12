@@ -84,7 +84,7 @@ for (const viewport of viewports) {
       await expect(page.locator(".detail-heading-eyebrow")).toContainText(
         "UA123",
       );
-      await expectDetailLayout(page, mobile);
+      await expectDetailLayout(page);
       await expectReachable(
         page.locator(".detail-stop--arrival .detail-airport-time"),
       );
@@ -149,7 +149,7 @@ for (const viewport of viewports) {
 }
 
 test(
-  "Passport, Flight Detail and Settings switch actual layout and retain state across 760/761 breakpoint resizes",
+  "Passport and Settings retain 760/761 layouts while Flight Detail switches at 1199/1200",
   { tag: "@cross-browser" },
   async ({ page }) => {
     const errors = collectBrowserErrors(page);
@@ -172,10 +172,12 @@ test(
     await page
       .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
       .click();
-    await test.step("Flight Detail: 761→760→761→760 updates columns and map DOM on the same flight", async () => {
-      for (const width of [761, 760, 761, 760]) {
+    await test.step("Flight Detail: narrow resizes retain mobile layout and 1199↔1200 toggles Hero/map on the same flight", async () => {
+      for (const width of [
+        761, 760, 761, 760, 1023, 1024, 1199, 1200, 1199, 1200,
+      ]) {
         await page.setViewportSize({ width, height: 900 });
-        await expectDetailLayout(page, width === 760);
+        await expectDetailLayout(page);
         await expect(page.locator(".detail-heading-eyebrow")).toContainText(
           "UA123",
         );
@@ -302,11 +304,25 @@ for (const theme of ["light", "dark"]) {
       await page
         .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
         .click();
-      await expectDetailLayout(page, false);
+      await expectDetailLayout(page);
+      await expectReachable(page.locator(".detail-header-more summary"));
+      await page.locator(".detail-header-more summary").click();
+      await expectReachable(page.locator(".detail-header-more-menu button"));
+      await page.keyboard.press("Escape");
+      await expect(page.locator(".detail-header-more")).not.toHaveAttribute(
+        "open",
+        "",
+      );
+      // Retain the full map/adjacent-flight contracts at their desktop boundary.
+      await page.setViewportSize({ width: 1200, height: 390 });
+      await expectDetailLayout(page);
       await expect(page.locator(".detail-header-more")).toBeHidden();
       const capable = await expectDetailGlobe(page);
       const controls = page.locator(".detail-globe-frame .globe-controls");
       if (capable) {
+        await page
+          .locator(".detail-globe-frame")
+          .hover({ position: { x: 12, y: 12 } });
         await expectReachable(
           controls.getByRole("button", { name: "Zoom out", exact: true }),
         );
