@@ -204,28 +204,8 @@
     padding-block: 0;
   }
 
-  /* Light Detail is three distinct regions: light navigation, a complete
-     navy flight Hero, and light reference information. Keep the foreground
-     grid and rendering viewport identical to Dark. */
-  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"]) {
-    --color-text: #eaf2fc;
-    --color-text-muted: #b3c5db;
-    --color-text-faint: #9bb3ce;
-    --color-canvas: #172b43;
-    --color-surface: #172b43;
-    --color-line: #344a65;
-    --color-info: #a4c8f0;
-    --color-positive: #8ed5b5;
-    --color-warning: #f2c17c;
-    --color-danger: #ffaaa0;
-    --ink: var(--color-text);
-    --muted: var(--color-text-muted);
-    --faint: var(--color-text-faint);
-    --line: var(--color-line);
-
-    color: var(--ink);
-  }
-
+  /* The flight information inherits the Light page's ink and canvas. Only
+     the Globe's independent decorative sky introduces a darker region. */
   .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
     + .detail-metadata-shelf {
     grid-template-columns: repeat(2, minmax(0, 1fr));
