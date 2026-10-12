@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import type { RouteSegment } from "@keepraw-fly/core";
@@ -67,7 +67,9 @@ export function GlobeMap({
   const [error, setError] = useState<GlobeFailure | null>(null),
     [hover, setHover] = useState<string | null>(null),
     [retry, setRetry] = useState(0);
-  useEffect(() => {
+  // OrbitControls removes root-level key listeners via canvas.getRootNode().
+  // Dispose before React detaches the host so that root is still the document.
+  useLayoutEffect(() => {
     if (!host.current || !labels.current) return;
     setError(null);
     if (variant === "detail") setHover(null);

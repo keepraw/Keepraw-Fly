@@ -447,7 +447,7 @@ for (const failure of [
   });
 }
 
-test("StrictMode, visibility and page navigation release contexts and observers and stop old RAFs", async ({
+test("StrictMode, visibility and page navigation release contexts and observers and stop old RAFs @cross-browser", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -461,7 +461,31 @@ test("StrictMode, visibility and page navigation release contexts and observers 
       deletedBuffers: 0,
       deletedTextures: 0,
       deletedPrograms: 0,
+      keyboardListeners: 0,
     });
+    const keys = new Map<string, Set<EventListenerOrEventListenerObject>>();
+    const add = document.addEventListener.bind(document);
+    const remove = document.removeEventListener.bind(document);
+    const captured = (options?: boolean | AddEventListenerOptions) =>
+      typeof options === "boolean" ? options : Boolean(options?.capture);
+    document.addEventListener = (type, listener, options) => {
+      if (
+        listener &&
+        ["keydown", "keyup"].includes(type) &&
+        captured(options)
+      ) {
+        const listeners = keys.get(type) ?? new Set();
+        keys.set(type, listeners);
+        if (!listeners.has(listener)) audit.keyboardListeners++;
+        listeners.add(listener);
+      }
+      add(type, listener, options);
+    };
+    document.removeEventListener = (type, listener, options) => {
+      if (listener && captured(options) && keys.get(type)?.delete(listener))
+        audit.keyboardListeners--;
+      remove(type, listener, options);
+    };
     const original = HTMLCanvasElement.prototype.getContext,
       seen = new WeakSet();
     HTMLCanvasElement.prototype.getContext = function (type, ...args) {
@@ -563,11 +587,15 @@ test("StrictMode, visibility and page navigation release contexts and observers 
     0,
   );
   expect(
+    await page.evaluate(() => (window as any).globeAudit.keyboardListeners),
+  ).toBe(0);
+  expect(
     await page.evaluate(() => (window as any).oldHost.dataset.ready),
   ).toBeUndefined();
   await page.setViewportSize({ width: 1200, height: 900 });
   await ready(page);
   await expectFramed(page, "SFO-LAX");
+  await page.keyboard.down("Control");
   await page.goto("/#settings");
   await expect(page.locator("canvas")).toHaveCount(0);
   await expect
@@ -576,6 +604,10 @@ test("StrictMode, visibility and page navigation release contexts and observers 
   expect(await page.evaluate(() => (window as any).globeAudit.observers)).toBe(
     0,
   );
+  expect(
+    await page.evaluate(() => (window as any).globeAudit.keyboardListeners),
+  ).toBe(0);
+  await page.keyboard.up("Control");
   const stopped = await page.evaluate(
     () => (window as any).oldHost.globeMetrics.frames,
   );
@@ -617,6 +649,9 @@ test("StrictMode, visibility and page navigation release contexts and observers 
   expect(await page.evaluate(() => (window as any).globeAudit.observers)).toBe(
     0,
   );
+  expect(
+    await page.evaluate(() => (window as any).globeAudit.keyboardListeners),
+  ).toBe(0);
   expect(errors).toEqual([]);
 });
 
