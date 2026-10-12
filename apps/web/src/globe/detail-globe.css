@@ -1,6 +1,97 @@
+.detail-hero-space {
+  --detail-galaxy-opacity: 0.45;
+
+  position: absolute;
+  z-index: 0;
+  grid-column: 2;
+  grid-row: 1;
+  inset-block: -36px -32px;
+  inset-inline: calc(-1 * var(--detail-space-bleed-inline, 32px))
+    calc(-1 * max(var(--layout-gutter), (100vw - 1240px) / 2));
+  max-height: calc(var(--detail-globe-max-height, 640px) + 232px);
+  pointer-events: none;
+}
+
 .detail-globe-frame {
   position: relative;
+  z-index: 1;
   min-width: 0;
+  isolation: isolate;
+  color-scheme: dark;
+  color: #dcecff;
+  background: transparent;
+}
+
+.detail-hero-space .detail-globe-space {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 82% 35%, #122b43, #071325 76%);
+
+  /* A stable space core joins an offset, edge-anchored panorama. Only their
+     distant perimeter fades; the foreground canvas is a separate sibling.
+     Smooth boundary ramps have no abrupt opaque-to-fade seam. */
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgb(0 0 0 / 4%) 3%,
+      rgb(0 0 0 / 30%) 7%,
+      rgb(0 0 0 / 75%) 12%,
+      rgb(0 0 0 / 96%) 17%,
+      #000 22%,
+      #000 76%,
+      rgb(0 0 0 / 96%) 81%,
+      rgb(0 0 0 / 75%) 86%,
+      rgb(0 0 0 / 30%) 93%,
+      rgb(0 0 0 / 4%) 97%,
+      transparent
+    ),
+    linear-gradient(to right, transparent, #000 18%),
+    radial-gradient(ellipse 115% 74% at 110% 35%, #000 60%, transparent 100%),
+    radial-gradient(ellipse 47% 46% at 45% 50%, #000 70%, transparent 100%);
+  mask-composite: intersect, intersect, add;
+}
+
+.detail-hero-space .detail-globe-space::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      155deg,
+      transparent 25%,
+      rgb(83 129 166 / 18%) 38%,
+      rgb(145 179 202 / 45%) 46%,
+      rgb(83 129 166 / 20%) 55%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse at 28% 52%,
+      rgb(110 149 183 / 24%),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 73% 43%,
+      rgb(139 163 186 / 18%),
+      transparent 38%
+    ),
+    radial-gradient(ellipse at 50% 50%, rgb(91 128 161 / 17%), transparent 62%);
+  opacity: var(--detail-galaxy-opacity);
+  filter: blur(14px);
+  content: "";
+}
+
+.detail-hero-space .detail-globe-space i {
+  position: absolute;
+  border-radius: 50%;
+  background: #d9e6f3;
+}
+
+/* Without an earth, keep status/retry text on the actual page background. */
+.detail-hero-grid:has(.detail-globe-message, .globe-fallback)
+  .detail-globe-space {
+  opacity: 0;
 }
 
 .detail-globe-frame .globe-stage {
@@ -8,6 +99,8 @@
   height: 100%;
   border: 0;
   border-radius: 0;
+  color: #dcecff;
+  background: transparent;
 }
 
 .detail-globe-frame .globe-airport-label {
@@ -17,9 +110,10 @@
   left: 0;
   top: 0;
   border: 0;
-  padding: 4px;
-  background: transparent;
-  font: 600 11px var(--font-family-data);
+  padding: 5px 6px;
+  border-radius: 3px;
+  background: rgb(4 19 37 / 76%);
+  font: 600 12px var(--font-family-data);
   line-height: 1;
   color: #dcecff;
   text-shadow:
@@ -31,9 +125,22 @@
   color: #ffb0a5;
 }
 
+.detail-globe-frame .globe-controls {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 180ms ease;
+}
+
 .detail-globe-frame .globe-controls button {
   cursor: pointer;
-  color: inherit;
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 72%, transparent);
+}
+
+.detail-globe-frame .globe-tooltip {
+  color: #dcecff;
+  background: rgb(16 37 55 / 93%);
 }
 
 .detail-globe-frame :focus-visible {
@@ -48,8 +155,94 @@
   place-items: center;
   padding: 16px;
   text-align: center;
+  color: var(--muted);
 }
 
 .detail-globe-message {
-  color: var(--muted);
+  position: relative;
+}
+
+.detail-globe-frame .globe-fallback button {
+  color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .detail-globe-frame .globe-controls {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .detail-globe-frame:hover .globe-controls,
+  .detail-globe-frame:focus-within .globe-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-globe-frame .globe-controls {
+    transition: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .detail-hero-space .detail-globe-space i:nth-child(n + 49) {
+    display: none;
+  }
+
+  /* Light keeps its information column on the page canvas. The sky starts
+     in the column gap and reaches the right page edge, behind the unchanged
+     Globe viewport. No radial mask, black halo or shadow is involved. */
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-hero-space {
+    grid-column: 2;
+    grid-row: 1;
+    inset-block: -76px 0;
+    inset-inline: -32px
+      calc(-1 * max(var(--layout-gutter), (100vw - 1240px) / 2));
+    max-height: none;
+  }
+
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-globe-space {
+    background: linear-gradient(
+      to right,
+      #e2edf7,
+      #91b5d5 20%,
+      #466e96 43%,
+      #294c70 70%,
+      #203c59
+    );
+
+    /* The long blend is horizontal. Short vertical edge transitions stay
+       within the Hero gutters rather than spreading below the earth. Keep
+       the outer two pixels clear, including fractional WebKit sampling. */
+    mask-image:
+      linear-gradient(to right, transparent, #000 180px),
+      linear-gradient(
+        to bottom,
+        transparent 2px,
+        rgb(0 0 0 / 12%) 12px,
+        rgb(0 0 0 / 42%) 28px,
+        rgb(0 0 0 / 80%) 44px,
+        #000 64px,
+        #000 calc(100% - 72px),
+        rgb(0 0 0 / 80%) calc(100% - 50px),
+        rgb(0 0 0 / 42%) calc(100% - 32px),
+        rgb(0 0 0 / 12%) calc(100% - 14px),
+        transparent calc(100% - 2px),
+        transparent
+      );
+    mask-composite: intersect;
+  }
+
+  /* A quiet blue star belt has texture, without blurred grey clouds. Both
+     the galaxy and individual stars remain inside the right-hand sky. */
+  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
+    .detail-globe-space::before {
+    background: url("./detail-space-light.svg") center / cover no-repeat;
+    clip-path: none;
+    opacity: 1;
+    filter: none;
+  }
 }

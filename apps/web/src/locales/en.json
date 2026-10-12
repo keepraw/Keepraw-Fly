@@ -217,7 +217,9 @@
     "durationSource": {
       "actual": "Actual flight time",
       "scheduled": "Scheduled flight time"
-    }
+    },
+    "actual": "Actual",
+    "plannedArrival": "Planned arrival: {{airport}}"
   },
   "passport": {
     "periodLabel": "Passport period",

@@ -214,7 +214,9 @@
     "durationSource": {
       "actual": "實際飛行時間",
       "scheduled": "計劃飛行時間"
-    }
+    },
+    "actual": "實際",
+    "plannedArrival": "計劃到達：{{airport}}"
   },
   "passport": {
     "periodLabel": "飛行護照統計期間",

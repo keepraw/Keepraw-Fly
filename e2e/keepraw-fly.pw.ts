@@ -1,3 +1,4 @@
+import { expectDetailHero } from "./helpers/detail-hero";
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
@@ -1020,9 +1021,7 @@ test.describe("Chinese distance defaults", () => {
       .getByRole("button", { name: /Open |打开 |打開 / })
       .first()
       .click();
-    await expect(page.locator(".detail-heading-route-summary")).toContainText(
-      "公里",
-    );
+    await expect(page.locator(".detail-segment-meta")).toContainText("公里");
 
     await page.locator(".detail-header-back").click();
     await page.locator('.site-navigation a[href="#settings"]').click();
@@ -1038,29 +1037,23 @@ test.describe("Chinese distance defaults", () => {
       .getByRole("button", { name: /Open |打开 |打開 / })
       .first()
       .click();
-    await expect(page.locator(".detail-heading-route-summary")).toContainText(
-      "英里",
-    );
+    await expect(page.locator(".detail-segment-meta")).toContainText("英里");
   });
 });
 
-test("keeps the operational summary inside the flight header at desktop and mobile widths", async ({
+test("keeps operational deviations inside the corresponding flight stops at desktop and mobile widths", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open / }).first().click();
 
-  const delaySummary = page
-    .locator(".detail-heading-summary .flight-deviation")
-    .first();
+  const delaySummary = page.locator(".detail-stops .flight-deviation").first();
   await expect(delaySummary).toBeVisible();
 
   const expectContentContained = async () => {
     const insets = await delaySummary.evaluate((summary) => {
-      const bounds = summary
-        .closest(".detail-heading")!
-        .getBoundingClientRect();
+      const bounds = summary.closest(".detail-stop")!.getBoundingClientRect();
       const item = summary.getBoundingClientRect();
       return [item.left - bounds.left, bounds.right - item.right];
     });
@@ -1094,33 +1087,23 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     await page.setViewportSize(viewport);
     await expect(
       page.locator(".detail-route-map, .detail-route-map-loading"),
-    ).toHaveCount(viewport.width <= 760 ? 0 : 1);
+    ).toHaveCount(viewport.width < 1200 ? 0 : 1);
     // Viewport metadata can update before the engine's vh/grid layout does.
     await expect
       .poll(() =>
         page
-          .locator(".detail-operational-grid")
+          .locator(".detail-hero-grid")
           .evaluate(
             (element) =>
               getComputedStyle(element).gridTemplateColumns.split(" ").length,
           ),
       )
-      .toBe(viewport.width <= 760 ? 1 : 2);
-    if (viewport.width > 760) {
-      await expect
-        .poll(() =>
-          page
-            .locator(".detail-route-map")
-            .evaluate((element) => element.getBoundingClientRect().height),
-        )
-        .toBeCloseTo(Math.min(440, Math.max(340, viewport.height * 0.48)), 1);
-    }
+      .toBe(viewport.width < 1200 ? 1 : 2);
+    await expectDetailHero(page, viewport.width);
     const layout = await page.evaluate(() => {
       const style = (selector: string) =>
         getComputedStyle(document.querySelector<HTMLElement>(selector)!);
-      const grid = document.querySelector<HTMLElement>(
-        ".detail-operational-grid",
-      )!;
+      const grid = document.querySelector<HTMLElement>(".detail-hero-grid")!;
       const map = document.querySelector<HTMLElement>(".detail-route-map");
       const actual = document.querySelector<HTMLElement>(
         ".detail-airport-time",
@@ -1130,9 +1113,8 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       )!;
       const card = document.querySelector<HTMLElement>(".detail-flight-card")!;
       return {
-        gridColumns: style(
-          ".detail-operational-grid",
-        ).gridTemplateColumns.split(" ").length,
+        gridColumns:
+          style(".detail-hero-grid").gridTemplateColumns.split(" ").length,
         mapHeight: map?.getBoundingClientRect().height ?? 0,
         mapRadius: map ? getComputedStyle(map).borderRadius : null,
         actualDominatesSchedule:
@@ -1154,17 +1136,14 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
       };
     });
 
-    expect(layout.gridColumns).toBe(viewport.width <= 760 ? 1 : 2);
-    if (viewport.width <= 760) {
+    expect(layout.gridColumns).toBe(viewport.width < 1200 ? 1 : 2);
+    if (viewport.width < 1200) {
       expect(layout.mapHeight).toBe(0);
       expect(layout.mapRadius).toBeNull();
-      await expect(page.locator(".detail-heading-route-summary")).toBeVisible();
+      await expect(page.locator(".detail-segment-meta")).toBeVisible();
       await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
-      expect(layout.mapHeight).toBeCloseTo(
-        Math.min(440, Math.max(340, viewport.height * 0.48)),
-        1,
-      );
+      expect(layout.mapHeight).toBeGreaterThan(0);
       expect(layout.mapRadius).toBe("0px");
     }
     expect(layout.actualDominatesSchedule).toBe(true);
@@ -1574,7 +1553,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
   const detailPresentation = await page.evaluate(() => {
     const hero = document.querySelector<HTMLElement>(".detail-flight-card");
     const performance = document.querySelector<HTMLElement>(
-      ".detail-heading-summary .flight-deviation",
+      ".detail-stops .flight-deviation",
     );
     const map = document.querySelector<HTMLElement>(".detail-route-map");
     if (!hero || !performance)
@@ -1810,11 +1789,11 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     page.getByRole("heading", { name: "深圳 飞往 青岛" }),
   ).toBeVisible();
   await expect(page.locator(".detail-heading-summary")).toContainText("已到达");
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--arrival")).toContainText(
     "到达提前 35 分",
   );
-  await expect(page.locator(".detail-heading-summary")).toContainText("英里");
-  await expect(page.locator(".detail-heading-route-summary")).toHaveCount(1);
+  await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+  await expect(page.locator(".detail-segment-meta")).toHaveCount(1);
   await expect(page.locator(".detail-journey-summary")).toHaveCount(0);
   await expect(page.locator(".detail-metadata-column").first()).toContainText(
     "商务舱",
@@ -1853,7 +1832,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   expect(simplifiedTypography.titleFamily).toContain("Microsoft YaHei UI");
   expect(simplifiedTypography.titleFamily).not.toContain("SimSun");
   expect(simplifiedTypography.timeFamily).toContain("Inter");
-  expect(simplifiedTypography.titleWeight).toBe("700");
+  expect(simplifiedTypography.titleWeight).toBe("600");
   expect(simplifiedTypography.chineseStack).toBe(
     '"MiSans", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif',
   );
@@ -1906,7 +1885,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
         channels.reduce((sum, channel) => sum + channel, 0) / channels.length
       );
     });
-  expect(mapSurface).toBeGreaterThan(180);
+  expect(mapSurface).toBeLessThan(30);
   await expectDetailGlobe(page);
   await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
 
@@ -1954,7 +1933,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   expect(traditionalTypography.titleFamily).toContain("PingFang TC");
   expect(traditionalTypography.titleFamily).toContain("Microsoft JhengHei UI");
   expect(traditionalTypography.titleFamily).not.toContain("SimSun");
-  expect(traditionalTypography.titleWeight).toBe("700");
+  expect(traditionalTypography.titleWeight).toBe("600");
   expect(traditionalTypography.chineseStack).toBe(
     '"MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Source Han Sans TC", sans-serif',
   );

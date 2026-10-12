@@ -4,10 +4,16 @@ import { delayDirection, type DisplayTime } from "@keepraw-fly/core";
 export function FlightTime({
   value,
   showSource = false,
+  sourceLabel,
+  showZone = false,
+  timeZone = "UTC",
   className,
 }: {
   value: DisplayTime;
   showSource?: boolean;
+  sourceLabel?: string;
+  showZone?: boolean;
+  timeZone?: string;
   className?: string;
 }) {
   const { t } = useTranslation();
@@ -15,7 +21,7 @@ export function FlightTime({
     <span className={className}>
       {showSource ? (
         <span className="time-source">
-          {t(`flightTiming.${value.source}`)}{" "}
+          {sourceLabel ?? t(`flightTiming.${value.source}`)}{" "}
         </span>
       ) : null}
       <time dateTime={value.timestamp}>
@@ -30,6 +36,17 @@ export function FlightTime({
           </span>
         ) : null}
       </time>
+      {showZone ? (
+        <span className="time-zone">
+          {new Intl.DateTimeFormat("en", {
+            timeZone,
+            timeZoneName: "shortOffset",
+          })
+            .formatToParts(new Date(value.timestamp))
+            .find((part) => part.type === "timeZoneName")
+            ?.value.replace("GMT", "UTC")}
+        </span>
+      ) : null}
     </span>
   );
 }

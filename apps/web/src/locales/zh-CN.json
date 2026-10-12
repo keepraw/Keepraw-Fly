@@ -214,7 +214,9 @@
     "durationSource": {
       "actual": "实际飞行时间",
       "scheduled": "计划飞行时间"
-    }
+    },
+    "actual": "实际",
+    "plannedArrival": "计划到达：{{airport}}"
   },
   "passport": {
     "periodLabel": "飞行护照统计期间",

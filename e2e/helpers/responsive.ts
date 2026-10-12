@@ -1,4 +1,5 @@
 import { expectDetailGlobe } from "./detail-globe";
+import { expectDetailHero } from "./detail-hero";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -246,8 +247,10 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
   }
 }
 
-export async function expectDetailLayout(page: Page, mobile: boolean) {
-  await expectColumns(page.locator(".detail-operational-grid"), mobile ? 1 : 2);
+export async function expectDetailLayout(page: Page) {
+  const width = page.viewportSize()!.width;
+  const mobile = width < 1200;
+  await expectDetailHero(page, width);
   await expect(page.locator(".detail-adjacent-navigation")).toHaveCSS(
     "display",
     mobile ? "none" : "flex",

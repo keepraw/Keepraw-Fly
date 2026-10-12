@@ -46,6 +46,8 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
   for (const viewport of [
     { width: 760, height: 900, theme: "light" },
     { width: 761, height: 900, theme: "light" },
+    { width: 1199, height: 900, theme: "light" },
+    { width: 1200, height: 900, theme: "dark" },
     { width: 844, height: 390, theme: "dark" },
   ]) {
     test(`boundary layout and scrolling at ${viewport.width}x${viewport.height} in ${viewport.theme}`, async ({
@@ -110,7 +112,7 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
       await expectHealthyPage(page, errors);
       const row = page.locator(".flight-row").last();
       await row.click();
-      await expectDetailLayout(page, mobile);
+      await expectDetailLayout(page);
       await expectReachable(
         page.locator(".detail-stop--arrival .detail-airport-time"),
       );

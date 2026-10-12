@@ -30,7 +30,9 @@ export default defineConfig({
     {
       name: "firefox",
       grep: /@cross-browser\b/,
-      use: { ...devices["Desktop Firefox"] },
+      // Firefox needs a display for genuine WebGL; CI provides Xvfb rather
+      // than counting the unavailable-WebGL fallback as a Globe test pass.
+      use: { ...devices["Desktop Firefox"], headless: false },
     },
     {
       name: "webkit",

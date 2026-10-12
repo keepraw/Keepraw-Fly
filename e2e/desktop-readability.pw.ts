@@ -136,10 +136,10 @@ test("shares search and year scope, map selection and adjacent detail navigation
     page.getByRole("button", { name: "Next", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Previous", exact: true }).click();
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--departure")).toContainText(
     "Departure delayed 11 min",
   );
-  await expect(page.locator(".detail-heading-summary")).toContainText(
+  await expect(page.locator(".detail-stop--arrival")).toContainText(
     "Arrived 35 min early",
   );
   await expect(
@@ -155,7 +155,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     ]);
   }
   await mkdir("test-results/desktop-readability", { recursive: true });
-  for (const width of [1440, 1280, 1024, 390]) {
+  for (const width of [1440, 1280, 1200, 1199, 1024, 1023, 390]) {
     await page.setViewportSize({ width, height: 720 });
     expect(
       await page
@@ -163,7 +163,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
         .evaluate((e) => e.scrollWidth <= e.clientWidth),
     ).toBe(true);
     await expect(page.locator(".detail-route-map")).toHaveCount(
-      width <= 760 ? 0 : 1,
+      width < 1200 ? 0 : 1,
     );
     await page.screenshot({
       path: `test-results/desktop-readability/detail-${width}.png`,
@@ -212,7 +212,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     await page
       .locator('.flight-record[data-flight-id="zh9911"] .flight-row')
       .click();
-    await expect(page.locator(".detail-heading-summary")).toContainText(
+    await expect(page.locator(".detail-stop--departure")).toContainText(
       locale === "en"
         ? "Departure delayed 11 min"
         : locale === "zh-CN"
