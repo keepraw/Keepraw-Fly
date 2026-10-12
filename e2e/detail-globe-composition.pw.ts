@@ -161,7 +161,13 @@ test(
       `data:image/png;base64,${exterior.toString("base64")}`,
     );
     expect(exteriorColor[2]).toBeGreaterThan(exteriorColor[0]! + 10);
-    expect(Math.max(...exteriorColor)).toBeLessThan(100);
+    // The exterior point sits ~80px inside the sky's right edge, where the
+    // Light gradient nominates roughly rgb(36, 67, 99) (Chromium measures
+    // max 99). Firefox/WebKit interpolate/composite the same gradient and
+    // star SVG a few units brighter (max ~102), so gate deep navy with
+    // headroom that still rejects the mid-gradient (~150) and page canvas
+    // (~250) if the universe were removed.
+    expect(Math.max(...exteriorColor)).toBeLessThan(115);
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await expect(controls).toHaveCSS("transition-duration", "0.18s");
     await frame.hover({ position: { x: 12, y: 12 } });
