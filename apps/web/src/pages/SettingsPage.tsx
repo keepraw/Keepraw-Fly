@@ -24,6 +24,7 @@ import {
 } from "../storage/browser";
 
 interface SettingsPageProps {
+  initialCategory?: "general" | "data";
   document: KeeprawFlyDocument | null;
   isDemo: boolean;
   settings: ViewerSettings;
@@ -38,6 +39,7 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({
+  initialCategory = "general",
   document,
   isDemo,
   settings,
@@ -60,14 +62,7 @@ export function SettingsPage({
   const [expandedMembershipId, setExpandedMembershipId] = useState<
     string | null
   >(null);
-  // Preserve Passport's existing import entry before App scrolls to its target.
-  const [activeCategory, setActiveCategory] = useState(() =>
-    window.document.activeElement?.classList.contains(
-      "passport-import-button",
-    ) || window.document.querySelector(".passport-import-button:hover")
-      ? "data"
-      : "general",
-  );
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
   const categoryContentRef = useRef<HTMLDivElement>(null);
   const categories = [
     { id: "general", label: "settings.general" },
@@ -223,7 +218,7 @@ export function SettingsPage({
                 key={category.id}
                 type="button"
                 aria-current={
-                  activeCategory === category.id ? "page" : undefined
+                  activeCategory === category.id ? "true" : undefined
                 }
                 aria-controls={`settings-category-${category.id}`}
                 onClick={() => showCategory(category.id)}
