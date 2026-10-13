@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expect, test, type Page } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 
@@ -451,6 +452,7 @@ test("an older successful profile write cannot hide a newer failure and Retry sa
   await importArchive(page);
   await openSettings(page);
   await mockDocumentSaves(page, ["hold", "fail", "pass"]);
+  await openSettingsCategory(page, "Profile");
   const nativeName = page.getByLabel("Native name", { exact: true });
   await nativeName.fill("Profile A");
   await expect
@@ -490,6 +492,7 @@ test("an older successful profile write cannot hide a newer failure and Retry sa
     ),
   ).toEqual(["Profile A", "Profile B", "Profile B"]);
   await page.reload();
+  await openSettingsCategory(page, "Profile");
   await expect(nativeName).toHaveValue("Profile B");
   await expect(page.locator(".storage-warning")).toHaveCount(0);
 });
@@ -500,12 +503,14 @@ test("clearing an archive is ordered after a pending save and cannot revive its 
   await importArchive(page);
   await openSettings(page);
   await mockDocumentSaves(page, ["hold"]);
+  await openSettingsCategory(page, "Profile");
   await page.getByLabel("Native name", { exact: true }).fill("Pending profile");
   await expect
     .poll(() =>
       page.evaluate(() => window.documentPersistenceTest.calls.length),
     )
     .toBe(1);
+  await openSettingsCategory(page, "Danger zone");
   await page
     .locator(".settings-danger-zone")
     .getByRole("button", { name: "Clear local data", exact: true })
@@ -541,6 +546,7 @@ test("retries a failed archive clear as a deletion and releases the unsaved exit
   await importArchive(page);
   await openSettings(page);
   await mockDocumentSaves(page, [], ["fail", "pass"]);
+  await openSettingsCategory(page, "Danger zone");
   await page
     .locator(".settings-danger-zone")
     .getByRole("button", { name: "Clear local data", exact: true })

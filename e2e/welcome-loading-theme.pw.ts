@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 import { collectBrowserErrors, expectHealthyPage } from "./helpers/responsive";
@@ -141,6 +142,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           await expect(page.locator(".passport-empty-page")).toBeVisible();
           await expectSurface(page.locator(".app-shell"), theme);
           await page.goto("/#settings");
+          await openSettingsCategory(page, "Danger zone");
           await page.locator(".danger-action").click();
           await page.locator(".confirmation-danger").click();
           await expect(page.locator(".welcome")).toBeVisible();
@@ -158,6 +160,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
         await expect(page.locator(".demo-banner")).toBeVisible();
         await expectSurface(page.locator(".app-shell"), "dark");
         await page.goto("/#settings");
+        await openSettingsCategory(page, "Danger zone");
         await page.locator(".danger-action").click();
         await page.locator(".confirmation-danger").click();
         await expect(page.locator(".welcome")).toBeVisible();

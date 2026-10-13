@@ -91,6 +91,9 @@ export function App() {
     ),
   );
   const [page, setPage] = useState<Page>(pageFromHash);
+  const [settingsInitialCategory, setSettingsInitialCategory] = useState<
+    "general" | "data"
+  >("general");
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [passportView, setPassportView] =
     useState<PassportViewState>(initialPassportView);
@@ -258,6 +261,7 @@ export function App() {
           window.history.replaceState(null, "", "#passport");
         }
         setPage(nextPage);
+        if (nextPage !== "settings") setSettingsInitialCategory("general");
         setSelectedFlightId(null);
       }
     };
@@ -427,6 +431,7 @@ export function App() {
       <AppHeader
         currentPage={page}
         onNavigate={(nextPage) => {
+          setSettingsInitialCategory("general");
           setPage(nextPage);
           setSelectedFlightId(null);
         }}
@@ -522,6 +527,7 @@ export function App() {
         />
       ) : page === "settings" ? (
         <SettingsPage
+          initialCategory={settingsInitialCategory}
           document={document}
           isDemo={archiveKind === "demo"}
           settings={settings}
@@ -568,6 +574,7 @@ export function App() {
             setEditorFlightId("new");
           }}
           onOpenImport={() => {
+            setSettingsInitialCategory("data");
             setPage("settings");
             window.location.hash = "settings";
             window.requestAnimationFrame(() =>

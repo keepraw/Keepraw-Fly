@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -223,6 +224,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         .locator(".settings-display-fields select")
         .nth(0)
         .selectOption("en");
+      await openSettingsCategory(page, "Data and backup");
     } else {
       await page.goto("/");
     }
