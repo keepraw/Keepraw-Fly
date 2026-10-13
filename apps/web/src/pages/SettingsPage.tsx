@@ -186,7 +186,7 @@ export function SettingsPage({
   }
 
   return (
-    <PageShell className="settings-page settings-compact">
+    <PageShell className="settings-page settings-compact settings-information">
       <div className="settings-content">
         <header className="settings-page-heading">
           <h1>{t("nav.settings")}</h1>
@@ -199,12 +199,21 @@ export function SettingsPage({
             <h2 className="settings-section-title" id="settings-display">
               {t("settings.general")}
             </h2>
-            <div className="settings-panel settings-fields settings-display-fields">
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.language")}
-                </span>
+            <div className="settings-panel settings-fields settings-display-fields settings-item-list">
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-language">
+                      {t("settings.language")}
+                    </label>
+                  </h3>
+                  <p id="settings-language-description">
+                    {t("settings.languageDescription")}
+                  </p>
+                </div>
                 <select
+                  id="settings-language"
+                  aria-describedby="settings-language-description"
                   className="settings-row-control"
                   value={settings.language}
                   onChange={(event) =>
@@ -218,12 +227,21 @@ export function SettingsPage({
                   <option value="zh-CN">{t("settings.languages.zhCN")}</option>
                   <option value="zh-TW">{t("settings.languages.zhTW")}</option>
                 </select>
-              </label>
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.appearance")}
-                </span>
+              </div>
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-appearance">
+                      {t("settings.appearance")}
+                    </label>
+                  </h3>
+                  <p id="settings-appearance-description">
+                    {t("settings.appearanceDescription")}
+                  </p>
+                </div>
                 <select
+                  id="settings-appearance"
+                  aria-describedby="settings-appearance-description"
                   className="settings-row-control"
                   value={settings.appearance}
                   onChange={(event) =>
@@ -237,12 +255,21 @@ export function SettingsPage({
                   <option value="light">{t("settings.light")}</option>
                   <option value="dark">{t("settings.dark")}</option>
                 </select>
-              </label>
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.distance")}
-                </span>
+              </div>
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-distance">
+                      {t("settings.distance")}
+                    </label>
+                  </h3>
+                  <p id="settings-distance-description">
+                    {t("settings.distanceDescription")}
+                  </p>
+                </div>
                 <select
+                  id="settings-distance"
+                  aria-describedby="settings-distance-description"
                   className="settings-row-control"
                   value={settings.distanceUnit}
                   onChange={(event) =>
@@ -255,12 +282,21 @@ export function SettingsPage({
                   <option value="miles">{t("settings.miles")}</option>
                   <option value="kilometers">{t("settings.kilometers")}</option>
                 </select>
-              </label>
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.timeFormat")}
-                </span>
+              </div>
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-time-format">
+                      {t("settings.timeFormat")}
+                    </label>
+                  </h3>
+                  <p id="settings-time-description">
+                    {t("settings.timeFormatDescription")}
+                  </p>
+                </div>
                 <select
+                  id="settings-time-format"
+                  aria-describedby="settings-time-description"
                   className="settings-row-control"
                   value={settings.timeFormat}
                   onChange={(event) =>
@@ -275,20 +311,18 @@ export function SettingsPage({
                   </option>
                   <option value="12-hour">{t("settings.twelveHour")}</option>
                 </select>
-              </label>
-              <label className="settings-row">
-                <span className="settings-row-copy">
-                  <span
-                    className="settings-row-label"
-                    id="settings-solar-label"
-                  >
-                    {t("settings.solarMode")}
-                  </span>
-                  <small id="settings-solar-hint">
-                    {t("settings.solarModeHint")}
-                  </small>
-                </span>
+              </div>
+              <div className="settings-item settings-item--wide">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title" id="settings-solar-label">
+                    <label htmlFor="settings-solar">
+                      {t("settings.solarMode")}
+                    </label>
+                  </h3>
+                  <p id="settings-solar-hint">{t("settings.solarModeHint")}</p>
+                </div>
                 <select
+                  id="settings-solar"
                   className="settings-row-control"
                   value={settings.solarMode}
                   title={t("settings.solarModeHint")}
@@ -306,7 +340,7 @@ export function SettingsPage({
                     {t("settings.solarRealtime")}
                   </option>
                 </select>
-              </label>
+              </div>
             </div>
           </section>
 
@@ -317,24 +351,42 @@ export function SettingsPage({
             <h2 className="settings-section-title" id="settings-profile">
               {t("settings.profile")}
             </h2>
-            <div className="settings-panel settings-fields settings-profile-fields">
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.nativeName")}
-                </span>
+            <div className="settings-panel settings-fields settings-profile-fields settings-item-list">
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-native-name">
+                      {t("settings.nativeName")}
+                    </label>
+                  </h3>
+                  <p id="settings-native-description">
+                    {t("settings.nativeNameDescription")}
+                  </p>
+                </div>
                 <input
+                  id="settings-native-name"
+                  aria-describedby="settings-native-description"
                   className="settings-row-control"
                   type="text"
                   disabled={!document}
                   value={profileName?.native ?? ""}
                   onChange={(event) => updateName("native", event.target.value)}
                 />
-              </label>
-              <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.romanizedName")}
-                </span>
+              </div>
+              <div className="settings-item">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-romanized-name">
+                      {t("settings.romanizedName")}
+                    </label>
+                  </h3>
+                  <p id="settings-romanized-description">
+                    {t("settings.romanizedNameDescription")}
+                  </p>
+                </div>
                 <input
+                  id="settings-romanized-name"
+                  aria-describedby="settings-romanized-description"
                   className="settings-row-control"
                   type="text"
                   disabled={!document}
@@ -343,12 +395,23 @@ export function SettingsPage({
                     updateName("romanized", event.target.value)
                   }
                 />
-              </label>
-              <div className="settings-row">
-                <span className="settings-row-label" aria-hidden="true">
-                  {t("settings.primaryName")}
-                </span>
-                <fieldset className="settings-name-choice settings-row-control">
+              </div>
+              <div className="settings-item settings-item--wide">
+                <div className="settings-item-copy">
+                  <h3
+                    className="settings-item-title"
+                    id="settings-primary-label"
+                  >
+                    {t("settings.primaryName")}
+                  </h3>
+                  <p id="settings-primary-description">
+                    {t("settings.primaryNameDescription")}
+                  </p>
+                </div>
+                <fieldset
+                  className="settings-name-choice settings-row-control"
+                  aria-describedby="settings-primary-description"
+                >
                   <legend className="sr-only">
                     {t("settings.primaryName")}
                   </legend>
@@ -414,38 +477,29 @@ export function SettingsPage({
                   >
                     <div className="settings-membership-summary">
                       <div className="settings-membership-summary-copy">
-                        <div className="settings-membership-identity">
+                        <h3 className="settings-item-title settings-membership-identity">
                           <strong>{programName}</strong>
-                          <span className="settings-membership-number">
-                            {t("settings.memberNumberSummary", {
-                              number: maskMemberNumber(membership.memberNumber),
-                            })}
-                          </span>
-                          {membership.tier ? (
-                            <span>{membership.tier}</span>
-                          ) : null}
-                        </div>
-                        <div className="settings-membership-airline-summary">
-                          <span>
-                            {t("settings.defaultAirlineSummary", {
-                              airline: membership.defaultAirline
-                                ? airlineOptionLabel(membership.defaultAirline)
-                                : t("settings.noDefaultAirline"),
-                            })}
-                          </span>
-                          {membership.associatedAirlines.length > 1 ? (
-                            <span>
-                              {membership.associatedAirlines
-                                .map(airlineOptionLabel)
-                                .join(" · ")}
-                            </span>
-                          ) : null}
-                        </div>
+                        </h3>
+                        <p className="settings-membership-airline-summary">
+                          {membership.defaultAirline
+                            ? airlineOptionLabel(membership.defaultAirline)
+                            : t("settings.noDefaultAirline")}
+                        </p>
+                        <p className="settings-membership-number">
+                          {t("settings.memberNumberSummary", {
+                            number: maskMemberNumber(membership.memberNumber),
+                          })}
+                        </p>
                       </div>
                       <button
                         className="button-secondary settings-membership-edit"
                         type="button"
                         aria-expanded={expanded}
+                        aria-controls={
+                          expanded
+                            ? `settings-membership-editor-${membership.id}`
+                            : undefined
+                        }
                         onClick={() =>
                           setExpandedMembershipId(
                             expanded ? null : membership.id,
@@ -460,8 +514,13 @@ export function SettingsPage({
                       </button>
                     </div>
                     {expanded ? (
-                      <fieldset className="settings-membership-editor-fields">
-                        <legend className="sr-only">{programName}</legend>
+                      <fieldset
+                        className="settings-membership-editor-fields"
+                        id={`settings-membership-editor-${membership.id}`}
+                      >
+                        <legend className="settings-editor-title">
+                          {t("settings.editMembership")} · {programName}
+                        </legend>
                         <div className="settings-membership-grid">
                           <label>
                             <span>{t("settings.programName")}</span>
@@ -594,12 +653,19 @@ export function SettingsPage({
             <h2 className="settings-section-title" id="settings-data">
               {t("settings.dataAndBackup")}
             </h2>
-            <div className="settings-panel settings-data-panel">
-              <div className="settings-backup-summary">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
-                    {t("settings.localDataTitle")}
-                  </span>
+            <div className="settings-panel settings-data-panel settings-operations">
+              <section
+                className="settings-backup-summary settings-operation"
+                aria-labelledby="settings-export-title"
+              >
+                <div className="settings-operation-copy">
+                  <h3
+                    className="settings-item-title"
+                    id="settings-export-title"
+                  >
+                    {t("settings.exportTitle")}
+                  </h3>
+                  <p>{t("settings.backupDescription")}</p>
                   <small>{t("settings.localDataDescription")}</small>
                   <strong className="settings-backup-status">
                     {lastBackup
@@ -607,7 +673,7 @@ export function SettingsPage({
                       : t("settings.noBackupYet")}
                   </strong>
                 </div>
-                <div className="settings-row-control">
+                <div className="settings-operation-actions">
                   <button
                     className="settings-action"
                     type="button"
@@ -622,12 +688,17 @@ export function SettingsPage({
                     </small>
                   ) : null}
                 </div>
-              </div>
-              <div className="settings-import-row" id="settings-import">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
+              </section>
+              <section
+                className="settings-import-row settings-operation"
+                id="settings-import"
+                aria-labelledby="settings-json-title"
+              >
+                <div className="settings-operation-copy">
+                  <h3 className="settings-item-title" id="settings-json-title">
                     {t("settings.importTitle")}
-                  </span>
+                  </h3>
+                  <p>{t("settings.restoreDescription")}</p>
                   <small>{t("settings.importDescription")}</small>
                 </div>
                 <ImportControl
@@ -635,30 +706,46 @@ export function SettingsPage({
                   onImport={onImport}
                   variant="settings"
                 />
-              </div>
-              <div className="settings-import-row">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
+              </section>
+              <section
+                className="settings-import-row settings-operation"
+                aria-labelledby="settings-csv-title"
+              >
+                <div className="settings-operation-copy">
+                  <h3 className="settings-item-title" id="settings-csv-title">
                     {t("settings.csvImportTitle")}
-                  </span>
+                  </h3>
+                  <p>{t("settings.csvDescription")}</p>
                   <small>{t("settings.csvImportDescription")}</small>
                 </div>
                 <CsvImportControl document={document} onImport={onImport} />
-              </div>
-              <div className="settings-import-row">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
+              </section>
+              <section
+                className="settings-import-row settings-operation"
+                aria-labelledby="settings-flighty-title"
+              >
+                <div className="settings-operation-copy">
+                  <h3
+                    className="settings-item-title"
+                    id="settings-flighty-title"
+                  >
                     {t("settings.flightyImportTitle")}
-                  </span>
+                  </h3>
                   <small>{t("settings.flightyImportDescription")}</small>
                 </div>
                 <FlightyImportControl document={document} onImport={onImport} />
-              </div>
-              <div className="settings-row">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
+              </section>
+              <section
+                className="settings-operation settings-operation--storage"
+                aria-labelledby="settings-storage-title"
+              >
+                <div className="settings-operation-copy">
+                  <h3
+                    className="settings-item-title"
+                    id="settings-storage-title"
+                  >
                     {t("settings.storageProtectionTitle")}
-                  </span>
+                  </h3>
                   <small>{t("settings.storageProtectionDescription")}</small>
                   <strong
                     className={`settings-storage-status${persistentState === "granted" ? " is-protected" : ""}`}
@@ -675,7 +762,7 @@ export function SettingsPage({
                     </small>
                   ) : null}
                 </div>
-                <div className="settings-row-control settings-protection-actions">
+                <div className="settings-operation-actions settings-protection-actions">
                   <button
                     className="settings-action"
                     type="button"
@@ -698,7 +785,7 @@ export function SettingsPage({
                     )}
                   </button>
                 </div>
-              </div>
+              </section>
             </div>
           </section>
 
@@ -710,15 +797,25 @@ export function SettingsPage({
               {t("settings.advanced")}
             </h2>
             <div className="settings-panel">
-              <label className="settings-row settings-toggle-row">
-                <span className="settings-row-copy">
-                  <strong className="settings-row-label">
-                    {t("settings.powerUserMode")}
-                  </strong>
-                  <small>{t("settings.powerUserDescription")}</small>
-                </span>
-                <span className="settings-row-control settings-switch-control">
+              <div className="settings-item settings-item--toggle">
+                <div className="settings-item-copy">
+                  <h3 className="settings-item-title">
+                    <label htmlFor="settings-power-user">
+                      {t("settings.powerUserMode")}
+                    </label>
+                  </h3>
+                  <p id="settings-power-description">
+                    {t("settings.powerUserDescription")}
+                  </p>
+                </div>
+                <label
+                  className="settings-switch-control"
+                  htmlFor="settings-power-user"
+                >
                   <input
+                    id="settings-power-user"
+                    aria-label={t("settings.powerUserMode")}
+                    aria-describedby="settings-power-description"
                     type="checkbox"
                     role="switch"
                     checked={settings.powerUserMode}
@@ -726,8 +823,8 @@ export function SettingsPage({
                       updateSetting("powerUserMode", event.target.checked)
                     }
                   />
-                </span>
-              </label>
+                </label>
+              </div>
               {settings.powerUserMode ? (
                 <p className="settings-advanced-note">
                   {t("settings.advancedPlaceholder")}
@@ -744,14 +841,14 @@ export function SettingsPage({
               {t("settings.dangerZone")}
             </h2>
             <div className="settings-panel">
-              <div className="settings-row">
-                <div className="settings-row-copy">
-                  <span className="settings-row-label">
+              <div className="settings-operation">
+                <div className="settings-operation-copy">
+                  <h3 className="settings-item-title">
                     {t("settings.clearTitle")}
-                  </span>
+                  </h3>
                   <small>{t("settings.clearDescription")}</small>
                 </div>
-                <div className="settings-row-control">
+                <div className="settings-operation-actions">
                   <button
                     className="settings-action danger-action"
                     type="button"

@@ -941,3 +941,186 @@
   font-size: var(--type-size-caption);
   line-height: var(--type-leading-body);
 }
+
+/* Settings information units; Recovery retains the shared form-row layout. */
+.settings-information .settings-panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.settings-item-list,
+.settings-operations {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--space-5) var(--space-6);
+}
+
+.settings-item,
+.settings-information .settings-operation {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.settings-item-copy,
+.settings-operation-copy {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.settings-item-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--type-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--type-leading-label);
+  overflow-wrap: anywhere;
+}
+
+.settings-item-copy > p,
+.settings-operation-copy > p,
+.settings-operation-copy > small {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-body);
+  overflow-wrap: anywhere;
+}
+
+.settings-information .settings-item > .settings-row-control {
+  width: min(100%, var(--settings-control-width));
+}
+
+.settings-item--wide,
+.settings-operation--storage {
+  grid-column: 1 / -1;
+}
+
+.settings-display-fields .settings-item--wide {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--settings-control-width));
+  align-items: center;
+}
+
+.settings-item--toggle {
+  max-width: 640px;
+}
+
+.settings-information .settings-panel.membership-editor {
+  padding: 0;
+}
+
+.settings-information .settings-membership-summary-copy > p {
+  margin: 0;
+}
+
+.settings-information .settings-membership-identity,
+.settings-information .settings-membership-airline-summary {
+  display: block;
+}
+
+.settings-information .settings-membership-editor-fields {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+
+.settings-editor-title {
+  max-width: 100%;
+  padding-inline: var(--space-2);
+  color: var(--ink);
+  font-size: var(--type-size-label);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--type-leading-label);
+  overflow-wrap: anywhere;
+}
+
+.settings-information .settings-data-panel > .settings-operation {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+
+.settings-operation-actions,
+.settings-information .settings-operation .import-control,
+.settings-information .settings-operation .csv-import-control {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.settings-information .settings-operation .settings-action {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.settings-information .settings-operation .import-control > .settings-action,
+.settings-information
+  .settings-operation
+  .csv-import-control
+  > .settings-action,
+.settings-information .settings-operation .csv-action-group {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.settings-information .settings-operation .csv-action-group {
+  display: flex;
+  max-width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.settings-information .settings-operation .csv-import-workflow {
+  grid-column: auto;
+  grid-row: auto;
+  padding-top: 0;
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-body);
+}
+
+.settings-information .settings-operation :is(.import-preview, .csv-preview) {
+  border: 1px solid var(--color-line-strong);
+}
+
+/* Give transient validation and column mapping the full content width. */
+.settings-operations:has(.import-preview, .csv-preview, .csv-import-error) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.settings-information .settings-danger-zone .settings-section-title {
+  color: var(--red);
+}
+
+.settings-information .settings-danger-zone .settings-panel {
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--red);
+}
+
+@media (max-width: 760px) {
+  .settings-item-list,
+  .settings-operations,
+  .settings-display-fields .settings-item--wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-information .settings-item > .settings-row-control {
+    width: 100%;
+  }
+
+  .settings-information .settings-switch-control {
+    min-width: var(--control-height-md);
+    cursor: pointer;
+  }
+}
