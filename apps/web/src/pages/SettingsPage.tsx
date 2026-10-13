@@ -186,7 +186,7 @@ export function SettingsPage({
   }
 
   return (
-    <PageShell className="settings-page">
+    <PageShell className="settings-page settings-compact">
       <div className="settings-content">
         <header className="settings-page-heading">
           <h1>{t("nav.settings")}</h1>
@@ -277,14 +277,23 @@ export function SettingsPage({
                 </select>
               </label>
               <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.solarMode")}
+                <span className="settings-row-copy">
+                  <span
+                    className="settings-row-label"
+                    id="settings-solar-label"
+                  >
+                    {t("settings.solarMode")}
+                  </span>
+                  <small id="settings-solar-hint">
+                    {t("settings.solarModeHint")}
+                  </small>
                 </span>
                 <select
                   className="settings-row-control"
                   value={settings.solarMode}
                   title={t("settings.solarModeHint")}
-                  aria-description={t("settings.solarModeHint")}
+                  aria-labelledby="settings-solar-label"
+                  aria-describedby="settings-solar-hint"
                   onChange={(event) =>
                     updateSetting(
                       "solarMode",
@@ -392,9 +401,6 @@ export function SettingsPage({
             <div className="settings-panel membership-editor">
               <p className="settings-helper">
                 {t("settings.frequentFlyerDescription")}
-              </p>
-              <p className="settings-helper settings-membership-mobile-note">
-                {t("settings.frequentFlyerDesktopNote")}
               </p>
               {memberships.map((membership) => {
                 const programName =

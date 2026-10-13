@@ -36,7 +36,7 @@ After `design-system.css`, the explicit imports in `main.tsx` load `base`, `shel
 `controls`, `welcome`, `import`, `settings`, `motion`, `recovery`, `flight-editor`,
 `route-map`, `flight-detail` and `passport`, in that order. Keep that order stable:
 source order is part of the cascade. Shared controls precede Settings so its mobile
-membership-add rule can override the secondary button display; shared motion
+control sizing can preserve touch targets; shared motion
 follows Settings interaction rules so hover overrides retain their result where
 specificity ties. Passport flight-deviation colors follow Flight Detail
 stop-status colors for the same reason. Existing grouped motion selectors remain
@@ -77,6 +77,11 @@ hierarchy before surfaces, shadows or decoration.
 | Passport       | Geographic footprint and the connected flight archive         | Period/search controls, derived totals and selection details     |
 | Flight detail  | Origin → destination and the relationship between local times | Date, flight identity, recorded status and optional travel facts |
 | Settings       | Data ownership and editable preferences                       | Section labels, import/export controls and storage information   |
+
+Settings places category headings beside compact form groups from 1,200 px,
+and above them on tablets. Mobile stacks labels and native controls, keeps
+membership editing available and uses at least 44 px touch targets. The compact
+layout is scoped to Settings; Recovery retains the shared form defaults.
 
 The chronological flight list is part of Passport, not a separate page. Desktop
 can place the map and archive beside each other; mobile reorders the same content
