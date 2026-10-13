@@ -200,20 +200,16 @@ export function SettingsPage({
               {t("settings.general")}
             </h2>
             <div className="settings-panel settings-fields settings-display-fields settings-item-list">
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-language">
                       {t("settings.language")}
                     </label>
                   </h3>
-                  <p id="settings-language-description">
-                    {t("settings.languageDescription")}
-                  </p>
                 </div>
                 <select
                   id="settings-language"
-                  aria-describedby="settings-language-description"
                   className="settings-row-control"
                   value={settings.language}
                   onChange={(event) =>
@@ -228,20 +224,16 @@ export function SettingsPage({
                   <option value="zh-TW">{t("settings.languages.zhTW")}</option>
                 </select>
               </div>
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-appearance">
                       {t("settings.appearance")}
                     </label>
                   </h3>
-                  <p id="settings-appearance-description">
-                    {t("settings.appearanceDescription")}
-                  </p>
                 </div>
                 <select
                   id="settings-appearance"
-                  aria-describedby="settings-appearance-description"
                   className="settings-row-control"
                   value={settings.appearance}
                   onChange={(event) =>
@@ -256,20 +248,16 @@ export function SettingsPage({
                   <option value="dark">{t("settings.dark")}</option>
                 </select>
               </div>
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-distance">
                       {t("settings.distance")}
                     </label>
                   </h3>
-                  <p id="settings-distance-description">
-                    {t("settings.distanceDescription")}
-                  </p>
                 </div>
                 <select
                   id="settings-distance"
-                  aria-describedby="settings-distance-description"
                   className="settings-row-control"
                   value={settings.distanceUnit}
                   onChange={(event) =>
@@ -283,20 +271,16 @@ export function SettingsPage({
                   <option value="kilometers">{t("settings.kilometers")}</option>
                 </select>
               </div>
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-time-format">
                       {t("settings.timeFormat")}
                     </label>
                   </h3>
-                  <p id="settings-time-description">
-                    {t("settings.timeFormatDescription")}
-                  </p>
                 </div>
                 <select
                   id="settings-time-format"
-                  aria-describedby="settings-time-description"
                   className="settings-row-control"
                   value={settings.timeFormat}
                   onChange={(event) =>
@@ -312,9 +296,12 @@ export function SettingsPage({
                   <option value="12-hour">{t("settings.twelveHour")}</option>
                 </select>
               </div>
-              <div className="settings-item settings-item--wide">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title" id="settings-solar-label">
+                  <h3
+                    className="settings-item-title settings-row-label"
+                    id="settings-solar-label"
+                  >
                     <label htmlFor="settings-solar">
                       {t("settings.solarMode")}
                     </label>
@@ -352,20 +339,16 @@ export function SettingsPage({
               {t("settings.profile")}
             </h2>
             <div className="settings-panel settings-fields settings-profile-fields settings-item-list">
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-native-name">
                       {t("settings.nativeName")}
                     </label>
                   </h3>
-                  <p id="settings-native-description">
-                    {t("settings.nativeNameDescription")}
-                  </p>
                 </div>
                 <input
                   id="settings-native-name"
-                  aria-describedby="settings-native-description"
                   className="settings-row-control"
                   type="text"
                   disabled={!document}
@@ -373,20 +356,16 @@ export function SettingsPage({
                   onChange={(event) => updateName("native", event.target.value)}
                 />
               </div>
-              <div className="settings-item">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
-                  <h3 className="settings-item-title">
+                  <h3 className="settings-item-title settings-row-label">
                     <label htmlFor="settings-romanized-name">
                       {t("settings.romanizedName")}
                     </label>
                   </h3>
-                  <p id="settings-romanized-description">
-                    {t("settings.romanizedNameDescription")}
-                  </p>
                 </div>
                 <input
                   id="settings-romanized-name"
-                  aria-describedby="settings-romanized-description"
                   className="settings-row-control"
                   type="text"
                   disabled={!document}
@@ -396,22 +375,16 @@ export function SettingsPage({
                   }
                 />
               </div>
-              <div className="settings-item settings-item--wide">
+              <div className="settings-row settings-item settings-preference">
                 <div className="settings-item-copy">
                   <h3
-                    className="settings-item-title"
+                    className="settings-item-title settings-row-label"
                     id="settings-primary-label"
                   >
                     {t("settings.primaryName")}
                   </h3>
-                  <p id="settings-primary-description">
-                    {t("settings.primaryNameDescription")}
-                  </p>
                 </div>
-                <fieldset
-                  className="settings-name-choice settings-row-control"
-                  aria-describedby="settings-primary-description"
-                >
+                <fieldset className="settings-name-choice settings-row-control">
                   <legend className="sr-only">
                     {t("settings.primaryName")}
                   </legend>
