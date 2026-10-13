@@ -20,6 +20,11 @@
   max-width: 960px;
 }
 
+.settings-compact :is(input, select, button, .settings-action) {
+  /* Keep controls clear of viewport edges when native scrolling rounds pixels. */
+  scroll-margin-block: var(--space-2);
+}
+
 .settings-page-heading {
   margin-bottom: var(--space-6);
 }
