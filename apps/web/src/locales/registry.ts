@@ -3,7 +3,13 @@ export const localeRegistry = {
   "en-US": { label: "English (United States)", fallback: "en-US" },
   "en-GB": { label: "English (United Kingdom)", fallback: "en-US" },
   "zh-CN": { label: "简体中文", fallback: "en-US" },
-  "zh-TW": { label: "繁體中文", fallback: "en-US" },
+  "zh-TW": { label: "繁體中文（台灣）", fallback: "en-US" },
+  "ja-JP": { label: "日本語", fallback: "en-US" },
+  "fr-FR": { label: "Français", fallback: "en-US" },
+  "de-DE": { label: "Deutsch", fallback: "en-US" },
+  es: { label: "Español", fallback: "en-US" },
+  "pt-BR": { label: "Português (Brasil)", fallback: "en-US" },
+  "ko-KR": { label: "한국어", fallback: "en-US" },
 } as const;
 
 export type Language = keyof typeof localeRegistry;

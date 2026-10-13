@@ -16,6 +16,12 @@
   --font-family-cjk-tc:
     "MiSans TC", "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei",
     "Noto Sans CJK TC", "Source Han Sans TC", sans-serif;
+  --font-family-ja:
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic",
+    "Meiryo", "Noto Sans CJK JP", system-ui, sans-serif;
+  --font-family-ko:
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", system-ui,
+    sans-serif;
   --font-family-ui:
     var(--font-family-latin), system-ui, -apple-system, BlinkMacSystemFont,
     "Helvetica Neue", Arial, sans-serif;
@@ -201,6 +207,20 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-emphasized: cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+:root:lang(ja) {
+  --font-family-ui: var(--font-family-latin), var(--font-family-ja);
+  --font-family-display: var(--font-family-ui);
+  --font-family-data: var(--font-family-ui);
+  --font-family-mono: "SFMono-Regular", Consolas, var(--font-family-ja);
+}
+
+:root:lang(ko) {
+  --font-family-ui: var(--font-family-latin), var(--font-family-ko);
+  --font-family-display: var(--font-family-ui);
+  --font-family-data: var(--font-family-ui);
+  --font-family-mono: "SFMono-Regular", Consolas, var(--font-family-ko);
 }
 
 :root:lang(zh-CN),

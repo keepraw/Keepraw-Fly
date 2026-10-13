@@ -147,9 +147,7 @@ export default function GlobeLab({
             </label>
             <div className="globe-flight-heading">
               <strong>{t("globe.flights")}</strong>
-              <span>
-                {flights.length} {t("globe.records")}
-              </span>
+              <span>{t("globe.records", { count: flights.length })}</span>
             </div>
             <div className="globe-flight-list">
               {flights.map((flight) => (

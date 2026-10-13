@@ -498,7 +498,7 @@ export function PassportPage({
                           <strong>
                             {stats.flights.toLocaleString(locale)}
                           </strong>{" "}
-                          {t("passport.flights")}
+                          {t("passport.flights", { count: stats.flights })}
                         </span>
                         <span>
                           <strong>{duration}</strong> {t("passport.timeInAir")}
@@ -507,7 +507,7 @@ export function PassportPage({
                     ) : (
                       t("passport.heroSupport", {
                         count: stats.flights,
-                        flights: stats.flights.toLocaleString(locale),
+                        flights: stats.flights,
                         duration,
                       })
                     )}
@@ -579,7 +579,9 @@ export function PassportPage({
                   </p>
                   <div className="passport-mobile-hero">
                     <strong>{stats.flights.toLocaleString(locale)}</strong>
-                    <span>{t("passport.flights")}</span>
+                    <span>
+                      {t("passport.flights", { count: stats.flights })}
+                    </span>
                   </div>
                   <div className="passport-mobile-journey">
                     <div>
@@ -663,11 +665,15 @@ export function PassportPage({
                   <div className="passport-network-facts">
                     <div>
                       <strong>{stats.countries.toLocaleString(locale)}</strong>
-                      <span>{t("passport.countries")}</span>
+                      <span>
+                        {t("passport.countries", { count: stats.countries })}
+                      </span>
                     </div>
                     <div>
                       <strong>{stats.airports.toLocaleString(locale)}</strong>
-                      <span>{t("passport.airports")}</span>
+                      <span>
+                        {t("passport.airports", { count: stats.airports })}
+                      </span>
                     </div>
                   </div>
                   {stats.mostVisitedAirport ? (

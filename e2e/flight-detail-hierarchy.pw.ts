@@ -384,7 +384,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
             await expect(
               page.locator(".detail-stop--arrival .time-source"),
             ).toContainText(
-              { "en-US": "Scheduled", "zh-CN": "计划", "zh-TW": "計劃" }[
+              { "en-US": "Scheduled", "zh-CN": "计划", "zh-TW": "預定" }[
                 language
               ],
             );
