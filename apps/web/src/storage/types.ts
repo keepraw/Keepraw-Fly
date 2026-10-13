@@ -1,7 +1,12 @@
 import type { DistanceUnit, TimeFormat } from "@keepraw-fly/core";
 import type { SolarMode } from "../globe/globe-solar";
 
-export type Language = "en" | "zh-CN" | "zh-TW";
+import {
+  browserLanguage,
+  normalizeLanguage,
+  type Language,
+} from "../locales/registry";
+export type { Language } from "../locales/registry";
 export type Appearance = "system" | "light" | "dark";
 
 export interface ViewerSettings {
@@ -15,20 +20,11 @@ export interface ViewerSettings {
 }
 
 export function defaultViewerSettings(): ViewerSettings {
-  const browserLanguage = navigator.language.toLowerCase();
-  const language =
-    browserLanguage === "zh-tw" ||
-    browserLanguage === "zh-hk" ||
-    browserLanguage === "zh-mo" ||
-    browserLanguage.includes("hant")
-      ? "zh-TW"
-      : browserLanguage.startsWith("zh")
-        ? "zh-CN"
-        : "en";
+  const language = browserLanguage();
   return {
     language,
     appearance: "system",
-    distanceUnit: language === "en" ? "miles" : "kilometers",
+    distanceUnit: language.startsWith("en-") ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
     solarMode: "fixed",
@@ -38,10 +34,14 @@ export function defaultViewerSettings(): ViewerSettings {
 // Preferences share the existing IndexedDB record. Read-time normalization
 // preserves older records and unrelated preferences without rewriting archives.
 export function normalizeViewerSettings(
-  settings: Omit<ViewerSettings, "solarMode"> & { solarMode?: unknown },
+  settings: Omit<ViewerSettings, "solarMode" | "language"> & {
+    language: unknown;
+    solarMode?: unknown;
+  },
 ): ViewerSettings {
   return {
     ...settings,
+    language: normalizeLanguage(settings.language),
     solarMode: settings.solarMode === "realtime" ? "realtime" : "fixed",
   };
 }

@@ -281,7 +281,7 @@ test(
   },
 );
 
-for (const language of ["en", "zh-CN", "zh-TW"]) {
+for (const language of ["en-US", "zh-CN", "zh-TW"]) {
   test(`uses ${language}, Light/Dark/System and Fixed/Realtime preferences`, async ({
     page,
   }) => {
@@ -317,7 +317,7 @@ for (const language of ["en", "zh-CN", "zh-TW"]) {
         );
         await expect(page.locator("canvas")).toHaveAttribute(
           "aria-label",
-          language === "en"
+          language === "en-US"
             ? /Drag to rotate/
             : language === "zh-CN"
               ? /拖动旋转/
@@ -713,7 +713,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
   await page.evaluate(() => {
     (window as any).savedCanvas = document.querySelector("canvas");
   });
-  for (const language of ["zh-CN", "zh-TW", "en"]) {
+  for (const language of ["zh-CN", "zh-TW", "en-US"]) {
     await page.evaluate(
       async ({ record, language }) => {
         (window as any).renderDetail({
@@ -741,7 +741,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
     ).toBe(true);
     await expect(page.locator("canvas")).toHaveAttribute(
       "aria-label",
-      language === "en"
+      language === "en-US"
         ? /Drag to rotate/
         : language === "zh-CN"
           ? /拖动旋转/

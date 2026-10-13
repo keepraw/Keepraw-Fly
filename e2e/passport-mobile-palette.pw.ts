@@ -18,7 +18,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await expect(page.locator(".flight-row")).toHaveCount(24);
   });
 
-  for (const language of ["en", "zh-CN", "zh-TW"]) {
+  for (const language of ["en-US", "zh-CN", "zh-TW"]) {
     test(`keeps mobile panels, readable controls and map-free navigation in ${language}`, async ({
       page,
     }) => {
@@ -120,9 +120,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await page
       .getByRole("button", { name: "Edit flight", exact: true })
       .click();
-    await page
-      .getByRole("checkbox", { name: "Cancelled", exact: true })
-      .check();
+    await page.getByRole("checkbox", { name: "Canceled", exact: true }).check();
     await page
       .getByRole("button", { name: "Save flight", exact: true })
       .click();
@@ -136,7 +134,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
       const row = page.locator(".flight-row").first();
       await expect(row).toBeFocused();
       const status = row.locator(".flight-status.is-cancelled");
-      await expect(status).toHaveText("Cancelled");
+      await expect(status).toHaveText("Canceled");
       const contrast = await status.evaluate((element) => {
         const luminance = (color: string) => {
           const channels = color

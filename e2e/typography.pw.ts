@@ -47,14 +47,18 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
   await expect(page.locator("link[data-chinese-webfont]")).toHaveCount(0);
   expect(requests).toHaveLength(0);
   await page.locator("#passport-flight-search").fill("TAO");
-  for (const locale of ["zh-CN", "zh-TW", "en", "zh-CN"]) {
+  for (const locale of ["zh-CN", "zh-TW", "en-US", "zh-CN"]) {
     await page.goto("/#settings");
     await page.locator(".settings-fields select").first().selectOption(locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await page.goto("/#passport");
     await expect(page.locator(".passport-map-title")).toHaveCSS(
       "font-family",
-      locale === "en" ? /Inter/ : locale === "zh-TW" ? /MiSans TC/ : /MiSans/,
+      locale === "en-US"
+        ? /Inter/
+        : locale === "zh-TW"
+          ? /MiSans TC/
+          : /MiSans/,
     );
     await expect(page.locator("#passport-flight-search")).toHaveValue("TAO");
     await expect(page.locator(".flight-row")).toHaveCount(5);

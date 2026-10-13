@@ -49,7 +49,9 @@ export function CsvImportControl({
   const { t } = useTranslation();
   const inputId = useId();
   const [pending, setPending] = useState<PendingCsv | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<
+    { kind: "file"; code: string } | { kind: "import" } | null
+  >(null);
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
@@ -75,11 +77,7 @@ export function CsvImportControl({
     } catch (caught) {
       setPending(null);
       const code = caught instanceof Error ? caught.message : "invalid-file";
-      setError(
-        t(`csvImport.fileErrors.${code}`, {
-          defaultValue: t("csvImport.invalidFile"),
-        }),
-      );
+      setError({ kind: "file", code });
     }
   }
 
@@ -94,14 +92,13 @@ export function CsvImportControl({
       );
       const { validateKeeprawFly } = await import("@keepraw-fly/validator");
       const result = validateKeeprawFly(nextDocument);
-      if (!result.valid) throw new Error(result.issues[0]?.message);
+      if (!result.valid) throw new Error("invalid-import");
       await onImport(result.data);
       setPending(null);
       setIncludePossibleDuplicates(false);
       setError(null);
-    } catch (caught) {
-      const detail = caught instanceof Error ? caught.message : "";
-      setError(t("csvImport.importFailed", { detail }));
+    } catch {
+      setError({ kind: "import" });
     } finally {
       setBusy(false);
     }
@@ -250,7 +247,9 @@ export function CsvImportControl({
                           })
                         : t("csvImport.mappingIssue")}
                     </span>
-                    {t(`csvImport.issues.${issue.code}`)}
+                    {t(`csvImport.issues.${issue.code}`, {
+                      defaultValue: t("import.issueMessages.generic"),
+                    })}
                   </li>
                 ))}
               </ul>
@@ -296,7 +295,11 @@ export function CsvImportControl({
       ) : null}
       {error ? (
         <p className="csv-import-error" role="alert">
-          {error}
+          {error.kind === "import"
+            ? t("csvImport.importFailed")
+            : t(`csvImport.fileErrors.${error.code}`, {
+                defaultValue: t("csvImport.invalidFile"),
+              })}
         </p>
       ) : null}
     </div>

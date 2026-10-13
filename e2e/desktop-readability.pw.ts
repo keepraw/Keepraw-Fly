@@ -191,7 +191,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
   for (const [locale, appearance] of [
     ["zh-CN", "light"],
     ["zh-TW", "dark"],
-    ["en", "dark"],
+    ["en-US", "dark"],
   ]) {
     await page.goto("/#settings");
     const settings = page.locator(".settings-display-fields select");
@@ -204,7 +204,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
       .locator('.flight-record[data-flight-id="zh9911"] .flight-row')
       .click();
     await expect(page.locator(".detail-stop--departure")).toContainText(
-      locale === "en"
+      locale === "en-US"
         ? "Departure delayed 11 min"
         : locale === "zh-CN"
           ? "出发晚点 11 分"

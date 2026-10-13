@@ -1,0 +1,31 @@
+{
+  "status": {
+    "cancelled": "Cancelled"
+  },
+  "import": {
+    "totalRecords": "Recognised",
+    "issueMessages": {
+      "cancelledDivertedConflict": "A cancelled flight cannot also have a diversion airport."
+    }
+  },
+  "csvImport": {
+    "sampleRecords": "Recognised records"
+  },
+  "flightyImport": {
+    "invalidFile": "This is not a recognised Flighty CSV export."
+  },
+  "settings": {
+    "kilometers": "Kilometres",
+    "romanizedName": "Romanised name",
+    "romanized": "Romanised",
+    "programName": "Programme name",
+    "addMembership": "Add frequent flyer programme",
+    "fontLicense": "Xiaomi font licence and usage guidance"
+  },
+  "globe": {
+    "detailCancelled": "This flight was cancelled. No flown route to display."
+  },
+  "flightDetail": {
+    "frequentFlyerProgram": "Frequent flyer programme"
+  }
+}

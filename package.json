@@ -18,7 +18,7 @@
     "update:zh-tw": "node scripts/update-zh-tw-locale.mjs",
     "update:world-map": "node scripts/update-world-map.mjs",
     "check:docs": "node scripts/check-doc-consistency.mjs",
-    "test": "node --test scripts/css-tokens.test.mjs scripts/ci-validation.test.mjs && pnpm -r test",
+    "test": "node --test scripts/css-tokens.test.mjs scripts/ci-validation.test.mjs scripts/update-zh-tw-locale.test.mjs && pnpm -r test",
     "test:e2e": "playwright test",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",

@@ -5,7 +5,7 @@ import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 // Native text wrapping and 12-hour/day-offset sizing need all three engines;
 // broader viewport, theme and Globe interaction matrices remain in their suites.
 for (const [locale, origin, destination] of [
-  ["en", "Addis Ababa", "Johannesburg"],
+  ["en-US", "Addis Ababa", "Johannesburg"],
   ["zh-CN", "亚的斯亚贝巴", "约翰内斯堡"],
   ["zh-TW", "亞的斯亞貝巴", "約翰內斯堡"],
 ] as const) {

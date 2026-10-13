@@ -1,31 +1,25 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import en from "./locales/en.json";
-import zhCN from "./locales/zh-CN.json";
-import zhTW from "./locales/zh-TW.json";
+import { browserLanguage, normalizeLanguage } from "./locales/registry";
+import { i18nOptions } from "./locales/resources";
 
-const browserLanguage = navigator.language.toLowerCase();
-const initialLanguage =
-  browserLanguage === "zh-tw" ||
-  browserLanguage === "zh-hk" ||
-  browserLanguage === "zh-mo" ||
-  browserLanguage.includes("hant")
-    ? "zh-TW"
-    : browserLanguage.startsWith("zh")
-      ? "zh-CN"
-      : "en";
-
-void i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-    "zh-CN": { translation: zhCN },
-    "zh-TW": { translation: zhTW },
-  },
-  lng: initialLanguage,
-  fallbackLng: "en",
-  interpolation: { escapeValue: false },
+// Keep HTML language synchronized for every i18next language change.
+i18n.on("languageChanged", (language) => {
+  if (typeof document !== "undefined")
+    document.documentElement.lang = normalizeLanguage(language);
 });
-
-document.documentElement.lang = initialLanguage;
+void i18n.use(initReactI18next).init({
+  ...i18nOptions,
+  lng: browserLanguage(),
+  // Defensive fallback for unrecognized dynamic keys; never show identifiers.
+  parseMissingKeyHandler: (_key, defaultValue) =>
+    defaultValue ??
+    i18n.getResource(
+      normalizeLanguage(i18n.language),
+      "translation",
+      "app.unavailable",
+    ) ??
+    i18n.getResource("en-US", "translation", "app.unavailable"),
+});
 
 export { i18n };

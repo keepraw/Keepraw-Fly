@@ -240,7 +240,7 @@ test("keeps international title words whole at 390px across locales with the Det
     ),
   );
 
-  for (const locale of ["en", "zh-CN", "zh-TW"]) {
+  for (const locale of ["en-US", "zh-CN", "zh-TW"]) {
     await page.goto("/#settings");
     await page
       .locator(".settings-display-fields select")
@@ -299,7 +299,7 @@ test("keeps international title words whole at 390px across locales with the Det
         expect(word.fits, word.text).toBe(true);
       }
       expect(layout.textWrap).toBe("balance");
-      if (locale === "en" && pairs[index]![0] === "KUL")
+      if (locale === "en-US" && pairs[index]![0] === "KUL")
         expect(layout.lineCount).toBeGreaterThan(1);
       if (index === 0) {
         await page.setViewportSize({ width: 1440, height: 900 });

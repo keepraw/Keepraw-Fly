@@ -61,9 +61,9 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
 });
 
-for (const language of ["en", "zh-CN", "zh-TW"] as const) {
+for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
   test.describe(language, () => {
-    test.use({ locale: language === "en" ? "en-US" : language });
+    test.use({ locale: language === "en-US" ? "en-US" : language });
     for (const width of [390, 760, 761, 1440]) {
       test(`fresh welcome, create, demo, import and reload at ${width}px`, async ({
         page,
@@ -196,7 +196,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
 
     for (const width of [390, 1440]) {
       for (const mode of ["light", "dark", "system"] as const) {
-        test(`first paint, loading failure and retry at ${width}px in ${mode}${language === "en" && mode === "system" ? " @cross-browser" : ""}`, async ({
+        test(`first paint, loading failure and retry at ${width}px in ${mode}${language === "en-US" && mode === "system" ? " @cross-browser" : ""}`, async ({
           page,
         }) => {
           await page.setViewportSize({ width, height: 900 });

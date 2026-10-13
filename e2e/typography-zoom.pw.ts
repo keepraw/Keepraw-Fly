@@ -40,7 +40,7 @@ for (const zoom of [1, 1.25]) {
       await page
         .getByRole("button", { name: "Import this archive", exact: true })
         .click();
-      for (const locale of ["en", "zh-CN", "zh-TW"]) {
+      for (const locale of ["en-US", "zh-CN", "zh-TW"]) {
         await page.setViewportSize({ width: 1440, height: 900 });
         await page.goto("http://127.0.0.1:5173/#settings");
         await page

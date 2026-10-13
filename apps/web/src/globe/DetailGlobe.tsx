@@ -9,7 +9,6 @@ import type { GlobeSelection } from "./globe-renderer";
 import type { SolarMode } from "./globe-solar";
 import "./globe-lab.css";
 import "./detail-globe.css";
-import "./lab-locales";
 
 // Static, deterministic points: no texture request, animation or extra WebGL work.
 // This module and its CSS are imported only with the desktop Detail Globe.

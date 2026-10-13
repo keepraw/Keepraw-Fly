@@ -10,7 +10,6 @@ import type { GlobeSelection } from "./globe-renderer";
 import type { SolarMode } from "./globe-solar";
 import "./globe-lab.css";
 import "./passport-globe.css";
-import "./lab-locales";
 
 interface PassportGlobeProps {
   routes: RouteSegment[];

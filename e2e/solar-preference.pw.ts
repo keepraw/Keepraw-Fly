@@ -59,7 +59,7 @@ test("solar preference survives Settings, Lab, reset lighting and reload @cross-
   await page.goto("/#settings");
   await expect(control).toHaveValue("fixed");
   for (const [locale, label, fixed, realtime] of [
-    ["en", "Solar illumination", "Fixed Sun", "Real-time Sun"],
+    ["en-US", "Solar illumination", "Fixed Sun", "Real-time Sun"],
     ["zh-CN", "太阳光照", "固定太阳", "真实太阳（实时）"],
     ["zh-TW", "太陽光照", "固定太陽", "真實太陽（即時）"],
   ]) {

@@ -28,15 +28,23 @@ function ensureSearchIndex(): void {
   if (indexedDirectoryVersion === airportDirectoryVersion()) return;
   searchIndex = airports.map((airport) => {
     const cities = [
-      ...new Set(Object.values(airport.city).map(normalizeSearchValue)),
+      ...new Set(
+        Object.values(airport.city).map((value) =>
+          normalizeSearchValue(value ?? ""),
+        ),
+      ),
     ];
     const names = [
-      ...new Set(Object.values(airport.name).map(normalizeSearchValue)),
+      ...new Set(
+        Object.values(airport.name).map((value) =>
+          normalizeSearchValue(value ?? ""),
+        ),
+      ),
     ];
     const cityGroup = airportCityGroupForAirport(airport.iata);
     const cityGroupAliases = cityGroup
-      ? [cityGroup.code, ...Object.values(cityGroup.name)].map(
-          normalizeSearchValue,
+      ? [cityGroup.code, ...Object.values(cityGroup.name)].map((value) =>
+          normalizeSearchValue(value ?? ""),
         )
       : [];
     return {

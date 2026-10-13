@@ -230,7 +230,7 @@ for (const appearance of ["light", "dark"] as const) {
   });
 }
 
-for (const language of ["en", "zh-CN", "zh-TW"] as const) {
+for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
   for (const appearance of ["light", "dark", "system"] as const) {
     test(`detail hierarchy visual review: ${language} / ${appearance}`, async ({
       page,
@@ -345,7 +345,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
               page.locator(".detail-stop--arrival .detail-stop-place strong"),
             ).toHaveText("JFK");
             await expect(page.locator(".detail-heading h1")).toContainText(
-              { en: "Los Angeles", "zh-CN": "洛杉矶", "zh-TW": "洛杉磯" }[
+              { "en-US": "Los Angeles", "zh-CN": "洛杉矶", "zh-TW": "洛杉磯" }[
                 language
               ],
             );
@@ -384,7 +384,9 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
             await expect(
               page.locator(".detail-stop--arrival .time-source"),
             ).toContainText(
-              { en: "Scheduled", "zh-CN": "计划", "zh-TW": "計劃" }[language],
+              { "en-US": "Scheduled", "zh-CN": "计划", "zh-TW": "計劃" }[
+                language
+              ],
             );
           }
           if (record.id === "cz3964")

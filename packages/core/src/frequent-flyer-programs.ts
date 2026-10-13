@@ -1,9 +1,13 @@
 import type { FrequentFlyerMembership } from "@keepraw-fly/schema";
-import type { SupportedLocale } from "./reference-data";
+import {
+  localizedText,
+  type LocalizedText,
+  type SupportedLocale,
+} from "./reference-data";
 
 export interface FrequentFlyerProgram {
   id: string;
-  names: Record<SupportedLocale, string>;
+  names: LocalizedText;
   alliance?: string;
 }
 
@@ -46,8 +50,9 @@ export function frequentFlyerProgramName(
   membership: FrequentFlyerMembership,
   locale: SupportedLocale,
 ): string {
+  const program = programById.get(membership.programId);
   return (
-    programById.get(membership.programId)?.names[locale] ??
+    (program ? localizedText(program.names, locale) : undefined) ??
     membership.programName ??
     membership.programId
   );
@@ -57,7 +62,7 @@ export function frequentFlyerProgramId(value: string): string {
   const trimmed = value.trim();
   const known = programs.find((program) =>
     Object.values(program.names).some(
-      (name) => name.toLocaleLowerCase() === trimmed.toLocaleLowerCase(),
+      (name) => name?.toLocaleLowerCase() === trimmed.toLocaleLowerCase(),
     ),
   );
   if (known) return known.id;

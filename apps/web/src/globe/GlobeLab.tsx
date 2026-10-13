@@ -17,7 +17,6 @@ import { globeAirports } from "./globe-math";
 import type { GlobeSelection, GlobeTheme } from "./globe-renderer";
 import { defaultLighting } from "./globe-lighting";
 import "./globe-lab.css";
-import "./lab-locales";
 
 export default function GlobeLab({
   document,
@@ -79,7 +78,7 @@ export default function GlobeLab({
         <a href="/" className="globe-wordmark">
           KEEPRAW FLY
         </a>
-        <span>Globe Lab</span>
+        <span>{t("globe.lab")}</span>
         <a href="/#passport">{t("globe.back")}</a>
       </header>
       <main className="globe-lab-main" id="main-content">
@@ -307,8 +306,8 @@ export default function GlobeLab({
                       }))
                     }
                   >
-                    <option value="A">A · Restrained Midnight Aviation</option>
-                    <option value="B">B · Subtle Horizon Twilight</option>
+                    <option value="A">{t("globe.artDirectionA")}</option>
+                    <option value="B">{t("globe.artDirectionB")}</option>
                   </select>
                 </label>
                 {(

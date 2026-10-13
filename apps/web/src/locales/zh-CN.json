@@ -7,7 +7,8 @@
     "storageUnavailable": "本地存储不可用，更改可能无法保留。",
     "changesNotSaved": "更改尚未保存到此设备。",
     "settingsNotSaved": "设置尚未保存到此设备。",
-    "skipToContent": "跳到主要内容"
+    "skipToContent": "跳到主要内容",
+    "unavailable": "此信息暂不可用。"
   },
   "nav": {
     "label": "主导航",
@@ -348,8 +349,19 @@
       "anyOf": "该对象缺少受支持的标识字段。",
       "uniqueFlightId": "导入文件中存在重复的航班 id。",
       "serviceDate": "航班日期与计划出发日期不一致。",
-      "chronology": "到达时间必须晚于对应的出发时间。"
-    }
+      "chronology": "到达时间必须晚于对应的出发时间。",
+      "uniqueMembershipId": "导入文件中的会员 ID 重复。",
+      "membershipDefaultAirline": "默认航空公司必须是该会员关联的航空公司之一。",
+      "membershipReference": "此航班引用了档案中不存在的会员。",
+      "cancelledDivertedConflict": "已取消的航班不能同时指定备降机场。",
+      "unsupportedVersion": "不支持此档案版本，请使用兼容的 Keepraw Fly 版本。",
+      "migration": "无法安全迁移此档案，请保留原文件并尝试兼容的备份。",
+      "generic": "此值无效，请检查文件后重试。",
+      "uniqueItems": "此列表包含重复的值。",
+      "propertyNames": "扩展名称必须使用有效的命名空间。",
+      "maxLength": "此值的长度超出支持范围。"
+    },
+    "operationFailed": "无法导入此文件，请重试。"
   },
   "units": {
     "minuteShort": "分"
@@ -368,7 +380,7 @@
     "mappingIssue": "列映射",
     "timezoneNote": "所有时间均填写对应机场当地时间，无需填写时区。Keepraw Fly 会根据机场自动解析 IANA 时区，例如 2026-09-02T13:00；仍兼容带偏移的 RFC3339 时间。",
     "invalidFile": "无法读取这个 CSV。文件需包含一行表头和至少一行航班。",
-    "importFailed": "未导入 CSV。{{detail}}",
+    "importFailed": "文件未导入，请检查后重试。",
     "importing": "正在添加航班…",
     "appendFlights": "添加 {{count}} 个航班",
     "fileErrors": {
@@ -422,7 +434,7 @@
     "warningTitle": "{{count}} 个警告",
     "importing": "正在添加航班…",
     "appendFlights": "添加 {{count}} 个航班",
-    "importFailed": "未导入 Flighty CSV。{{detail}}",
+    "importFailed": "文件未导入，请检查后重试。",
     "invalidFile": "这不是可识别的 Flighty CSV 导出文件。",
     "fileErrors": {
       "not-flighty-file": "CSV 缺少 Flighty 的 Date、Airline、Flight、From、To 或计划登机时间列。",
@@ -491,11 +503,6 @@
     "clearConfirmation": "清除本地 Keepraw Fly 档案？如需备份，请先导出。",
     "display": "显示",
     "language": "语言",
-    "languages": {
-      "en": "English",
-      "zhCN": "简体中文",
-      "zhTW": "繁體中文"
-    },
     "appearance": "外观",
     "system": "跟随系统",
     "light": "浅色",
@@ -585,5 +592,61 @@
       "late": "到达晚点 {{count}} 分",
       "onTime": "到达准点"
     }
+  },
+  "globe": {
+    "keyboard": "拖动旋转，滚轮或 + 和 - 缩放，方向键旋转，Home 恢复初始视角",
+    "detailLabel": "当前航班航线的交互式三维地球",
+    "detailCancelled": "航班已取消，没有可显示的实际飞行航线。",
+    "detailUnavailable": "航线不可用：机场未知或坐标无效。",
+    "errors": {
+      "webgl2-unavailable": "三维地球不可用：浏览器无法启动 WebGL，请重试。",
+      "initialization": "三维地球启动失败，请重试。",
+      "texture": "地球影像加载失败，请重试。",
+      "context": "三维地球连接已丢失，请重试。"
+    },
+    "twilightReview": "暮光审查视角",
+    "solarMode": "太阳模式",
+    "solarFixed": "固定",
+    "solarRealtime": "实时",
+    "solarDiagnostic": "昼夜分区（诊断）",
+    "neutralProbe": "中性光照材质（诊断）",
+    "artDirection": "艺术方向",
+    "lightingReview": "光照审查 · Control 已批准",
+    "earthOnly": "仅地球",
+    "daySurface": "日间地表",
+    "nightLights": "城市夜光",
+    "atmosphere": "大气层",
+    "sunIntensity": "日照强度",
+    "twilightWidth": "暮光宽度",
+    "atmosphereIntensity": "大气强度",
+    "nightIntensity": "夜光强度",
+    "resetLighting": "恢复默认光照",
+    "resetLightingHint": "恢复光照参数，保留太阳偏好、镜头、选中项、筛选和主题。",
+    "back": "返回飞行护照",
+    "personal": "个人档案",
+    "experiment": "桌面地球视觉实验",
+    "appearance": "外观",
+    "flights": "航班",
+    "all": "全部",
+    "search": "搜索航班、机场、航空公司…",
+    "records": "条记录",
+    "routes": "航线",
+    "airports": "机场",
+    "route": "航线",
+    "airport": "机场",
+    "chooseRoute": "选择航线",
+    "chooseAirport": "选择机场",
+    "quality": "纹理",
+    "help": "拖动旋转 · 滚轮缩放 · 方向键探索 · Home 恢复默认视角",
+    "credit": "地理影像：",
+    "mapLabel": "已记录航班的交互式地球",
+    "fallback": "三维地图不可用，本地二维地图仍可操作。",
+    "surface": "飞行护照 / 地球",
+    "local": "本地地理影像 · 大圆航线",
+    "selected": "已选中",
+    "empty": "没有匹配的航班。",
+    "lab": "地球实验室",
+    "artDirectionA": "A · 克制的午夜航空",
+    "artDirectionB": "B · 柔和的地平线暮光"
   }
 }

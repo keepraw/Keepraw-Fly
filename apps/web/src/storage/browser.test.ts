@@ -231,7 +231,7 @@ describe("BrowserStorageAdapter", () => {
     const adapter = new BrowserStorageAdapter(`test-${crypto.randomUUID()}`);
     adapters.push(adapter);
     const settings = {
-      language: "en" as const,
+      language: "en-US" as const,
       appearance: "dark" as const,
       distanceUnit: "kilometers" as const,
       timeFormat: "12-hour" as const,
@@ -430,3 +430,37 @@ describe("BrowserStorageAdapter", () => {
     await expect(adapter.loadDocument()).rejects.toThrow("Storage unavailable");
   });
 });
+
+it.each(["en", "en-GB", "unknown-language"])(
+  "normalizes saved language %s without writing archives or resetting unrelated fields",
+  async (language) => {
+    const name = `test-${crypto.randomUUID()}`;
+    const database = new Dexie(name);
+    databases.push(database);
+    database
+      .version(1)
+      .stores({ documents: "&key, updatedAt", preferences: "&key" });
+    const settings = {
+      ...defaultViewerSettings(),
+      language,
+      distanceUnit: "kilometers",
+      timeFormat: "12-hour",
+      lastBackupAt: "2026-10-10T00:00:00Z",
+      futurePreference: "kept",
+    };
+    await database.table("preferences").put({ key: "viewer", settings });
+    const adapter = new BrowserStorageAdapter(name);
+    adapters.push(adapter);
+    const normalized = await adapter.loadSettings();
+    expect(normalized).toEqual({
+      ...settings,
+      language: language === "en-GB" ? "en-GB" : "en-US",
+    });
+    expect(
+      (await database.table("preferences").get("viewer")).settings,
+    ).toEqual(settings);
+    await adapter.saveSettings(normalized!);
+    expect(await adapter.loadSettings()).toEqual(normalized);
+    expect(await adapter.loadDocument()).toEqual({ status: "empty" });
+  },
+);
