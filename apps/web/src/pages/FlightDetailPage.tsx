@@ -319,13 +319,17 @@ export function FlightDetailPage({
     const hero = heroRef.current;
     if (!showDesktopMap || !hero) return;
 
-    // Notices (including the Demo banner) and a wrapped header consume actual
-    // first-screen space. Measure their resulting document offset, not a fixed
-    // banner height, and keep scrolling independent of this calculation.
+    // Measure only the optional notices. Header/page insets stay in CSS so a
+    // breakpoint change cannot reuse an offset from the previous layout mode.
     const update = () => {
-      const start = `${hero.getBoundingClientRect().top + window.scrollY}px`;
-      if (hero.style.getPropertyValue("--detail-hero-start") !== start)
-        hero.style.setProperty("--detail-hero-start", start);
+      const notices = hero
+        .closest(".app-shell")
+        ?.querySelector<HTMLElement>(".page-notices");
+      const height = `${notices?.getBoundingClientRect().height ?? 0}px`;
+      if (
+        hero.style.getPropertyValue("--detail-hero-notices-height") !== height
+      )
+        hero.style.setProperty("--detail-hero-notices-height", height);
     };
     update();
 
@@ -341,7 +345,7 @@ export function FlightDetailPage({
       observer.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", schedule);
-      hero.style.removeProperty("--detail-hero-start");
+      hero.style.removeProperty("--detail-hero-notices-height");
     };
   }, [showDesktopMap]);
 
