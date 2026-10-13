@@ -186,7 +186,7 @@ export function SettingsPage({
   }
 
   return (
-    <PageShell className="settings-page">
+    <PageShell className="settings-page settings-compact">
       <div className="settings-content">
         <header className="settings-page-heading">
           <h1>{t("nav.settings")}</h1>
@@ -277,14 +277,23 @@ export function SettingsPage({
                 </select>
               </label>
               <label className="settings-row">
-                <span className="settings-row-label">
-                  {t("settings.solarMode")}
+                <span className="settings-row-copy">
+                  <span
+                    className="settings-row-label"
+                    id="settings-solar-label"
+                  >
+                    {t("settings.solarMode")}
+                  </span>
+                  <small id="settings-solar-hint">
+                    {t("settings.solarModeHint")}
+                  </small>
                 </span>
                 <select
                   className="settings-row-control"
                   value={settings.solarMode}
                   title={t("settings.solarModeHint")}
-                  aria-description={t("settings.solarModeHint")}
+                  aria-labelledby="settings-solar-label"
+                  aria-describedby="settings-solar-hint"
                   onChange={(event) =>
                     updateSetting(
                       "solarMode",
@@ -393,9 +402,6 @@ export function SettingsPage({
               <p className="settings-helper">
                 {t("settings.frequentFlyerDescription")}
               </p>
-              <p className="settings-helper settings-membership-mobile-note">
-                {t("settings.frequentFlyerDesktopNote")}
-              </p>
               {memberships.map((membership) => {
                 const programName =
                   frequentFlyerProgramName(membership, settings.language) ||
@@ -408,29 +414,33 @@ export function SettingsPage({
                   >
                     <div className="settings-membership-summary">
                       <div className="settings-membership-summary-copy">
-                        <strong>{programName}</strong>
-                        <span>
-                          {t("settings.memberNumberSummary", {
-                            number: maskMemberNumber(membership.memberNumber),
-                          })}
-                        </span>
-                        {membership.tier ? (
-                          <span>{membership.tier}</span>
-                        ) : null}
-                        <span>
-                          {t("settings.defaultAirlineSummary", {
-                            airline: membership.defaultAirline
-                              ? airlineOptionLabel(membership.defaultAirline)
-                              : t("settings.noDefaultAirline"),
-                          })}
-                        </span>
-                        {membership.associatedAirlines.length ? (
-                          <span className="settings-membership-airline-summary">
-                            {membership.associatedAirlines
-                              .map(airlineOptionLabel)
-                              .join(" · ")}
+                        <div className="settings-membership-identity">
+                          <strong>{programName}</strong>
+                          <span className="settings-membership-number">
+                            {t("settings.memberNumberSummary", {
+                              number: maskMemberNumber(membership.memberNumber),
+                            })}
                           </span>
-                        ) : null}
+                          {membership.tier ? (
+                            <span>{membership.tier}</span>
+                          ) : null}
+                        </div>
+                        <div className="settings-membership-airline-summary">
+                          <span>
+                            {t("settings.defaultAirlineSummary", {
+                              airline: membership.defaultAirline
+                                ? airlineOptionLabel(membership.defaultAirline)
+                                : t("settings.noDefaultAirline"),
+                            })}
+                          </span>
+                          {membership.associatedAirlines.length > 1 ? (
+                            <span>
+                              {membership.associatedAirlines
+                                .map(airlineOptionLabel)
+                                .join(" · ")}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                       <button
                         className="button-secondary settings-membership-edit"

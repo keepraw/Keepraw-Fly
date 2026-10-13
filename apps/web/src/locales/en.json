@@ -555,7 +555,6 @@
     "powerUserMode": "Power User Mode",
     "powerUserDescription": "Enable only if you understand the Keepraw Fly data model.",
     "advancedPlaceholder": "Advanced editing is reserved for a future release. No raw editor is enabled yet.",
-    "frequentFlyerDesktopNote": "Frequent flyer profiles can be edited on desktop.",
     "editMembership": "Edit",
     "collapseMembership": "Collapse",
     "memberNumberSummary": "Member number {{number}}",
@@ -563,7 +562,7 @@
     "solarMode": "Solar illumination",
     "solarFixed": "Fixed Sun",
     "solarRealtime": "Real-time Sun",
-    "solarModeHint": "Fixed Sun uses the approved cinematic direction. Real-time Sun follows the current UTC day and night. Applies to Globe Lab now and the future 3D globe."
+    "solarModeHint": "Fixed Sun keeps the lighting consistent. Real-time Sun follows the current UTC day and night."
   },
   "recovery": {
     "title": "We couldn't open your local archive",

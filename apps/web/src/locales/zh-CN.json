@@ -531,7 +531,6 @@
     "powerUserMode": "高级用户模式",
     "powerUserDescription": "仅在了解 Keepraw Fly 数据模型时启用。",
     "advancedPlaceholder": "高级编辑功能预留至未来版本，当前不会启用原始 JSON 编辑器。",
-    "frequentFlyerDesktopNote": "常旅客资料可在桌面端编辑。",
     "editMembership": "编辑",
     "collapseMembership": "收起",
     "memberNumberSummary": "会员号 {{number}}",
@@ -539,7 +538,7 @@
     "solarMode": "太阳光照",
     "solarFixed": "固定太阳",
     "solarRealtime": "真实太阳（实时）",
-    "solarModeHint": "固定太阳使用已批准的电影感光照方向；真实太阳按当前 UTC 时间呈现昼夜。当前用于地球实验室，并为未来的三维地球保留偏好。"
+    "solarModeHint": "固定太阳保持一致的光照；真实太阳按当前 UTC 时间呈现昼夜变化。"
   },
   "recovery": {
     "title": "无法打开本地飞行档案",
