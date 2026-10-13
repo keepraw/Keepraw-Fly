@@ -206,7 +206,10 @@
         var(--detail-page-start, 36px) - env(safe-area-inset-top)
     );
     min-height: min-content;
-    grid-template-rows: minmax(0, 1fr);
+
+    /* Preserve the information's content minimum so centering cannot push it
+       above the Hero row when the viewport is shorter than the flight details. */
+    grid-template-rows: minmax(auto, 1fr);
     padding-block: var(--detail-hero-gutter);
   }
 
