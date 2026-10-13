@@ -3,6 +3,8 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -298,6 +300,7 @@ export function FlightDetailPage({
   solarMode,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
+  const heroRef = useRef<HTMLDivElement>(null);
   const [showDesktopMap, setShowDesktopMap] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -311,6 +314,41 @@ export function FlightDetailPage({
     update();
     return () => media.removeEventListener("change", update);
   }, []);
+
+  useLayoutEffect(() => {
+    const hero = heroRef.current;
+    if (!showDesktopMap || !hero) return;
+
+    // Measure only the optional notices. Header/page insets stay in CSS so a
+    // breakpoint change cannot reuse an offset from the previous layout mode.
+    const update = () => {
+      const notices = hero
+        .closest(".app-shell")
+        ?.querySelector<HTMLElement>(".page-notices");
+      const height = `${notices?.getBoundingClientRect().height ?? 0}px`;
+      if (
+        hero.style.getPropertyValue("--detail-hero-notices-height") !== height
+      )
+        hero.style.setProperty("--detail-hero-notices-height", height);
+    };
+    update();
+
+    let frame = 0;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(hero.closest(".app-shell") ?? hero);
+    window.addEventListener("resize", schedule);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      hero.style.removeProperty("--detail-hero-notices-height");
+    };
+  }, [showDesktopMap]);
+
   const origin = airportByIata.get(flight.origin.iata);
   const actualDestination = airportByIata.get(
     flight.divertedTo?.iata ?? flight.destination.iata,
@@ -366,7 +404,7 @@ export function FlightDetailPage({
         className="detail-flight-card"
         aria-labelledby="flight-detail-title"
       >
-        <div className="detail-hero-grid">
+        <div className="detail-hero-grid" ref={heroRef}>
           <div className="detail-hero-information">
             <header className="detail-heading">
               <div className="detail-heading-identity">

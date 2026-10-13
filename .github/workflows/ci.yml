@@ -68,13 +68,13 @@ jobs:
 
   chromium:
     runs-on: ubuntu-latest
-    # The expanded Hero screenshot matrix needs time for tests and artifact upload.
-    # Individual test timeouts and the no-failure/no-flaky gate remain unchanged.
+    # Spread the full regression and Hero screenshot matrices across runners.
+    # Keep one worker per runner and preserve all test/job timeouts and gates.
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        shard: [1, 2, 3, 4, 5, 6]
 
     steps:
       - name: Check out repository
@@ -98,7 +98,7 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run full Chromium regression journeys
-        run: pnpm test:e2e --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --reporter=list,html,json
+        run: pnpm test:e2e --project=chromium --workers=1 --shard=${{ matrix.shard }}/6 --reporter=list,html,json
 
       - name: Summarize Chromium results
         if: always()
