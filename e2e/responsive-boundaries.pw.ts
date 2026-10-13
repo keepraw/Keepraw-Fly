@@ -161,13 +161,6 @@ test(
     await expect(page.locator(".flight-row")).toHaveCount(1);
 
     await test.step("Passport: 760→761→760→761 updates CSS and map/highlights DOM without losing search", async () => {
-      await openSettingsCategory(page, "Profile");
-      const nativeName = page.getByRole("textbox", {
-        name: "Native name",
-        exact: true,
-      });
-      await nativeName.fill("Boundary profile");
-      const profileInput = await nativeName.elementHandle();
       for (const width of [760, 761, 760, 761]) {
         await page.setViewportSize({ width, height: 900 });
         await expectShell(page, width === 760, "passport");

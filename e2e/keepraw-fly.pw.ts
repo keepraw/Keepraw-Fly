@@ -1064,6 +1064,13 @@ test.describe("Chinese distance defaults", () => {
       )
       .toBe("miles");
     await page.reload();
+    // The archive and preferences persist; the selected Detail is session state.
+    await expect(page.locator(".demo-banner")).toBeVisible();
+    await expect(page.locator(".passport-legend")).toContainText("英里");
+    await page
+      .getByRole("button", { name: /Open |打开 |打開 / })
+      .first()
+      .click();
     await expect(page.locator(".detail-segment-meta")).toContainText("英里");
     await page.goto("/#settings");
     await expect(distanceSelect).toHaveValue("miles");
