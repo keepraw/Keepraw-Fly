@@ -1,4 +1,4 @@
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { importArchive } from "./helpers/responsive";
 
 async function open(page: Page) {
@@ -19,16 +19,10 @@ async function open(page: Page) {
   );
 }
 
-async function capture(page: Page, info: TestInfo, name: string) {
-  const path = info.outputPath(`${name}.png`);
-  await page.screenshot({ path, fullPage: true });
-  await info.attach(name, { path, contentType: "image/png" });
-}
-
 test(
   "Detail space fades independently and desktop controls follow hover, keyboard and reduced motion",
   { tag: "@cross-browser" },
-  async ({ page }, info) => {
+  async ({ page }) => {
     test.setTimeout(90_000);
     await open(page);
     const frame = page.locator(".detail-globe-frame");
@@ -76,7 +70,6 @@ test(
         },
       ),
     ).toBe(false);
-    await capture(page, info, "detail-controls-default");
 
     // The sky is a Hero sibling and extends beyond the canvas toward the page
     // edge. Its *outer* perimeter, not the canvas corners, must meet the page.
@@ -173,7 +166,6 @@ test(
     await frame.hover({ position: { x: 12, y: 12 } });
     await expect(controls).toHaveCSS("opacity", "1");
     await expect(controls).toHaveCSS("pointer-events", "auto");
-    await capture(page, info, "detail-controls-hover");
     await page.mouse.move(0, 0);
     await expect(controls).toHaveCSS("opacity", "0");
 
@@ -186,7 +178,6 @@ test(
     await expect(buttons.first()).toBeFocused();
     await expect(buttons.first()).toHaveCSS("outline-style", "solid");
     await expect(controls).toHaveCSS("opacity", "1");
-    await capture(page, info, "detail-controls-keyboard-focus");
     const distance = () =>
       frame
         .locator(".globe-host")
@@ -246,7 +237,7 @@ test.describe("Detail touch controls", () => {
   test(
     "no-hover devices retain discoverable, working controls",
     { tag: "@cross-browser" },
-    async ({ page }, info) => {
+    async ({ page }) => {
       test.setTimeout(60_000);
       await open(page);
       expect(
@@ -256,7 +247,6 @@ test.describe("Detail touch controls", () => {
       const controls = frame.locator(".globe-controls");
       await expect(controls).toHaveCSS("opacity", "1");
       await expect(controls).toHaveCSS("pointer-events", "auto");
-      await capture(page, info, "detail-controls-touch");
       const distance = () =>
         frame
           .locator(".globe-host")

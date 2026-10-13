@@ -2,7 +2,7 @@ import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 import { expect, test, type Page } from "@playwright/test";
-import { mkdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
 // Layout fixtures use airport identities from the bundled offline directory.
@@ -69,7 +69,6 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     ),
   );
   await importFlights(page, flights);
-  await mkdir("test-results/map-visibility", { recursive: true });
 
   for (const theme of ["light", "dark"]) {
     await context.setOffline(false);
@@ -170,12 +169,6 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     expect(frequent.contrast).toBeGreaterThan(single.contrast);
     expect(frequent.color).not.toBe(single.color);
     await page.locator("#passport-flight-search").focus();
-    await page
-      .locator(".route-map")
-      .screenshot({ path: `test-results/map-visibility/routes-${theme}.png` });
-    await page.screenshot({
-      path: `test-results/map-visibility/passport-${theme}-1440.png`,
-    });
 
     // Row hover retains a clear network, including routes flown just once.
     await page
@@ -246,7 +239,6 @@ test("keeps international title words whole at 390px across locales with the Det
       flight(origin!, destination!, index),
     ),
   );
-  await mkdir("test-results/title-wrapping", { recursive: true });
 
   for (const locale of ["en", "zh-CN", "zh-TW"]) {
     await page.goto("/#settings");
@@ -309,9 +301,6 @@ test("keeps international title words whole at 390px across locales with the Det
       expect(layout.textWrap).toBe("balance");
       if (locale === "en" && pairs[index]![0] === "KUL")
         expect(layout.lineCount).toBeGreaterThan(1);
-      await page.screenshot({
-        path: `test-results/title-wrapping/${locale}-${pairs[index]!.join("-")}-390.png`,
-      });
       if (index === 0) {
         await page.setViewportSize({ width: 1440, height: 900 });
         await expect(title).toHaveCSS("font-size", "34px");
@@ -326,9 +315,6 @@ test("keeps international title words whole at 390px across locales with the Det
         expect(Math.abs(desktop.lineHeight - 34 * 1.2)).toBeLessThan(0.02);
         expect(desktop.textWrap).toBe("balance");
         expect(desktop.fits).toBe(true);
-        await page.screenshot({
-          path: `test-results/title-wrapping/${locale}-HKG-BOM-1440.png`,
-        });
         await page.setViewportSize({ width: 390, height: 844 });
         await expect(title).toHaveCSS("text-wrap", "balance");
       }
