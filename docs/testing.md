@@ -15,21 +15,24 @@ pnpm test:e2e --list
 ```
 
 `pnpm test:e2e` runs all three projects with their respective layers. CI runs
-static checks and the production build in `checks`, two file-level Chromium shards
+static checks and the production build in `checks`, six Chromium shards
 in `chromium`, and the existing Firefox/WebKit matrix in `cross-browser`. Both
 matrices keep `fail-fast: false`. Browser jobs use `--workers=1`; retries and
 `fullyParallel: false` remain unchanged. Each Chromium shard uses
-`--shard=1/2` or `--shard=2/2`; their disjoint union must include every Chromium test.
+`--shard=N/6` for N from 1 to 6; their disjoint union must include every Chromium
+test. This separates the expanded Hero screenshot matrix from the other large
+regression journeys while retaining the 20-minute job limit.
 
 The existing check name `verify` is an aggregate gate with `always()`: every
-static, Chromium and cross-browser dependency must succeed, including both entries
-of each matrix. A failed, cancelled or skipped dependency fails the gate. The
+static, Chromium and cross-browser dependency must succeed, including all six
+Chromium shards and both compatibility engines. A failed, cancelled or skipped
+dependency fails the gate. The
 paused `deploy` job depends on all validation jobs and retains `if: ${{ false }}`.
 Do not change repository Required Checks or enable deployment as part of CI tuning.
 
 Every browser job uploads HTML/JSON reports and failure screenshots/retained traces,
-including on failure. Chromium artifacts are named `playwright-chromium-shard-1`
-and `playwright-chromium-shard-2`; mobile review screenshots also have shard-specific
+including on failure. Chromium artifacts are named `playwright-chromium-shard-N`
+for N from 1 to 6; mobile review screenshots also have shard-specific
 names. `scripts/report-playwright.mjs` adds counts, per-file test durations (including
 retries) and failure diagnostics to the job summary and a check annotation. It fails
 on skipped/unexpected tests, global errors or an empty report. Browser installation

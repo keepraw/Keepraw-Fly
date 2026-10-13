@@ -31,6 +31,22 @@ export function DetailGlobe({
   solarMode: SolarMode;
 }) {
   const { t } = useTranslation();
+  const [touchControls, setTouchControls] = useState(
+    () =>
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia("(any-pointer: coarse)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(any-pointer: coarse)");
+    // A touch-capable device keeps discoverable controls when a mouse becomes
+    // its primary pointer. Remember that capability across input-mode changes.
+    const update = () => {
+      if (media.matches || navigator.maxTouchPoints > 0) setTouchControls(true);
+    };
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, []);
   const [systemDark, setSystemDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
@@ -66,7 +82,11 @@ export function DetailGlobe({
           ))}
         </div>
       </div>
-      <div className="detail-route-map detail-globe-frame" data-theme={theme}>
+      <div
+        className="detail-route-map detail-globe-frame"
+        data-theme={theme}
+        data-touch-controls={touchControls ? "true" : undefined}
+      >
         {routes.length ? (
           <GlobeMap
             key={id}

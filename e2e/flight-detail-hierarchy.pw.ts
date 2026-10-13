@@ -151,6 +151,93 @@ async function expectTimeGrid(page: Page, width: number) {
   }
 }
 
+for (const appearance of ["light", "dark"] as const) {
+  test(`desktop Hero fits laptop and desktop screens / ${appearance}`, async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(120_000);
+    const errors = collectBrowserErrors(page);
+    await page.emulateMedia({
+      reducedMotion: "reduce",
+      colorScheme: appearance,
+    });
+    await page.addInitScript(
+      (theme) => localStorage.setItem("keepraw-fly-appearance", theme),
+      appearance,
+    );
+    await page.setViewportSize({ width: 390, height: 900 });
+    const flights = records.filter((record) =>
+      ["ca1831", "international", "diversion"].includes(record.id),
+    );
+    await importArchive(page, flights);
+    for (const flight of flights) {
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page
+        .locator(`.flight-record[data-flight-id="${flight.id}"] .flight-row`)
+        .click();
+      for (const [width, height] of [
+        [1366, 768],
+        [1440, 900],
+        [1920, 1080],
+      ]) {
+        await page.setViewportSize({ width, height });
+        const host = page.locator(".detail-globe-frame .globe-host");
+        await expect(host).toHaveAttribute("data-ready", "true", {
+          timeout: 25000,
+        });
+        await expectTimeGrid(page, width);
+        const geometry = await expectDetailHero(page, width);
+        expect(geometry.heroBottom).toBeCloseTo(height, 0);
+        expect(geometry.stops.bottom).toBeLessThanOrEqual(height);
+        const frame = page.locator(".detail-globe-frame");
+        await expect(frame).toHaveAttribute("data-theme", appearance);
+        await frame.hover({ position: { x: 12, y: 12 } });
+        const controls = frame.locator(".globe-controls");
+        await expect(controls).toHaveCSS("opacity", "1");
+        const box = (await controls.boundingBox())!;
+        expect(geometry.map!.right - box.x - box.width).toBeCloseTo(
+          Math.min(64, Math.max(24, width * 0.04)),
+          0,
+        );
+        expect(geometry.map!.bottom - box.y - box.height).toBeCloseTo(
+          Math.min(48, Math.max(24, height * 0.04)),
+          0,
+        );
+        // The controls must clear the physical atmosphere, not merely labels.
+        const viewport = (await host.boundingBox())!;
+        const atmosphereRadius = await host.evaluate((element) => {
+          const scene = JSON.parse((element as HTMLElement).dataset.scene!);
+          const distance = Math.hypot(...scene.camera);
+          return (
+            (1.026 * scene.viewport.height) /
+            (2 *
+              Math.sqrt(distance ** 2 - 1.026 ** 2) *
+              Math.tan((scene.fov * Math.PI) / 360))
+          );
+        });
+        const centerX = viewport.x + viewport.width / 2;
+        const centerY = viewport.y + viewport.height / 2;
+        const closestX = Math.max(box.x, Math.min(centerX, box.x + box.width));
+        const closestY = Math.max(box.y, Math.min(centerY, box.y + box.height));
+        expect(
+          Math.hypot(closestX - centerX, closestY - centerY),
+        ).toBeGreaterThan(atmosphereRadius + 4);
+        await expectHealthyPage(page, errors);
+        const path = testInfo.outputPath(
+          `${flight.flightNumber}-${width}x${height}.png`,
+        );
+        await page.screenshot({ path });
+        await testInfo.attach(`${flight.flightNumber} ${width}x${height}`, {
+          path,
+          contentType: "image/png",
+        });
+      }
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.locator(".detail-header-back").click();
+    }
+  });
+}
+
 for (const language of ["en", "zh-CN", "zh-TW"] as const) {
   for (const appearance of ["light", "dark", "system"] as const) {
     test(`detail hierarchy visual review: ${language} / ${appearance}`, async ({

@@ -28,6 +28,7 @@ export async function expectDetailHero(page: Page, width: number) {
   if (width >= 1200) await expect(map).toBeVisible();
   else await expect(map).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => window.scrollTo(0, 0));
   const geometry = await hero.evaluate((element) => {
     const bounds = (selector: string) => {
       const target = document.querySelector(selector);
@@ -49,7 +50,11 @@ export async function expectDetailHero(page: Page, width: number) {
       map: bounds(".detail-hero-grid > .detail-route-map"),
       shelf: bounds(".detail-flight-card > .detail-metadata-shelf"),
       card: bounds(".detail-flight-card")!,
+      hero: bounds(".detail-hero-grid")!,
       heroBottom: element.getBoundingClientRect().bottom,
+      heroPaddingTop: parseFloat(getComputedStyle(element).paddingTop),
+      heroPaddingBottom: parseFloat(getComputedStyle(element).paddingBottom),
+      viewportHeight: innerHeight,
       overflow: document.documentElement.scrollWidth - innerWidth,
     };
   });
@@ -60,16 +65,6 @@ export async function expectDetailHero(page: Page, width: number) {
     expect(map.width).toBeGreaterThan(0);
     expect(map.height).toBeGreaterThan(0);
     expect(map.x).toBeGreaterThan(geometry.information.right);
-    expect(Math.abs(map.top - geometry.heading.top)).toBeLessThanOrEqual(8);
-    const contentHeight = geometry.stops.bottom - geometry.heading.top;
-    if (contentHeight <= 640) {
-      expect(Math.abs(map.bottom - geometry.stops.bottom)).toBeLessThanOrEqual(
-        12,
-      );
-    } else {
-      // Exceptional content keeps reading in full; the Globe stops growing.
-      expect(map.height).toBeLessThanOrEqual(640);
-    }
     const ratio =
       geometry.information.width / (geometry.information.width + map.width);
     expect(ratio).toBeGreaterThanOrEqual(0.55);
@@ -89,6 +84,45 @@ export async function expectDetailHero(page: Page, width: number) {
       await expect(host).toHaveAttribute("data-ready", "true", {
         timeout: 25000,
       });
+      // The map fills the Hero row, independently of the information's height.
+      expect(map.top).toBeCloseTo(
+        geometry.hero.top + geometry.heroPaddingTop,
+        0,
+      );
+      expect(map.bottom).toBeCloseTo(
+        geometry.hero.bottom - geometry.heroPaddingBottom,
+        0,
+      );
+      const contentHeight = geometry.stops.bottom - geometry.heading.top;
+      const minimumHeight =
+        contentHeight + geometry.heroPaddingTop + geometry.heroPaddingBottom;
+      if (minimumHeight <= geometry.viewportHeight - geometry.hero.top) {
+        expect(geometry.heroBottom).toBeCloseTo(geometry.viewportHeight, 0);
+      }
+      // Keep exceptional information readable rather than clipping its end.
+      expect(geometry.heading.top).toBeGreaterThanOrEqual(map.top - 1);
+      expect(geometry.stops.bottom).toBeLessThanOrEqual(map.bottom + 1);
+      const viewport = (await host.boundingBox())!;
+      expect(viewport.height).toBeLessThanOrEqual(
+        Math.min(560, Math.max(360, geometry.viewportHeight * 0.52)) + 1,
+      );
+      expect(viewport.y + viewport.height / 2).toBeCloseTo(
+        map.top + map.height / 2,
+        0,
+      );
+      const labels = (await page
+        .locator(".detail-globe-frame .globe-labels")
+        .boundingBox())!;
+      expect(labels).toEqual(viewport);
+      await expect
+        .poll(() =>
+          host.evaluate(
+            (element) =>
+              JSON.parse((element as HTMLElement).dataset.scene!).viewport
+                .height - element.clientHeight,
+          ),
+        )
+        .toBe(0);
       // Verify the physical atmosphere fits inside the real rendering viewport.
       // This does not infer clipping from a stretched wrapper or a CSS mask.
       const atmosphereRatio = await host.evaluate((element) => {
@@ -102,6 +136,9 @@ export async function expectDetailHero(page: Page, width: number) {
         );
       });
       expect(atmosphereRatio).toBeLessThanOrEqual(0.98);
+    } else {
+      // Status-only views retain their compact layout and have no sky/viewport.
+      expect(Math.abs(map.top - geometry.heading.top)).toBeLessThanOrEqual(8);
     }
   } else {
     expect(geometry.map).toBeNull();
