@@ -168,7 +168,7 @@ test("manages associated airlines as searchable chips with a constrained default
   await expect(membership.locator(".airline-chip")).toHaveCount(2);
 });
 
-test("keeps grouped Settings readable and operable at desktop, tablet and mobile widths", async ({
+test("keeps grouped Settings readable and operable at desktop, tablet and mobile widths @cross-browser", async ({
   page,
 }) => {
   test.setTimeout(60_000);
@@ -284,8 +284,11 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
 
   for (const viewport of [
     { width: 1440, height: 900, name: "desktop-1440" },
+    { width: 1280, height: 900, name: "desktop-1280" },
     { width: 1024, height: 900, name: "tablet-1024" },
+    { width: 768, height: 900, name: "tablet-768" },
     { width: 390, height: 844, name: "mobile-390" },
+    { width: 320, height: 844, name: "mobile-320" },
   ]) {
     await page.setViewportSize({
       width: viewport.width,
@@ -318,6 +321,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
           width: bounds.width,
           height: bounds.height,
           top: bounds.top,
+          labelTop: label.top,
           labelBottom: label.bottom,
         };
       });
@@ -331,6 +335,12 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
           element.getBoundingClientRect().width,
       );
       const contentBounds = content.getBoundingClientRect();
+      const heading = document
+        .querySelector("#settings-display")!
+        .getBoundingClientRect();
+      const panel = document
+        .querySelector(".settings-display-fields")!
+        .getBoundingClientRect();
       return {
         fitsViewport:
           document.documentElement.scrollWidth <=
@@ -341,6 +351,27 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
           width: contentBounds.width,
         },
         controls,
+        categoryHeading: { right: heading.right, bottom: heading.bottom },
+        categoryPanel: { left: panel.left, top: panel.top },
+        categoriesAboveGroups: Array.from(
+          document.querySelectorAll(".settings-section"),
+        ).every((section) => {
+          const title = section
+            .querySelector(".settings-section-title")!
+            .getBoundingClientRect();
+          const group = section
+            .querySelector(".settings-panel")!
+            .getBoundingClientRect();
+          return (
+            title.bottom <= group.top && Math.abs(title.left - group.left) < 1
+          );
+        }),
+        basicRowHeights: controlElements
+          .slice(0, 4)
+          .map(
+            (element) =>
+              element.closest(".settings-row")!.getBoundingClientRect().height,
+          ),
         selectsVisible: Array.from(
           document.querySelectorAll<HTMLSelectElement>(
             ".settings-display-fields select",
@@ -396,24 +427,41 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         Math.min(...layout.controls.map((control) => control.width)),
     ).toBeLessThan(1);
     expect(layout.controls.every((control) => control.height >= 44)).toBe(true);
-    if (viewport.width === 1440) {
-      expect(layout.content.width).toBeGreaterThanOrEqual(960);
-      expect(layout.content.width).toBeLessThanOrEqual(1000);
+    expect(layout.categoriesAboveGroups).toBe(true);
+    if (viewport.width > 760) {
+      expect(layout.basicRowHeights.every((height) => height <= 64)).toBe(true);
+      expect(
+        layout.controls
+          .slice(0, 4)
+          .every(
+            (control) =>
+              Math.abs(
+                control.top +
+                  control.height / 2 -
+                  (control.labelTop + control.labelBottom) / 2,
+              ) < 1,
+          ),
+      ).toBe(true);
+    }
+    expect(layout.categoryHeading.bottom).toBeLessThanOrEqual(
+      layout.categoryPanel.top,
+    );
+    if (viewport.width >= 1280) {
+      expect(layout.content.width).toBeGreaterThanOrEqual(920);
+      expect(layout.content.width).toBeLessThanOrEqual(960);
       expect(
         Math.abs(layout.content.left - (viewport.width - layout.content.right)),
       ).toBeLessThan(1);
-      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(300);
-      expect(layout.controls[0]!.width).toBeLessThanOrEqual(320);
+      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(260);
+      expect(layout.controls[0]!.width).toBeLessThanOrEqual(280);
       await expect(page.locator(".settings-page-heading h1")).toBeVisible();
     }
-    if (viewport.width === 390) {
+    if (viewport.width <= 760) {
       expect(
         layout.controls.every((control) => control.top >= control.labelBottom),
       ).toBe(true);
       expect(layout.undersizedTouchTargets).toEqual([]);
-      await expect(
-        page.getByText("常旅客资料可在桌面端编辑。", { exact: true }),
-      ).toBeVisible();
+      expect(layout.membershipColumns).toBe(1);
       await expect(page.locator(".settings-membership-summary")).toContainText(
         "凤凰知音",
       );
@@ -425,12 +473,12 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       );
       await expect(
         page.locator(".settings-membership-editor-fields:visible"),
-      ).toHaveCount(0);
+      ).toHaveCount(1);
       await expect(
         page.locator(
           ".settings-membership-edit:visible, .settings-membership-add:visible, .membership-delete:visible",
         ),
-      ).toHaveCount(0);
+      ).toHaveCount(3);
     } else {
       expect(layout.membershipColumns).toBe(2);
     }
