@@ -47,7 +47,14 @@ export function loadTranslation(language: string): Promise<object> {
         ? undefined
         : await caches.open(cacheName).catch(() => undefined);
     const cached = await cache?.match(url).catch(() => undefined);
-    if (cached) return cached.json() as Promise<object>;
+    if (cached) {
+      try {
+        return (await cached.json()) as object;
+      } catch {
+        // A damaged optional cache must not poison every online retry.
+        await cache?.delete(url).catch(() => {});
+      }
+    }
     const response = await fetch(url);
     if (!response.ok) throw new Error("Locale resource unavailable");
     const resource = (await response.clone().json()) as object;
