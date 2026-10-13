@@ -97,7 +97,7 @@ const records: KeeprawFlight[] = [
   },
 ];
 
-// Geometry supports (and never replaces) the attached real-browser screenshots.
+// Assert time-label alignment and containment at every responsive boundary.
 async function expectTimeGrid(page: Page, width: number) {
   const informationWidth = (await page
     .locator(".detail-hero-information")
@@ -154,7 +154,7 @@ async function expectTimeGrid(page: Page, width: number) {
 for (const appearance of ["light", "dark"] as const) {
   test(`desktop Hero fits laptop and desktop screens / ${appearance}`, async ({
     page,
-  }, testInfo) => {
+  }) => {
     test.setTimeout(120_000);
     const errors = collectBrowserErrors(page);
     await page.emulateMedia({
@@ -223,14 +223,6 @@ for (const appearance of ["light", "dark"] as const) {
           Math.hypot(closestX - centerX, closestY - centerY),
         ).toBeGreaterThan(atmosphereRadius + 4);
         await expectHealthyPage(page, errors);
-        const path = testInfo.outputPath(
-          `${flight.flightNumber}-${width}x${height}.png`,
-        );
-        await page.screenshot({ path });
-        await testInfo.attach(`${flight.flightNumber} ${width}x${height}`, {
-          path,
-          contentType: "image/png",
-        });
       }
       await page.setViewportSize({ width: 390, height: 900 });
       await page.locator(".detail-header-back").click();
@@ -242,7 +234,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
   for (const appearance of ["light", "dark", "system"] as const) {
     test(`detail hierarchy visual review: ${language} / ${appearance}`, async ({
       page,
-    }, testInfo) => {
+    }) => {
       test.setTimeout(180_000);
       const errors = collectBrowserErrors(page);
       await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
@@ -308,11 +300,7 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
             await expect(label).toBeVisible();
         }
         await expectTimeGrid(page, width);
-        const heroGeometry = await expectDetailHero(page, width);
-        await testInfo.attach(`CA1831 Hero ${width}`, {
-          body: JSON.stringify(heroGeometry, null, 2),
-          contentType: "application/json",
-        });
+        await expectDetailHero(page, width);
         if (width >= 1200) {
           const stops = (await page.locator(".detail-stops").boundingBox())!;
           const map = (await page.locator(".detail-route-map").boundingBox())!;
@@ -322,37 +310,6 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           ).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
         }
         await expectHealthyPage(page, errors);
-        const path = testInfo.outputPath(`ca1831-${width}.png`);
-        await page.evaluate(() => document.fonts.ready);
-        await page.screenshot({ path, fullPage: true });
-        await testInfo.attach(`CA1831 ${width}`, {
-          path,
-          contentType: "image/png",
-        });
-        if (width === 1440 && language === "en" && appearance !== "system") {
-          // Review-only candidate B; restore A before continuing the matrix.
-          const frame = page.locator(".detail-hero-space");
-          await frame.evaluate((element) =>
-            (element as HTMLElement).style.setProperty(
-              "--detail-galaxy-opacity",
-              "0.9",
-            ),
-          );
-          try {
-            const candidate = testInfo.outputPath("ca1831-1440-galaxy-B.png");
-            await page.screenshot({ path: candidate, fullPage: true });
-            await testInfo.attach("CA1831 galaxy B", {
-              path: candidate,
-              contentType: "image/png",
-            });
-          } finally {
-            await frame.evaluate((element) =>
-              (element as HTMLElement).style.removeProperty(
-                "--detail-galaxy-opacity",
-              ),
-            );
-          }
-        }
       }
       if (appearance === "system") {
         await page.setViewportSize({ width: 1440, height: 900 });
@@ -361,10 +318,6 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           "data-theme",
           "light",
         );
-        await page.screenshot({
-          path: testInfo.outputPath("system-light-1440.png"),
-          fullPage: true,
-        });
         await page.emulateMedia({ colorScheme: "dark" });
         await expect(page.locator(".detail-globe-frame")).toHaveAttribute(
           "data-theme",
@@ -441,13 +394,6 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           await expectTimeGrid(page, width);
           await expectDetailHero(page, width);
           await expectHealthyPage(page, errors);
-          const path = testInfo.outputPath(`${record.id}-${width}.png`);
-          await page.evaluate(() => document.fonts.ready);
-          await page.screenshot({ path, fullPage: true });
-          await testInfo.attach(`${record.flightNumber} ${width}`, {
-            path,
-            contentType: "image/png",
-          });
         }
       }
     });

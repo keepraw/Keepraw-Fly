@@ -3,7 +3,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
 test("preserves desktop flight highlights and removes them only on mobile", async ({
@@ -126,8 +126,6 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await page.locator("#passport-flight-search").fill("SHA");
   await expect(page.locator(".flight-row")).toHaveCount(4);
   await page.locator("#passport-flight-search").fill("");
-
-  await mkdir("test-results/passport-legend", { recursive: true });
   for (const locale of ["en", "zh-CN", "zh-TW"]) {
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
@@ -181,10 +179,6 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
           await expect(page.locator(".passport-delay-panel")).toBeVisible();
           await expect(page.locator(".passport-network-panel")).toBeVisible();
         }
-        await page.screenshot({
-          path: `test-results/passport-legend/${locale}-${theme}-${width}.png`,
-          fullPage: true,
-        });
       }
       expect(
         (

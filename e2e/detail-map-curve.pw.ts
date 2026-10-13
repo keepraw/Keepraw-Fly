@@ -87,10 +87,6 @@ test("single actual route, Home, resize, pointer, wheel and keyboard controls", 
       )
       .toBe(0);
     await expectFramed(page, "SFO-LAX");
-    await page.screenshot({
-      path: `test-results/detail-globe-${width}.png`,
-      fullPage: true,
-    });
     await expect(page.locator(".globe-airport-label")).toHaveText([
       "LAX",
       "SFO",

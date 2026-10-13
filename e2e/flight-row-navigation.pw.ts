@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 for (const width of [1280, 390]) {
@@ -76,7 +75,6 @@ for (const width of [1280, 390]) {
         name: "Open UA123, SFO to LAX",
         exact: true,
       });
-      await mkdir("test-results/flight-row-navigation", { recursive: true });
       for (const theme of ["light", "dark"]) {
         await page.goto("/#settings");
         await page
@@ -95,10 +93,6 @@ for (const width of [1280, 390]) {
         expect(focus.visible).toBe(true);
         expect(focus.style).toBe("solid");
         expect(focus.width).toBeGreaterThanOrEqual(2);
-        await page.screenshot({
-          path: `test-results/flight-row-navigation/focus-${theme}-${width}.png`,
-          fullPage: true,
-        });
         await page.keyboard.press("Enter");
         await expect(page.locator(".detail-heading-eyebrow")).toContainText(
           "UA123",

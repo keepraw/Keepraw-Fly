@@ -3,7 +3,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 
 const viewports = [
@@ -33,8 +33,6 @@ for (const theme of ["light", "dark"]) {
     await expect(page.locator(".map-relief-texture:visible")).toHaveCount(1, {
       timeout: 20_000,
     });
-    await mkdir("test-results/desktop-review", { recursive: true });
-    const measurements: Record<string, number | boolean | string>[] = [];
 
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
@@ -94,7 +92,6 @@ for (const theme of ["light", "dark"]) {
           }),
         };
       });
-      measurements.push({ theme, ...viewport, ...geometry });
       expect(geometry.widthFits).toBe(true);
       expect(geometry.heightFits).toBe(true);
       expect(geometry.archiveWidth).toBeGreaterThanOrEqual(290);
@@ -126,9 +123,6 @@ for (const theme of ["light", "dark"]) {
       expect(geometry.mapAfterArchive).toBe(true);
       expect(geometry.reportBelowMap).toBe(true);
       expect(geometry.scrollportsFit).toBe(true);
-      await page.screenshot({
-        path: `test-results/desktop-review/${theme}-${viewport.width}x${viewport.height}.png`,
-      });
 
       const zoomIn = page.getByRole("button", { name: "Zoom in", exact: true });
       await zoomIn.scrollIntoViewIfNeeded();
@@ -159,10 +153,6 @@ for (const theme of ["light", "dark"]) {
       await expect(selected).toHaveCSS("outline-style", "solid");
       await page.locator(".passport-exploration-close").click();
     }
-    await writeFile(
-      `test-results/desktop-review/${theme}-dimensions.json`,
-      JSON.stringify(measurements, null, 2),
-    );
 
     await page.setViewportSize(viewports[0]!);
     await page.locator("#passport-flight-search").focus();
@@ -316,10 +306,6 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         await route.focus();
         await page.keyboard.press("Enter");
         await expect(page.locator(".flight-row.is-selected")).toBeFocused();
-        await mkdir("test-results/desktop-review", { recursive: true });
-        await page.screenshot({
-          path: `test-results/desktop-review/${distribution}-${theme}-${viewport.width}x${viewport.height}.png`,
-        });
         await page.locator(".passport-exploration-close").click();
       }
       await context.setOffline(false);
