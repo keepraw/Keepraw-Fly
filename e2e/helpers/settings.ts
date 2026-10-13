@@ -1,32 +1,41 @@
 import { expect, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { supportedLanguages } from "../../apps/web/src/locales/registry";
 
 // Canonical English names keep callers readable; activate the translated,
 // user-visible button in the current locale rather than a hidden section.
-const categoryNames: Record<string, Record<string, string>> = {
-  "zh-CN": {
-    General: "常规",
-    Profile: "个人资料",
-    "Frequent flyer profiles": "常旅客资料",
-    "Data and backup": "数据与备份",
-    Advanced: "高级",
-    "Danger zone": "危险操作",
-  },
-  "zh-TW": {
-    General: "常規",
-    Profile: "個人資料",
-    "Frequent flyer profiles": "常旅客資料",
-    "Data and backup": "數據與備份",
-    Advanced: "高級",
-    "Danger zone": "危險操作",
-  },
+const resources = Object.fromEntries(
+  supportedLanguages.map((language) => [
+    language,
+    JSON.parse(
+      readFileSync(
+        new URL(`../../apps/web/src/locales/${language}.json`, import.meta.url),
+        "utf8",
+      ),
+    ),
+  ]),
+);
+const categoryKeys: Record<string, string> = {
+  General: "general",
+  Profile: "profile",
+  "Frequent flyer profiles": "frequentFlyerProfiles",
+  "Data and backup": "dataAndBackup",
+  Advanced: "advanced",
+  "Danger zone": "dangerZone",
 };
 
 export async function openSettingsCategory(page: Page, name: string) {
   await expect(page.locator(".settings-page")).toBeVisible();
+  const selectedLanguage = await page
+    .locator("#settings-language")
+    .inputValue();
+  await expect(page.locator("html")).toHaveAttribute("lang", selectedLanguage);
   const language = (await page.locator("html").getAttribute("lang")) ?? "en";
-  name = categoryNames[language]?.[name] ?? name;
+  const resource = resources[language];
+  name = resource?.settings?.[categoryKeys[name] ?? ""] ?? name;
   const navigation = page.getByRole("navigation", {
-    name: /^(Settings|设置|設置)$/,
+    name: resource?.nav?.settings ?? "Settings",
+    exact: true,
   });
   const heading = page.getByRole("heading", { name, exact: true, level: 2 });
   const desktop = await page.evaluate(

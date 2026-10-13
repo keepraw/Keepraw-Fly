@@ -32,7 +32,7 @@ const colors = {
 };
 async function appearance(page: Page, value: string) {
   const navigation = page.getByRole("navigation", {
-    name: /^(Settings|设置|設置)$/,
+    name: /^(Settings|设置|設定)$/,
   });
   const previous = (await navigation.isVisible())
     ? await navigation.locator('[aria-current="true"]').textContent()

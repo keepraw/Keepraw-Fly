@@ -1,7 +1,7 @@
 import { createInstance } from "i18next";
 import { describe, expect, it } from "vitest";
 import { parseKeeprawFlyJson } from "@keepraw-fly/validator";
-import { i18nOptions, translations } from "../locales/resources";
+import { i18nOptions, translations } from "../locales/test-resources";
 import { supportedLanguages } from "../locales/registry";
 import { localizedValidationIssue } from "./import-messages";
 

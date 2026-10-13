@@ -570,7 +570,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     .getByRole("combobox", { name: "Language", exact: true })
     .selectOption("zh-TW");
   await expect(page.locator(".settings-section-title").first()).toHaveText(
-    "常規",
+    "一般",
   );
   // After resize/theme changes, audit the heading when it is reachable and
   // its actual text color has updated, including in WebKit.

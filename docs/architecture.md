@@ -65,8 +65,9 @@ state.
 
 ## Localization and reference data
 
-React text uses i18next keys for US English, UK English, Simplified Chinese and
-Traditional Chinese. Flight records contain IATA/ICAO identifiers rather than localized names.
+React text uses i18next keys for Simplified Chinese, Traditional Chinese (Taiwan),
+US English, UK English, Japanese, French, German, Spanish, Brazilian Portuguese
+and Korean. Flight records contain IATA/ICAO identifiers rather than localized names.
 Airport and airline names, coordinates and timezones live
 in replaceable Viewer reference data. Language, distance unit and time format
 are independent settings.
@@ -158,8 +159,26 @@ interpolation, nonempty strings and actual i18next fallback resolution. Literal
 singular wording may omit `count`; other parameters must match. A new full
 translation needs a registry entry and a resource entry; it must pass the same
 tests before appearing in Settings. Do not register unfinished translations.
-The Globe renderer and imagery remain lazy; its small text resources are bundled
-with the other UI strings so loading order cannot determine translation coverage.
+The Globe renderer and imagery remain lazy. Globe text is part of each locale's
+complete resource and is available before a language switch commits.
+
+US English is bundled as the startup and error fallback. Other resources are
+Vite URL imports emitted as separate, content-hashed static JSON files. The
+selected language loads on demand; the current interface remains usable until
+the entire resource is ready. A request sequence prevents stale switches from
+winning, and a failed fetch retains the current language with a localized retry.
+The native i18next backend delegates to the same loader, so standard
+`changeLanguage()` calls and cloned instances also load their own resources.
+CacheStorage is optional and caches translations by their content-hashed URL.
+Fifteen seconds after archive startup completes, other locales warm sequentially for offline
+switching; this background transfer is separate from the initial load. Uncached
+languages require a connection. Cache denial does not prevent online switching.
+No translation service is contacted by the application.
+
+Quantity placeholders use i18next's built-in `number` formatter while retaining
+their variable names and numeric plural counts. Years and identifiers are not
+grouped. Japanese and Korean use explicit system font stacks without downloads.
+See [locale terminology and review notes](i18n-locales.md).
 
 Chinese resources are maintained independently. `pnpm update:zh-tw` preserves
 all existing Traditional Chinese wording and adds only missing keys from OpenCC,

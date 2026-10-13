@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { createInstance } from "i18next";
 import { checkResource, flattenResource } from "./locales/check-resources";
-import { i18nOptions, translations } from "./locales/resources";
+import { i18nOptions, translations } from "./locales/test-resources";
 import { supportedLanguages } from "./locales/registry";
 import { describe, expect, it } from "vitest";
 import en from "./locales/en-US.json";
@@ -101,9 +101,9 @@ describe("i18n resources", () => {
   it.each(auditedSections)(
     "keeps %s keys aligned across all supported locales",
     (section) => {
-      const expected = Object.keys(en[section]).sort();
-      expect(Object.keys(zhCN[section]).sort()).toEqual(expected);
-      expect(Object.keys(zhTW[section]).sort()).toEqual(expected);
+      const expected = normalizedKeys(en[section]);
+      expect(normalizedKeys(zhCN[section])).toEqual(expected);
+      expect(normalizedKeys(zhTW[section])).toEqual(expected);
     },
   );
 
@@ -133,16 +133,74 @@ describe("i18n resources", () => {
 
   it("uses interpolation for delay, duration and distance labels", () => {
     for (const locale of [en, zhCN, zhTW]) {
-      expect(locale.flightDetail.earlyShort).toContain("{{count}}");
-      expect(locale.flightDetail.lateShort).toContain("{{count}}");
-      expect(locale.flightDetail.durationHoursMinutes).toContain("{{hours}}");
-      expect(locale.flightDetail.durationHoursMinutes).toContain("{{minutes}}");
+      expect(locale.flightDetail.earlyShort).toContain("{{count, number}}");
+      expect(locale.flightDetail.lateShort).toContain("{{count, number}}");
+      expect(locale.flightDetail.durationHoursMinutes).toContain(
+        "{{hours, number}}",
+      );
+      expect(locale.flightDetail.durationHoursMinutes).toContain(
+        "{{minutes, number}}",
+      );
       expect(locale.flightDetail.distanceMiles).toContain("{{value}}");
     }
   });
 });
 
 describe("complete released resources", () => {
+  it.each(["ja-JP", "fr-FR", "de-DE", "es", "pt-BR", "ko-KR"] as const)(
+    "rejects unreviewed English copies in %s",
+    (language) => {
+      const shared = [
+        "{{value}} km",
+        "{{value}} mi",
+        "{{distance}} km",
+        "{{countries}} · {{airports}} · {{airlines}} · {{types}}",
+      ];
+      const nativeShared: Record<string, string[]> = {
+        "ja-JP": [],
+        "ko-KR": [],
+        "fr-FR": [
+          "Destination",
+          "Destination IATA",
+          "Terminal",
+          "Distance",
+          "Miles",
+          "min",
+        ],
+        "de-DE": [
+          "Details",
+          "Route",
+          "Terminal",
+          "Gate",
+          "Highlights",
+          "Import",
+          "System",
+        ],
+        es: ["Terminal", "General", "min"],
+        "pt-BR": ["Terminal", "Backup", "min"],
+      };
+      const allowed = new Set([...shared, ...nativeShared[language]!]);
+      const base = flattenResource(en);
+      for (const [key, value] of flattenResource(translations[language])) {
+        if (value === base.get(key))
+          expect(allowed.has(value), `${language}: ${key}`).toBe(true);
+      }
+    },
+  );
+
+  it("uses British spelling consistently without duplicating the full English resource", async () => {
+    const instance = createInstance();
+    await instance.init({ ...i18nOptions, lng: "en-GB" });
+    for (const key of flattenResource(en).keys()) {
+      const logical = key.replace(/_(one|other|many|few|two|zero)$/, "");
+      expect(instance.t(logical, { count: 2 }), key).not.toMatch(
+        /\b(canceled|recognized|kilometers|romanized|program|license|normalized)\b/i,
+      );
+    }
+    expect(flattenResource(translations["en-GB"]).size).toBeLessThan(
+      flattenResource(en).size / 10,
+    );
+  });
   it.each(supportedLanguages)(
     "checks every recursive logical key and interpolation in %s",
     (language) => {
@@ -222,7 +280,7 @@ describe("complete released resources", () => {
       await instance.init({ ...i18nOptions, lng: language });
       for (const key of flattenResource(translations["en-US"]).keys()) {
         const logical = key.replace(/_(zero|one|two|few|many|other)$/, "");
-        for (const count of [0, 1, 2, 5, 21]) {
+        for (const count of [0, 1, 2, 5, 21, 1_000_000, 1.5]) {
           expect(instance.exists(logical, { count }), logical).toBe(true);
           const text = instance.t(logical, {
             count,
@@ -232,6 +290,12 @@ describe("complete released resources", () => {
           });
           expect(text, logical).not.toBe(logical);
           expect(text.trim(), logical).not.toBe("");
+          if (language !== "en-GB") {
+            const details = instance.t(logical, { count, returnDetails: true });
+            expect(details.usedLng, `${language}: ${logical}, ${count}`).toBe(
+              language,
+            );
+          }
         }
       }
       expect(instance.t("settings.kilometers")).toBe(
@@ -242,11 +306,35 @@ describe("complete released resources", () => {
     },
   );
 
+  it.each(supportedLanguages)(
+    "formats quantities without grouping years in %s",
+    async (language) => {
+      const instance = createInstance();
+      await instance.init({ ...i18nOptions, lng: language });
+      expect(instance.t("flights.count", { count: 12345 })).toContain(
+        new Intl.NumberFormat(language).format(12345),
+      );
+      expect(
+        instance.t("passport.scopeYear", { count: 12345, year: 2026 }),
+      ).toContain("2026");
+    },
+  );
+
+  it("keeps reviewed Taiwan terms distinct from Simplified Chinese", () => {
+    expect(zhTW.flightDetail.terminal).toBe("航廈");
+    expect(zhTW.flightDetail.gate).toBe("登機門");
+    expect(zhTW.nav.settings).toBe("設定");
+    expect(zhCN.flightDetail.terminal).toBe("航站楼");
+    expect(zhCN.flightDetail.gate).toBe("登机口");
+    for (const text of flattenResource(zhTW).values())
+      expect(text).not.toMatch(/航站樓|登機口|數據|設置|計劃|加載|信息/);
+  });
+
   it("falls back to en-US for missing British strings and unsupported languages", async () => {
     const instance = createInstance();
     await instance.init({ ...i18nOptions, lng: "en-GB" });
     expect(instance.t("app.loading")).toBe(en.app.loading);
-    await instance.changeLanguage("ja-JP");
+    await instance.changeLanguage("it-IT");
     expect(instance.t("app.loading")).toBe(en.app.loading);
   });
 
