@@ -942,7 +942,59 @@
   line-height: var(--type-leading-body);
 }
 
-/* Preferences scan as rows; memberships and actions retain their own layouts. */
+/* Category navigation and semantic settings; Recovery keeps its shared layout. */
+.settings-layout {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 180px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-6);
+}
+
+.settings-category-navigation {
+  position: sticky;
+  top: calc(var(--layout-header-height) + var(--space-5));
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.settings-category-navigation > button {
+  min-width: 0;
+  min-height: var(--control-height-md);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-inline-start: 2px solid transparent;
+  color: var(--muted);
+  background: transparent;
+  font-size: var(--type-size-body);
+  line-height: var(--type-leading-label);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.settings-category-navigation > button:hover {
+  color: var(--ink);
+  background: var(--green-soft);
+}
+
+.settings-category-navigation > button[aria-current="page"] {
+  border-inline-start-color: var(--green);
+  color: var(--ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.settings-category-content {
+  min-width: 0;
+  scroll-margin-top: calc(var(--layout-header-height) + var(--space-5));
+}
+
+@media (min-width: 761px) {
+  .settings-category-content .settings-section[data-active="false"] {
+    display: none;
+  }
+}
+
 .settings-information .settings-panel {
   border: 0;
   border-radius: 0;
@@ -973,15 +1025,16 @@
 }
 
 .settings-information .settings-preference {
-  min-height: var(--settings-row-height);
-  grid-template-columns: minmax(0, 1fr) minmax(0, var(--settings-control-width));
-  place-items: center stretch;
-  gap: var(--space-2) var(--space-5);
-  padding: var(--space-2) 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: start;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
 }
 
 .settings-preference + .settings-preference {
-  border-top: 1px solid var(--line);
+  margin-top: var(--space-4);
 }
 
 .settings-item-copy,
@@ -1065,7 +1118,7 @@
   display: grid;
   width: 100%;
   min-width: 0;
-  justify-items: end;
+  justify-items: start;
   gap: var(--space-3);
 }
 
@@ -1089,7 +1142,7 @@
   max-width: 100%;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: var(--space-2);
 }
 
@@ -1115,9 +1168,12 @@
 }
 
 @media (max-width: 760px) {
-  .settings-information .settings-preference {
-    min-height: 0;
-    grid-template-columns: minmax(0, 1fr);
+  .settings-layout {
+    display: block;
+  }
+
+  .settings-category-navigation {
+    display: none;
   }
 
   .settings-information .settings-item > .settings-row-control {
