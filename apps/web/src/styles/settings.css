@@ -978,7 +978,7 @@
   background: var(--green-soft);
 }
 
-.settings-category-navigation > button[aria-current="page"] {
+.settings-category-navigation > button[aria-current="true"] {
   border-inline-start-color: var(--green);
   color: var(--ink);
   font-weight: var(--font-weight-semibold);
