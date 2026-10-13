@@ -26,14 +26,19 @@ export async function openSettingsCategory(page: Page, name: string) {
   const language = (await page.locator("html").getAttribute("lang")) ?? "en";
   name = categoryNames[language]?.[name] ?? name;
   const navigation = page.getByRole("navigation", {
-    name: /^(Settings|设置|設定)$/,
+    name: /^(Settings|设置|設置)$/,
   });
   const heading = page.getByRole("heading", { name, exact: true, level: 2 });
-  if (await navigation.isVisible()) {
+  const desktop = await page.evaluate(
+    () => matchMedia("(min-width: 761px)").matches,
+  );
+  if (desktop) {
+    await expect(navigation).toBeVisible();
     const button = navigation.getByRole("button", { name, exact: true });
     await button.click();
     await expect(button).toHaveAttribute("aria-current", "true");
   } else {
+    await expect(navigation).toBeHidden();
     await heading.scrollIntoViewIfNeeded();
   }
   await expect(heading).toBeVisible();
