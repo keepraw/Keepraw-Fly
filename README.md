@@ -20,7 +20,7 @@ You can also [run locally](#run-locally) or [deploy your own instance](docs/depl
 - **Portable data:** export and migrate a validated Keepraw Fly JSON archive; preview JSON, Keepraw Fly CSV and Flighty CSV imports before writing.
 - **Frequent flyer profiles:** associate programs with multiple airlines and recorded flights.
 - **Local first:** flight history stays in browser storage; no account and no cloud flight-history backend.
-- **Designed across devices:** responsive desktop and mobile experiences in US/UK English, Simplified Chinese and Traditional Chinese.
+- **Designed across devices:** responsive desktop and mobile experiences in Simplified Chinese, Traditional Chinese (Taiwan), US/UK English, Japanese, French, German, Spanish, Brazilian Portuguese and Korean.
 
 ## Data and privacy
 
@@ -34,7 +34,8 @@ Airport, airline and map assets are bundled reference data, not a live flight-st
 
 Chinese UI fonts use MiSans / MiSans TC from the fixed `misans-webfont@4.3.1`
 jsDelivr distribution. Only Chinese locales request its CSS and needed WOFF2
-subsets; English retains the existing Inter/system stack. This third-party font
+subsets; Latin locales retain the Inter/system stack, while Japanese and Korean
+use system font fallbacks without additional downloads. This third-party font
 service receives normal resource-request metadata, but no flight records or
 archive contents. A failed font request falls back to system fonts.
 

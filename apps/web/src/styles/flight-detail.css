@@ -425,10 +425,10 @@
 }
 
 .detail-stop-facts > div {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 7px;
+  gap: 2px 7px;
 }
 
 .detail-stop-facts dt {
@@ -437,6 +437,7 @@
 
 .detail-stop-facts dd {
   margin: 0;
+  max-width: 100%;
   font-family: var(--font-family-data);
   font-weight: var(--font-weight-medium);
   overflow-wrap: anywhere;

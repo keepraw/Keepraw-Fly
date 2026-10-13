@@ -11,7 +11,10 @@ export function flattenResource(
     const path = prefix ? `${prefix}.${key}` : key;
     if (typeof value === "string") {
       if (!value.trim()) throw new Error(`Empty translation: ${path}`);
-      const withoutInterpolations = value.replace(/{{\s*\w+\s*}}/g, "");
+      const withoutInterpolations = value.replace(
+        /{{\s*\w+(?:,\s*number)?\s*}}/g,
+        "",
+      );
       if (/{{|}}/.test(withoutInterpolations))
         throw new Error(`Malformed interpolation: ${path}`);
       leaves.set(path, value);
@@ -29,7 +32,9 @@ function parameters(values: string[]): string {
   return [
     ...new Set(
       values.flatMap((value) =>
-        [...value.matchAll(/{{\s*(\w+)\s*}}/g)].map((match) => match[1]),
+        [...value.matchAll(/{{\s*(\w+)(?:,\s*number)?\s*}}/g)].map(
+          (match) => match[1],
+        ),
       ),
     ),
   ]

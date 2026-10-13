@@ -15,14 +15,22 @@ function fakeDocument() {
 }
 
 describe("Chinese webfonts", () => {
-  it.each(["en", "en-US", "en-GB", "ja-JP", "fr", "unknown"])(
-    "does not request Chinese fonts for %s",
-    (language) => {
-      const { document, links } = fakeDocument();
-      loadChineseWebfonts(language, document);
-      expect(links).toHaveLength(0);
-    },
-  );
+  it.each([
+    "en",
+    "en-US",
+    "en-GB",
+    "ja-JP",
+    "fr-FR",
+    "de-DE",
+    "es",
+    "pt-BR",
+    "ko-KR",
+    "unknown",
+  ])("does not request Chinese fonts for %s", (language) => {
+    const { document, links } = fakeDocument();
+    loadChineseWebfonts(language, document);
+    expect(links).toHaveLength(0);
+  });
   it.each([
     ["zh-CN", "misans/misans"],
     ["zh-TW", "misans-tc/misanstc"],

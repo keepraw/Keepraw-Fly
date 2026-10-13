@@ -14,32 +14,34 @@ import {
 } from "../src";
 
 describe("locale-neutral reference data and localized presentation", () => {
-  it.each(["en-US", "en-GB", "ja-JP", "fr-FR"])(
-    "falls back to English names in %s",
-    (locale) => {
-      const airport = airportByIata.get("TAO")!;
-      expect(localizedText(airport.city, locale)).toBe(airport.city.en);
-      expect(airlineNames(airlineByIata.get("CA")!, locale)[0]).toBe(
-        "Air China",
-      );
-      expect(
-        frequentFlyerProgramName(
-          {
-            id: "ff",
-            programId: "phoenixmiles",
-            memberNumber: "",
-            associatedAirlines: [],
-          },
-          locale,
-        ),
-      ).toBe("PhoenixMiles");
-      expect(
-        searchAirports("青岛", locale).some(
-          (airport) => airport.iata === "TAO",
-        ),
-      ).toBe(true);
-    },
-  );
+  it.each([
+    "en-US",
+    "en-GB",
+    "ja-JP",
+    "fr-FR",
+    "de-DE",
+    "es",
+    "pt-BR",
+    "ko-KR",
+  ])("falls back to English names in %s", (locale) => {
+    const airport = airportByIata.get("TAO")!;
+    expect(localizedText(airport.city, locale)).toBe(airport.city.en);
+    expect(airlineNames(airlineByIata.get("CA")!, locale)[0]).toBe("Air China");
+    expect(
+      frequentFlyerProgramName(
+        {
+          id: "ff",
+          programId: "phoenixmiles",
+          memberNumber: "",
+          associatedAirlines: [],
+        },
+        locale,
+      ),
+    ).toBe("PhoenixMiles");
+    expect(
+      searchAirports("青岛", locale).some((airport) => airport.iata === "TAO"),
+    ).toBe(true);
+  });
   it("supports partial future names and preserves Chinese suffix rules", () => {
     expect(localizedText({ en: "Tokyo", "ja-JP": "東京" }, "ja-JP")).toBe(
       "東京",
@@ -89,5 +91,15 @@ describe("locale-neutral reference data and localized presentation", () => {
     expect(formatDuration(64, "ar-u-nu-arab", { hour: "h", minute: "m" })).toBe(
       "١h ٤m",
     );
+  });
+  it.each([
+    ["ja-JP", "2時間 5分"],
+    ["fr-FR", "2 h 5 min"],
+    ["de-DE", "2 Std. 5 Min."],
+    ["es", "2 h 5 min"],
+    ["pt-BR", "2 h 5 min"],
+    ["ko-KR", "2시간 5분"],
+  ])("uses localized elapsed duration labels in %s", (language, expected) => {
+    expect(formatDuration(125, language)).toBe(expected);
   });
 });

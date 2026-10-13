@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -6,14 +7,25 @@ it("synchronizes HTML language and preserves explicit localized missing-key defa
   const document = { documentElement: { lang: "" } };
   vi.stubGlobal("document", document);
   vi.stubGlobal("navigator", {
-    languages: ["fr-FR", "en-GB"],
+    languages: ["it-IT", "en-GB"],
     language: "en-US",
   });
-  const { i18n } = await import("./i18n");
+  vi.stubGlobal("fetch", async (url: string) => {
+    const locale = /([a-z]{2}(?:-[A-Z]{2})?)\.json/.exec(url)![1];
+    return new Response(
+      readFileSync(
+        new URL(`./locales/${locale}.json`, import.meta.url),
+        "utf8",
+      ),
+    );
+  });
+  const { i18n, initialLanguageReady, changeUiLanguage } =
+    await import("./i18n");
+  await initialLanguageReady;
   expect(i18n.language).toBe("en-GB");
   expect(document.documentElement.lang).toBe("en-GB");
   expect(i18n.t("settings.kilometers")).toBe("Kilometres");
-  await i18n.changeLanguage("zh-TW");
+  await changeUiLanguage("zh-TW");
   expect(document.documentElement.lang).toBe("zh-TW");
   const generic = i18n.t("import.issueMessages.generic");
   expect(

@@ -9,7 +9,7 @@ const archive = JSON.parse(
   ),
 );
 const translations = Object.fromEntries(
-  ["en-US", "en-GB", "zh-CN", "zh-TW"].map((language) => [
+  supportedLanguages.map((language) => [
     language,
     JSON.parse(
       readFileSync(
@@ -74,7 +74,7 @@ test("browser language priority and Chinese script resolution @cross-browser", a
 }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "languages", {
-      get: () => ["ja-JP", "zh-Hant-HK", "en-GB"],
+      get: () => ["it-IT", "zh-Hant-HK", "en-GB"],
     });
     Object.defineProperty(navigator, "language", { get: () => "en-US" });
   });
@@ -125,7 +125,7 @@ test("legacy en migrates; English dialects persist while all archive facts and o
 test("unsupported saved language uses English without downloading Chinese fonts", async ({
   page,
 }) => {
-  await seed(page, "ja-JP");
+  await seed(page, "it-IT");
   await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
   await expect(page.locator("#settings-language")).toHaveValue("en-US");
   await expect(page.locator("link[data-chinese-webfont]")).toHaveCount(0);

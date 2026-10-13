@@ -51,6 +51,12 @@ const durationLabels: Record<string, DurationLabels> = {
   en: { hour: "h", minute: "m", padMinutes: true },
   "zh-CN": { hour: "小时", minute: "分" },
   "zh-TW": { hour: "小時", minute: "分" },
+  ja: { hour: "時間", minute: "分" },
+  fr: { hour: " h", minute: " min" },
+  de: { hour: " Std.", minute: " Min." },
+  es: { hour: " h", minute: " min" },
+  pt: { hour: " h", minute: " min" },
+  ko: { hour: "시간", minute: "분" },
 };
 
 export function formatDuration(

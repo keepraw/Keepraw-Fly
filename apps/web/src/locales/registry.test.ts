@@ -21,10 +21,17 @@ describe("locale resolution", () => {
     ["zh-Hant", "zh-TW"],
     ["zh-Hant-CN", "zh-TW"],
     ["zh-Hans-HK", "zh-CN"],
+    ["ja", "ja-JP"],
+    ["ja-JP", "ja-JP"],
+    ["fr-CA", "fr-FR"],
+    ["de-AT", "de-DE"],
+    ["es-MX", "es"],
+    ["pt-PT", "pt-BR"],
+    ["ko", "ko-KR"],
   ])("resolves %s as %s", (input, expected) => {
     expect(resolveLanguage(input)).toBe(expected);
   });
-  it.each(["ja-JP", "fr-FR", "xx-unknown", "en_US", "", null, undefined, 12])(
+  it.each(["it-IT", "xx-unknown", "en_US", "", null, undefined, 12])(
     "falls back safely for %s",
     (input) => {
       expect(resolveLanguage(input)).toBeUndefined();
@@ -34,13 +41,13 @@ describe("locale resolution", () => {
   it("uses the first supported navigator.languages entry before navigator.language", () => {
     expect(
       browserLanguage({
-        languages: ["fr-FR", "zh-Hant", "en-GB"],
+        languages: ["it-IT", "zh-Hant", "en-GB"],
         language: "en-US",
       }),
     ).toBe("zh-TW");
-    expect(browserLanguage({ languages: ["fr-FR"], language: "en-GB" })).toBe(
+    expect(browserLanguage({ languages: ["it-IT"], language: "en-GB" })).toBe(
       "en-GB",
     );
-    expect(browserLanguage({ languages: [], language: "ja-JP" })).toBe("en-US");
+    expect(browserLanguage({ languages: [], language: "it-IT" })).toBe("en-US");
   });
 });

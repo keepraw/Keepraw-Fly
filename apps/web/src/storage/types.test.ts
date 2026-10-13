@@ -26,7 +26,7 @@ describe("default viewer distance unit", () => {
 });
 
 describe("saved locale compatibility", () => {
-  it.each(["en", "zh-HK", "ja-JP"])(
+  it.each(["en", "zh-HK", "it-IT"])(
     "normalizes %s without losing preferences",
     (language) => {
       const stored = {
