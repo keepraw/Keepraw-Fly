@@ -150,10 +150,10 @@ Pages deployment workflow are modified by this review.
 - The approved six Globe Control screenshots, four Task 2C representatives
   and twelve Task 3 representatives are retained. The superseded 161 PNGs
   were removed by PR #36. See
-  [Task 4 screenshot cleanup](visual-review/CLEANUP-2026-10-10.md). The later
-  [post-Task A cleanup](visual-review/CLEANUP-2026-10-11.md) removed those
+  [Task 4 screenshot cleanup](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/CLEANUP-2026-10-10.md). The later
+  [post-Task A cleanup](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/CLEANUP-2026-10-11.md) removed those
   Task 2C and Task 3 representatives; only the six Globe baseline PNGs remain.
-- `docs/visual-review/task-3/SCREENSHOTS.md` and the resumed Task 2C
+- [Task 3 screenshot index](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-3/SCREENSHOTS.md) and the resumed Task 2C
   screenshot index were updated in PR #36. The original browser JSON
   manifests still contain historic screenshot identifiers, not promises
   that every file remains checked out.

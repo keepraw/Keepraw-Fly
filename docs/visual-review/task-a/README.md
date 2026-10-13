@@ -1,10 +1,10 @@
 # Task A — shared page theme evidence
 
-Historical PNGs were removed from the current tree during the [post-Task A cleanup](../CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
+Historical PNGs were removed from the current tree during the [post-Task A cleanup](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; original reports and capture metadata are archived at the linked revisions.
 
 The before captures use main `802c5d510d1e4c96633a4259e58fccb0fb83522b`.
 The after source revision is recorded separately for every image in
-[after/manifest.json](after/manifest.json). These are real Chromium 153 screenshots,
+[after/manifest.json](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-a/after/manifest.json). These are real Chromium 153 screenshots,
 with the real application and its demo archive, English UI, device scale factor 1,
 reduced motion, and the clock fixed at `2026-10-11T12:00:00Z`. The desktop Passport
 uses the production WebGL Globe; the capture does not mock or replace its renderer.
@@ -39,7 +39,7 @@ colors, SVG fill/stroke, borders, outlines, typography, dimensions and visibilit
 
 ## Passport freeze check
 
-[Comparison measurements](passport-comparison.json) contain exact pixel counts and
+[Comparison measurements](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-a/passport-comparison.json) contain exact pixel counts and
 computed-style equality, with both source revisions. No Passport layout, renderer,
 statistics, selection or hover rules were changed. Palette declarations and their
 existing breakpoint differences were moved into the shared stylesheet. The Chinese
@@ -87,5 +87,5 @@ The automated zoom checks cover both CSS layout zoom and native Chromium profile
 zoom at 125%. The native check verifies `devicePixelRatio === 1.25` and exercises
 Detail, Settings and its confirmation at all seven widths in all three languages
 and both themes. Existing native Passport zoom tests are also retained. Physical
-devices and Owner visual approval remain manual checks. [Validation record](VALIDATION.md)
+devices and Owner visual approval remain manual checks. [Validation record](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-a/VALIDATION.md)
 lists exact commands, outcomes and any remaining failures.

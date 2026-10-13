@@ -1,6 +1,6 @@
 # Task 5A: mobile Passport palette review
 
-Historical PNGs were removed from the current tree during the [post-Task A cleanup](../visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
+Historical PNGs were removed from the current tree during the [post-Task A cleanup](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; reports and capture metadata remain local.
 
 Review baseline: `main` at `792e6295a645adca12bed5ba19118f50eda324c4`.
 This draft adapts the desktop Passport's cool blue-gray palette to the mobile
