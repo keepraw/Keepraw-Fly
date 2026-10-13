@@ -167,6 +167,8 @@ Vite URL imports emitted as separate, content-hashed static JSON files. The
 selected language loads on demand; the current interface remains usable until
 the entire resource is ready. A request sequence prevents stale switches from
 winning, and a failed fetch retains the current language with a localized retry.
+The native i18next backend delegates to the same loader, so standard
+`changeLanguage()` calls and cloned instances also load their own resources.
 CacheStorage is optional and caches translations by their content-hashed URL.
 Fifteen seconds after archive startup completes, other locales warm sequentially for offline
 switching; this background transfer is separate from the initial load. Uncached

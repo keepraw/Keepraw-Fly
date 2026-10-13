@@ -1,4 +1,5 @@
 import enUS from "./en-US.json";
+import type { BackendModule } from "i18next";
 import {
   localeRegistry,
   supportedLanguages,
@@ -14,6 +15,7 @@ export const resourceUrls = import.meta.glob<string>("./*.json", {
 
 export const i18nOptions = {
   resources: { "en-US": { translation: enUS } },
+  partialBundledLanguages: true,
   supportedLngs: supportedLanguages,
   load: "currentOnly" as const,
   fallbackLng: Object.fromEntries([
@@ -56,6 +58,19 @@ export function loadTranslation(language: string): Promise<object> {
   void request.catch(() => pending.delete(url));
   return request;
 }
+
+// The native API and cloned instances (including independently mounted Globe
+// modules) must use the same loader, not require the App's preload helper.
+export const localeBackend: BackendModule = {
+  type: "backend",
+  init() {},
+  read(language, _namespace, callback) {
+    void loadTranslation(language).then(
+      (resource) => callback(null, resource),
+      (error) => callback(error, false),
+    );
+  },
+};
 
 /** Warm unused locales after startup, sequentially, from same-origin static files. */
 export async function warmLocaleCache(): Promise<void> {

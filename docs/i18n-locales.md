@@ -73,6 +73,8 @@ does not change saved distance units, 12/24-hour preferences or flight archives.
 US English is the bundled fallback. Other locales are independent Vite static
 JSON assets loaded on demand and stored in optional CacheStorage. The current
 UI stays visible while a full resource loads; only the latest request commits.
+The native i18next backend uses the same loader for standard `changeLanguage()`
+calls and cloned instances, including independently mounted Globe modules.
 Load failure keeps that UI and presents a localized retry. Other locales warm
 sequentially 15 seconds after archive startup completes, so cached languages remain available for
 offline switching. A never-cached locale still requires a connection; browser
