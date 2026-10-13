@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expect, test, type Page } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -65,6 +66,7 @@ async function mockStorage(
   }, options);
   await page.goto("/#settings");
   await expect(page.locator(".settings-page")).toBeVisible();
+  await openSettingsCategory(page, "Data and backup");
 }
 
 for (const firstOutcome of ["declined", "failed"] as const) {
@@ -315,6 +317,7 @@ for (const locale of [
     page,
   }) => {
     await mockStorage(page);
+    await openSettingsCategory(page, "General");
     await page
       .getByRole("combobox", { name: "Language", exact: true })
       .selectOption(locale.language);
@@ -381,6 +384,7 @@ test(
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto("/#settings");
+    await openSettingsCategory(page, "Data and backup");
     const status = page.locator(".settings-storage-status");
     const settled =
       /^(Persistent storage enabled|Persistent storage can be requested|This browser does not support persistent storage requests|Unable to read persistent storage status)$/;

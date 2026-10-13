@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./settings";
 import { expectDetailGlobe } from "./detail-globe";
 import { expectDetailHero } from "./detail-hero";
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -271,11 +272,66 @@ export async function expectDetailLayout(page: Page) {
 }
 
 export async function expectSettingsLayout(page: Page, mobile: boolean) {
-  // Toggle rows intentionally retain two columns on mobile; use an ordinary row.
-  await expectColumns(
-    page
-      .getByRole("combobox", { name: "Appearance", exact: true })
-      .locator(".."),
-    mobile ? 1 : 2,
+  await openSettingsCategory(page, "General");
+  const navigation = page.getByRole("navigation", {
+    name: "Settings",
+    exact: true,
+  });
+  const sections = page.locator(
+    ".settings-category-content > .settings-sections > section",
   );
+  await expect(sections).toHaveCount(6);
+  await expect(page.locator(".settings-section:visible")).toHaveCount(
+    mobile ? 6 : 1,
+  );
+  if (mobile) {
+    await expect(navigation).toBeHidden();
+    await expect(page.locator(".settings-layout")).toHaveCSS(
+      "display",
+      "block",
+    );
+    await expect(page.locator(".settings-sections")).toHaveCSS(
+      "overflow-y",
+      "visible",
+    );
+  } else {
+    await expect(navigation).toBeVisible();
+    await expect(navigation.getByRole("button")).toHaveText([
+      "General",
+      "Profile",
+      "Frequent flyer profiles",
+      "Data and backup",
+      "Advanced",
+      "Danger zone",
+    ]);
+    await expect(navigation.locator('[aria-current="true"]')).toHaveCount(1);
+    await expect(
+      navigation.getByRole("button", { name: "General", exact: true }),
+    ).toHaveAttribute("aria-current", "true");
+    await expectColumns(page.locator(".settings-layout"), 2);
+    const navBox = await navigation.boundingBox();
+    const contentBox = await page
+      .locator(".settings-category-content")
+      .boundingBox();
+    expect(navBox!.x + navBox!.width).toBeLessThanOrEqual(contentBox!.x);
+  }
+  // The controls are compact single-column rows at both sides of 760/761.
+  const appearance = page.getByRole("combobox", {
+    name: "Appearance",
+    exact: true,
+  });
+  await expectColumns(
+    page.locator(".settings-preference").filter({ has: appearance }),
+    1,
+  );
+  await expectReachable(appearance);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    )
+    .toBeLessThanOrEqual(0);
 }

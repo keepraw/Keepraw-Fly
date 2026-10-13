@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -30,10 +31,19 @@ const colors = {
   },
 };
 async function appearance(page: Page, value: string) {
+  const navigation = page.getByRole("navigation", {
+    name: /^(Settings|设置|設定)$/,
+  });
+  const previous = (await navigation.isVisible())
+    ? await navigation.locator('[aria-current="true"]').textContent()
+    : null;
+  await openSettingsCategory(page, "General");
   await page
-    .locator(".settings-display-fields select")
-    .nth(1)
+    .getByRole("combobox", { name: /^(Appearance|外观|外觀)$/ })
     .selectOption(value);
+  // Theme changes must preserve expanded editors, queries and import previews
+  // even though desktop categories hide their controls while General is open.
+  if (previous) await openSettingsCategory(page, previous);
 }
 async function shell(page: Page, dark: boolean) {
   const palette = colors[dark ? "dark" : "light"];
@@ -89,7 +99,7 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1199, 1200, 1440]) {
         await shell(page, dark);
         await expect(page.locator(".settings-panel").first()).toHaveCSS(
           "background-color",
-          colors[dark ? "dark" : "light"].surface,
+          "rgba(0, 0, 0, 0)",
         );
         const control = page.locator(".settings-display-fields select").first();
         await control.focus();
@@ -162,6 +172,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.goto("/#settings");
     await appearance(page, theme);
     const palette = colors[theme];
+    await openSettingsCategory(page, "Frequent flyer profiles");
     await page
       .getByRole("button", { name: "Add frequent flyer program" })
       .click();
@@ -198,6 +209,7 @@ for (const theme of ["light", "dark"] as const) {
       palette.surface,
     );
     await airlines.press("Escape");
+    await openSettingsCategory(page, "Data and backup");
     const json = page.locator('#settings-import input[type="file"]');
     await json.setInputFiles("examples/basic.keepraw-fly.json");
     const preview = page.locator(".import-preview");
@@ -267,6 +279,7 @@ for (const theme of ["light", "dark"] as const) {
     expect(exported.frequentFlyerMemberships.at(-1).memberNumber).toBe(
       "KF-2026",
     );
+    await openSettingsCategory(page, "Danger zone");
     const clear = page.locator(".danger-action");
     for (const cancel of ["Escape", "button", "backdrop"] as const) {
       await clear.focus();
@@ -310,6 +323,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.reload();
     await expect(page.locator(".flight-row")).toHaveCount(12);
     await page.goto("/#settings");
+    await openSettingsCategory(page, "Frequent flyer profiles");
     await page.locator(".settings-membership-edit").last().click();
     await page.locator(".membership-delete").last().click();
     await expect(page.locator(".settings-membership")).toHaveCount(
@@ -325,6 +339,7 @@ test("Settings Portal follows live System; unrelated editor confirmations retain
   await page.getByRole("button", { name: "Try demo", exact: true }).click();
   await page.goto("/#settings");
   await appearance(page, "system");
+  await openSettingsCategory(page, "Danger zone");
   await page.locator(".danger-action").focus();
   await page.locator(".danger-action").press("Enter");
   const dialog = page.getByRole("alertdialog");
@@ -342,6 +357,7 @@ test("Settings Portal follows live System; unrelated editor confirmations retain
     );
   }
   await page.keyboard.press("Escape");
+  await openSettingsCategory(page, "Data and backup");
   await page
     .getByRole("button", { name: "Export Keepraw Fly JSON", exact: true })
     .click();
@@ -380,6 +396,7 @@ test("125% layout zoom and live 760/761px boundaries keep page state and control
         document.documentElement.style.zoom = "1.25";
       });
       await shell(page, theme === "dark");
+      await openSettingsCategory(page, "Danger zone");
       await page.locator(".danger-action").click();
       await expect(
         page.getByRole("alertdialog").getByRole("button").first(),
@@ -569,6 +586,7 @@ test("native 125% browser zoom keeps Detail and Settings themed and reachable ac
           await page.setViewportSize({ width, height: 1000 });
           expect(await page.evaluate(() => devicePixelRatio)).toBe(1.25);
           await shell(page, theme === "dark");
+          await openSettingsCategory(page, "Danger zone");
           await page.locator(".danger-action").focus();
           await page.locator(".danger-action").press("Enter");
           const dialog = page.getByRole("alertdialog");
