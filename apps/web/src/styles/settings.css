@@ -942,7 +942,7 @@
   line-height: var(--type-leading-body);
 }
 
-/* Settings information units; Recovery retains the shared form-row layout. */
+/* Preferences scan as rows; memberships and actions retain their own layouts. */
 .settings-information .settings-panel {
   border: 0;
   border-radius: 0;
@@ -953,9 +953,13 @@
 .settings-operations {
   display: grid;
   min-width: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: var(--space-5) var(--space-6);
+}
+
+.settings-item-list {
+  gap: 0;
 }
 
 .settings-item,
@@ -966,6 +970,18 @@
   align-content: start;
   justify-items: start;
   gap: var(--space-3);
+}
+
+.settings-information .settings-preference {
+  min-height: var(--settings-row-height);
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--settings-control-width));
+  place-items: center stretch;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-2) 0;
+}
+
+.settings-preference + .settings-preference {
+  border-top: 1px solid var(--line);
 }
 
 .settings-item-copy,
@@ -984,6 +1000,10 @@
   overflow-wrap: anywhere;
 }
 
+.settings-preference .settings-item-title {
+  font-weight: var(--font-weight-medium);
+}
+
 .settings-item-copy > p,
 .settings-operation-copy > p,
 .settings-operation-copy > small {
@@ -996,16 +1016,6 @@
 
 .settings-information .settings-item > .settings-row-control {
   width: min(100%, var(--settings-control-width));
-}
-
-.settings-item--wide,
-.settings-operation--storage {
-  grid-column: 1 / -1;
-}
-
-.settings-display-fields .settings-item--wide {
-  grid-template-columns: minmax(0, 1fr) minmax(0, var(--settings-control-width));
-  align-items: center;
 }
 
 .settings-item--toggle {
@@ -1055,7 +1065,7 @@
   display: grid;
   width: 100%;
   min-width: 0;
-  justify-items: start;
+  justify-items: end;
   gap: var(--space-3);
 }
 
@@ -1079,6 +1089,7 @@
   max-width: 100%;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-2);
 }
 
@@ -1094,11 +1105,6 @@
   border: 1px solid var(--color-line-strong);
 }
 
-/* Give transient validation and column mapping the full content width. */
-.settings-operations:has(.import-preview, .csv-preview, .csv-import-error) {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .settings-information .settings-danger-zone .settings-section-title {
   color: var(--red);
 }
@@ -1109,9 +1115,8 @@
 }
 
 @media (max-width: 760px) {
-  .settings-item-list,
-  .settings-operations,
-  .settings-display-fields .settings-item--wide {
+  .settings-information .settings-preference {
+    min-height: 0;
     grid-template-columns: minmax(0, 1fr);
   }
 
