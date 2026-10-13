@@ -32,6 +32,8 @@ import {
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
 import { applyAppearance, initialAppearance } from "./appearance";
+import { changeUiLanguage } from "./i18n";
+import { warmLocaleCache } from "./locales/resources";
 import {
   frequentFlyerMemberships,
   recentAirportCodes,
@@ -68,6 +70,8 @@ export function App() {
   }));
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
+  const [languageLoadError, setLanguageLoadError] = useState(false);
+  const [languageRetry, setLanguageRetry] = useState(0);
   const [documentPersistence, setDocumentPersistence] =
     useState<PersistenceState>({ status: "idle" });
   const [settingsPersistence, setSettingsPersistence] =
@@ -105,7 +109,7 @@ export function App() {
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
   const editorReturnFocusRef = useRef<HTMLElement | null>(null);
 
-  const locale = useMemo(() => settings.language, [settings.language]);
+  const locale = i18n.language;
   const selectedFlight = useMemo(
     () => flightById(document, selectedFlightId),
     [document, selectedFlightId],
@@ -235,9 +239,26 @@ export function App() {
   }
 
   useEffect(() => {
-    void i18n.changeLanguage(settings.language);
+    let active = true;
+    setLanguageLoadError(false);
+    void changeUiLanguage(settings.language).catch(() => {
+      if (active) setLanguageLoadError(true);
+    });
     if (loaded) loadChineseWebfonts(settings.language, window.document);
-  }, [i18n, settings.language, loaded]);
+    return () => {
+      active = false;
+    };
+  }, [settings.language, loaded, languageRetry]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    // Do not compete with a slow airport/archive startup. StrictMode cleanup
+    // also prevents duplicate background timers.
+    const timer = window.setTimeout(() => {
+      void warmLocaleCache();
+    }, 15_000);
+    return () => window.clearTimeout(timer);
+  }, [loaded]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -475,6 +496,18 @@ export function App() {
           ? t("actions.saving")
           : null}
       </div>
+      {languageLoadError ? (
+        <div className="page-notices" role="alert">
+          <span>{t("app.languageLoadFailed")}</span>
+          <button
+            type="button"
+            className="button-secondary"
+            onClick={() => setLanguageRetry((value) => value + 1)}
+          >
+            {t("actions.retry")}
+          </button>
+        </div>
+      ) : null}
       {storageError ||
       documentPersistence.status === "error" ||
       settingsPersistence.status === "error" ||

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
+import { supportedLanguages } from "../apps/web/src/locales/registry";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { importArchive } from "./helpers/responsive";
 import {
@@ -23,6 +24,18 @@ const englishGlobeMessages: {
     "utf8",
   ),
 ).globe;
+
+const keyboardMessages = Object.fromEntries(
+  supportedLanguages.map((language) => [
+    language,
+    JSON.parse(
+      readFileSync(
+        new URL(`../apps/web/src/locales/${language}.json`, import.meta.url),
+        "utf8",
+      ),
+    ).globe?.keyboard,
+  ]),
+);
 
 const flight: KeeprawFlight = {
   id: "detail",
@@ -667,6 +680,8 @@ test("StrictMode, visibility and page navigation release contexts and observers 
 test("mounted prop and language updates preserve camera and canvas; a new flight reframes", async ({
   page,
 }) => {
+  // All ten released languages now exercise the same mounted renderer.
+  test.setTimeout(60_000);
   await open(page, [flight], false);
   await page.goto("/#settings");
   await page.setViewportSize({ width: 1200, height: 900 });
@@ -726,7 +741,10 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
   await page.evaluate(() => {
     (window as any).savedCanvas = document.querySelector("canvas");
   });
-  for (const language of ["zh-CN", "zh-TW", "en-US"]) {
+  for (const language of [
+    ...supportedLanguages.filter((language) => language !== "en-US"),
+    "en-US",
+  ]) {
     await page.evaluate(
       async ({ record, language }) => {
         (window as any).renderDetail({
@@ -754,11 +772,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
     ).toBe(true);
     await expect(page.locator("canvas")).toHaveAttribute(
       "aria-label",
-      language === "en-US"
-        ? /Drag to rotate/
-        : language === "zh-CN"
-          ? /拖动旋转/
-          : /拖曳旋轉/,
+      keyboardMessages[language] ?? keyboardMessages["en-US"],
     );
   }
   await page.locator(".globe-airport-label").filter({ hasText: "SFO" }).click();

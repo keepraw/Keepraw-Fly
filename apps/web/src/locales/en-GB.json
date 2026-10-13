@@ -12,7 +12,10 @@
     "sampleRecords": "Recognised records"
   },
   "flightyImport": {
-    "invalidFile": "This is not a recognised Flighty CSV export."
+    "invalidFile": "This is not a recognised Flighty CSV export.",
+    "issues": {
+      "invalid-cancelled": "Cancelled value {{value}} is not a supported boolean."
+    }
   },
   "settings": {
     "kilometers": "Kilometres",
@@ -27,5 +30,8 @@
   },
   "flightDetail": {
     "frequentFlyerProgram": "Frequent flyer programme"
+  },
+  "flightEditor": {
+    "flightNumberHint": "Enter an IATA flight number such as ZH9911; spaces and hyphens are normalised."
   }
 }
