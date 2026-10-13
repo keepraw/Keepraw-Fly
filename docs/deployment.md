@@ -32,11 +32,11 @@ Flight archives remain in each browser's IndexedDB. Deploying a new static build
 
 ## GitHub Pages workflow
 
-The [CI workflow](../.github/workflows/ci.yml) checks documentation, types, unit tests and browser journeys, then builds the static site. Pull requests run verification; pushes to `main` also upload the production output as a GitHub Pages artifact. **As of this review, automatic deployment is deliberately paused:** the `deploy` job has `if: ${{ false }}`. Successful PR or `main` CI checks do not update the published Pages site.
+The [CI workflow](../.github/workflows/ci.yml) runs documentation, formatting, CSS, type, unit and build checks in `checks`; the full Chromium regression runs across six shards, with separate Firefox and WebKit compatibility jobs. The aggregate `verify` job requires `checks`, every Chromium shard and both cross-browser jobs to succeed. Failed, cancelled or skipped validation prevents deployment.
+
+For a `push` to `main`, `checks` uploads `apps/web/dist` as a GitHub Pages artifact. Only after `verify` succeeds does `deploy` publish that artifact **from the same CI workflow run**. Pull requests run the complete verification matrix but neither upload the Pages artifact nor deploy. There is no separate `pages.yml` workflow. Thus an Owner-approved merge to `main` triggers deployment automatically **only if that commit passes all Main CI checks**.
 
 To use this workflow in your repository, enable GitHub Pages with **GitHub Actions** as its source and allow the `github-pages` environment to deploy from `main`. Configure any custom domain in your own repository's Pages settings. The developer's Demo address is not a deployment setting for forks.
-
-Only after the Owner explicitly approves publishing should the paused deployment gate be changed. To resume **automatic** deploys after successful `main` CI, restore the `deploy` job condition to `if: github.event_name == 'push' && github.ref == 'refs/heads/main'` and commit the change to `main`; that push triggers a new verification/deploy cycle. To support **manual-only** publishing, implement and test a separate `workflow_dispatch` path covering **both** Pages artifact creation and the deploy job, instead of changing only `deploy.if`. Neither behavior is enabled by this documentation change.
 
 Before broader public distribution, read the [current third-party notices](../THIRD_PARTY_NOTICES.md) and [license review](license-review-2026-10-10.md), particularly the open MiSans CDN and airline-logo permissions questions.
 

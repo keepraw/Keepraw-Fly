@@ -3,8 +3,8 @@
 Chromium owns the full regression suite. The Firefox and WebKit projects select
 only tests explicitly tagged `@cross-browser` in [Playwright configuration](../playwright.config.ts).
 An untagged new E2E runs in Chromium automatically. The browser-layer split retains
-the regression coverage; Task B replaces the retired Detail SVG assertions with
-the 3D Globe tests described below.
+the full regression coverage in Chromium, while the 3D Globe and engine-sensitive
+behaviors have their own targeted tests.
 
 ```bash
 pnpm exec playwright install chromium firefox webkit
@@ -20,27 +20,32 @@ in `chromium`, and the existing Firefox/WebKit matrix in `cross-browser`. Both
 matrices keep `fail-fast: false`. Browser jobs use `--workers=1`; retries and
 `fullyParallel: false` remain unchanged. Each Chromium shard uses
 `--shard=N/6` for N from 1 to 6; their disjoint union must include every Chromium
-test. This separates the expanded Hero screenshot matrix from the other large
-regression journeys while retaining the 20-minute job limit.
+test. This retains the full Hero geometry, layout and pixel assertions without
+reinstating the removed success-only design-review screenshot collection; the
+Chromium jobs retain their 20-minute timeout.
 
 The existing check name `verify` is an aggregate gate with `always()`: every
 static, Chromium and cross-browser dependency must succeed, including all six
 Chromium shards and both compatibility engines. A failed, cancelled or skipped
-dependency fails the gate. The
-paused `deploy` job depends on all validation jobs and retains `if: ${{ false }}`.
-Do not change repository Required Checks or enable deployment as part of CI tuning.
+dependency fails the gate. On a push to `main` only, the `deploy` job waits
+for a successful `verify` and publishes the build artifact uploaded by `checks`
+in that same run. PR CI does not upload a Pages artifact or deploy. The
+independent Pages workflow has been removed.
 
 Every browser job uploads HTML/JSON reports and failure screenshots/retained traces,
-including on failure. Chromium artifacts are named `playwright-chromium-shard-N`
-for N from 1 to 6; mobile review screenshots also have shard-specific
-names. `scripts/report-playwright.mjs` adds counts, per-file test durations (including
-retries) and failure diagnostics to the job summary and a check annotation. It fails
-on skipped/unexpected tests, global errors or an empty report. Browser installation
-remains `install --with-deps`; no browser cache or new dependency is introduced.
+including on failure. Chromium diagnostics are named `playwright-chromium-shard-N`
+for N from 1 to 6; Firefox and WebKit each have separate diagnostic artifacts.
+Playwright captures screenshots only on failure and retains traces on failure;
+success-only manual review screenshots and duplicate success attachments are no
+longer generated in routine CI. `scripts/report-playwright.mjs` adds counts,
+per-file test durations (including retries) and failure diagnostics to the job
+summary and a check annotation. It fails on skipped/unexpected tests, global
+errors or an empty report. Browser installation remains `install --with-deps`;
+no browser cache or new dependency was introduced.
 
-## Flight Detail 3D Globe (Task B)
+## Flight Detail 3D Globe
 
-`detail-map-curve.pw.ts` now contains 12 Chromium tests requiring a real, ready
+`detail-map-curve.pw.ts` contains regression tests requiring a real, ready
 WebGL canvas. Unavailable WebGL fails those tests; there is no capability skip or
 SVG substitute. They cover single-route framing and Home at 761/1024/1440px,
 resize after interaction, pointer/wheel/keyboard controls, diversion, cancellation,
@@ -54,91 +59,41 @@ entire arc for short, long, date-line, polar, antipodal and coincident routes,
 and reject invalid coordinates while accepting `(0,0)`.
 
 Shared layout journeys independently probe WebGL capability before requiring a
-ready canvas or the explicit localized error/retry UI. Passport's existing SVG
-failure tests and real WebGL regression remain in place. The historical inventory
-below records the earlier split, including the superseded Detail SVG case; it is
-not the current test count. Screenshot output stays in ignored `test-results/`.
+ready canvas or the explicit localized error/retry UI. Passport's SVG interactions
+and real WebGL regressions remain covered. Generated diagnostics stay in ignored
+`test-results/` and `playwright-report/`.
 
-The CI optimization starts from main `792e629`: **134 Chromium tests and 38 tests
-per compatibility engine**. PR #38's 140/44/44 inventory belongs to a separate
-feature branch. The inventory below records the earlier browser-layer split.
+## Responsive and browser coverage
 
-The responsive matrix retains eight viewports, both themes and all 192 flight-row
-checks. Reachability, date text, clipping and hit testing still run for every row.
-[`expectFlightRowGeometry`](../e2e/helpers/flight-row-geometry.ts) snapshots all row
-rectangles in one browser evaluation, then runs the same non-null/non-overlap
-assertions for every original pair, date-width and desktop scroll-left assertions.
-It removes repeated rectangle reads and a duplicate row scroll, without changing
-application code or geometry tolerances.
+The full responsive flight-row tests retain eight viewports, both themes and all
+192 row checks. Reachability, date text, clipping and hit testing still run for
+every row. [`expectFlightRowGeometry`](../e2e/helpers/flight-row-geometry.ts)
+collects row rectangles in one browser evaluation and checks the same non-null,
+non-overlap, date-width and desktop scroll-left invariants.
 
-## Full regression inventory
+The current suite evolves with the product; **do not use historical per-file
+counts as a current inventory**. Use `pnpm test:e2e --list` to inspect discovery
+and project selection. Relevant coverage includes:
 
-Counts are from Playwright discovery when introducing this split, not a fixed
-limit on future tests. All files below continue running in Chromium.
+- [`keepraw-fly.pw.ts`](../e2e/keepraw-fly.pw.ts): editing, Settings, import
+  flows, accessibility and responsive app journeys.
+- [`unified-page-theme.pw.ts`](../e2e/unified-page-theme.pw.ts): live System
+  appearance, Settings dialogs, persistence affordances, export and cancellation.
+- [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and
+  [`cross-browser-smoke.pw.ts`](../e2e/cross-browser-smoke.pw.ts): mobile and
+  desktop boundaries, scrolling, controls and browser-sensitive focus.
+- [`detail-map-curve.pw.ts`](../e2e/detail-map-curve.pw.ts) and the Globe
+  suites: real WebGL, failure recovery, camera and visual/lighting behavior.
+- [`persistent-storage.pw.ts`](../e2e/persistent-storage.pw.ts),
+  [`document-persistence.pw.ts`](../e2e/document-persistence.pw.ts) and
+  [`archive-recovery.pw.ts`](../e2e/archive-recovery.pw.ts): storage and
+  archive failure/recovery paths.
 
-| Test file                        | Chromium | Firefox / WebKit, each | Coverage retained in full regression                                                                                       |
-| -------------------------------- | -------: | ---------------------: | -------------------------------------------------------------------------------------------------------------------------- |
-| `archive-recovery.pw.ts`         |       24 |                      0 | Corruption, migrations, future versions, serialization, recovery retries, import confirmation matrix, locales, Axe         |
-| `desktop-readability.pw.ts`      |        1 |                      0 | Search/year statistics, adjacent navigation, locale/theme/viewport presentation matrix                                     |
-| `detail-map-curve.pw.ts`         |        1 |                      1 | Native SVG screen geometry, round endpoints and offline maps                                                               |
-| `document-persistence.pw.ts`     |       11 |                      1 | Edited flight reload, plus all failed writes, retry, deletion, concurrent writes and queue ordering                        |
-| `flight-row-navigation.pw.ts`    |        1 |                      0 | Every row hit area, keyboard outlines, both themes and viewport combinations                                               |
-| `keepraw-fly.pw.ts`              |       20 |                      0 | Complete editing, imports/validation/duplicates, Settings, localization, statistics, Axe and visual acceptance             |
-| `map-visibility-and-title.pw.ts` |        2 |                      0 | Twelve-route contrast/frequency audit and all airport/locale title wrapping combinations                                   |
-| `passport-detail-return.pw.ts`   |        5 |                      5 | Internal/document scroll restoration, adjacent detail return, SVG airport/route keyboard selection and focus               |
-| `passport-legend.pw.ts`          |        1 |                      0 | Statistics, filters, all locale × theme × viewport combinations and Axe                                                    |
-| `persistent-storage.pw.ts`       |       12 |                      1 | Native StorageManager capabilities, plus mocked permission/status/retry/localization matrices                              |
-| `responsive-boundaries.pw.ts`    |       13 |                      1 | Full eight-viewport acceptance, both themes, every row/date, landscape forms/imports/confirmations and live 760/761 resize |
-| `cross-browser-smoke.pw.ts`      |        6 |                      6 | Bounded compatibility checks listed below                                                                                  |
-| **Total**                        |   **97** |                 **15** | Original 91 tests retained, six added                                                                                      |
-
-Before the split, each of Chromium, Firefox and WebKit ran 91 tests. Afterward,
-Firefox and WebKit each run 15 (about 84% fewer); Chromium runs 97. Test counts do
-not include the many individual viewport/row/theme loops inside a single test.
-
-## Cross-browser smoke inventory
-
-The same 15 cases run in Firefox and WebKit:
-
-- Three boundary journeys: 760×900 light, 761×900 light, 844×390 dark. Check
-  application startup, Passport/Detail/Settings layout, real theme styles,
-  internal versus document scrolling, representative first/last date clipping,
-  container query columns, map legend/control overlap, detail return and overflow.
-- One short landscape editor journey: create and save a flight, airport keyboard
-  selection, expanded modal scrolling, Tab focus trap, confirmation controls,
-  Escape/focus restoration and a real persisted reload.
-- One Passport SVG journey: non-scaling strokes, resolved frequency widths/colors,
-  offline rendering, wheel zoom, pointer panning and fit controls at 761px.
-- One English long-title journey at 760px: keyboard row activation, focus-visible,
-  balanced wrapping and native text-range geometry; no locale/airport matrix.
-- The existing detail SVG geometry/offline test.
-- The existing successful edited-flight IndexedDB round-trip and reload test.
-- All five Passport detail return/map-selection tests. These directly test
-  browser scrolling, SVG keyboard events and native focus behavior.
-- The existing native StorageManager capability/status test; it does not trigger
-  headless permission prompts or assume storage protection is granted.
-- The existing live 760↔761 resizing test across Passport, Detail and Settings;
-  CSS columns, media-query driven DOM and retained search state must stay in sync.
-
-The full responsive tests keep their original assertions. Shared helpers live in
-[`e2e/helpers/responsive.ts`](../e2e/helpers/responsive.ts); the smoke checks reuse
-the same clipping/overflow/layout assertions but sample two rows and three
-important sizes instead of 96 rows per theme. Firefox/WebKit execute only the
-live-resize test from `responsive-boundaries.pw.ts`.
-
-## Why the other tests run only in Chromium
-
-The 82 original cases no longer selected in Firefox/WebKit are still covered by
-Chromium. Mocked recovery and persistence failures test application state machines,
-not another browser engine. Import validation, duplicate rules, statistics,
-defaults and translated copy also have shared application logic and unit coverage.
-The full accessibility and visual acceptance matrices remain in Chromium.
-
-Mixed presentation journeys are not tagged wholesale: their engine-sensitive
-parts are retained as focused smoke checks for actual hit testing, keyboard focus,
-scrollports, container queries, theme rendering, balanced text and SVG geometry.
-This avoids repeating every business assertion, language, viewport and theme in
-Firefox/WebKit while retaining the relevant compatibility checks.
+Firefox/WebKit select only `@cross-browser` cases. Those smoke tests exercise
+actual browser differences (layout, SVG, WebGL, scrolling, native storage and
+keyboard focus) without repeating every Chromium business or viewport matrix.
+When updating test tags, compare the discovered lists for all three projects;
+never infer current coverage from an old fixed count.
 
 ## Adding E2E tests
 
@@ -152,17 +107,14 @@ waiting; do not add fixed sleeps or raise timeouts to hide slow smoke tests.
 After editing tags or projects, inspect `pnpm test:e2e --list` and run all three
 projects. The Chromium list must still contain every pre-existing regression.
 
-## Initial local verification
+## Local verification
 
-Verified on Windows on 2026-10-06, with zero retries, skips or failures:
+For focused changes, run the relevant tests first; before requesting review,
+run `pnpm check:docs`, `pnpm format:check`, `pnpm test`, `pnpm build` and the
+appropriate browser projects. Use `pnpm test:e2e --list` to inspect all
+discovered cases. GitHub Actions runs the complete six-shard Chromium matrix
+and Firefox/WebKit smoke suites before `verify` can pass.
 
-| Project                  | Passed | Workers | Playwright elapsed time |
-| ------------------------ | -----: | ------: | ----------------------: |
-| Chromium full regression |     97 |       2 |             199 seconds |
-| Firefox smoke            |     15 |       1 |              38 seconds |
-| WebKit smoke             |     15 |       1 |              56 seconds |
-
-These timings exclude dependency/browser installation; Actions runner setup has
-its own cost. The retained `responsive-boundaries` resize smoke took about four
-seconds in Firefox and eight seconds in WebKit. Workspace type checking, changed
-E2E TypeScript checks, documentation consistency and `git diff --check` also passed.
+The 2026-10-06 historical 97/15/15 and subsequent 134/38/38 counts described
+earlier development phases, not the present suite; consult current Playwright
+discovery and the CI job summaries for authoritative counts and durations.
