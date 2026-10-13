@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expectDetailHero } from "./helpers/detail-hero";
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -120,6 +121,7 @@ test("manages associated airlines as searchable chips with a constrained default
     .locator(".button-secondary")
     .click();
   await navigateTo(page, "settings");
+  await openSettingsCategory(page, "Frequent flyer profiles");
   await page
     .getByRole("button", { name: "Add frequent flyer program" })
     .click();
@@ -211,6 +213,13 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     ),
   ).toHaveCount(0);
 
+  await expect(
+    page.getByRole("heading", { name: "General", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Frequent flyer profiles", exact: true }),
+  ).toBeHidden();
+  await openSettingsCategory(page, "Frequent flyer profiles");
   const membership = page.locator(".settings-membership").first();
   await expect(
     membership.locator(".settings-membership-summary"),
@@ -221,6 +230,17 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     membership.getByRole("button", { name: "Remove membership" }),
   ).toBeDisabled();
   await expect(membership.getByLabel("Default airline")).toHaveValue("ZH");
+  await membership.getByLabel("Current tier", { exact: true }).fill("Platinum");
+  await openSettingsCategory(page, "General");
+  await openSettingsCategory(page, "Frequent flyer profiles");
+  await expect(
+    membership.getByRole("button", { name: "Collapse", exact: true }),
+  ).toBeVisible();
+  await expect(
+    membership.getByLabel("Current tier", { exact: true }),
+  ).toHaveValue("Platinum");
+  await expect(membership.getByLabel("Default airline")).toHaveValue("ZH");
+  await membership.getByLabel("Current tier", { exact: true }).fill("Gold");
   await page
     .getByRole("button", { name: "Add frequent flyer program" })
     .click();
@@ -238,6 +258,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     .click();
   await expect(page.locator(".settings-membership")).toHaveCount(1);
 
+  await openSettingsCategory(page, "Profile");
   await page.getByLabel("Native name", { exact: true }).fill("  张鸿川");
   await expect(page.getByLabel("Native name", { exact: true })).toHaveValue(
     "张鸿川",
@@ -256,15 +277,22 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     primaryName.getByRole("radio", { name: "Romanized", exact: true }),
   ).toBeChecked();
   await primaryName.getByRole("radio", { name: "Native", exact: true }).check();
+  await openSettingsCategory(page, "Advanced");
   const powerUserMode = page.getByRole("switch", { name: /Power User Mode/ });
   await powerUserMode.check();
   await expect(powerUserMode).toBeChecked();
   await powerUserMode.uncheck();
   await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "General", exact: true }),
+  ).toBeVisible();
+  await openSettingsCategory(page, "Profile");
   await expect(page.getByLabel("Romanized name", { exact: true })).toHaveValue(
     "Zhang Hongchuan",
   );
+  await openSettingsCategory(page, "Advanced");
   await expect(powerUserMode).not.toBeChecked();
+  await openSettingsCategory(page, "General");
 
   await page
     .getByRole("combobox", { name: "Appearance", exact: true })
@@ -280,7 +308,8 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     "高级",
     "危险操作",
   ]);
-  await page.locator(".settings-membership-edit").click();
+  await openSettingsCategory(page, "常旅客资料");
+  await membership.getByRole("button", { name: "编辑", exact: true }).click();
 
   for (const viewport of [
     { width: 1440, height: 900, name: "desktop-1440" },
@@ -302,192 +331,159 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       );
     });
-    const layout = await page.evaluate(() => {
-      const content = document.querySelector<HTMLElement>(".settings-content")!;
-      const controlElements = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          ".settings-display-fields select, .settings-profile-fields > .settings-row > .settings-row-control",
-        ),
+    const controlBounds = [];
+    for (const category of [
+      "常规",
+      "个人资料",
+      "常旅客资料",
+      "数据与备份",
+      "高级",
+      "危险操作",
+    ]) {
+      await openSettingsCategory(page, category);
+      const region = page.getByRole("region", { name: category, exact: true });
+      const heading = page.getByRole("heading", {
+        name: category,
+        exact: true,
+        level: 2,
+      });
+      const headingBounds = (await heading.boundingBox())!;
+      const controls =
+        category === "常规"
+          ? region.getByRole("combobox")
+          : category === "个人资料"
+            ? region
+                .getByLabel(/^(本族文字姓名|罗马字姓名)$/)
+                .or(
+                  region.getByRole("group", { name: "首选姓名", exact: true }),
+                )
+            : null;
+      if (controls) {
+        const titles = region.getByRole("heading", { level: 3 });
+        await expect(controls).toHaveCount(category === "常规" ? 5 : 3);
+        for (let index = 0; index < (await controls.count()); index++) {
+          const control = controls.nth(index);
+          await expect(control).toBeVisible();
+          const bounds = (await control.boundingBox())!;
+          const title = (await titles.nth(index).boundingBox())!;
+          expect(bounds.y).toBeGreaterThanOrEqual(title.y + title.height);
+          expect(title.y).toBeGreaterThanOrEqual(
+            headingBounds.y + headingBounds.height,
+          );
+          expect(bounds.height).toBeGreaterThanOrEqual(44);
+          if (category === "常规" && index < 4) {
+            // Compact title/control units replace the former horizontal rows.
+            expect(bounds.y + bounds.height - title.y).toBeLessThanOrEqual(80);
+          }
+          controlBounds.push(bounds);
+        }
+      }
+      const visibleTargets = region.locator(
+        'button, select, input:not([type="file"]):not([type="radio"]):not([role="switch"]), .settings-action, .radio-row label, .settings-toggle-row',
       );
-      const controls = controlElements.map((element) => {
-        const bounds = element.getBoundingClientRect();
-        const label = element
-          .closest(".settings-row")!
-          .querySelector(".settings-row-label")!
-          .getBoundingClientRect();
+      const fit = await visibleTargets.evaluateAll((elements) => {
+        const visible = elements.filter(
+          (element) => element.getBoundingClientRect().width,
+        );
         return {
-          left: bounds.left,
-          right: bounds.right,
-          width: bounds.width,
-          height: bounds.height,
-          top: bounds.top,
-          labelTop: label.top,
-          labelBottom: label.bottom,
+          fits: visible.every((element) => {
+            const bounds = element.getBoundingClientRect();
+            return (
+              bounds.left >= -0.5 &&
+              bounds.right <= window.innerWidth + 0.5 &&
+              element.scrollWidth <= element.clientWidth + 1
+            );
+          }),
+          smallTargets: visible
+            .filter((element) => element.getBoundingClientRect().height < 44)
+            .map((element) => element.textContent?.trim()),
+          noOverflow:
+            document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth,
         };
       });
-      const actionableElements = Array.from(
-        content.querySelectorAll<HTMLElement>(
-          'button, select, input:not([type="file"]):not([type="radio"]):not([role="switch"]), .settings-action, .radio-row label, .settings-toggle-row',
-        ),
-      ).filter(
-        (element) =>
-          getComputedStyle(element).display !== "none" &&
-          element.getBoundingClientRect().width,
-      );
-      const contentBounds = content.getBoundingClientRect();
-      const heading = document
-        .querySelector("#settings-display")!
-        .getBoundingClientRect();
-      const panel = document
-        .querySelector(".settings-display-fields")!
-        .getBoundingClientRect();
-      return {
-        fitsViewport:
-          document.documentElement.scrollWidth <=
-          document.documentElement.clientWidth,
-        content: {
-          left: contentBounds.left,
-          right: contentBounds.right,
-          width: contentBounds.width,
-        },
-        controls,
-        categoryHeading: { right: heading.right, bottom: heading.bottom },
-        categoryPanel: { left: panel.left, top: panel.top },
-        categoriesAboveGroups: Array.from(
-          document.querySelectorAll(".settings-section"),
-        ).every((section) => {
-          const title = section
-            .querySelector(".settings-section-title")!
-            .getBoundingClientRect();
-          const group = section
-            .querySelector(".settings-panel")!
-            .getBoundingClientRect();
-          return (
-            title.bottom <= group.top && Math.abs(title.left - group.left) < 1
-          );
-        }),
-        basicRowHeights: controlElements
-          .slice(0, 4)
-          .map(
-            (element) =>
-              element.closest(".settings-row")!.getBoundingClientRect().height,
-          ),
-        selectsVisible: Array.from(
-          document.querySelectorAll<HTMLSelectElement>(
-            ".settings-display-fields select",
-          ),
-        ).every(
-          (element) =>
-            getComputedStyle(element).opacity === "1" &&
-            getComputedStyle(element).position !== "absolute",
-        ),
-        actionableElementsFit: actionableElements.every((element) => {
-          const bounds = element.getBoundingClientRect();
-          return (
-            bounds.left >= -0.5 &&
-            bounds.right <= window.innerWidth + 0.5 &&
-            element.scrollWidth <= element.clientWidth + 1
-          );
-        }),
-        undersizedTouchTargets: actionableElements
-          .filter((element) => element.getBoundingClientRect().height < 44)
-          .map((element) => ({
-            tag: element.tagName,
-            className: element.className,
-            label:
-              element.getAttribute("aria-label") ||
-              element.getAttribute("placeholder") ||
-              element.textContent?.trim(),
-            parentClassName: element.parentElement?.className,
-            height: element.getBoundingClientRect().height,
-          })),
-        membershipColumns: document.querySelector(".settings-membership-grid")
-          ? getComputedStyle(
-              document.querySelector(".settings-membership-grid")!,
-            ).gridTemplateColumns.split(" ").length
-          : 0,
-      };
-    });
-    expect(layout.fitsViewport).toBe(true);
-    expect(layout.actionableElementsFit).toBe(true);
-    expect(layout.selectsVisible).toBe(true);
-    expect(layout.controls).toHaveLength(8);
-    await expect(page.locator(".settings-display-fields select")).toHaveCount(
-      5,
-    );
-    await expect(
-      page.locator(".settings-display-fields select").nth(4),
-    ).toHaveValue("fixed");
-    expect(
-      Math.max(...layout.controls.map((control) => control.left)) -
-        Math.min(...layout.controls.map((control) => control.left)),
-    ).toBeLessThan(1);
-    expect(
-      Math.max(...layout.controls.map((control) => control.width)) -
-        Math.min(...layout.controls.map((control) => control.width)),
-    ).toBeLessThan(1);
-    expect(layout.controls.every((control) => control.height >= 44)).toBe(true);
-    expect(layout.categoriesAboveGroups).toBe(true);
-    if (viewport.width > 760) {
-      expect(layout.basicRowHeights.every((height) => height <= 64)).toBe(true);
-      expect(
-        layout.controls
-          .slice(0, 4)
-          .every(
-            (control) =>
-              Math.abs(
-                control.top +
-                  control.height / 2 -
-                  (control.labelTop + control.labelBottom) / 2,
-              ) < 1,
-          ),
-      ).toBe(true);
+      expect(fit.fits).toBe(true);
+      expect(fit.noOverflow).toBe(true);
+      if (viewport.width <= 760) expect(fit.smallTargets).toEqual([]);
+      if (category === "常规") {
+        await expect(region.getByRole("combobox").nth(4)).toHaveValue("fixed");
+        for (const select of await region.getByRole("combobox").all()) {
+          await expect(select).toHaveCSS("opacity", "1");
+          await expect(select).not.toHaveCSS("position", "absolute");
+        }
+      }
+      if (category === "常旅客资料") {
+        await expect(
+          membership.getByLabel("当前等级", { exact: true }),
+        ).toHaveValue("Gold");
+        await expect(membership.getByLabel("设为默认的航司")).toHaveValue("ZH");
+        await expect(
+          membership.getByRole("heading", { name: "凤凰知音", exact: true }),
+        ).toBeVisible();
+        await expect(
+          membership.getByText("会员号 ZH-8••••1924", { exact: true }),
+        ).toBeVisible();
+        await expect(region.getByRole("group")).toHaveCount(1);
+        await expect(
+          membership.getByRole("button", { name: "收起", exact: true }),
+        ).toBeVisible();
+        await expect(
+          region.getByRole("button", { name: "添加常旅客计划", exact: true }),
+        ).toBeVisible();
+        await expect(
+          membership.getByRole("button", { name: "移除会员资料", exact: true }),
+        ).toBeVisible();
+        const program = (await membership
+          .getByLabel("计划名称", { exact: true })
+          .boundingBox())!;
+        const number = (await membership
+          .getByLabel("会员号", { exact: true })
+          .boundingBox())!;
+        if (viewport.width <= 760) {
+          expect(Math.abs(program.x - number.x)).toBeLessThan(1);
+          expect(number.y).toBeGreaterThanOrEqual(program.y + program.height);
+        } else {
+          expect(Math.abs(program.y - number.y)).toBeLessThan(1);
+          expect(number.x).toBeGreaterThanOrEqual(program.x + program.width);
+        }
+      }
     }
-    expect(layout.categoryHeading.bottom).toBeLessThanOrEqual(
-      layout.categoryPanel.top,
-    );
+    expect(controlBounds).toHaveLength(8);
+    expect(
+      Math.max(...controlBounds.map((bounds) => bounds.x)) -
+        Math.min(...controlBounds.map((bounds) => bounds.x)),
+    ).toBeLessThan(1);
+    expect(
+      Math.max(...controlBounds.map((bounds) => bounds.width)) -
+        Math.min(...controlBounds.map((bounds) => bounds.width)),
+    ).toBeLessThan(1);
     if (viewport.width >= 1280) {
-      expect(layout.content.width).toBeGreaterThanOrEqual(920);
-      expect(layout.content.width).toBeLessThanOrEqual(960);
+      const navigation = (await page
+        .getByRole("navigation", { name: "设置", exact: true })
+        .boundingBox())!;
+      const region = (await page
+        .getByRole("region", { name: "危险操作", exact: true })
+        .boundingBox())!;
+      const width = region.x + region.width - navigation.x;
+      expect(width).toBeGreaterThanOrEqual(920);
+      expect(width).toBeLessThanOrEqual(960);
       expect(
-        Math.abs(layout.content.left - (viewport.width - layout.content.right)),
+        Math.abs(navigation.x - (viewport.width - region.x - region.width)),
       ).toBeLessThan(1);
-      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(260);
-      expect(layout.controls[0]!.width).toBeLessThanOrEqual(280);
-      await expect(page.locator(".settings-page-heading h1")).toBeVisible();
-    }
-    if (viewport.width <= 760) {
-      expect(
-        layout.controls.every((control) => control.top >= control.labelBottom),
-      ).toBe(true);
-      expect(layout.undersizedTouchTargets).toEqual([]);
-      expect(layout.membershipColumns).toBe(1);
-      await expect(page.locator(".settings-membership-summary")).toContainText(
-        "凤凰知音",
-      );
-      await expect(page.locator(".settings-membership-summary")).toContainText(
-        "ZH-8••••1924",
-      );
-      await expect(page.locator(".settings-membership-summary")).toContainText(
-        "Gold",
-      );
+      expect(controlBounds[0]!.width).toBeGreaterThanOrEqual(260);
+      expect(controlBounds[0]!.width).toBeLessThanOrEqual(280);
       await expect(
-        page.locator(".settings-membership-editor-fields:visible"),
-      ).toHaveCount(1);
-      await expect(
-        page.locator(
-          ".settings-membership-edit:visible, .settings-membership-add:visible, .membership-delete:visible",
-        ),
-      ).toHaveCount(3);
-    } else {
-      expect(layout.membershipColumns).toBe(2);
+        page.getByRole("heading", { name: "设置", level: 1, exact: true }),
+      ).toBeVisible();
     }
   }
 
   await page.setViewportSize({ width: 1440, height: 900 });
+  await openSettingsCategory(page, "常规");
   await page
     .getByRole("combobox", { name: "语言", exact: true })
     .selectOption("en");
+  await openSettingsCategory(page, "Data and backup");
   await page
     .locator('#settings-import input[type="file"]')
     .setInputFiles(exampleArchive);
@@ -543,6 +539,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       .toBe(true);
   }
   await csvPreview.getByRole("button", { name: "Cancel" }).click();
+  await openSettingsCategory(page, "Danger zone");
   const clearButton = page
     .locator(".settings-danger-zone")
     .getByRole("button", { name: "Clear local data", exact: true });
@@ -564,6 +561,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(confirmation).toHaveCount(0);
   await expect(clearButton).toBeFocused();
   await page.setViewportSize({ width: 1024, height: 900 });
+  await openSettingsCategory(page, "General");
   await page
     .getByRole("combobox", { name: "Appearance", exact: true })
     .selectOption("dark");
@@ -1043,10 +1041,10 @@ test.describe("Chinese distance defaults", () => {
 
     await page.locator(".detail-header-back").click();
     await page.locator('.site-navigation a[href="#settings"]').click();
-    const distanceSelect = page
-      .locator(".settings-display-fields label")
-      .nth(2)
-      .locator("select");
+    const distanceSelect = page.getByRole("combobox", {
+      name: "距离",
+      exact: true,
+    });
     await expect(distanceSelect).toHaveValue("kilometers");
     await distanceSelect.selectOption("miles");
     await page.locator('.site-navigation a[href="#passport"]').click();
@@ -1056,6 +1054,26 @@ test.describe("Chinese distance defaults", () => {
       .first()
       .click();
     await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const modulePath = "/src/storage/browser.ts";
+          const { browserStorage } = await import(modulePath);
+          return (await browserStorage.loadSettings())?.distanceUnit;
+        }),
+      )
+      .toBe("miles");
+    await page.reload();
+    // The archive and preferences persist; the selected Detail is session state.
+    await expect(page.locator(".demo-banner")).toBeVisible();
+    await expect(page.locator(".passport-legend")).toContainText("英里");
+    await page
+      .getByRole("button", { name: /Open |打开 |打開 / })
+      .first()
+      .click();
+    await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+    await page.goto("/#settings");
+    await expect(distanceSelect).toHaveValue("miles");
   });
 });
 
@@ -1193,6 +1211,7 @@ test("maps and previews CSV columns before appending flights", async ({
   // Firefox smooth scrolling can move the button between mouse down/up.
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#settings");
+  await openSettingsCategory(page, "Data and backup");
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const preview = page.getByRole("region", { name: "Review CSV import" });
   await expect(preview).toBeVisible();
@@ -1252,6 +1271,7 @@ test("skips an exact JSON duplicate without replacing the existing archive", asy
     .setInputFiles(exampleArchive);
   await page.getByRole("button", { name: "Import this archive" }).click();
   await navigateTo(page, "settings");
+  await openSettingsCategory(page, "Data and backup");
 
   await page
     .locator('input[type="file"][accept*=".json"]')
@@ -1343,6 +1363,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
 
+  await openSettingsCategory(page, "Data and backup");
   const exportButton = page.getByRole("button", {
     name: "Export Keepraw Fly JSON",
   });
@@ -1361,6 +1382,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
   await page.keyboard.press("Escape");
   await expect(exportButton).toBeFocused();
 
+  await openSettingsCategory(page, "Danger zone");
   const clearButton = page.getByRole("button", { name: "Clear local data" });
   await clearButton.focus();
   await clearButton.press("Enter");
