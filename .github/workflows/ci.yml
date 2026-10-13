@@ -185,9 +185,9 @@ jobs:
           done
 
   deploy:
-    # Owner pause: automatic Pages publishing is disabled after the one-time demo deployment.
-    # Only explicit Owner approval may enable another deployment.
-    if: ${{ false }}
+    # Publish only the validated main commit from this CI run. Pull requests,
+    # failed, cancelled, or skipped validation jobs must never deploy.
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
     needs: [verify, checks, chromium, cross-browser]
     runs-on: ubuntu-latest
 
