@@ -3,6 +3,8 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -298,6 +300,7 @@ export function FlightDetailPage({
   solarMode,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
+  const heroRef = useRef<HTMLDivElement>(null);
   const [showDesktopMap, setShowDesktopMap] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -311,6 +314,37 @@ export function FlightDetailPage({
     update();
     return () => media.removeEventListener("change", update);
   }, []);
+
+  useLayoutEffect(() => {
+    const hero = heroRef.current;
+    if (!showDesktopMap || !hero) return;
+
+    // Notices (including the Demo banner) and a wrapped header consume actual
+    // first-screen space. Measure their resulting document offset, not a fixed
+    // banner height, and keep scrolling independent of this calculation.
+    const update = () => {
+      const start = `${hero.getBoundingClientRect().top + window.scrollY}px`;
+      if (hero.style.getPropertyValue("--detail-hero-start") !== start)
+        hero.style.setProperty("--detail-hero-start", start);
+    };
+    update();
+
+    let frame = 0;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(hero.closest(".app-shell") ?? hero);
+    window.addEventListener("resize", schedule);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      hero.style.removeProperty("--detail-hero-start");
+    };
+  }, [showDesktopMap]);
+
   const origin = airportByIata.get(flight.origin.iata);
   const actualDestination = airportByIata.get(
     flight.divertedTo?.iata ?? flight.destination.iata,
@@ -366,7 +400,7 @@ export function FlightDetailPage({
         className="detail-flight-card"
         aria-labelledby="flight-detail-title"
       >
-        <div className="detail-hero-grid">
+        <div className="detail-hero-grid" ref={heroRef}>
           <div className="detail-hero-information">
             <header className="detail-heading">
               <div className="detail-heading-identity">
