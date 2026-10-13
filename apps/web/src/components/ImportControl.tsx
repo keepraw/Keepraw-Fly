@@ -8,6 +8,7 @@ import {
   type JsonImportPreflight,
 } from "../data/import-preview";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
+import { localizedValidationIssue } from "../data/import-messages";
 
 interface ImportControlProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
@@ -32,10 +33,12 @@ export function ImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function importFile(file: File | undefined) {
     if (!file || busy) return;
     setBusy(true);
+    setFailed(false);
     try {
       const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
       const text = await file.text();
@@ -48,6 +51,7 @@ export function ImportControl({
     } catch (error) {
       setPending(null);
       setIncludePossibleDuplicates(false);
+      setFailed(true);
       onError?.(error);
     } finally {
       setBusy(false);
@@ -57,6 +61,7 @@ export function ImportControl({
   async function confirmImport() {
     if (!pending?.document) return;
     setBusy(true);
+    setFailed(false);
     try {
       await onImport(
         buildDocumentFromJsonImport(
@@ -68,6 +73,7 @@ export function ImportControl({
       setPending(null);
       setIncludePossibleDuplicates(false);
     } catch (error) {
+      setFailed(true);
       onError?.(error);
     } finally {
       setBusy(false);
@@ -81,10 +87,13 @@ export function ImportControl({
   const hasImportableContent = !existingDocument || selectedRecords > 0;
 
   const summary = pending?.document ? summarizeImport(pending.document) : null;
-  const dateFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage ?? "en", {
-    dateStyle: "medium",
-    timeZone: "UTC",
-  });
+  const dateFormatter = new Intl.DateTimeFormat(
+    i18n.resolvedLanguage ?? "en-US",
+    {
+      dateStyle: "medium",
+      timeZone: "UTC",
+    },
+  );
   const dateRange =
     summary?.firstServiceDate && summary.lastServiceDate
       ? summary.firstServiceDate === summary.lastServiceDate
@@ -129,6 +138,9 @@ export function ImportControl({
       </label>
       {variant === "primary" ? (
         <span className="drop-hint">{t("import.dropHint")}</span>
+      ) : null}
+      {failed && !onError ? (
+        <p role="alert">{t("import.operationFailed")}</p>
       ) : null}
       {pending ? (
         <section
@@ -198,9 +210,7 @@ export function ImportControl({
                         : `${t("import.fileIssue")} · `}
                       {issue.path}
                     </span>
-                    {t(`import.issueMessages.${issue.keyword}`, {
-                      defaultValue: issue.message,
-                    })}
+                    {localizedValidationIssue(t, issue.keyword)}
                   </li>
                 ))}
               </ul>

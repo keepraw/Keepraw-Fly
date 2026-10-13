@@ -20,7 +20,7 @@ You can also [run locally](#run-locally) or [deploy your own instance](docs/depl
 - **Portable data:** export and migrate a validated Keepraw Fly JSON archive; preview JSON, Keepraw Fly CSV and Flighty CSV imports before writing.
 - **Frequent flyer profiles:** associate programs with multiple airlines and recorded flights.
 - **Local first:** flight history stays in browser storage; no account and no cloud flight-history backend.
-- **Designed across devices:** responsive desktop and mobile experiences in English, Simplified Chinese and Traditional Chinese.
+- **Designed across devices:** responsive desktop and mobile experiences in US/UK English, Simplified Chinese and Traditional Chinese.
 
 ## Data and privacy
 
@@ -84,7 +84,7 @@ pnpm build
 pnpm test:e2e --project=chromium
 ```
 
-`pnpm format` formats maintained source and documentation; `pnpm format:check` checks formatting without writing. Generated modules, generated locales, reference datasets and vendor assets are excluded. `pnpm lint:css` checks the design system and feature styles. `pnpm check:css-tokens` rejects nonexistent custom-property names using CSS definitions and actual inline-style/CSSProperties assignments; it does not prove DOM scope or inheritance.
+`pnpm format` formats maintained source and documentation; `pnpm format:check` checks formatting without writing. Generated modules, reference datasets and vendor assets are excluded. `pnpm lint:css` checks the design system and feature styles. `pnpm check:css-tokens` rejects nonexistent custom-property names using CSS definitions and actual inline-style/CSSProperties assignments; it does not prove DOM scope or inheritance.
 
 Install Chromium first with `pnpm exec playwright install chromium` when needed. Chromium runs the full E2E regression suite; Firefox and WebKit run only tagged compatibility smoke tests with `pnpm test:e2e --project=firefox --project=webkit` (install those browsers first). See [test layers and tagging policy](docs/testing.md). `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. GitHub Actions runs the repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. See [deployment](docs/deployment.md) for setup.
 

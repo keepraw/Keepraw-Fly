@@ -1,11 +1,11 @@
 import airportLocaleRows from "../data/airport-locales.json";
 
-export type SupportedLocale = "en" | "zh-CN" | "zh-TW";
+/** BCP 47 locale accepted by Intl; independent of the released UI languages. */
+export type SupportedLocale = string;
 
 export interface LocalizedText {
   en: string;
-  "zh-CN": string;
-  "zh-TW"?: string;
+  [locale: string]: string | undefined;
 }
 
 export interface AirportReference {
@@ -62,7 +62,7 @@ export function localizedText(
   text: LocalizedText,
   locale: SupportedLocale,
 ): string {
-  return text[locale] ?? text[locale === "zh-TW" ? "zh-CN" : "en"] ?? text.en;
+  return text[locale] || text[locale.split("-")[0] ?? "en"] || text.en;
 }
 
 const curatedAirports: AirportReference[] = [

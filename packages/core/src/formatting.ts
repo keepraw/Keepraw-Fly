@@ -39,13 +39,35 @@ export function formatDistance(
   );
 }
 
+export interface DurationLabels {
+  hour: string;
+  minute: string;
+  padMinutes?: boolean;
+}
+
+// Add duration wording here, or supply labels from a caller. No React/i18next
+// dependency and no Intl.DurationFormat requirement on older browsers.
+const durationLabels: Record<string, DurationLabels> = {
+  en: { hour: "h", minute: "m", padMinutes: true },
+  "zh-CN": { hour: "小时", minute: "分" },
+  "zh-TW": { hour: "小時", minute: "分" },
+};
+
 export function formatDuration(
   minutes: number,
-  locale: SupportedLocale = "en",
+  locale: SupportedLocale = "en-US",
+  labels: DurationLabels = durationLabels[locale] ??
+    durationLabels[locale.split("-")[0] ?? "en"] ??
+    durationLabels.en!,
 ): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = Math.abs(minutes % 60);
-  if (locale === "zh-CN") return `${hours}小时 ${remainingMinutes}分`;
-  if (locale === "zh-TW") return `${hours}小時 ${remainingMinutes}分`;
-  return `${hours}h ${remainingMinutes.toString().padStart(2, "0")}m`;
+  const hoursText = new Intl.NumberFormat(locale, {
+    useGrouping: false,
+  }).format(hours);
+  const minutesText = new Intl.NumberFormat(locale, {
+    useGrouping: false,
+    minimumIntegerDigits: labels.padMinutes ? 2 : 1,
+  }).format(remainingMinutes);
+  return `${hoursText}${labels.hour} ${minutesText}${labels.minute}`;
 }

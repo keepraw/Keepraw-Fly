@@ -65,8 +65,8 @@ state.
 
 ## Localization and reference data
 
-React text uses i18next keys for English, Simplified Chinese and Traditional
-Chinese. Flight records contain IATA/ICAO identifiers rather than localized names.
+React text uses i18next keys for US English, UK English, Simplified Chinese and
+Traditional Chinese. Flight records contain IATA/ICAO identifiers rather than localized names.
 Airport and airline names, coordinates and timezones live
 in replaceable Viewer reference data. Language, distance unit and time format
 are independent settings.
@@ -134,3 +134,53 @@ fall back to IATA when a city is unavailable, and flag arrival delays of at leas
 - [Schema and compatibility](schema.md)
 - [Map geometry](../apps/web/src/data/map-geometry.ts) and
   [pinned map source](../apps/web/src/data/world-map.source.json)
+
+## Maintaining localization
+
+`apps/web/src/locales/registry.ts` is the released UI language registry. Browser
+negotiation checks `navigator.languages` in order, then `navigator.language`.
+English variants use `en-US`, except UK English (`en-GB`); Chinese script tags
+take precedence over region, with Taiwan, Hong Kong and Macau using `zh-TW`.
+Unknown stored languages use `en-US`. The same resolver supplies initial settings
+and i18next, and i18next language changes synchronize HTML `lang`.
+
+`en-US.json` is the complete fallback. `en-GB.json` contains only regional wording
+changes and falls back to US English through i18next; date/number presentation
+uses the selected full locale with `Intl`. Existing saved `en` preferences become
+`en-US` on read, without rewriting archives or discarding other fields. Saving a
+later preference persists the normalized code. Language changes never change
+saved distance units or 12/24-hour preferences. Machine timestamps, CSV fields,
+archive keys and flight calculations remain locale-neutral.
+
+All UI text, including Globe text, belongs in the regular locale resources.
+Resource tests recursively verify logical keys, locale-specific cardinal plurals,
+interpolation, nonempty strings and actual i18next fallback resolution. Literal
+singular wording may omit `count`; other parameters must match. A new full
+translation needs a registry entry and a resource entry; it must pass the same
+tests before appearing in Settings. Do not register unfinished translations.
+The Globe renderer and imagery remain lazy; its small text resources are bundled
+with the other UI strings so loading order cannot determine translation coverage.
+
+Chinese resources are maintained independently. `pnpm update:zh-tw` preserves
+all existing Traditional Chinese wording and adds only missing keys from OpenCC,
+printing a review notice. It also retains removed keys so tests flag them for
+manual reconciliation. Review every added string for Taiwan terminology. Changes
+to existing Simplified Chinese strings must be reconciled manually; use
+`pnpm update:zh-tw --candidate /path/to/review.json` to generate a complete review
+candidate without overwriting either maintained resource. OpenCC is a character
+conversion aid, not Taiwan terminology review. Both maintained resources are
+formatted and tested normally.
+
+Core name APIs accept BCP 47 locales independently of released UI languages.
+Partial airport/city/program names use the exact locale, then a language-only
+name, then English. Existing Chinese database entries remain available; Chinese
+city suffix shortening only runs for the two Chinese display locales. Add duration
+wording to core's small label strategy or supply labels through `formatDuration`;
+core does not depend on React/i18next or require `Intl.DurationFormat`. Only
+Chinese UI locales request MiSans subsets, after preferences load; network errors
+leave the CSS/system font fallback usable.
+
+Validator and parser messages remain developer diagnostics. UI imports translate
+stable codes and use localized generic copy for unknown errors. Never interpolate
+internal exception details into regular import messages. Resource tests also
+check emitted semantic codes, schema constraints and CSV/Flighty diagnostics.

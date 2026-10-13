@@ -1,3 +1,4 @@
+import { normalizeLanguage } from "../locales/registry";
 import {
   useMemo,
   useState,
@@ -64,12 +65,7 @@ export function PassportRouteMap({
   onSelectRoute,
 }: PassportRouteMapProps) {
   const { t, i18n } = useTranslation();
-  const locale: SupportedLocale =
-    i18n.resolvedLanguage === "zh-TW"
-      ? "zh-TW"
-      : i18n.resolvedLanguage === "zh-CN"
-        ? "zh-CN"
-        : "en";
+  const locale = normalizeLanguage(i18n.resolvedLanguage);
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
   const countryVisits = useMemo(() => collectCountryVisits(flights), [flights]);
   const airports = useMemo(

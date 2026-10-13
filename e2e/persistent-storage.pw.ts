@@ -292,7 +292,7 @@ for (const event of ["focus", "visibilitychange"] as const) {
 
 for (const locale of [
   {
-    language: "en",
+    language: "en-US",
     title: "Persistent storage",
     available: "Persistent storage can be requested",
     granted: "Persistent storage enabled",

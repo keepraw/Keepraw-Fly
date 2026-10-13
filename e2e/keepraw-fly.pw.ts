@@ -482,7 +482,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await openSettingsCategory(page, "常规");
   await page
     .getByRole("combobox", { name: "语言", exact: true })
-    .selectOption("en");
+    .selectOption("en-US");
   await openSettingsCategory(page, "Data and backup");
   await page
     .locator('#settings-import input[type="file"]')
@@ -822,7 +822,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     page.locator('.passport-period[aria-label="Passport period"]'),
   ).toBeVisible();
 
-  for (const locale of ["zh-CN", "zh-TW", "en"]) {
+  for (const locale of ["zh-CN", "zh-TW", "en-US"]) {
     await page.locator('.site-navigation a[href="#settings"]').click();
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#passport"]').click();

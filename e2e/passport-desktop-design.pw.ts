@@ -223,7 +223,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
       await page
         .locator(".settings-display-fields select")
         .nth(0)
-        .selectOption("en");
+        .selectOption("en-US");
       await openSettingsCategory(page, "Data and backup");
     } else {
       await page.goto("/");

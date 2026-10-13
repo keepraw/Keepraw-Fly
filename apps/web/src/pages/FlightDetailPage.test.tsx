@@ -8,7 +8,7 @@ import {
   type SupportedLocale,
 } from "@keepraw-fly/core";
 import airportRows from "@keepraw-fly/core/airport-directory";
-import en from "../locales/en.json";
+import en from "../locales/en-US.json";
 import zhTW from "../locales/zh-TW.json";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import zhCN from "../locales/zh-CN.json";

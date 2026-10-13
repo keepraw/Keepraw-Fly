@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { importArchive } from "./helpers/responsive";
 import {
@@ -12,6 +13,16 @@ import {
   FIXED_SUN_DIRECTION,
   solarDirectionFromUtc,
 } from "../apps/web/src/globe/globe-solar";
+
+const englishGlobeMessages: {
+  detailCancelled: string;
+  detailUnavailable: string;
+} = JSON.parse(
+  readFileSync(
+    new URL("../apps/web/src/locales/en-US.json", import.meta.url),
+    "utf8",
+  ),
+).globe;
 
 const flight: KeeprawFlight = {
   id: "detail",
@@ -205,8 +216,10 @@ test("flight switching reframes long, diverted and coincident routes; cancelled 
       await page.setViewportSize({ width: 1440, height: 900 });
     }
     if (record.cancelled || record.origin.iata === "ZZZ") {
-      await expect(page.locator(".detail-globe-message")).toContainText(
-        record.cancelled ? "cancelled" : "unknown",
+      await expect(page.locator(".detail-globe-message")).toHaveText(
+        record.cancelled
+          ? englishGlobeMessages.detailCancelled
+          : englishGlobeMessages.detailUnavailable,
       );
       await expect(
         page.locator(".detail-globe-frame canvas, .detail-globe-frame svg"),
@@ -281,7 +294,7 @@ test(
   },
 );
 
-for (const language of ["en", "zh-CN", "zh-TW"]) {
+for (const language of ["en-US", "zh-CN", "zh-TW"]) {
   test(`uses ${language}, Light/Dark/System and Fixed/Realtime preferences`, async ({
     page,
   }) => {
@@ -317,7 +330,7 @@ for (const language of ["en", "zh-CN", "zh-TW"]) {
         );
         await expect(page.locator("canvas")).toHaveAttribute(
           "aria-label",
-          language === "en"
+          language === "en-US"
             ? /Drag to rotate/
             : language === "zh-CN"
               ? /拖动旋转/
@@ -713,7 +726,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
   await page.evaluate(() => {
     (window as any).savedCanvas = document.querySelector("canvas");
   });
-  for (const language of ["zh-CN", "zh-TW", "en"]) {
+  for (const language of ["zh-CN", "zh-TW", "en-US"]) {
     await page.evaluate(
       async ({ record, language }) => {
         (window as any).renderDetail({
@@ -741,7 +754,7 @@ test("mounted prop and language updates preserve camera and canvas; a new flight
     ).toBe(true);
     await expect(page.locator("canvas")).toHaveAttribute(
       "aria-label",
-      language === "en"
+      language === "en-US"
         ? /Drag to rotate/
         : language === "zh-CN"
           ? /拖动旋转/

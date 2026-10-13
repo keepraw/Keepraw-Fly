@@ -26,7 +26,9 @@ export function FlightyImportControl({
   const { t } = useTranslation();
   const inputId = useId();
   const [pending, setPending] = useState<PendingFlighty | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<
+    { kind: "file"; code: string } | { kind: "import" } | null
+  >(null);
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
@@ -46,11 +48,7 @@ export function FlightyImportControl({
     } catch (caught) {
       setPending(null);
       const code = caught instanceof Error ? caught.message : "invalid-file";
-      setError(
-        t(`flightyImport.fileErrors.${code}`, {
-          defaultValue: t("flightyImport.invalidFile"),
-        }),
-      );
+      setError({ kind: "file", code });
     }
   }
 
@@ -65,14 +63,13 @@ export function FlightyImportControl({
       );
       const { validateKeeprawFly } = await import("@keepraw-fly/validator");
       const result = validateKeeprawFly(nextDocument);
-      if (!result.valid) throw new Error(result.issues[0]?.message);
+      if (!result.valid) throw new Error("invalid-import");
       await onImport(result.data);
       setPending(null);
       setIncludePossibleDuplicates(false);
       setError(null);
-    } catch (caught) {
-      const detail = caught instanceof Error ? caught.message : "";
-      setError(t("flightyImport.importFailed", { detail }));
+    } catch {
+      setError({ kind: "import" });
     } finally {
       setBusy(false);
     }
@@ -151,7 +148,7 @@ export function FlightyImportControl({
                       : null}
                     {t(`flightyImport.issues.${warning.code}`, {
                       value: warning.value,
-                      defaultValue: warning.value ?? warning.code,
+                      defaultValue: t("import.issueMessages.generic"),
                     })}
                   </li>
                 ))}
@@ -178,7 +175,7 @@ export function FlightyImportControl({
                     {t(`flightyImport.issues.${issue.code}`, {
                       value: issue.value,
                       defaultValue: t(`csvImport.issues.${issue.code}`, {
-                        defaultValue: issue.code,
+                        defaultValue: t("import.issueMessages.generic"),
                       }),
                     })}
                   </li>
@@ -223,7 +220,11 @@ export function FlightyImportControl({
       ) : null}
       {error ? (
         <p className="csv-import-error" role="alert">
-          {error}
+          {error.kind === "import"
+            ? t("flightyImport.importFailed")
+            : t(`flightyImport.fileErrors.${error.code}`, {
+                defaultValue: t("flightyImport.invalidFile"),
+              })}
         </p>
       ) : null}
     </div>
