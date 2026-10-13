@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { importArchive } from "./helpers/responsive";
 import {
@@ -12,6 +13,16 @@ import {
   FIXED_SUN_DIRECTION,
   solarDirectionFromUtc,
 } from "../apps/web/src/globe/globe-solar";
+
+const englishGlobeMessages: {
+  detailCancelled: string;
+  detailUnavailable: string;
+} = JSON.parse(
+  readFileSync(
+    new URL("../apps/web/src/locales/en-US.json", import.meta.url),
+    "utf8",
+  ),
+).globe;
 
 const flight: KeeprawFlight = {
   id: "detail",
@@ -205,8 +216,10 @@ test("flight switching reframes long, diverted and coincident routes; cancelled 
       await page.setViewportSize({ width: 1440, height: 900 });
     }
     if (record.cancelled || record.origin.iata === "ZZZ") {
-      await expect(page.locator(".detail-globe-message")).toContainText(
-        record.cancelled ? "cancelled" : "unknown",
+      await expect(page.locator(".detail-globe-message")).toHaveText(
+        record.cancelled
+          ? englishGlobeMessages.detailCancelled
+          : englishGlobeMessages.detailUnavailable,
       );
       await expect(
         page.locator(".detail-globe-frame canvas, .detail-globe-frame svg"),
