@@ -12,11 +12,12 @@
 }
 
 .settings-compact .settings-content {
+  --settings-control-width: 280px;
   --settings-row-height: 60px;
   --settings-row-padding: var(--space-2) var(--space-4);
-  --settings-section-gap: var(--space-5);
+  --settings-section-gap: var(--space-6);
 
-  max-width: 1120px;
+  max-width: 960px;
 }
 
 .settings-page-heading {
@@ -57,6 +58,14 @@
   background: var(--surface);
 }
 
+.settings-compact .settings-panel {
+  border: 0;
+}
+
+.settings-compact .settings-row {
+  border-bottom: 0;
+}
+
 .settings-row,
 .settings-backup-summary,
 .settings-import-row {
@@ -83,6 +92,10 @@
   overflow-wrap: anywhere;
 }
 
+.settings-compact .settings-row-label {
+  font-size: var(--type-size-body);
+}
+
 .settings-row-copy {
   display: grid;
   min-width: 0;
@@ -95,6 +108,13 @@
   font-size: var(--type-size-caption);
   line-height: var(--type-leading-caption);
   overflow-wrap: anywhere;
+}
+
+.settings-compact .settings-row-copy > small,
+.settings-compact .settings-export-note,
+.settings-compact .settings-helper {
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-body);
 }
 
 .settings-row-control {
@@ -200,30 +220,39 @@
 }
 
 .settings-membership-summary-copy {
-  display: flex;
+  display: grid;
   min-width: 0;
-  flex-wrap: wrap;
-  gap: 3px var(--space-3);
+  gap: var(--space-1);
   color: var(--muted);
-  font-size: var(--type-size-caption);
-  line-height: var(--type-leading-caption);
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-label);
 }
 
-.settings-membership-summary-copy > strong {
-  width: 100%;
+.settings-membership-identity,
+.settings-membership-airline-summary {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.settings-membership-identity > strong {
   color: var(--ink);
-  font-size: var(--type-size-label);
+  font-size: var(--type-size-body);
   line-height: var(--type-leading-label);
   overflow-wrap: anywhere;
 }
 
-.settings-membership-summary-copy > span {
+.settings-membership-identity > span,
+.settings-membership-airline-summary > span {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.settings-membership-airline-summary {
-  width: 100%;
+.settings-membership-number {
+  color: var(--ink);
+  font-family: var(--font-family-data);
 }
 
 .settings-membership-edit {
@@ -235,7 +264,7 @@
 .settings-membership-editor-fields {
   min-width: 0;
   margin: 0;
-  padding: var(--space-4) 0;
+  padding: var(--space-3) 0;
   border: 0;
   border-top: 1px solid var(--line);
 }
@@ -250,15 +279,24 @@
 .settings-membership-grid > label {
   display: grid;
   min-width: 0;
-  gap: 6px;
-  color: var(--muted);
-  font-size: var(--type-size-caption);
-  line-height: var(--type-leading-caption);
+  grid-template-columns: minmax(90px, 0.35fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-label);
 }
 
 .settings-membership-airlines {
   min-width: 0;
   grid-column: 1 / -1;
+}
+
+.settings-compact .settings-membership-airlines .airline-multi-select {
+  gap: var(--space-2);
+  color: var(--ink);
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-label);
 }
 
 .settings-membership-actions {
@@ -297,6 +335,13 @@
   padding-block: var(--space-3);
 }
 
+.settings-compact
+  .settings-data-panel
+  > :is(.settings-row, .settings-backup-summary, .settings-import-row) {
+  align-items: start;
+  padding-block: var(--space-4);
+}
+
 .settings-backup-summary > .settings-row-control {
   display: grid;
   gap: var(--space-2);
@@ -320,6 +365,12 @@
 
 .settings-storage-status.is-protected {
   color: var(--green);
+}
+
+.settings-compact .settings-backup-status {
+  color: var(--ink);
+  font-size: var(--type-size-label);
+  font-weight: var(--font-weight-semibold);
 }
 
 .settings-protection-actions {
@@ -434,6 +485,21 @@
   background: var(--color-canvas);
 }
 
+.settings-compact .settings-import-row .import-control > .settings-action,
+.settings-compact .settings-import-row .csv-import-control > .settings-action,
+.settings-compact .settings-import-row .csv-action-group {
+  grid-row: 1;
+  align-self: start;
+}
+
+.settings-compact .settings-import-row .csv-import-workflow {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding-top: var(--space-2);
+  font-size: var(--type-size-label);
+  line-height: var(--type-leading-body);
+}
+
 .settings-page .import-control-settings > input:focus-visible + label,
 .settings-import-row .csv-import-control > input:focus-visible + label,
 .settings-import-row
@@ -525,20 +591,6 @@
 @media (min-width: 761px) and (max-width: 1024px) {
   .settings-content {
     --settings-control-width: 280px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .settings-compact .settings-section {
-    display: grid;
-    grid-template-columns: 180px minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-5);
-  }
-
-  .settings-compact .settings-section-title {
-    margin: 0;
-    padding-block: var(--space-4);
   }
 }
 
@@ -773,6 +825,13 @@
     width: 100%;
   }
 
+  .settings-compact .settings-row,
+  .settings-compact .settings-backup-summary,
+  .settings-compact .settings-import-row {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
   .settings-row-label {
     font-size: var(--type-size-label);
   }
@@ -800,6 +859,14 @@
 
   .settings-import-row .csv-action-group {
     gap: 0;
+  }
+
+  .settings-compact .settings-import-row .import-control > .settings-action,
+  .settings-compact .settings-import-row .csv-import-control > .settings-action,
+  .settings-compact .settings-import-row .csv-action-group,
+  .settings-compact .settings-import-row .csv-import-workflow {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .settings-import-row .csv-action-group > .button-secondary {
@@ -836,6 +903,10 @@
   }
 
   .settings-membership-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-membership-grid > label {
     grid-template-columns: minmax(0, 1fr);
   }
 

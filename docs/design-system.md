@@ -78,10 +78,12 @@ hierarchy before surfaces, shadows or decoration.
 | Flight detail  | Origin → destination and the relationship between local times | Date, flight identity, recorded status and optional travel facts |
 | Settings       | Data ownership and editable preferences                       | Section labels, import/export controls and storage information   |
 
-Settings places category headings beside compact form groups from 1,200 px,
-and above them on tablets. Mobile stacks labels and native controls, keeps
-membership editing available and uses at least 44 px touch targets. The compact
-layout is scoped to Settings; Recovery retains the shared form defaults.
+Settings keeps category headings above grouped rows in a centered, bounded
+column. Membership summaries expose editing on demand; desktop fields share
+two columns, while mobile stacks labels and controls with at least 44 px touch
+targets and more breathing room. Backup actions keep their supporting workflow
+notes below the main action row. Layout changes are scoped to Settings; Recovery
+retains the shared form defaults.
 
 The chronological flight list is part of Passport, not a separate page. Desktop
 can place the map and archive beside each other; mobile reorders the same content

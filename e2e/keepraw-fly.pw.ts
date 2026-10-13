@@ -284,8 +284,11 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
 
   for (const viewport of [
     { width: 1440, height: 900, name: "desktop-1440" },
+    { width: 1280, height: 900, name: "desktop-1280" },
     { width: 1024, height: 900, name: "tablet-1024" },
+    { width: 768, height: 900, name: "tablet-768" },
     { width: 390, height: 844, name: "mobile-390" },
+    { width: 320, height: 844, name: "mobile-320" },
   ]) {
     await page.setViewportSize({
       width: viewport.width,
@@ -318,6 +321,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
           width: bounds.width,
           height: bounds.height,
           top: bounds.top,
+          labelTop: label.top,
           labelBottom: label.bottom,
         };
       });
@@ -349,6 +353,19 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         controls,
         categoryHeading: { right: heading.right, bottom: heading.bottom },
         categoryPanel: { left: panel.left, top: panel.top },
+        categoriesAboveGroups: Array.from(
+          document.querySelectorAll(".settings-section"),
+        ).every((section) => {
+          const title = section
+            .querySelector(".settings-section-title")!
+            .getBoundingClientRect();
+          const group = section
+            .querySelector(".settings-panel")!
+            .getBoundingClientRect();
+          return (
+            title.bottom <= group.top && Math.abs(title.left - group.left) < 1
+          );
+        }),
         basicRowHeights: controlElements
           .slice(0, 4)
           .map(
@@ -410,27 +427,36 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         Math.min(...layout.controls.map((control) => control.width)),
     ).toBeLessThan(1);
     expect(layout.controls.every((control) => control.height >= 44)).toBe(true);
+    expect(layout.categoriesAboveGroups).toBe(true);
     if (viewport.width > 760) {
       expect(layout.basicRowHeights.every((height) => height <= 64)).toBe(true);
+      expect(
+        layout.controls
+          .slice(0, 4)
+          .every(
+            (control) =>
+              Math.abs(
+                control.top +
+                  control.height / 2 -
+                  (control.labelTop + control.labelBottom) / 2,
+              ) < 1,
+          ),
+      ).toBe(true);
     }
-    if (viewport.width === 1440) {
-      expect(layout.categoryHeading.right).toBeLessThan(
-        layout.categoryPanel.left,
-      );
-      expect(layout.content.width).toBeGreaterThanOrEqual(1080);
-      expect(layout.content.width).toBeLessThanOrEqual(1120);
+    expect(layout.categoryHeading.bottom).toBeLessThanOrEqual(
+      layout.categoryPanel.top,
+    );
+    if (viewport.width >= 1280) {
+      expect(layout.content.width).toBeGreaterThanOrEqual(920);
+      expect(layout.content.width).toBeLessThanOrEqual(960);
       expect(
         Math.abs(layout.content.left - (viewport.width - layout.content.right)),
       ).toBeLessThan(1);
-      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(300);
-      expect(layout.controls[0]!.width).toBeLessThanOrEqual(320);
+      expect(layout.controls[0]!.width).toBeGreaterThanOrEqual(260);
+      expect(layout.controls[0]!.width).toBeLessThanOrEqual(280);
       await expect(page.locator(".settings-page-heading h1")).toBeVisible();
-    } else {
-      expect(layout.categoryHeading.bottom).toBeLessThanOrEqual(
-        layout.categoryPanel.top,
-      );
     }
-    if (viewport.width === 390) {
+    if (viewport.width <= 760) {
       expect(
         layout.controls.every((control) => control.top >= control.labelBottom),
       ).toBe(true);
