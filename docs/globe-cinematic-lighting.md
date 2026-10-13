@@ -43,7 +43,7 @@
 | `scripts/capture-globe-lighting.mjs`, `measure-globe-lighting.mjs` | 真实浏览器截图与硬件/软件测量                        |
 | `e2e/globe-lighting.pw.ts`                                         | 实际像素、层开关、太阳稳定性、新纹理回退测试         |
 | `THIRD_PARTY_NOTICES.md`                                           | NASA 夜光使用与署名记录                              |
-| 本报告与 `docs/visual-review/task-1b-1/`                           | 固定数据的前后截图与原始测量                         |
+| 本报告与 Task 1B-1 历史记录                                        | 固定数据的前后截图与原始测量                         |
 
 ## 本地资源与使用条件
 
@@ -109,7 +109,7 @@ Chrome 与 Edge 都成功读取到 `Intel(R) UHD Graphics ... Direct3D11`，正�
 ## 截图与诚实视觉判断
 
 全部为真实系统 Chrome/Intel D3D11 截图，未拼接、修图或生成替代画面。
-见 [前后比较与全部图片](visual-review/task-1b-1/README.md)。截图 metadata 记录实际机位、
+见 [前后比较与全部图片](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-1b-1/README.md)。截图 metadata 记录实际机位、
 主题、质量、光照默认值与 GPU；前后默认机位完全一致，固定 Demo 24 航班/23 航线/20 机场。
 基线是旧版本默认参数，新版本是本报告默认参数，比较时不为某张图临时调参。
 
@@ -132,6 +132,7 @@ Chrome 与 Edge 都成功读取到 `Intel(R) UHD Graphics ... Direct3D11`，正�
 先 `pnpm dev`，打开 `/globe-lab`。使用独立基线副本的服务器（本次为 5174）时：
 
 ```sh
+# Captures are written to ignored artifacts/globe-lighting/.
 node scripts/capture-globe-lighting.mjs before http://127.0.0.1:5174/globe-lab chrome
 node scripts/capture-globe-lighting.mjs after http://127.0.0.1:5173/globe-lab chrome
 node scripts/measure-globe-lighting.mjs http://127.0.0.1:5173/globe-lab after-hardware.json chrome

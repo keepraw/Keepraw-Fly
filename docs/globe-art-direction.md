@@ -2,7 +2,7 @@
 
 **Visual approval pending. A is the default candidate; neither candidate is approved.**
 
-Rendered source: `2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1`. Baseline: `b9d32b3be9b6791a5a2861846d220c96ca0d59f0`. [Side-by-side browser review](visual-review/task-1b-3/README.md).
+Rendered source: `2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1`. Baseline: `b9d32b3be9b6791a5a2861846d220c96ca0d59f0`. [Side-by-side browser review](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-1b-3/README.md).
 
 ## Reference diagnosis
 
@@ -30,7 +30,7 @@ Ordinary routes retain their geometry and continuous limb fade. Dark blue change
 
 ## Controlled capture
 
-`scripts/capture-globe-art.mjs` captures eight fresh baseline images before the material edit and sixteen A/B images afterward. Every comparison asserts exact equality of the entire scene diagnostic: camera, FOV, ViewOffset, viewport, Home state, all route keys/counts/altitudes. World sun and exposure are also asserted equal. Unmodified Demo: all years, 24 flights, 23 directed routes, 22 physical strokes, 20 airports, 4K, DPR 1. Chrome uses Intel UHD / ANGLE D3D11. Screenshots are direct browser PNGs, without editing, compositing or generated imagery. Each image's mode, candidate, viewport, view, camera, data and hash are recorded in the manifest and scene JSON.
+The [historical capture script](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/scripts/capture-globe-art.mjs) captured eight fresh baseline images before the material edit and sixteen A/B images afterward. Every comparison asserts exact equality of the entire scene diagnostic: camera, FOV, ViewOffset, viewport, Home state, all route keys/counts/altitudes. World sun and exposure are also asserted equal. Unmodified Demo: all years, 24 flights, 23 directed routes, 22 physical strokes, 20 airports, 4K, DPR 1. Chrome uses Intel UHD / ANGLE D3D11. Screenshots are direct browser PNGs, without editing, compositing or generated imagery. Each image's mode, candidate, viewport, view, camera, data and hash are recorded in the manifest and scene JSON.
 
 At 1440×900, the live formal Passport `.route-map` measures **998×576.0625 CSS px**, with a 996×574 client canvas and 1 px border. Its allocation comes from `passport-desktop.css` and `passport.css`'s existing sticky grid, including the report below the map. This was measured after loading the same Demo; no assumed map height is used. The Lab stage alone is resized to the measured outer size, so its client WebGL canvas also becomes 996×574. The unchanged Home algorithm supplies the camera for this aspect; baseline/A/B use that same camera. Formal Passport remains SVG.
 
@@ -65,7 +65,7 @@ Same Intel UHD / D3D11 hardware, 1440×900, same camera/sun/Demo, DPR 1. Sequent
 | 4K      | 60.00 / 60.00 / 60.00      | 16.7 / 16.7 / 16.7   | 16.8 / 16.8 / 16.8 | 388.7 / 293.5 / 304.3              |
 | 2K      | 59.99 / 60.00 / 60.00      | 16.7 / 16.7 / 16.7   | 16.9 / 16.8 / 16.8 | 177.8 / 102.5 / 94.5               |
 
-All have 42 default draw calls and zero extra frames over 300 ms at rest. Single-run startup differences include driver/cache effects; no startup speedup is claimed. RAF Hz is not a native FPS counter or GPU timing, and a 60 Hz cap cannot prove spare GPU capacity. Shader arithmetic changes but sample/pass/geometry counts do not. Independent renderer JS: 596,933 → 598,612 B (+1,679); gzip 150,174 → 150,943 B (+769). Formal production addition: 0 B. Same 4K/2K texture bytes and estimated texture memory as B2. [Raw evidence](visual-review/task-1b-3/README.md#verification-and-raw-evidence).
+All have 42 default draw calls and zero extra frames over 300 ms at rest. Single-run startup differences include driver/cache effects; no startup speedup is claimed. RAF Hz is not a native FPS counter or GPU timing, and a 60 Hz cap cannot prove spare GPU capacity. Shader arithmetic changes but sample/pass/geometry counts do not. Independent renderer JS: 596,933 → 598,612 B (+1,679); gzip 150,174 → 150,943 B (+769). Formal production addition: 0 B. Same 4K/2K texture bytes and estimated texture memory as B2. [Raw evidence](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/task-1b-3/README.md#verification-and-raw-evidence).
 
 ## Scope
 
