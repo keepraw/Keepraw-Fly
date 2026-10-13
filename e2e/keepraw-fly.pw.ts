@@ -121,6 +121,7 @@ test("manages associated airlines as searchable chips with a constrained default
     .locator(".button-secondary")
     .click();
   await navigateTo(page, "settings");
+  await openSettingsCategory(page, "Frequent flyer profiles");
   await page
     .getByRole("button", { name: "Add frequent flyer program" })
     .click();
@@ -1040,10 +1041,10 @@ test.describe("Chinese distance defaults", () => {
 
     await page.locator(".detail-header-back").click();
     await page.locator('.site-navigation a[href="#settings"]').click();
-    const distanceSelect = page
-      .locator(".settings-display-fields label")
-      .nth(2)
-      .locator("select");
+    const distanceSelect = page.getByRole("combobox", {
+      name: "距离",
+      exact: true,
+    });
     await expect(distanceSelect).toHaveValue("kilometers");
     await distanceSelect.selectOption("miles");
     await page.locator('.site-navigation a[href="#passport"]').click();
@@ -1053,6 +1054,19 @@ test.describe("Chinese distance defaults", () => {
       .first()
       .click();
     await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const modulePath = "/src/storage/browser.ts";
+          const { browserStorage } = await import(modulePath);
+          return (await browserStorage.loadSettings())?.distanceUnit;
+        }),
+      )
+      .toBe("miles");
+    await page.reload();
+    await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+    await page.goto("/#settings");
+    await expect(distanceSelect).toHaveValue("miles");
   });
 });
 
@@ -1190,6 +1204,7 @@ test("maps and previews CSV columns before appending flights", async ({
   // Firefox smooth scrolling can move the button between mouse down/up.
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#settings");
+  await openSettingsCategory(page, "Data and backup");
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const preview = page.getByRole("region", { name: "Review CSV import" });
   await expect(preview).toBeVisible();
@@ -1249,6 +1264,7 @@ test("skips an exact JSON duplicate without replacing the existing archive", asy
     .setInputFiles(exampleArchive);
   await page.getByRole("button", { name: "Import this archive" }).click();
   await navigateTo(page, "settings");
+  await openSettingsCategory(page, "Data and backup");
 
   await page
     .locator('input[type="file"][accept*=".json"]')
@@ -1340,6 +1356,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
 
+  await openSettingsCategory(page, "Data and backup");
   const exportButton = page.getByRole("button", {
     name: "Export Keepraw Fly JSON",
   });
@@ -1358,6 +1375,7 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
   await page.keyboard.press("Escape");
   await expect(exportButton).toBeFocused();
 
+  await openSettingsCategory(page, "Danger zone");
   const clearButton = page.getByRole("button", { name: "Clear local data" });
   await clearButton.focus();
   await clearButton.press("Enter");

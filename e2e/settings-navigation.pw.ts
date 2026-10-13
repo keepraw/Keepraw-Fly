@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -25,6 +26,10 @@ test("Settings categories have native keyboard navigation and named current regi
   await expect(
     page.getByRole("region", { name: "General", exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "General", exact: true }),
+  ).toHaveCSS("opacity", "1");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await general.focus();
   for (const name of [
     "Profile",
@@ -47,6 +52,11 @@ test("Settings categories have native keyboard navigation and named current regi
     await expect(
       page.getByRole("region", { name, exact: true }),
     ).toHaveAttribute("id", (await button.getAttribute("aria-controls"))!);
+    await expect(page.getByRole("region", { name, exact: true })).toHaveCSS(
+      "opacity",
+      "1",
+    );
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   }
   await page.keyboard.press("Shift+Tab");
   await expect(
@@ -85,6 +95,23 @@ test("Passport import opens Data independent of hover or retained button focus @
   await expect(
     page.getByLabel("Open Keepraw Fly file", { exact: true }),
   ).toBeAttached();
+  await page
+    .getByLabel("Open Keepraw Fly file", { exact: true })
+    .setInputFiles("examples/basic.keepraw-fly.json");
+  const preview = page.getByRole("region", {
+    name: "Review before importing",
+    exact: true,
+  });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1",
+  );
+  await openSettingsCategory(page, "General");
+  await expect(preview).toBeHidden();
+  await openSettingsCategory(page, "Data and backup");
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText("basic.keepraw-fly.json");
+  await preview.getByRole("button", { name: "Cancel", exact: true }).click();
   // Leaving through the location hash must clear the import intent too.
   await page.evaluate(() => {
     window.location.hash = "passport";
@@ -101,4 +128,43 @@ test("Passport import opens Data independent of hover or retained button focus @
   await expect(
     navigation.getByRole("button", { name: "Data and backup", exact: true }),
   ).toHaveAttribute("aria-current", "true");
+});
+
+test("direct Settings and Passport import retain the mobile scrolling workflow @cross-browser", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#settings");
+  await expect(
+    page.getByRole("navigation", { name: "Settings", exact: true }),
+  ).toBeHidden();
+  await expect(page.locator(".settings-section:visible")).toHaveCount(6);
+  await openSettingsCategory(page, "Profile");
+  await page
+    .getByRole("textbox", { name: "Native name", exact: true })
+    .fill("Mobile profile");
+  await openSettingsCategory(page, "General");
+  await expect(
+    page.getByRole("textbox", { name: "Native name", exact: true }),
+  ).toHaveValue("Mobile profile");
+  await page
+    .getByRole("button", { name: "Back to Flight Passport", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Import flights", exact: true })
+    .click();
+  await expect(page.locator("#settings-import")).toBeInViewport();
+  await expect(page.locator(".settings-section:visible")).toHaveCount(6);
+  await page
+    .getByLabel("Open Keepraw Fly file", { exact: true })
+    .setInputFiles("examples/basic.keepraw-fly.json");
+  const preview = page.getByRole("region", {
+    name: "Review before importing",
+    exact: true,
+  });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByLabel("Import preflight summary")).toContainText(
+    "Recognized1",
+  );
+  await preview.getByRole("button", { name: "Cancel", exact: true }).click();
 });

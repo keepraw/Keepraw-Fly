@@ -1,3 +1,4 @@
+import { openSettingsCategory } from "./helpers/settings";
 import { expectDetailGlobe } from "./helpers/detail-globe";
 import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -124,6 +125,7 @@ for (const viewport of viewports) {
       await expectReachable(appearance);
       await appearance.selectOption("dark");
       await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+      await openSettingsCategory(page, "Data and backup");
       await expectReachable(
         page.locator(".import-control-settings > .settings-action"),
       );
@@ -159,6 +161,13 @@ test(
     await expect(page.locator(".flight-row")).toHaveCount(1);
 
     await test.step("Passport: 760→761→760→761 updates CSS and map/highlights DOM without losing search", async () => {
+      await openSettingsCategory(page, "Profile");
+      const nativeName = page.getByRole("textbox", {
+        name: "Native name",
+        exact: true,
+      });
+      await nativeName.fill("Boundary profile");
+      const profileInput = await nativeName.elementHandle();
       for (const width of [760, 761, 760, 761]) {
         await page.setViewportSize({ width, height: 900 });
         await expectShell(page, width === 760, "passport");
@@ -187,11 +196,25 @@ test(
     });
     await page.locator(".detail-header-back").click();
     await navigateTo(page, "settings");
-    await test.step("Settings: 760→761→760→761 updates navigation and row columns without remounting", async () => {
+    await test.step("Settings: 760→761→760→761 updates category navigation and single-column controls without remounting", async () => {
+      await openSettingsCategory(page, "Profile");
+      const nativeName = page.getByRole("textbox", {
+        name: "Native name",
+        exact: true,
+      });
+      await nativeName.fill("Boundary profile");
+      const profileInput = await nativeName.elementHandle();
       for (const width of [760, 761, 760, 761]) {
         await page.setViewportSize({ width, height: 900 });
         await expectShell(page, width === 760, "settings");
         await expectSettingsLayout(page, width === 760);
+        // CSS visibility changes must retain the mounted field and its value.
+        expect(await profileInput!.evaluate((input) => input.isConnected)).toBe(
+          true,
+        );
+        await openSettingsCategory(page, "Profile");
+        await expect(nativeName).toHaveValue("Boundary profile");
+        await expectReachable(nativeName);
         await expectHealthyPage(page, errors);
       }
     });
@@ -400,6 +423,7 @@ for (const theme of ["light", "dark"]) {
 
     await test.step("Settings: profile, backup export, import preview/actions and clear confirmation", async () => {
       await navigateTo(page, "settings");
+      await openSettingsCategory(page, "Profile");
       await expectReachable(page.locator("#settings-profile"));
       await expectReachable(
         page.getByRole("textbox", { name: "Native name", exact: true }),
@@ -407,6 +431,7 @@ for (const theme of ["light", "dark"]) {
       await expectReachable(
         page.getByRole("textbox", { name: "Romanized name", exact: true }),
       );
+      await openSettingsCategory(page, "Frequent flyer profiles");
       await expectReachable(
         page.getByRole("button", {
           name: "Add frequent flyer program",
@@ -425,6 +450,7 @@ for (const theme of ["light", "dark"]) {
         )
         .all())
         await expectReachable(field);
+      await openSettingsCategory(page, "Data and backup");
       const backup = page.getByRole("button", {
         name: "Export Keepraw Fly JSON",
         exact: true,
@@ -504,6 +530,7 @@ for (const theme of ["light", "dark"]) {
       await expect(page.locator(".flight-row")).toHaveCount(13);
       await expectHealthyPage(page, errors);
       await navigateTo(page, "settings");
+      await openSettingsCategory(page, "Danger zone");
       await page
         .getByRole("button", { name: "Clear local data", exact: true })
         .click();
