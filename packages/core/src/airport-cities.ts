@@ -134,7 +134,8 @@ export function formatCityDisplayName(
   country: string,
   locale: SupportedLocale,
 ): string {
-  if (locale === "en" || !name.endsWith("市")) return name;
+  if ((locale !== "zh-CN" && locale !== "zh-TW") || !name.endsWith("市"))
+    return name;
   // Korean 'metropolitan city' is an administrative suffix, not part of the label.
   if (country === "KR" && /(?:广域|廣域)市$/.test(name) && name.length > 3)
     return name.slice(0, -3);

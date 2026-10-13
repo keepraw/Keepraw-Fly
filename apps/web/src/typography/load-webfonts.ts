@@ -1,12 +1,10 @@
-import type { Language } from "../storage/types";
-
 export const chineseWebfontVersion = "4.3.1";
 const root = `https://cdn.jsdelivr.net/npm/misans-webfont@${chineseWebfontVersion}`;
 const weights = ["regular", "medium", "semibold"] as const;
 
 /** Native, non-blocking stylesheets; unicode-range selects the needed WOFF2 subsets. */
-export function loadChineseWebfonts(language: Language, owner: Document): void {
-  if (language === "en") return;
+export function loadChineseWebfonts(language: string, owner: Document): void {
+  if (language !== "zh-CN" && language !== "zh-TW") return;
   const traditional = language === "zh-TW";
   const folder = traditional ? "misans-tc" : "misans";
   const prefix = traditional ? "misanstc" : "misans";

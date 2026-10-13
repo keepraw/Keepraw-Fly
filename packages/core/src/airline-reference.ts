@@ -60,8 +60,10 @@ export function airlineNames(
   airline: AirlineReference,
   locale: SupportedLocale,
 ): [string, string] {
-  if (locale === "zh-CN") return [airline.nameZh, airline.nameEn];
-  if (locale === "zh-TW") return [airline.nameZhTw, airline.nameEn];
+  if (locale === "zh-CN")
+    return [airline.nameZh || airline.nameEn, airline.nameEn];
+  if (locale === "zh-TW")
+    return [airline.nameZhTw || airline.nameEn, airline.nameEn];
   return [airline.nameEn, airline.nameZh];
 }
 

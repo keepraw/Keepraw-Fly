@@ -16,7 +16,7 @@ import {
   type PassportViewState,
 } from "../data/passport-exploration";
 import { PassportPage } from "./PassportPage";
-import en from "../locales/en.json";
+import en from "../locales/en-US.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
 

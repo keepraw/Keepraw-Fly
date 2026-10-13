@@ -1,3 +1,4 @@
+import { localeRegistry, supportedLanguages } from "../locales/registry";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
@@ -258,13 +259,11 @@ export function SettingsPage({
                         )
                       }
                     >
-                      <option value="en">{t("settings.languages.en")}</option>
-                      <option value="zh-CN">
-                        {t("settings.languages.zhCN")}
-                      </option>
-                      <option value="zh-TW">
-                        {t("settings.languages.zhTW")}
-                      </option>
+                      {supportedLanguages.map((language) => (
+                        <option key={language} value={language}>
+                          {localeRegistry[language].label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="settings-row settings-item settings-preference">

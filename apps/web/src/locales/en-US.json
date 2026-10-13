@@ -7,7 +7,8 @@
     "storageUnavailable": "Local storage is unavailable. Changes may not persist.",
     "changesNotSaved": "Changes are not saved on this device.",
     "settingsNotSaved": "Settings are not saved on this device.",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "unavailable": "This information is unavailable."
   },
   "nav": {
     "label": "Primary navigation",
@@ -154,7 +155,7 @@
     "onTime": "On time",
     "delayed": "Delayed",
     "early": "Early",
-    "cancelled": "Cancelled",
+    "cancelled": "Canceled",
     "diverted": "Diverted",
     "divertedTo": "Diverted to {{airport}}"
   },
@@ -367,8 +368,19 @@
       "anyOf": "This object is missing a supported identifying field.",
       "uniqueFlightId": "This flight id is repeated within the imported file.",
       "serviceDate": "The service date does not match the scheduled departure date.",
-      "chronology": "An arrival time must be later than its departure time."
-    }
+      "chronology": "An arrival time must be later than its departure time.",
+      "uniqueMembershipId": "This membership id is repeated within the imported file.",
+      "membershipDefaultAirline": "The default airline must be one of this membership’s associated airlines.",
+      "membershipReference": "This flight refers to a membership that is not in the archive.",
+      "cancelledDivertedConflict": "A canceled flight cannot also have a diversion airport.",
+      "unsupportedVersion": "This archive version is not supported. Use a compatible Keepraw Fly version.",
+      "migration": "This archive could not be migrated safely. Keep the original file and try a compatible backup.",
+      "generic": "This value is invalid. Review the file and try again.",
+      "uniqueItems": "This list contains repeated values.",
+      "propertyNames": "Extension names must use a valid namespace.",
+      "maxLength": "This value is longer than the supported limit."
+    },
+    "operationFailed": "The file could not be imported. Please try again."
   },
   "units": {
     "minuteShort": "min"
@@ -388,7 +400,7 @@
     "mappingIssue": "Column mapping",
     "timezoneNote": "All times are airport-local; no timezone is required. Keepraw Fly resolves each airport’s IANA timezone automatically, for example 2026-09-02T13:00. Explicit RFC3339 times with an offset remain supported.",
     "invalidFile": "This CSV could not be read. Include one header row and at least one flight row.",
-    "importFailed": "The CSV was not imported. {{detail}}",
+    "importFailed": "The file was not imported. Review it and try again.",
     "importing": "Adding flights…",
     "appendFlights_one": "Add {{count}} flight",
     "appendFlights_other": "Add {{count}} flights",
@@ -446,7 +458,7 @@
     "importing": "Adding flights…",
     "appendFlights_one": "Add {{count}} flight",
     "appendFlights_other": "Add {{count}} flights",
-    "importFailed": "The Flighty CSV was not imported. {{detail}}",
+    "importFailed": "The file was not imported. Review it and try again.",
     "invalidFile": "This is not a recognized Flighty CSV export.",
     "fileErrors": {
       "not-flighty-file": "This CSV is missing the Flighty Date, Airline, Flight, From, To and scheduled gate-time columns.",
@@ -515,11 +527,6 @@
     "clearConfirmation": "Clear the local Keepraw Fly archive? Export first if you need a backup.",
     "display": "Display",
     "language": "Language",
-    "languages": {
-      "en": "English",
-      "zhCN": "简体中文",
-      "zhTW": "繁體中文"
-    },
     "appearance": "Appearance",
     "system": "System",
     "light": "Light",
@@ -609,5 +616,61 @@
       "late": "Arrival delayed {{count}} min",
       "onTime": "Arrival on time"
     }
+  },
+  "globe": {
+    "keyboard": "Drag to rotate, scroll or use + and - to zoom, arrow keys to rotate, Home to fit this view",
+    "detailLabel": "Interactive 3D globe of this flight's route",
+    "detailCancelled": "This flight was canceled. No flown route to display.",
+    "detailUnavailable": "The flight route is unavailable: an airport is unknown or has invalid coordinates.",
+    "errors": {
+      "webgl2-unavailable": "3D globe unavailable: this browser could not start WebGL. Try again.",
+      "initialization": "The 3D globe could not start. Try again.",
+      "texture": "The globe imagery could not load. Try again.",
+      "context": "The 3D globe connection was lost. Try again."
+    },
+    "twilightReview": "Twilight Review",
+    "solarMode": "Solar Mode",
+    "solarFixed": "Fixed",
+    "solarRealtime": "Real-time",
+    "solarDiagnostic": "Solar regions (diagnostic)",
+    "neutralProbe": "Neutral solar probe (diagnostic)",
+    "artDirection": "Art Direction",
+    "lightingReview": "Lighting review · Control approved",
+    "earthOnly": "Earth only",
+    "daySurface": "Day surface",
+    "nightLights": "City lights",
+    "atmosphere": "Atmosphere",
+    "sunIntensity": "Sun intensity",
+    "twilightWidth": "Twilight width",
+    "atmosphereIntensity": "Atmosphere intensity",
+    "nightIntensity": "City intensity",
+    "resetLighting": "Reset lighting",
+    "resetLightingHint": "Restores lighting parameters; keeps your solar preference, camera, selection, filters and theme.",
+    "back": "Back to Passport",
+    "personal": "Personal archive",
+    "experiment": "Desktop globe experiment",
+    "appearance": "Appearance",
+    "flights": "Flights",
+    "all": "All",
+    "search": "Search flights, airports, airlines…",
+    "records": "records",
+    "routes": "Routes",
+    "airports": "Airports",
+    "route": "Route",
+    "airport": "Airport",
+    "chooseRoute": "Select a route",
+    "chooseAirport": "Select an airport",
+    "quality": "Texture",
+    "help": "Drag to rotate · Scroll to zoom · Arrow keys to explore · Home to reset",
+    "credit": "Geographic imagery:",
+    "mapLabel": "Interactive globe of recorded flights",
+    "fallback": "3D is unavailable. The local 2D map remains interactive.",
+    "surface": "FLIGHT PASSPORT / GLOBE",
+    "local": "Local geographic imagery · Great-circle routes",
+    "selected": "Selected",
+    "empty": "No matching flights.",
+    "lab": "Globe Lab",
+    "artDirectionA": "A · Restrained Midnight Aviation",
+    "artDirectionB": "B · Subtle Horizon Twilight"
   }
 }

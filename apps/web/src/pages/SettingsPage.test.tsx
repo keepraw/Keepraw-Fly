@@ -3,7 +3,7 @@ import { createInstance } from "i18next";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, expect, it, vi } from "vitest";
 import { SettingsPage } from "./SettingsPage";
-import en from "../locales/en.json";
+import en from "../locales/en-US.json";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -25,7 +25,7 @@ it.each(["general", "data"] as const)(
           document={null}
           isDemo={false}
           settings={{
-            language: "en",
+            language: "en-US",
             appearance: "system",
             distanceUnit: "miles",
             timeFormat: "24-hour",

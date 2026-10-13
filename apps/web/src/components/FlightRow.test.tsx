@@ -9,7 +9,7 @@ import {
 } from "@keepraw-fly/core";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { FlightRow } from "./FlightRow";
-import en from "../locales/en.json";
+import en from "../locales/en-US.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
 
@@ -136,7 +136,7 @@ describe("FlightRow", () => {
       );
       expect(
         await archiveMarkup("en", { cancelled: true }, presentation),
-      ).toContain("Cancelled");
+      ).toContain("Canceled");
       const diverted = await archiveMarkup(
         "en",
         { divertedTo: { iata: "PEK" } },

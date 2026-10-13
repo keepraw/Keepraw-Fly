@@ -126,7 +126,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await page.locator("#passport-flight-search").fill("SHA");
   await expect(page.locator(".flight-row")).toHaveCount(4);
   await page.locator("#passport-flight-search").fill("");
-  for (const locale of ["en", "zh-CN", "zh-TW"]) {
+  for (const locale of ["en-US", "zh-CN", "zh-TW"]) {
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
       const settings = page.locator(".settings-display-fields select");

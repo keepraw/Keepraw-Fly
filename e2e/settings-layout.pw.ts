@@ -221,7 +221,7 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
     .fill("A long frequent flyer program name 常旅客計劃名稱");
   await membership.getByLabel("Member number").fill("KF-2026-0123456789");
 
-  for (const language of ["en", "zh-CN", "zh-TW"]) {
+  for (const language of ["en-US", "zh-CN", "zh-TW"]) {
     await page
       .locator(".settings-display-fields select")
       .first()

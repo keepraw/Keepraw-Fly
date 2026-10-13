@@ -75,7 +75,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [360, 390, 430, 760, 761, 1024, 1199, 1200, 1440]) {
-  for (const language of ["en", "zh-CN", "zh-TW"]) {
+  for (const language of ["en-US", "zh-CN", "zh-TW"]) {
     test(`shared page colors and live System at ${width}px in ${language}`, async ({
       page,
     }) => {
@@ -416,7 +416,7 @@ test("125% layout zoom and live 760/761px boundaries keep page state and control
   }
 });
 
-for (const language of ["en", "zh-CN", "zh-TW"] as const) {
+for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
   test(`Detail cities, long names, operational colors and complete times in ${language}`, async ({
     page,
   }) => {
@@ -488,7 +488,9 @@ for (const language of ["en", "zh-CN", "zh-TW"] as const) {
           );
           await expect(page.locator(".route-arrival-city")).toHaveText(
             id === "diversion"
-              ? { en: "Guangzhou", "zh-CN": "广州", "zh-TW": "廣州" }[language]
+              ? { "en-US": "Guangzhou", "zh-CN": "广州", "zh-TW": "廣州" }[
+                  language
+                ]
               : cityLabels[1]!,
           );
           await expect(page.locator(".detail-airport-time time")).toHaveCount(
@@ -574,7 +576,7 @@ test("native 125% browser zoom keeps Detail and Settings themed and reachable ac
     const page = await context.newPage();
     await disablePassportWebGL(page);
     await importArchive(page);
-    for (const language of ["en", "zh-CN", "zh-TW"]) {
+    for (const language of ["en-US", "zh-CN", "zh-TW"]) {
       await page.goto("/#settings");
       await page
         .locator(".settings-display-fields select")

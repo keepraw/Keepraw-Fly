@@ -236,9 +236,8 @@ export function App() {
 
   useEffect(() => {
     void i18n.changeLanguage(settings.language);
-    documentElementLanguage(settings.language);
-    loadChineseWebfonts(settings.language, window.document);
-  }, [i18n, settings.language]);
+    if (loaded) loadChineseWebfonts(settings.language, window.document);
+  }, [i18n, settings.language, loaded]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -412,7 +411,9 @@ export function App() {
     !recoveryArchive
   ) {
     return (
-      <Suspense fallback={<main className="loading-screen">Globe Lab</main>}>
+      <Suspense
+        fallback={<main className="loading-screen">{t("app.loading")}</main>}
+      >
         <GlobeLab
           document={document ?? demoDocument}
           settings={settings}
@@ -626,10 +627,6 @@ export function App() {
       ) : null}
     </div>
   );
-}
-
-function documentElementLanguage(language: ViewerSettings["language"]) {
-  window.document.documentElement.lang = language;
 }
 
 function pageFromHash(): Page {
