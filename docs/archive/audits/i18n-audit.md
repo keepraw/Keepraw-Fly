@@ -1,3 +1,5 @@
+> Historical release audit; validation counts and performance observations belong to the recorded baseline. Native-review and cache follow-ups remain visible through the maintained [locale notes](../../i18n-locales.md). See the [archive index](../README.md).
+
 # Multilingual regression and release quality audit
 
 Audit date: 2026-10-13 (UTC). Baseline: `0c1b754f91ea2a232f7dff8cff660af70e786233`, the latest `main` when this audit started. Both merged PRs [#56](https://github.com/keepraw/Keepraw-Fly/pull/56) and [#57](https://github.com/keepraw/Keepraw-Fly/pull/57) are ancestors. The PR descriptions were treated as claims to verify, not acceptance evidence.
@@ -15,7 +17,7 @@ The regression additions are bounded: one loader unit test, one German field-geo
 
 ## Existing coverage and independent acceptance
 
-Read before editing: [locale terminology](i18n-locales.md), [testing layers](testing.md), registry/resource/backend and App/bootstrap code, storage normalization and persistence, import/export/recovery paths, locale/resource/unit/browser tests and `.github/workflows/ci.yml`.
+Read before editing: [locale terminology](../../i18n-locales.md), [testing layers](../../testing.md), registry/resource/backend and App/bootstrap code, storage normalization and persistence, import/export/recovery paths, locale/resource/unit/browser tests and `.github/workflows/ci.yml`.
 
 | Risk                                           | Existing coverage on main                                                                                                           | Audit addition or result                                                                                                                                                                                                                |
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

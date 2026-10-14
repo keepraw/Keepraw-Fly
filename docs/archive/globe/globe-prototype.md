@@ -1,3 +1,5 @@
+> Archived experiment; obsolete as current implementation guidance. Approval-pending and DEV-only statements describe the recorded checkpoint. See [current Globe implementation](../../globe.md) and [archive context](../README.md).
+
 # Desktop Passport Globe 实验交付说明
 
 本说明记录 Task 1 基线交付时的状态。最新的光照重构、性能、真实浏览器截图与

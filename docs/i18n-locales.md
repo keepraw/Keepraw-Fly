@@ -106,3 +106,27 @@ native review; they are complete translations, not untranslated keys:
 Chinese resources are maintained independently. Taiwan wording uses 設定, 資料,
 航廈, 登機門, 轉降 and 常旅客計畫; Simplified Chinese keeps its regional terms.
 OpenCC must not overwrite reviewed Taiwan text.
+
+## Related evidence and open follow-ups
+
+The [archived multilingual release audit](archive/audits/i18n-audit.md) records
+PR #58 validation, fixed malformed-cache recovery and narrow German editor-label
+overflow. Its counts and performance samples describe that release checkpoint.
+Use [testing guidance](testing.md) and current discovery for present coverage.
+
+Its [native-review checklist](archive/audits/i18n-audit.md#translation-semantics-and-native-review-checklist)
+adds concrete review contexts to the terminology questions above, including
+Korean diversion, Taiwan scheduled-time wording, loyalty membership and storage
+protection. Those rows remain open until a named reviewer records acceptance or
+revisions; archiving the report does not establish native-speaker approval.
+
+The [cache-risk record](archive/audits/i18n-audit.md#warming-and-performance)
+also remains relevant: old content hashes have no retention/pruning policy,
+warming does not inspect connection speed or `saveData`, and cached language
+switching does not guarantee a fresh page navigation offline. Any cache cleanup
+design must consider older open tabs before deleting valid resources.
+
+The [city-label audit](archive/reviews/task-5b-city-label-audit.md#known-source-data-errors-requiring-separate-correction)
+records source-data anomalies separately from display shortening. Recheck those
+records against current data and geographic sources before making corrections;
+UI translation completeness does not certify reference-data geography.

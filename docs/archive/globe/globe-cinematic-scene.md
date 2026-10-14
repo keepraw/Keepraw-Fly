@@ -1,3 +1,5 @@
+> Archived experiment; obsolete as current implementation guidance. Approval-pending and DEV-only statements describe the recorded checkpoint. See [current Globe implementation](../../globe.md) and [archive context](../README.md).
+
 # Task 1B-2: cinematic scene composition and routes
 
 **Visual approval pending. Draft experiment review only.**

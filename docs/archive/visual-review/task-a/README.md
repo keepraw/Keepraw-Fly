@@ -1,3 +1,5 @@
+> Historical task review. Measurements, validation outcomes, approval status and deployment statements describe the recorded checkpoint. See the [current documentation](../../../README.md).
+
 # Task A — shared page theme evidence
 
 Historical PNGs were removed from the current tree during the [post-Task A cleanup](https://github.com/keepraw/Keepraw-Fly/blob/0412603fe518471c3816883cce8ff37680d60265/docs/visual-review/CLEANUP-2026-10-11.md). Screenshot links now point to the fixed pre-cleanup commit; original reports and capture metadata are archived at the linked revisions.

@@ -1,10 +1,12 @@
-> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review](../task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
+> Archived diagnosis. The linked numerical evidence stays at its original paths because current tests and audit tools consume it. See the [retained evidence index](../../../visual-review/README.md).
+
+> Historical checkpoint. Superseded PNGs were removed in Task 2; original numerical results remain below. See the [canonical review](../../../visual-review/task-1b-7b2/README.md). Owner approval now selects Control; historical approval-pending statements describe this checkpoint only.
 
 # Texture audit and pre-change diagnosis
 
 Recorded before modifying the Task 1B-4 emission implementation. Values are normalized historical grayscale visualization signals, **not calibrated luminance**.
 
-All three SHA-256 hashes match the recorded NASA provenance. RGB channels agree in every sampled pixel. Sampling uses longitude -180..180 left-to-right and latitude 90..-90 top-to-bottom; city-center core boxes are ±0.25° in each axis. The wider geographic neighborhoods and native pixel bounds are in [texture-audit.json](texture-audit.json). Periphery excludes core boxes and includes unlit land/water; positive quantiles condition on bytes ≥4, immediately above the existing noise floor. Airport positions are not used.
+All three SHA-256 hashes match the recorded NASA provenance. RGB channels agree in every sampled pixel. Sampling uses longitude -180..180 left-to-right and latitude 90..-90 top-to-bottom; city-center core boxes are ±0.25° in each axis. The wider geographic neighborhoods and native pixel bounds are in [texture-audit.json](../../../visual-review/task-1b-5/texture-audit.json). Periphery excludes core boxes and includes unlit land/water; positive quantiles condition on bytes ≥4, immediately above the existing noise floor. Airport positions are not used.
 
 | Region / resolution           | Near zero % (0..3) | All p90 | Core positive p50 | Periphery positive p10 / p50 / p90 | B3/B4 periphery positive p50 |
 | ----------------------------- | -----------------: | ------: | ----------------: | ---------------------------------- | ---------------------------: |
@@ -54,7 +56,7 @@ All three SHA-256 hashes match the recorded NASA provenance. RGB channels agree 
 | B3 `38c61266915edc1252769c305623d56a1ffb563e`                                                               | `.13 * s^1.25/(.24+s^1.25) * smoothstep(0,.075,s)`; intensity 1 | restrained warm-neutral                           | Light 0 / Dark 1   | `1-smoothstep(-width,width*.15,solar)`     |
 | B4 source `2a7e67f8267ed9fce306d1315d374dd02aa65ac2`, checkpoint `2720002ef01845aa1b04bb31fce6d619a54a30bf` | same B3 curve; intensity 1                                      | same B3 warm-neutral                              | Light .45 / Dark 1 | same B3 night mask, now shared solar model |
 
-![Historical transfer functions](transfer-curves.svg)
+![Historical transfer functions](../../../visual-review/task-1b-5/transfer-curves.svg)
 
 The chart includes default intensity, excludes palette and solar mask, and uses logarithmic vertical scaling to expose the crushed low range. Historical capture: B2 appearance (superseded; PNG removed), Historical capture: B3 appearance (superseded; PNG removed), and Historical capture: B4 appearance (superseded; PNG removed) were inspected. Those historical images also differ in surface/atmosphere treatment; only the new fixed-camera B4 comparison isolates emission.
 

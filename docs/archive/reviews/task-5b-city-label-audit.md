@@ -1,3 +1,5 @@
+> Historical task review. Measurements, validation outcomes, approval status and deployment statements describe the recorded checkpoint. See the [current documentation](../../README.md).
+
 # Flight-list city-label audit (2026-10-11)
 
 ## Scope and result

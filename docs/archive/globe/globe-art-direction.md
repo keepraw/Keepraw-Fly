@@ -1,3 +1,5 @@
+> Archived experiment; obsolete as current implementation guidance. Approval-pending and DEV-only statements describe the recorded checkpoint. See [current Globe implementation](../../globe.md) and [archive context](../README.md).
+
 # Task 1B-3 — Cinematic Globe art direction
 
 **Visual approval pending. A is the default candidate; neither candidate is approved.**

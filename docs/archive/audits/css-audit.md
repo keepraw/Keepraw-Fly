@@ -1,3 +1,5 @@
+> Historical audit of the recorded PR #9/#10 and token-fix baselines. Counts, line numbers and cleanup candidates require fresh verification. See the maintained [visual system](../../design-system.md) and [archive index](../README.md).
+
 # CSS dead code / legacy selector audit
 
 当前基线：PR #10 合并后的 `c690075`；本轮仅修复两个 undefined CSS token，修改 `passport.css` 与本报告，详见下方 resolved 记录。PR #9 的原始调查基线是 PR #8 合并后的 `15db4b6`；PR #10 confirmed-dead removal 的基线是 `222b3c9`。下文 selector occurrence/source 行号、删除统计及调查细节保留各自历史基线，避免抹掉发现和删除依据。PR #10 只修改7个 feature CSS及本报告；本轮未修改 React markup、breakpoint、import order、design-system、测试或两个审计脚本。

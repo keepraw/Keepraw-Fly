@@ -1,3 +1,5 @@
+> Archived experiment; obsolete as current implementation guidance. Approval-pending and DEV-only statements describe the recorded checkpoint. See [current Globe implementation](../../globe.md) and [archive context](../README.md).
+
 # Task 1B-1：Cinematic Globe 光影实验
 
 **Visual approval pending。仅供实验审查，不代表正式视觉验收通过。**
