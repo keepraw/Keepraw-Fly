@@ -107,26 +107,55 @@ Chinese resources are maintained independently. Taiwan wording uses 設定, 資�
 航廈, 登機門, 轉降 and 常旅客計畫; Simplified Chinese keeps its regional terms.
 OpenCC must not overwrite reviewed Taiwan text.
 
-## Related evidence and open follow-ups
+## Open maintenance questions
 
-The [archived multilingual release audit](archive/audits/i18n-audit.md) records
-PR #58 validation, fixed malformed-cache recovery and narrow German editor-label
-overflow. Its counts and performance samples describe that release checkpoint.
-Use [testing guidance](testing.md) and current discovery for present coverage.
+The terminology questions above remain open until a named native reviewer records
+acceptance or revisions. Review rendered airport-time, storage, import/recovery
+and loyalty-account scenarios, not only isolated JSON strings. In particular:
 
-Its [native-review checklist](archive/audits/i18n-audit.md#translation-semantics-and-native-review-checklist)
-adds concrete review contexts to the terminology questions above, including
-Korean diversion, Taiwan scheduled-time wording, loyalty membership and storage
-protection. Those rows remain open until a named reviewer records acceptance or
-revisions; archiving the report does not establish native-speaker approval.
+- Korean diversion: review `status.diverted`, `status.divertedTo`,
+  `flightDetail.divertedTo` and `import.issueMessages.cancelledDivertedConflict`
+  together. Confirm an alternate landing as well as return to origin, including
+  the airport particle `(으)로`.
+- Taiwan: reconcile Globe's `globe.scheduled` wording `計畫` with the maintained
+  scheduled-time term `預定`; review backup/recovery and app-installation copy
+  without regenerating reviewed text through OpenCC.
+- French: check `Porte d’embarquement` in both departure and arrival contexts,
+  `Prévu / Réel`, diversion and loyalty-membership wording. Across locales,
+  distinguish membership from airline subscriptions or flight crew.
+- All released options: verify counts/plurals, US/UK spelling, destructive
+  confirmations, screen-reader actions and storage permission states. None
+  should imply guaranteed retention. Japanese/French/German/Korean Passport
+  names should read as personal flight archives rather than official documents.
 
-The [cache-risk record](archive/audits/i18n-audit.md#warming-and-performance)
-also remains relevant: old content hashes have no retention/pruning policy,
-warming does not inspect connection speed or `saveData`, and cached language
-switching does not guarantee a fresh page navigation offline. Any cache cleanup
-design must consider older open tabs before deleting valid resources.
+Release acceptance and the resolved cache/editor regressions are recorded in
+[PR #58](https://github.com/keepraw/Keepraw-Fly/pull/58). Use [testing guidance](testing.md)
+and current discovery for present coverage; past pass counts are not a maintained
+inventory.
 
-The [city-label audit](archive/reviews/task-5b-city-label-audit.md#known-source-data-errors-requiring-separate-correction)
-records source-data anomalies separately from display shortening. Recheck those
-records against current data and geographic sources before making corrections;
-UI translation completeness does not certify reference-data geography.
+### Locale cache policy
+
+Old resource content hashes have no retention/pruning policy. Warming does not
+inspect connection speed or `saveData`. Cached language switching after an online
+reload does not guarantee a fresh page navigation offline; HTML/JS/reference
+assets have separate cache behavior and there is no service worker. New hashes
+need an online fetch, while cache clearing, eviction or denial removes stored
+translations. Successful resources also remain in memory for the page lifetime.
+Any cleanup design must consider older open tabs before deleting valid resources.
+
+### Reference-data anomalies
+
+UI translation completeness does not certify reference-data geography. The
+current `packages/core/data/airport-locales.json` still contains the following
+city-label issues, independently of display suffix shortening:
+
+| IATA | Recorded issue and next action                                                                                                                                                                                                         |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OKS  | `冈山市` / `岡山市` refers to Okayama, Japan, while the airport directory identifies Garden County/King Rhiley Field in Oshkosh, Nebraska. Verify a correction against [FAA airport information](https://www.airnav.com/airport/koks). |
+| NFO  | `宜野湾市` / `宜野灣市` refers to Ginowan, Japan, while the airport directory locates Mata'aho Airport in Angaha, Tonga. Verify a correction against [OurAirports](https://ourairports.com/airports/NFTO/changes.html).                |
+| GDN  | `三联市` / `三聯市` describes the wider region; verify the intended passenger-facing city label against geographic sources.                                                                                                            |
+| YMM  | `伍德布法罗地区自治市` / `伍德布法羅地區自治市` uses a municipality name; verify the intended passenger-facing city label against geographic sources.                                                                                  |
+
+Correct these through a separate source-backed data change and dedicated tests.
+Do not silently alter persisted airport identity or treat shortened display text
+as a geographic repair.

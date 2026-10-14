@@ -1,8 +1,8 @@
 # Task A historical capture helper
 
 The [unchanged capture script](capture.mjs) retains its original path and default
-output directory for reconstruction. The [shared-theme review and source bundle](../../archive/visual-review/task-a/README.md)
-are archived; follow that report for the required historical source revisions.
+output directory for reconstruction. The [source provenance and bundle](../../archive/visual-review/task-a/README.md)
+are archived; follow that note for the required historical source revisions.
 This helper is not part of routine CI or a current product baseline.
 
 From the recorded source checkout, with its local development server and Chromium

@@ -3,7 +3,7 @@
 This is the maintained entry point for the production Globe. Start with
 [architecture](architecture.md) for data and package boundaries and
 [testing](testing.md#flight-detail-3d-globe) for renderer regression expectations.
-The original prototype and cinematic experiments are [historical design records](archive/README.md#obsolete-documentation--archived-design-history).
+The original prototype and cinematic experiments are [historical design records](archive/README.md#design-rationale).
 
 ## Production surfaces
 
@@ -30,6 +30,11 @@ Passport retains its own data-dependent composition and interaction behavior.
 Three.js renders the surface, atmosphere, routes and airport markers. Daytime
 Blue Marble and nighttime Black Marble textures are bundled local assets with
 pinned provenance; no external map tiles or live flight-status service are used.
+The daytime color texture uses sRGB decoding; the night map uses `NoColorSpace`
+because its grayscale visualization signal is not calibrated radiance. Shading
+uses linear values before ACES Filmic and sRGB output, avoiding a second gamma
+conversion. Fixed world-space sunlight keeps geographic illumination independent
+of camera rotation; the earlier lighting experiment is available in Git history.
 The production wrappers select 4096px textures and `defaultLighting`; inspect the
 source values before changing them rather than copying an old experiment table.
 

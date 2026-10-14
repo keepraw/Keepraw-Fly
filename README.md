@@ -98,8 +98,8 @@ Keepraw Fly uses the portable `keepraw-fly` JSON format with schema and semantic
 ## Documentation
 
 Start with the [documentation index](docs/README.md) for maintained guidance.
-Completed audits and task reviews are listed separately in the
-[archive index](docs/archive/README.md).
+Selected design decisions and source provenance are kept in the
+[historical archive](docs/archive/README.md).
 
 - [Architecture](docs/architecture.md)
 - [Visual system](docs/design-system.md)

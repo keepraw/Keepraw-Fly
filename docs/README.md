@@ -1,68 +1,37 @@
-# Documentation / 文档导航
+# Documentation
 
-Start with the maintained documents below to understand the current product.
-Historical reviews live in [archive/](archive/README.md); their measurements,
-test counts and approval/deployment status describe their recorded revisions.
+## Current documentation
 
-先阅读下方长期维护文档，了解当前实现。历史审查见 [archive/](archive/README.md)；
-其中的测量值、测试数量及验收/部署状态只对应报告记录的版本。
+Start with [architecture](architecture.md) for package, storage and import
+boundaries. Its [schema](schema.md) and [Globe](globe.md) guides cover portable
+facts and the production renderer. Use [deployment](deployment.md) to run an
+instance and [testing](testing.md) to verify changes against current CI gates.
 
-## Active Documentation — 长期维护
+UI conventions live in the [visual system](design-system.md) and
+[locale notes](i18n-locales.md). Read the [third-party notices](../THIRD_PARTY_NOTICES.md)
+before distribution; they link to the unresolved permission review.
 
-| Document                                                      | What to use it for                                                                         |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Architecture](architecture.md)                               | Package boundaries, local storage, imports, calculations and localization                  |
-| [Schema](schema.md)                                           | Portable JSON facts, compatibility, extensions and CSV columns                             |
-| [Current product boundaries](not-implemented.md)              | Implemented-product scope limits; not a roadmap                                            |
-| [Globe implementation](globe.md)                              | Current production Passport/Detail rendering, fallback and source entry points             |
-| [Visual system](design-system.md)                             | Semantic tokens, CSS ownership, composition and accessibility                              |
-| [Locale terminology](i18n-locales.md)                         | Released languages, terminology, loading and open translation review                       |
-| [Testing](testing.md)                                         | Current browser layers, tagging policy, CI gates and test discovery                        |
-| [Deployment](deployment.md)                                   | Static hosting and verified GitHub Pages deployment                                        |
-| [License and provenance review](license-review-2026-10-10.md) | Dated evidence with unresolved font/logo permission questions; keep visible until resolved |
+## Historical archive
 
-For a first read, follow **architecture → schema → product boundaries → Globe**,
-then the document relevant to your change. Source entry points in these documents
-lead to implementation and tests. Consult current test discovery and CI results
-instead of counts in past audits.
+The [archive](archive/README.md) holds selected design rationale and otherwise
+unrecoverable source provenance. Routine completion reports, temporary audits and
+obsolete validation results belong in pull requests and Git history.
 
-首次接手建议按“架构 → 数据格式 → 功能边界 → Globe 实现”阅读，再查阅改动主题。
-文档内的源码入口指向实现与测试；当前测试范围以实际发现结果和 CI 为准。
+[Legacy evidence paths](visual-review/README.md) contain test inputs, visual
+references and capture output. They are not specifications; their fixture/tooling
+relocation is a separate follow-up so this cleanup preserves test behavior.
 
-Project-wide [third-party notices](../THIRD_PARTY_NOTICES.md),
-[license](../LICENSE) and [trademark notice](../TRADEMARK.md) remain at the
-repository root. The dated license review is retained here because its open
-permission questions still affect distribution decisions.
+## Contribution guidance
 
-## Historical / Archive Documentation — 历史记录
-
-The [archive index](archive/README.md) separates completed audits/task reviews
-from obsolete prototype guidance and records their original paths. Use these
-documents to recover the reason for a past decision, not as current setup,
-release instructions or a new cleanup checklist.
-
-Some historical evidence must remain outside `archive/` because active tests or
-capture tools use its exact paths. The [retained evidence index](visual-review/README.md)
-explains those exceptions. The [Detail capture helper](reviews/task-b8/capture.md)
-is also retained at its original location. These are supporting evidence/tooling,
-not the starting point for understanding the architecture.
-
-归档保留设计演进、审查依据和复现信息。部分证据因测试或采集工具依赖原路径继续原地
-保留，具体用途见[证据索引](visual-review/README.md)和 [Detail 采集工具](reviews/task-b8/capture.md)。
-
-## Keeping documentation maintainable
-
-- Update active guidance with the implementation it describes. Keep architecture,
-  operational guidance and evidence roles distinct.
-- Put a completed audit, investigation or task acceptance record in `archive/`
-  with its date/revision and links to the maintained subject document.
-- Keep unresolved decisions discoverable from active guidance; archiving a report
-  does not resolve its follow-ups.
-- Preserve original measurements and commit-pinned evidence links. Archive
-  obsolete guidance when its design history is useful; label its scope explicitly.
-- Before moving evidence, search implementation, tests and scripts for path
-  consumers. Preserve those paths within a documentation-only change.
-- Merge documents only when they cover the same maintained subject and separate
-  copies would create conflicting guidance. Different experiment stages stay distinct.
-- Update incoming and relative links, then run `pnpm check:docs` and formatting
-  checks. The existing checker recursively includes archived Markdown.
+- Update current guidance with the implementation it describes. Link a new detail
+  document from its owning topic; this reading guide is not a file inventory and
+  only changes when a primary topic or entry point changes.
+- Archive only a lasting decision, rejected alternative or source provenance that
+  future maintainers need. Explain its value and pin the original revision. A
+  completed task alone is not a reason to archive its report.
+- Move unresolved questions into the maintained topic before removing a report.
+  Use Git history for superseded instructions and one-time validation results.
+- Keep machine-readable test fixtures with tests and generated captures in ignored
+  `artifacts/`. Check consumers before relocating existing legacy paths.
+- Run `pnpm check:docs` and formatting checks after changing documentation. The
+  existing documentation checker also checks archived Markdown links.
