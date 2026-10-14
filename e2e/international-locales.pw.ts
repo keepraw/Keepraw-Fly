@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { openSettingsCategory } from "./helpers/settings";
 import { globeMode } from "./helpers/globe-capability";
+import { expectReachable } from "./helpers/responsive";
 import {
   supportedLanguages,
   localeRegistry,
@@ -290,4 +291,125 @@ test("background locales do not compete with a stalled airport startup", async (
   expect(locales).toEqual([]);
   release();
   await expect(page.locator('input[type="file"]')).toBeAttached();
+});
+
+test("German editor labels fit their fields at narrow widths @cross-browser", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await seed(page);
+  await page.locator("#settings-language").selectOption("de-DE");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de-DE");
+  await page.goto("/#passport");
+  await page.locator(".flight-row").first().click();
+  await page
+    .getByRole("button", {
+      name: resources["de-DE"].actions.editFlight,
+      exact: true,
+    })
+    .click();
+  const editor = page.getByRole("dialog");
+  await editor.locator(".editor-optional > summary").click();
+  const label = editor.getByText(
+    resources["de-DE"].flightEditor.aircraftRegistration,
+    { exact: true },
+  );
+  await expect(label).toBeVisible();
+  for (const width of [320, 360, 390, 768, 1280]) {
+    await page.setViewportSize({ width, height: 800 });
+    await label.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        label.evaluate((element) => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          const field = element.parentElement!.getBoundingClientRect();
+          return [...range.getClientRects()].every(
+            (rect) =>
+              rect.left >= field.left - 1 && rect.right <= field.right + 1,
+          );
+        }),
+      )
+      .toBe(true);
+    await expectReachable(editor.locator(".editor-actions .button-primary"));
+    await healthy(page);
+  }
+  await expectReachable(editor.locator(".editor-close"));
+  await editor.locator(".editor-close").click();
+});
+
+test("malformed locale cache can recover online after offline retries without changing the archive @cross-browser", async ({
+  page,
+  context,
+}) => {
+  await seed(page);
+  await page.clock.install();
+  const before = await page.evaluate(async () => {
+    const path = "/src/storage/browser.ts";
+    const { browserStorage } = await import(path);
+    return {
+      archive: await browserStorage.loadDocument(),
+      settings: await browserStorage.loadSettings(),
+    };
+  });
+  await page.evaluate(async () => {
+    const path = "/src/locales/resources.ts";
+    const { resourceUrls } = await import(path);
+    const cache = await caches.open("keepraw-fly-locales-v1");
+    await cache.put(
+      resourceUrls["./fr-FR.json"],
+      new Response("{broken", {
+        headers: { "content-type": "application/json" },
+      }),
+    );
+  });
+  await context.setOffline(true);
+  await page.locator("#settings-language").selectOption("fr-FR");
+  const failure = page.getByRole("alert");
+  await expect(failure).toContainText(
+    resources["en-US"].app.languageLoadFailed,
+  );
+  await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
+  await page
+    .getByRole("button", {
+      name: resources["en-US"].actions.retry,
+      exact: true,
+    })
+    .click();
+  await expect(failure).toContainText(
+    resources["en-US"].app.languageLoadFailed,
+  );
+  await healthy(page);
+  await context.setOffline(false);
+  await page
+    .getByRole("button", {
+      name: resources["en-US"].actions.retry,
+      exact: true,
+    })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr-FR");
+  await expect(failure).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const path = "/src/storage/browser.ts";
+        const { browserStorage } = await import(path);
+        return {
+          archive: await browserStorage.loadDocument(),
+          settings: await browserStorage.loadSettings(),
+        };
+      }),
+    )
+    .toEqual({
+      archive: before.archive,
+      settings: { ...before.settings, language: "fr-FR" },
+    });
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr-FR");
+  await context.setOffline(true);
+  await page.locator("#settings-language").selectOption("en-US");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
+  await page.locator("#settings-language").selectOption("fr-FR");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr-FR");
+  await context.setOffline(false);
 });

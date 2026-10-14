@@ -86,6 +86,12 @@
   font-size: var(--font-size-caption);
 }
 
+.editor-grid label > span,
+.editor-schedule label > span,
+.editor-facts-grid label > span {
+  overflow-wrap: anywhere;
+}
+
 .airport-combobox {
   position: relative;
   display: flex;

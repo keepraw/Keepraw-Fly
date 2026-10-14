@@ -64,3 +64,26 @@ it("allows retry after a failed fetch and ignores cache write failures", async (
   });
   expect(fetch).toHaveBeenCalledTimes(2);
 });
+
+it("repairs a malformed cached resource online instead of failing every retry", async () => {
+  const remove = vi.fn(async () => true);
+  const put = vi.fn(async () => {});
+  const fetch = vi.fn(async () =>
+    Response.json({ app: { loading: "Chargement" } }),
+  );
+  vi.stubGlobal("fetch", fetch);
+  vi.stubGlobal("caches", {
+    open: async () => ({
+      match: async () => new Response("{broken"),
+      delete: remove,
+      put,
+    }),
+  });
+  const { loadTranslation, resourceUrls } = await import("./resources");
+  await expect(loadTranslation("fr-FR")).resolves.toEqual({
+    app: { loading: "Chargement" },
+  });
+  expect(remove).toHaveBeenCalledWith(resourceUrls["./fr-FR.json"]);
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(put).toHaveBeenCalledTimes(1);
+});
