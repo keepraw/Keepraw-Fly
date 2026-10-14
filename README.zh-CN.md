@@ -84,6 +84,9 @@ Keepraw Fly 使用可迁移的 `keepraw-fly` JSON 格式，并执行结构与语
 
 ## 文档
 
+先阅读[文档索引](docs/README.md)中的当前指南；有长期参考价值的设计决策与源码溯源
+单独收录在[历史归档](docs/archive/README.md)。
+
 - [架构](docs/architecture.md)
 - [视觉系统](docs/design-system.md)
 - [部署](docs/deployment.md)

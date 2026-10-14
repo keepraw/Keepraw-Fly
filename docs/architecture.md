@@ -128,6 +128,7 @@ fall back to IATA when a city is unavailable, and flag arrival delays of at leas
 
 ## Source entry points
 
+- [Current production Globe](globe.md), including Passport/Detail differences and fallback
 - [Storage contracts](../apps/web/src/storage/adapter.ts) and
   [browser persistence](../apps/web/src/storage/browser.ts)
 - [JSON import preflight](../apps/web/src/data/import-preview.ts) and

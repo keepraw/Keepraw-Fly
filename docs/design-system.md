@@ -131,6 +131,25 @@ also require `pnpm typecheck`, `pnpm test` and `pnpm build`. Automated checks su
 visual and keyboard review; they do not establish that every screen is accessible.
 Screenshots and Playwright reports are local test outputs, not product assets.
 
+### CSS maintenance
+
+A missing class in JSX or a runtime sample is not proof that a selector is dead.
+Check dynamic modifiers, prop-supplied class names, lazy SVG markup, state/ARIA
+selectors and negative assertions. A `:not(.missing-class)` branch can still
+match active elements; removing it may change their presentation.
+
+Before consolidating repeated selectors or media queries, preserve source order,
+specificity, shorthand effects and properties inherited from earlier rules.
+Verify computed values and geometry at the relevant viewport/theme boundaries.
+Use fresh output from `scripts/audit-css-selectors.mjs` and
+`scripts/audit-css-runtime.mjs`; past line numbers and candidate lists expire
+when the source changes.
+
+`pnpm check:css-tokens` validates token names against CSS and runtime definitions,
+but a definition alone does not prove that it reaches a consuming element.
+An unresolved `var()` can invalidate a declaration at computed-value time;
+the browser does not then retry an earlier declaration of that property.
+
 ## 简体中文
 
 视觉系统服务于本地飞行档案：界面优先表达航班事实、地理关系和数据归属。共享 token
