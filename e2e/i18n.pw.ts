@@ -8,6 +8,22 @@ const archive = JSON.parse(
     "utf8",
   ),
 );
+archive.frequentFlyerMemberships = [
+  {
+    id: "locale-audit-membership",
+    programId: "audit-loyalty",
+    programName: "Audit loyalty",
+    memberNumber: "KF-123",
+    tier: "Gold",
+    associatedAirlines: ["UA"],
+    defaultAirline: "UA",
+  },
+];
+archive.flights[0].frequentFlyer = {
+  membershipId: "locale-audit-membership",
+  tierAtFlight: "Silver",
+};
+archive.extensions = { "audit.future": { nested: [1, "preserved"] } };
 const translations = Object.fromEntries(
   supportedLanguages.map((language) => [
     language,
@@ -19,10 +35,7 @@ const translations = Object.fromEntries(
     ),
   ]),
 );
-import {
-  supportedLanguages,
-  type Language,
-} from "../apps/web/src/locales/registry";
+import { supportedLanguages } from "../apps/web/src/locales/registry";
 
 test.beforeEach(async ({ page }) => {
   await disablePassportWebGL(page);
@@ -87,9 +100,9 @@ test("browser language priority and Chinese script resolution @cross-browser", a
   ).toBeVisible();
 });
 
-test("legacy en migrates; English dialects persist while all archive facts and other preferences remain unchanged @cross-browser", async ({
+test("legacy en migrates; locale changes preserve archive facts, loyalty and other preferences @cross-browser", async ({
   page,
-}) => {
+}, testInfo) => {
   await seed(page, "en");
   await expect(page.locator("#settings-language")).toHaveValue("en-US");
   const before = await stored(page);
@@ -99,7 +112,13 @@ test("legacy en migrates; English dialects persist while all archive facts and o
       .locator("option")
       .evaluateAll((options) => options.map((option) => option.value)),
   ).toEqual(supportedLanguages);
-  for (const language of ["en-GB", "zh-CN", "zh-TW", "en-US"] as Language[]) {
+  // Extend Chromium's business coverage; keep the existing bounded four-locale
+  // native storage smoke in the other engines rather than repeating the matrix.
+  const languages =
+    testInfo.project.name === "chromium"
+      ? supportedLanguages
+      : ["en-GB", "zh-CN", "zh-TW", "en-US"];
+  for (const language of languages) {
     await localeSelect.selectOption(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
     const expected =
