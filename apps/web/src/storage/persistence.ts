@@ -8,6 +8,7 @@ export type PersistenceState =
 export function createPersistenceQueue<Snapshot>(
   write: (snapshot: Snapshot) => Promise<void>,
   onStateChange: (state: PersistenceState) => void,
+  canWrite: () => boolean = () => true,
 ) {
   let state: PersistenceState = { status: "idle" };
   let revision = 0;
@@ -20,12 +21,19 @@ export function createPersistenceQueue<Snapshot>(
   }
 
   function save(snapshot: Snapshot): Promise<boolean> {
+    // Rejected requests must never become snapshots that a later retry can save.
+    if (!canWrite()) return Promise.resolve(false);
     latestSnapshot = snapshot;
     const currentRevision = ++revision;
     changeState({ status: "saving" });
 
     // Catch each write so a failure cannot block later saves or retries.
     const result = tail.then(async () => {
+      // Permission may change while this snapshot waits behind an older write.
+      if (!canWrite()) {
+        if (currentRevision === revision) changeState({ status: "idle" });
+        return false;
+      }
       try {
         await write(snapshot);
         if (currentRevision === revision) {

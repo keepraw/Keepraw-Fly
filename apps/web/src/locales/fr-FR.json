@@ -620,6 +620,8 @@
     "solarModeHint": "Le soleil fixe maintient un éclairage constant. Le mode en temps réel suit l’alternance du jour et de la nuit à l’heure UTC actuelle."
   },
   "recovery": {
+    "readFailedTitle": "Impossible de lire votre carnet de vol local",
+    "readFailedDescription": "Keepraw Fly n’a pas pu vérifier si un carnet de vol existe déjà sur cet appareil. La création d’un carnet, la démo et l’importation sont suspendues pour protéger les données éventuelles. Réessayez de lire votre carnet. Aucune donnée n’a été écrasée ni supprimée.",
     "title": "Nous n'avons pas pu ouvrir vos archives locales",
     "description": "Keepraw Fly a trouvé des données sur cet appareil, mais cette version ne peut pas les ouvrir. Les données enregistrées n’ont été ni supprimées ni modifiées.",
     "unsupportedVersion": "Cette archive a été créée par une version de format plus récente ou non prise en charge.",

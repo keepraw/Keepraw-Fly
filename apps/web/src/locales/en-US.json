@@ -591,6 +591,8 @@
     "solarModeHint": "Fixed Sun keeps the lighting consistent. Real-time Sun follows the current UTC day and night."
   },
   "recovery": {
+    "readFailedTitle": "Your local archive could not be read",
+    "readFailedDescription": "Keepraw Fly could not check whether an archive already exists on this device. Creating an archive, trying the demo and importing are paused to protect any existing data. Try again to read your archive. Nothing has been overwritten or deleted.",
     "title": "We couldn't open your local archive",
     "description": "Keepraw Fly found existing data on this device, but it could not be opened with this version. Your stored data has not been deleted or modified.",
     "unsupportedVersion": "This archive was created by a newer or unsupported format version.",
