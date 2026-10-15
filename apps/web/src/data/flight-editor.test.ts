@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  validateKeeprawFly,
+  parseKeeprawFlyJson,
+} from "@keepraw-fly/validator";
+import type { FrequentFlyerMembership } from "@keepraw-fly/schema";
+import {
   createEmptyDocument,
   flightFromDraft,
   flightToDraft,
@@ -284,6 +289,147 @@ describe("flight editor data", () => {
       frequentFlyerMembershipId: "membership-zh",
       frequentFlyerTierAtFlight: "金卡",
     });
+  });
+
+  it.each([
+    ["normal", "cancelled"],
+    ["cancelled", "normal"],
+    ["cancelled", "diverted"],
+    ["diverted", "normal"],
+    ["diverted", "cancelled"],
+  ])("transitions from %s to %s without stale state", (from, to) => {
+    const original = flightFromDraft({
+      ...baseDraft(),
+      cancelled: from === "cancelled",
+      divertedToIata: from === "diverted" ? "JFK" : "",
+    });
+    const edited = flightFromDraft(
+      {
+        ...flightToDraft(original),
+        cancelled: to === "cancelled",
+        divertedToIata: to === "diverted" ? "JFK" : "",
+      },
+      original,
+    );
+    expect(Boolean(edited.cancelled)).toBe(to === "cancelled");
+    expect(edited.divertedTo).toEqual(
+      to === "diverted" ? { iata: "JFK" } : undefined,
+    );
+    expect(
+      validateKeeprawFly({ ...createEmptyDocument(), flights: [edited] }).valid,
+    ).toBe(true);
+    expect(edited.scheduledDeparture).toBe(original.scheduledDeparture);
+    expect(edited.scheduledArrival).toBe(original.scheduledArrival);
+    expect(edited.destination).toEqual(original.destination);
+  });
+
+  it("rejects a cancelled and diverted draft without mutating the original", () => {
+    const original = flightFromDraft(baseDraft());
+    const before = structuredClone(original);
+    expect(() =>
+      flightFromDraft(
+        { ...flightToDraft(original), cancelled: true, divertedToIata: "JFK" },
+        original,
+      ),
+    ).toThrow("cancelled-diverted-conflict");
+    expect(original).toEqual(before);
+  });
+
+  it.each([null, undefined, "Silver"])(
+    "preserves historical tier %s when the current tier is Gold",
+    (tier) => {
+      const membership: FrequentFlyerMembership = {
+        id: "synthetic-membership",
+        programId: "synthetic",
+        memberNumber: "TEST-123",
+        associatedAirlines: ["MU"],
+        tier: "Gold",
+      };
+      const original = {
+        ...flightFromDraft(baseDraft()),
+        frequentFlyer: {
+          membershipId: membership.id,
+          ...(tier !== undefined ? { tierAtFlight: tier } : {}),
+        },
+      };
+      const parsed = parseKeeprawFlyJson(
+        JSON.stringify({
+          ...createEmptyDocument(),
+          frequentFlyerMemberships: [membership],
+          flights: [original],
+        }),
+      );
+      expect(parsed.valid).toBe(true);
+      if (!parsed.valid) throw new Error("Invalid generated archive");
+      const imported = parsed.data.flights[0]!;
+      const draft = flightToDraft(imported, { memberships: [membership] });
+      expect(draft.frequentFlyerTierAtFlight).toBe(tier ?? "");
+      expect(
+        flightFromDraft({ ...draft, flightNumber: "MU584" }, imported),
+      ).toEqual({ ...original, flightNumber: "MU584" });
+      expect(
+        flightFromDraft(
+          { ...draft, frequentFlyerTierAtFlight: "Platinum" },
+          imported,
+        ).frequentFlyer,
+      ).toEqual({ membershipId: membership.id, tierAtFlight: "Platinum" });
+    },
+  );
+
+  it.each(["flightNumber", "bookingReference"] as const)(
+    "preserves diversion facts when only %s changes",
+    (field) => {
+      const original = {
+        ...flightFromDraft({ ...baseDraft(), divertedToIata: "JFK" }),
+        divertedTo: { iata: "JFK", terminal: "4", gate: "B12" },
+        extensions: {
+          "test.synthetic": { source: "generated", values: [null, 42, true] },
+        },
+      };
+      const before = structuredClone(original);
+      const value = field === "flightNumber" ? "MU584" : "TEST123";
+      const edited = flightFromDraft(
+        { ...flightToDraft(original), [field]: value },
+        original,
+      );
+      expect(edited).toEqual({ ...original, [field]: value });
+      expect(original).toEqual(before);
+      expect(
+        flightFromDraft(
+          { ...flightToDraft(original), divertedToIata: "LAX" },
+          original,
+        ).divertedTo,
+      ).toEqual({ iata: "LAX" });
+      expect(
+        flightFromDraft(
+          { ...flightToDraft(original), divertedToIata: "" },
+          original,
+        ),
+      ).not.toHaveProperty("divertedTo");
+    },
+  );
+
+  it("keeps planned arrival in the destination timezone and actual arrival in the diversion timezone", () => {
+    const original = flightFromDraft({ ...baseDraft(), cancelled: true });
+    const edited = flightFromDraft(
+      {
+        ...flightToDraft(original),
+        cancelled: false,
+        divertedToIata: "JFK",
+        actualDepartureDate: "2026-08-21",
+        actualDepartureTime: "13:17",
+        actualArrivalDate: "2026-08-21",
+        actualArrivalTime: "13:22",
+      },
+      original,
+    );
+    expect(edited.scheduledArrival).toBe(original.scheduledArrival);
+    expect(edited.actualDeparture).toBe("2026-08-21T13:17:00+08:00");
+    expect(edited.actualArrival).toBe("2026-08-21T13:22:00-04:00");
+    expect(edited.destination).toEqual(original.destination);
+    expect(
+      validateKeeprawFly({ ...createEmptyDocument(), flights: [edited] }).valid,
+    ).toBe(true);
   });
 
   it("requires both date and time for an actual event", () => {

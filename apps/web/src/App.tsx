@@ -403,8 +403,8 @@ export function App() {
     window.location.hash = "passport";
   }
 
-  function saveFlight(flight: KeeprawFlight) {
-    if (!document) return;
+  async function saveFlight(flight: KeeprawFlight) {
+    if (!document || !canWriteDocument()) throw new Error("invalid-flight");
     const existingIndex = document.flights.findIndex(
       (item) => item.id === flight.id,
     );
@@ -414,7 +414,13 @@ export function App() {
         : document.flights.map((item) =>
             item.id === flight.id ? flight : item,
           );
-    storeDocument({ ...document, flights });
+    const nextDocument = { ...document, flights };
+    const { validateKeeprawFly } = await import("@keepraw-fly/validator");
+    // Reject before changing UI state or the retryable persistence snapshot.
+    // The editor catches this error and keeps the user's draft open.
+    if (!canWriteDocument() || !validateKeeprawFly(nextDocument).valid)
+      throw new Error("invalid-flight");
+    storeDocument(nextDocument);
     setEditorFlightId(null);
     setDuplicateTemplate(null);
     openFlight(flight.id);
