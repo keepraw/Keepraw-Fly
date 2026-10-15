@@ -968,3 +968,236 @@ declare global {
     corruptFlightEdit?: (flight: KeeprawFlight) => KeeprawFlight;
   }
 }
+
+async function delayFirstFlightValidation(page: Page) {
+  await page.route("**/src/App.tsx", async (route) => {
+    const response = await route.fetch();
+    const source = await response.text();
+    const validation = "const { validateKeeprawFly } = await import(";
+    expect(source).toContain(validation);
+    expect(source).toContain("if (!loaded) {");
+    await route.fulfill({
+      response,
+      // Exercise the real callbacks; keep the test controls out of production.
+      // Pause at the import boundary, after the candidate snapshot was built.
+      body: source
+        .replace(
+          validation,
+          `await window.flightValidationDelay.wait();\n${validation}`,
+        )
+        .replace(
+          "if (!loaded) {",
+          `window.flightValidationActions = { clearDocument, importArchive, updateProfile, saveFlight };
+        if (!loaded) {`,
+        ),
+    });
+  });
+}
+
+async function startDelayedFlightSave(page: Page, flight: KeeprawFlight) {
+  await page.evaluate((flight) => {
+    let release: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const state: Window["flightValidationDelay"] =
+      (window.flightValidationDelay = {
+        calls: 0,
+        outcome: "pending" as "pending" | "saved" | "rejected",
+        release: () => release(),
+        wait: () => (++state.calls === 1 ? held : Promise.resolve()),
+      });
+    void window.flightValidationActions.saveFlight(flight).then(
+      () => {
+        state.outcome = "saved";
+      },
+      () => {
+        state.outcome = "rejected";
+      },
+    );
+  }, flight);
+  await expect
+    .poll(() => page.evaluate(() => window.flightValidationDelay.calls))
+    .toBe(1);
+}
+
+for (const change of [
+  "clear",
+  "replace",
+  "profile",
+  "same-turn-profile",
+  "other-flight",
+  "failed-profile",
+] as const) {
+  test(`rejects delayed flight validation after ${change} without changing IndexedDB or retry intent`, async ({
+    page,
+  }) => {
+    await delayFirstFlightValidation(page);
+    const archive = generatedEditorArchive();
+    await importEditorArchive(page, archive);
+    const original = await readEditorRecord(page);
+    await mockDocumentSaves(
+      page,
+      change === "failed-profile" ? ["fail", "pass"] : [],
+    );
+    await startDelayedFlightSave(page, {
+      ...archive.flights[0]!,
+      flightNumber: "UA799",
+    });
+    expect(
+      await page.evaluate(() => window.documentPersistenceTest.calls),
+    ).toEqual([]);
+
+    const expected = structuredClone(archive);
+    if (change === "clear") {
+      await page.evaluate(() => window.flightValidationActions.clearDocument());
+      await expect.poll(() => readEditorRecord(page)).toBeUndefined();
+    } else if (change === "replace") {
+      expected.profile = {
+        name: { native: "Replacement Pilot", primary: "native" },
+      };
+      expected.flights = expected.flights.map((flight, index) => ({
+        ...flight,
+        id: `replacement-${index}`,
+        flightNumber: `UA80${index + 1}`,
+      }));
+      expected.extensions = { "test.replacement": { preserved: true } };
+      await page.evaluate(
+        (document) => window.flightValidationActions.importArchive(document),
+        expected,
+      );
+      await expectSavingFinished(page);
+    } else if (change === "other-flight") {
+      expected.flights[1]!.flightNumber = "UA798";
+      await page.evaluate(
+        (flight) => window.flightValidationActions.saveFlight(flight),
+        expected.flights[1]!,
+      );
+      await expectSavingFinished(page);
+    } else {
+      expected.profile = {
+        name: { native: "Updated Pilot", primary: "native" },
+      };
+      await page.evaluate(
+        ({ name, releaseImmediately }) => {
+          window.flightValidationActions.updateProfile(name);
+          if (releaseImmediately) window.flightValidationDelay.release();
+        },
+        {
+          name: expected.profile.name!,
+          releaseImmediately: change === "same-turn-profile",
+        },
+      );
+      if (change === "failed-profile")
+        await expect(unsavedWarning(page)).toBeVisible();
+      else await expectSavingFinished(page);
+    }
+    const current = await readEditorRecord(page);
+    if (change === "failed-profile") expect(current).toEqual(original);
+    else if (change !== "clear") expect(current.document).toEqual(expected);
+    const writesBeforeRelease = await page.evaluate(() => ({
+      saves: window.documentPersistenceTest.calls.length,
+      clears: window.documentPersistenceTest.clearCalls,
+    }));
+
+    // A stale completion must not close a newer editor or discard its draft.
+    if (change !== "clear") {
+      if (change === "replace")
+        await page.getByRole("button", { name: /Open UA801/ }).click();
+      const editor = await openEditor(page);
+      await editor.getByLabel("Flight number").fill("UA797");
+    }
+    await page.evaluate(() => window.flightValidationDelay.release());
+    await expect
+      .poll(() => page.evaluate(() => window.flightValidationDelay.outcome))
+      .not.toBe("pending");
+    expect(await readEditorRecord(page)).toEqual(current);
+    expect(
+      await page.evaluate(() => window.flightValidationDelay.outcome),
+    ).toBe("rejected");
+    expect(
+      await page.evaluate(() => ({
+        saves: window.documentPersistenceTest.calls.length,
+        clears: window.documentPersistenceTest.clearCalls,
+      })),
+    ).toEqual(writesBeforeRelease);
+    if (change !== "clear") {
+      await expect(
+        page.getByRole("dialog").getByLabel("Flight number"),
+      ).toHaveValue("UA797");
+      await page.keyboard.press("Escape");
+    }
+    if (change === "failed-profile") {
+      await unsavedWarning(page)
+        .getByRole("button", { name: "Try again", exact: true })
+        .click();
+      await expectSavingFinished(page);
+      expect((await readEditorRecord(page)).document).toEqual(expected);
+      expect(
+        await page.evaluate(() =>
+          window.documentPersistenceTest.calls.map((call) => call.document),
+        ),
+      ).toEqual([expected, expected]);
+    }
+    await page.reload();
+    if (change === "clear") {
+      await expect(
+        page.getByRole("button", { name: "Create my archive", exact: true }),
+      ).toBeVisible();
+      expect(await readEditorRecord(page)).toBeUndefined();
+    } else {
+      await expect(
+        page.getByRole("button", { name: /Open UA/ }).first(),
+      ).toBeVisible();
+      expect(await storedArchive(page)).toEqual(expected);
+      expect((await readEditorRecord(page)).document).toEqual(expected);
+    }
+  });
+}
+
+declare global {
+  interface Window {
+    flightValidationDelay: {
+      calls: number;
+      outcome: "pending" | "saved" | "rejected";
+      wait: () => Promise<void>;
+      release: () => void;
+    };
+    flightValidationActions: {
+      clearDocument: () => void;
+      importArchive: (document: KeeprawFlyDocument) => void;
+      updateProfile: (
+        name: NonNullable<KeeprawFlyDocument["profile"]["name"]>,
+      ) => void;
+      saveFlight: (flight: KeeprawFlight) => Promise<void>;
+    };
+  }
+}
+
+test("accepts delayed flight validation when only viewer preferences changed", async ({
+  page,
+}) => {
+  await delayFirstFlightValidation(page);
+  const archive = generatedEditorArchive();
+  await importEditorArchive(page, archive);
+  await mockDocumentSaves(page, []);
+  archive.flights[0]!.flightNumber = "UA799";
+  await startDelayedFlightSave(page, archive.flights[0]!);
+  await openSettings(page);
+  await page.locator("#settings-appearance").selectOption("dark");
+  await expectSavingFinished(page);
+  expect(
+    await page.evaluate(() => window.documentPersistenceTest.calls),
+  ).toEqual([]);
+  await page.evaluate(() => window.flightValidationDelay.release());
+  await expect
+    .poll(() => page.evaluate(() => window.flightValidationDelay.outcome))
+    .toBe("saved");
+  await expectSavingFinished(page);
+  expect(
+    await page.evaluate(() =>
+      window.documentPersistenceTest.calls.map((call) => call.document),
+    ),
+  ).toEqual([archive]);
+  await expectValidEditorReload(page, archive);
+});

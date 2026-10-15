@@ -57,7 +57,10 @@ type ArchiveLoadState =
 
 export function App() {
   const { i18n, t } = useTranslation();
-  const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
+  const [document, setDocumentState] = useState<KeeprawFlyDocument | null>(
+    null,
+  );
+  const documentRevisionRef = useRef(0);
   const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
   const [archiveLoad, setArchiveLoad] = useState<ArchiveLoadState>({
     status: "loading",
@@ -182,6 +185,12 @@ export function App() {
       active = false;
     };
   }, []);
+
+  function setDocument(nextDocument: KeeprawFlyDocument | null) {
+    // Invalidate suspended flight saves immediately, before React renders.
+    documentRevisionRef.current += 1;
+    setDocumentState(nextDocument);
+  }
 
   function updateArchiveLoad(result: ArchiveLoadState) {
     archiveLoadRef.current = result;
@@ -404,6 +413,7 @@ export function App() {
   }
 
   async function saveFlight(flight: KeeprawFlight) {
+    const sourceRevision = documentRevisionRef.current;
     if (!document || !canWriteDocument()) throw new Error("invalid-flight");
     const existingIndex = document.flights.findIndex(
       (item) => item.id === flight.id,
@@ -418,7 +428,11 @@ export function App() {
     const { validateKeeprawFly } = await import("@keepraw-fly/validator");
     // Reject before changing UI state or the retryable persistence snapshot.
     // The editor catches this error and keeps the user's draft open.
-    if (!canWriteDocument() || !validateKeeprawFly(nextDocument).valid)
+    if (
+      sourceRevision !== documentRevisionRef.current ||
+      !canWriteDocument() ||
+      !validateKeeprawFly(nextDocument).valid
+    )
       throw new Error("invalid-flight");
     storeDocument(nextDocument);
     setEditorFlightId(null);
