@@ -159,7 +159,7 @@ export function flightToDraft(
     frequentFlyerMembershipId: reference?.membershipId ?? "",
     frequentFlyerTierAtFlight: options.duplicate
       ? (currentMembership?.tier ?? "")
-      : (reference?.tierAtFlight ?? currentMembership?.tier ?? ""),
+      : (reference?.tierAtFlight ?? ""),
     cancelled: Boolean(flight.cancelled),
     divertedToIata: flight.divertedTo?.iata ?? "",
   };
@@ -267,7 +267,14 @@ export function flightFromDraft(
       draft.destinationTerminal,
       draft.destinationGate,
     ),
-    ...(divertedTo ? { divertedTo: { iata: divertedTo.iata } } : {}),
+    ...(divertedTo
+      ? {
+          divertedTo:
+            existing?.divertedTo?.iata === divertedTo.iata
+              ? { ...existing.divertedTo }
+              : { iata: divertedTo.iata },
+        }
+      : {}),
     ...(draft.cancelled ? { cancelled: true } : {}),
     scheduledDeparture,
     scheduledArrival,
@@ -277,13 +284,18 @@ export function flightFromDraft(
     bookingReference: draft.bookingReference.trim() || null,
     baggageCarousel: draft.baggageCarousel.trim() || null,
   };
-  if (!draft.cancelled && !divertedTo) delete nextFlight.cancelled;
+  if (!draft.cancelled) delete nextFlight.cancelled;
   if (!divertedTo) delete nextFlight.divertedTo;
   if (draft.frequentFlyerMembershipId.trim()) {
-    nextFlight.frequentFlyer = {
-      membershipId: draft.frequentFlyerMembershipId.trim(),
-      tierAtFlight: draft.frequentFlyerTierAtFlight.trim() || null,
-    };
+    const membershipId = draft.frequentFlyerMembershipId.trim();
+    const tierAtFlight = draft.frequentFlyerTierAtFlight.trim() || null;
+    const reference = existing?.frequentFlyer;
+    // Preserve an omitted historical tier as well as explicit null.
+    nextFlight.frequentFlyer =
+      reference?.membershipId === membershipId &&
+      (reference.tierAtFlight ?? null) === tierAtFlight
+        ? { ...reference }
+        : { membershipId, tierAtFlight };
   } else {
     delete nextFlight.frequentFlyer;
   }

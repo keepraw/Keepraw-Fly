@@ -1,6 +1,8 @@
 import { openSettingsCategory } from "./helpers/settings";
 import { expect, test, type Page } from "@playwright/test";
 import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
+import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 
 const exampleArchive = fileURLToPath(
   new URL("../examples/basic.keepraw-fly.json", import.meta.url),
@@ -580,4 +582,622 @@ test("retries a failed archive clear as a deletion and releases the unsaved exit
     page.getByRole("button", { name: "Create my archive", exact: true }),
   ).toBeVisible();
   expect(await storedArchive(page)).toBeNull();
+});
+
+// Synthetic facts only: exercise JSON import, the real editor and native IndexedDB.
+function generatedEditorArchive(): KeeprawFlyDocument {
+  return {
+    format: "keepraw-fly",
+    formatVersion: "0.1.0",
+    profile: {
+      name: {
+        native: "Synthetic Pilot",
+        romanized: "Test Pilot",
+        primary: "native",
+      },
+    },
+    frequentFlyerMemberships: [
+      {
+        id: "test-ua",
+        programId: "test-program",
+        memberNumber: "TEST-123",
+        tier: "Gold",
+        associatedAirlines: ["UA"],
+        defaultAirline: "UA",
+      },
+      {
+        id: "test-other",
+        programId: "test-other",
+        memberNumber: "TEST-456",
+        tier: "Silver",
+        associatedAirlines: ["MU"],
+      },
+    ],
+    extensions: { "test.archive": { generated: true } },
+    flights: [1, 2, 3].map((number) => ({
+      id: `synthetic-${number}`,
+      flightNumber: `UA70${number}`,
+      serviceDate: `2026-08-2${number}`,
+      airline: { iata: "UA", icao: "UAL" },
+      origin: { iata: "SFO", terminal: "3", gate: `F${number}` },
+      destination: { iata: "LAX", terminal: "7", gate: "70" },
+      scheduledDeparture: `2026-08-2${number}T08:00:00-07:00`,
+      scheduledArrival: `2026-08-2${number}T10:00:00-07:00`,
+      actualDeparture: `2026-08-2${number}T08:12:00-07:00`,
+      actualArrival: `2026-08-2${number}T10:15:00-07:00`,
+      ticketNumber: `016123456789${number}`,
+      bookingReference: `TEST${number}`,
+      baggageCarousel: `D0${number}`,
+      frequentFlyer: { membershipId: "test-ua", tierAtFlight: null },
+      extensions: {
+        "test.flight": { marker: number, facts: [true, null, "generated"] },
+        "keepraw-fly.aircraft": {
+          type: "B738",
+          registration: `N123${number}`,
+          source: "synthetic",
+        },
+        "keepraw-fly.seat": {
+          seat: "12A",
+          cabin: "economy",
+          bookingClass: "Y",
+          source: "synthetic",
+        },
+      },
+    })),
+  };
+}
+
+async function readEditorRecord(page: Page) {
+  return page.evaluate(
+    () =>
+      new Promise<{ document: KeeprawFlyDocument; updatedAt: string }>(
+        (resolve, reject) => {
+          const request = indexedDB.open("keepraw-fly");
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => {
+            const database = request.result;
+            const transaction = database.transaction("documents", "readonly");
+            const read = transaction.objectStore("documents").get("active");
+            read.onsuccess = () => resolve(read.result);
+            read.onerror = () => reject(read.error);
+            transaction.oncomplete = () => database.close();
+          };
+        },
+      ),
+  );
+}
+
+async function importEditorArchive(page: Page, archive: unknown) {
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "synthetic.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+  await page
+    .getByRole("button", { name: "Import this archive", exact: true })
+    .click();
+  await expect(page.getByRole("button", { name: /Open UA701/ })).toBeVisible();
+  await expectSavingFinished(page);
+  await page.getByRole("button", { name: /Open UA701/ }).click();
+}
+
+async function openEditor(page: Page) {
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  return page.getByRole("dialog", { name: "Edit flight", exact: true });
+}
+
+async function saveEditor(page: Page) {
+  const editor = page.getByRole("dialog");
+  await editor
+    .getByRole("button", { name: "Save flight", exact: true })
+    .click();
+  await expect(editor).toHaveCount(0);
+  await expectSavingFinished(page);
+}
+
+async function expectValidEditorReload(
+  page: Page,
+  expected: KeeprawFlyDocument,
+) {
+  expect(await storedArchive(page)).toEqual(expected);
+  expect((await readEditorRecord(page)).document).toEqual(expected);
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: /Open UA/ }).first(),
+  ).toBeVisible();
+  await expect(page.locator(".recovery-page")).toHaveCount(0);
+  expect((await readEditorRecord(page)).document).toEqual(expected);
+}
+
+test(
+  "saves cancelled to diverted, reloads valid IndexedDB and exports valid JSON",
+  { tag: "@cross-browser" },
+  async ({ page }) => {
+    const archive = generatedEditorArchive();
+    const flight = archive.flights[0]!;
+    flight.cancelled = true;
+    delete flight.actualDeparture;
+    delete flight.actualArrival;
+    await importEditorArchive(page, archive);
+    const editor = await openEditor(page);
+    await editor.getByLabel("Canceled", { exact: true }).uncheck();
+    await editor
+      .getByRole("combobox", { name: "Diverted", exact: true })
+      .fill("JFK");
+    await saveEditor(page);
+    delete flight.cancelled;
+    flight.divertedTo = { iata: "JFK" };
+    await expectValidEditorReload(page, archive);
+    await openSettings(page);
+    await openSettingsCategory(page, "Data and backup");
+    const downloading = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: "Export Keepraw Fly JSON", exact: true })
+      .click();
+    const downloaded = JSON.parse(
+      await readFile((await (await downloading).path())!, "utf8"),
+    );
+    expect(downloaded).toEqual(archive);
+    expect(await storedArchive(page)).toEqual(downloaded);
+  },
+);
+
+for (const field of ["flightNumber", "bookingReference"] as const) {
+  test(`preserves imported historical facts when only ${field} changes`, async ({
+    page,
+  }) => {
+    const archive = generatedEditorArchive();
+    const flight = archive.flights[0]!;
+    flight.divertedTo = { iata: "JFK", terminal: "4", gate: "B12" };
+    flight.actualArrival = "2026-08-21T13:15:00-04:00";
+    await importEditorArchive(page, archive);
+    const editor = await openEditor(page);
+    await expect(
+      editor.getByLabel("Frequent Flyer Tier", { exact: true }),
+    ).toHaveValue("");
+    const value = field === "flightNumber" ? "UA799" : "CHANGED";
+    await editor
+      .getByLabel(
+        field === "flightNumber" ? "Flight number" : "Booking Reference / PNR",
+      )
+      .fill(value);
+    await saveEditor(page);
+    flight[field] = value;
+    await expectValidEditorReload(page, archive);
+  });
+}
+
+test("changes and clears diversion without transferring old airport facts", async ({
+  page,
+}) => {
+  const archive = generatedEditorArchive();
+  const flight = archive.flights[0]!;
+  flight.divertedTo = { iata: "JFK", terminal: "4", gate: "B12" };
+  delete flight.actualArrival;
+  await importEditorArchive(page, archive);
+  let editor = await openEditor(page);
+  await editor
+    .getByRole("combobox", { name: "Diverted", exact: true })
+    .fill("BOS");
+  await saveEditor(page);
+  flight.divertedTo = { iata: "BOS" };
+  expect((await readEditorRecord(page)).document).toEqual(archive);
+  editor = await openEditor(page);
+  await editor
+    .getByRole("combobox", { name: "Diverted", exact: true })
+    .fill("");
+  await saveEditor(page);
+  delete flight.divertedTo;
+  await expectValidEditorReload(page, archive);
+});
+
+test("preserves an unassociated historical membership until explicitly reselected or edited", async ({
+  page,
+}) => {
+  const archive = generatedEditorArchive();
+  const flight = archive.flights[0]!;
+  flight.frequentFlyer = { membershipId: "test-other", tierAtFlight: null };
+  await importEditorArchive(page, archive);
+  await editFlightNumber(page, "UA799");
+  flight.flightNumber = "UA799";
+  expect((await readEditorRecord(page)).document).toEqual(archive);
+  let editor = await openEditor(page);
+  await editor
+    .getByLabel("Frequent Flyer Tier", { exact: true })
+    .fill("Platinum");
+  await saveEditor(page);
+  flight.frequentFlyer.tierAtFlight = "Platinum";
+  expect((await readEditorRecord(page)).document).toEqual(archive);
+  editor = await openEditor(page);
+  await editor.getByLabel("Frequent flyer membership").selectOption("test-ua");
+  await expect(
+    editor.getByLabel("Frequent Flyer Tier", { exact: true }),
+  ).toHaveValue("Gold");
+  await saveEditor(page);
+  flight.frequentFlyer = { membershipId: "test-ua", tierAtFlight: "Gold" };
+  await expectValidEditorReload(page, archive);
+});
+
+test("does not auto-fill a membership on an existing unlinked flight", async ({
+  page,
+}) => {
+  const archive = generatedEditorArchive();
+  delete archive.flights[0]!.frequentFlyer;
+  await importEditorArchive(page, archive);
+  await editFlightNumber(page, "UA799");
+  archive.flights[0]!.flightNumber = "UA799";
+  await expectValidEditorReload(page, archive);
+});
+
+test("keeps new and duplicate flight membership matching while leaving old flights unknown", async ({
+  page,
+}) => {
+  const archive = generatedEditorArchive();
+  await importEditorArchive(page, archive);
+  await page
+    .getByRole("button", { name: "Duplicate as new", exact: true })
+    .click();
+  let editor = page.getByRole("dialog");
+  await expect(
+    editor.getByLabel("Frequent Flyer Tier", { exact: true }),
+  ).toHaveValue("Gold");
+  await editor.getByLabel("Flight number").fill("MU799");
+  await expect(editor.getByLabel("Frequent flyer membership")).toHaveValue(
+    "test-other",
+  );
+  await expect(
+    editor.getByLabel("Frequent Flyer Tier", { exact: true }),
+  ).toHaveValue("Silver");
+  await saveEditor(page);
+  let stored = (await readEditorRecord(page)).document;
+  expect(stored.flights.slice(0, 3)).toEqual(archive.flights);
+  expect(stored.flights[3]?.frequentFlyer).toEqual({
+    membershipId: "test-other",
+    tierAtFlight: "Silver",
+  });
+  await page.locator(".detail-header-back").click();
+  await page.getByRole("button", { name: "Add flight", exact: true }).click();
+  editor = page.getByRole("dialog");
+  await editor.getByLabel("Flight number").fill("UA799");
+  await expect(editor.getByLabel("Frequent flyer membership")).toHaveValue(
+    "test-ua",
+  );
+  await expect(
+    editor.getByLabel("Frequent Flyer Tier", { exact: true }),
+  ).toHaveValue("Gold");
+  await editor
+    .getByRole("combobox", { name: "Origin", exact: true })
+    .fill("SFO");
+  await editor
+    .getByRole("combobox", { name: "Destination", exact: true })
+    .fill("LAX");
+  await saveEditor(page);
+  stored = (await readEditorRecord(page)).document;
+  expect(stored.flights.slice(0, 3)).toEqual(archive.flights);
+  expect(stored.flights[4]?.frequentFlyer).toEqual({
+    membershipId: "test-ua",
+    tierAtFlight: "Gold",
+  });
+  await expectValidEditorReload(page, stored);
+});
+
+test("ordinary editing of a migrated legacy JSON flight keeps its unknown historical tier", async ({
+  page,
+}) => {
+  const archive = generatedEditorArchive();
+  const legacy = {
+    ...structuredClone(archive),
+    format: "rawfly",
+    formatVersion: "0.1",
+  };
+  const flight = legacy.flights[0]!;
+  delete flight.frequentFlyer;
+  flight.extensions!["keepraw-fly.frequent-flyer"] = {
+    membershipId: "test-ua",
+    tier: null,
+  };
+  await importEditorArchive(page, legacy);
+  expect((await readEditorRecord(page)).document).toEqual(archive);
+  await editFlightNumber(page, "UA799");
+  archive.flights[0]!.flightNumber = "UA799";
+  await expectValidEditorReload(page, archive);
+});
+
+for (const fault of ["conflict", "membership", "schema"] as const) {
+  test(`rejects ${fault} at the save boundary without writing or losing the draft`, async ({
+    page,
+  }) => {
+    // Inject a malformed converter result, without adding a production test hook.
+    await page.route("**/src/components/FlightEditor.tsx", async (route) => {
+      const response = await route.fetch();
+      const source = await response.text();
+      expect(source).toContain("await onSave(nextFlight);");
+      await route.fulfill({
+        response,
+        body: source.replace(
+          "await onSave(nextFlight);",
+          "await onSave(window.corruptFlightEdit ? window.corruptFlightEdit(nextFlight) : nextFlight);",
+        ),
+      });
+    });
+    const archive = generatedEditorArchive();
+    await importEditorArchive(page, archive);
+    const before = await readEditorRecord(page);
+    await mockDocumentSaves(page, []);
+    await page.evaluate((fault) => {
+      window.corruptFlightEdit = (flight) => ({
+        ...flight,
+        ...(fault === "conflict"
+          ? { cancelled: true, divertedTo: { iata: "JFK" } }
+          : fault === "membership"
+            ? { frequentFlyer: { membershipId: "missing" } }
+            : { origin: { iata: "INVALID" } }),
+      });
+    }, fault);
+    const editor = await openEditor(page);
+    await editor.getByLabel("Flight number").fill("UA799");
+    await editor
+      .getByRole("button", { name: "Save flight", exact: true })
+      .click();
+    await expect(editor.getByRole("alert")).toHaveText(
+      "Please check the flight details and try again.",
+    );
+    await expect(editor.getByLabel("Flight number")).toHaveValue("UA799");
+    await expect(
+      editor.getByRole("button", { name: "Save flight", exact: true }),
+    ).toBeEnabled();
+    expect(await readEditorRecord(page)).toEqual(before);
+    expect(
+      await page.evaluate(() => window.documentPersistenceTest.calls),
+    ).toEqual([]);
+    // A corrected retry uses the retained draft, and a reload before retry keeps the original archive.
+    if (fault === "conflict") {
+      await page.evaluate(() => {
+        delete window.corruptFlightEdit;
+      });
+      await saveEditor(page);
+      archive.flights[0]!.flightNumber = "UA799";
+    }
+    await expectValidEditorReload(page, archive);
+  });
+}
+
+declare global {
+  interface Window {
+    corruptFlightEdit?: (flight: KeeprawFlight) => KeeprawFlight;
+  }
+}
+
+async function delayFirstFlightValidation(page: Page) {
+  await page.route("**/src/App.tsx", async (route) => {
+    const response = await route.fetch();
+    const source = await response.text();
+    const validation = "const { validateKeeprawFly } = await import(";
+    expect(source).toContain(validation);
+    expect(source).toContain("if (!loaded) {");
+    await route.fulfill({
+      response,
+      // Exercise the real callbacks; keep the test controls out of production.
+      // Pause at the import boundary, after the candidate snapshot was built.
+      body: source
+        .replace(
+          validation,
+          `await window.flightValidationDelay.wait();\n${validation}`,
+        )
+        .replace(
+          "if (!loaded) {",
+          `window.flightValidationActions = { clearDocument, importArchive, updateProfile, saveFlight };
+        if (!loaded) {`,
+        ),
+    });
+  });
+}
+
+async function startDelayedFlightSave(page: Page, flight: KeeprawFlight) {
+  await page.evaluate((flight) => {
+    let release: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const state: Window["flightValidationDelay"] =
+      (window.flightValidationDelay = {
+        calls: 0,
+        outcome: "pending" as "pending" | "saved" | "rejected",
+        release: () => release(),
+        wait: () => (++state.calls === 1 ? held : Promise.resolve()),
+      });
+    void window.flightValidationActions.saveFlight(flight).then(
+      () => {
+        state.outcome = "saved";
+      },
+      () => {
+        state.outcome = "rejected";
+      },
+    );
+  }, flight);
+  await expect
+    .poll(() => page.evaluate(() => window.flightValidationDelay.calls))
+    .toBe(1);
+}
+
+for (const change of [
+  "clear",
+  "replace",
+  "profile",
+  "same-turn-profile",
+  "other-flight",
+  "failed-profile",
+] as const) {
+  test(`rejects delayed flight validation after ${change} without changing IndexedDB or retry intent`, async ({
+    page,
+  }) => {
+    await delayFirstFlightValidation(page);
+    const archive = generatedEditorArchive();
+    await importEditorArchive(page, archive);
+    const original = await readEditorRecord(page);
+    await mockDocumentSaves(
+      page,
+      change === "failed-profile" ? ["fail", "pass"] : [],
+    );
+    await startDelayedFlightSave(page, {
+      ...archive.flights[0]!,
+      flightNumber: "UA799",
+    });
+    expect(
+      await page.evaluate(() => window.documentPersistenceTest.calls),
+    ).toEqual([]);
+
+    const expected = structuredClone(archive);
+    if (change === "clear") {
+      await page.evaluate(() => window.flightValidationActions.clearDocument());
+      await expect.poll(() => readEditorRecord(page)).toBeUndefined();
+    } else if (change === "replace") {
+      expected.profile = {
+        name: { native: "Replacement Pilot", primary: "native" },
+      };
+      expected.flights = expected.flights.map((flight, index) => ({
+        ...flight,
+        id: `replacement-${index}`,
+        flightNumber: `UA80${index + 1}`,
+      }));
+      expected.extensions = { "test.replacement": { preserved: true } };
+      await page.evaluate(
+        (document) => window.flightValidationActions.importArchive(document),
+        expected,
+      );
+      await expectSavingFinished(page);
+    } else if (change === "other-flight") {
+      expected.flights[1]!.flightNumber = "UA798";
+      await page.evaluate(
+        (flight) => window.flightValidationActions.saveFlight(flight),
+        expected.flights[1]!,
+      );
+      await expectSavingFinished(page);
+    } else {
+      expected.profile = {
+        name: { native: "Updated Pilot", primary: "native" },
+      };
+      await page.evaluate(
+        ({ name, releaseImmediately }) => {
+          window.flightValidationActions.updateProfile(name);
+          if (releaseImmediately) window.flightValidationDelay.release();
+        },
+        {
+          name: expected.profile.name!,
+          releaseImmediately: change === "same-turn-profile",
+        },
+      );
+      if (change === "failed-profile")
+        await expect(unsavedWarning(page)).toBeVisible();
+      else await expectSavingFinished(page);
+    }
+    const current = await readEditorRecord(page);
+    if (change === "failed-profile") expect(current).toEqual(original);
+    else if (change !== "clear") expect(current.document).toEqual(expected);
+    const writesBeforeRelease = await page.evaluate(() => ({
+      saves: window.documentPersistenceTest.calls.length,
+      clears: window.documentPersistenceTest.clearCalls,
+    }));
+
+    // A stale completion must not close a newer editor or discard its draft.
+    if (change !== "clear") {
+      if (change === "replace")
+        await page.getByRole("button", { name: /Open UA801/ }).click();
+      const editor = await openEditor(page);
+      await editor.getByLabel("Flight number").fill("UA797");
+    }
+    await page.evaluate(() => window.flightValidationDelay.release());
+    await expect
+      .poll(() => page.evaluate(() => window.flightValidationDelay.outcome))
+      .not.toBe("pending");
+    expect(await readEditorRecord(page)).toEqual(current);
+    expect(
+      await page.evaluate(() => window.flightValidationDelay.outcome),
+    ).toBe("rejected");
+    expect(
+      await page.evaluate(() => ({
+        saves: window.documentPersistenceTest.calls.length,
+        clears: window.documentPersistenceTest.clearCalls,
+      })),
+    ).toEqual(writesBeforeRelease);
+    if (change !== "clear") {
+      await expect(
+        page.getByRole("dialog").getByLabel("Flight number"),
+      ).toHaveValue("UA797");
+      await page.keyboard.press("Escape");
+    }
+    if (change === "failed-profile") {
+      await unsavedWarning(page)
+        .getByRole("button", { name: "Try again", exact: true })
+        .click();
+      await expectSavingFinished(page);
+      expect((await readEditorRecord(page)).document).toEqual(expected);
+      expect(
+        await page.evaluate(() =>
+          window.documentPersistenceTest.calls.map((call) => call.document),
+        ),
+      ).toEqual([expected, expected]);
+    }
+    await page.reload();
+    if (change === "clear") {
+      await expect(
+        page.getByRole("button", { name: "Create my archive", exact: true }),
+      ).toBeVisible();
+      expect(await readEditorRecord(page)).toBeUndefined();
+    } else {
+      await expect(
+        page.getByRole("button", { name: /Open UA/ }).first(),
+      ).toBeVisible();
+      expect(await storedArchive(page)).toEqual(expected);
+      expect((await readEditorRecord(page)).document).toEqual(expected);
+    }
+  });
+}
+
+declare global {
+  interface Window {
+    flightValidationDelay: {
+      calls: number;
+      outcome: "pending" | "saved" | "rejected";
+      wait: () => Promise<void>;
+      release: () => void;
+    };
+    flightValidationActions: {
+      clearDocument: () => void;
+      importArchive: (document: KeeprawFlyDocument) => void;
+      updateProfile: (
+        name: NonNullable<KeeprawFlyDocument["profile"]["name"]>,
+      ) => void;
+      saveFlight: (flight: KeeprawFlight) => Promise<void>;
+    };
+  }
+}
+
+test("accepts delayed flight validation when only viewer preferences changed", async ({
+  page,
+}) => {
+  await delayFirstFlightValidation(page);
+  const archive = generatedEditorArchive();
+  await importEditorArchive(page, archive);
+  await mockDocumentSaves(page, []);
+  archive.flights[0]!.flightNumber = "UA799";
+  await startDelayedFlightSave(page, archive.flights[0]!);
+  await openSettings(page);
+  await page.locator("#settings-appearance").selectOption("dark");
+  await expectSavingFinished(page);
+  expect(
+    await page.evaluate(() => window.documentPersistenceTest.calls),
+  ).toEqual([]);
+  await page.evaluate(() => window.flightValidationDelay.release());
+  await expect
+    .poll(() => page.evaluate(() => window.flightValidationDelay.outcome))
+    .toBe("saved");
+  await expectSavingFinished(page);
+  expect(
+    await page.evaluate(() =>
+      window.documentPersistenceTest.calls.map((call) => call.document),
+    ),
+  ).toEqual([archive]);
+  await expectValidEditorReload(page, archive);
 });

@@ -117,7 +117,10 @@ export function FlightEditor({
     const upper = value.toUpperCase();
     const parsed = splitFlightNumberInput(upper);
     setDraft((current) => {
-      if (!parsed) return { ...current, flightNumber: upper };
+      // Existing membership references are historical facts, even when the
+      // profile no longer associates that membership with this airline.
+      if (!parsed || (flight && !isDuplicate))
+        return { ...current, flightNumber: upper };
       const currentMembership = memberships.find(
         (item) => item.id === current.frequentFlyerMembershipId,
       );
