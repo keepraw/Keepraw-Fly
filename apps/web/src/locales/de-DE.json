@@ -591,6 +591,8 @@
     "solarModeHint": "Eine feste Sonnenposition sorgt für gleichbleibende Beleuchtung. Der Echtzeitmodus folgt dem Tag-Nacht-Verlauf zur aktuellen UTC-Zeit."
   },
   "recovery": {
+    "readFailedTitle": "Ihr lokaler Flugpass konnte nicht gelesen werden",
+    "readFailedDescription": "Keepraw Fly konnte nicht prüfen, ob auf diesem Gerät bereits ein Flugpass vorhanden ist. Das Erstellen eines Flugpasses, die Demo und der Import sind zum Schutz vorhandener Daten vorübergehend gesperrt. Versuchen Sie erneut, Ihren Flugpass zu lesen. Es wurden keine Daten überschrieben oder gelöscht.",
     "title": "Wir konnten Ihr lokales Archiv nicht öffnen",
     "description": "Keepraw Fly hat vorhandene Daten auf diesem Gerät gefunden, konnte sie mit dieser Version jedoch nicht öffnen. Ihre gespeicherten Daten wurden weder gelöscht noch verändert.",
     "unsupportedVersion": "Dieses Archiv wurde mit einer neueren oder nicht unterstützten Formatversion erstellt.",

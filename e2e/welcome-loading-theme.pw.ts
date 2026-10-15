@@ -303,7 +303,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
   });
 }
 
-test("blocked cosmetic cache and storage read failure keep System welcome usable", async ({
+test("blocked cosmetic cache and storage read failure keep System recovery usable", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "dark" });
@@ -313,12 +313,54 @@ test("blocked cosmetic cache and storage read failure keep System welcome usable
         throw new Error("blocked");
       },
     });
+    const get = IDBObjectStore.prototype.get;
+    (
+      window as unknown as { restoreArchiveRead: () => void }
+    ).restoreArchiveRead = () => {
+      IDBObjectStore.prototype.get = get;
+    };
     IDBObjectStore.prototype.get = function () {
       throw new Error("read unavailable");
     };
   });
   await page.goto("/");
+  const failure = page.getByRole("heading", {
+    name: "Your local archive could not be read",
+    exact: true,
+  });
+  await expect(failure).toBeVisible();
+  await expect(page.locator(".welcome, input[type=file]")).toHaveCount(0);
+  // Recovery uses the existing root palette, while welcome has a page palette.
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(9, 11, 14)",
+  );
+  await expect(page.locator("body")).toHaveCSS("color", "rgb(244, 246, 248)");
+  await expect(page.locator(".storage-warning")).toHaveCSS(
+    "color",
+    "rgb(255, 116, 107)",
+  );
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("body")).toHaveCSS(
+    "background-color",
+    "rgb(250, 249, 246)",
+  );
+  await expect(page.locator("body")).toHaveCSS("color", "rgb(32, 35, 31)");
+  const retry = page.getByRole("button", { name: "Try again", exact: true });
+  await retry.click();
+  await expect(retry).toBeEnabled();
+  await expect(failure).toBeVisible();
+  await expect(page.locator(".welcome")).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.evaluate(() =>
+    (
+      window as unknown as { restoreArchiveRead: () => void }
+    ).restoreArchiveRead(),
+  );
+  await retry.click();
   await expect(page.locator(".welcome")).toBeVisible();
+  await expect(failure).toHaveCount(0);
+  await page.emulateMedia({ colorScheme: "dark" });
   await expectSurface(page.locator(".app-shell"), "dark");
   await expect(page.locator(".storage-warning")).toHaveCSS(
     "color",
