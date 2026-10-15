@@ -8,6 +8,7 @@ import type {
 import demoData from "@keepraw-fly/core/demo";
 import { AppHeader, type Page } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
+import { PageShell } from "./components/PageShell";
 import { DemoBanner } from "./components/DemoBanner";
 import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
@@ -51,17 +52,24 @@ type DocumentSnapshot = {
   document: KeeprawFlyDocument;
   kind: ArchiveKind;
 } | null;
-type RecoveryArchive = Extract<
-  ArchiveLoadResult,
-  { status: "invalid" | "unsupported-version" }
->;
+type ArchiveLoadState =
+  ArchiveLoadResult | { readonly status: "loading" | "read-error" };
 
 export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocument] = useState<KeeprawFlyDocument | null>(null);
   const [archiveKind, setArchiveKind] = useState<ArchiveKind | null>(null);
-  const [recoveryArchive, setRecoveryArchive] =
-    useState<RecoveryArchive | null>(null);
+  const [archiveLoad, setArchiveLoad] = useState<ArchiveLoadState>({
+    status: "loading",
+  });
+  // Update synchronously with load outcomes: event callbacks and queued writes
+  // must not rely on the render that happened to create their closure.
+  const archiveLoadRef = useRef(archiveLoad);
+  const recoveryArchive =
+    archiveLoad.status === "invalid" ||
+    archiveLoad.status === "unsupported-version"
+      ? archiveLoad
+      : null;
   const [recoveryBusy, setRecoveryBusy] = useState(false);
   const recoveryOperationRef = useRef(false);
   const [settings, setSettings] = useState<ViewerSettings>(() => ({
@@ -86,6 +94,7 @@ export function App() {
         setDocumentPersistence(state);
         if (state.status === "saved") setStorageError(null);
       },
+      canWriteDocument,
     ),
   );
   const [settingsWrites] = useState(() =>
@@ -161,13 +170,10 @@ export function App() {
         // A preferences read failure must not hide an existing unreadable archive.
         if (archiveResult.status === "fulfilled")
           applyArchiveLoad(archiveResult.value);
+        else updateArchiveLoad({ status: "read-error" });
         if (settingsResult.status === "fulfilled" && settingsResult.value)
           setSettings(settingsResult.value);
-        if (
-          archiveResult.status === "rejected" ||
-          settingsResult.status === "rejected"
-        )
-          setStorageError("storage");
+        if (settingsResult.status === "rejected") setStorageError("storage");
       })
       .finally(() => {
         if (active) setLoaded(true);
@@ -177,14 +183,28 @@ export function App() {
     };
   }, []);
 
+  function updateArchiveLoad(result: ArchiveLoadState) {
+    archiveLoadRef.current = result;
+    setArchiveLoad(result);
+  }
+
+  function canWriteDocument() {
+    const { status } = archiveLoadRef.current;
+    return (
+      (status === "empty" || status === "valid") &&
+      !recoveryOperationRef.current
+    );
+  }
+
+  function canRecoverDocument() {
+    const { status } = archiveLoadRef.current;
+    return status === "invalid" || status === "unsupported-version";
+  }
+
   function applyArchiveLoad(result: ArchiveLoadResult) {
+    updateArchiveLoad(result);
     setDocument(result.status === "valid" ? result.document : null);
     setArchiveKind(result.status === "empty" ? null : result.kind);
-    setRecoveryArchive(
-      result.status === "invalid" || result.status === "unsupported-version"
-        ? result
-        : null,
-    );
   }
 
   async function runRecoveryOperation(operation: () => Promise<void>) {
@@ -200,25 +220,26 @@ export function App() {
   }
 
   async function retryArchiveLoad() {
+    if (archiveLoadRef.current.status !== "read-error" && !canRecoverDocument())
+      return;
     await runRecoveryOperation(async () => {
-      try {
-        applyArchiveLoad(await browserStorage.loadDocument());
-        setStorageError(null);
-      } catch (error) {
-        setStorageError("storage");
-        throw error;
-      }
+      // A rejection keeps the unknown state or previously read recovery source.
+      applyArchiveLoad(await browserStorage.loadDocument());
     });
   }
 
   async function importRecoveryBackup(nextDocument: KeeprawFlyDocument) {
+    if (!canRecoverDocument()) return;
     await runRecoveryOperation(async () => {
       // The recovery UI confirms replacement. Keep the raw source visible until
       // IndexedDB has committed the explicitly selected, validated backup.
       await browserStorage.saveDocument(nextDocument, "personal");
-      setDocument(nextDocument);
-      setArchiveKind("personal");
-      setRecoveryArchive(null);
+      applyArchiveLoad({
+        status: "valid",
+        document: nextDocument,
+        kind: "personal",
+        updatedAt: new Date().toISOString(),
+      });
       setStorageError(null);
       setPassportView(initialPassportView);
       setPage("passport");
@@ -228,6 +249,7 @@ export function App() {
   }
 
   async function clearRecoveryArchive() {
+    if (!canRecoverDocument()) return;
     await runRecoveryOperation(async () => {
       await browserStorage.clearDocument();
       applyArchiveLoad({ status: "empty" });
@@ -309,7 +331,7 @@ export function App() {
     nextDocument: KeeprawFlyDocument,
     nextKind: ArchiveKind = archiveKind ?? "personal",
   ) {
-    if (recoveryArchive) return;
+    if (!canWriteDocument()) return;
     setDocument(nextDocument);
     setArchiveKind(nextKind);
     void documentWrites.save({ document: nextDocument, kind: nextKind });
@@ -336,6 +358,7 @@ export function App() {
   }
 
   function clearDocument() {
+    if (!canWriteDocument()) return;
     // Deletion shares the write queue so an older save cannot resurrect the archive.
     setDocument(null);
     setArchiveKind(null);
@@ -348,6 +371,7 @@ export function App() {
   }
 
   function createArchive() {
+    if (!canWriteDocument()) return;
     setPassportView(initialPassportView);
     editorReturnFocusRef.current =
       window.document.activeElement instanceof HTMLElement
@@ -362,6 +386,7 @@ export function App() {
   }
 
   function importArchive(nextDocument: KeeprawFlyDocument) {
+    if (!canWriteDocument()) return;
     setPassportView(initialPassportView);
     storeDocument(nextDocument, "personal");
     setPage("passport");
@@ -370,6 +395,7 @@ export function App() {
   }
 
   function openDemoArchive() {
+    if (!canWriteDocument()) return;
     setPassportView(initialPassportView);
     storeDocument(structuredClone(demoDocument), "demo");
     setPage("passport");
@@ -429,7 +455,7 @@ export function App() {
   if (
     GlobeLab &&
     window.location.pathname === "/globe-lab" &&
-    !recoveryArchive
+    canWriteDocument()
   ) {
     return (
       <Suspense
@@ -551,7 +577,31 @@ export function App() {
           ) : null}
         </div>
       ) : null}
-      {recoveryArchive ? (
+      {archiveLoad.status === "read-error" ? (
+        <PageShell className="settings-page recovery-page">
+          <div
+            className="settings-content recovery-content"
+            aria-busy={recoveryBusy}
+          >
+            <header className="recovery-heading">
+              <h1>{t("recovery.readFailedTitle")}</h1>
+              <p className="recovery-description" role="alert">
+                {t("recovery.readFailedDescription")}
+              </p>
+            </header>
+            <div className="recovery-actions">
+              <button
+                className="button-primary"
+                type="button"
+                disabled={recoveryBusy}
+                onClick={() => void retryArchiveLoad().catch(() => {})}
+              >
+                {t("actions.retry")}
+              </button>
+            </div>
+          </div>
+        </PageShell>
+      ) : recoveryArchive ? (
         <RecoveryPage
           archive={recoveryArchive}
           busy={recoveryBusy}

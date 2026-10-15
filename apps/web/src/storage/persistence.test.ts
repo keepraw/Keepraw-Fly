@@ -48,6 +48,67 @@ function documentWithFlight(flightNumber: string): KeeprawFlyDocument {
 }
 
 describe("document persistence queue", () => {
+  it("discards writes requested before archive reads permit persistence", async () => {
+    let permitted = false;
+    const write = vi
+      .fn<(snapshot: string | null) => Promise<void>>()
+      .mockResolvedValue(undefined);
+    const onStateChange = observeStates();
+    const queue = createPersistenceQueue(write, onStateChange, () => permitted);
+
+    for (const snapshot of ["create", "demo", "import", null]) {
+      await expect(queue.save(snapshot)).resolves.toBe(false);
+    }
+    await expect(queue.retry()).resolves.toBe(false);
+    expect(onStateChange).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+
+    permitted = true;
+    await expect(queue.retry()).resolves.toBe(false);
+    expect(write).not.toHaveBeenCalled();
+    await expect(queue.save("confirmed archive")).resolves.toBe(true);
+    expect(write.mock.calls).toEqual([["confirmed archive"]]);
+  });
+
+  it("rechecks permission when a queued write reaches storage and discards it without a retry", async () => {
+    let permitted = true;
+    const completion = deferred();
+    const started = deferred();
+    const write = vi.fn(async (_: string) => {
+      started.resolve();
+      await completion.promise;
+    });
+    const onStateChange = observeStates();
+    const queue = createPersistenceQueue(write, onStateChange, () => permitted);
+    const first = queue.save("already writing");
+    await started.promise;
+    const blocked = queue.save("waiting snapshot");
+    permitted = false;
+    completion.resolve();
+    await expect(first).resolves.toBe(true);
+    await expect(blocked).resolves.toBe(false);
+    expect(onStateChange.mock.lastCall?.[0]).toEqual({ status: "idle" });
+    permitted = true;
+    await expect(queue.retry()).resolves.toBe(false);
+    expect(write.mock.calls).toEqual([["already writing"]]);
+  });
+
+  it("does not execute a failed snapshot retry while archive writes are blocked", async () => {
+    let permitted = true;
+    const write = vi
+      .fn<(snapshot: string) => Promise<void>>()
+      .mockRejectedValue(new Error("Write failure"));
+    const queue = createPersistenceQueue(
+      write,
+      observeStates(),
+      () => permitted,
+    );
+    await expect(queue.save("unsaved edit")).resolves.toBe(false);
+    permitted = false;
+    await expect(queue.retry()).resolves.toBe(false);
+    expect(write).toHaveBeenCalledTimes(1);
+  });
+
   it("starts idle and ignores retry when there is no failed snapshot", async () => {
     const write = vi.fn<(snapshot: string) => Promise<void>>();
     const onStateChange = observeStates();

@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import { openSettingsCategory } from "./helpers/settings";
 
 const exampleArchive = fileURLToPath(
   new URL("../examples/basic.keepraw-fly.json", import.meta.url),
@@ -10,6 +12,151 @@ const recoveryTitle = "We couldn't open your local archive";
 const preservationMessage =
   "Keepraw Fly found existing data on this device, but it could not be opened with this version. Your stored data has not been deleted or modified.";
 const storedAt = "2026-08-19T12:00:00.000Z";
+const readFailureTitle = "Your local archive could not be read";
+
+function generatedArchive(): KeeprawFlyDocument {
+  return {
+    format: "keepraw-fly",
+    formatVersion: "0.1.0",
+    profile: { name: { native: "Synthetic Pilot", primary: "native" } },
+    extensions: { "test.initial-read": { marker: "preserve-all-fields" } },
+    flights: [1, 2, 3].map((number) => ({
+      id: `initial-read-flight-${number}`,
+      flightNumber: `UA70${number}`,
+      serviceDate: `2026-08-2${number}`,
+      airline: { iata: "UA" },
+      origin: { iata: "SFO", terminal: "3", gate: `F${number}` },
+      destination: { iata: "JFK" },
+      scheduledDeparture: `2026-08-2${number}T08:00:00-07:00`,
+      scheduledArrival: `2026-08-2${number}T16:30:00-04:00`,
+      extensions: { "test.initial-read": { marker: `flight-${number}` } },
+    })),
+  };
+}
+
+declare global {
+  interface Window {
+    canWriteFromLoadingRender: () => boolean;
+    attemptBlockedArchiveWrites: (
+      document: KeeprawFlyDocument,
+    ) => Promise<void>;
+    archiveReadTest: {
+      fail: boolean;
+      hold: boolean;
+      calls: number;
+      completed: number;
+      writes: number;
+      clears: number;
+      release: (index?: number) => void;
+    };
+  }
+}
+
+async function controlInitialReads(
+  page: Page,
+  { fail = true, hold = false, settingsFail = false } = {},
+) {
+  await page.route("**/src/App.tsx", async (route) => {
+    const response = await route.fetch();
+    const source = await response.text();
+    expect(source).toContain("if (!loaded) {");
+    await route.fulfill({
+      response,
+      // Retain callbacks from the loading render to exercise stale closures and
+      // the queue directly, independent of whether buttons happen to be mounted.
+      body: source.replace(
+        "if (!loaded) {",
+        `
+        if (!loaded) {
+        window.canWriteFromLoadingRender = canWriteDocument;
+        window.attemptBlockedArchiveWrites = async (candidate) => {
+          createArchive();
+          openDemoArchive();
+          importArchive(candidate);
+          storeDocument(candidate, "personal");
+          clearDocument();
+          await importRecoveryBackup(candidate);
+          await clearRecoveryArchive();
+          await documentWrites.save({ document: candidate, kind: "personal" });
+          await documentWrites.save(null);
+          await documentWrites.retry();
+        };
+        }
+        if (!loaded) {
+      `,
+      ),
+    });
+  });
+  // Install before React mounts, including both StrictMode effect invocations.
+  // Writes still reach real IndexedDB; only document reads are fault-injected.
+  await page.route("**/src/main.tsx", async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      body: `
+        const { browserStorage: testStorage } = await import("/src/storage/browser.ts");
+        const readArchive = testStorage.loadDocument.bind(testStorage);
+        const writeArchive = testStorage.saveDocument.bind(testStorage);
+        const clearArchive = testStorage.clearDocument.bind(testStorage);
+        const releases = new Map();
+        const state = window.archiveReadTest = {
+          fail: ${fail}, hold: ${hold}, calls: 0, completed: 0, writes: 0, clears: 0,
+          release: (index) => {
+            for (const [key, resolve] of releases) {
+              if (index === undefined || key === index) {
+                releases.delete(key);
+                resolve();
+              }
+            }
+          },
+        };
+        testStorage.loadDocument = async () => {
+          const index = state.calls++;
+          try {
+            if (state.hold) await new Promise(resolve => releases.set(index, resolve));
+            if (state.fail) throw new Error("Simulated initial archive read failure");
+            return await readArchive();
+          } finally {
+            state.completed++;
+          }
+        };
+        testStorage.saveDocument = async (...args) => {
+          state.writes++;
+          return writeArchive(...args);
+        };
+        testStorage.clearDocument = async () => {
+          state.clears++;
+          return clearArchive();
+        };
+        ${settingsFail ? 'testStorage.loadSettings = async () => { throw new Error("Simulated preferences read failure"); };' : ""}
+        ${await response.text()}
+      `,
+    });
+  });
+}
+
+async function expectReadProtection(page: Page, record: LocalRecord | null) {
+  await expect(
+    page.getByRole("heading", { name: readFailureTitle }),
+  ).toBeVisible();
+  await expect(page.locator(".welcome, input[type=file]")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Create my archive", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Try demo", exact: true }),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(() => ({
+      writes: window.archiveReadTest.writes,
+      clears: window.archiveReadTest.clears,
+    })),
+  ).toEqual({ writes: 0, clears: 0 });
+  expect(await readRecord(page)).toEqual(record);
+  expect(await page.evaluate(() => window.canWriteFromLoadingRender())).toBe(
+    false,
+  );
+}
 
 interface LocalRecord {
   key: "active";
@@ -680,3 +827,325 @@ for (const locale of [
     expect(await readRecord(page)).toEqual(record);
   });
 }
+
+for (const settingsFail of [false, true]) {
+  test(`protects an unread archive through retries and stale callbacks (settings fail: ${settingsFail})`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("button", { name: "Create my archive", exact: true }),
+    ).toBeVisible();
+    const archive = generatedArchive();
+    const record = await writeRecord(page, archive);
+    await controlInitialReads(page, { hold: true, settingsFail });
+    await page.reload();
+    await expect
+      .poll(() => page.evaluate(() => window.archiveReadTest?.calls ?? 0))
+      .toBeGreaterThan(0);
+    await expect(
+      page.getByRole("main", { name: "Loading Keepraw Fly", exact: true }),
+    ).toBeVisible();
+    await page.evaluate(
+      (candidate) => window.attemptBlockedArchiveWrites(candidate),
+      archive,
+    );
+    expect(await readRecord(page)).toEqual(record);
+    expect(await page.evaluate(() => window.archiveReadTest.writes)).toBe(0);
+    await page.evaluate(() => window.archiveReadTest.release());
+    await expectReadProtection(page, record);
+
+    for (const hash of ["settings", "passport", "flights"]) {
+      await page.evaluate((hash) => {
+        window.location.hash = hash;
+      }, hash);
+      await expectReadProtection(page, record);
+      await page.evaluate(
+        (candidate) => window.attemptBlockedArchiveWrites(candidate),
+        archive,
+      );
+      await expectReadProtection(page, record);
+    }
+    // Settings writes remain functional and cannot unlock archive writes.
+    await page.evaluate(async () => {
+      const modulePath = "/src/storage/browser.ts";
+      const { browserStorage } = await import(modulePath);
+      await browserStorage.saveSettings({
+        language: "en-US",
+        appearance: "dark",
+        distanceUnit: "kilometers",
+        timeFormat: "24-hour",
+        powerUserMode: false,
+      });
+    });
+    const retry = page.getByRole("button", { name: "Try again", exact: true });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const calls = await page.evaluate(() => window.archiveReadTest.calls);
+      // Dispatch twice in one task, before React can commit disabled={busy}.
+      await retry.evaluate((button) => {
+        (button as HTMLButtonElement).click();
+        (button as HTMLButtonElement).click();
+      });
+      await expect(retry).toBeDisabled();
+      expect(await page.evaluate(() => window.archiveReadTest.calls)).toBe(
+        calls + 1,
+      );
+      await page.evaluate(
+        (candidate) => window.attemptBlockedArchiveWrites(candidate),
+        archive,
+      );
+      await expectReadProtection(page, record);
+      await page.evaluate(() => window.archiveReadTest.release());
+      await expect(retry).toBeEnabled();
+      await expectReadProtection(page, record);
+    }
+    await page.evaluate(() => {
+      window.archiveReadTest.fail = false;
+    });
+    await retry.click();
+    await expect(retry).toBeDisabled();
+    await page.evaluate(
+      (candidate) => window.attemptBlockedArchiveWrites(candidate),
+      archive,
+    );
+    await expectReadProtection(page, record);
+    await page.evaluate(() => window.archiveReadTest.release());
+    for (const flight of archive.flights) {
+      await expect(
+        page.getByRole("button", {
+          name: new RegExp(`Open ${flight.flightNumber}`),
+        }),
+      ).toBeVisible();
+    }
+    expect(await page.evaluate(() => window.canWriteFromLoadingRender())).toBe(
+      true,
+    );
+    await page.locator('.site-navigation a[href="#settings"]').click();
+    await openSettingsCategory(page, "Profile");
+    await expect(page.locator("#settings-native-name")).toHaveValue(
+      "Synthetic Pilot",
+    );
+    await expect(
+      page.getByRole("heading", { name: readFailureTitle }),
+    ).toHaveCount(0);
+    expect(await readRecord(page)).toEqual(record);
+    expect(
+      await page.evaluate(() => ({
+        writes: window.archiveReadTest.writes,
+        clears: window.archiveReadTest.clears,
+      })),
+    ).toEqual({ writes: 0, clears: 0 });
+  });
+}
+
+test("keeps a valid archive accessible when only settings fail to load", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Create my archive", exact: true }),
+  ).toBeVisible();
+  const record = await writeRecord(page, generatedArchive());
+  await controlInitialReads(page, { fail: false, settingsFail: true });
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Open UA701/ })).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText(
+    "Local storage is unavailable",
+  );
+  await expect(
+    page.getByRole("heading", { name: readFailureTitle }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: recoveryTitle })).toHaveCount(
+    0,
+  );
+  expect(await readRecord(page)).toEqual(record);
+  await page.getByRole("button", { name: /Open UA701/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Edit flight", exact: true }),
+  ).toBeVisible();
+});
+
+for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
+  test(`allows first-use ${action} only after a successful empty read`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("button", { name: "Create my archive", exact: true }),
+    ).toBeVisible();
+    await controlInitialReads(page);
+    await page.reload();
+    await expectReadProtection(page, null);
+    await page.evaluate(
+      (candidate) => window.attemptBlockedArchiveWrites(candidate),
+      generatedArchive(),
+    );
+    await expectReadProtection(page, null);
+    await page.evaluate(() => {
+      window.archiveReadTest.fail = false;
+    });
+    await page.getByRole("button", { name: "Try again", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Create my archive", exact: true }),
+    ).toBeVisible();
+    expect(await readRecord(page)).toBeNull();
+    if (action === "create") {
+      await page
+        .getByRole("button", { name: "Create my archive", exact: true })
+        .click();
+      await expect(
+        page.getByRole("dialog", { name: "Add a flight", exact: true }),
+      ).toBeVisible();
+      await expect
+        .poll(async () => (await readRecord(page))?.document)
+        .toEqual({
+          format: "keepraw-fly",
+          formatVersion: "0.1.0",
+          profile: {},
+          flights: [],
+        });
+    } else if (action === "demo") {
+      await page.getByRole("button", { name: "Try demo", exact: true }).click();
+      await expect
+        .poll(async () => (await readRecord(page))?.kind)
+        .toBe("demo");
+      expect((await readRecord(page))?.document).toHaveProperty(
+        "flights",
+        expect.any(Array),
+      );
+      expect(
+        ((await readRecord(page))?.document as KeeprawFlyDocument).flights
+          .length,
+      ).toBeGreaterThan(0);
+    } else if (action === "import") {
+      const archive = generatedArchive();
+      await page.locator('input[type="file"]').setInputFiles({
+        name: "synthetic.keepraw-fly.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(JSON.stringify(archive)),
+      });
+      await page
+        .getByRole("button", { name: "Import this archive", exact: true })
+        .click();
+      await expect(
+        page.getByRole("button", { name: /Open UA701/ }),
+      ).toBeVisible();
+      await expect
+        .poll(async () => (await readRecord(page))?.document)
+        .toEqual(archive);
+    } else {
+      await page.locator('.site-navigation a[href="#settings"]').click();
+      await openSettingsCategory(page, "Data and backup");
+      const flight = generatedArchive().flights[0]!;
+      const csv =
+        action === "csv"
+          ? `flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival\n${flight.flightNumber},${flight.serviceDate},SFO,JFK,${flight.scheduledDeparture},${flight.scheduledArrival}`
+          : `Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)\n${flight.serviceDate},UAL,701,SFO,JFK,${flight.scheduledDeparture},${flight.scheduledArrival}`;
+      await page
+        .getByLabel(action === "csv" ? "Open CSV file" : "Open Flighty CSV", {
+          exact: true,
+        })
+        .setInputFiles({
+          name: `synthetic-${action}.csv`,
+          mimeType: "text/csv",
+          buffer: Buffer.from(csv),
+        });
+      await page
+        .getByRole("button", { name: "Add 1 flight", exact: true })
+        .click();
+      await expect(
+        page.getByRole("button", { name: /Open UA701/ }),
+      ).toBeVisible();
+      await expect
+        .poll(async () => (await readRecord(page))?.document)
+        .toMatchObject({
+          format: "keepraw-fly",
+          formatVersion: "0.1.0",
+          profile: {},
+          flights: [
+            {
+              flightNumber: flight.flightNumber,
+              serviceDate: flight.serviceDate,
+              origin: { iata: "SFO" },
+              destination: { iata: "JFK" },
+            },
+          ],
+        });
+      expect(
+        ((await readRecord(page))?.document as KeeprawFlyDocument).flights,
+      ).toHaveLength(1);
+    }
+  });
+}
+
+for (const raw of [
+  invalidArchive,
+  { ...invalidArchive, formatVersion: "99.0.0", futureFact: "preserve" },
+]) {
+  test(`enters existing recovery after a failed initial read of version ${raw.formatVersion}`, async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("button", { name: "Create my archive", exact: true }),
+    ).toBeVisible();
+    const record = await writeRecord(page, raw);
+    await controlInitialReads(page);
+    await page.reload();
+    await expectReadProtection(page, record);
+    await page.evaluate(() => {
+      window.archiveReadTest.fail = false;
+    });
+    await page.getByRole("button", { name: "Try again", exact: true }).click();
+    await expectRecovery(page);
+    expect(await readRecord(page)).toEqual(record);
+    const downloadEvent = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: "Download recovery copy", exact: true })
+      .click();
+    const download = await downloadEvent;
+    expect(
+      JSON.parse(await readFile((await download.path())!, "utf8")),
+    ).toEqual(raw);
+  });
+}
+
+test("ignores a stale initialization success after the active read failed", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Create my archive", exact: true }),
+  ).toBeVisible();
+  const archive = generatedArchive();
+  const record = await writeRecord(page, archive);
+  await controlInitialReads(page, { hold: true });
+  await page.reload();
+  // StrictMode cancels the first effect and starts a second read.
+  await expect
+    .poll(() => page.evaluate(() => window.archiveReadTest?.calls))
+    .toBe(2);
+  await page.evaluate(() => window.archiveReadTest.release(1));
+  await expectReadProtection(page, record);
+  await page.evaluate(() => {
+    window.archiveReadTest.fail = false;
+    window.archiveReadTest.release(0);
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.archiveReadTest.completed))
+    .toBe(2);
+  await page.evaluate(
+    (candidate) => window.attemptBlockedArchiveWrites(candidate),
+    archive,
+  );
+  await expectReadProtection(page, record);
+  await page.evaluate(() => {
+    window.archiveReadTest.hold = false;
+  });
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Open UA701/ })).toBeVisible();
+  expect(await page.evaluate(() => window.canWriteFromLoadingRender())).toBe(
+    true,
+  );
+  expect(await readRecord(page)).toEqual(record);
+});

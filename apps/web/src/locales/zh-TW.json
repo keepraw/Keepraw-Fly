@@ -559,6 +559,8 @@
     "solarModeHint": "固定太陽保持一致的光照；真實太陽依目前 UTC 時間呈現晝夜變化。"
   },
   "recovery": {
+    "readFailedTitle": "無法讀取本機飛行檔案",
+    "readFailedDescription": "Keepraw Fly 無法確認此裝置上是否已有檔案。為保護可能存在的資料，已暫停建立檔案、體驗 Demo 和匯入。請重試讀取檔案。沒有覆寫或刪除任何資料。",
     "title": "無法開啟本機飛行檔案",
     "description": "Keepraw Fly 在此裝置上偵測到現有資料，但目前版本無法正常讀取。原始資料尚未被修改或刪除。",
     "unsupportedVersion": "此檔案使用了較新或目前不支援的資料格式版本。",

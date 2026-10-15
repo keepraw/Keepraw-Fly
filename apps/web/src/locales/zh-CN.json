@@ -559,6 +559,8 @@
     "solarModeHint": "固定太阳保持一致的光照；真实太阳按当前 UTC 时间呈现昼夜变化。"
   },
   "recovery": {
+    "readFailedTitle": "无法读取本地飞行档案",
+    "readFailedDescription": "Keepraw Fly 无法确认此设备上是否已有档案。为保护可能存在的数据，已暂停创建档案、体验 Demo 和导入。请重试读取档案。没有覆盖或删除任何数据。",
     "title": "无法打开本地飞行档案",
     "description": "Keepraw Fly 在此设备上检测到了现有数据，但当前版本无法正常读取。原始数据尚未被修改或删除。",
     "unsupportedVersion": "此档案使用了更新或当前不支持的数据格式版本。",

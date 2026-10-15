@@ -620,6 +620,8 @@
     "solarModeHint": "O Sol fixo mantém a iluminação constante. O modo em tempo real acompanha o dia e a noite conforme a hora UTC atual."
   },
   "recovery": {
+    "readFailedTitle": "Não foi possível ler seu arquivo de voos local",
+    "readFailedDescription": "O Keepraw Fly não conseguiu verificar se já existe um arquivo de voos neste dispositivo. A criação de arquivos, a demonstração e a importação estão pausadas para proteger os dados existentes. Tente ler seu arquivo novamente. Nenhum dado foi sobrescrito ou excluído.",
     "title": "Não foi possível abrir seu arquivo local",
     "description": "O Keepraw Fly encontrou dados neste dispositivo, mas não conseguiu abri-los com esta versão. Os dados armazenados não foram excluídos nem alterados.",
     "unsupportedVersion": "Este arquivo foi criado por uma versão de formato mais recente ou não suportada.",
