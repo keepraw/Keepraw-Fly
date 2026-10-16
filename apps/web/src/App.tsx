@@ -414,11 +414,13 @@ export function App() {
   async function importArchive(nextDocument: KeeprawFlyDocument) {
     if (!canWriteDocument()) throw new Error("archive-conflict");
     setPassportView(initialPassportView);
-    if (!(await storeDocument(nextDocument, "personal")))
-      throw new Error("archive-not-saved");
+    const saved = storeDocument(nextDocument, "personal");
     setPage("passport");
     setSelectedFlightId(null);
     window.location.hash = "passport";
+    // Do not let a late commit navigate away from the user's next page.
+    // The importer still receives a rejection if the archive was not committed.
+    if (!(await saved)) throw new Error("archive-not-saved");
   }
 
   function openDemoArchive() {
@@ -774,6 +776,7 @@ export function App() {
           locale={locale}
           memberships={memberships}
           onSave={saveFlight}
+          archiveConflict={documentPersistence.status === "conflict"}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
           onCancel={() => {
             setEditorFlightId(null);

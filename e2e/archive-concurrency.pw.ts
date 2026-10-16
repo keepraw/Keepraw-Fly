@@ -454,3 +454,48 @@ test("a failed conflict reload preserves the draft and unload guard until a succ
   await expect(warning(stale)).toHaveCount(0);
   expect(await stored(page)).toEqual(committed);
 });
+
+test("a late conflict remains visible inside a subsequently opened editor without losing its draft", async ({
+  page,
+  context,
+}) => {
+  const stale = await twoTabs(page, context);
+  await stale.evaluate(async () => {
+    const path = "/src/storage/browser.ts";
+    const { browserStorage } = await import(path);
+    const save = browserStorage.saveDocument.bind(browserStorage);
+    let release: () => void;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    (window as any).releaseConflictWrite = () => release();
+    browserStorage.saveDocument = async (...args: unknown[]) => {
+      await pending;
+      return save(...args);
+    };
+  });
+  await stale.getByRole("button", { name: /Open UA123/ }).click();
+  await stale.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const editor = stale.getByRole("dialog", {
+    name: "Edit flight",
+    exact: true,
+  });
+  await editor.getByLabel("Flight number").fill("UA124");
+  await editor
+    .getByRole("button", { name: "Save flight", exact: true })
+    .click();
+  await expect(editor).toHaveCount(0);
+  await stale.getByRole("button", { name: "Edit flight", exact: true }).click();
+  await editor.getByLabel("Flight number").fill("UA125");
+  const committed = await commitWinner(page);
+  await stale.evaluate(() => (window as any).releaseConflictWrite());
+  await expect(editor.getByRole("alert")).toContainText(conflictText);
+  await expect(editor.getByLabel("Flight number")).toHaveValue("UA125");
+  await editor
+    .getByRole("button", { name: "Save flight", exact: true })
+    .click();
+  await expect(editor).toBeVisible();
+  await expect(editor.getByRole("alert")).toContainText(conflictText);
+  await expect(editor.getByLabel("Flight number")).toHaveValue("UA125");
+  expect(await stored(page)).toEqual(committed);
+});
