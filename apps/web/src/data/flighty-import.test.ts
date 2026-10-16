@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
+  airportByIata,
   installAirportDirectory,
   type CompactAirportRow,
 } from "@keepraw-fly/core";
@@ -49,6 +50,80 @@ function ids(prefix: string): () => string {
 }
 
 describe("Flighty CSV import", () => {
+  const timeHeaders =
+    "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled),Gate Departure (Actual),Gate Arrival (Actual),Diverted To";
+
+  it.each(["-04:00", "-05:00", "Z"])(
+    "preserves explicit Flighty overlap instants (%s)",
+    (offset) => {
+      const departure =
+        offset === "Z"
+          ? "2026-11-01T05:30:45Z"
+          : `2026-11-01T01:30:45${offset}`;
+      const actualDeparture =
+        offset === "Z"
+          ? "2026-11-01T05:40:59Z"
+          : `2026-11-01T01:40:59${offset}`;
+      const parsed = parseFlightyCsv(
+        `${timeHeaders}\n2026-11-01,UAL,123,JFK,LAX,${departure},2026-11-01T03:30-08:00,${actualDeparture},2026-11-01T03:40-08:00,`,
+      );
+      const preflight = preflightFlightyImport(parsed, null);
+      expect(preflight.issues).toEqual([]);
+      const document = buildDocumentFromFlightyPreflight(preflight, null);
+      expect(document.flights[0]).toMatchObject({
+        scheduledDeparture: `2026-11-01T01:30:00${offset === "Z" ? "-04:00" : offset}`,
+        actualDeparture: `2026-11-01T01:40:00${offset === "Z" ? "-04:00" : offset}`,
+      });
+      expect(validateKeeprawFly(document).valid).toBe(true);
+    },
+  );
+
+  it.each([
+    ["2026-03-08", "2026-03-08T02:30", "nonexistent-time"],
+    ["2026-11-01", "2026-11-01T01:30", "ambiguous-time"],
+    ["2026-11-01", "2026-11-01T24:30", "invalid-time"],
+    ["2026-11-01", "2026-11-01T01:30+24:00", "invalid-time"],
+  ])(
+    "keeps time diagnostics and source lines for Flighty input %s %s",
+    (date, time, code) => {
+      const parsed = parseFlightyCsv(
+        `${timeHeaders}\n${date},ABC,123,JFK,LAX,${date}T00:30,${date}T04:30,,,\n${date},UAL,123,JFK,LAX,${time},${date}T04:30,,,`,
+      );
+      const preflight = preflightFlightyImport(parsed, null);
+      expect(preflight.canImport).toBe(false);
+      expect(preflight.flights).toEqual([]);
+      expect(preflight.issues).toContainEqual({
+        severity: "error",
+        code,
+        lineNumber: 3,
+      });
+      expect(preflight.csvPreflight.issues).toEqual([{ code, lineNumber: 2 }]);
+      expect(() =>
+        buildDocumentFromFlightyPreflight(preflight, null),
+      ).toThrow();
+    },
+  );
+
+  it("reports airport timezone errors in Flighty actual arrival", () => {
+    const airport = airportByIata.get("ORD")!;
+    airportByIata.set("ORD", { ...airport, timezone: "Invalid/Timezone" });
+    try {
+      const parsed = parseFlightyCsv(
+        `${timeHeaders}\n2026-11-01,UAL,123,JFK,LAX,2026-11-01T00:30,2026-11-01T04:30,,2026-11-01T04:00-06:00,ORD`,
+      );
+      const preflight = preflightFlightyImport(parsed, null);
+      expect(preflight.canImport).toBe(false);
+      expect(preflight.issues).toEqual([
+        { severity: "error", code: "invalid-timezone", lineNumber: 2 },
+      ]);
+      expect(() => buildDocumentFromFlightyPreflight(preflight, null)).toThrow(
+        "invalid-timezone",
+      );
+    } finally {
+      airportByIata.set("ORD", airport);
+    }
+  });
+
   it("recognizes the real Flighty header shape and ignores unknown columns", () => {
     const parsed = parseFlightyCsv(
       `${flightyCsv(["2026-09-23,CES,5243,TAO,SHA,1,12,2,33,false,,2026-09-23T14:30,,2026-09-23T16:20,,Airbus A321,,,12A,ECONOMY"])}\nUnknown Flighty Column`,

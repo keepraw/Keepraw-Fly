@@ -431,9 +431,11 @@
       "same-airport": "Abflug- und Zielort müssen unterschiedliche Flughäfen sein.",
       "ambiguous-time": "Diese Ortszeit tritt aufgrund der Sommerzeit zweimal auf. Fügen Sie einen expliziten UTC-Offset hinzu.",
       "nonexistent-time": "Diese Ortszeit existiert aufgrund der Sommerzeit nicht.",
-      "invalid-time": "Eine geplante Zeit ist kein echtes Kalenderdatum und keine echte Kalenderzeit.",
+      "invalid-time": "Ein Datum, eine Uhrzeit oder ein UTC-Offset ist ungültig.",
+      "invalid-timezone": "Die Zeitzone des Flughafens ist ungültig oder wird nicht unterstützt.",
+      "invalid-row": "Die Zeile enthält ungültige Daten. Prüfen Sie die übrigen Felder.",
       "date-mismatch": "Das Flugdatum muss mit dem geplanten Abflugdatum übereinstimmen.",
-      "chronology": "Die geplante Ankunft muss nach dem geplanten Abflug liegen."
+      "chronology": "Die Ankunft muss nach dem Abflug liegen, sowohl bei geplanten als auch bei tatsächlichen Zeiten."
     },
     "fields": {
       "flightNumber": "Flugnummer",

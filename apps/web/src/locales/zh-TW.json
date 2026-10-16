@@ -402,9 +402,11 @@
       "same-airport": "出發機場與抵達機場必須不同。",
       "ambiguous-time": "該當地時間因夏令時回撥而存在歧義，請輸入明確的 UTC 偏移。",
       "nonexistent-time": "該當地時間因夏令時跳躍而不存在。",
-      "invalid-time": "預定時間不是有效的日期和時間。",
+      "invalid-time": "時間的日期、時鐘值或 UTC 偏移無效。",
+      "invalid-timezone": "機場時區無效或不受支援。",
+      "invalid-row": "該列包含無效資料，請檢查其他欄位。",
       "date-mismatch": "航班日期必須與預定出發日期一致。",
-      "chronology": "預定抵達時間必須晚於預定出發時間。"
+      "chronology": "預定和實際抵達時間都必須晚於對應的出發時間。"
     },
     "fields": {
       "flightNumber": "航班號",

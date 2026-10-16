@@ -455,9 +455,11 @@
       "same-airport": "A origem e o destino devem ser aeroportos diferentes.",
       "ambiguous-time": "Este horário local ocorre duas vezes devido ao horário de verão. Adicione um deslocamento UTC explícito.",
       "nonexistent-time": "Este horário local não existe devido ao horário de verão.",
-      "invalid-time": "Um horário programado não é uma data e hora reais do calendário.",
+      "invalid-time": "Uma data, hora ou deslocamento UTC é inválido.",
+      "invalid-timezone": "O fuso horário do aeroporto é inválido ou não é compatível.",
+      "invalid-row": "A linha contém dados inválidos. Verifique os demais campos.",
       "date-mismatch": "A data do voo deve corresponder à data de partida prevista.",
-      "chronology": "A chegada programada deve ser posterior à partida programada."
+      "chronology": "A chegada deve ser posterior à partida, tanto nos horários programados quanto nos reais."
     },
     "fields": {
       "flightNumber": "Número do voo",
