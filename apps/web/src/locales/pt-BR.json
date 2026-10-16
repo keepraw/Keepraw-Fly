@@ -340,6 +340,7 @@
     "airports_many": "Aeroportos"
   },
   "import": {
+    "checking": "Verificando voos…",
     "failed": "Este arquivo não pode ser importado",
     "flightNumber": "Voo #{{number}}",
     "dropHint": "ou solte um arquivo .json aqui",

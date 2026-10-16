@@ -301,6 +301,7 @@
     "recentDelayYears": "最近三个有记录的年份"
   },
   "import": {
+    "checking": "正在检查航班…",
     "failed": "无法导入这个文件",
     "flightNumber": "航班 #{{number}}",
     "dropHint": "或将 .json 文件拖放到这里",

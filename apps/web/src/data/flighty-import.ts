@@ -6,11 +6,13 @@ import {
   detectCsvMapping,
   parseCsv,
   preflightCsvImport,
+  preflightCsvImportWork,
   type CsvImportIssueCode,
   type ParsedCsv,
 } from "./csv-import";
 import type { FlightImportAssessment } from "./duplicate-detection";
 import type { ImportPreflightCounts } from "./import-preview";
+import { finishImportPreflight } from "./import-preflight-work";
 
 const flightyFieldNames = [
   "Date",
@@ -114,6 +116,16 @@ export function preflightFlightyImport(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
 ): FlightyImportPreflight {
+  return finishImportPreflight(
+    preflightFlightyImportWork(parsed, existing, idFactory),
+  );
+}
+
+export function* preflightFlightyImportWork(
+  parsed: ParsedCsv,
+  existing: KeeprawFlyDocument | null,
+  idFactory: () => string = () => crypto.randomUUID(),
+): Generator<void, FlightyImportPreflight, void> {
   const headerIndexes = flightyHeaderIndexes(parsed.headers);
   const issues: FlightyDiagnostic[] = [];
   const warnings: FlightyDiagnostic[] = [];
@@ -130,22 +142,23 @@ export function preflightFlightyImport(
   const mappedRows: string[][] = [];
   const sourceLines: number[] = [];
   if (issues.length === 0) {
-    parsed.rows.forEach((row, rowIndex) => {
+    for (const [rowIndex, row] of parsed.rows.entries()) {
       const lineNumber = rowIndex + 2;
       const values = flightyValues(row, headerIndexes);
       const rowIssues = validateFlightyRow(values, lineNumber, warnings);
       if (rowIssues.length) {
         issues.push(...rowIssues);
-        return;
+      } else {
+        mappedRows.push(toKeeprawCsvRow(values));
+        sourceLines.push(lineNumber);
       }
-      mappedRows.push(toKeeprawCsvRow(values));
-      sourceLines.push(lineNumber);
-    });
+      yield;
+    }
   }
 
   const mapped: ParsedCsv = { headers: csvFlightFields, rows: mappedRows };
   const csvPreflight = mappedRows.length
-    ? preflightCsvImport(
+    ? yield* preflightCsvImportWork(
         mapped,
         detectCsvMapping(mapped.headers),
         existing,

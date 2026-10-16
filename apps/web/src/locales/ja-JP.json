@@ -301,6 +301,7 @@
     "recentDelayYears": "記録のある直近 3 年"
   },
   "import": {
+    "checking": "フライトを確認中…",
     "failed": "このファイルはインポートできません",
     "flightNumber": "フライト番号 {{number}}",
     "dropHint": "またはここに .json ファイルをドロップします",

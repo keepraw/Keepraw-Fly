@@ -322,6 +322,7 @@
     "airports_other": "Flughäfen"
   },
   "import": {
+    "checking": "Flüge werden geprüft…",
     "failed": "Diese Datei kann nicht importiert werden",
     "flightNumber": "Flug Nr. {{number}}",
     "dropHint": "oder legen Sie hier eine .json-Datei ab",
