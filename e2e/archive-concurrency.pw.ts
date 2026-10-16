@@ -1,5 +1,6 @@
 import { expect, test, type Page, type BrowserContext } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { openSettingsCategory } from "./helpers/settings";
 import type {
   KeeprawFlyDocument,
   KeeprawFlight,
@@ -95,6 +96,61 @@ async function commitWinner(page: Page) {
 function warning(page: Page) {
   return page.getByRole("alert").filter({ hasText: conflictText });
 }
+
+test("replaces a loaded large archive and edits, exports and reloads the current document", async ({
+  page,
+}) => {
+  await exposeActions(page);
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Create my archive", exact: true }),
+  ).toBeVisible();
+  const original = structuredClone(archive);
+  original.extensions = { "test.original": { payload: "x".repeat(1_000_000) } };
+  await page.evaluate(
+    (document) => window.archiveActions.importArchive(document),
+    original,
+  );
+  // Exercise a valid startup read, rather than only the initial empty state.
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
+  expect(await stored(page)).toEqual(original);
+
+  const replacement = structuredClone(archive);
+  replacement.flights[0]!.id = "replacement-flight";
+  replacement.flights[0]!.flightNumber = "UA456";
+  replacement.extensions = { "test.replacement": { preserved: [true, 42] } };
+  await page.evaluate(
+    (document) => window.archiveActions.importArchive(document),
+    replacement,
+  );
+  await expect(page.getByRole("button", { name: /Open UA456/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Open UA123/ })).toHaveCount(0);
+  expect(await stored(page)).toEqual(replacement);
+
+  replacement.profile.name = { native: "Current Pilot", primary: "native" };
+  await page.evaluate(
+    (name) => window.archiveActions.updateProfile(name),
+    replacement.profile.name,
+  );
+  await expect.poll(() => stored(page)).toEqual(replacement);
+  await page.locator('.site-navigation a[href="#settings"]').click();
+  await openSettingsCategory(page, "Data and backup");
+  const downloading = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Export Keepraw Fly JSON", exact: true })
+    .click();
+  const download = await downloading;
+  expect(JSON.parse(await readFile((await download.path())!, "utf8"))).toEqual(
+    replacement,
+  );
+  await page.reload();
+  expect(await stored(page)).toEqual(replacement);
+  await openSettingsCategory(page, "Profile");
+  await expect(page.getByLabel("Native name", { exact: true })).toHaveValue(
+    "Current Pilot",
+  );
+});
 
 for (const operation of [
   "flight-add",
