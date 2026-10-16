@@ -10,8 +10,7 @@ import {
   passportViewportDiagnostics,
 } from "./passport-typography-evidence.mjs";
 
-const directory =
-  process.env.TASK_2C_EVIDENCE_DIRECTORY ?? "docs/visual-review/task-2c/resume";
+const directory = process.env.TASK_2C_EVIDENCE_DIRECTORY ?? "artifacts/task-2c";
 const fixture =
   process.env.TASK_2C_FIXTURE ??
   "e2e/fixtures/chinese-passport.keepraw-fly.json";

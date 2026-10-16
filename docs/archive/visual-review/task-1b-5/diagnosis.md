@@ -11,7 +11,7 @@ and the [legacy evidence inventory](../../../visual-review/README.md) for curren
 The recorded source and derived texture hashes matched NASA provenance; sampled
 RGB channels agreed. Sampling used geographic neighborhoods rather than airport
 positions. Full histograms and pixel bounds remain in the
-[texture audit](../../../visual-review/task-1b-5/texture-audit.json), which is also
+[texture audit](../../../../tests/fixtures/globe/texture-audit.json), which is also
 an input to the current response unit tests.
 
 - Source positive urban-core medians were 0.71–0.99; the 4K medians remained
