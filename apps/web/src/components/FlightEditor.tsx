@@ -32,6 +32,7 @@ interface FlightEditorProps {
   preferredAirportCodes?: readonly string[];
   returnFocus?: HTMLElement | null;
   memberships?: readonly FrequentFlyerMembership[];
+  archiveConflict?: boolean;
 }
 
 export function FlightEditor({
@@ -44,6 +45,7 @@ export function FlightEditor({
   preferredAirportCodes = [],
   returnFocus,
   memberships = [],
+  archiveConflict = false,
 }: FlightEditorProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<FlightDraft>(() =>
@@ -239,7 +241,10 @@ export function FlightEditor({
           </button>
         </div>
 
-        <form onSubmit={submit} aria-describedby={error ? errorId : undefined}>
+        <form
+          onSubmit={submit}
+          aria-describedby={archiveConflict || error ? errorId : undefined}
+        >
           <div className="editor-grid">
             <p className="editor-group-title">
               {t("flightEditor.flightSection")}
@@ -584,9 +589,9 @@ export function FlightEditor({
               </label>
             </fieldset>
           </details>
-          {error ? (
+          {archiveConflict || error ? (
             <p className="editor-error" id={errorId} role="alert">
-              {error}
+              {archiveConflict ? t("app.archiveConflict") : error}
             </p>
           ) : null}
 

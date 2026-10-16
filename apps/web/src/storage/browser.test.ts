@@ -464,3 +464,110 @@ it.each(["en", "en-GB", "unknown-language"])(
     expect(await adapter.loadDocument()).toEqual({ status: "empty" });
   },
 );
+
+describe("archive revision transactions", () => {
+  it("assigns legacy revisions without serializing or rewriting invalid recovery sources", async () => {
+    const name = `revision-${crypto.randomUUID()}`;
+    const database = new Dexie(name);
+    database
+      .version(1)
+      .stores({ documents: "&key, updatedAt", preferences: "&key" });
+    databases.push(database);
+    const raw = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [{ broken: true }],
+      value: BigInt(42),
+    };
+    const record = {
+      key: "active",
+      document: raw,
+      updatedAt: "2026-10-01T00:00:00Z",
+    };
+    await database.table("documents").put(record);
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    adapters.push(first, second);
+    const results = await Promise.all([
+      first.loadDocument(),
+      second.loadDocument(),
+    ]);
+    for (const result of results)
+      expect(result).toMatchObject({ status: "invalid", rawDocument: raw });
+    expect(await database.table("documents").get("active")).toEqual(record);
+    await first.clearDocument();
+    await expect(second.clearDocument()).rejects.toThrow("archive-conflict");
+  });
+  it("rejects stale saves and clears, including after a clear/recreate cycle", async () => {
+    const name = `revision-${crypto.randomUUID()}`;
+    const winner = new BrowserStorageAdapter(name);
+    const stale = new BrowserStorageAdapter(name);
+    adapters.push(winner, stale);
+    const document: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [],
+    };
+    await winner.saveDocument(document);
+    await stale.loadDocument();
+    await winner.clearDocument();
+    await expect(stale.saveDocument(document)).rejects.toThrow(
+      "archive-conflict",
+    );
+    await expect(stale.clearDocument()).rejects.toThrow("archive-conflict");
+    expect(await winner.loadDocument()).toEqual({ status: "empty" });
+    await winner.saveDocument({
+      ...document,
+      profile: { name: { native: "New archive", primary: "native" } },
+    });
+    await expect(stale.saveDocument(document)).rejects.toThrow(
+      "archive-conflict",
+    );
+    await stale.loadDocument();
+    await stale.saveDocument(document);
+    expect(await winner.loadDocument()).toMatchObject({
+      status: "valid",
+      document,
+    });
+  });
+
+  it("rolls back both document and revision when committing revision metadata fails", async () => {
+    const adapter = new BrowserStorageAdapter(
+      `revision-${crypto.randomUUID()}`,
+    );
+    adapters.push(adapter);
+    const original: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [],
+    };
+    await adapter.saveDocument(original);
+    const put = IDBObjectStore.prototype.put;
+    const failure = vi
+      .spyOn(IDBObjectStore.prototype, "put")
+      .mockImplementation(function (this: IDBObjectStore, value, ...args) {
+        if (value?.key === "archive-revision")
+          throw new Error("Metadata commit failed");
+        return put.call(this, value, ...args);
+      });
+    const edited = {
+      ...original,
+      profile: { name: { native: "Edited", primary: "native" as const } },
+    };
+    await expect(adapter.saveDocument(edited)).rejects.toThrow(
+      "Metadata commit failed",
+    );
+    failure.mockRestore();
+    // A separate reader verifies rollback without changing the writer's base.
+    const reader = new BrowserStorageAdapter(
+      (adapter as unknown as { database: Dexie }).database.name,
+    );
+    adapters.push(reader);
+    expect(await reader.loadDocument()).toMatchObject({ document: original });
+    await adapter.saveDocument(edited);
+    expect(await reader.loadDocument()).toMatchObject({ document: edited });
+  });
+});

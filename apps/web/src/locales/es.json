@@ -9,7 +9,11 @@
     "settingsNotSaved": "La configuración no se ha guardado en este dispositivo.",
     "skipToContent": "Saltar al contenido",
     "unavailable": "Esta información no está disponible.",
-    "languageLoadFailed": "No se pudo cargar el idioma. Puedes seguir usando el idioma actual. Comprueba la conexión y reintenta."
+    "languageLoadFailed": "No se pudo cargar el idioma. Puedes seguir usando el idioma actual. Comprueba la conexión y reintenta.",
+    "archiveConflict": "Otra pestaña modificó o vació este archivo. Tus cambios no se guardaron. Exporta el archivo sin guardar de esta pestaña antes de cargar la versión guardada.",
+    "exportConflictDraft": "Exportar archivo sin guardar",
+    "loadSavedArchive": "Cargar archivo guardado",
+    "discardConflictDraft": "Al cargar el archivo guardado se descartarán los cambios sin guardar de esta pestaña y cualquier borrador abierto en el editor. Exporta primero el archivo sin guardar si lo necesitas."
   },
   "nav": {
     "label": "Navegación primaria",

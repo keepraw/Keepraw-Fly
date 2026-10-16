@@ -68,6 +68,10 @@ export function App() {
   // Update synchronously with load outcomes: event callbacks and queued writes
   // must not rely on the render that happened to create their closure.
   const archiveLoadRef = useRef(archiveLoad);
+  const archiveConflictRef = useRef(false);
+  const conflictDraftRef = useRef<DocumentSnapshot>(null);
+  const [confirmConflictReload, setConfirmConflictReload] = useState(false);
+  const [conflictReloadFailed, setConflictReloadFailed] = useState(false);
   const recoveryArchive =
     archiveLoad.status === "invalid" ||
     archiveLoad.status === "unsupported-version"
@@ -94,6 +98,7 @@ export function App() {
           ? browserStorage.saveDocument(snapshot.document, snapshot.kind)
           : browserStorage.clearDocument(),
       (state) => {
+        if (state.status === "conflict") archiveConflictRef.current = true;
         setDocumentPersistence(state);
         if (state.status === "saved") setStorageError(null);
       },
@@ -201,6 +206,7 @@ export function App() {
     const { status } = archiveLoadRef.current;
     return (
       (status === "empty" || status === "valid") &&
+      !archiveConflictRef.current &&
       !recoveryOperationRef.current
     );
   }
@@ -222,6 +228,12 @@ export function App() {
     setRecoveryBusy(true);
     try {
       await operation();
+    } catch (error) {
+      if (error instanceof Error && error.message === "archive-conflict") {
+        archiveConflictRef.current = true;
+        setDocumentPersistence({ status: "conflict" });
+      }
+      throw error;
     } finally {
       recoveryOperationRef.current = false;
       setRecoveryBusy(false);
@@ -323,6 +335,7 @@ export function App() {
   const hasUnsavedChanges =
     documentPersistence.status === "saving" ||
     documentPersistence.status === "error" ||
+    documentPersistence.status === "conflict" ||
     settingsPersistence.status === "saving" ||
     settingsPersistence.status === "error";
 
@@ -340,10 +353,11 @@ export function App() {
     nextDocument: KeeprawFlyDocument,
     nextKind: ArchiveKind = archiveKind ?? "personal",
   ) {
-    if (!canWriteDocument()) return;
+    if (!canWriteDocument()) return Promise.resolve(false);
+    conflictDraftRef.current = { document: nextDocument, kind: nextKind };
     setDocument(nextDocument);
     setArchiveKind(nextKind);
-    void documentWrites.save({ document: nextDocument, kind: nextKind });
+    return documentWrites.save({ document: nextDocument, kind: nextKind });
   }
 
   function storeSettings(nextSettings: ViewerSettings) {
@@ -368,6 +382,9 @@ export function App() {
 
   function clearDocument() {
     if (!canWriteDocument()) return;
+    // Preserve the local content even if this clear loses a cross-tab race.
+    if (document)
+      conflictDraftRef.current = { document, kind: archiveKind ?? "personal" };
     // Deletion shares the write queue so an older save cannot resurrect the archive.
     setDocument(null);
     setArchiveKind(null);
@@ -394,13 +411,16 @@ export function App() {
     window.location.hash = "passport";
   }
 
-  function importArchive(nextDocument: KeeprawFlyDocument) {
-    if (!canWriteDocument()) return;
+  async function importArchive(nextDocument: KeeprawFlyDocument) {
+    if (!canWriteDocument()) throw new Error("archive-conflict");
     setPassportView(initialPassportView);
-    storeDocument(nextDocument, "personal");
+    const saved = storeDocument(nextDocument, "personal");
     setPage("passport");
     setSelectedFlightId(null);
     window.location.hash = "passport";
+    // Do not let a late commit navigate away from the user's next page.
+    // The importer still receives a rejection if the archive was not committed.
+    if (!(await saved)) throw new Error("archive-not-saved");
   }
 
   function openDemoArchive() {
@@ -458,6 +478,27 @@ export function App() {
     }
     await downloadKeeprawFly(document);
     storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
+  }
+
+  async function reloadAfterConflict() {
+    setConflictReloadFailed(false);
+    await runRecoveryOperation(async () => {
+      const result = await browserStorage.loadDocument();
+      // Keep the conflict and unload guard until reading succeeds. Pending
+      // snapshots remain invalidated while the new base is being read.
+      await documentWrites.reset();
+      applyArchiveLoad(result);
+      conflictDraftRef.current = null;
+      archiveConflictRef.current = false;
+      setEditorFlightId(null);
+      setDuplicateTemplate(null);
+      setSelectedFlightId(null);
+      setConfirmConflictReload(false);
+    }).catch(() => {
+      setConflictReloadFailed(true);
+      setConfirmConflictReload(false);
+      setDocumentPersistence({ status: "conflict" });
+    });
   }
 
   if (!loaded) {
@@ -542,6 +583,34 @@ export function App() {
           ? t("actions.saving")
           : null}
       </div>
+      {documentPersistence.status === "conflict" ? (
+        <div className="page-notices">
+          <div className="storage-warning" role="alert">
+            <span>{t("app.archiveConflict")}</span>
+            {conflictDraftRef.current || document ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const draft = conflictDraftRef.current?.document ?? document;
+                  if (draft) void downloadKeeprawFly(draft);
+                }}
+              >
+                {t("app.exportConflictDraft")}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              disabled={recoveryBusy}
+              onClick={() => setConfirmConflictReload(true)}
+            >
+              {t("app.loadSavedArchive")}
+            </button>
+            {conflictReloadFailed ? (
+              <span>{t("app.storageUnavailable")}</span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
       {languageLoadError ? (
         <div className="page-notices" role="alert">
           <span>{t("app.languageLoadFailed")}</span>
@@ -707,6 +776,7 @@ export function App() {
           locale={locale}
           memberships={memberships}
           onSave={saveFlight}
+          archiveConflict={documentPersistence.status === "conflict"}
           onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
           onCancel={() => {
             setEditorFlightId(null);
@@ -726,6 +796,16 @@ export function App() {
             setConfirmDemoExport(false);
             if (document) await downloadKeeprawFly(document);
           }}
+        />
+      ) : null}
+      {confirmConflictReload ? (
+        <ConfirmationDialog
+          title={t("app.loadSavedArchive")}
+          description={t("app.discardConflictDraft")}
+          confirmLabel={t("app.loadSavedArchive")}
+          cancelLabel={t("actions.cancel")}
+          onCancel={() => setConfirmConflictReload(false)}
+          onConfirm={() => void reloadAfterConflict()}
         />
       ) : null}
     </div>

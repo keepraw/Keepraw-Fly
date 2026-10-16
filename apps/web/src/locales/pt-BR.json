@@ -9,7 +9,11 @@
     "settingsNotSaved": "As configurações não foram salvas neste dispositivo.",
     "skipToContent": "Pular para o conteúdo",
     "unavailable": "Esta informação não está disponível.",
-    "languageLoadFailed": "Não foi possível carregar o idioma. Você pode continuar usando o idioma atual. Verifique a conexão e tente novamente."
+    "languageLoadFailed": "Não foi possível carregar o idioma. Você pode continuar usando o idioma atual. Verifique a conexão e tente novamente.",
+    "archiveConflict": "Outra aba alterou ou limpou este arquivo. Suas alterações não foram salvas. Exporte o arquivo não salvo desta aba antes de carregar a versão salva.",
+    "exportConflictDraft": "Exportar arquivo não salvo",
+    "loadSavedArchive": "Carregar arquivo salvo",
+    "discardConflictDraft": "Carregar o arquivo salvo descartará as alterações não salvas desta aba e qualquer rascunho aberto no editor. Exporte primeiro o arquivo não salvo se precisar dele."
   },
   "nav": {
     "label": "Navegação primária",
