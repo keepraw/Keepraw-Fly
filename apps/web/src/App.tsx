@@ -52,8 +52,17 @@ type DocumentSnapshot = {
   document: KeeprawFlyDocument;
   kind: ArchiveKind;
 } | null;
-type ArchiveLoadState =
-  ArchiveLoadResult | { readonly status: "loading" | "read-error" };
+export type ArchiveLoadState =
+  | Exclude<ArchiveLoadResult, { status: "valid" }>
+  | {
+      readonly status: "valid";
+      readonly kind: ArchiveKind;
+      readonly updatedAt: string;
+      // The current document belongs to document state, not the load outcome.
+      // Reject full results even when passed as structurally compatible variables.
+      readonly document?: never;
+    }
+  | { readonly status: "loading" | "read-error" };
 
 export function App() {
   const { i18n, t } = useTranslation();
@@ -217,7 +226,15 @@ export function App() {
   }
 
   function applyArchiveLoad(result: ArchiveLoadResult) {
-    updateArchiveLoad(result);
+    updateArchiveLoad(
+      result.status === "valid"
+        ? {
+            status: result.status,
+            kind: result.kind,
+            updatedAt: result.updatedAt,
+          }
+        : result,
+    );
     setDocument(result.status === "valid" ? result.document : null);
     setArchiveKind(result.status === "empty" ? null : result.kind);
   }
