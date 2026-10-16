@@ -13,7 +13,7 @@ test("registered city detail and route hierarchy survive appearance grading whil
     canvas = page.locator(".globe-webgl");
   await expect(host).toHaveAttribute("data-ready", "true");
   const evidence = JSON.parse(
-    await readFile("docs/visual-review/task-1b-5/display-pixels.json", "utf8"),
+    await readFile("tests/fixtures/globe/display-pixels.json", "utf8"),
   );
   const baseline = evidence.pixels["before-dark"];
   const scene = JSON.parse((await host.getAttribute("data-scene"))!);

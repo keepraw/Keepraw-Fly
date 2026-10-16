@@ -43,6 +43,16 @@ summary and a check annotation. It fails on skipped/unexpected tests, global
 errors or an empty report. Browser installation remains `install --with-deps`;
 no browser cache or new dependency was introduced.
 
+## Globe fixtures and manual captures
+
+Shared night-response measurement inputs live in
+[`tests/fixtures/globe/`](../tests/fixtures/globe/README.md). Their original
+histograms, pixel measurements and test assertions are preserved. Manual capture
+and texture-audit helpers default to ignored `artifacts/`; their output does not
+replace a committed regression input or approved visual reference. The
+[retained evidence inventory](visual-review/README.md) records historical sources,
+approved PNGs and the helper output paths.
+
 ## Flight Detail 3D Globe
 
 `detail-map-curve.pw.ts` contains regression tests requiring a real, ready

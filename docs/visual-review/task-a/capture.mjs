@@ -16,7 +16,7 @@ if (
   throw new Error("Capture before only from Task A's recorded main baseline.");
 execFileSync("git", ["diff", "--quiet", "HEAD", "--", "apps/web/src"]);
 const origin = process.env.TASK_A_CAPTURE_ORIGIN ?? "http://127.0.0.1:5173";
-const directory = `${process.env.TASK_A_CAPTURE_OUTPUT ?? "docs/visual-review/task-a"}/${phase}`;
+const directory = `${process.env.TASK_A_CAPTURE_OUTPUT ?? "artifacts/task-a"}/${phase}`;
 await mkdir(directory, { recursive: true });
 const browser = await chromium.launch();
 const records = [];

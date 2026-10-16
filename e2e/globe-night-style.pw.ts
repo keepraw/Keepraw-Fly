@@ -13,10 +13,7 @@ test("real Dark emission separates warm compact accents from quiet city fabric a
     canvas = page.locator(".globe-webgl");
   await expect(host).toHaveAttribute("data-ready", "true");
   const evidence = JSON.parse(
-    await readFile(
-      "docs/visual-review/task-1b-6/display-diagnostics.json",
-      "utf8",
-    ),
+    await readFile("tests/fixtures/globe/display-diagnostics.json", "utf8"),
   );
   const before = evidence.diagnostics.before.emission;
   await page.getByRole("button", { name: "Dark", exact: true }).click();

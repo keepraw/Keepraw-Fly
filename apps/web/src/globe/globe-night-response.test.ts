@@ -6,7 +6,7 @@ import { nightResponse } from "./globe-night-response";
 const audit = JSON.parse(
   readFileSync(
     new URL(
-      "../../../../docs/visual-review/task-1b-5/texture-audit.json",
+      "../../../../tests/fixtures/globe/texture-audit.json",
       import.meta.url,
     ),
     "utf8",

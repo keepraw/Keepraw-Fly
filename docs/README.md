@@ -17,9 +17,10 @@ The [archive](archive/README.md) holds selected design rationale and otherwise
 unrecoverable source provenance. Routine completion reports, temporary audits and
 obsolete validation results belong in pull requests and Git history.
 
-[Legacy evidence paths](visual-review/README.md) contain test inputs, visual
-references and capture output. They are not specifications; their fixture/tooling
-relocation is a separate follow-up so this cleanup preserves test behavior.
+[Legacy evidence paths](visual-review/README.md) retain approved visual references,
+historical evidence and capture helpers. Formal Globe regression inputs live in
+[test fixtures](../tests/fixtures/globe/README.md); fresh captures belong in ignored
+`artifacts/`. Historical evidence does not define current product behavior.
 
 ## Contribution guidance
 

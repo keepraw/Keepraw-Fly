@@ -16,10 +16,11 @@ remain in Git history; intermediate logs are no longer kept in the current tree.
 
 The existing `scripts/capture-task-2c.mjs` still provides the real rendered-font
 verification referenced by the typography tests. With `pnpm dev` and Chromium
-available, capture into ignored output rather than replacing these historical data:
+available, output now defaults to ignored `artifacts/task-2c/`. Run from the
+repository root; use a separate ignored directory for the long-city capture:
 
 ```sh
-TASK_2C_EVIDENCE_DIRECTORY=artifacts/task-2c pnpm exec node scripts/capture-task-2c.mjs
+pnpm exec node scripts/capture-task-2c.mjs
 TASK_2C_EVIDENCE_DIRECTORY=artifacts/task-2c-long TASK_2C_FIXTURE=e2e/fixtures/chinese-long-city-passport.keepraw-fly.json pnpm exec node scripts/capture-task-2c.mjs
 ```
 

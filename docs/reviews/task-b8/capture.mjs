@@ -1,8 +1,10 @@
 import { chromium, expect } from "@playwright/test";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 const repository = new URL("../../../", import.meta.url);
 const output =
-  process.argv[2] ?? new URL("./screenshots/", import.meta.url).pathname;
+  process.argv[2] ??
+  fileURLToPath(new URL("artifacts/detail-visual-review/", repository));
 await mkdir(output, { recursive: true });
 const ca = {
   id: "ca1831",
