@@ -178,8 +178,12 @@ for example `2026-09-02T13:00`. Times with `Z` or `±HH:mm` may also include
 whole seconds, for example `2026-09-02T13:00:00+08:00`. Fractional seconds are
 not supported. Offset-free times use the corresponding airport's timezone; actual
 arrival uses the diversion airport when present. Ambiguous or nonexistent local
-times are rejected. Imported times pass through the editor's conversion and are
-stored at minute precision.
+times without an explicit offset are rejected. Explicit offsets identify an
+instant, including either occurrence of a repeated DST time. That instant is
+converted to the corresponding airport's timezone without resolving its local
+clock time again. Imported times are stored at minute precision (seconds are
+truncated). Invalid dates, clock values, offsets and airport timezones block
+import rather than being normalized or reported as flight-number errors.
 
 Flighty exports use the dedicated **Flighty import** action, illustrated by
 [the Flighty example](../examples/flighty.csv). Its native headers and airline,
