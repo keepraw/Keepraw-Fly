@@ -4,7 +4,8 @@ import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { nightRegions } from "./lib/globe-night-regions.mjs";
 import { nightResponse } from "../apps/web/src/globe/globe-night-response.ts";
-const folder = "docs/visual-review/task-1b-5";
+// Fresh measurements are candidates, not replacements for the committed fixtures.
+const folder = "artifacts/globe-night-audit";
 await mkdir(folder, { recursive: true });
 const metadata = JSON.parse(
   await readFile("apps/web/src/globe/globe-night-texture.source.json", "utf8"),
