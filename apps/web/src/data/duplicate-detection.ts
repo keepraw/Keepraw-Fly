@@ -1,4 +1,5 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { finishImportPreflight } from "./import-preflight-work";
 
 export type FlightImportDisposition = "new" | "possible" | "exact";
 
@@ -18,9 +19,16 @@ export function assessFlightImports(
   candidates: readonly KeeprawFlight[],
   existing: readonly KeeprawFlight[],
 ): FlightImportAssessment[] {
-  const references = [...existing];
+  return finishImportPreflight(assessFlightImportsWork(candidates, existing));
+}
 
-  return candidates.map((flight) => {
+export function* assessFlightImportsWork(
+  candidates: readonly KeeprawFlight[],
+  existing: readonly KeeprawFlight[],
+): Generator<void, FlightImportAssessment[], void> {
+  const references = [...existing];
+  const assessments: FlightImportAssessment[] = [];
+  for (const flight of candidates) {
     const exact = references.find((reference) =>
       isExactDuplicate(flight, reference),
     );
@@ -35,12 +43,14 @@ export function assessFlightImports(
         : "new";
 
     references.push(flight);
-    return {
+    assessments.push({
       flight,
       disposition,
       ...(match ? { matchedFlightId: match.id } : {}),
-    };
-  });
+    });
+    yield;
+  }
+  return assessments;
 }
 
 export function countFlightImportAssessments(

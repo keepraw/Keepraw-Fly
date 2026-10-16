@@ -301,6 +301,7 @@
     "recentDelayYears": "최근 3년 기록"
   },
   "import": {
+    "checking": "항공편 확인 중…",
     "failed": "이 파일을 가져올 수 없습니다.",
     "flightNumber": "항공편 #{{number}}",
     "dropHint": "또는 여기에 .json 파일을 드롭하세요.",
