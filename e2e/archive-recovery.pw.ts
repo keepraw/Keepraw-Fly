@@ -4,6 +4,10 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { openSettingsCategory } from "./helpers/settings";
+import {
+  controlArchiveReads,
+  injectLoadingCallbacks,
+} from "./helpers/archive-read-faults";
 
 const exampleArchive = fileURLToPath(
   new URL("../examples/basic.keepraw-fly.json", import.meta.url),
@@ -39,16 +43,7 @@ declare global {
     canWriteFromLoadingRender: () => boolean;
     attemptBlockedArchiveWrites: (
       document: KeeprawFlyDocument,
-    ) => Promise<void>;
-    archiveReadTest: {
-      fail: boolean;
-      hold: boolean;
-      calls: number;
-      completed: number;
-      writes: number;
-      clears: number;
-      release: (index?: number) => void;
-    };
+    ) => Promise<{ save: boolean; clear: boolean; retry: boolean }>;
   }
 }
 
@@ -59,86 +54,59 @@ async function controlInitialReads(
   await page.route("**/src/App.tsx", async (route) => {
     const response = await route.fetch();
     const source = await response.text();
-    expect(source).toContain("if (!loaded) {");
     await route.fulfill({
       response,
       // Retain callbacks from the loading render to exercise stale closures and
       // the queue directly, independent of whether buttons happen to be mounted.
-      body: source.replace(
-        "if (!loaded) {",
+      body: injectLoadingCallbacks(
+        source,
         `
-        if (!loaded) {
+        if (!loaded && !window.canWriteFromLoadingRender) {
         window.canWriteFromLoadingRender = canWriteDocument;
         window.attemptBlockedArchiveWrites = async (candidate) => {
           createArchive();
           openDemoArchive();
-          importArchive(candidate);
+          await importArchive(candidate).then(
+            () => { throw new Error("Blocked import unexpectedly succeeded"); },
+            (error) => { if (error.message !== "archive-conflict") throw error; },
+          );
           storeDocument(candidate, "personal");
           clearDocument();
           await importRecoveryBackup(candidate);
           await clearRecoveryArchive();
-          await documentWrites.save({ document: candidate, kind: "personal" });
-          await documentWrites.save(null);
-          await documentWrites.retry();
+          const save = await documentWrites.save({ document: candidate, kind: "personal" });
+          const clear = await documentWrites.save(null);
+          const retry = await documentWrites.retry();
+          return { save, clear, retry };
         };
         }
-        if (!loaded) {
       `,
       ),
     });
   });
-  // Install before React mounts, including both StrictMode effect invocations.
-  // Writes still reach real IndexedDB; only document reads are fault-injected.
-  await page.route("**/src/main.tsx", async (route) => {
-    const response = await route.fetch();
-    await route.fulfill({
-      response,
-      body: `
-        const { browserStorage: testStorage } = await import("/src/storage/browser.ts");
-        const readArchive = testStorage.loadDocument.bind(testStorage);
-        const writeArchive = testStorage.saveDocument.bind(testStorage);
-        const clearArchive = testStorage.clearDocument.bind(testStorage);
-        const releases = new Map();
-        const state = window.archiveReadTest = {
-          fail: ${fail}, hold: ${hold}, calls: 0, completed: 0, writes: 0, clears: 0,
-          release: (index) => {
-            for (const [key, resolve] of releases) {
-              if (index === undefined || key === index) {
-                releases.delete(key);
-                resolve();
-              }
-            }
-          },
-        };
-        testStorage.loadDocument = async () => {
-          const index = state.calls++;
-          try {
-            if (state.hold) await new Promise(resolve => releases.set(index, resolve));
-            if (state.fail) throw new Error("Simulated initial archive read failure");
-            return await readArchive();
-          } finally {
-            state.completed++;
-          }
-        };
-        testStorage.saveDocument = async (...args) => {
-          state.writes++;
-          return writeArchive(...args);
-        };
-        testStorage.clearDocument = async () => {
-          state.clears++;
-          return clearArchive();
-        };
-        ${settingsFail ? 'testStorage.loadSettings = async () => { throw new Error("Simulated preferences read failure"); };' : ""}
-        ${await response.text()}
-      `,
-    });
-  });
+  await controlArchiveReads(page, { fail, hold, settingsFail });
+}
+
+async function attemptBlockedWrites(page: Page, candidate: KeeprawFlyDocument) {
+  expect(
+    await page.evaluate(
+      (candidate) => window.attemptBlockedArchiveWrites(candidate),
+      candidate,
+    ),
+  ).toEqual({ save: false, clear: false, retry: false });
 }
 
 async function expectReadProtection(page: Page, record: LocalRecord | null) {
   await expect(
     page.getByRole("heading", { name: readFailureTitle }),
   ).toBeVisible();
+  expect(
+    await page.evaluate(() => window.archiveReadTest.calls),
+  ).toBeGreaterThan(0);
+  expect(
+    await page.evaluate(() => window.archiveReadTest.failed),
+  ).toBeGreaterThan(0);
+
   await expect(page.locator(".welcome, input[type=file]")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Create my archive", exact: true }),
@@ -696,20 +664,13 @@ test("keeps recovery visible when viewer preferences cannot be read at startup",
 }) => {
   const record = await seedArchive(page, invalidArchive);
   await expectRecovery(page);
-  await page.route("**/src/storage/browser.ts", async (route) => {
-    const response = await route.fetch();
-    const source = await response.text();
-    expect(source).toContain("async loadSettings() {");
-    await route.fulfill({
-      response,
-      body: source.replace(
-        "async loadSettings() {",
-        'async loadSettings() { throw new Error("Preferences unavailable");',
-      ),
-    });
-  });
+  await controlArchiveReads(page, { fail: false, settingsFail: true });
   await page.reload();
   await expectRecovery(page);
+  expect(
+    await page.evaluate(() => window.archiveReadTest.settingsFailures),
+  ).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.archiveReadTest.failed)).toBe(0);
   await expect(page.getByRole("alert")).toContainText(
     "Local storage is unavailable.",
   );
@@ -846,24 +807,21 @@ for (const settingsFail of [false, true]) {
     await expect(
       page.getByRole("main", { name: "Loading Keepraw Fly", exact: true }),
     ).toBeVisible();
-    await page.evaluate(
-      (candidate) => window.attemptBlockedArchiveWrites(candidate),
-      archive,
-    );
+    await attemptBlockedWrites(page, archive);
     expect(await readRecord(page)).toEqual(record);
     expect(await page.evaluate(() => window.archiveReadTest.writes)).toBe(0);
     await page.evaluate(() => window.archiveReadTest.release());
     await expectReadProtection(page, record);
+    expect(
+      await page.evaluate(() => window.archiveReadTest.settingsFailures > 0),
+    ).toBe(settingsFail);
 
     for (const hash of ["settings", "passport", "flights"]) {
       await page.evaluate((hash) => {
         window.location.hash = hash;
       }, hash);
       await expectReadProtection(page, record);
-      await page.evaluate(
-        (candidate) => window.attemptBlockedArchiveWrites(candidate),
-        archive,
-      );
+      await attemptBlockedWrites(page, archive);
       await expectReadProtection(page, record);
     }
     // Settings writes remain functional and cannot unlock archive writes.
@@ -890,10 +848,7 @@ for (const settingsFail of [false, true]) {
       expect(await page.evaluate(() => window.archiveReadTest.calls)).toBe(
         calls + 1,
       );
-      await page.evaluate(
-        (candidate) => window.attemptBlockedArchiveWrites(candidate),
-        archive,
-      );
+      await attemptBlockedWrites(page, archive);
       await expectReadProtection(page, record);
       await page.evaluate(() => window.archiveReadTest.release());
       await expect(retry).toBeEnabled();
@@ -904,10 +859,7 @@ for (const settingsFail of [false, true]) {
     });
     await retry.click();
     await expect(retry).toBeDisabled();
-    await page.evaluate(
-      (candidate) => window.attemptBlockedArchiveWrites(candidate),
-      archive,
-    );
+    await attemptBlockedWrites(page, archive);
     await expectReadProtection(page, record);
     await page.evaluate(() => window.archiveReadTest.release());
     for (const flight of archive.flights) {
@@ -949,6 +901,10 @@ test("keeps a valid archive accessible when only settings fail to load", async (
   await controlInitialReads(page, { fail: false, settingsFail: true });
   await page.reload();
   await expect(page.getByRole("button", { name: /Open UA701/ })).toBeVisible();
+  expect(
+    await page.evaluate(() => window.archiveReadTest.settingsFailures),
+  ).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.archiveReadTest.failed)).toBe(0);
   await expect(page.getByRole("alert")).toContainText(
     "Local storage is unavailable",
   );
@@ -976,10 +932,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
     await controlInitialReads(page);
     await page.reload();
     await expectReadProtection(page, null);
-    await page.evaluate(
-      (candidate) => window.attemptBlockedArchiveWrites(candidate),
-      generatedArchive(),
-    );
+    await attemptBlockedWrites(page, generatedArchive());
     await expectReadProtection(page, null);
     await page.evaluate(() => {
       window.archiveReadTest.fail = false;
@@ -1125,7 +1078,21 @@ test("ignores a stale initialization success after the active read failed", asyn
   await expect
     .poll(() => page.evaluate(() => window.archiveReadTest?.calls))
     .toBe(2);
+  expect(
+    await page.evaluate(() => ({
+      pending: window.archiveReadTest.pending,
+      completed: window.archiveReadTest.completed,
+      failed: window.archiveReadTest.failed,
+    })),
+  ).toEqual({ pending: [0, 1], completed: 0, failed: 0 });
+  expect(await readRecord(page)).toEqual(record);
   await page.evaluate(() => window.archiveReadTest.release(1));
+  await expect
+    .poll(() => page.evaluate(() => window.archiveReadTest.completed))
+    .toBe(1);
+  expect(await page.evaluate(() => window.archiveReadTest.pending)).toEqual([
+    0,
+  ]);
   await expectReadProtection(page, record);
   await page.evaluate(() => {
     window.archiveReadTest.fail = false;
@@ -1134,10 +1101,9 @@ test("ignores a stale initialization success after the active read failed", asyn
   await expect
     .poll(() => page.evaluate(() => window.archiveReadTest.completed))
     .toBe(2);
-  await page.evaluate(
-    (candidate) => window.attemptBlockedArchiveWrites(candidate),
-    archive,
-  );
+  expect(await page.evaluate(() => window.archiveReadTest.failed)).toBe(1);
+  expect(await page.evaluate(() => window.archiveReadTest.pending)).toEqual([]);
+  await attemptBlockedWrites(page, archive);
   await expectReadProtection(page, record);
   await page.evaluate(() => {
     window.archiveReadTest.hold = false;
