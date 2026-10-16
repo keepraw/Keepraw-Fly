@@ -117,7 +117,8 @@ cleanup() {
       cp "$backup/compose.yaml" "$backup/.env" "$backup/.keepraw-managed" "$directory/"
       compose up -d --wait --wait-timeout 90 || echo "Recovery failed; inspect $backup and 'docker compose logs'." >&2
     else
-      compose down || true
+      # Preflight established that this is a new project with no prior resources.
+      compose down --volumes || true
       rm -f "$directory/compose.yaml" "$directory/.env" "$directory/.keepraw-managed"
       rmdir "$directory" 2>/dev/null || true
     fi

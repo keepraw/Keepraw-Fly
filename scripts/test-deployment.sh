@@ -87,6 +87,12 @@ cat > "$work/bin/docker" <<'MOCK'
 set -eu
 if [[ ${1:-} == pull ]]; then exit 0; fi
 if [[ ${1:-} == compose ]]; then
+  if [[ " $* " == *' up '* && " $* " != *' --help '* && -n ${FAIL_FIRST_START:-} && ! -e $FAIL_FIRST_START ]]; then
+    touch "$FAIL_FIRST_START"
+    export KEEPRAW_IMAGE=keepraw-fly:deployment-test
+    "$REAL_DOCKER" "$@"
+    exit 42
+  fi
   if [[ " $* " == *' up '* && " $* " != *' --help '* && -n ${FAIL_UP_ONCE:-} && ! -e $FAIL_UP_ONCE ]]; then
     touch "$FAIL_UP_ONCE"
     exit 42
@@ -99,6 +105,13 @@ chmod +x "$work/bin/"*
 export REAL_DOCKER="$real_docker" FIXTURE="$work/fixture"
 export PATH="$work/bin:$PATH"
 install_args=(--dir "$work/instance" --version v0.1.0 --local --http-port 18080 --https-port 18443 --yes)
+# A failed first start cleans up only the resources created by this transaction,
+# so the next attempt can succeed without orphaned certificate volumes.
+if FAIL_FIRST_START="$work/failed-first" bash deploy/install.sh "${install_args[@]}"; then
+  echo 'Expected first-start failure' >&2; exit 1
+fi
+[[ ! -d $work/instance ]]
+[[ -z $(docker volume ls -q --filter label=com.docker.compose.project=keepraw-fly) ]]
 bash deploy/install.sh "${install_args[@]}"
 bash deploy/install.sh --dir "$work/instance" --version v0.1.0 --yes
 (cd "$work/instance" && sha256sum -c .keepraw-managed)
