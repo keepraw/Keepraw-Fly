@@ -79,7 +79,7 @@ class KeeprawFlyDatabase extends Dexie {
 
 export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
   private readonly database: KeeprawFlyDatabase;
-  // null is the pre-revision format (including an empty database).
+  // null permits the first write to a brand-new, as-yet-unread database.
   private archiveRevision: string | null = null;
   private conflicted = false;
   private pendingLoad?: Promise<ArchiveLoadResult>;
@@ -98,17 +98,26 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
 
   private async readDocument(): Promise<ArchiveLoadResult> {
     const [record, revision] = await this.database.transaction(
-      "r",
+      "rw",
       this.database.documents,
       this.database.preferences,
-      async () =>
-        [
-          await this.database.documents.get("active"),
-          (await this.database.preferences.get("archive-revision"))?.revision ??
-            null,
-        ] as const,
+      async () => {
+        const record = await this.database.documents.get("active");
+        let revision = (await this.database.preferences.get("archive-revision"))
+          ?.revision;
+        if (!revision) {
+          // Assign legacy/empty storage a generation without serializing or
+          // rewriting its raw archive (recovery sources need not be JSON-safe).
+          revision = crypto.randomUUID();
+          await this.database.preferences.put({
+            key: "archive-revision",
+            revision,
+          });
+        }
+        return [record, revision] as const;
+      },
     );
-    this.archiveRevision = revision ?? (record ? JSON.stringify(record) : null);
+    this.archiveRevision = revision;
     this.conflicted = false;
     if (!record) return { status: "empty" };
     const kind = record.kind ?? "personal";
@@ -194,10 +203,9 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
           const metadata =
             await this.database.preferences.get("archive-revision");
           const record = await this.database.documents.get("active");
-          // Legacy records have no generation yet; compare their exact source.
-          const current =
-            metadata?.revision ?? (record ? JSON.stringify(record) : null);
-          if (current !== expectedRevision) throw new ArchiveConflictError();
+          const current = metadata?.revision ?? null;
+          if (current !== expectedRevision || (current === null && record))
+            throw new ArchiveConflictError();
           await write();
           // Keep this generation after deletion: stale tabs must not resurrect it.
           // It is device metadata and never enters portable JSON backups.

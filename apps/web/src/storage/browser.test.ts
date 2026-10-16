@@ -466,6 +466,39 @@ it.each(["en", "en-GB", "unknown-language"])(
 );
 
 describe("archive revision transactions", () => {
+  it("assigns legacy revisions without serializing or rewriting invalid recovery sources", async () => {
+    const name = `revision-${crypto.randomUUID()}`;
+    const database = new Dexie(name);
+    database
+      .version(1)
+      .stores({ documents: "&key, updatedAt", preferences: "&key" });
+    databases.push(database);
+    const raw = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [{ broken: true }],
+      value: BigInt(42),
+    };
+    const record = {
+      key: "active",
+      document: raw,
+      updatedAt: "2026-10-01T00:00:00Z",
+    };
+    await database.table("documents").put(record);
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    adapters.push(first, second);
+    const results = await Promise.all([
+      first.loadDocument(),
+      second.loadDocument(),
+    ]);
+    for (const result of results)
+      expect(result).toMatchObject({ status: "invalid", rawDocument: raw });
+    expect(await database.table("documents").get("active")).toEqual(record);
+    await first.clearDocument();
+    await expect(second.clearDocument()).rejects.toThrow("archive-conflict");
+  });
   it("rejects stale saves and clears, including after a clear/recreate cycle", async () => {
     const name = `revision-${crypto.randomUUID()}`;
     const winner = new BrowserStorageAdapter(name);
