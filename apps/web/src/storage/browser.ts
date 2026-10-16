@@ -7,6 +7,7 @@ import type {
   StorageAdapter,
 } from "./adapter";
 import { normalizeViewerSettings, type ViewerSettings } from "./types";
+import { ArchiveConflictError } from "./conflict";
 
 export type PersistentStorageState =
   "checking" | "granted" | "available" | "unsupported" | "failed";
@@ -58,8 +59,9 @@ interface DocumentRecord {
 }
 
 interface SettingsRecord {
-  key: "viewer";
-  settings: ViewerSettings;
+  key: "viewer" | "archive-revision";
+  settings?: ViewerSettings;
+  revision?: string;
 }
 
 class KeeprawFlyDatabase extends Dexie {
@@ -77,13 +79,46 @@ class KeeprawFlyDatabase extends Dexie {
 
 export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
   private readonly database: KeeprawFlyDatabase;
+  // null permits the first write to a brand-new, as-yet-unread database.
+  private archiveRevision: string | null = null;
+  private conflicted = false;
+  private pendingLoad?: Promise<ArchiveLoadResult>;
 
   constructor(databaseName?: string) {
     this.database = new KeeprawFlyDatabase(databaseName);
   }
 
-  async loadDocument(): Promise<ArchiveLoadResult> {
-    const record = await this.database.documents.get("active");
+  loadDocument(): Promise<ArchiveLoadResult> {
+    // React StrictMode can start two reads; migrate a legacy archive only once.
+    this.pendingLoad ??= this.readDocument().finally(() => {
+      this.pendingLoad = undefined;
+    });
+    return this.pendingLoad;
+  }
+
+  private async readDocument(): Promise<ArchiveLoadResult> {
+    const [record, revision] = await this.database.transaction(
+      "rw",
+      this.database.documents,
+      this.database.preferences,
+      async () => {
+        const record = await this.database.documents.get("active");
+        let revision = (await this.database.preferences.get("archive-revision"))
+          ?.revision;
+        if (!revision) {
+          // Assign legacy/empty storage a generation without serializing or
+          // rewriting its raw archive (recovery sources need not be JSON-safe).
+          revision = crypto.randomUUID();
+          await this.database.preferences.put({
+            key: "archive-revision",
+            revision,
+          });
+        }
+        return [record, revision] as const;
+      },
+    );
+    this.archiveRevision = revision;
+    this.conflicted = false;
     if (!record) return { status: "empty" };
     const kind = record.kind ?? "personal";
     const { validateAndMigrateKeeprawFly } =
@@ -106,7 +141,10 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     if (result.migrations.length) {
       try {
         await this.saveDocument(result.data, kind);
-      } catch {
+      } catch (error) {
+        // No local edits exist during migration. Adopt the winning committed
+        // archive rather than presenting the stale migration as a recovery source.
+        if (error instanceof ArchiveConflictError) return this.readDocument();
         return {
           status: "invalid",
           rawDocument: record.document,
@@ -139,16 +177,50 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     document: KeeprawFlyDocument,
     kind: ArchiveKind = "personal",
   ): Promise<void> {
-    await this.database.documents.put({
+    const record: DocumentRecord = {
       key: "active",
       document: structuredClone(document),
       kind,
       updatedAt: new Date().toISOString(),
-    });
+    };
+    await this.commitArchive(() => this.database.documents.put(record));
   }
 
   async clearDocument(): Promise<void> {
-    await this.database.documents.delete("active");
+    await this.commitArchive(() => this.database.documents.delete("active"));
+  }
+
+  private async commitArchive(write: () => Promise<unknown>): Promise<void> {
+    if (this.conflicted) throw new ArchiveConflictError();
+    const expectedRevision = this.archiveRevision;
+    const nextRevision = crypto.randomUUID();
+    try {
+      await this.database.transaction(
+        "rw",
+        this.database.documents,
+        this.database.preferences,
+        async () => {
+          const metadata =
+            await this.database.preferences.get("archive-revision");
+          const record = await this.database.documents.get("active");
+          const current = metadata?.revision ?? null;
+          if (current !== expectedRevision || (current === null && record))
+            throw new ArchiveConflictError();
+          await write();
+          // Keep this generation after deletion: stale tabs must not resurrect it.
+          // It is device metadata and never enters portable JSON backups.
+          await this.database.preferences.put({
+            key: "archive-revision",
+            revision: nextRevision,
+          });
+        },
+      );
+      // Only acknowledge a generation after the entire transaction commits.
+      this.archiveRevision = nextRevision;
+    } catch (error) {
+      if (error instanceof ArchiveConflictError) this.conflicted = true;
+      throw error;
+    }
   }
 
   async loadSettings(): Promise<ViewerSettings | null> {

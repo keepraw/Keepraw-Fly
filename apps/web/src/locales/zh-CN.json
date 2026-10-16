@@ -9,7 +9,11 @@
     "settingsNotSaved": "设置尚未保存到此设备。",
     "skipToContent": "跳到主要内容",
     "unavailable": "此信息暂不可用。",
-    "languageLoadFailed": "无法加载此语言。你仍可使用当前语言。请检查连接后重试。"
+    "languageLoadFailed": "无法加载此语言。你仍可使用当前语言。请检查连接后重试。",
+    "archiveConflict": "另一个标签页已修改或清空此档案。本页更改未保存。加载已保存版本前，请先导出本页未保存的档案。",
+    "exportConflictDraft": "导出未保存的档案",
+    "loadSavedArchive": "加载已保存的档案",
+    "discardConflictDraft": "加载已保存的档案将丢弃本页未保存的更改和打开的编辑器草稿。如需保留，请先导出未保存的档案。"
   },
   "nav": {
     "label": "主导航",

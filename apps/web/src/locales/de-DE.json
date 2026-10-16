@@ -9,7 +9,11 @@
     "settingsNotSaved": "Die Einstellungen sind auf diesem Gerät nicht gespeichert.",
     "skipToContent": "Zum Inhalt springen",
     "unavailable": "Diese Informationen sind nicht verfügbar.",
-    "languageLoadFailed": "Die Sprache konnte nicht geladen werden. Die aktuelle Ansicht bleibt nutzbar. Prüfen Sie die Verbindung und versuchen Sie es erneut."
+    "languageLoadFailed": "Die Sprache konnte nicht geladen werden. Die aktuelle Ansicht bleibt nutzbar. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
+    "archiveConflict": "Ein anderer Tab hat dieses Archiv geändert oder geleert. Deine Änderungen wurden nicht gespeichert. Exportiere das ungespeicherte Archiv dieses Tabs, bevor du die gespeicherte Version lädst.",
+    "exportConflictDraft": "Ungespeichertes Archiv exportieren",
+    "loadSavedArchive": "Gespeichertes Archiv laden",
+    "discardConflictDraft": "Beim Laden werden die ungespeicherten Änderungen dieses Tabs und offene Bearbeitungsentwürfe verworfen. Exportiere vorher das ungespeicherte Archiv, wenn du es benötigst."
   },
   "nav": {
     "label": "Primäre Navigation",
