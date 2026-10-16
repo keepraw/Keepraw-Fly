@@ -6,7 +6,7 @@
 
 > 数据比应用更长久。
 
-## 开发者 Demo
+## 在线使用
 
 **[https://fly.keepraw.com](https://fly.keepraw.com) 是开发者提供的 Demo**，用于在浏览器中体验 Keepraw Fly。可选择演示模式浏览虚构的示例航班，也可以创建个人档案。航班记录保存在当前浏览器中；Demo 不提供账号或云端同步。
 

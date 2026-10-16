@@ -6,7 +6,7 @@
 
 > The data outlives the app.
 
-## Developer Demo
+## Use online
 
 **[https://fly.keepraw.com](https://fly.keepraw.com) is a demo provided by the developer** to try Keepraw Fly in your browser. Choose **Try demo** to explore fictional sample flights, or create your own archive. Flight records stay in the current browser; the Demo does not provide an account or cloud synchronization.
 
