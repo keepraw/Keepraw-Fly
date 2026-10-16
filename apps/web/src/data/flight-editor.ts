@@ -407,7 +407,7 @@ export function zonedDateTimeToIso(
   const candidates: number[] = [];
   for (let offset = -14 * 60; offset <= 14 * 60; offset += 15) {
     const instant = wallTime - offset * 60_000;
-    const observed = partsAtInstant(new Date(instant), timezone);
+    const observed = partsAtInstant(instant, timezone);
     if (
       Date.UTC(
         observed.year,
@@ -436,8 +436,14 @@ export function localPartsAtAirport(iso: string, timezone: string) {
   };
 }
 
-function partsAtInstant(date: Date, timezone: string) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
+// One fixed configuration is shared by imports and the editor. Bound the cache
+// because airport data can be replaced; invalid zones are never cached.
+const timezoneFormatters = new Map<string, Intl.DateTimeFormat>();
+
+export function airportTimeFormatter(timezone: string): Intl.DateTimeFormat {
+  const cached = timezoneFormatters.get(timezone);
+  if (cached) return cached;
+  const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     year: "numeric",
     month: "2-digit",
@@ -445,7 +451,15 @@ function partsAtInstant(date: Date, timezone: string) {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-  }).formatToParts(date);
+  });
+  if (timezoneFormatters.size >= 128)
+    timezoneFormatters.delete(timezoneFormatters.keys().next().value!);
+  timezoneFormatters.set(timezone, formatter);
+  return formatter;
+}
+
+function partsAtInstant(date: Date | number, timezone: string) {
+  const parts = airportTimeFormatter(timezone).formatToParts(date);
   const value = (type: Intl.DateTimeFormatPartTypes) =>
     Number(parts.find((part) => part.type === type)?.value);
   return {

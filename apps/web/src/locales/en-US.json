@@ -322,6 +322,7 @@
     "airports_other": "Airports"
   },
   "import": {
+    "checking": "Checking flights…",
     "failed": "This file cannot be imported",
     "flightNumber": "Flight #{{number}}",
     "dropHint": "or drop a .json file here",

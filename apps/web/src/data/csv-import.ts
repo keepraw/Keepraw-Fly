@@ -5,18 +5,20 @@ import {
 } from "@keepraw-fly/schema";
 import { airportByIata } from "@keepraw-fly/core";
 import {
+  airportTimeFormatter,
   flightFromDraft,
   localPartsAtAirport,
   zonedDateTimeToIso,
   type FlightDraft,
 } from "./flight-editor";
 import {
-  assessFlightImports,
+  assessFlightImportsWork,
   countFlightImportAssessments,
   selectFlightsForImport,
   type FlightImportAssessment,
 } from "./duplicate-detection";
 import type { ImportPreflightCounts } from "./import-preview";
+import { finishImportPreflight } from "./import-preflight-work";
 
 export type CsvFlightField =
   | "flightNumber"
@@ -254,6 +256,17 @@ export function preflightCsvImport(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
 ): CsvImportPreflight {
+  return finishImportPreflight(
+    preflightCsvImportWork(parsed, mapping, existing, idFactory),
+  );
+}
+
+export function* preflightCsvImportWork(
+  parsed: ParsedCsv,
+  mapping: CsvColumnMapping,
+  existing: KeeprawFlyDocument | null,
+  idFactory: () => string = () => crypto.randomUUID(),
+): Generator<void, CsvImportPreflight, void> {
   if (requiredCsvFlightFields.some((field) => mapping[field] === null)) {
     return {
       totalRecords: parsed.rows.length,
@@ -272,16 +285,20 @@ export function preflightCsvImport(
   const flights: KeeprawFlight[] = [];
   const issues: CsvImportIssue[] = [];
 
-  parsed.rows.forEach((row, index) => {
+  for (const [index, row] of parsed.rows.entries()) {
     const lineNumber = index + 2;
     try {
       flights.push(flightFromCsvRow(row, mapping, lineNumber, idFactory));
     } catch (error) {
       issues.push(csvIssueFromError(error, lineNumber));
     }
-  });
+    yield;
+  }
 
-  const assessments = assessFlightImports(flights, existing?.flights ?? []);
+  const assessments = yield* assessFlightImportsWork(
+    flights,
+    existing?.flights ?? [],
+  );
   return {
     totalRecords: parsed.rows.length,
     validRecords: flights.length,
@@ -334,9 +351,9 @@ function flightFromCsvRow(
     destination.timezone,
     lineNumber,
   );
-  if (localPartsAtAirport(departureIso, origin.timezone).date !== serviceDate)
-    throw new Error(`line-${lineNumber}:date-mismatch`);
   const departure = localPartsAtAirport(departureIso, origin.timezone);
+  if (departure.date !== serviceDate)
+    throw new Error(`line-${lineNumber}:date-mismatch`);
   const arrival = localPartsAtAirport(arrivalIso, destination.timezone);
   const actual = (
     field: "actualDeparture" | "actualArrival",
@@ -477,7 +494,7 @@ function parseImportTime(
     throw new Error(`line-${lineNumber}:invalid-time`);
   try {
     // Validate the airport's IANA zone independently of the timestamp format.
-    new Intl.DateTimeFormat("en", { timeZone: timezone });
+    airportTimeFormatter(timezone);
   } catch {
     throw new Error(`line-${lineNumber}:invalid-timezone`);
   }

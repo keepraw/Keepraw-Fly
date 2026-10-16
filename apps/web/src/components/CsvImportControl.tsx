@@ -6,11 +6,12 @@ import {
   csvFlightFields,
   detectCsvMapping,
   parseCsv,
-  preflightCsvImport,
+  preflightCsvImportWork,
   type CsvColumnMapping,
   type ParsedCsv,
 } from "../data/csv-import";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
+import { useImportPreflight } from "./useImportPreflight";
 
 interface CsvImportControlProps {
   document: KeeprawFlyDocument | null;
@@ -55,13 +56,15 @@ export function CsvImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
-  const preflight = useMemo(
+  const work = useMemo(
     () =>
       pending
-        ? preflightCsvImport(pending.parsed, pending.mapping, document)
+        ? () =>
+            preflightCsvImportWork(pending.parsed, pending.mapping, document)
         : null,
     [document, pending],
   );
+  const { preflight, preflightFailed } = useImportPreflight(work);
 
   async function selectFile(file: File | undefined) {
     if (!file) return;
@@ -138,15 +141,18 @@ export function CsvImportControl({
         <section
           className="csv-preview"
           aria-live="polite"
+          aria-busy={!preflight && !preflightFailed}
           aria-labelledby={`${inputId}-title`}
         >
           <header className="import-preview-heading">
             <div>
               <span className="eyebrow">
                 {t(
-                  preflight?.canImport
-                    ? "csvImport.previewEyebrow"
-                    : "import.blockedEyebrow",
+                  !preflight && !preflightFailed
+                    ? "import.checking"
+                    : preflight?.canImport
+                      ? "csvImport.previewEyebrow"
+                      : "import.blockedEyebrow",
                 )}
               </span>
               <strong id={`${inputId}-title`}>
@@ -193,6 +199,9 @@ export function CsvImportControl({
             ))}
           </div>
 
+          {!preflight && !preflightFailed ? (
+            <p role="status">{t("import.checking")}</p>
+          ) : null}
           {preflight ? (
             <ImportPreflightSummary
               preflight={preflight}
@@ -284,18 +293,20 @@ export function CsvImportControl({
             >
               {busy
                 ? t("csvImport.importing")
-                : preflight?.canImport
-                  ? selectedRecords
-                    ? t("csvImport.appendFlights", { count: selectedRecords })
-                    : t("import.noNewFlights")
-                  : t("import.resolveIssues")}
+                : !preflight && !preflightFailed
+                  ? t("import.checking")
+                  : preflight?.canImport
+                    ? selectedRecords
+                      ? t("csvImport.appendFlights", { count: selectedRecords })
+                      : t("import.noNewFlights")
+                    : t("import.resolveIssues")}
             </button>
           </div>
         </section>
       ) : null}
-      {error ? (
+      {error || preflightFailed ? (
         <p className="csv-import-error" role="alert">
-          {error.kind === "import"
+          {!error || error.kind === "import"
             ? t("csvImport.importFailed")
             : t(`csvImport.fileErrors.${error.code}`, {
                 defaultValue: t("csvImport.invalidFile"),

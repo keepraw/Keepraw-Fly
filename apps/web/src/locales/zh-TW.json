@@ -301,6 +301,7 @@
     "recentDelayYears": "最近三個有記錄的年份"
   },
   "import": {
+    "checking": "正在檢查航班…",
     "failed": "無法匯入這個檔案",
     "flightNumber": "航班 #{{number}}",
     "dropHint": "或將 .json 檔案拖放到這裡",
