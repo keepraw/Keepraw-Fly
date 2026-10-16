@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { BrowserStorageAdapter } from "./browser";
 import { createPersistenceQueue, type PersistenceState } from "./persistence";
+import { ArchiveConflictError } from "./conflict";
 
 const adapters: BrowserStorageAdapter[] = [];
 
@@ -48,6 +49,31 @@ function documentWithFlight(flightNumber: string): KeeprawFlyDocument {
 }
 
 describe("document persistence queue", () => {
+  it("makes an earlier conflict terminal for queued snapshots and retries", async () => {
+    const started = deferred();
+    const release = deferred();
+    const states = observeStates();
+    const write = vi.fn(async (_snapshot: string): Promise<void> => {
+      started.resolve();
+      await release.promise;
+      throw new ArchiveConflictError();
+    });
+    const queue = createPersistenceQueue(write, states);
+    const first = queue.save("stale");
+    await started.promise;
+    const second = queue.save("newer local draft");
+    release.resolve();
+    expect(await first).toBe(false);
+    expect(await second).toBe(false);
+    expect(states.mock.lastCall?.[0]).toEqual({ status: "conflict" });
+    expect(await queue.retry()).toBe(false);
+    expect(await queue.save("another stale snapshot")).toBe(false);
+    expect(write).toHaveBeenCalledTimes(1);
+    await queue.reset();
+    write.mockResolvedValueOnce(undefined);
+    expect(await queue.retry()).toBe(false);
+    expect(await queue.save("explicitly reloaded base")).toBe(true);
+  });
   it("discards writes requested before archive reads permit persistence", async () => {
     let permitted = false;
     const write = vi

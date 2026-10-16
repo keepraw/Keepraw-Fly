@@ -464,3 +464,77 @@ it.each(["en", "en-GB", "unknown-language"])(
     expect(await adapter.loadDocument()).toEqual({ status: "empty" });
   },
 );
+
+describe("archive revision transactions", () => {
+  it("rejects stale saves and clears, including after a clear/recreate cycle", async () => {
+    const name = `revision-${crypto.randomUUID()}`;
+    const winner = new BrowserStorageAdapter(name);
+    const stale = new BrowserStorageAdapter(name);
+    adapters.push(winner, stale);
+    const document: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [],
+    };
+    await winner.saveDocument(document);
+    await stale.loadDocument();
+    await winner.clearDocument();
+    await expect(stale.saveDocument(document)).rejects.toThrow(
+      "archive-conflict",
+    );
+    await expect(stale.clearDocument()).rejects.toThrow("archive-conflict");
+    expect(await winner.loadDocument()).toEqual({ status: "empty" });
+    await winner.saveDocument({
+      ...document,
+      profile: { name: { native: "New archive", primary: "native" } },
+    });
+    await expect(stale.saveDocument(document)).rejects.toThrow(
+      "archive-conflict",
+    );
+    await stale.loadDocument();
+    await stale.saveDocument(document);
+    expect(await winner.loadDocument()).toMatchObject({
+      status: "valid",
+      document,
+    });
+  });
+
+  it("rolls back both document and revision when committing revision metadata fails", async () => {
+    const adapter = new BrowserStorageAdapter(
+      `revision-${crypto.randomUUID()}`,
+    );
+    adapters.push(adapter);
+    const original: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: {},
+      flights: [],
+    };
+    await adapter.saveDocument(original);
+    const put = IDBObjectStore.prototype.put;
+    const failure = vi
+      .spyOn(IDBObjectStore.prototype, "put")
+      .mockImplementation(function (this: IDBObjectStore, value, ...args) {
+        if (value?.key === "archive-revision")
+          throw new Error("Metadata commit failed");
+        return put.call(this, value, ...args);
+      });
+    const edited = {
+      ...original,
+      profile: { name: { native: "Edited", primary: "native" as const } },
+    };
+    await expect(adapter.saveDocument(edited)).rejects.toThrow(
+      "Metadata commit failed",
+    );
+    failure.mockRestore();
+    // A separate reader verifies rollback without changing the writer's base.
+    const reader = new BrowserStorageAdapter(
+      (adapter as unknown as { database: Dexie }).database.name,
+    );
+    adapters.push(reader);
+    expect(await reader.loadDocument()).toMatchObject({ document: original });
+    await adapter.saveDocument(edited);
+    expect(await reader.loadDocument()).toMatchObject({ document: edited });
+  });
+});

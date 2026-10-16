@@ -9,7 +9,11 @@
     "settingsNotSaved": "設定尚未儲存到此裝置。",
     "skipToContent": "跳到主要內容",
     "unavailable": "此資訊暫時無法使用。",
-    "languageLoadFailed": "無法載入此語言。你仍可使用目前的語言。請檢查連線後再試一次。"
+    "languageLoadFailed": "無法載入此語言。你仍可使用目前的語言。請檢查連線後再試一次。",
+    "archiveConflict": "另一個分頁已修改或清空此檔案。本頁變更未儲存。載入已儲存版本前，請先匯出本頁未儲存的檔案。",
+    "exportConflictDraft": "匯出未儲存的檔案",
+    "loadSavedArchive": "載入已儲存的檔案",
+    "discardConflictDraft": "載入已儲存的檔案將捨棄本頁未儲存的變更和開啟的編輯器草稿。如需保留，請先匯出未儲存的檔案。"
   },
   "nav": {
     "label": "主導航",

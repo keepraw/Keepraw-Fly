@@ -9,7 +9,11 @@
     "settingsNotSaved": "Settings are not saved on this device.",
     "skipToContent": "Skip to content",
     "unavailable": "This information is unavailable.",
-    "languageLoadFailed": "This language could not be loaded. You can keep using the current language. Check the connection and try again."
+    "languageLoadFailed": "This language could not be loaded. You can keep using the current language. Check the connection and try again.",
+    "archiveConflict": "Another tab changed or cleared this archive. Your changes were not saved. Export this tab’s unsaved archive before loading the saved version.",
+    "exportConflictDraft": "Export unsaved archive",
+    "loadSavedArchive": "Load saved archive",
+    "discardConflictDraft": "Loading the saved archive will discard this tab’s unsaved changes and any open editor draft. Export the unsaved archive first if you need it."
   },
   "nav": {
     "label": "Primary navigation",

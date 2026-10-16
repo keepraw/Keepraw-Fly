@@ -9,7 +9,11 @@
     "settingsNotSaved": "Les paramètres ne sont pas enregistrés sur cet appareil.",
     "skipToContent": "Passer au contenu",
     "unavailable": "Cette information n'est pas disponible.",
-    "languageLoadFailed": "Impossible de charger cette langue. Vous pouvez continuer avec la langue actuelle. Vérifiez la connexion et réessayez."
+    "languageLoadFailed": "Impossible de charger cette langue. Vous pouvez continuer avec la langue actuelle. Vérifiez la connexion et réessayez.",
+    "archiveConflict": "Un autre onglet a modifié ou vidé cette archive. Vos modifications ne sont pas enregistrées. Exportez l’archive non enregistrée de cet onglet avant de charger la version enregistrée.",
+    "exportConflictDraft": "Exporter l’archive non enregistrée",
+    "loadSavedArchive": "Charger l’archive enregistrée",
+    "discardConflictDraft": "Le chargement supprimera les modifications non enregistrées de cet onglet et tout brouillon ouvert dans l’éditeur. Exportez d’abord l’archive non enregistrée si nécessaire."
   },
   "nav": {
     "label": "Navigation principale",
