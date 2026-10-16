@@ -128,3 +128,5 @@ pnpm preview
 4. `gh` 以 **keepraw** 认证后执行 `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`，将两个参数替换为实际运行 ID。脚本验证来源、校验和及公开镜像架构；创建 Draft，核验真实 `author.login`，上传全部附件并重新下载比较后正式发布。作者不匹配时保留 Draft，不发布。若缺少权限，Owner 在产物准备完成后执行这一条最终命令。
 
 应用 package 版本为 `0.1.0`，Tag 为 `v0.1.0`。档案 Schema 版本在 `packages/schema` 独立管理，本次部署工作不修改它。OCI 作者为 `keepraw`；不会重写 commit 作者或第三方版权。已有[第三方声明](../THIRD_PARTY_NOTICES.md)和[许可审查](license-review-2026-10-10.md)继续适用。
+
+如 Owner 的 CLI 可以创建 Draft 但无法上传附件，**Build verified release image** 也支持只上传附件：填写已有 `keepraw` Draft 的数字 `release_id`、原始 `image_run_id` 和 `ci_run_id`。它检查作者、Tag、commit 和来源，将原始产物上传至空 Draft，再重新下载比较；不会创建或发布 Release，也不会覆盖已有附件。之后由 Owner 核验并发布完整 Draft。
