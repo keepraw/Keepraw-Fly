@@ -10,7 +10,19 @@
 
 **[https://fly.keepraw.com](https://fly.keepraw.com) is a demo provided by the developer** to try Keepraw Fly in your browser. Choose **Try demo** to explore fictional sample flights, or create your own archive. Flight records stay in the current browser; the Demo does not provide an account or cloud synchronization.
 
-You can also [run locally](#run-locally) or [deploy your own instance](docs/deployment.md). Export a JSON backup before moving between the Demo and another instance: each origin has separate browser storage.
+End users need no Node.js, pnpm or source compilation. Export a JSON backup before moving between the Demo and another instance: each origin has separate browser storage.
+
+## GitHub Pages self-hosting (no build)
+
+Fork this repository → enable Actions → Settings → Pages: GitHub Actions → manually run **Deploy official release to Fork Pages**, choosing **v0.1.0**. It downloads and verifies the official prebuilt archive without dependency installation, compilation or full E2E. Project subpaths and custom domains are supported. You choose each upgrade explicitly.
+
+**This mode does not run source changes made in your fork.** Follow the [Pages guide](docs/deployment.md#github-pages-no-build-required).
+
+## VPS self-hosting (Docker)
+
+Install Docker and Compose v2 → download, verify and inspect the fixed-release installer → configure your domain → access over HTTPS. A single Caddy container serves static files; no JavaScript toolchain is needed. Supports amd64/arm64, digest-pinned images, repeat installation, upgrades and rollback.
+
+Get the installer or directly deployable ZIP/tar.gz from the [v0.1.0 release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0), then follow the [VPS instructions](docs/deployment.md#vps-docker-and-automatic-https). The official publisher and image author is **keepraw**.
 
 ## Highlights
 
@@ -27,6 +39,8 @@ You can also [run locally](#run-locally) or [deploy your own instance](docs/depl
 Flight records are stored locally in the current origin's IndexedDB. Keepraw Fly has no account system or cloud backend that stores your flight history. The default static build does not upload flight records or include analytics SDKs.
 
 Persistent storage is an optional browser capability. When supported and granted, it reduces the risk of automatic eviction under storage pressure. It cannot prevent manually clearing site data or guarantee permanent retention, and does not replace JSON backups. Installing Keepraw Fly as an app is neither required to request it nor a guarantee that it is granted.
+
+Different domains, browsers and devices have separate data; project paths on one origin are not storage isolation boundaries. Deploying a new version does not intentionally clear archives. Docker upgrades do not back up or migrate personal data. The VPS only hosts website files and stores no flight archives.
 
 JSON export is the primary backup and migration method. Export a Keepraw Fly JSON archive regularly, especially before changing browsers, devices, or clearing site data.
 
@@ -51,7 +65,7 @@ Imports into an existing archive append flights and preserve its profile and exi
 
 Local airport timestamps use the bundled IANA timezone data; RFC 3339 timestamps with an offset or `Z` are also supported.
 
-## Run locally
+## Developers: run locally
 
 Requirements: Node.js 20.19 or newer and pnpm 10.14.0. CI uses Node.js 24.
 
@@ -71,7 +85,7 @@ pnpm preview
 
 Open <http://127.0.0.1:4173> (the default preview address). Serve the build over HTTP; opening `apps/web/dist/index.html` directly is not supported.
 
-## Development
+## Developers: validation
 
 ```bash
 pnpm format
@@ -87,7 +101,7 @@ pnpm test:e2e --project=chromium
 
 `pnpm format` formats maintained source and documentation; `pnpm format:check` checks formatting without writing. Generated modules, reference datasets and vendor assets are excluded. `pnpm lint:css` checks the design system and feature styles. `pnpm check:css-tokens` rejects nonexistent custom-property names using CSS definitions and actual inline-style/CSSProperties assignments; it does not prove DOM scope or inheritance.
 
-Install Chromium first with `pnpm exec playwright install chromium` when needed. Chromium runs the full E2E regression suite; Firefox and WebKit run only tagged compatibility smoke tests with `pnpm test:e2e --project=firefox --project=webkit` (install those browsers first). See [test layers and tagging policy](docs/testing.md). `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. GitHub Actions runs the repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. See [deployment](docs/deployment.md) for setup.
+Install Chromium first with `pnpm exec playwright install chromium` when needed. Chromium runs the full E2E regression suite; Firefox and WebKit run only tagged compatibility smoke tests with `pnpm test:e2e --project=firefox --project=webkit` (install those browsers first). See [test layers and tagging policy](docs/testing.md). `pnpm check:docs` checks capability descriptions, Demo wording and local documentation links. Official GitHub Actions runs the complete repository checks for pull requests and `main`, then deploys successful `main` builds to GitHub Pages. Forks skip these official jobs and use the independent prebuilt deployment workflow. See [deployment](docs/deployment.md) for setup.
 
 Dependabot checks pnpm workspace dependencies and GitHub Actions weekly. Minor and patch version updates are grouped by ecosystem; major updates get individual pull requests. Existing CI validates update PRs, and maintainers review and decide whether to squash merge them; dependency updates are never automatically merged. Keep `pnpm-lock.yaml` committed and install with `pnpm install --frozen-lockfile`.
 

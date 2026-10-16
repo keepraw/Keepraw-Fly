@@ -1,6 +1,7 @@
 {
   "name": "keepraw-fly",
   "version": "0.1.0",
+  "author": "keepraw",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.14.0",

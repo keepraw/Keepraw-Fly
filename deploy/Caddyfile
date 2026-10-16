@@ -1,0 +1,16 @@
+{
+  admin off
+}
+
+{$SITE_ADDRESS} {
+  root * /srv
+  encode zstd gzip
+  header X-Content-Type-Options nosniff
+  @html path / /index.html /release.json /FILES.sha256
+  header @html Cache-Control "no-cache"
+  file_server
+}
+
+http://127.0.0.1:8081 {
+  respond /health "ok" 200
+}
