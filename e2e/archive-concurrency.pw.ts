@@ -389,3 +389,68 @@ test("a failed clear retry cannot remove another tab's subsequent save", async (
   await expect(warning(stale)).toBeVisible();
   expect(await stored(page)).toEqual(committed);
 });
+
+test("a failed conflict reload preserves the draft and unload guard until a successful retry", async ({
+  page,
+  context,
+}) => {
+  const stale = await twoTabs(page, context);
+  const committed = await commitWinner(page);
+  await stale.evaluate(() =>
+    window.archiveActions.updateProfile({
+      native: "Keep this draft",
+      primary: "native",
+    }),
+  );
+  await expect(warning(stale)).toBeVisible();
+  await stale.evaluate(async () => {
+    const path = "/src/storage/browser.ts";
+    const { browserStorage } = await import(path);
+    const load = browserStorage.loadDocument.bind(browserStorage);
+    let fail = true;
+    browserStorage.loadDocument = async () => {
+      if (fail) {
+        fail = false;
+        throw new Error("Temporary read failure");
+      }
+      return load();
+    };
+  });
+  await warning(stale)
+    .getByRole("button", { name: "Load saved archive", exact: true })
+    .click();
+  await stale
+    .getByRole("dialog", { name: "Load saved archive", exact: true })
+    .getByRole("button", { name: "Load saved archive", exact: true })
+    .click();
+  await expect(
+    stale.getByRole("dialog", { name: "Load saved archive", exact: true }),
+  ).toHaveCount(0);
+  await expect(warning(stale)).toBeVisible();
+  expect(
+    await stale.evaluate(() => {
+      const event = new Event("beforeunload", { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    }),
+  ).toBe(true);
+  const downloadPromise = stale.waitForEvent("download");
+  await warning(stale)
+    .getByRole("button", { name: "Export unsaved archive", exact: true })
+    .click();
+  const download = await downloadPromise;
+  expect(
+    JSON.parse(await readFile((await download.path())!, "utf8")).profile.name
+      .native,
+  ).toBe("Keep this draft");
+  expect(await stored(page)).toEqual(committed);
+  await warning(stale)
+    .getByRole("button", { name: "Load saved archive", exact: true })
+    .click();
+  await stale
+    .getByRole("dialog", { name: "Load saved archive", exact: true })
+    .getByRole("button", { name: "Load saved archive", exact: true })
+    .click();
+  await expect(warning(stale)).toHaveCount(0);
+  expect(await stored(page)).toEqual(committed);
+});

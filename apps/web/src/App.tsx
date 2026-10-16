@@ -481,9 +481,10 @@ export function App() {
   async function reloadAfterConflict() {
     setConflictReloadFailed(false);
     await runRecoveryOperation(async () => {
-      // Drain rejected snapshots before adopting a new base revision.
-      await documentWrites.reset();
       const result = await browserStorage.loadDocument();
+      // Keep the conflict and unload guard until reading succeeds. Pending
+      // snapshots remain invalidated while the new base is being read.
+      await documentWrites.reset();
       applyArchiveLoad(result);
       conflictDraftRef.current = null;
       archiveConflictRef.current = false;
@@ -493,6 +494,7 @@ export function App() {
       setConfirmConflictReload(false);
     }).catch(() => {
       setConflictReloadFailed(true);
+      setConfirmConflictReload(false);
       setDocumentPersistence({ status: "conflict" });
     });
   }
