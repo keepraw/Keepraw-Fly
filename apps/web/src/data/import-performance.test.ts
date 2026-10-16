@@ -39,9 +39,9 @@ describe("import performance regressions", () => {
     const NativeDateTimeFormat = Intl.DateTimeFormat;
     const constructor = vi
       .spyOn(Intl, "DateTimeFormat")
-      .mockImplementation(
-        (locales, options) => new NativeDateTimeFormat(locales, options),
-      );
+      .mockImplementation(function (locales, options) {
+        return new NativeDateTimeFormat(locales, options);
+      });
     const parsed = api.parseCsv(
       [
         headers,
