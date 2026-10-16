@@ -431,9 +431,11 @@
       "same-airport": "Origin and destination must be different airports.",
       "ambiguous-time": "This local time occurs twice because of daylight saving time. Add an explicit UTC offset.",
       "nonexistent-time": "This local time does not exist because of daylight saving time.",
-      "invalid-time": "A scheduled time is not a real calendar date and time.",
+      "invalid-time": "A time is not a valid calendar date, clock time or UTC offset.",
+      "invalid-timezone": "The airport timezone is invalid or unsupported.",
+      "invalid-row": "The row contains invalid data. Check its remaining fields.",
       "date-mismatch": "The service date must match the scheduled departure date.",
-      "chronology": "Scheduled arrival must be later than scheduled departure."
+      "chronology": "Arrival must be later than departure for both scheduled and actual times."
     },
     "fields": {
       "flightNumber": "Flight number",

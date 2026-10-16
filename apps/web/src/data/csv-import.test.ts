@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
+  airportByIata,
   installAirportDirectory,
   type CompactAirportRow,
 } from "@keepraw-fly/core";
@@ -18,7 +19,202 @@ installAirportDirectory(airportRows as CompactAirportRow[]);
 
 const csv = `Flight Number,Date,From,To,Departure Time,Arrival Time\nMU589,2026-09-02,PVG,SFO,2026-09-02T13:00:00+08:00,2026-09-02T09:20:00-07:00`;
 
+function mappedRow(overrides: Record<string, string> = {}) {
+  const fields: Record<string, string> = {
+    flightNumber: "UA123",
+    serviceDate: "2026-11-01",
+    originIata: "JFK",
+    destinationIata: "LAX",
+    scheduledDeparture: "2026-11-01T00:30-04:00",
+    scheduledArrival: "2026-11-01T04:30-08:00",
+    ...overrides,
+  };
+  return parseCsv(
+    [Object.keys(fields).join(","), Object.values(fields).join(",")].join("\n"),
+  );
+}
+
 describe("CSV flight import", () => {
+  it.each(["-04:00", "-05:00"])(
+    "preserves an explicit DST overlap instant with offset %s",
+    (offset) => {
+      const parsed = parseCsv(
+        `flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival\nUA123,2026-11-01,JFK,LAX,2026-11-01T01:30:45${offset},2026-11-01T04:30:20-08:00`,
+      );
+      const preflight = preflightCsvImport(
+        parsed,
+        detectCsvMapping(parsed.headers),
+        null,
+      );
+      expect(preflight.issues).toEqual([]);
+      const document = buildDocumentFromCsv(
+        parsed,
+        detectCsvMapping(parsed.headers),
+        null,
+      );
+      expect(document.flights[0]).toMatchObject({
+        scheduledDeparture: `2026-11-01T01:30:00${offset}`,
+        scheduledArrival: "2026-11-01T04:30:00-08:00",
+      });
+      expect(validateKeeprawFly(document).valid).toBe(true);
+    },
+  );
+
+  it.each([
+    "2026-02-30T10:00",
+    "2026-09-02T24:00",
+    "2026-09-02T13:60",
+    "2026-09-02T13:00:60",
+    "2026-09-02T13:00:15",
+  ])("rejects malformed local time %s as a format error", (time) => {
+    const parsed = parseCsv(csv.replace("2026-09-02T13:00:00+08:00", time));
+    const mapping = detectCsvMapping(parsed.headers);
+    expect(preflightCsvImport(parsed, mapping, null).issues).toEqual([
+      { code: "invalid-time", lineNumber: 2 },
+    ]);
+    expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow(
+      "line-2:invalid-time",
+    );
+  });
+
+  it.each([
+    "scheduledDeparture",
+    "scheduledArrival",
+    "actualDeparture",
+    "actualArrival",
+  ])("diagnoses DST errors in %s without importing the row", (field) => {
+    for (const [serviceDate, time, code] of [
+      ["2026-03-08", "2026-03-08T02:30", "nonexistent-time"],
+      ["2026-11-01", "2026-11-01T01:30", "ambiguous-time"],
+    ]) {
+      const parsed = mappedRow({
+        serviceDate: serviceDate!,
+        scheduledDeparture: `${serviceDate}T00:30`,
+        scheduledArrival: `${serviceDate}T04:30`,
+        [field]: time!,
+      });
+      const mapping = detectCsvMapping(parsed.headers);
+      const result = preflightCsvImport(parsed, mapping, null);
+      expect(result).toMatchObject({
+        canImport: false,
+        flights: [],
+        issues: [{ code, lineNumber: 2 }],
+      });
+      expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow(
+        `line-2:${code}`,
+      );
+    }
+  });
+
+  it.each([
+    ["2026-03-08T01:59", "2026-03-08T01:59:00-05:00"],
+    ["2026-03-08T03:00", "2026-03-08T03:00:00-04:00"],
+    ["2026-11-01T00:59", "2026-11-01T00:59:00-04:00"],
+    ["2026-11-01T02:00", "2026-11-01T02:00:00-05:00"],
+    ["2026-03-08T02:30-05:00", "2026-03-08T03:30:00-04:00"],
+    ["2026-11-01T05:30:59Z", "2026-11-01T01:30:00-04:00"],
+    ["2026-11-01T08:30:59+02:00", "2026-11-01T01:30:00-05:00"],
+  ])("preserves the instant and minute precision for %s", (input, expected) => {
+    const serviceDate = expected.slice(0, 10);
+    const parsed = mappedRow({
+      serviceDate,
+      scheduledDeparture: input,
+      scheduledArrival: `${serviceDate}T08:30`,
+    });
+    const document = buildDocumentFromCsv(
+      parsed,
+      detectCsvMapping(parsed.headers),
+      null,
+    );
+    expect(document.flights[0]?.scheduledDeparture).toBe(expected);
+    expect(validateKeeprawFly(document).valid).toBe(true);
+  });
+
+  it("retains explicitly disambiguated scheduled arrival and diverted actual times", () => {
+    const parsed = mappedRow({
+      originIata: "LAX",
+      destinationIata: "JFK",
+      divertedToIata: "ORD",
+      serviceDate: "2026-10-31",
+      scheduledDeparture: "2026-10-31T20:00-07:00",
+      scheduledArrival: "2026-11-01T01:30-05:00",
+      actualDeparture: "2026-11-01T01:10-07:00",
+      actualArrival: "2026-11-01T01:40-06:00",
+    });
+    // The original actual departure is later in UTC than actual arrival.
+    const mapping = detectCsvMapping(parsed.headers);
+    expect(preflightCsvImport(parsed, mapping, null).issues).toEqual([
+      { code: "chronology", lineNumber: 2 },
+    ]);
+    parsed.rows[0]![parsed.headers.indexOf("actualDeparture")] =
+      "2026-10-31T20:10-07:00";
+    const document = buildDocumentFromCsv(parsed, mapping, null);
+    expect(document.flights[0]).toMatchObject({
+      scheduledArrival: "2026-11-01T01:30:00-05:00",
+      actualDeparture: "2026-10-31T20:10:00-07:00",
+      actualArrival: "2026-11-01T01:40:00-06:00",
+    });
+    expect(validateKeeprawFly(document).valid).toBe(true);
+  });
+
+  it.each(["Z", "+08:00", ""])(
+    "reports invalid airport timezones with offset '%s'",
+    (offset) => {
+      const airport = airportByIata.get("PVG")!;
+      airportByIata.set("PVG", { ...airport, timezone: "Invalid/Timezone" });
+      try {
+        const parsed = parseCsv(
+          csv.replace("2026-09-02T13:00:00+08:00", `2026-09-02T13:00${offset}`),
+        );
+        const mapping = detectCsvMapping(parsed.headers);
+        expect(preflightCsvImport(parsed, mapping, null).issues).toEqual([
+          { code: "invalid-timezone", lineNumber: 2 },
+        ]);
+        expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow(
+          "line-2:invalid-timezone",
+        );
+      } finally {
+        airportByIata.set("PVG", airport);
+      }
+    },
+  );
+
+  it.each([
+    "2026-11-01T01:30+24:00",
+    "2026-11-01T01:30+04:60",
+    "2026-11-01T01:30:60-04:00",
+    "2026-11-01T01:30:00.5-04:00",
+  ])("rejects invalid explicit time %s", (time) => {
+    const parsed = mappedRow({ scheduledDeparture: time });
+    expect(
+      preflightCsvImport(parsed, detectCsvMapping(parsed.headers), null),
+    ).toMatchObject({
+      canImport: false,
+      flights: [],
+      issues: [{ code: "invalid-time", lineNumber: 2 }],
+    });
+  });
+
+  it("keeps identity, date mismatch, chronology and other row errors distinct", () => {
+    for (const [overrides, code] of [
+      [{ flightNumber: "UA#123" }, "invalid-flight-number"],
+      [{ scheduledDeparture: "2026-11-01T01:30+08:00" }, "date-mismatch"],
+      [{ scheduledArrival: "2026-11-01T00:30Z" }, "chronology"],
+      [{ bookingClass: "invalid" }, "invalid-row"],
+    ] as const) {
+      const parsed = mappedRow(overrides);
+      const mapping = detectCsvMapping(parsed.headers);
+      expect(preflightCsvImport(parsed, mapping, null)).toMatchObject({
+        canImport: false,
+        flights: [],
+        issues: [{ code, lineNumber: 2 }],
+      });
+      expect(() => buildDocumentFromCsv(parsed, mapping, null)).toThrow(
+        `line-2:${code}`,
+      );
+    }
+  });
+
   it("parses quoted cells and detects common header aliases", () => {
     const parsed = parseCsv(csv.replace("MU589", '"MU589"'));
     expect(parsed.rows[0]?.[0]).toBe("MU589");

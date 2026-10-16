@@ -402,9 +402,11 @@
       "same-airport": "出发机场与到达机场必须不同。",
       "ambiguous-time": "该当地时间因夏令时回拨而存在歧义，请输入明确的 UTC 偏移。",
       "nonexistent-time": "该当地时间因夏令时跳跃而不存在。",
-      "invalid-time": "计划时间不是有效的日期和时间。",
+      "invalid-time": "时间的日期、时钟值或 UTC 偏移无效。",
+      "invalid-timezone": "机场时区无效或不受支持。",
+      "invalid-row": "该行包含无效数据，请检查其他字段。",
       "date-mismatch": "航班日期必须与计划出发日期一致。",
-      "chronology": "计划到达时间必须晚于计划出发时间。"
+      "chronology": "计划和实际到达时间都必须晚于对应的出发时间。"
     },
     "fields": {
       "flightNumber": "航班号",

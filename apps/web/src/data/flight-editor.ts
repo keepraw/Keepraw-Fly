@@ -201,6 +201,15 @@ export function splitFlightNumberInput(value: string): FlightIdentity | null {
 export function flightFromDraft(
   draft: FlightDraft,
   existing?: KeeprawFlight,
+  // Importers have already resolved offsets and DST; do not parse those instants
+  // again through the editor's offset-free wall-clock fields.
+  resolvedTimes?: Pick<
+    KeeprawFlight,
+    | "scheduledDeparture"
+    | "scheduledArrival"
+    | "actualDeparture"
+    | "actualArrival"
+  >,
 ): KeeprawFlight {
   const origin = airportByIata.get(draft.originIata);
   const destination = airportByIata.get(draft.destinationIata);
@@ -209,32 +218,36 @@ export function flightFromDraft(
     throw new Error("cancelled-diverted-conflict");
   const identity = splitFlightNumberInput(draft.flightNumber);
   if (!identity) throw new Error("invalid-flight-number");
-  const scheduledDeparture = zonedDateTimeToIso(
-    draft.serviceDate,
-    draft.departureTime,
-    origin.timezone,
-  );
-  const scheduledArrival = zonedDateTimeToIso(
-    draft.arrivalDate,
-    draft.arrivalTime,
-    destination.timezone,
-  );
+  const scheduledDeparture =
+    resolvedTimes?.scheduledDeparture ??
+    zonedDateTimeToIso(draft.serviceDate, draft.departureTime, origin.timezone);
+  const scheduledArrival =
+    resolvedTimes?.scheduledArrival ??
+    zonedDateTimeToIso(
+      draft.arrivalDate,
+      draft.arrivalTime,
+      destination.timezone,
+    );
   if (Date.parse(scheduledArrival) <= Date.parse(scheduledDeparture))
     throw new Error("arrival-before-departure");
-  const actualDeparture = optionalZonedDateTime(
-    draft.actualDepartureDate,
-    draft.actualDepartureTime,
-    origin.timezone,
-  );
+  const actualDeparture = resolvedTimes
+    ? resolvedTimes.actualDeparture
+    : optionalZonedDateTime(
+        draft.actualDepartureDate,
+        draft.actualDepartureTime,
+        origin.timezone,
+      );
   const divertedTo = draft.divertedToIata
     ? airportByIata.get(draft.divertedToIata)
     : undefined;
   if (draft.divertedToIata && !divertedTo) throw new Error("unknown-airport");
-  const actualArrival = optionalZonedDateTime(
-    draft.actualArrivalDate,
-    draft.actualArrivalTime,
-    (divertedTo ?? destination).timezone,
-  );
+  const actualArrival = resolvedTimes
+    ? resolvedTimes.actualArrival
+    : optionalZonedDateTime(
+        draft.actualArrivalDate,
+        draft.actualArrivalTime,
+        (divertedTo ?? destination).timezone,
+      );
   if (
     actualDeparture &&
     actualArrival &&
