@@ -2,6 +2,17 @@ name: Build verified release image
 
 # This workflow never creates a GitHub Release. The owner publishes the checked
 # draft with their own CLI identity using scripts/publish-release.sh.
+#
+# The release version is never typed here: it is the root package.json version
+# at the verified CI commit (scripts/release-version.sh), and the tag v<version>
+# must already point at that exact commit.
+#
+# Provenance: the image job signs GitHub Artifact Attestations (SLSA build
+# provenance, Sigstore public-good) for every release attachment and for the
+# pushed image digest. Installers verify them against the certificate identity
+# https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main
+# and the tagged source commit. Releases published before this workflow
+# (v0.1.0) carry no attestations and are never described as attested.
 on:
   workflow_dispatch:
     inputs:
@@ -17,11 +28,9 @@ on:
 
 permissions:
   contents: read
-  actions: read
-  packages: write
 
 concurrency:
-  group: release-v0.1.0
+  group: release
   cancel-in-progress: false
 
 jobs:
@@ -29,9 +38,16 @@ jobs:
     if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main' && inputs.release_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      packages: write
+      # Sigstore signing identity and attestation storage for provenance only.
+      id-token: write
+      attestations: write
     steps:
-      - name: Verify official CI and immutable tag
-        id: source
+      - name: Verify official CI run
+        id: run
         env:
           GH_TOKEN: ${{ github.token }}
           CI_RUN_ID: ${{ inputs.ci_run_id }}
@@ -40,33 +56,49 @@ jobs:
           [[ "$CI_RUN_ID" =~ ^[0-9]+$ ]]
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CI_RUN_ID" > /tmp/ci.json
           jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/ci.json
-          sha=$(jq -r .head_sha /tmp/ci.json)
-          tag_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v0.1.0" --jq '.object.sha')
-          [[ "$sha" == "$tag_sha" ]]
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "sha=$(jq -er .head_sha /tmp/ci.json)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.source.outputs.sha }}
+          ref: ${{ steps.run.outputs.sha }}
+          persist-credentials: false
+
+      - name: Derive version and verify the immutable tag
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.run.outputs.sha }}
+        run: |
+          set -euo pipefail
+          tag=$(bash scripts/release-version.sh)
+          tag_sha=$(bash scripts/resolve-tag-commit.sh "$GITHUB_REPOSITORY" "$tag")
+          [[ "$SHA" == "$tag_sha" ]] || { echo "::error::$tag points at $tag_sha, not CI commit $SHA"; exit 1; }
+          {
+            echo "sha=$SHA"
+            echo "tag=$tag"
+            echo "version=${tag#v}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Download the same CI build, never rebuild the application
         env:
           GH_TOKEN: ${{ github.token }}
           CI_RUN_ID: ${{ inputs.ci_run_id }}
           REVISION: ${{ steps.source.outputs.sha }}
+          TAG: ${{ steps.source.outputs.tag }}
+          VERSION: ${{ steps.source.outputs.version }}
         run: |
           set -euo pipefail
           mkdir -p artifacts/release apps/web/dist
           gh run download "$CI_RUN_ID" --repo "$GITHUB_REPOSITORY" --name release-candidate --dir artifacts/release
           cd artifacts/release
           sha256sum -c SHA256SUMS
-          jq -e --arg sha "$REVISION" '.revision == $sha and .version == "0.1.0" and .author == "keepraw"' provenance.json
-          tar -xzf keepraw-fly-v0.1.0.tar.gz -C ../../apps/web/dist
+          jq -e --arg sha "$REVISION" --arg version "$VERSION" '.revision == $sha and .version == $version and .author == "keepraw"' provenance.json
+          tar -xzf "keepraw-fly-$TAG.tar.gz" -C ../../apps/web/dist
           cd ../../apps/web/dist
           sha256sum -c FILES.sha256 > /dev/null
 
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -75,6 +107,7 @@ jobs:
       - name: Refuse to replace an existing image version
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.source.outputs.tag }}
         run: |
           set -euo pipefail
           # Package API distinguishes a genuinely new package from auth/network errors.
@@ -82,23 +115,33 @@ jobs:
             https://api.github.com/users/keepraw/packages/container/keepraw-fly)
           if [[ "$status" == 200 ]]; then
             gh api --paginate users/keepraw/packages/container/keepraw-fly/versions > /tmp/versions.json
-            jq -e 'all(.[]; .metadata.container.tags | index("v0.1.0") | not)' /tmp/versions.json
+            jq -e --arg tag "$TAG" 'all(.[]; .metadata.container.tags | index($tag) | not)' /tmp/versions.json
           else
             [[ "$status" == 404 ]] || { cat /tmp/package.json; exit 1; }
           fi
 
       - name: Build and push static-only multi-platform image
         id: build
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: deploy/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/keepraw/keepraw-fly:v0.1.0
+          # BuildKit max-mode SLSA provenance travels with the image index.
+          provenance: mode=max
+          tags: ghcr.io/keepraw/keepraw-fly:${{ steps.source.outputs.tag }}
           build-args: |
-            VERSION=0.1.0
+            VERSION=${{ steps.source.outputs.version }}
             REVISION=${{ steps.source.outputs.sha }}
+
+      - name: Attest the image digest
+        id: attest-image
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ghcr.io/keepraw/keepraw-fly
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
 
       - name: Add image digest and CI provenance to release attachments
         env:
@@ -112,12 +155,29 @@ jobs:
             '. + {image: ("ghcr.io/keepraw/keepraw-fly@" + $digest), ci_run_id: $ci, image_run_id: $run}' provenance.json > provenance.tmp
           mv provenance.tmp provenance.json
           rm SHA256SUMS
-          find . -maxdepth 1 -type f ! -name 'SHA256SUMS*' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS*' ! -name '*.sigstore.json' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
           cat image.txt >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - name: Attest every release attachment
+        id: attest-files
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          name: release-v0.1.0
+          subject-checksums: artifacts/release/SHA256SUMS
+
+      - name: Ship offline-verifiable attestation bundles
+        env:
+          FILES_BUNDLE: ${{ steps.attest-files.outputs.bundle-path }}
+          IMAGE_BUNDLE: ${{ steps.attest-image.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          cp "$FILES_BUNDLE" artifacts/release/attestation.sigstore.json
+          cp "$IMAGE_BUNDLE" artifacts/release/image-attestation.sigstore.json
+          # Bundles are verified by signature, not listed in SHA256SUMS.
+          (cd artifacts/release && sha256sum -c SHA256SUMS)
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-${{ steps.source.outputs.tag }}
           path: artifacts/release/
           retention-days: 30
 
@@ -143,27 +203,46 @@ jobs:
           repo=keepraw/Keepraw-Fly
           gh api "repos/$repo/actions/runs/$CI_RUN_ID" > /tmp/ci.json
           jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/ci.json
-          sha=$(jq -r .head_sha /tmp/ci.json)
-          [[ $(gh api "repos/$repo/git/ref/tags/v0.1.0" --jq .object.sha) == "$sha" ]]
+          sha=$(jq -er .head_sha /tmp/ci.json)
+          version=$(gh api "repos/$repo/contents/package.json?ref=$sha" --jq .content | base64 -d | jq -er .version)
+          [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          tag="v$version"
+          tag_sha=$(gh api "repos/$repo/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha')
+          if [[ ${tag_sha%% *} == tag ]]; then
+            tag_sha=$(gh api "repos/$repo/git/tags/${tag_sha#* }" --jq '.object.sha')
+          else
+            tag_sha=${tag_sha#* }
+          fi
+          [[ "$tag_sha" == "$sha" ]]
           gh api "repos/$repo/actions/runs/$IMAGE_RUN_ID" > /tmp/image-run.json
           jq -e '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/image-run.json
           gh api "repos/$repo/releases/$RELEASE_ID" > /tmp/draft.json
-          jq -e --arg sha "$sha" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha and (.assets | length) == 0' /tmp/draft.json
-          echo "REVISION=$sha" >> "$GITHUB_ENV"
+          jq -e --arg sha "$sha" --arg tag "$tag" '.author.login == "keepraw" and .draft == true and .tag_name == $tag and .target_commitish == $sha and (.assets | length) == 0' /tmp/draft.json
+          {
+            echo "REVISION=$sha"
+            echo "TAG=$tag"
+            echo "VERSION=$version"
+          } >> "$GITHUB_ENV"
 
       - name: Attach and verify the original immutable image-build artifacts
         run: |
           set -euo pipefail
           repo=keepraw/Keepraw-Fly
-          gh run download "$IMAGE_RUN_ID" --repo "$repo" --name release-v0.1.0 --dir assets
+          gh run download "$IMAGE_RUN_ID" --repo "$repo" --name "release-$TAG" --dir assets
           (cd assets && sha256sum -c SHA256SUMS)
-          jq -e --arg sha "$REVISION" --arg ci "$CI_RUN_ID" --arg image "$IMAGE_RUN_ID" \
-            '.revision == $sha and .version == "0.1.0" and .author == "keepraw" and .ci_run_id == $ci and .image_run_id == $image' assets/provenance.json
-          gh release upload v0.1.0 assets/* --repo "$repo"
-          gh release download v0.1.0 --repo "$repo" --dir verify
+          jq -e --arg sha "$REVISION" --arg version "$VERSION" --arg ci "$CI_RUN_ID" --arg image "$IMAGE_RUN_ID" \
+            '.revision == $sha and .version == $version and .author == "keepraw" and .ci_run_id == $ci and .image_run_id == $image' assets/provenance.json
+          for file in assets/*; do
+            [[ $file == *.sigstore.json ]] && continue
+            gh attestation verify "$file" --bundle assets/attestation.sigstore.json --repo "$repo" \
+              --cert-identity "https://github.com/$repo/.github/workflows/release.yml@refs/heads/main" \
+              --source-digest "$REVISION" --deny-self-hosted-runners > /dev/null
+          done
+          gh release upload "$TAG" assets/* --repo "$repo"
+          gh release download "$TAG" --repo "$repo" --dir verify
           (cd verify && sha256sum -c SHA256SUMS)
           diff -r assets verify
           gh api "repos/$repo/releases/$RELEASE_ID" > /tmp/attached.json
-          jq -e --arg sha "$REVISION" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha' /tmp/attached.json
+          jq -e --arg sha "$REVISION" --arg tag "$TAG" '.author.login == "keepraw" and .draft == true and .tag_name == $tag and .target_commitish == $sha' /tmp/attached.json
           [[ $(jq '.assets | length' /tmp/attached.json) == $(find assets -type f | wc -l) ]]
           echo 'Owner draft attachments verified; keepraw must publish the Release.' >> "$GITHUB_STEP_SUMMARY"

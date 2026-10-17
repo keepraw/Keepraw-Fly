@@ -17,8 +17,9 @@ cleanup() {
 trap cleanup EXIT
 mkdir "$work/zip" "$work/tar" "$work/container" "$work/fixture" "$work/bin"
 (cd artifacts/release && sha256sum -c SHA256SUMS)
-unzip -q artifacts/release/keepraw-fly-v0.1.0.zip -d "$work/zip"
-tar -xzf artifacts/release/keepraw-fly-v0.1.0.tar.gz -C "$work/tar"
+tag=$(bash scripts/release-version.sh)
+unzip -q "artifacts/release/keepraw-fly-$tag.zip" -d "$work/zip"
+tar -xzf "artifacts/release/keepraw-fly-$tag.tar.gz" -C "$work/tar"
 diff -r "$work/zip" "$work/tar"
 (cd "$work/tar" && sha256sum -c FILES.sha256 >/dev/null)
 docker build -f deploy/Dockerfile --build-arg "REVISION=$(git rev-parse HEAD)" -t keepraw-fly:deployment-test .
@@ -49,6 +50,25 @@ done
 HTTPS_PROXY= HTTP_PROXY= ALL_PROXY= curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 \
   --cacert "$work/subpath-root.crt" https://localhost:18444/Keepraw-Fly/release.json > "$work/served-subpath.json"
 cmp "$work/served-subpath.json" "$work/tar/release.json"
+# Security headers and cache rules from the real image's Caddy, root and subpath.
+policy=$(node --input-type=module -e 'const m = await import(process.argv[1]); console.log(m.headerPolicy)' "$PWD/apps/web/security-policy.mjs")
+asset=$(cd "$work/tar/assets" && ls index-*.js | head -n1)
+check_headers() { # cacert base-url
+  local headers
+  for path in / "assets/$asset"; do
+    headers=$(HTTPS_PROXY='' HTTP_PROXY='' ALL_PROXY='' curl -fsS -D - -o /dev/null --cacert "$1" "$2$path" | tr -d '\r')
+    grep -qixF "content-security-policy: $policy" <<< "$headers"
+    grep -qix 'strict-transport-security: max-age=31536000' <<< "$headers"
+    grep -qix 'x-frame-options: DENY' <<< "$headers"
+    grep -qix 'referrer-policy: no-referrer' <<< "$headers"
+    grep -qix 'x-content-type-options: nosniff' <<< "$headers"
+    ! grep -qi '^server:' <<< "$headers"
+    if [[ $path == / ]]; then grep -qix 'cache-control: no-cache' <<< "$headers"
+    else grep -qix 'cache-control: public, max-age=31536000, immutable' <<< "$headers"; fi
+  done
+}
+check_headers "$work/root.crt" https://localhost:18443/
+check_headers "$work/subpath-root.crt" https://localhost:18444/Keepraw-Fly/
 if [[ ${KEEPRAW_BROWSER_SMOKE:-0} == 1 ]]; then
   node scripts/smoke-release.mjs https://localhost:18443/ https://localhost:18444/Keepraw-Fly/
 fi
@@ -64,7 +84,13 @@ real_curl=$(command -v curl)
 mkdir "$work/fixture/v0.1.1"
 cp compose.yaml "$work/fixture/v0.1.1/"
 printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 2 > "$work/fixture/v0.1.1/image.txt"
-(cd "$work/fixture/v0.1.1" && sha256sum compose.yaml image.txt > SHA256SUMS)
+# Releases after v0.1.0 must carry provenance; the installer verifies it with gh.
+# A recording fake gh accepts only the official identity and the subjects listed
+# in the fixture bundle (scripts/test-installer-provenance.sh covers refusals).
+fixture_revision=$(git rev-parse HEAD)
+printf '{\n  "version": "0.1.1",\n  "revision": "%s",\n  "author": "keepraw"\n}\n' "$fixture_revision" > "$work/fixture/v0.1.1/provenance.json"
+(cd "$work/fixture/v0.1.1" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS \
+  && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}' > attestation.sigstore.json)
 cat > "$work/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
 set -eu
@@ -101,7 +127,22 @@ if [[ ${1:-} == compose ]]; then
 fi
 exec "$REAL_DOCKER" "$@"
 MOCK
+cat > "$work/bin/gh" <<'MOCK'
+#!/usr/bin/env bash
+set -eu
+if [[ ${1:-} == --version ]]; then echo "gh version 2.102.0 (2026-09-30)"; exit 0; fi
+[[ $1 == attestation && $2 == verify ]] || exit 64
+file=$3; shift 3
+args=" $* "
+[[ $args == *" --repo keepraw/Keepraw-Fly "* ]]
+[[ $args == *" --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main "* ]]
+[[ $args == *" --source-ref refs/heads/main "* && $args == *" --source-digest $FIXTURE_REVISION "* ]]
+[[ $args == *" --deny-self-hosted-runners "* ]]
+bundle=$(sed -n 's/.*--bundle \([^ ]*\).*/\1/p' <<< "$args")
+grep -qx "$(sha256sum "$file" | awk '{print $1}')" "$bundle"
+MOCK
 chmod +x "$work/bin/"*
+export FIXTURE_REVISION="$fixture_revision"
 export REAL_DOCKER="$real_docker" FIXTURE="$work/fixture"
 export PATH="$work/bin:$PATH"
 install_args=(--dir "$work/instance" --version v0.1.0 --local --http-port 18080 --https-port 18443 --yes)
@@ -145,4 +186,4 @@ if bash deploy/install.sh --dir "$work/unmanaged" --yes; then echo 'Expected unm
 if bash deploy/install.sh --version latest --yes; then echo 'Expected floating-version refusal' >&2; exit 1; fi
 # A foreign installation must not take over the running Compose project.
 if bash deploy/install.sh --dir "$work/foreign" --yes; then echo 'Expected project ownership refusal' >&2; exit 1; fi
-echo 'PASS: identical archives/container, no Node runtime, trusted local TLS, repeat install, explicit upgrade/rollback, startup recovery, port/corruption/edit/ownership/floating-version refusal.'
+echo 'PASS: identical archives/container, security headers/cache rules (root+subpath), no Node runtime, trusted local TLS, repeat install, explicit upgrade/rollback, startup recovery, port/corruption/edit/ownership/floating-version refusal.'

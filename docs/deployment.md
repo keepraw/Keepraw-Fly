@@ -57,6 +57,25 @@ sudo bash install.sh --version v0.1.0 --local
 
 This binds `127.0.0.1:8080` to HTTP and `127.0.0.1:8443` to the unused HTTPS mapping. Remote access requires an SSH tunnel or your existing proxy terminating HTTPS. The installer does not edit that proxy. `--http-port` and `--https-port` change host mappings; public ACME validation must still reach Caddy on public 80/443 (forwarding is your responsibility). Public mode binds IPv4 `0.0.0.0`; publish an AAAA record only after configuring and testing an IPv6 path.
 
+### Verifying release provenance
+
+Releases after v0.1.0 ship `attestation.sigstore.json` and
+`image-attestation.sigstore.json`. The installer requires
+[GitHub CLI](https://cli.github.com) **2.102.0 or newer** for them (older versions
+match signer identities by prefix) and refuses to deploy unless every downloaded
+file was attested by this repository's `release.yml` on `main` from the release's
+source commit. v0.1.0 predates attestations: it is only checksum-verified, and the
+installer says so. To check a downloaded file yourself:
+
+```bash
+gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
+  --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --deny-self-hosted-runners
+gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main
+```
+
 ### Manual Compose
 
 You can download and inspect `compose.yaml`, `image.txt` and `SHA256SUMS` from the [release attachments](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0) instead of using the installer. Verify the selected files with `sha256sum -c` as above. In the directory containing `compose.yaml`:
