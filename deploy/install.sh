@@ -160,22 +160,34 @@ if [[ $attested == true ]]; then
   [[ -n $gh_version && $(printf '%s\n%s\n' "$gh_minimum" "$gh_version" | sort -V | head -n1) == "$gh_minimum" ]] \
     || die "GitHub CLI ${gh_version:-unknown} is too old; provenance verification requires >= $gh_minimum"
   fetch attestation.sigstore.json
+  fetch image-attestation.sigstore.json
   revision=$(sed -n 's/^ *"revision": "\([0-9a-f]\{40\}\)",\{0,1\}$/\1/p' "$stage/provenance.json")
   [[ $revision =~ ^[0-9a-f]{40}$ ]] || die "provenance.json has no source revision"
   grep -qx "  \"version\": \"${version#v}\"," "$stage/provenance.json" || die "provenance.json does not describe $version"
-  for file in "${verified_files[@]}"; do
-    gh attestation verify "$stage/$file" --bundle "$stage/attestation.sigstore.json" \
-      --repo keepraw/Keepraw-Fly \
-      --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  release_identity=https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main
+  verify_provenance() { # subject bundle label
+    gh attestation verify "$1" --bundle "$2" \
+      --repo keepraw/Keepraw-Fly --cert-identity "$release_identity" \
       --source-ref refs/heads/main --source-digest "$revision" --deny-self-hosted-runners >/dev/null \
-      || die "Provenance verification failed for $file ($version). Refusing to deploy: the file is not an official keepraw/Keepraw-Fly release build."
+      || die "Provenance verification failed for $3 ($version). Refusing to deploy: it is not an official keepraw/Keepraw-Fly release build."
+  }
+  for file in "${verified_files[@]}"; do
+    verify_provenance "$stage/$file" "$stage/attestation.sigstore.json" "$file"
   done
-  echo "Verified provenance: $version built by keepraw/Keepraw-Fly release.yml from $revision"
-else
-  echo "Warning: $version predates release provenance attestations; only SHA-256 checksums published in the same release are verified." >&2
 fi
 image=$(cat "$stage/image.txt")
 [[ $image =~ ^ghcr.io/keepraw/keepraw-fly@sha256:[0-9a-f]{64}$ ]] || die "Invalid official image digest"
+if [[ $attested == true ]]; then
+  grep -qx "  \"image\": \"$image\",\{0,1\}" "$stage/provenance.json" \
+    || die "provenance.json names a different image than image.txt ($image)"
+  # The image's own attestation (pushed by release.yml for this exact digest):
+  # gh resolves oci://...@sha256 from the registry and checks that the signed
+  # subject is that digest, signed by release.yml on main from $revision.
+  verify_provenance "oci://$image" "$stage/image-attestation.sigstore.json" "image $image"
+  echo "Verified provenance: $version files and image built by keepraw/Keepraw-Fly release.yml from $revision"
+else
+  echo "Warning: $version predates release provenance attestations; only SHA-256 checksums published in the same release are verified. Neither its files nor its image carry provenance." >&2
+fi
 cat > "$stage/.env" <<ENV
 KEEPRAW_VERSION=$version
 KEEPRAW_IMAGE=$image

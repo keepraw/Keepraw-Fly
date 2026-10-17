@@ -63,17 +63,24 @@ Releases after v0.1.0 ship `attestation.sigstore.json` and
 `image-attestation.sigstore.json`. The installer requires
 [GitHub CLI](https://cli.github.com) **2.102.0 or newer** for them (older versions
 match signer identities by prefix) and refuses to deploy unless every downloaded
-file was attested by this repository's `release.yml` on `main` from the release's
-source commit. v0.1.0 predates attestations: it is only checksum-verified, and the
-installer says so. To check a downloaded file yourself:
+file **and the image digest in `image.txt`** were attested by this repository's
+`release.yml` on `main` from the release's source commit on a GitHub-hosted
+runner. The image is checked with its own bundle: `gh` resolves
+`oci://ghcr.io/keepraw/keepraw-fly@sha256:…` in the registry and requires that
+exact digest to be the signed subject; `provenance.json` must name the same
+image. The image is then pulled by that digest, never by a tag. No GitHub token
+is needed. v0.1.0 predates attestations: its files and image are only
+checksum-verified, and the installer says so. To check yourself:
 
 ```bash
 gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
   --repo keepraw/Keepraw-Fly \
   --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
   --source-ref refs/heads/main --deny-self-hosted-runners
-gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… --repo keepraw/Keepraw-Fly \
-  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main
+gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
+  --bundle image-attestation.sigstore.json --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --source-digest <commit from provenance.json> --deny-self-hosted-runners
 ```
 
 ### Manual Compose

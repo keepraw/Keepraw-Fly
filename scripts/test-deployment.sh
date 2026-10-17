@@ -88,9 +88,13 @@ printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 2 > "$work/fixture/v0.1.1/im
 # A recording fake gh accepts only the official identity and the subjects listed
 # in the fixture bundle (scripts/test-installer-provenance.sh covers refusals).
 fixture_revision=$(git rev-parse HEAD)
-printf '{\n  "version": "0.1.1",\n  "revision": "%s",\n  "author": "keepraw"\n}\n' "$fixture_revision" > "$work/fixture/v0.1.1/provenance.json"
+printf '{\n  "version": "0.1.1",\n  "revision": "%s",\n  "author": "keepraw",\n  "image": "%s"\n}\n' \
+  "$fixture_revision" "$(cat "$work/fixture/v0.1.1/image.txt")" > "$work/fixture/v0.1.1/provenance.json"
 (cd "$work/fixture/v0.1.1" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS \
   && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}' > attestation.sigstore.json)
+# The image attestation lists the attested image digest (the fake gh resolves
+# oci://...@sha256:<digest> to that digest, as the registry would).
+printf '%064d\n' 2 > "$work/fixture/v0.1.1/image-attestation.sigstore.json"
 cat > "$work/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
 set -eu
@@ -139,7 +143,8 @@ args=" $* "
 [[ $args == *" --source-ref refs/heads/main "* && $args == *" --source-digest $FIXTURE_REVISION "* ]]
 [[ $args == *" --deny-self-hosted-runners "* ]]
 bundle=$(sed -n 's/.*--bundle \([^ ]*\).*/\1/p' <<< "$args")
-grep -qx "$(sha256sum "$file" | awk '{print $1}')" "$bundle"
+if [[ $file == oci://* ]]; then digest=${file##*@sha256:}; else digest=$(sha256sum "$file" | awk '{print $1}'); fi
+grep -qx "$digest" "$bundle"
 MOCK
 chmod +x "$work/bin/"*
 export FIXTURE_REVISION="$fixture_revision"

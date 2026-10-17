@@ -59,13 +59,17 @@ sudo bash install.sh --version v0.1.0 --local
 
 ### 校验发行来源证明
 
-v0.1.0 之后的发行版附带 `attestation.sigstore.json` 与 `image-attestation.sigstore.json`。安装器需要 [GitHub CLI](https://cli.github.com) **2.102.0 或更新版本**（更早版本按前缀匹配签发身份），只有当每个下载文件都由本仓库 `main` 分支上的 `release.yml`、基于该发行源提交签发证明时才会部署，否则拒绝。v0.1.0 早于来源证明机制，只做校验和检查，安装器会明确提示。手动校验：
+v0.1.0 之后的发行版附带 `attestation.sigstore.json` 与 `image-attestation.sigstore.json`。安装器需要 [GitHub CLI](https://cli.github.com) **2.102.0 或更新版本**（更早版本按前缀匹配签发身份），只有当每个下载文件**以及 `image.txt` 中的镜像 digest** 都由本仓库 `main` 分支上的 `release.yml`、基于该发行源提交、在 GitHub 托管 runner 上签发证明时才会部署，否则拒绝。镜像使用独立的 bundle 校验：`gh` 在镜像仓库中解析 `oci://ghcr.io/keepraw/keepraw-fly@sha256:…`，要求该 digest 正是被签名的主体，且 `provenance.json` 必须指向同一镜像；随后按 digest（而非标签）拉取。无需 GitHub Token。v0.1.0 早于来源证明机制，文件和镜像都只做校验和检查，安装器会明确提示。手动校验：
 
 ```bash
 gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
   --repo keepraw/Keepraw-Fly \
   --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
   --source-ref refs/heads/main --deny-self-hosted-runners
+gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
+  --bundle image-attestation.sigstore.json --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --source-digest <provenance.json 中的 commit> --deny-self-hosted-runners
 ```
 
 ### 手动 Compose

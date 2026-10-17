@@ -26,5 +26,7 @@ while read -r _ name; do
 done < "$dir/SHA256SUMS"
 image=$(cat "$dir/image.txt")
 [[ $image =~ ^ghcr\.io/keepraw/keepraw-fly@sha256:[0-9a-f]{64}$ ]] || { echo "Invalid image reference" >&2; exit 1; }
+jq -e --arg image "$image" --arg sha "$sha" '.image == $image and .revision == $sha' "$dir/provenance.json" >/dev/null \
+  || { echo "provenance.json does not name $image from $sha" >&2; exit 1; }
 verify "oci://$image" "$dir/image-attestation.sigstore.json"
 echo "Provenance verified: $(wc -l < "$dir/SHA256SUMS") attachments and $image from $sha"

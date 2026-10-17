@@ -64,9 +64,13 @@ the registry tarball).
 Releases after v0.1.0 carry GitHub Artifact Attestations (SLSA provenance via
 Sigstore) for every attachment and for the image digest, signed by
 `.github/workflows/release.yml` on `refs/heads/main` from the tagged commit. The
-installer and Fork Pages verify them with GitHub CLI ≥ 2.102.0 before deploying
-and refuse a missing bundle, another signer, another source commit or a modified
-file. **v0.1.0 predates this and is checksum-only**; it is never reported as
+installer verifies every downloaded file and, with its own bundle, the OCI image
+digest it will pull (`gh attestation verify oci://…@sha256:…`); Fork Pages
+verifies the static archive. Both need GitHub CLI ≥ 2.102.0, no token, and refuse
+a missing or corrupt bundle, another repository or workflow, another source
+commit, a self-hosted runner or a modified file or digest. The installer's
+refusal paths are tested with a stand-in `gh`; real Sigstore verification of
+Keepraw Fly's own bundles happens on the first attested release. **v0.1.0 predates this and is checksum-only**; it is never reported as
 attested. See the [deployment guide](deployment.md#verifying-release-provenance).
 
 ## Personal data in exports
