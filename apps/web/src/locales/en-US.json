@@ -394,7 +394,12 @@
       "propertyNames": "Extension names must use a valid namespace.",
       "maxLength": "This value is longer than the supported limit."
     },
-    "operationFailed": "The file could not be imported. Please try again."
+    "operationFailed": "The file could not be imported. Please try again.",
+    "fileErrors": {
+      "empty-file": "This file is empty.",
+      "file-too-large": "This file is larger than {{limit}}. Split it or check that it is a Keepraw Fly export.",
+      "too-many-records": "This file has more than {{records, number}} flights. Split it into smaller files."
+    }
   },
   "units": {
     "minuteShort": "min"
@@ -422,7 +427,11 @@
       "missing-rows": "No flight rows were found. Include one header row and at least one flight row.",
       "unterminated-quote": "A quoted CSV field is not closed. Check the quotation marks and try again.",
       "empty-header": "One or more CSV columns have an empty header.",
-      "invalid-file": "This CSV could not be read."
+      "invalid-file": "This CSV could not be read.",
+      "empty-file": "This file is empty.",
+      "file-too-large": "This file is larger than {{limit}}. Split it or check that it is a Keepraw Fly export.",
+      "too-many-records": "This file has more than {{records, number}} flights. Split it into smaller files.",
+      "unexpected-quote": "A quotation mark is in an unexpected place (inside an unquoted value or after a closing quote). Check the quotation marks and try again."
     },
     "issues": {
       "incomplete-mapping": "Map every required field before importing.",
@@ -481,7 +490,11 @@
       "missing-rows": "No Flighty flight rows were found.",
       "unterminated-quote": "A quoted Flighty CSV field is not closed. Check the quotation marks and try again.",
       "empty-header": "One or more Flighty CSV columns have an empty header.",
-      "invalid-file": "This Flighty CSV could not be read."
+      "invalid-file": "This Flighty CSV could not be read.",
+      "empty-file": "This file is empty.",
+      "file-too-large": "This file is larger than {{limit}}. Split it or check that it is a Keepraw Fly export.",
+      "too-many-records": "This file has more than {{records, number}} flights. Split it into smaller files.",
+      "unexpected-quote": "A quotation mark is in an unexpected place (inside an unquoted value or after a closing quote). Check the quotation marks and try again."
     },
     "issues": {
       "missing-required-header": "Missing required Flighty header: {{value}}.",
@@ -502,6 +515,9 @@
     "dataAndBackup": "Data and backup",
     "dangerZone": "Danger zone",
     "exportJson": "Export Keepraw Fly JSON",
+    "exportShareable": "Export without personal details",
+    "exportShareableNote": "For sharing statistics: removes names, booking references, ticket and member numbers, and unrecognized extensions. Not a backup.",
+    "exportSensitiveWarning": "Full backups contain personal details such as passenger names, booking references (PNR), ticket numbers and frequent flyer numbers. Store and share them carefully.",
     "data": "Data",
     "localDataTitle": "Local data",
     "localDataDescription": "Flight records are stored only in this browser.",

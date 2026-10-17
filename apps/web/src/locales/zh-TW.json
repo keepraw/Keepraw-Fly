@@ -367,7 +367,12 @@
       "propertyNames": "擴充名稱必須使用有效的命名空間。",
       "maxLength": "此值的長度超出支援範圍。"
     },
-    "operationFailed": "無法匯入此檔案，請再試一次。"
+    "operationFailed": "無法匯入此檔案，請再試一次。",
+    "fileErrors": {
+      "empty-file": "此檔案是空的。",
+      "file-too-large": "此檔案超過 {{limit}}。請分割檔案，或確認它是 Keepraw Fly 匯出的檔案。",
+      "too-many-records": "此檔案包含超過 {{records, number}} 筆航班。請分割為較小的檔案。"
+    }
   },
   "units": {
     "minuteShort": "分"
@@ -393,7 +398,11 @@
       "missing-rows": "沒有找到航班記錄。檔案需要包含一行表頭和至少一行航班。",
       "unterminated-quote": "CSV 中有未閉合的引號字段，請檢查引號後再試一次。",
       "empty-header": "CSV 中存在沒有名稱的列。",
-      "invalid-file": "無法讀取這個 CSV 檔案。"
+      "invalid-file": "無法讀取這個 CSV 檔案。",
+      "empty-file": "此檔案是空的。",
+      "file-too-large": "此檔案超過 {{limit}}。請分割檔案，或確認它是 Keepraw Fly 匯出的檔案。",
+      "too-many-records": "此檔案包含超過 {{records, number}} 筆航班。請分割為較小的檔案。",
+      "unexpected-quote": "引號位置不正確（出現在未加引號的值中，或位於結束引號之後）。請檢查引號後重試。"
     },
     "issues": {
       "incomplete-mapping": "匯入前需要為每個必填字段選擇對應列。",
@@ -449,7 +458,11 @@
       "missing-rows": "沒有找到 Flighty 航班記錄。",
       "unterminated-quote": "Flighty CSV 中有未閉合的引號字段，請檢查引號後再試一次。",
       "empty-header": "Flighty CSV 中存在沒有名稱的列。",
-      "invalid-file": "無法讀取這個 Flighty CSV 檔案。"
+      "invalid-file": "無法讀取這個 Flighty CSV 檔案。",
+      "empty-file": "此檔案是空的。",
+      "file-too-large": "此檔案超過 {{limit}}。請分割檔案，或確認它是 Keepraw Fly 匯出的檔案。",
+      "too-many-records": "此檔案包含超過 {{records, number}} 筆航班。請分割為較小的檔案。",
+      "unexpected-quote": "引號位置不正確（出現在未加引號的值中，或位於結束引號之後）。請檢查引號後重試。"
     },
     "issues": {
       "missing-required-header": "缺少必需的 Flighty 表頭：{{value}}。",
@@ -470,6 +483,9 @@
     "dataAndBackup": "資料與備份",
     "dangerZone": "危險操作",
     "exportJson": "匯出 Keepraw Fly JSON",
+    "exportShareable": "匯出去除個人資料的版本",
+    "exportShareableNote": "用於分享統計：移除姓名、訂位代號、機票號碼、會員號碼及無法辨識的擴充資料。不能作為備份。",
+    "exportSensitiveWarning": "完整備份包含乘客姓名、訂位代號（PNR）、機票號碼和常旅客會員號碼等個人資料，請妥善保存與分享。",
     "data": "資料",
     "localDataTitle": "本機資料",
     "localDataDescription": "航班記錄僅儲存在目前瀏覽器中。",

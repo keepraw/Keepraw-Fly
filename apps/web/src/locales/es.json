@@ -418,7 +418,12 @@
     "includePossibleDuplicates_many": "Importar también {{count, number}} posibles duplicados como vuelos separados",
     "addNewFlights_many": "Importar {{count, number}} vuelos nuevos",
     "importSelectedFlights_many": "Importar {{count, number}} vuelos seleccionados",
-    "moreIssues_many": "Hay {{count, number}} problemas más que no se muestran."
+    "moreIssues_many": "Hay {{count, number}} problemas más que no se muestran.",
+    "fileErrors": {
+      "empty-file": "Este archivo está vacío.",
+      "file-too-large": "Este archivo supera {{limit}}. Divídelo o comprueba que sea una exportación de Keepraw Fly.",
+      "too-many-records": "Este archivo tiene más de {{records, number}} vuelos. Divídelo en archivos más pequeños."
+    }
   },
   "units": {
     "minuteShort": "min"
@@ -446,7 +451,11 @@
       "missing-rows": "No se encontraron filas de vuelos. Incluye una fila de encabezado y al menos una fila de vuelo.",
       "unterminated-quote": "Un campo CSV citado no está cerrado. Comprueba las comillas e inténtelo de nuevo.",
       "empty-header": "Una o más columnas CSV tienen un encabezado vacío.",
-      "invalid-file": "Este CSV no se pudo leer."
+      "invalid-file": "Este CSV no se pudo leer.",
+      "empty-file": "Este archivo está vacío.",
+      "file-too-large": "Este archivo supera {{limit}}. Divídelo o comprueba que sea una exportación de Keepraw Fly.",
+      "too-many-records": "Este archivo tiene más de {{records, number}} vuelos. Divídelo en archivos más pequeños.",
+      "unexpected-quote": "Hay unas comillas en un lugar inesperado (dentro de un valor sin comillas o después de unas comillas de cierre). Revisa las comillas e inténtalo de nuevo."
     },
     "issues": {
       "incomplete-mapping": "Asigna todos los campos obligatorios antes de importar.",
@@ -507,7 +516,11 @@
       "missing-rows": "No se encontraron filas de vuelos de Flighty.",
       "unterminated-quote": "Un campo CSV Flighty citado no está cerrado. Comprueba las comillas e inténtelo de nuevo.",
       "empty-header": "Una o más columnas CSV Flighty tienen un encabezado vacío.",
-      "invalid-file": "Este CSV Flighty no se pudo leer."
+      "invalid-file": "Este CSV Flighty no se pudo leer.",
+      "empty-file": "Este archivo está vacío.",
+      "file-too-large": "Este archivo supera {{limit}}. Divídelo o comprueba que sea una exportación de Keepraw Fly.",
+      "too-many-records": "Este archivo tiene más de {{records, number}} vuelos. Divídelo en archivos más pequeños.",
+      "unexpected-quote": "Hay unas comillas en un lugar inesperado (dentro de un valor sin comillas o después de unas comillas de cierre). Revisa las comillas e inténtalo de nuevo."
     },
     "issues": {
       "missing-required-header": "Falta el encabezado Flighty requerido: {{value}}.",
@@ -531,6 +544,9 @@
     "dataAndBackup": "Datos y copia de seguridad",
     "dangerZone": "Operaciones peligrosas",
     "exportJson": "Exportar JSON de Keepraw Fly",
+    "exportShareable": "Exportar sin datos personales",
+    "exportShareableNote": "Para compartir estadísticas: elimina nombres, localizadores, números de billete y de socio, y extensiones no reconocidas. No es una copia de seguridad.",
+    "exportSensitiveWarning": "Las copias de seguridad completas contienen datos personales como nombres de pasajeros, localizadores de reserva (PNR), números de billete y de viajero frecuente. Guárdalas y compártelas con cuidado.",
     "data": "Datos",
     "localDataTitle": "Datos locales",
     "localDataDescription": "Los registros de vuelo se almacenan únicamente en este navegador.",

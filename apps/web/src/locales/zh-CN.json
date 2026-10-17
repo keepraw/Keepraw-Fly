@@ -367,7 +367,12 @@
       "propertyNames": "扩展名称必须使用有效的命名空间。",
       "maxLength": "此值的长度超出支持范围。"
     },
-    "operationFailed": "无法导入此文件，请重试。"
+    "operationFailed": "无法导入此文件，请重试。",
+    "fileErrors": {
+      "empty-file": "该文件为空。",
+      "file-too-large": "该文件超过 {{limit}}。请拆分文件，或确认它是 Keepraw Fly 导出的文件。",
+      "too-many-records": "该文件包含超过 {{records, number}} 条航班。请拆分为较小的文件。"
+    }
   },
   "units": {
     "minuteShort": "分"
@@ -393,7 +398,11 @@
       "missing-rows": "没有找到航班记录。文件需要包含一行表头和至少一行航班。",
       "unterminated-quote": "CSV 中有未闭合的引号字段，请检查引号后重试。",
       "empty-header": "CSV 中存在没有名称的列。",
-      "invalid-file": "无法读取这个 CSV 文件。"
+      "invalid-file": "无法读取这个 CSV 文件。",
+      "empty-file": "该文件为空。",
+      "file-too-large": "该文件超过 {{limit}}。请拆分文件，或确认它是 Keepraw Fly 导出的文件。",
+      "too-many-records": "该文件包含超过 {{records, number}} 条航班。请拆分为较小的文件。",
+      "unexpected-quote": "引号位置不正确（出现在未加引号的值中，或位于结束引号之后）。请检查引号后重试。"
     },
     "issues": {
       "incomplete-mapping": "导入前需要为每个必填字段选择对应列。",
@@ -449,7 +458,11 @@
       "missing-rows": "没有找到 Flighty 航班记录。",
       "unterminated-quote": "Flighty CSV 中有未闭合的引号字段，请检查引号后重试。",
       "empty-header": "Flighty CSV 中存在没有名称的列。",
-      "invalid-file": "无法读取这个 Flighty CSV 文件。"
+      "invalid-file": "无法读取这个 Flighty CSV 文件。",
+      "empty-file": "该文件为空。",
+      "file-too-large": "该文件超过 {{limit}}。请拆分文件，或确认它是 Keepraw Fly 导出的文件。",
+      "too-many-records": "该文件包含超过 {{records, number}} 条航班。请拆分为较小的文件。",
+      "unexpected-quote": "引号位置不正确（出现在未加引号的值中，或位于结束引号之后）。请检查引号后重试。"
     },
     "issues": {
       "missing-required-header": "缺少必需的 Flighty 表头：{{value}}。",
@@ -470,6 +483,9 @@
     "dataAndBackup": "数据与备份",
     "dangerZone": "危险操作",
     "exportJson": "导出 Keepraw Fly JSON",
+    "exportShareable": "导出去除个人信息的版本",
+    "exportShareableNote": "用于分享统计：去除姓名、订座记录、客票号、会员号及无法识别的扩展数据。不能作为备份。",
+    "exportSensitiveWarning": "完整备份包含乘客姓名、订座记录（PNR）、客票号和常旅客会员号等个人信息，请妥善保存和分享。",
     "data": "数据",
     "localDataTitle": "本地数据",
     "localDataDescription": "航班记录仅保存在当前浏览器中。",

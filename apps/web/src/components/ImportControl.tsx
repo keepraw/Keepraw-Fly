@@ -1,4 +1,10 @@
 import { useId, useState } from "react";
+import {
+  assertRecordCount,
+  ImportFileError,
+  importLimitValues,
+  readImportFile,
+} from "../data/import-limits";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -34,15 +40,20 @@ export function ImportControl({
     useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [fileError, setFileError] = useState<ImportFileError["code"] | null>(
+    null,
+  );
 
   async function importFile(file: File | undefined) {
     if (!file || busy) return;
     setBusy(true);
     setFailed(false);
+    setFileError(null);
     try {
+      const text = await readImportFile(file);
       const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
-      const text = await file.text();
       const result = parseKeeprawFlyJson(text);
+      if (result.valid) assertRecordCount(result.data.flights.length);
       setPending({
         fileName: file.name,
         ...preflightJsonImport(text, result, existingDocument),
@@ -51,6 +62,11 @@ export function ImportControl({
     } catch (error) {
       setPending(null);
       setIncludePossibleDuplicates(false);
+      if (error instanceof ImportFileError) {
+        // A size/count refusal is a user-actionable message, not a failure.
+        setFileError(error.code);
+        return;
+      }
       setFailed(true);
       onError?.(error);
     } finally {
@@ -141,6 +157,11 @@ export function ImportControl({
       ) : null}
       {failed && !onError ? (
         <p role="alert">{t("import.operationFailed")}</p>
+      ) : null}
+      {fileError ? (
+        <p role="alert" className="import-file-error">
+          {t(`import.fileErrors.${fileError}`, importLimitValues)}
+        </p>
       ) : null}
       {pending ? (
         <section

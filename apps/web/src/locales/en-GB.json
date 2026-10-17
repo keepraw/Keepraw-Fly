@@ -23,7 +23,8 @@
     "romanized": "Romanised",
     "programName": "Programme name",
     "addMembership": "Add frequent flyer programme",
-    "fontLicense": "Xiaomi font licence and usage guidance"
+    "fontLicense": "Xiaomi font licence and usage guidance",
+    "exportShareableNote": "For sharing statistics: removes names, booking references, ticket and member numbers, and unrecognised extensions. Not a backup."
   },
   "globe": {
     "detailCancelled": "This flight was cancelled. No flown route to display."
