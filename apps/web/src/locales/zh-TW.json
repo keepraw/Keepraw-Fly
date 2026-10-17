@@ -484,7 +484,7 @@
     "dangerZone": "危險操作",
     "exportJson": "匯出 Keepraw Fly JSON",
     "exportShareable": "匯出去除個人資料的版本",
-    "exportShareableNote": "用於分享統計：移除姓名、訂位代號、機票號碼、會員號碼及無法辨識的擴充資料。不能作為備份。",
+    "exportShareableNote": "用於分享統計：移除姓名、訂位代號、機票號碼、會員號碼及無法辨識的擴充資料。不能作為備份。精確日期、航班與座位仍會保留，因此並非完全匿名。",
     "exportSensitiveWarning": "完整備份包含乘客姓名、訂位代號（PNR）、機票號碼和常旅客會員號碼等個人資料，請妥善保存與分享。",
     "data": "資料",
     "localDataTitle": "本機資料",

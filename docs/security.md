@@ -75,8 +75,14 @@ Full JSON backups contain passenger names, booking references (PNR), ticket
 numbers and frequent flyer numbers; Settings says so next to the export. **Export
 without personal details** writes a valid, importable archive without those
 fields and without any extension Keepraw Fly does not define (their meaning
-cannot be judged). It is for sharing statistics, not a backup, and never changes
-the stored archive. Encrypted backups are not implemented; if added they should
+cannot be judged). Inside the three extensions it keeps (`keepraw-fly.aircraft`,
+`keepraw-fly.seat`, `keepraw-fly.baggage`) only declared fields survive (`type`,
+`registration`; `seat`, `cabin`, `bookingClass`; `carousel`), each as a short
+single-line string; unknown keys, nested objects and arrays are dropped, because
+the schema allows any JSON there. It removes common direct identifiers only:
+exact dates, flight numbers, routes and seats remain, so the file is **not
+anonymous**. It is for sharing statistics, not a backup, and never changes the
+stored archive. Encrypted backups are not implemented; if added they should
 use WebCrypto (for example PBKDF2/Argon2 + AES-GCM) as a separate, reviewed task.
 
 ## Import limits

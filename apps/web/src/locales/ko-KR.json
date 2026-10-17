@@ -484,7 +484,7 @@
     "dangerZone": "위험한 작업",
     "exportJson": "Keepraw Fly JSON 내보내기",
     "exportShareable": "개인 정보 없이 내보내기",
-    "exportShareableNote": "통계 공유용: 이름, 예약 번호, 항공권 번호, 회원 번호와 인식할 수 없는 확장 데이터를 제거합니다. 백업이 아닙니다.",
+    "exportShareableNote": "통계 공유용: 이름, 예약 번호, 항공권 번호, 회원 번호와 인식할 수 없는 확장 데이터를 제거합니다. 백업이 아닙니다. 정확한 날짜, 항공편, 좌석은 남으므로 완전한 익명 파일이 아닙니다.",
     "exportSensitiveWarning": "전체 백업에는 탑승객 이름, 예약 번호(PNR), 항공권 번호, 상용고객 회원 번호 등 개인 정보가 포함됩니다. 보관하고 공유할 때 주의하세요.",
     "data": "데이터",
     "localDataTitle": "로컬 데이터",

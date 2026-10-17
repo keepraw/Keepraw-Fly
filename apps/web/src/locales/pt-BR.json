@@ -545,7 +545,7 @@
     "dangerZone": "Operações perigosas",
     "exportJson": "Exportar JSON do Keepraw Fly",
     "exportShareable": "Exportar sem dados pessoais",
-    "exportShareableNote": "Para compartilhar estatísticas: remove nomes, localizadores, números de bilhete e de membro e extensões não reconhecidas. Não é um backup.",
+    "exportShareableNote": "Para compartilhar estatísticas: remove nomes, localizadores, números de bilhete e de membro e extensões não reconhecidas. Não é um backup. Datas exatas, voos e assentos permanecem, então o arquivo não é anônimo.",
     "exportSensitiveWarning": "Backups completos contêm dados pessoais, como nomes de passageiros, localizadores de reserva (PNR), números de bilhete e de fidelidade. Guarde e compartilhe com cuidado.",
     "data": "Dados",
     "localDataTitle": "Dados locais",

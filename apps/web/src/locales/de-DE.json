@@ -516,7 +516,7 @@
     "dangerZone": "Gefahrenbereich",
     "exportJson": "Keepraw Fly JSON exportieren",
     "exportShareable": "Ohne persönliche Daten exportieren",
-    "exportShareableNote": "Zum Teilen von Statistiken: entfernt Namen, Buchungscodes, Ticket- und Mitgliedsnummern sowie unbekannte Erweiterungen. Kein Backup.",
+    "exportShareableNote": "Zum Teilen von Statistiken: entfernt Namen, Buchungscodes, Ticket- und Mitgliedsnummern sowie unbekannte Erweiterungen. Kein Backup. Genaue Daten, Flüge und Sitzplätze bleiben erhalten, die Datei ist daher nicht anonym.",
     "exportSensitiveWarning": "Vollständige Backups enthalten personenbezogene Daten wie Passagiernamen, Buchungscodes (PNR), Ticket- und Vielfliegernummern. Bewahren und teilen Sie sie sorgfältig.",
     "data": "Daten",
     "localDataTitle": "Lokale Daten",

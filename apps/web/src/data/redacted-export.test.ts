@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { validateAndMigrateKeeprawFly } from "@keepraw-fly/validator";
 import demo from "@keepraw-fly/core/demo";
-import { redactSensitiveData } from "./redacted-export";
+import {
+  SHAREABLE_EXTENSION_FIELDS,
+  SHAREABLE_FIELD_MAX_LENGTH,
+  redactSensitiveData,
+} from "./redacted-export";
 import { serializeKeeprawFly } from "./export";
 import { preflightJsonImport } from "./import-preview";
 
@@ -184,5 +188,149 @@ describe("shareable (redacted) export", () => {
     expect(migrated.valid && JSON.parse(text)).toEqual(
       migrated.valid ? migrated.data : null,
     );
+  });
+});
+
+describe("shareable export: field-level allowlist inside kept extensions", () => {
+  // Valid under the schema (extension values are free-form JSON), so a legacy
+  // or third-party writer could have produced exactly this.
+  const hidden = {
+    pnr: "HIDPNR42",
+    ticket: "1609876543210",
+    member: "FFP-HIDDEN-55667788",
+    name: "Hidden Traveller Name",
+    deep: "DEEP-NESTED-SECRET-0001",
+    arrayed: "ARRAY-SECRET-0002",
+    oddKey: "ODD-KEY-SECRET-0003",
+  };
+
+  function poisonedArchive(): KeeprawFlyDocument {
+    const base = structuredClone(demo) as KeeprawFlyDocument;
+    const [first, second, third] = base.flights;
+    return {
+      ...base,
+      flights: [
+        {
+          ...first!,
+          extensions: {
+            "keepraw-fly.aircraft": {
+              type: "A350-900",
+              registration: "B-308M",
+              bookingReference: hidden.pnr,
+              owner: { passenger: { name: hidden.name } },
+              notes: [hidden.arrayed],
+            },
+            "keepraw-fly.seat": {
+              seat: "32A",
+              cabin: "economy",
+              bookingClass: "Y",
+              ticketNumber: hidden.ticket,
+              x: { y: { z: hidden.deep } },
+              // A known field with the wrong shape is not kept either.
+              cabinDetails: { holder: hidden.name },
+            },
+          },
+        },
+        {
+          ...second!,
+          extensions: {
+            "keepraw-fly.seat": {
+              seat: { value: "1A", memberNumber: hidden.member },
+              cabin: "business",
+            },
+            "keepraw-fly.baggage": {
+              carousel: "7",
+              tag: hidden.oddKey,
+              list: [{ pnr: hidden.pnr }],
+            },
+          },
+        },
+        {
+          ...third!,
+          extensions: {
+            "keepraw-fly.aircraft": [hidden.arrayed],
+            "keepraw-fly.baggage": "loose string " + hidden.oddKey,
+          },
+        },
+        ...base.flights.slice(3),
+      ],
+    };
+  }
+
+  it("drops every unknown, nested and arrayed value in the three kept extensions", async () => {
+    const text = await serializeKeeprawFly(poisonedArchive(), "shareable");
+    for (const value of Object.values(hidden))
+      expect(text).not.toContain(value);
+  });
+
+  it("keeps only the declared fields with valid values", async () => {
+    const exported = JSON.parse(
+      await serializeKeeprawFly(poisonedArchive(), "shareable"),
+    ) as KeeprawFlyDocument;
+    const [first, second, third] = exported.flights;
+    expect(first!.extensions).toEqual({
+      "keepraw-fly.aircraft": { type: "A350-900", registration: "B-308M" },
+      "keepraw-fly.seat": { seat: "32A", cabin: "economy", bookingClass: "Y" },
+    });
+    // The validator folds the legacy baggage extension into baggageCarousel
+    // on load; the redacted value is the only one that survives.
+    const secondExtensions = second!.extensions ?? {};
+    expect(secondExtensions["keepraw-fly.seat"]).toEqual({ cabin: "business" });
+    expect(JSON.stringify(second)).not.toContain(hidden.oddKey);
+    expect(third!.extensions?.["keepraw-fly.aircraft"]).toBeUndefined();
+  });
+
+  it("is default deny: every declared field list is exactly what the app reads", () => {
+    for (const [extension, fields] of Object.entries(
+      SHAREABLE_EXTENSION_FIELDS,
+    ))
+      expect(fields.length, extension).toBeGreaterThan(0);
+    const { document, summary } = redactSensitiveData({
+      ...(structuredClone(demo) as KeeprawFlyDocument),
+      flights: [
+        {
+          ...(structuredClone(demo) as KeeprawFlyDocument).flights[0]!,
+          extensions: {
+            "keepraw-fly.seat": {
+              seat: "12C",
+              futureField: "anything",
+              long: "x".repeat(10),
+              cabin: "c".repeat(SHAREABLE_FIELD_MAX_LENGTH + 1),
+              bookingClass: "Y\nPNR ABC123",
+            },
+          },
+        },
+      ],
+    });
+    expect(document.flights[0]!.extensions).toEqual({
+      "keepraw-fly.seat": { seat: "12C" },
+    });
+    expect(summary.droppedExtensionFields).toBe(4);
+  });
+
+  it("validates, re-imports and leaves the source archive untouched", async () => {
+    const source = poisonedArchive();
+    const snapshot = structuredClone(source);
+    const text = await serializeKeeprawFly(source, "shareable");
+    expect(source).toEqual(snapshot);
+    const validation = validateAndMigrateKeeprawFly(JSON.parse(text));
+    expect(validation.valid).toBe(true);
+    const preview = preflightJsonImport(text, validation, null);
+    expect(preview.canImport).toBe(true);
+    expect(preview.validRecords).toBe(preview.totalRecords);
+  });
+
+  it("full backups still keep the poisoned extensions byte for byte", async () => {
+    const source = poisonedArchive();
+    const text = await serializeKeeprawFly(source, "backup");
+    const backup = JSON.parse(text) as KeeprawFlyDocument;
+    expect(backup.flights[0]!.extensions).toEqual(
+      source.flights[0]!.extensions,
+    );
+    expect(backup.flights[1]!.extensions?.["keepraw-fly.seat"]).toEqual(
+      source.flights[1]!.extensions?.["keepraw-fly.seat"],
+    );
+    for (const value of [hidden.pnr, hidden.ticket, hidden.member, hidden.name])
+      expect(text).toContain(value);
   });
 });
