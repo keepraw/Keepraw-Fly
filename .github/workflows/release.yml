@@ -46,35 +46,31 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - name: Verify official CI run
-        id: run
+      # Fail closed before anything is pushed, signed or uploaded: github.sha
+      # (the tip of main when dispatched) is the source digest every
+      # attestation below will carry, so it must equal the CI run's commit and
+      # the release tag's commit. Releasing an older commit is not supported.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Verify CI run, event commit and tag are one commit
+        id: source
         env:
           GH_TOKEN: ${{ github.token }}
           CI_RUN_ID: ${{ inputs.ci_run_id }}
         run: |
           set -euo pipefail
-          [[ "$CI_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$CI_RUN_ID" =~ ^[0-9]+$ ]] || { echo "::error::ci_run_id must be numeric"; exit 1; }
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CI_RUN_ID" > /tmp/ci.json
-          jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/ci.json
-          echo "sha=$(jq -er .head_sha /tmp/ci.json)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ steps.run.outputs.sha }}
-          persist-credentials: false
-
-      - name: Derive version and verify the immutable tag
-        id: source
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SHA: ${{ steps.run.outputs.sha }}
-        run: |
-          set -euo pipefail
+          bash scripts/verify-release-source.sh /tmp/ci.json "$GITHUB_SHA" > /dev/null
+          [[ $(git rev-parse HEAD) == "$GITHUB_SHA" ]]
           tag=$(bash scripts/release-version.sh)
           tag_sha=$(bash scripts/resolve-tag-commit.sh "$GITHUB_REPOSITORY" "$tag")
-          [[ "$SHA" == "$tag_sha" ]] || { echo "::error::$tag points at $tag_sha, not CI commit $SHA"; exit 1; }
+          sha=$(bash scripts/verify-release-source.sh /tmp/ci.json "$GITHUB_SHA" "$tag_sha")
           {
-            echo "sha=$SHA"
+            echo "sha=$sha"
             echo "tag=$tag"
             echo "version=${tag#v}"
           } >> "$GITHUB_OUTPUT"
@@ -175,6 +171,17 @@ jobs:
           # Bundles are verified by signature, not listed in SHA256SUMS.
           (cd artifacts/release && sha256sum -c SHA256SUMS)
 
+      - name: Verify the new attestations name the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          # Real Sigstore verification with the installer's exact policy; a
+          # source digest other than the tagged commit stops the run before the
+          # artifacts are uploaded for a draft Release.
+          bash scripts/verify-release-provenance.sh artifacts/release "$SHA"
+
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: release-${{ steps.source.outputs.tag }}
@@ -215,7 +222,8 @@ jobs:
           fi
           [[ "$tag_sha" == "$sha" ]]
           gh api "repos/$repo/actions/runs/$IMAGE_RUN_ID" > /tmp/image-run.json
-          jq -e '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/image-run.json
+          jq -e --arg sha "$sha" '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly" and .head_sha == $sha' /tmp/image-run.json \
+            || { echo "::error::image run $IMAGE_RUN_ID is not a successful release.yml run for $sha; its attestations would name another commit"; exit 1; }
           gh api "repos/$repo/releases/$RELEASE_ID" > /tmp/draft.json
           jq -e --arg sha "$sha" --arg tag "$tag" '.author.login == "keepraw" and .draft == true and .tag_name == $tag and .target_commitish == $sha and (.assets | length) == 0' /tmp/draft.json
           {
@@ -236,8 +244,13 @@ jobs:
             [[ $file == *.sigstore.json ]] && continue
             gh attestation verify "$file" --bundle assets/attestation.sigstore.json --repo "$repo" \
               --cert-identity "https://github.com/$repo/.github/workflows/release.yml@refs/heads/main" \
-              --source-digest "$REVISION" --deny-self-hosted-runners > /dev/null
+              --source-ref refs/heads/main --source-digest "$REVISION" --deny-self-hosted-runners > /dev/null
           done
+          image=$(cat assets/image.txt)
+          [[ $image =~ ^ghcr\.io/keepraw/keepraw-fly@sha256:[0-9a-f]{64}$ ]]
+          gh attestation verify "oci://$image" --bundle assets/image-attestation.sigstore.json --repo "$repo" \
+            --cert-identity "https://github.com/$repo/.github/workflows/release.yml@refs/heads/main" \
+            --source-ref refs/heads/main --source-digest "$REVISION" --deny-self-hosted-runners > /dev/null
           gh release upload "$TAG" assets/* --repo "$repo"
           gh release download "$TAG" --repo "$repo" --dir verify
           (cd verify && sha256sum -c SHA256SUMS)

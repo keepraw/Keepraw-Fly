@@ -25,7 +25,9 @@ sha=$(jq -r .head_sha "$work/ci.json")
 [[ $(git rev-parse HEAD) == "$sha" ]] || { echo "Check out the CI commit $sha before publishing (version source)." >&2; exit 1; }
 [[ $(bash scripts/resolve-tag-commit.sh "$repo" "$tag") == "$sha" ]]
 gh api "repos/$repo/actions/runs/$image_run" > "$work/image.json"
-jq -e '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' "$work/image.json"
+# The image run's own commit is the source digest of its attestations.
+jq -e --arg sha "$sha" '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly" and .head_sha == $sha' "$work/image.json" \
+  || { echo "Image run $image_run is not a successful release.yml run for $sha." >&2; exit 1; }
 gh run download "$image_run" --repo "$repo" --name "release-$tag" --dir "$work/assets"
 (cd "$work/assets" && sha256sum -c SHA256SUMS)
 jq -e --arg sha "$sha" --arg ci "$ci" --arg image "$image_run" \

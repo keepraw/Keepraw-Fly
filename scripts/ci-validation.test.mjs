@@ -208,6 +208,15 @@ test("release workflow derives the version and attests provenance with least pri
   const attach = release.split("  attach:\n")[1];
   assert.doesNotMatch(attach, /id-token|attestations: write|packages: write/);
   assert.match(attach, /gh attestation verify/);
+  // Source consistency: the event commit is checked before anything else, and
+  // an attach run only accepts an image run built from the same commit.
+  assert.match(
+    image,
+    /verify-release-source\.sh \/tmp\/ci\.json "\$GITHUB_SHA"/,
+  );
+  assert.match(image, /verify-release-provenance\.sh artifacts\/release/);
+  assert.match(attach, /\.head_sha == \$sha/);
+  assert.match(attach, /gh attestation verify "oci:\/\/\$image"/);
   for (const file of [
     ".github/workflows/ci.yml",
     ".github/workflows/fork-pages.yml",
