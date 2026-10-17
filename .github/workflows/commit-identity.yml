@@ -1,0 +1,32 @@
+name: Commit identity guard
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  identity:
+    if: github.repository == 'keepraw/Keepraw-Fly'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Never check out or execute untrusted PR head code in pull_request_target.
+      - name: Check out trusted base revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Check every original PR commit identity
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-git-identities.mjs

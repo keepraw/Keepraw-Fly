@@ -11,6 +11,7 @@ env:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -36,6 +37,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+
+      - name: Validate Git commit attribution
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-git-identities.mjs
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
