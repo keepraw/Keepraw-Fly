@@ -36,3 +36,6 @@ historical evidence and capture helpers. Formal Globe regression inputs live in
   `artifacts/`. Check consumers before relocating existing legacy paths.
 - Run `pnpm check:docs` and formatting checks after changing documentation. The
   existing documentation checker also checks archived Markdown links.
+
+- [Deployment guide — English](deployment.md) / [部署指南 — 简体中文](deployment.zh-CN.md)
+- [v0.1.0 release notes / 发行说明](releases/v0.1.0.md)
