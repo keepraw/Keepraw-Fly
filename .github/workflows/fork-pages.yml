@@ -1,0 +1,75 @@
+name: Deploy official release to Fork Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Official stable release (explicit opt-in for upgrades)
+        required: true
+        default: v0.1.0
+      custom_domain:
+        description: Optional DNS hostname configured in your Pages settings
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-pages
+  cancel-in-progress: false
+
+jobs:
+  download:
+    if: github.event.repository.fork && github.repository != 'keepraw/Keepraw-Fly'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - name: Download and verify official static files (no source build)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          CUSTOM_DOMAIN: ${{ inputs.custom_domain }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh api "repos/keepraw/Keepraw-Fly/releases/tags/$VERSION" > release.json
+          jq -e --arg tag "$VERSION" '.author.login == "keepraw" and .tag_name == $tag and .draft == false and .prerelease == false' release.json
+          mkdir download site
+          gh release download "$VERSION" --repo keepraw/Keepraw-Fly --dir download \
+            --pattern "keepraw-fly-$VERSION.tar.gz" --pattern SHA256SUMS
+          cd download
+          awk -v file="keepraw-fly-$VERSION.tar.gz" '$2 == file || $2 == "./" file {print}' SHA256SUMS > selected.sha256
+          [[ $(wc -l < selected.sha256) == 1 ]]
+          sha256sum -c selected.sha256
+          tar -xzf "keepraw-fly-$VERSION.tar.gz" -C ../site
+          cd ../site
+          sha256sum -c FILES.sha256 > /dev/null
+          jq -e --arg version "${VERSION#v}" '.version == $version and .author == "keepraw"' release.json
+          rm -f CNAME
+          touch .nojekyll
+          if [[ -n "$CUSTOM_DOMAIN" ]]; then
+            [[ ${#CUSTOM_DOMAIN} -le 253 && "$CUSTOM_DOMAIN" =~ ^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$ ]]
+            printf '%s\n' "$CUSTOM_DOMAIN" > CNAME
+          fi
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    if: github.event.repository.fork && github.repository != 'keepraw/Keepraw-Fly'
+    needs: download
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v5
+        id: deployment

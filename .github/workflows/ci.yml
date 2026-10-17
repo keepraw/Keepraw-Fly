@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   checks:
+    if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -60,6 +61,20 @@ jobs:
       - name: Build production site
         run: pnpm build
 
+      - name: Package the exact production build
+        run: bash scripts/package-release.sh
+
+      - name: Verify release and deployment tooling
+        run: bash scripts/test-deployment.sh
+
+      - name: Retain release candidates from main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate
+          path: artifacts/release/
+          retention-days: 30
+
       - name: Upload GitHub Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v4
@@ -67,6 +82,7 @@ jobs:
           path: apps/web/dist
 
   chromium:
+    if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
     # Spread the full regression and responsive Hero checks across runners.
     # Keep one worker per runner and preserve all test/job timeouts and gates.
@@ -115,6 +131,7 @@ jobs:
           retention-days: 7
 
   cross-browser:
+    if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -167,7 +184,7 @@ jobs:
   # always() makes failed/cancelled/skipped dependencies fail this gate explicitly.
   verify:
     needs: [checks, chromium, cross-browser]
-    if: ${{ always() }}
+    if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -187,7 +204,7 @@ jobs:
   deploy:
     # Publish only the validated main commit from this CI run. Pull requests,
     # failed, cancelled, or skipped validation jobs must never deploy.
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
+    if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
     needs: [verify, checks, chromium, cross-browser]
     runs-on: ubuntu-latest
 

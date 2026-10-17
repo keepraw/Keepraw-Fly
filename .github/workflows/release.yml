@@ -1,0 +1,116 @@
+name: Build verified release image
+
+# This workflow never creates a GitHub Release. The owner publishes the checked
+# draft with their own CLI identity using scripts/publish-release.sh.
+on:
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: Successful official main CI run containing release-candidate
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+concurrency:
+  group: release-v0.1.0
+  cancel-in-progress: false
+
+jobs:
+  image:
+    if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Verify official CI and immutable tag
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$CI_RUN_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CI_RUN_ID" > /tmp/ci.json
+          jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/ci.json
+          sha=$(jq -r .head_sha /tmp/ci.json)
+          tag_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v0.1.0" --jq '.object.sha')
+          [[ "$sha" == "$tag_sha" ]]
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+
+      - name: Download the same CI build, never rebuild the application
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+          REVISION: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/release apps/web/dist
+          gh run download "$CI_RUN_ID" --repo "$GITHUB_REPOSITORY" --name release-candidate --dir artifacts/release
+          cd artifacts/release
+          sha256sum -c SHA256SUMS
+          jq -e --arg sha "$REVISION" '.revision == $sha and .version == "0.1.0" and .author == "keepraw"' provenance.json
+          tar -xzf keepraw-fly-v0.1.0.tar.gz -C ../../apps/web/dist
+          cd ../../apps/web/dist
+          sha256sum -c FILES.sha256 > /dev/null
+
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Refuse to replace an existing image version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Package API distinguishes a genuinely new package from auth/network errors.
+          status=$(curl -sS -o /tmp/package.json -w '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/users/keepraw/packages/container/keepraw-fly)
+          if [[ "$status" == 200 ]]; then
+            gh api --paginate users/keepraw/packages/container/keepraw-fly/versions > /tmp/versions.json
+            jq -e 'all(.[]; .metadata.container.tags | index("v0.1.0") | not)' /tmp/versions.json
+          else
+            [[ "$status" == 404 ]] || { cat /tmp/package.json; exit 1; }
+          fi
+
+      - name: Build and push static-only multi-platform image
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/keepraw/keepraw-fly:v0.1.0
+          build-args: |
+            VERSION=0.1.0
+            REVISION=${{ steps.source.outputs.sha }}
+
+      - name: Add image digest and CI provenance to release attachments
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+        run: |
+          set -euo pipefail
+          cd artifacts/release
+          printf 'ghcr.io/keepraw/keepraw-fly@%s\n' "$IMAGE_DIGEST" > image.txt
+          jq --arg digest "$IMAGE_DIGEST" --arg ci "$CI_RUN_ID" --arg run "$GITHUB_RUN_ID" \
+            '. + {image: ("ghcr.io/keepraw/keepraw-fly@" + $digest), ci_run_id: $ci, image_run_id: $run}' provenance.json > provenance.tmp
+          mv provenance.tmp provenance.json
+          rm SHA256SUMS
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS*' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+          cat image.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-v0.1.0
+          path: artifacts/release/
+          retention-days: 30

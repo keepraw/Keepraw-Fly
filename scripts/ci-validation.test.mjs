@@ -122,11 +122,15 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
         `${key}: ${result}`,
       );
   assert.match(gate, /needs: \[checks, chromium, cross-browser\]/);
-  assert.match(gate, /if: \$\{\{ always\(\) \}\}/);
+  assert.ok(
+    gate.includes(
+      "if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}",
+    ),
+  );
   const deploy = workflow.split("  deploy:\n")[1];
   assert.ok(
     deploy.includes(
-      "if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}",
+      "if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}",
     ),
   );
   assert.ok(
@@ -138,4 +142,21 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
   assert.ok(workflow.includes("  push:\n    branches: [main]"));
   assert.ok(workflow.includes("group: ci-${{ github.ref }}"));
   assert.equal(existsSync(".github/workflows/pages.yml"), false);
+  for (const job of ["checks", "chromium", "cross-browser"]) {
+    assert.ok(
+      workflow.includes(
+        `  ${job}:\n    if: github.repository == 'keepraw/Keepraw-Fly'`,
+      ),
+    );
+  }
+  const fork = readFileSync(".github/workflows/fork-pages.yml", "utf8");
+  assert.equal(
+    (
+      fork.match(
+        /github.event.repository.fork && github.repository != 'keepraw\/Keepraw-Fly'/g,
+      ) ?? []
+    ).length,
+    2,
+  );
+  assert.doesNotMatch(fork, /pnpm|setup-node|pull_request:|push:/);
 });
