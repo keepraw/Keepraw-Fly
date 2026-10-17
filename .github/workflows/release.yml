@@ -8,6 +8,12 @@ on:
       ci_run_id:
         description: Successful official main CI run containing release-candidate
         required: true
+      release_id:
+        description: Optional existing keepraw-owned draft ID (upload attachments only)
+        required: false
+      image_run_id:
+        description: Required with release_id; successful original image build run
+        required: false
 
 permissions:
   contents: read
@@ -20,7 +26,7 @@ concurrency:
 
 jobs:
   image:
-    if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main'
+    if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main' && inputs.release_id == ''
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -114,3 +120,50 @@ jobs:
           name: release-v0.1.0
           path: artifacts/release/
           retention-days: 30
+
+  attach:
+    # GITHUB_TOKEN may upload files to an owner-created draft, never create or
+    # publish a Release. Preserve the actual author and immutable source commit.
+    if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main' && inputs.release_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CI_RUN_ID: ${{ inputs.ci_run_id }}
+      IMAGE_RUN_ID: ${{ inputs.image_run_id }}
+      RELEASE_ID: ${{ inputs.release_id }}
+    steps:
+      - name: Verify owner draft, successful source runs and fixed tag
+        run: |
+          set -euo pipefail
+          [[ "$CI_RUN_ID" =~ ^[0-9]+$ && "$IMAGE_RUN_ID" =~ ^[0-9]+$ && "$RELEASE_ID" =~ ^[0-9]+$ ]]
+          repo=keepraw/Keepraw-Fly
+          gh api "repos/$repo/actions/runs/$CI_RUN_ID" > /tmp/ci.json
+          jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/ci.json
+          sha=$(jq -r .head_sha /tmp/ci.json)
+          [[ $(gh api "repos/$repo/git/ref/tags/v0.1.0" --jq .object.sha) == "$sha" ]]
+          gh api "repos/$repo/actions/runs/$IMAGE_RUN_ID" > /tmp/image-run.json
+          jq -e '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' /tmp/image-run.json
+          gh api "repos/$repo/releases/$RELEASE_ID" > /tmp/draft.json
+          jq -e --arg sha "$sha" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha and (.assets | length) == 0' /tmp/draft.json
+          echo "REVISION=$sha" >> "$GITHUB_ENV"
+
+      - name: Attach and verify the original immutable image-build artifacts
+        run: |
+          set -euo pipefail
+          repo=keepraw/Keepraw-Fly
+          gh run download "$IMAGE_RUN_ID" --repo "$repo" --name release-v0.1.0 --dir assets
+          (cd assets && sha256sum -c SHA256SUMS)
+          jq -e --arg sha "$REVISION" --arg ci "$CI_RUN_ID" --arg image "$IMAGE_RUN_ID" \
+            '.revision == $sha and .version == "0.1.0" and .author == "keepraw" and .ci_run_id == $ci and .image_run_id == $image' assets/provenance.json
+          gh release upload v0.1.0 assets/* --repo "$repo"
+          gh release download v0.1.0 --repo "$repo" --dir verify
+          (cd verify && sha256sum -c SHA256SUMS)
+          diff -r assets verify
+          gh api "repos/$repo/releases/$RELEASE_ID" > /tmp/attached.json
+          jq -e --arg sha "$REVISION" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha' /tmp/attached.json
+          [[ $(jq '.assets | length' /tmp/attached.json) == $(find assets -type f | wc -l) ]]
+          echo 'Owner draft attachments verified; keepraw must publish the Release.' >> "$GITHUB_STEP_SUMMARY"

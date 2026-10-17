@@ -12,6 +12,10 @@ tag=v0.1.0
 [[ $(gh api user --jq .login) == keepraw ]] || { echo 'Authenticate gh as keepraw; no impersonation is permitted.' >&2; exit 1; }
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
+# The by-tag REST endpoint excludes drafts. List releases with owner access so
+# an existing draft is a conflict too, before attempting any creation/download.
+gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "v0.1.0") | .id' > "$work/existing-ids"
+if [[ -s $work/existing-ids ]]; then echo 'Release or draft already exists; refusing to replace it.' >&2; exit 1; fi
 gh api "repos/$repo/actions/runs/$ci" > "$work/ci.json"
 jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' "$work/ci.json"
 sha=$(jq -r .head_sha "$work/ci.json")
@@ -28,9 +32,6 @@ digest=$(sed 's/.*@//' "$work/assets/image.txt")
 curl -fsS -H "Authorization: Bearer $token" -H 'Accept: application/vnd.oci.image.index.v1+json' \
   "https://ghcr.io/v2/keepraw/keepraw-fly/manifests/$digest" > "$work/manifest.json"
 jq -e 'any(.manifests[]; .platform.os == "linux" and .platform.architecture == "amd64") and any(.manifests[]; .platform.os == "linux" and .platform.architecture == "arm64")' "$work/manifest.json"
-status=$(gh api "repos/$repo/releases/tags/$tag" --silent 2>"$work/lookup.err" && echo exists || cat "$work/lookup.err")
-if [[ $status == exists ]]; then echo 'Release already exists; refusing to replace it.' >&2; exit 1; fi
-[[ $status == *'HTTP 404'* ]] || { echo "$status" >&2; exit 1; }
 cp "$work/assets/RELEASE_NOTES.md" "$work/body.md"
 cat >> "$work/body.md" <<INFO
 
@@ -43,7 +44,8 @@ cat >> "$work/body.md" <<INFO
 INFO
 gh release create "$tag" --repo "$repo" --verify-tag --target "$sha" --draft \
   --title 'Keepraw-Fly v0.1.0' --notes-file "$work/body.md"
-gh api "repos/$repo/releases/tags/$tag" > "$work/release.json"
+release_api=$(gh release view "$tag" --repo "$repo" --json apiUrl --jq .apiUrl)
+gh api "$release_api" > "$work/release.json"
 jq -e --arg sha "$sha" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha' "$work/release.json" || {
   echo 'Draft author/target mismatch. Draft left unpublished for owner inspection.' >&2; exit 1;
 }
@@ -51,11 +53,11 @@ gh release upload "$tag" "$work/assets/"* --repo "$repo"
 gh release download "$tag" --repo "$repo" --dir "$work/verify"
 (cd "$work/verify" && sha256sum -c SHA256SUMS)
 diff -r "$work/assets" "$work/verify"
-gh api "repos/$repo/releases/tags/$tag" > "$work/release.json"
+gh api "$release_api" > "$work/release.json"
 [[ $(jq '.assets | length' "$work/release.json") == $(find "$work/assets" -type f | wc -l) ]]
 if [[ $publish == --publish ]]; then
   gh release edit "$tag" --repo "$repo" --draft=false --latest
-  gh api "repos/$repo/releases/tags/$tag" --jq '{html_url,tag_name,target_commitish,draft,author:.author.login,assets:[.assets[]|{name,size,digest,browser_download_url}]}'
+  gh api "$release_api" --jq '{html_url,tag_name,target_commitish,draft,author:.author.login,assets:[.assets[]|{name,size,digest,browser_download_url}]}'
 else
   echo 'Verified draft is ready. Publish with the keepraw account after reviewing attachments.'
 fi
