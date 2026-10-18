@@ -1,6 +1,6 @@
-# 部署指南 — v0.1.0
+# 部署指南 — v0.1.1
 
-[English](deployment.md) · [正式发行](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0)
+[English](deployment.md) · [正式发行](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1)
 
 ## 在线使用
 
@@ -15,7 +15,7 @@
 1. Fork [keepraw/Keepraw-Fly](https://github.com/keepraw/Keepraw-Fly)。
 2. 打开 Fork 的 **Actions**；如出现提示，点击 **I understand my workflows, go ahead and enable them** 启用工作流。
 3. 在 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。如果限制了部署分支，还需在 `github-pages` environment 中允许默认分支。
-4. 打开 **Actions → Deploy official release to Fork Pages → Run workflow**，选择默认分支，将 `version` 保持为 **v0.1.0**。普通项目站点的 `custom_domain` 留空。
+4. 打开 **Actions → Deploy official release to Fork Pages → Run workflow**，选择默认分支，将 `version` 保持为 **v0.1.1**。普通项目站点的 `custom_domain` 留空。
 5. 成功后，打开 `github-pages` 部署中显示的地址，即你的 GitHub 用户名加 `.github.io/Keepraw-Fly/`。保留末尾斜杠。
 
 工作流下载官方预构建 tar.gz 和 `SHA256SUMS`，校验压缩包及内部文件清单后部署，并检查实际 Release 作者为 `keepraw`。它**不会**安装 Node.js/pnpm、编译源码或运行 E2E。Fork 会跳过继承的官方完整 CI 作业。部署需手动触发；上游发布新版本时不会自动升级。升级或回滚时，重新运行并明确填写你选择的官方稳定版本。
@@ -35,14 +35,14 @@
 ```bash
 mkdir -p keepraw-fly-installer
 cd keepraw-fly-installer
-curl -fL --proto '=https' --proto-redir '=https' -o install.sh https://github.com/keepraw/Keepraw-Fly/releases/download/v0.1.0/install.sh
-curl -fL --proto '=https' --proto-redir '=https' -o SHA256SUMS https://github.com/keepraw/Keepraw-Fly/releases/download/v0.1.0/SHA256SUMS
+curl -fL --proto '=https' --proto-redir '=https' -o install.sh https://github.com/keepraw/Keepraw-Fly/releases/download/v0.1.1/install.sh
+curl -fL --proto '=https' --proto-redir '=https' -o SHA256SUMS https://github.com/keepraw/Keepraw-Fly/releases/download/v0.1.1/SHA256SUMS
 awk '$2 == "./install.sh" || $2 == "install.sh" {print}' SHA256SUMS > installer.sha256
 test "$(wc -l < installer.sha256)" -eq 1
 sha256sum -c installer.sha256
 less install.sh
 read -r -p '你的域名主机名：' KEEPRAW_DOMAIN
-sudo bash install.sh --version v0.1.0 --domain "$KEEPRAW_DOMAIN"
+sudo bash install.sh --version v0.1.1 --domain "$KEEPRAW_DOMAIN"
 ```
 
 安装器会展示具体文件及资源计划并询问是否执行；无人值守时可加 `--yes` 接受计划。它写入 `/opt/keepraw-fly/compose.yaml`、`.env`、`.keepraw-managed`，仅创建 Compose 项目 `keepraw-fly`、web 容器、网络及 Caddy 证书和配置卷，卷中没有航班档案。它从指定发行版下载并校验 Compose 和镜像 digest 附件，将容器锁定到 digest。执行前检查架构、Docker 权限、端口和目录归属；拒绝接管非托管目录、其他位置的同名项目及被手动改动的托管文件。下载或拉取失败不改变现有部署，启动失败会恢复原有配置。旧配置保存在 `history/`。
@@ -52,7 +52,7 @@ sudo bash install.sh --version v0.1.0 --domain "$KEEPRAW_DOMAIN"
 本地测试或已有 HTTPS 反向代理时，可使用回环模式：
 
 ```bash
-sudo bash install.sh --version v0.1.0 --local
+sudo bash install.sh --version v0.1.1 --local
 ```
 
 此模式将 HTTP 绑定至 `127.0.0.1:8080`，未启用的 HTTPS 映射为 `127.0.0.1:8443`。远程访问需使用 SSH 隧道，或由已有反向代理提供 HTTPS，安装器不会修改该代理。`--http-port`、`--https-port` 可更改宿主机映射；公网 ACME 验证仍需经公网 80/443 到达 Caddy，端口转发由你配置。公网模式绑定 IPv4 `0.0.0.0`，配置并测试 IPv6 链路后才应发布 AAAA 记录。
@@ -65,7 +65,7 @@ v0.1.0 之后的发行版附带 `attestation.sigstore.json` 与 `image-attestati
 gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
   --repo keepraw/Keepraw-Fly \
   --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
-  --source-ref refs/heads/main --deny-self-hosted-runners
+  --source-ref refs/heads/main --source-digest <provenance.json 中的 commit> --deny-self-hosted-runners
 gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
   --bundle image-attestation.sigstore.json --repo keepraw/Keepraw-Fly \
   --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
@@ -74,7 +74,7 @@ gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
 
 ### 手动 Compose
 
-也可以从[发行附件](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0)下载并检查 `compose.yaml`、`image.txt`、`SHA256SUMS`，按上文方法用 `sha256sum -c` 校验所选文件。在 `compose.yaml` 所在目录运行：
+也可以从[发行附件](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1)下载并检查 `compose.yaml`、`image.txt`、`SHA256SUMS`，按上文方法用 `sha256sum -c` 校验所选文件。在 `compose.yaml` 所在目录运行：
 
 ```bash
 read -r -p '你的域名主机名：' KEEPRAW_DOMAIN
@@ -83,7 +83,7 @@ docker compose -p keepraw-fly config -q
 docker compose -p keepraw-fly up -d --wait
 ```
 
-没有 `.env` 时，标准 Compose 使用明确的 `ghcr.io/keepraw/keepraw-fly:v0.1.0` 标签和回环 HTTP 8080。安装器采用 `image.txt` 中更严格的 digest 固定方式。不依赖 `latest`。手动 Compose 与安装器托管目录是两种方式；安装器不会接管非托管目录。
+没有 `.env` 时，标准 Compose 使用明确的 `ghcr.io/keepraw/keepraw-fly:v0.1.1` 标签和回环 HTTP 8080。安装器采用 `image.txt` 中更严格的 digest 固定方式。不依赖 `latest`。手动 Compose 与安装器托管目录是两种方式；安装器不会接管非托管目录。
 
 ### 维护、升级、回滚与卸载
 
@@ -98,15 +98,15 @@ sudo docker compose -p keepraw-fly up -d --wait
 sudo docker compose -p keepraw-fly down
 ```
 
-升级：先导出 JSON，再下载、校验**所选发行版本**的安装器，用明确的 `--version` 和 `--dir /opt/keepraw-fly` 执行。不传地址参数会保留现有域名及端口。重复运行 v0.1.0 命令是安全的，仅按需重建该托管部署。本次仅提供 v0.1.0；选择未来版本前应阅读发行说明及 Schema 兼容性要求。
+升级：先导出 JSON，再下载、校验**所选发行版本**的安装器，用明确的 `--version` 和 `--dir /opt/keepraw-fly` 执行。不传地址参数会保留现有域名及端口。重复运行 v0.1.1 命令是安全的，仅按需重建该托管部署。v0.1.0 → v0.1.1 保持档案 Schema `0.1.0`，不会清空 IndexedDB；选择未来版本前应阅读发行说明及 Schema 兼容性要求。
 
-回滚到本版本：使用已校验的安装器，传入 `--version v0.1.0 --dir /opt/keepraw-fly`。`history/` 也保留了旧版精确配置；手动恢复时需同时恢复**全部三个文件**（`compose.yaml`、`.env`、`.keepraw-managed`），再执行 `docker compose -p keepraw-fly up -d --wait`。恢复前备份当前文件。保持同一来源地址才能继续使用原浏览器数据。旧软件不保证兼容未来 Schema，仍需提前导出 JSON。
+回滚到 v0.1.0：使用已校验的 v0.1.1 安装器，传入 `--version v0.1.0 --dir /opt/keepraw-fly`。历史 v0.1.0 附件保持不变，只校验 checksum；v0.1.1 必须验证文件及镜像来源证明。`history/` 也保留了旧版精确配置；手动恢复时需同时恢复**全部三个文件**（`compose.yaml`、`.env`、`.keepraw-managed`），再执行 `docker compose -p keepraw-fly up -d --wait`。恢复前备份当前文件。保持同一来源地址才能继续使用原浏览器数据。旧软件不保证兼容未来 Schema，仍需提前导出 JSON。
 
 卸载：在部署目录运行 `docker compose -p keepraw-fly down`。如需同时删除**仅本项目**的 TLS/配置卷，使用 `down --volumes`。检查目录并保留需要的配置后，自行删除 `/opt/keepraw-fly`。不要使用 Docker 全局 prune 命令。卸载服务器不会删除浏览器数据，后者需要在浏览器中明确执行。
 
 ## 静态文件下载
 
-[v0.1.0 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0) 提供 `keepraw-fly-v0.1.0.zip`、`keepraw-fly-v0.1.0.tar.gz`、`SHA256SUMS`、`install.sh`、`compose.yaml`、`Caddyfile`、`image.txt`、中英文部署指南、发行说明和 `provenance.json`。
+[v0.1.1 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) 提供 `keepraw-fly-v0.1.1.zip`、`keepraw-fly-v0.1.1.tar.gz`、`SHA256SUMS`、`install.sh`、`compose.yaml`、`Caddyfile`、`image.txt`、中英文部署指南、发行说明、`provenance.json`、`attestation.sigstore.json` 和 `image-attestation.sigstore.json`。
 
 根据 `SHA256SUMS` 校验所选压缩包后，解压并将包含 `index.html` 的目录发布至 HTTPS 静态托管服务即可。这些压缩包内是**生产网页文件**，无需构建。ZIP、tar.gz、官方 Pages 和 Docker 来自同一 main CI 构建。`release.json` 标明应用版本和 commit，`FILES.sha256` 标明每个文件；`provenance.json` 关联通过的 CI、镜像构建和 digest。校验和可检测下载损坏或文件不匹配，请通过官方 HTTPS 发行页面获取。
 
@@ -138,10 +138,10 @@ pnpm preview
 维护者发布流程：
 
 1. 正常合并发行 PR，等待 **main 全部 CI**（含 Pages 部署）成功，记录 run ID 和 commit SHA，不绕过保护规则。
-2. 确认 `v0.1.0` Tag 和 Release 均不存在，在该 SHA 创建 lightweight `v0.1.0` Tag 并推送，不移动已有 Tag。
+2. 确认 `v0.1.1` Tag 和 Release 均不存在，在该 SHA 创建 lightweight `v0.1.1` Tag 并推送，不移动已有 Tag。
 3. 在 main 手动运行 **Build verified release image**，填写 `ci_run_id`。它检查官方成功的 main CI 及 Tag，下载已有生产构建，发布 linux/amd64 和 linux/arm64 镜像；不重新编译应用，不用 `GITHUB_TOKEN` 创建 Release。**请在 `main` 仍指向该 CI commit 时运行：**本次运行自身的 `github.sha`（触发时 `main` 的最新提交）就是 GitHub 写入每份来源证明的源提交，因此 CI commit、`github.sha` 与 Tag commit 不一致时，任务会在任何推送、签名或上传之前拒绝；签名后还会按该 commit 校验新生成的来源证明。`main` 前进后不支持发布更早的提交。首次发布需在包设置确保 GHCR 包为 **public**，且匿名拉取可用。
 4. `gh` 以 **keepraw** 认证后执行 `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`，将两个参数替换为实际运行 ID。脚本验证来源、校验和及公开镜像架构；创建 Draft，核验真实 `author.login`，上传全部附件并重新下载比较后正式发布。作者不匹配时保留 Draft，不发布。若缺少权限，Owner 在产物准备完成后执行这一条最终命令。
 
-应用 package 版本为 `0.1.0`，Tag 为 `v0.1.0`。档案 Schema 版本在 `packages/schema` 独立管理，本次部署工作不修改它。OCI 作者为 `keepraw`；不会重写 commit 作者或第三方版权。已有[第三方声明](../THIRD_PARTY_NOTICES.md)和[许可审查](license-review-2026-10-10.md)继续适用。
+应用 package 版本为 `0.1.1`，Tag 为 `v0.1.1`。档案 Schema 版本在 `packages/schema` 独立管理，本次部署工作不修改它。OCI 作者为 `keepraw`；不会重写 commit 作者或第三方版权。已有[第三方声明](../THIRD_PARTY_NOTICES.md)和[许可审查](license-review-2026-10-10.md)继续适用。
 
 如 Owner 的 CLI 可以创建 Draft 但无法上传附件，**Build verified release image** 也支持只上传附件：填写已有 `keepraw` Draft 的数字 `release_id`、原始 `image_run_id` 和 `ci_run_id`。它检查作者、Tag、commit 和来源，将原始产物上传至空 Draft，再重新下载比较；不会创建或发布 Release，也不会覆盖已有附件。之后由 Owner 核验并发布完整 Draft。

@@ -2,7 +2,7 @@
 # Verify GitHub Artifact Attestations for a downloaded release directory.
 # Usage: bash scripts/verify-release-provenance.sh DIR COMMIT_SHA
 #
-# Every file listed in DIR/SHA256SUMS must be covered
+# DIR/SHA256SUMS itself and every file listed in it must be covered
 # by DIR/attestation.sigstore.json, signed by release.yml on refs/heads/main of
 # keepraw/Keepraw-Fly, built from COMMIT_SHA on a GitHub-hosted runner. The
 # pushed image digest named in image.txt must carry the same provenance.
@@ -21,6 +21,7 @@ verify() {
     || { echo "Provenance verification failed for $1" >&2; exit 1; }
 }
 (cd "$dir" && sha256sum -c SHA256SUMS >/dev/null)
+verify "$dir/SHA256SUMS" "$dir/attestation.sigstore.json"
 while read -r _ name; do
   verify "$dir/${name#./}" "$dir/attestation.sigstore.json"
 done < "$dir/SHA256SUMS"
@@ -29,4 +30,4 @@ image=$(cat "$dir/image.txt")
 jq -e --arg image "$image" --arg sha "$sha" '.image == $image and .revision == $sha' "$dir/provenance.json" >/dev/null \
   || { echo "provenance.json does not name $image from $sha" >&2; exit 1; }
 verify "oci://$image" "$dir/image-attestation.sigstore.json"
-echo "Provenance verified: $(wc -l < "$dir/SHA256SUMS") attachments and $image from $sha"
+echo "Provenance verified: $(($(wc -l < "$dir/SHA256SUMS") + 1)) attachments and $image from $sha"

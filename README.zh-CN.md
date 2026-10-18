@@ -14,7 +14,7 @@
 
 ## GitHub Pages 自托管（零编译）
 
-Fork 本仓库 → 在 Actions 启用工作流 → Settings → Pages 选择 GitHub Actions → 手动运行 **Deploy official release to Fork Pages**，选择 **v0.1.0**。它下载并校验官方发行包，不执行依赖安装、编译或完整 E2E，支持项目子目录和自定义域名。升级由你明确选择。
+Fork 本仓库 → 在 Actions 启用工作流 → Settings → Pages 选择 GitHub Actions → 手动运行 **Deploy official release to Fork Pages**，选择 **v0.1.1**。它下载并校验官方发行包，不执行依赖安装、编译或完整 E2E，支持项目子目录和自定义域名。升级由你明确选择。
 
 **预构建模式不会运行 Fork 自己修改的源码。** 详见[中文部署指南](docs/deployment.zh-CN.md)。
 
@@ -22,7 +22,7 @@ Fork 本仓库 → 在 Actions 启用工作流 → Settings → Pages 选择 Git
 
 安装 Docker 与 Compose v2 → 下载、校验并检查官方固定版本安装器 → 配置域名 → 使用 HTTPS 访问。只运行一个 Caddy 静态服务容器，无需 JavaScript 工具链。支持 amd64/arm64、digest 固定镜像、重复安装、升级与回滚。
 
-从 [v0.1.0 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0) 获取安装器或直接可部署的 ZIP/tar.gz，按[中文 VPS 安装说明](docs/deployment.zh-CN.md#vpsdocker-与自动-https)执行。官方发布者与镜像作者为 **keepraw**。
+从 [v0.1.1 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) 获取安装器或直接可部署的 ZIP/tar.gz，按[中文 VPS 安装说明](docs/deployment.zh-CN.md#vpsdocker-与自动-https)执行。官方发布者与镜像作者为 **keepraw**。
 
 ## 主要功能
 
