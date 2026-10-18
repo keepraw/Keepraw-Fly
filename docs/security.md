@@ -45,9 +45,13 @@ Checks: `pnpm check:security-headers` (static parity; runs real Caddy when the
 binary is available), `pnpm test:e2e:csp` (Chromium, Firefox, WebKit against the
 production build), and header/cache assertions in `scripts/test-deployment.sh`.
 WebKit reports engine-internal `style-src-attr` violations (empty sample,
-blocked `inline`) while restyling native `<select>` controls; the CSP journeys
-exempt exactly that signature only when a `<select>` exists, and a calibration
-test fails when WebKit stops reporting it.
+blocked `inline`) while restyling native `<select>` controls. The CSP journeys
+exempt only that signature when the event targets a `<select>` that has no
+`style` attribute, or the document after a `<select>` was removed while no
+refused style attribute was seen anywhere. Any other inline style, including
+one on a `<select>` or on a page with `<select>`s, fails the journey (covered by
+a dedicated test), and a calibration test fails when WebKit stops reporting the
+quirk.
 
 ## Webfont integrity
 
