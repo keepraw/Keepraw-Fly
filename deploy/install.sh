@@ -2,7 +2,7 @@
 # Keepraw-Fly installer. Downloads only an explicitly selected official release.
 set -Eeuo pipefail
 umask 077
-version=v0.1.0
+version=v0.1.1
 directory=/opt/keepraw-fly
 domain=
 mode=
@@ -18,7 +18,7 @@ usage() {
   cat <<'HELP'
 Keepraw-Fly: Bash, Linux amd64/arm64, curl, sha256sum, ss, Docker + Compose v2,
 and GitHub CLI >= 2.102.0 for releases after v0.1.0 (provenance verification).
-Usage: bash install.sh [--version v0.1.0] [--dir /opt/keepraw-fly]
+Usage: bash install.sh [--version v0.1.1] [--dir /opt/keepraw-fly]
                        [--domain YOUR_DOMAIN | --local]
                        [--http-port PORT] [--https-port PORT] [--yes]
 --domain enables automatic public HTTPS; DNS must point to this VPS.
@@ -45,7 +45,7 @@ while (($#)); do
     *) die "Unknown option: $1 (see --help)" ;;
   esac
 done
-[[ $version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Use an explicit stable version, e.g. v0.1.0"
+[[ $version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Use an explicit stable version, e.g. v0.1.1"
 [[ $(uname -s) == Linux ]] || die "Linux is required"
 case "$(uname -m)" in x86_64|aarch64|arm64) ;; *) die "Supported architectures: amd64 and arm64" ;; esac
 for command in curl sha256sum ss docker realpath flock; do

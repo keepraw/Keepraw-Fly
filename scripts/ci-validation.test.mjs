@@ -202,6 +202,8 @@ test("release workflow derives the version and attests provenance with least pri
   assert.doesNotMatch(code, /0\.1\.0/, "no hard-coded release version");
   assert.match(release, /bash scripts\/release-version\.sh/);
   assert.match(release, /actions\/attest-build-provenance@[0-9a-f]{40}/);
+  assert.match(release, /subject-path: artifacts\/release\/\*/);
+  assert.doesNotMatch(release, /subject-checksums:/);
   const image = release.split("  image:\n")[1].split("  attach:\n")[0];
   assert.match(image, /id-token: write/);
   assert.match(image, /attestations: write/);
