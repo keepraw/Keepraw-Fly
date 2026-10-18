@@ -153,46 +153,114 @@ const aliases: Record<CsvFlightField, string[]> = {
   cabin: ["cabin", "cabinclass"],
 };
 
-export function parseCsv(text: string): ParsedCsv {
+export type CsvDelimiter = "," | ";" | "\t";
+const csvDelimiters: CsvDelimiter[] = [",", ";", "\t"];
+
+/**
+ * Picks the delimiter from the header record: spreadsheet exports use ";" in
+ * locales with a decimal comma (fr, de, es, pt-BR) and Tab for "text" exports.
+ * Only characters outside quotes count; ties prefer comma (RFC 4180).
+ */
+export function detectCsvDelimiter(text: string): CsvDelimiter {
+  const counts = new Map<CsvDelimiter, number>(
+    csvDelimiters.map((d) => [d, 0]),
+  );
+  let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index]!;
+    if (character === '"') {
+      if (quoted && text[index + 1] === '"') index += 1;
+      else quoted = !quoted;
+    } else if (!quoted && (character === "\n" || character === "\r")) {
+      break;
+    } else if (!quoted && counts.has(character as CsvDelimiter)) {
+      counts.set(
+        character as CsvDelimiter,
+        counts.get(character as CsvDelimiter)! + 1,
+      );
+    }
+  }
+  let best: CsvDelimiter = ",";
+  for (const delimiter of csvDelimiters)
+    if (counts.get(delimiter)! > counts.get(best)!) best = delimiter;
+  return best;
+}
+
+/**
+ * RFC 4180 parser with spreadsheet-friendly leniencies:
+ * - delimiter auto-detected (comma, semicolon or Tab), or given explicitly;
+ * - CRLF, LF and lone CR line breaks; a UTF-8 BOM before the header;
+ * - quoted fields may contain delimiters, line breaks and "" escapes and are
+ *   kept verbatim (meaningful leading/trailing spaces survive); unquoted fields
+ *   are trimmed, as before, to tolerate aligned columns;
+ * - blank lines are skipped.
+ * Malformed quoting is an error instead of being silently concatenated:
+ * "unterminated-quote" (no closing quote) and "unexpected-quote" (a quote
+ * inside an unquoted field, or text after a closing quote).
+ */
+export function parseCsv(
+  text: string,
+  delimiter: CsvDelimiter = detectCsvDelimiter(text.replace(/^\uFEFF/, "")),
+): ParsedCsv {
+  const source = text.replace(/^\uFEFF/, "");
   const records: string[][] = [];
   let record: string[] = [];
   let field = "";
+  let fieldQuoted = false;
   let quoted = false;
+  let afterClosingQuote = false;
 
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index]!;
+  const endField = () => {
+    record.push(fieldQuoted ? field : field.trim());
+    field = "";
+    fieldQuoted = false;
+    afterClosingQuote = false;
+  };
+  const endRecord = () => {
+    endField();
+    if (record.some((value) => value !== "")) records.push(record);
+    record = [];
+  };
+
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index]!;
     if (quoted) {
-      if (character === '"' && text[index + 1] === '"') {
+      if (character !== '"') field += character;
+      else if (source[index + 1] === '"') {
         field += '"';
         index += 1;
-      } else if (character === '"') {
-        quoted = false;
       } else {
-        field += character;
+        quoted = false;
+        afterClosingQuote = true;
       }
-    } else if (character === '"' && field === "") {
+      continue;
+    }
+    if (character === delimiter) endField();
+    else if (character === "\n") endRecord();
+    else if (character === "\r") {
+      if (source[index + 1] === "\n") index += 1;
+      endRecord();
+    } else if (afterClosingQuote) {
+      // Only spaces may separate a closing quote from the next delimiter.
+      if (character !== " " && character !== "\t")
+        throw new Error("unexpected-quote");
+    } else if (character === '"') {
+      if (field.trim() !== "") throw new Error("unexpected-quote");
+      field = "";
+      fieldQuoted = true;
       quoted = true;
-    } else if (character === ",") {
-      record.push(field.trim());
-      field = "";
-    } else if (character === "\n") {
-      record.push(field.trim());
-      if (record.some(Boolean)) records.push(record);
-      record = [];
-      field = "";
-    } else if (character !== "\r") {
+    } else {
       field += character;
     }
   }
   if (quoted) throw new Error("unterminated-quote");
-  record.push(field.trim());
-  if (record.some(Boolean)) records.push(record);
+  endRecord();
   if (records.length < 2) throw new Error("missing-rows");
 
   const [headers, ...rows] = records;
-  headers![0] = headers![0]!.replace(/^\uFEFF/, "");
-  if (headers!.some((header) => !header)) throw new Error("empty-header");
-  return { headers: headers!, rows };
+  if (headers!.some((header) => !header.trim()))
+    throw new Error("empty-header");
+  return { headers: headers!.map((header) => header.trim()), rows };
 }
 
 export function detectCsvMapping(headers: readonly string[]): CsvColumnMapping {

@@ -5,7 +5,8 @@
 Start with [architecture](architecture.md) for package, storage and import
 boundaries. Its [schema](schema.md) and [Globe](globe.md) guides cover portable
 facts and the production renderer. Use [deployment](deployment.md) to run an
-instance and [testing](testing.md) to verify changes against current CI gates.
+instance, [security](security.md) for the CSP, provenance and data-protection
+model, and [testing](testing.md) to verify changes against current CI gates.
 
 UI conventions live in the [visual system](design-system.md) and
 [locale notes](i18n-locales.md). Read the [third-party notices](../THIRD_PARTY_NOTICES.md)

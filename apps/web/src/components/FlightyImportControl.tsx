@@ -1,4 +1,9 @@
 import { useId, useMemo, useState } from "react";
+import {
+  assertRecordCount,
+  importLimitValues,
+  readImportFile,
+} from "../data/import-limits";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -45,7 +50,8 @@ export function FlightyImportControl({
   async function selectFile(file: File | undefined) {
     if (!file) return;
     try {
-      const parsed = parseFlightyCsv(await file.text());
+      const parsed = parseFlightyCsv(await readImportFile(file));
+      assertRecordCount(parsed.rows.length);
       if (!isFlightyCsv(parsed)) throw new Error("not-flighty-file");
       setPending({ fileName: file.name, parsed });
       setIncludePossibleDuplicates(false);
@@ -238,6 +244,7 @@ export function FlightyImportControl({
           {!error || error.kind === "import"
             ? t("flightyImport.importFailed")
             : t(`flightyImport.fileErrors.${error.code}`, {
+                ...importLimitValues,
                 defaultValue: t("flightyImport.invalidFile"),
               })}
         </p>

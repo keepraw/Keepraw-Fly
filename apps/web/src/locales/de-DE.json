@@ -394,7 +394,12 @@
       "propertyNames": "Erweiterungsnamen müssen einen gültigen Namespace verwenden.",
       "maxLength": "Dieser Wert ist länger als der unterstützte Grenzwert."
     },
-    "operationFailed": "Die Datei konnte nicht importiert werden. Bitte versuchen Sie es erneut."
+    "operationFailed": "Die Datei konnte nicht importiert werden. Bitte versuchen Sie es erneut.",
+    "fileErrors": {
+      "empty-file": "Diese Datei ist leer.",
+      "file-too-large": "Diese Datei ist größer als {{limit}}. Teilen Sie sie auf oder prüfen Sie, ob es ein Keepraw-Fly-Export ist.",
+      "too-many-records": "Diese Datei enthält mehr als {{records, number}} Flüge. Teilen Sie sie in kleinere Dateien auf."
+    }
   },
   "units": {
     "minuteShort": "Min."
@@ -422,7 +427,11 @@
       "missing-rows": "Es wurden keine Flugreihen gefunden. Fügen Sie eine Kopfzeile und mindestens eine Flugzeile hinzu.",
       "unterminated-quote": "Ein zitiertes CSV-Feld ist nicht geschlossen. Überprüfen Sie die Anführungszeichen und versuchen Sie es erneut.",
       "empty-header": "Eine oder mehrere CSV-Spalten haben eine leere Kopfzeile.",
-      "invalid-file": "Diese CSV konnte nicht gelesen werden."
+      "invalid-file": "Diese CSV konnte nicht gelesen werden.",
+      "empty-file": "Diese Datei ist leer.",
+      "file-too-large": "Diese Datei ist größer als {{limit}}. Teilen Sie sie auf oder prüfen Sie, ob es ein Keepraw-Fly-Export ist.",
+      "too-many-records": "Diese Datei enthält mehr als {{records, number}} Flüge. Teilen Sie sie in kleinere Dateien auf.",
+      "unexpected-quote": "Ein Anführungszeichen steht an einer unerwarteten Stelle (in einem Wert ohne Anführungszeichen oder nach einem schließenden Anführungszeichen). Prüfen Sie die Anführungszeichen und versuchen Sie es erneut."
     },
     "issues": {
       "incomplete-mapping": "Ordnen Sie alle erforderlichen Felder vor dem Import zu.",
@@ -481,7 +490,11 @@
       "missing-rows": "Keine Flighty-Flugzeilen gefunden.",
       "unterminated-quote": "Ein in Anführungszeichen gesetztes CSV-Feld Flighty ist nicht geschlossen. Überprüfen Sie die Anführungszeichen und versuchen Sie es erneut.",
       "empty-header": "Eine oder mehrere Flighty CSV-Spalten haben eine leere Kopfzeile.",
-      "invalid-file": "Diese Flighty CSV konnte nicht gelesen werden."
+      "invalid-file": "Diese Flighty CSV konnte nicht gelesen werden.",
+      "empty-file": "Diese Datei ist leer.",
+      "file-too-large": "Diese Datei ist größer als {{limit}}. Teilen Sie sie auf oder prüfen Sie, ob es ein Keepraw-Fly-Export ist.",
+      "too-many-records": "Diese Datei enthält mehr als {{records, number}} Flüge. Teilen Sie sie in kleinere Dateien auf.",
+      "unexpected-quote": "Ein Anführungszeichen steht an einer unerwarteten Stelle (in einem Wert ohne Anführungszeichen oder nach einem schließenden Anführungszeichen). Prüfen Sie die Anführungszeichen und versuchen Sie es erneut."
     },
     "issues": {
       "missing-required-header": "Fehlender erforderlicher Header Flighty: {{value}}.",
@@ -502,6 +515,9 @@
     "dataAndBackup": "Daten und Sicherung",
     "dangerZone": "Gefahrenbereich",
     "exportJson": "Keepraw Fly JSON exportieren",
+    "exportShareable": "Ohne persönliche Daten exportieren",
+    "exportShareableNote": "Zum Teilen von Statistiken: entfernt Namen, Buchungscodes, Ticket- und Mitgliedsnummern sowie unbekannte Erweiterungen. Kein Backup. Genaue Daten, Flüge und Sitzplätze bleiben erhalten, die Datei ist daher nicht anonym.",
+    "exportSensitiveWarning": "Vollständige Backups enthalten personenbezogene Daten wie Passagiernamen, Buchungscodes (PNR), Ticket- und Vielfliegernummern. Bewahren und teilen Sie sie sorgfältig.",
     "data": "Daten",
     "localDataTitle": "Lokale Daten",
     "localDataDescription": "Flugaufzeichnungen werden nur in diesem Browser gespeichert.",

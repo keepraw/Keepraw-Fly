@@ -3,15 +3,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 output="${1:-artifacts/release}"
+# RELEASE_TAG (optional) must match the single package.json version source.
+tag="$(bash scripts/release-version.sh ${RELEASE_TAG:+"$RELEASE_TAG"})"
 revision="$(git rev-parse HEAD)"
 export SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
-python3 - "$output" "$revision" <<'PY'
+python3 - "$output" "$revision" "$tag" <<'PY'
 import hashlib, json, os, pathlib, shutil, sys, time, zipfile
 out = pathlib.Path(sys.argv[1])
 out.mkdir(parents=True, exist_ok=True)
 version = json.loads(pathlib.Path('package.json').read_text())['version']
 assert version == json.loads(pathlib.Path('apps/web/package.json').read_text())['version']
-assert version == '0.1.0'
+assert sys.argv[3] == f'v{version}', 'release tag/version mismatch'
 site = pathlib.Path('apps/web/dist')
 assert (site / 'index.html').is_file()
 metadata = {'version': version, 'revision': sys.argv[2], 'author': 'keepraw',
@@ -30,10 +32,10 @@ with zipfile.ZipFile(out / f'keepraw-fly-v{version}.zip', 'w', zipfile.ZIP_DEFLA
 for src, name in [('deploy/install.sh', 'install.sh'), ('compose.yaml', 'compose.yaml'),
                   ('deploy/Caddyfile', 'Caddyfile'), ('docs/deployment.md', 'deployment.md'),
                   ('docs/deployment.zh-CN.md', 'deployment.zh-CN.md'),
-                  ('docs/releases/v0.1.0.md', 'RELEASE_NOTES.md')]:
+                  (f'docs/releases/v{version}.md', 'RELEASE_NOTES.md')]:
     shutil.copyfile(src, out / name)
 (out / 'provenance.json').write_text(json.dumps(metadata, indent=2) + '\n')
 PY
 tar --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --numeric-owner \
-  -C apps/web/dist -cf - . | gzip -n > "$output/keepraw-fly-v0.1.0.tar.gz"
+  -C apps/web/dist -cf - . | gzip -n > "$output/keepraw-fly-$tag.tar.gz"
 (cd "$output" && find . -maxdepth 1 -type f ! -name 'SHA256SUMS*' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)

@@ -57,6 +57,21 @@ sudo bash install.sh --version v0.1.0 --local
 
 此模式将 HTTP 绑定至 `127.0.0.1:8080`，未启用的 HTTPS 映射为 `127.0.0.1:8443`。远程访问需使用 SSH 隧道，或由已有反向代理提供 HTTPS，安装器不会修改该代理。`--http-port`、`--https-port` 可更改宿主机映射；公网 ACME 验证仍需经公网 80/443 到达 Caddy，端口转发由你配置。公网模式绑定 IPv4 `0.0.0.0`，配置并测试 IPv6 链路后才应发布 AAAA 记录。
 
+### 校验发行来源证明
+
+v0.1.0 之后的发行版附带 `attestation.sigstore.json` 与 `image-attestation.sigstore.json`。安装器需要 [GitHub CLI](https://cli.github.com) **2.102.0 或更新版本**（更早版本按前缀匹配签发身份），只有当每个下载文件**以及 `image.txt` 中的镜像 digest** 都由本仓库 `main` 分支上的 `release.yml`、基于该发行源提交、在 GitHub 托管 runner 上签发证明时才会部署，否则拒绝。镜像使用独立的 bundle 校验：`gh` 在镜像仓库中解析 `oci://ghcr.io/keepraw/keepraw-fly@sha256:…`，要求该 digest 正是被签名的主体，且 `provenance.json` 必须指向同一镜像；随后按 digest（而非标签）拉取。无需 GitHub Token。v0.1.0 早于来源证明机制，文件和镜像都只做校验和检查，安装器会明确提示。手动校验：
+
+```bash
+gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
+  --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --deny-self-hosted-runners
+gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
+  --bundle image-attestation.sigstore.json --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --source-digest <provenance.json 中的 commit> --deny-self-hosted-runners
+```
+
 ### 手动 Compose
 
 也可以从[发行附件](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0)下载并检查 `compose.yaml`、`image.txt`、`SHA256SUMS`，按上文方法用 `sha256sum -c` 校验所选文件。在 `compose.yaml` 所在目录运行：
@@ -124,7 +139,7 @@ pnpm preview
 
 1. 正常合并发行 PR，等待 **main 全部 CI**（含 Pages 部署）成功，记录 run ID 和 commit SHA，不绕过保护规则。
 2. 确认 `v0.1.0` Tag 和 Release 均不存在，在该 SHA 创建 lightweight `v0.1.0` Tag 并推送，不移动已有 Tag。
-3. 在 main 手动运行 **Build verified release image**，填写 `ci_run_id`。它检查官方成功的 main CI 及 Tag，下载已有生产构建，发布 linux/amd64 和 linux/arm64 镜像；不重新编译应用，不用 `GITHUB_TOKEN` 创建 Release。首次发布需在包设置确保 GHCR 包为 **public**，且匿名拉取可用。
+3. 在 main 手动运行 **Build verified release image**，填写 `ci_run_id`。它检查官方成功的 main CI 及 Tag，下载已有生产构建，发布 linux/amd64 和 linux/arm64 镜像；不重新编译应用，不用 `GITHUB_TOKEN` 创建 Release。**请在 `main` 仍指向该 CI commit 时运行：**本次运行自身的 `github.sha`（触发时 `main` 的最新提交）就是 GitHub 写入每份来源证明的源提交，因此 CI commit、`github.sha` 与 Tag commit 不一致时，任务会在任何推送、签名或上传之前拒绝；签名后还会按该 commit 校验新生成的来源证明。`main` 前进后不支持发布更早的提交。首次发布需在包设置确保 GHCR 包为 **public**，且匿名拉取可用。
 4. `gh` 以 **keepraw** 认证后执行 `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`，将两个参数替换为实际运行 ID。脚本验证来源、校验和及公开镜像架构；创建 Draft，核验真实 `author.login`，上传全部附件并重新下载比较后正式发布。作者不匹配时保留 Draft，不发布。若缺少权限，Owner 在产物准备完成后执行这一条最终命令。
 
 应用 package 版本为 `0.1.0`，Tag 为 `v0.1.0`。档案 Schema 版本在 `packages/schema` 独立管理，本次部署工作不修改它。OCI 作者为 `keepraw`；不会重写 commit 作者或第三方版权。已有[第三方声明](../THIRD_PARTY_NOTICES.md)和[许可审查](license-review-2026-10-10.md)继续适用。

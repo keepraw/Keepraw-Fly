@@ -1,4 +1,5 @@
 import { localeRegistry, supportedLanguages } from "../locales/registry";
+import type { ExportKind } from "../data/export";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument, ProfileName } from "@keepraw-fly/schema";
@@ -30,7 +31,7 @@ interface SettingsPageProps {
   isDemo: boolean;
   settings: ViewerSettings;
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
-  onExport?: () => void | Promise<void>;
+  onExport?: (kind?: ExportKind) => void | Promise<void>;
   onClear?: () => void | Promise<void>;
   onSettingsChange: (settings: ViewerSettings) => void | Promise<void>;
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
@@ -705,6 +706,13 @@ export function SettingsPage({
                       </h3>
                       <p>{t("settings.backupDescription")}</p>
                       <small>{t("settings.localDataDescription")}</small>
+                      <small
+                        className="settings-export-warning"
+                        id="settings-export-warning"
+                        role="note"
+                      >
+                        {t("settings.exportSensitiveWarning")}
+                      </small>
                       <strong className="settings-backup-status">
                         {lastBackup
                           ? t("settings.lastBackup", { date: lastBackup })
@@ -716,10 +724,26 @@ export function SettingsPage({
                         className="settings-action"
                         type="button"
                         disabled={!onExport}
-                        onClick={() => void onExport?.()}
+                        aria-describedby="settings-export-warning"
+                        onClick={() => void onExport?.("backup")}
                       >
                         {t("settings.exportJson")}
                       </button>
+                      <button
+                        className="settings-action"
+                        type="button"
+                        disabled={!onExport}
+                        aria-describedby="settings-export-shareable-note"
+                        onClick={() => void onExport?.("shareable")}
+                      >
+                        {t("settings.exportShareable")}
+                      </button>
+                      <small
+                        className="settings-export-note"
+                        id="settings-export-shareable-note"
+                      >
+                        {t("settings.exportShareableNote")}
+                      </small>
                       {isDemo ? (
                         <small className="settings-export-note">
                           {t("settings.exportDescriptionDemo")}

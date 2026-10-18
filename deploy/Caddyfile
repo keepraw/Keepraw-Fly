@@ -5,9 +5,35 @@
 {$SITE_ADDRESS} {
   root * /srv
   encode zstd gzip
-  header X-Content-Type-Options nosniff
-  @html path / /index.html /release.json /FILES.sha256
-  header @html Cache-Control "no-cache"
+
+  # Keep Content-Security-Policy identical to apps/web/security-policy.mjs
+  # (headerPolicy); scripts/check-security-headers.mjs enforces this. Unlike
+  # the static build's <meta> policy, a header can also forbid framing.
+  header {
+    Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'none'; frame-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    Referrer-Policy no-referrer
+    Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()"
+    Cross-Origin-Opener-Policy same-origin
+    Cross-Origin-Resource-Policy same-origin
+    -Server
+  }
+
+  # HSTS only on HTTPS responses: local/loopback HTTP mode (SITE_ADDRESS=:80)
+  # never sends it. No includeSubDomains/preload: other hosts are not ours.
+  @https protocol https
+  header @https Strict-Transport-Security "max-age=31536000"
+
+  # Vite content-hashed build output (assets/<name>-<8 char hash>.<ext>) never
+  # changes for a given URL. Everything else (HTML, release metadata, the
+  # theme bootstrap, manifest, icons and airline logos) must revalidate so an
+  # upgrade is picked up on the next load. Works for root and subpath roots.
+  @hashed path_regexp hashed ^(?:/.*)?/assets/[^/]+-[A-Za-z0-9_-]{8}\.(?:js|css|json|webp|png|svg|woff2?)$
+  @mutable not path_regexp ^(?:/.*)?/assets/[^/]+-[A-Za-z0-9_-]{8}\.(?:js|css|json|webp|png|svg|woff2?)$
+  header @hashed Cache-Control "public, max-age=31536000, immutable"
+  header @mutable Cache-Control "no-cache"
+
   file_server
 }
 

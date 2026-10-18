@@ -77,6 +77,18 @@ class KeeprawFlyDatabase extends Dexie {
   }
 }
 
+/** Loads that may restart because another tab committed during migration. */
+export const MAX_MIGRATION_LOAD_ATTEMPTS = 5;
+
+export class ArchiveMigrationContentionError extends Error {
+  constructor(readonly attempts: number) {
+    super(
+      `The archive kept changing in another tab during ${attempts} migration attempts.`,
+    );
+    this.name = "ArchiveMigrationContentionError";
+  }
+}
+
 export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
   private readonly database: KeeprawFlyDatabase;
   // null permits the first write to a brand-new, as-yet-unread database.
@@ -96,7 +108,7 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     return this.pendingLoad;
   }
 
-  private async readDocument(): Promise<ArchiveLoadResult> {
+  private async readDocument(attempt = 1): Promise<ArchiveLoadResult> {
     const [record, revision] = await this.database.transaction(
       "rw",
       this.database.documents,
@@ -144,7 +156,14 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
       } catch (error) {
         // No local edits exist during migration. Adopt the winning committed
         // archive rather than presenting the stale migration as a recovery source.
-        if (error instanceof ArchiveConflictError) return this.readDocument();
+        // Another tab committing on every attempt must not recurse forever:
+        // after the bound, surface a read error (the raw archive is untouched
+        // and the next load retries) instead of overwriting the newer write.
+        if (error instanceof ArchiveConflictError) {
+          if (attempt >= MAX_MIGRATION_LOAD_ATTEMPTS)
+            throw new ArchiveMigrationContentionError(attempt);
+          return this.readDocument(attempt + 1);
+        }
         return {
           status: "invalid",
           rawDocument: record.document,

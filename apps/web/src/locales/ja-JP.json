@@ -367,7 +367,12 @@
       "propertyNames": "拡張機能名には有効な名前空間を使用する必要があります。",
       "maxLength": "この値はサポートされている制限を超えています。"
     },
-    "operationFailed": "ファイルをインポートできませんでした。もう一度試してください。"
+    "operationFailed": "ファイルをインポートできませんでした。もう一度試してください。",
+    "fileErrors": {
+      "empty-file": "このファイルは空です。",
+      "file-too-large": "このファイルは {{limit}} を超えています。分割するか、Keepraw Fly のエクスポートか確認してください。",
+      "too-many-records": "このファイルには {{records, number}} 件を超えるフライトがあります。小さなファイルに分割してください。"
+    }
   },
   "units": {
     "minuteShort": "分"
@@ -393,7 +398,11 @@
       "missing-rows": "フライト行が見つかりませんでした。 1 つのヘッダー行と少なくとも 1 つのフライト行を含めます。",
       "unterminated-quote": "引用符で囲まれた CSV フィールドが閉じられていません。引用符を確認して、再試行してください。",
       "empty-header": "1 つ以上の CSV 列に空のヘッダーがあります。",
-      "invalid-file": "この CSV を読み取れませんでした。"
+      "invalid-file": "この CSV を読み取れませんでした。",
+      "empty-file": "このファイルは空です。",
+      "file-too-large": "このファイルは {{limit}} を超えています。分割するか、Keepraw Fly のエクスポートか確認してください。",
+      "too-many-records": "このファイルには {{records, number}} 件を超えるフライトがあります。小さなファイルに分割してください。",
+      "unexpected-quote": "引用符の位置が正しくありません（引用符で囲まれていない値の中、または閉じ引用符の後）。引用符を確認してもう一度お試しください。"
     },
     "issues": {
       "incomplete-mapping": "インポートする前に、すべての必須項目を列に対応付けてください。",
@@ -449,7 +458,11 @@
       "missing-rows": "Flighty のフライト行が見つかりません。",
       "unterminated-quote": "引用符で囲まれた Flighty CSV フィールドが閉じられていません。引用符を確認して、再試行してください。",
       "empty-header": "1 つ以上の Flighty CSV 列に空のヘッダーがあります。",
-      "invalid-file": "この Flighty CSV を読み取れませんでした。"
+      "invalid-file": "この Flighty CSV を読み取れませんでした。",
+      "empty-file": "このファイルは空です。",
+      "file-too-large": "このファイルは {{limit}} を超えています。分割するか、Keepraw Fly のエクスポートか確認してください。",
+      "too-many-records": "このファイルには {{records, number}} 件を超えるフライトがあります。小さなファイルに分割してください。",
+      "unexpected-quote": "引用符の位置が正しくありません（引用符で囲まれていない値の中、または閉じ引用符の後）。引用符を確認してもう一度お試しください。"
     },
     "issues": {
       "missing-required-header": "必須の Flighty ヘッダーが欠落しています: {{value}}。",
@@ -470,6 +483,9 @@
     "dataAndBackup": "データとバックアップ",
     "dangerZone": "削除操作",
     "exportJson": "Keepraw Fly JSON をエクスポート",
+    "exportShareable": "個人情報を除いてエクスポート",
+    "exportShareableNote": "統計の共有用：氏名、予約番号、航空券番号、会員番号、認識できない拡張データを削除します。バックアップには使えません。正確な日付・便・座席は残るため、完全な匿名化ではありません。",
+    "exportSensitiveWarning": "完全バックアップには、搭乗者名、予約番号（PNR）、航空券番号、マイレージ会員番号などの個人情報が含まれます。保管や共有には注意してください。",
     "data": "データ",
     "localDataTitle": "ローカルデータ",
     "localDataDescription": "フライト記録はこのブラウザにのみ保存されます。",

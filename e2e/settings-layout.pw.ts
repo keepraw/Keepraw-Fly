@@ -199,9 +199,11 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
   page,
 }) => {
   test.setTimeout(60_000);
-  const errors = collectBrowserErrors(page);
+  const allErrors = collectBrowserErrors(page);
   // Exercise the documented system-font fallback without depending on the
   // optional font CDN. The existing typography journeys retain live font coverage.
+  // This substitute stylesheet cannot match the pinned SRI hash, so the browser
+  // refuses it (the intended fallback) and reports exactly that refusal.
   await page.route(
     "https://cdn.jsdelivr.net/npm/misans-webfont@*/**/result.min.css",
     (route) =>
@@ -212,6 +214,14 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
         body: "/* Use the system font stack for this layout smoke. */",
       }),
   );
+  const sriRefusal =
+    /cdn\.jsdelivr\.net\/npm\/misans-webfont@.*(integrity|digest)|(integrity|digest).*cdn\.jsdelivr\.net\/npm\/misans-webfont@/i;
+  // Hide only the browser's SRI refusal of this deliberate stub.
+  const errors = {
+    get current() {
+      return allErrors.filter((message) => !sriRefusal.test(message));
+    },
+  };
   await page
     .getByRole("button", { name: "Add frequent flyer program" })
     .click();
@@ -268,7 +278,7 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
         await expectReachable(membership.locator(".settings-membership-edit"));
         await expectReachable(membership.locator(".membership-delete"));
         await expectReachable(page.locator(".danger-action"));
-        await expectHealthyPage(page, errors);
+        await expectHealthyPage(page, errors.current);
       }
     }
   }
