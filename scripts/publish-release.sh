@@ -8,24 +8,32 @@ image_run=$2
 publish=${3:-}
 [[ $ci =~ ^[0-9]+$ && $image_run =~ ^[0-9]+$ && ( -z $publish || $publish == --publish ) ]]
 repo=keepraw/Keepraw-Fly
-tag=v0.1.0
+# The release is whatever package.json declares at the verified CI commit.
+tag=$(bash scripts/release-version.sh)
+version=${tag#v}
+bash scripts/check-gh-version.sh
 [[ $(gh api user --jq .login) == keepraw ]] || { echo 'Authenticate gh as keepraw; no impersonation is permitted.' >&2; exit 1; }
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 # The by-tag REST endpoint excludes drafts. List releases with owner access so
 # an existing draft is a conflict too, before attempting any creation/download.
-gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "v0.1.0") | .id' > "$work/existing-ids"
+gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "'"$tag"'") | .id' > "$work/existing-ids"
 if [[ -s $work/existing-ids ]]; then echo 'Release or draft already exists; refusing to replace it.' >&2; exit 1; fi
 gh api "repos/$repo/actions/runs/$ci" > "$work/ci.json"
 jq -e '.conclusion == "success" and .event == "push" and .head_branch == "main" and .path == ".github/workflows/ci.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' "$work/ci.json"
 sha=$(jq -r .head_sha "$work/ci.json")
-[[ $(gh api "repos/$repo/git/ref/tags/$tag" --jq .object.sha) == "$sha" ]]
+[[ $(git rev-parse HEAD) == "$sha" ]] || { echo "Check out the CI commit $sha before publishing (version source)." >&2; exit 1; }
+[[ $(bash scripts/resolve-tag-commit.sh "$repo" "$tag") == "$sha" ]]
 gh api "repos/$repo/actions/runs/$image_run" > "$work/image.json"
-jq -e '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly"' "$work/image.json"
-gh run download "$image_run" --repo "$repo" --name release-v0.1.0 --dir "$work/assets"
+# The image run's own commit is the source digest of its attestations.
+jq -e --arg sha "$sha" '.conclusion == "success" and .event == "workflow_dispatch" and .head_branch == "main" and .path == ".github/workflows/release.yml" and .repository.full_name == "keepraw/Keepraw-Fly" and .head_sha == $sha' "$work/image.json" \
+  || { echo "Image run $image_run is not a successful release.yml run for $sha." >&2; exit 1; }
+gh run download "$image_run" --repo "$repo" --name "release-$tag" --dir "$work/assets"
 (cd "$work/assets" && sha256sum -c SHA256SUMS)
 jq -e --arg sha "$sha" --arg ci "$ci" --arg image "$image_run" \
-  '.revision == $sha and .version == "0.1.0" and .author == "keepraw" and .ci_run_id == $ci and .image_run_id == $image' "$work/assets/provenance.json"
+  --arg version "$version" '.revision == $sha and .version == $version and .author == "keepraw" and .ci_run_id == $ci and .image_run_id == $image' "$work/assets/provenance.json"
+# Every attachment and the image must carry release.yml provenance for $sha.
+bash scripts/verify-release-provenance.sh "$work/assets" "$sha"
 # Check anonymous GHCR access before exposing a release users cannot install.
 token=$(curl -fsS 'https://ghcr.io/token?service=ghcr.io&scope=repository:keepraw/keepraw-fly:pull' | jq -er .token)
 digest=$(sed 's/.*@//' "$work/assets/image.txt")
@@ -43,10 +51,10 @@ cat >> "$work/body.md" <<INFO
 - Docker: $(cat "$work/assets/image.txt")
 INFO
 gh release create "$tag" --repo "$repo" --verify-tag --target "$sha" --draft \
-  --title 'Keepraw-Fly v0.1.0' --notes-file "$work/body.md"
+  --title "Keepraw-Fly $tag" --notes-file "$work/body.md"
 release_api=$(gh release view "$tag" --repo "$repo" --json apiUrl --jq .apiUrl)
 gh api "$release_api" > "$work/release.json"
-jq -e --arg sha "$sha" '.author.login == "keepraw" and .draft == true and .tag_name == "v0.1.0" and .target_commitish == $sha' "$work/release.json" || {
+jq -e --arg sha "$sha" --arg tag "$tag" '.author.login == "keepraw" and .draft == true and .tag_name == $tag and .target_commitish == $sha' "$work/release.json" || {
   echo 'Draft author/target mismatch. Draft left unpublished for owner inspection.' >&2; exit 1;
 }
 gh release upload "$tag" "$work/assets/"* --repo "$repo"

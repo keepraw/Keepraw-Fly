@@ -3,8 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Dexie from "dexie";
 import { defaultViewerSettings } from "./types";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import { ArchiveConflictError } from "./conflict";
 import {
+  ArchiveMigrationContentionError,
   BrowserStorageAdapter,
+  MAX_MIGRATION_LOAD_ATTEMPTS,
   persistentStorageState,
   requestPersistentStorage,
 } from "./browser";
@@ -357,6 +360,67 @@ describe("BrowserStorageAdapter", () => {
     });
     expect(save).not.toHaveBeenCalled();
     expect(await readRecord()).toEqual(record);
+  });
+
+  it("bounds migration retries under continuous cross-tab contention, then recovers", async () => {
+    const raw = {
+      format: "rawfly",
+      formatVersion: "0.1",
+      profile: {},
+      flights: [],
+    };
+    const { adapter, record, readRecord } = await storedArchive(raw);
+    const save = vi
+      .spyOn(adapter, "saveDocument")
+      .mockRejectedValue(new ArchiveConflictError());
+
+    await expect(adapter.loadDocument()).rejects.toBeInstanceOf(
+      ArchiveMigrationContentionError,
+    );
+    expect(save).toHaveBeenCalledTimes(MAX_MIGRATION_LOAD_ATTEMPTS);
+    // The raw archive is untouched; nothing was overwritten or lost.
+    expect(await readRecord()).toEqual(record);
+
+    save.mockRestore();
+    await expect(adapter.loadDocument()).resolves.toMatchObject({
+      status: "valid",
+      document: { format: "keepraw-fly", formatVersion: "0.1.0" },
+    });
+  });
+
+  it("adopts the other tab's committed archive after a migration conflict", async () => {
+    const raw = {
+      format: "rawfly",
+      formatVersion: "0.1",
+      profile: {},
+      flights: [],
+    };
+    const { adapter } = await storedArchive(raw);
+    const winner: KeeprawFlyDocument = {
+      format: "keepraw-fly",
+      formatVersion: "0.1.0",
+      profile: { name: { native: "Other tab", primary: "native" } },
+      flights: [],
+    };
+    const original = adapter.saveDocument.bind(adapter);
+    let first = true;
+    vi.spyOn(adapter, "saveDocument").mockImplementation(async (...args) => {
+      if (first) {
+        first = false;
+        // Another tab commits a newer archive before this migration lands.
+        const other = new BrowserStorageAdapter(
+          (adapter as unknown as { database: { name: string } }).database.name,
+        );
+        await other.loadDocument();
+        await other.saveDocument(winner, "personal");
+        throw new ArchiveConflictError();
+      }
+      return original(...args);
+    });
+    await expect(adapter.loadDocument()).resolves.toMatchObject({
+      status: "valid",
+      document: winner,
+    });
   });
 
   it("keeps a legacy archive in recovery when the validated migration cannot be saved", async () => {

@@ -418,7 +418,12 @@
     "includePossibleDuplicates_many": "Importer aussi {{count, number}} doublons possibles comme vols distincts",
     "addNewFlights_many": "Importer {{count, number}} nouveaux vols",
     "importSelectedFlights_many": "Importer {{count, number}} vols sélectionnés",
-    "moreIssues_many": "{{count, number}} autres problèmes ne sont pas affichés."
+    "moreIssues_many": "{{count, number}} autres problèmes ne sont pas affichés.",
+    "fileErrors": {
+      "empty-file": "Ce fichier est vide.",
+      "file-too-large": "Ce fichier dépasse {{limit}}. Divisez-le ou vérifiez qu’il s’agit d’un export Keepraw Fly.",
+      "too-many-records": "Ce fichier contient plus de {{records, number}} vols. Divisez-le en fichiers plus petits."
+    }
   },
   "units": {
     "minuteShort": "min"
@@ -446,7 +451,11 @@
       "missing-rows": "Aucune ligne de vol n'a été trouvée. Incluez une ligne d’en-tête et au moins une ligne de vol.",
       "unterminated-quote": "Un champ CSV cité n'est pas fermé. Vérifiez les guillemets et réessayez.",
       "empty-header": "Une ou plusieurs colonnes CSV ont un en-tête vide.",
-      "invalid-file": "Ce CSV n'a pas pu être lu."
+      "invalid-file": "Ce CSV n'a pas pu être lu.",
+      "empty-file": "Ce fichier est vide.",
+      "file-too-large": "Ce fichier dépasse {{limit}}. Divisez-le ou vérifiez qu’il s’agit d’un export Keepraw Fly.",
+      "too-many-records": "Ce fichier contient plus de {{records, number}} vols. Divisez-le en fichiers plus petits.",
+      "unexpected-quote": "Un guillemet est mal placé (dans une valeur non entre guillemets ou après un guillemet fermant). Vérifiez les guillemets et réessayez."
     },
     "issues": {
       "incomplete-mapping": "Mappez tous les champs obligatoires avant l'importation.",
@@ -507,7 +516,11 @@
       "missing-rows": "Aucune ligne de vol Flighty n’a été trouvée.",
       "unterminated-quote": "Un champ CSV Flighty cité n'est pas fermé. Vérifiez les guillemets et réessayez.",
       "empty-header": "Une ou plusieurs colonnes CSV Flighty ont un en-tête vide.",
-      "invalid-file": "Ce CSV Flighty n'a pas pu être lu."
+      "invalid-file": "Ce CSV Flighty n'a pas pu être lu.",
+      "empty-file": "Ce fichier est vide.",
+      "file-too-large": "Ce fichier dépasse {{limit}}. Divisez-le ou vérifiez qu’il s’agit d’un export Keepraw Fly.",
+      "too-many-records": "Ce fichier contient plus de {{records, number}} vols. Divisez-le en fichiers plus petits.",
+      "unexpected-quote": "Un guillemet est mal placé (dans une valeur non entre guillemets ou après un guillemet fermant). Vérifiez les guillemets et réessayez."
     },
     "issues": {
       "missing-required-header": "En-tête Flighty manquant requis : {{value}}.",
@@ -531,6 +544,9 @@
     "dataAndBackup": "Données et sauvegarde",
     "dangerZone": "Actions irréversibles",
     "exportJson": "Exporter un JSON Keepraw Fly",
+    "exportShareable": "Exporter sans données personnelles",
+    "exportShareableNote": "Pour partager des statistiques : supprime les noms, références de réservation, numéros de billet et de membre, et les extensions non reconnues. Ce n’est pas une sauvegarde. Les dates exactes, vols et sièges sont conservés : le fichier n’est donc pas anonyme.",
+    "exportSensitiveWarning": "Les sauvegardes complètes contiennent des données personnelles : noms des passagers, références de réservation (PNR), numéros de billet et de fidélité. Conservez-les et partagez-les avec prudence.",
     "data": "Données",
     "localDataTitle": "Données locales",
     "localDataDescription": "Les enregistrements de vol sont stockés uniquement dans ce navigateur.",

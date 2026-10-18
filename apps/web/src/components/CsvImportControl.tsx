@@ -1,4 +1,9 @@
 import { useId, useMemo, useState } from "react";
+import {
+  assertRecordCount,
+  importLimitValues,
+  readImportFile,
+} from "../data/import-limits";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -69,7 +74,8 @@ export function CsvImportControl({
   async function selectFile(file: File | undefined) {
     if (!file) return;
     try {
-      const parsed = parseCsv(await file.text());
+      const parsed = parseCsv(await readImportFile(file));
+      assertRecordCount(parsed.rows.length);
       setPending({
         fileName: file.name,
         parsed,
@@ -309,6 +315,7 @@ export function CsvImportControl({
           {!error || error.kind === "import"
             ? t("csvImport.importFailed")
             : t(`csvImport.fileErrors.${error.code}`, {
+                ...importLimitValues,
                 defaultValue: t("csvImport.invalidFile"),
               })}
         </p>

@@ -57,6 +57,32 @@ sudo bash install.sh --version v0.1.0 --local
 
 This binds `127.0.0.1:8080` to HTTP and `127.0.0.1:8443` to the unused HTTPS mapping. Remote access requires an SSH tunnel or your existing proxy terminating HTTPS. The installer does not edit that proxy. `--http-port` and `--https-port` change host mappings; public ACME validation must still reach Caddy on public 80/443 (forwarding is your responsibility). Public mode binds IPv4 `0.0.0.0`; publish an AAAA record only after configuring and testing an IPv6 path.
 
+### Verifying release provenance
+
+Releases after v0.1.0 ship `attestation.sigstore.json` and
+`image-attestation.sigstore.json`. The installer requires
+[GitHub CLI](https://cli.github.com) **2.102.0 or newer** for them (older versions
+match signer identities by prefix) and refuses to deploy unless every downloaded
+file **and the image digest in `image.txt`** were attested by this repository's
+`release.yml` on `main` from the release's source commit on a GitHub-hosted
+runner. The image is checked with its own bundle: `gh` resolves
+`oci://ghcr.io/keepraw/keepraw-fly@sha256:…` in the registry and requires that
+exact digest to be the signed subject; `provenance.json` must name the same
+image. The image is then pulled by that digest, never by a tag. No GitHub token
+is needed. v0.1.0 predates attestations: its files and image are only
+checksum-verified, and the installer says so. To check yourself:
+
+```bash
+gh attestation verify keepraw-fly-vX.Y.Z.tar.gz --bundle attestation.sigstore.json \
+  --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --deny-self-hosted-runners
+gh attestation verify oci://ghcr.io/keepraw/keepraw-fly@sha256:… \
+  --bundle image-attestation.sigstore.json --repo keepraw/Keepraw-Fly \
+  --cert-identity https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main \
+  --source-ref refs/heads/main --source-digest <commit from provenance.json> --deny-self-hosted-runners
+```
+
 ### Manual Compose
 
 You can download and inspect `compose.yaml`, `image.txt` and `SHA256SUMS` from the [release attachments](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0) instead of using the installer. Verify the selected files with `sha256sum -c` as above. In the directory containing `compose.yaml`:
@@ -124,7 +150,7 @@ For maintainers, the release procedure is:
 
 1. Merge the release PR normally and wait for **all main CI** (including Pages deployment) to succeed. Record its run ID and commit SHA. No protection bypasses.
 2. Confirm neither tag nor release `v0.1.0` exists. Create a lightweight `v0.1.0` tag at that SHA and push it; never move an existing tag.
-3. Run **Build verified release image** on main with that `ci_run_id`. It verifies the successful official main run and tag, downloads its existing production artifacts, and publishes linux/amd64 + linux/arm64. It never rebuilds the app or creates a Release using `GITHUB_TOKEN`. On first publication ensure the GHCR package is **public** (package settings); anonymous pull must work.
+3. Run **Build verified release image** on main with that `ci_run_id`. It verifies the successful official main run and tag, downloads its existing production artifacts, and publishes linux/amd64 + linux/arm64. It never rebuilds the app or creates a Release using `GITHUB_TOKEN`. **Dispatch it while `main` is still at the CI commit:** the run's own `github.sha` (the tip of `main` at dispatch) is the source commit GitHub writes into every attestation, so the job refuses, before any push, signature or upload, unless the CI commit, `github.sha` and the tag commit are the same; after signing it verifies the new attestations against that commit. Releasing an older commit after `main` has moved is not supported. On first publication ensure the GHCR package is **public** (package settings); anonymous pull must work.
 4. With `gh` authenticated as **keepraw**, execute `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`, substituting the two actual run IDs. This verifies source, checksums and public image platforms; creates a draft; verifies the actual `author.login`; uploads and downloads every attachment for comparison; and finally publishes. A mismatched author leaves the draft unpublished. If permissions are unavailable, the owner runs this single final command after the artifacts are prepared.
 
 Application package versions are `0.1.0`; tag is `v0.1.0`. The archive Schema version is managed independently in `packages/schema` and is unchanged by this deployment work. OCI metadata names `keepraw`; commit authors and third-party copyright notices are not rewritten. Existing [third-party notices](../THIRD_PARTY_NOTICES.md) and [license review](license-review-2026-10-10.md) remain applicable.

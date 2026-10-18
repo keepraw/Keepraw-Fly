@@ -6,15 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <script>
-      try {
-        const appearance = localStorage.getItem("keepraw-fly-appearance");
-        if (appearance === "light" || appearance === "dark")
-          document.documentElement.dataset.theme = appearance;
-      } catch {
-        // System appearance also works when the cosmetic cache is unavailable.
-      }
-    </script>
+    <script src="./theme-init.js"></script>
     <link rel="stylesheet" href="/src/styles/shared-page-theme.css" />
     <meta
       name="theme-color"

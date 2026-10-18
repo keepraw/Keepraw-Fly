@@ -21,7 +21,7 @@ import {
 } from "./data/passport-exploration";
 import { SettingsPage } from "./pages/SettingsPage";
 import { RecoveryPage } from "./pages/RecoveryPage";
-import { downloadKeeprawFly } from "./data/export";
+import { downloadKeeprawFly, type ExportKind } from "./data/export";
 import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
@@ -487,8 +487,13 @@ export function App() {
     storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
-  async function exportDocument() {
+  async function exportDocument(kind: ExportKind = "backup") {
     if (!document) return;
+    if (kind === "shareable") {
+      // Not a backup: it neither restores the archive nor updates lastBackupAt.
+      await downloadKeeprawFly(document, "shareable");
+      return;
+    }
     if (archiveKind === "demo") {
       setConfirmDemoExport(true);
       return;

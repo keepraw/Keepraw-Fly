@@ -1,12 +1,14 @@
-import Ajv2020, { type ErrorObject } from "ajv/dist/2020.js";
-import addFormats from "ajv-formats";
+import type { ErrorObject } from "ajv/dist/2020.js";
 import {
   KEEPRAW_FLY_FORMAT,
   KEEPRAW_FLY_FORMAT_VERSION,
   type KeeprawFlyDocument,
 } from "@keepraw-fly/schema";
-import keeprawFlySchema from "@keepraw-fly/schema/schema";
 import { canonicalAirlineCode } from "@keepraw-fly/core";
+// Precompiled at development time (pnpm --filter @keepraw-fly/validator
+// generate): runtime Ajv compilation needs Function(), which the app's
+// Content Security Policy deliberately forbids.
+import validateSchema from "./generated/schema-validator.js";
 
 export interface ValidationIssue {
   path: string;
@@ -33,11 +35,6 @@ export type ValidationResult =
       formatVersion: string;
       issues: ValidationIssue[];
     };
-
-const ajv = new Ajv2020({ allErrors: true, strict: true });
-addFormats(ajv);
-
-const validateSchema = ajv.compile<KeeprawFlyDocument>(keeprawFlySchema);
 
 function valueAtPath(input: unknown, instancePath: string): unknown {
   if (!instancePath) return input;

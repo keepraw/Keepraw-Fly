@@ -367,7 +367,12 @@
       "propertyNames": "확장 이름은 유효한 네임스페이스를 사용해야 합니다.",
       "maxLength": "이 값은 지원되는 한계보다 깁니다."
     },
-    "operationFailed": "파일을 가져올 수 없습니다. 다시 시도해 주세요."
+    "operationFailed": "파일을 가져올 수 없습니다. 다시 시도해 주세요.",
+    "fileErrors": {
+      "empty-file": "파일이 비어 있습니다.",
+      "file-too-large": "파일이 {{limit}}보다 큽니다. 파일을 나누거나 Keepraw Fly에서 내보낸 파일인지 확인하세요.",
+      "too-many-records": "파일에 {{records, number}}개가 넘는 항공편이 있습니다. 더 작은 파일로 나누세요."
+    }
   },
   "units": {
     "minuteShort": "분"
@@ -393,7 +398,11 @@
       "missing-rows": "항공편 행을 찾을 수 없습니다. 헤더 행 1개와 항공편 행 1개 이상을 포함합니다.",
       "unterminated-quote": "인용된 CSV 필드가 닫히지 않았습니다. 따옴표를 확인하고 다시 시도하세요.",
       "empty-header": "하나 이상의 CSV 열에 빈 헤더가 있습니다.",
-      "invalid-file": "이 CSV를 읽을 수 없습니다."
+      "invalid-file": "이 CSV를 읽을 수 없습니다.",
+      "empty-file": "파일이 비어 있습니다.",
+      "file-too-large": "파일이 {{limit}}보다 큽니다. 파일을 나누거나 Keepraw Fly에서 내보낸 파일인지 확인하세요.",
+      "too-many-records": "파일에 {{records, number}}개가 넘는 항공편이 있습니다. 더 작은 파일로 나누세요.",
+      "unexpected-quote": "따옴표 위치가 올바르지 않습니다(따옴표로 묶지 않은 값 안 또는 닫는 따옴표 뒤). 따옴표를 확인한 후 다시 시도하세요."
     },
     "issues": {
       "incomplete-mapping": "가져오기 전에 모든 필수 필드를 매핑하십시오.",
@@ -449,7 +458,11 @@
       "missing-rows": "Flighty 항공편 행을 찾을 수 없습니다.",
       "unterminated-quote": "인용된 Flighty CSV 필드가 닫혀 있지 않습니다. 따옴표를 확인하고 다시 시도하세요.",
       "empty-header": "하나 이상의 Flighty CSV 열에 빈 헤더가 있습니다.",
-      "invalid-file": "이 Flighty CSV를 읽을 수 없습니다."
+      "invalid-file": "이 Flighty CSV를 읽을 수 없습니다.",
+      "empty-file": "파일이 비어 있습니다.",
+      "file-too-large": "파일이 {{limit}}보다 큽니다. 파일을 나누거나 Keepraw Fly에서 내보낸 파일인지 확인하세요.",
+      "too-many-records": "파일에 {{records, number}}개가 넘는 항공편이 있습니다. 더 작은 파일로 나누세요.",
+      "unexpected-quote": "따옴표 위치가 올바르지 않습니다(따옴표로 묶지 않은 값 안 또는 닫는 따옴표 뒤). 따옴표를 확인한 후 다시 시도하세요."
     },
     "issues": {
       "missing-required-header": "필수 Flighty 헤더 누락: {{value}}.",
@@ -470,6 +483,9 @@
     "dataAndBackup": "데이터 및 백업",
     "dangerZone": "위험한 작업",
     "exportJson": "Keepraw Fly JSON 내보내기",
+    "exportShareable": "개인 정보 없이 내보내기",
+    "exportShareableNote": "통계 공유용: 이름, 예약 번호, 항공권 번호, 회원 번호와 인식할 수 없는 확장 데이터를 제거합니다. 백업이 아닙니다. 정확한 날짜, 항공편, 좌석은 남으므로 완전한 익명 파일이 아닙니다.",
+    "exportSensitiveWarning": "전체 백업에는 탑승객 이름, 예약 번호(PNR), 항공권 번호, 상용고객 회원 번호 등 개인 정보가 포함됩니다. 보관하고 공유할 때 주의하세요.",
     "data": "데이터",
     "localDataTitle": "로컬 데이터",
     "localDataDescription": "비행 기록은 이 브라우저에만 저장됩니다.",

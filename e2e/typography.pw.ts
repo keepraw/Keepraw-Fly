@@ -32,15 +32,15 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
   const requests = [];
   await page.route(
     "https://cdn.jsdelivr.net/npm/misans-webfont@4.3.1/**",
-    (route) => {
-      requests.push(route.request().url());
-      // Exercise native link load events deterministically. Actual CDN CSS/WOFF2
-      // downloads and rendered glyphs are verified by capture-task-2c.mjs.
-      return route.fulfill({
-        status: 200,
-        contentType: "text/css",
-        body: '@font-face { font-family: "MiSans Medium"; font-weight: 400; src: local("Arial"); font-display: swap; unicode-range: U+4E00-9FFF; }',
-      });
+    async (route) => {
+      const url = route.request().url();
+      // WOFF2 subsets are not needed for CSSOM weight mapping; rendered glyphs
+      // are verified by capture-task-2c.mjs.
+      if (!url.endsWith("/result.min.css")) return route.abort();
+      requests.push(url);
+      // The pinned stylesheets carry SRI, so only their genuine bytes can load:
+      // fetch them from the CDN instead of substituting a synthetic sheet.
+      return route.fulfill({ response: await route.fetch() });
     },
   );
   await importFixture(page);

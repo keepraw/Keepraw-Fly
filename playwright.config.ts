@@ -1,5 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// Honor an outbound proxy for live CDN checks on sandboxed runners.
+function proxyFromEnvironment() {
+  const value = process.env.HTTPS_PROXY ?? process.env.https_proxy;
+  if (!value) return undefined;
+  const url = new URL(value);
+  return {
+    server: `${url.protocol}//${url.host}`,
+    username: decodeURIComponent(url.username) || undefined,
+    password: decodeURIComponent(url.password) || undefined,
+    bypass: "127.0.0.1,localhost",
+  };
+}
+
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.pw.ts",
@@ -12,6 +25,7 @@ export default defineConfig({
     locale: "en-US",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    proxy: proxyFromEnvironment(),
   },
   projects: [
     // Chromium owns every E2E by default, including the full responsive and
