@@ -39,4 +39,5 @@ historical evidence and capture helpers. Formal Globe regression inputs live in
   existing documentation checker also checks archived Markdown links.
 
 - [Deployment guide — English](deployment.md) / [部署指南 — 简体中文](deployment.zh-CN.md)
+- [v0.1.1 release notes / 发行说明](releases/v0.1.1.md)
 - [v0.1.0 release notes / 发行说明](releases/v0.1.0.md)

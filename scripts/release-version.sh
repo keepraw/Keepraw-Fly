@@ -3,8 +3,8 @@
 # package.json "version". Prints "vX.Y.Z" after verifying that every
 # release-relevant mirror agrees. With an argument, also requires that tag.
 #
-#   bash scripts/release-version.sh            # -> v0.1.0
-#   bash scripts/release-version.sh v0.1.0     # fails unless the tag matches
+#   bash scripts/release-version.sh            # -> v0.1.1
+#   bash scripts/release-version.sh v0.1.1     # fails unless the tag matches
 #
 # Mirrors are deliberate defaults inside self-contained release attachments
 # (the installer and compose.yaml are downloaded and run without the repo),
