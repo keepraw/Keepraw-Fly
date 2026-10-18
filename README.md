@@ -14,7 +14,7 @@ End users need no Node.js, pnpm or source compilation. Export a JSON backup befo
 
 ## GitHub Pages self-hosting (no build)
 
-Fork this repository → enable Actions → Settings → Pages: GitHub Actions → manually run **Deploy official release to Fork Pages**, choosing **v0.1.0**. It downloads and verifies the official prebuilt archive without dependency installation, compilation or full E2E. Project subpaths and custom domains are supported. You choose each upgrade explicitly.
+Fork this repository → enable Actions → Settings → Pages: GitHub Actions → manually run **Deploy official release to Fork Pages**, choosing **v0.1.1**. It downloads and verifies the official prebuilt archive without dependency installation, compilation or full E2E. Project subpaths and custom domains are supported. You choose each upgrade explicitly.
 
 **This mode does not run source changes made in your fork.** Follow the [Pages guide](docs/deployment.md#github-pages-no-build-required).
 
@@ -22,7 +22,7 @@ Fork this repository → enable Actions → Settings → Pages: GitHub Actions �
 
 Install Docker and Compose v2 → download, verify and inspect the fixed-release installer → configure your domain → access over HTTPS. A single Caddy container serves static files; no JavaScript toolchain is needed. Supports amd64/arm64, digest-pinned images, repeat installation, upgrades and rollback.
 
-Get the installer or directly deployable ZIP/tar.gz from the [v0.1.0 release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.0), then follow the [VPS instructions](docs/deployment.md#vps-docker-and-automatic-https). The official publisher and image author is **keepraw**.
+Get the installer or directly deployable ZIP/tar.gz from the [v0.1.1 release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1), then follow the [VPS instructions](docs/deployment.md#vps-docker-and-automatic-https). The official publisher and image author is **keepraw**.
 
 ## Highlights
 
