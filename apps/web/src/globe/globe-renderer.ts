@@ -13,6 +13,7 @@ import {
   selectedRouteView,
   spherePoint,
   visibleFrom,
+  type GlobeFraming,
   type GlobeView,
   type Vec3,
 } from "./globe-math";
@@ -94,6 +95,7 @@ export function createGlobe(
     error: (reason: GlobeFailure) => void;
   },
   viewMode: "passport" | "detail" = "passport",
+  framing: GlobeFraming = {},
 ): GlobeController {
   const cleanup: (() => void)[] = [];
   try {
@@ -105,6 +107,7 @@ export function createGlobe(
       quality,
       callbacks,
       viewMode,
+      framing,
       cleanup,
     );
   } catch (cause) {
@@ -139,6 +142,7 @@ function initializeGlobe(
     error: (reason: GlobeFailure) => void;
   },
   viewMode: "passport" | "detail",
+  framing: GlobeFraming,
   cleanup: (() => void)[],
 ): GlobeController {
   const start = performance.now();
@@ -206,7 +210,7 @@ function initializeGlobe(
   const initialView = (viewport: { width: number; height: number }) =>
     viewMode === "detail" && routes[0]
       ? detailGlobeView(routes[0], viewport)
-      : defaultGlobeView(routes, viewport);
+      : defaultGlobeView(routes, viewport, framing);
   let home = initialView({
     width: host.clientWidth || 1008,
     height: host.clientHeight || 610,
