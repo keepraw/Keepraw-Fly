@@ -185,9 +185,19 @@
   }
 
   .passport-visual-sticky {
+    /*
+     * The map row still shrinks with short viewports, but stops growing at a
+     * CSS-pixel ceiling so tall (e.g. 4K) viewports do not inflate the globe
+     * and push the core stats and highlights towards the bottom edge.
+     */
+    --passport-map-max-height: clamp(480px, calc(280px + 15vh), 500px);
+
     min-height: 0;
-    grid-template-rows: minmax(28px, auto) minmax(0, 1fr) auto auto;
-    gap: 8px;
+    grid-template-rows:
+      minmax(28px, auto) minmax(0, var(--passport-map-max-height))
+      auto auto;
+    align-content: start;
+    gap: clamp(8px, calc(1vh - 1px), 16px);
     overflow: visible;
   }
 

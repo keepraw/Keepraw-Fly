@@ -9,6 +9,9 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 
 const viewports = [
   { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+  { width: 2560, height: 1440 },
+  { width: 3840, height: 2160 },
   { width: 1366, height: 768 },
   { width: 1280, height: 720 },
   { width: 1024, height: 768 },
@@ -64,6 +67,9 @@ for (const theme of ["light", "dark"]) {
           mapWidth: map.width,
           mapHeight: map.height,
           reportHeight: report.height,
+          statsTop: document
+            .querySelector(".passport-core-stats")!
+            .getBoundingClientRect().top,
           rightClientHeight: document.querySelector(".passport-visual-sticky")!
             .clientHeight,
           rightScrollHeight: document.querySelector(".passport-visual-sticky")!
@@ -100,6 +106,11 @@ for (const theme of ["light", "dark"]) {
       expect(geometry.mapHeight).toBeGreaterThanOrEqual(
         viewport.height > 540 ? 260 : 135,
       );
+      // Tall (2K/4K CSS) viewports cap the map instead of growing it with
+      // the viewport, so the stats stay near the map rather than the bottom.
+      expect(geometry.mapHeight).toBeLessThanOrEqual(501);
+      if (viewport.height >= 900)
+        expect(geometry.statsTop).toBeLessThanOrEqual(720);
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
       await expect(
