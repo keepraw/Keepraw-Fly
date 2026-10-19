@@ -1,13 +1,22 @@
 /* Desktop Passport layout and interactions; approved palette lives in shared-page-theme.css. */
 @media (min-width: 761px) {
+  .app-shell:has(.passport-archive-page) {
+    /* The report column is sized so a map at its height ceiling keeps the
+     * laptop aspect (map height ~= 49% of report width, capped at 54svh):
+     * 110svh of report width plus the fixed archive (370px), column gap and
+     * page gutters (72px). Below 1800px nothing changes; on tall wide screens
+     * the Passport shell grows with the viewport height only. */
+    --passport-shell-max-width: max(1800px, calc(110svh + 442px));
+  }
+
   .app-shell:has(.passport-archive-page) .site-header-inner,
   .app-shell:has(.passport-archive-page) .page-notices {
-    max-width: 1800px;
+    max-width: var(--passport-shell-max-width);
     padding-inline: 24px;
   }
 
   .passport-archive-page {
-    max-width: 1800px;
+    max-width: var(--passport-shell-max-width);
     padding: 12px 24px max(24px, env(safe-area-inset-bottom));
     color: var(--color-text);
   }
@@ -184,9 +193,23 @@
     box-shadow: inset 2px 0 var(--passport-selection);
   }
 
+  .passport-visual {
+    container-type: inline-size;
+  }
+
   .passport-visual-sticky {
+    /* The Passport camera frames the globe from the canvas height, so the
+     * map keeps a width-aware aspect instead of absorbing all spare height:
+     * ~49% of the report width (the 1440x900 laptop aspect), at most 54svh,
+     * and never below min(40svh, 480px) so narrow windows keep a usable map.
+     * Short viewports still shrink the map to the space left by the report. */
+    --passport-map-height: min(54svh, max(49cqi, min(40svh, 480px)));
+
     min-height: 0;
-    grid-template-rows: minmax(28px, auto) minmax(0, 1fr) auto auto;
+    grid-template-rows:
+      minmax(28px, auto) minmax(0, var(--passport-map-height))
+      auto auto;
+    align-content: start;
     gap: 8px;
     overflow: visible;
   }

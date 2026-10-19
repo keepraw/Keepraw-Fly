@@ -346,3 +346,193 @@ test("formal Globe pointer route picking and both themes remain accessible @cros
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   }
 });
+
+// Real Three.js composition across laptop, 1080p, 1440p, 3K, 4K and a tall,
+// narrow window. The SVG-fallback layout contract lives in
+// passport-desktop-design.pw.ts; this test never accepts the fallback.
+const compositionViewports = [
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+  { width: 2560, height: 1440 },
+  { width: 3072, height: 1728 },
+  { width: 3840, height: 2160 },
+  { width: 1440, height: 2160 },
+];
+
+async function settleViewport(
+  page: Page,
+  viewport: { width: number; height: number },
+) {
+  await page.setViewportSize(viewport);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<string>((resolve) =>
+            requestAnimationFrame(() =>
+              requestAnimationFrame(() =>
+                resolve(`${innerWidth}x${innerHeight}`),
+              ),
+            ),
+          ),
+      ),
+    )
+    .toBe(`${viewport.width}x${viewport.height}`);
+}
+
+async function globeComposition(page: Page) {
+  // The renderer must re-measure its host after every container change;
+  // a scene viewport that differs from the host is a stale composition.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const host = document.querySelector<HTMLElement>(".globe-host")!;
+          const box = host.getBoundingClientRect();
+          const view = JSON.parse(host.dataset.scene!).viewport;
+          return (
+            host.dataset.ready === "true" &&
+            Math.abs(view.width - box.width) <= 1 &&
+            Math.abs(view.height - box.height) <= 1
+          );
+        }),
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+  return page.evaluate(() => {
+    const host = document.querySelector<HTMLElement>(".globe-host")!;
+    const canvas = document.querySelector<HTMLCanvasElement>(".globe-webgl")!;
+    const frame = document
+      .querySelector(".passport-globe-frame")!
+      .getBoundingClientRect();
+    const view = JSON.parse(host.dataset.scene!);
+    // Apparent globe diameter from the live camera (unit-radius sphere).
+    const distance = Math.hypot(...(view.camera as number[]));
+    const diameter =
+      (Math.tan(Math.asin(1 / distance)) /
+        Math.tan((view.fov * Math.PI) / 360)) *
+      view.viewport.height;
+    const inFrame = (box: DOMRect) =>
+      box.left >= frame.left - 1 &&
+      box.right <= frame.right + 1 &&
+      box.top >= frame.top - 1 &&
+      box.bottom <= frame.bottom + 1;
+    const labels = [
+      ...document.querySelectorAll<HTMLElement>(".globe-airport-label"),
+    ].filter((label) => {
+      const style = getComputedStyle(label);
+      return (
+        label.getClientRects().length > 0 &&
+        style.visibility !== "hidden" &&
+        Number(style.opacity) > 0
+      );
+    });
+    const bottom = (selector: string) =>
+      document.querySelector(selector)!.getBoundingClientRect().bottom;
+    return {
+      frameWidth: frame.width,
+      frameHeight: frame.height,
+      diameter,
+      canvasPixels: canvas.width * canvas.height,
+      webglCanvases: document.querySelectorAll(".globe-webgl").length,
+      labels: labels.length,
+      labelsInFrame: labels.every((label) =>
+        inFrame(label.getBoundingClientRect()),
+      ),
+      minLabelFont: Math.min(
+        ...labels.map((label) => parseFloat(getComputedStyle(label).fontSize)),
+      ),
+      controls: [
+        ...document.querySelectorAll(
+          ".passport-globe-frame .globe-controls button",
+        ),
+      ].map((button) => inFrame(button.getBoundingClientRect())),
+      statsBottom: bottom(".passport-core-stats"),
+      highlightsBottom: bottom(".passport-highlights"),
+      overflowX: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+}
+
+test("formal Passport globe keeps its composition from laptop to 4K and tall viewports", async ({
+  page,
+  browserName,
+}) => {
+  // Software WebGL at 4K is only practical on the Chromium project.
+  test.skip(
+    browserName !== "chromium",
+    "Real-WebGL 4K matrix runs on Chromium",
+  );
+  test.setTimeout(150_000);
+  await importFlights(page);
+  const mode = await globeMode(page);
+  test.skip(
+    mode !== "webgl",
+    "WebGL2 is unavailable here; the SVG fallback is not evidence of real-globe composition",
+  );
+
+  for (const viewport of compositionViewports) {
+    await test.step(`${viewport.width}x${viewport.height}`, async () => {
+      await settleViewport(page, viewport);
+      const view = await globeComposition(page);
+      const aspect = view.frameWidth / view.frameHeight;
+      expect(view.webglCanvases).toBe(1);
+      expect(view.canvasPixels).toBeGreaterThan(0);
+      expect(view.overflowX).toBe(false);
+      // Map keeps a landscape frame: never the tall crop of an unbounded row,
+      // never a shallow strip that shrinks the globe within its container.
+      expect(aspect).toBeGreaterThan(1.9);
+      expect(aspect).toBeLessThan(2.45);
+      // The camera frames the globe from the canvas height; with the frame
+      // aspect held, the globe fills a similar share of the map everywhere.
+      expect(view.diameter / view.frameWidth).toBeGreaterThan(0.72);
+      expect(view.diameter / view.frameWidth).toBeLessThan(0.95);
+      expect(view.labels).toBeGreaterThanOrEqual(3);
+      expect(view.labelsInFrame).toBe(true);
+      expect(view.minLabelFont).toBeGreaterThanOrEqual(11);
+      expect(view.controls).toEqual([true, true, true]);
+      expect(view.statsBottom).toBeLessThanOrEqual(viewport.height);
+      expect(view.highlightsBottom).toBeLessThanOrEqual(viewport.height);
+    });
+  }
+
+  await test.step("4K zoom, keyboard, Home and route selection", async () => {
+    await settleViewport(page, { width: 3840, height: 2160 });
+    await globeComposition(page);
+    const host = page.locator(".globe-host");
+    const before = await host.getAttribute("data-camera");
+    await page.getByRole("button", { name: "Zoom in", exact: true }).click();
+    await expect(host).not.toHaveAttribute("data-camera", before!);
+    await page.locator(".globe-webgl").focus();
+    const zoomed = await host.getAttribute("data-camera");
+    await page.keyboard.press("ArrowRight");
+    await expect(host).not.toHaveAttribute("data-camera", zoomed!);
+    await page.keyboard.press("Home");
+    await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+    await page.getByRole("button", { name: "Zoom out", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fit recorded routes", exact: true })
+      .click();
+    await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+    const route = await picker(page);
+    await route.selectOption("SZX-TAO");
+    await expect(page.locator(".flight-row")).toHaveCount(3);
+    await expect(
+      page.locator('.flight-record[data-flight-id="typography-1"] .flight-row'),
+    ).toHaveAttribute("aria-current", "true");
+    await route.selectOption("");
+    await page.locator(".passport-globe-navigation summary").click();
+  });
+
+  await test.step("shrinking back to a laptop recomposes the same globe", async () => {
+    const canvas = await page.locator(".globe-webgl").elementHandle();
+    await settleViewport(page, { width: 1440, height: 900 });
+    const view = await globeComposition(page);
+    expect(await canvas!.evaluate((el) => el.isConnected)).toBe(true);
+    expect(view.webglCanvases).toBe(1);
+    expect(view.frameWidth / view.frameHeight).toBeGreaterThan(1.9);
+    expect(view.diameter / view.frameWidth).toBeGreaterThan(0.72);
+    expect(view.labelsInFrame).toBe(true);
+    expect(view.controls).toEqual([true, true, true]);
+  });
+});
