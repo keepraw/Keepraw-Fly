@@ -204,14 +204,15 @@
 
   .passport-visual-sticky {
     /*
-     * The map row is bounded in two dimensions instead of absorbing all of
-     * the remaining height: it grows gently with the viewport height (about
-     * 480px at 900px tall, 880px at 2160px) and, once taller than 480px, never
-     * exceeds half the report width, so tall-but-narrow windows do not get a
-     * towering globe. Short viewports still shrink it to the space left by
-     * the stats, exactly as before.
+     * The Passport camera frames the globe from the canvas height (its
+     * diameter stays ~1.77x the map height), so a wide, shallow map makes
+     * the globe look small. Size the map from the report width instead,
+     * keeping the laptop aspect (~48% of the width, about 2.1:1), with a
+     * viewport-height ceiling so the stats and highlights stay in view.
+     * The 480px floor keeps narrow desktop windows composed as before;
+     * short viewports still shrink the map to the space left by the stats.
      */
-    --passport-map-max-height: min(calc(31.7vh + 195px), max(50cqi, 480px));
+    --passport-map-max-height: min(54svh, max(48cqi, 480px));
 
     min-height: 0;
     grid-template-rows:

@@ -11,7 +11,9 @@ const viewports = [
   { width: 1440, height: 900 },
   { width: 1920, height: 1080 },
   { width: 2560, height: 1440 },
+  { width: 3072, height: 1728 },
   { width: 3840, height: 2160 },
+  { width: 1440, height: 2160 },
   { width: 1366, height: 768 },
   { width: 1280, height: 720 },
   { width: 1024, height: 768 },
@@ -41,6 +43,21 @@ for (const theme of ["light", "dark"]) {
     let baselineRowHeight: number | undefined;
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
+      // Measure only after the resize (and its container queries) has laid out.
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              new Promise<string>((resolve) =>
+                requestAnimationFrame(() =>
+                  requestAnimationFrame(() =>
+                    resolve(`${innerWidth}x${innerHeight}`),
+                  ),
+                ),
+              ),
+          ),
+        )
+        .toBe(`${viewport.width}x${viewport.height}`);
       await page.locator(".passport-archive").evaluate((el) => {
         el.scrollTop = 0;
       });
@@ -126,20 +143,27 @@ for (const theme of ["light", "dark"]) {
         baselineRowHeight ??= geometry.rowHeight;
         expect(geometry.rowHeight).toBeCloseTo(baselineRowHeight, 0);
       }
-      // The map is bounded in both dimensions: it neither absorbs the whole
-      // height of tall viewports nor stays shallow on 2K/4K CSS viewports.
+      // The map follows the report width (about 48%, the laptop aspect) up
+      // to a viewport-height ceiling (54%), so 2K/4K maps are neither shallow
+      // strips nor towering. Tall, narrow windows keep the 480px laptop map
+      // and leave natural whitespace below rather than distorting the globe.
       if (viewport.height >= 1000) {
-        expect(geometry.mapHeight).toBeGreaterThan(viewport.height * 0.34);
-        expect(geometry.mapHeight).toBeLessThan(viewport.height * 0.5);
+        const widthTarget = Math.max(geometry.mapWidth * 0.48, 480);
         expect(geometry.mapHeight).toBeLessThanOrEqual(
-          Math.max(geometry.mapWidth / 2, 480) + 1,
+          viewport.height * 0.54 + 2,
+        );
+        expect(geometry.mapHeight).toBeLessThanOrEqual(widthTarget + 2);
+        expect(geometry.mapHeight).toBeGreaterThanOrEqual(
+          Math.min(widthTarget, viewport.height * 0.54) - 16,
         );
       }
-      // On very tall viewports the complete report uses a meaningful share of
-      // the height without being pushed to the bottom edge.
+      // On 1440px-tall and larger screens the highlights end well clear of
+      // the bottom edge; laptop and 1080p heights may use most of the screen
+      // (they are still bounded by rightFits below).
       if (viewport.height >= 1400) {
-        expect(geometry.reportBottom / viewport.height).toBeGreaterThan(0.5);
-        expect(geometry.reportBottom / viewport.height).toBeLessThan(0.8);
+        expect(geometry.reportBottom).toBeLessThanOrEqual(
+          viewport.height * 0.86,
+        );
       }
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
