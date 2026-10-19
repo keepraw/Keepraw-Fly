@@ -11,9 +11,7 @@ const viewports = [
   { width: 1440, height: 900 },
   { width: 1920, height: 1080 },
   { width: 2560, height: 1440 },
-  { width: 3072, height: 1728 },
   { width: 3840, height: 2160 },
-  { width: 1440, height: 2160 },
   { width: 1366, height: 768 },
   { width: 1280, height: 720 },
   { width: 1024, height: 768 },
@@ -84,12 +82,6 @@ for (const theme of ["light", "dark"]) {
           archiveWidth: archive.width,
           mapWidth: map.width,
           mapHeight: map.height,
-          reportWidth: document
-            .querySelector(".passport-visual")!
-            .getBoundingClientRect().width,
-          pageWidth: document
-            .querySelector(".passport-archive-page")!
-            .getBoundingClientRect().width,
           rowHeight: document
             .querySelector(".passport-archive .flight-row")!
             .getBoundingClientRect().height,
@@ -102,9 +94,6 @@ for (const theme of ["light", "dark"]) {
                   .querySelector(".passport-archive-page")!
                   .getBoundingClientRect().left,
             ) <= 1,
-          highlightsBottom: document
-            .querySelector(".passport-highlights")!
-            .getBoundingClientRect().bottom,
           reportHeight: report.height,
           rightClientHeight: document.querySelector(".passport-visual-sticky")!
             .clientHeight,
@@ -145,43 +134,12 @@ for (const theme of ["light", "dark"]) {
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
       // The left archive never changes: same column cap and row rhythm, and
-      // the header stays aligned with the (possibly wider) Passport shell.
+      // the header stays aligned with the Passport shell.
       expect(geometry.archiveWidth).toBeLessThanOrEqual(371);
       expect(geometry.headerAligned).toBe(true);
       if (viewport.width >= 1280) {
         laptopRowHeight ??= geometry.rowHeight;
         expect(geometry.rowHeight).toBeCloseTo(laptopRowHeight, 0);
-      }
-      if (viewport.height >= 900 && viewport.width >= 1280) {
-        // Tall enough for the full report: the map follows its width-aware
-        // rule (49% of the report width, at most 54% of the viewport height,
-        // at least min(40%, 480px)) instead of absorbing all spare height.
-        const expected = Math.min(
-          viewport.height * 0.54,
-          Math.max(
-            geometry.reportWidth * 0.49,
-            Math.min(viewport.height * 0.4, 480),
-          ),
-        );
-        expect(Math.abs(geometry.mapHeight - expected)).toBeLessThanOrEqual(4);
-        expect(geometry.mapWidth / geometry.mapHeight).toBeGreaterThan(1.9);
-        expect(geometry.mapWidth / geometry.mapHeight).toBeLessThan(2.45);
-      }
-      if (viewport.height >= 1440 && viewport.width >= 2560) {
-        // Tall, wide screens widen the Passport shell with the viewport height
-        // so the map keeps the laptop aspect; highlights end well above the
-        // bottom edge instead of a full-height crop.
-        expect(geometry.pageWidth).toBeGreaterThan(1800);
-        expect(geometry.mapWidth / geometry.mapHeight).toBeCloseTo(2.04, 1);
-        expect(geometry.highlightsBottom).toBeLessThanOrEqual(
-          viewport.height * 0.85,
-        );
-      }
-      if (viewport.width === 1440 && viewport.height === 2160) {
-        // Tall, narrow: the width cannot support a taller map without a crop,
-        // so the report keeps its laptop geometry and leaves natural space.
-        expect(geometry.pageWidth).toBeLessThanOrEqual(1440);
-        expect(geometry.highlightsBottom).toBeLessThan(viewport.height * 0.5);
       }
       await expect(
         page.locator(

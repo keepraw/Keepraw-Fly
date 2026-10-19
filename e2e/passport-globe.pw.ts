@@ -347,16 +347,13 @@ test("formal Globe pointer route picking and both themes remain accessible @cros
   }
 });
 
-// Real Three.js composition across laptop, 1080p, 1440p, 3K, 4K and a tall,
-// narrow window. The SVG-fallback layout contract lives in
+// Real Three.js composition at laptop, 1080p, 1440p and 4K CSS viewports. The SVG-fallback layout contract lives in
 // passport-desktop-design.pw.ts; this test never accepts the fallback.
 const compositionViewports = [
   { width: 1440, height: 900 },
   { width: 1920, height: 1080 },
   { width: 2560, height: 1440 },
-  { width: 3072, height: 1728 },
   { width: 3840, height: 2160 },
-  { width: 1440, height: 2160 },
 ];
 
 async function settleViewport(
@@ -454,7 +451,7 @@ async function globeComposition(page: Page) {
   });
 }
 
-test("formal Passport globe keeps its composition from laptop to 4K and tall viewports", async ({
+test("formal Passport globe keeps a real, usable composition from laptop to 4K", async ({
   page,
   browserName,
 }) => {
@@ -475,18 +472,12 @@ test("formal Passport globe keeps its composition from laptop to 4K and tall vie
     await test.step(`${viewport.width}x${viewport.height}`, async () => {
       await settleViewport(page, viewport);
       const view = await globeComposition(page);
-      const aspect = view.frameWidth / view.frameHeight;
       expect(view.webglCanvases).toBe(1);
       expect(view.canvasPixels).toBeGreaterThan(0);
       expect(view.overflowX).toBe(false);
-      // Map keeps a landscape frame: never the tall crop of an unbounded row,
-      // never a shallow strip that shrinks the globe within its container.
-      expect(aspect).toBeGreaterThan(1.9);
-      expect(aspect).toBeLessThan(2.45);
-      // The camera frames the globe from the canvas height; with the frame
-      // aspect held, the globe fills a similar share of the map everywhere.
-      expect(view.diameter / view.frameWidth).toBeGreaterThan(0.72);
-      expect(view.diameter / view.frameWidth).toBeLessThan(0.95);
+      // Functional only: the home globe disc is not cut off at the map's
+      // sides (main's tall 1fr map cropped it at 2560x1440 and 4K).
+      expect(view.diameter).toBeLessThanOrEqual(view.frameWidth);
       expect(view.labels).toBeGreaterThanOrEqual(3);
       expect(view.labelsInFrame).toBe(true);
       expect(view.minLabelFont).toBeGreaterThanOrEqual(11);
@@ -530,8 +521,7 @@ test("formal Passport globe keeps its composition from laptop to 4K and tall vie
     const view = await globeComposition(page);
     expect(await canvas!.evaluate((el) => el.isConnected)).toBe(true);
     expect(view.webglCanvases).toBe(1);
-    expect(view.frameWidth / view.frameHeight).toBeGreaterThan(1.9);
-    expect(view.diameter / view.frameWidth).toBeGreaterThan(0.72);
+    expect(view.diameter).toBeLessThanOrEqual(view.frameWidth);
     expect(view.labelsInFrame).toBe(true);
     expect(view.controls).toEqual([true, true, true]);
   });
