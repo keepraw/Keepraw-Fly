@@ -5,19 +5,19 @@
 }
 
 .passport-archive .flight-row {
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 10px;
-  min-height: 82px;
+  grid-template-columns: calc(30 * var(--passport-px, 1px)) minmax(0, 1fr);
+  gap: calc(10 * var(--passport-px, 1px));
+  min-height: calc(82 * var(--passport-px, 1px));
   align-items: center;
-  padding: 12px 8px;
+  padding: calc(12 * var(--passport-px, 1px)) calc(8 * var(--passport-px, 1px));
   color: var(--ink);
 }
 
 .passport-archive .flight-row .airline-logo {
   grid-column: 1;
   grid-row: 1;
-  width: 30px;
-  height: 30px;
+  width: calc(30 * var(--passport-px, 1px));
+  height: calc(30 * var(--passport-px, 1px));
   margin: 0;
 }
 
@@ -26,7 +26,7 @@
   grid-column: 2;
   grid-row: 1;
   grid-template-columns: minmax(0, 1fr);
-  gap: 3px;
+  gap: calc(3 * var(--passport-px, 1px));
   min-width: 0;
 }
 
@@ -34,21 +34,21 @@
   display: flex;
   grid-column: 1;
   grid-row: auto;
-  gap: 10px;
+  gap: calc(10 * var(--passport-px, 1px));
   align-items: baseline;
   justify-content: space-between;
 }
 
 .passport-archive .flight-number {
   flex-flow: row wrap;
-  gap: 3px 6px;
+  gap: calc(3 * var(--passport-px, 1px)) calc(6 * var(--passport-px, 1px));
   align-items: baseline;
   padding: 0;
 }
 
 .passport-archive .flight-number strong {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125 * var(--passport-rem, 1rem));
   letter-spacing: var(--tracking-flight);
 }
 
@@ -58,7 +58,7 @@
   padding: 0;
   color: var(--muted);
   font-family: var(--font-family-ui);
-  font-size: 0.75rem;
+  font-size: calc(0.75 * var(--passport-rem, 1rem));
   white-space: nowrap;
 }
 
@@ -70,11 +70,11 @@
 }
 
 .passport-archive .flight-route-cities {
-  gap: 6px;
+  gap: calc(6 * var(--passport-px, 1px));
   align-items: baseline;
   color: var(--ink);
   font-family: var(--font-family-ui);
-  font-size: 1rem;
+  font-size: calc(1 * var(--passport-rem, 1rem));
   font-weight: var(--font-weight-semibold);
   line-height: 1.4;
 }
@@ -91,37 +91,37 @@
 .passport-archive .flight-row .route-direction {
   flex: 0 0 auto;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: calc(0.875 * var(--passport-rem, 1rem));
 }
 
 .passport-archive .flight-row-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 10px;
+  gap: calc(3 * var(--passport-px, 1px)) calc(10 * var(--passport-px, 1px));
   align-items: baseline;
   justify-content: space-between;
-  margin-top: 3px;
+  margin-top: calc(3 * var(--passport-px, 1px));
 }
 
 .passport-archive .flight-route-codes {
-  gap: 5px;
+  gap: calc(5 * var(--passport-px, 1px));
   margin: 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: calc(0.75 * var(--passport-rem, 1rem));
   white-space: nowrap;
 }
 
 .passport-archive .flight-row .flight-route .airport-code-display {
-  font-size: 0.75rem;
+  font-size: calc(0.75 * var(--passport-rem, 1rem));
   font-weight: var(--font-weight-medium);
   letter-spacing: var(--tracking-airport);
 }
 
 .passport-archive .flight-times {
   flex-wrap: nowrap;
-  gap: 4px;
+  gap: calc(4 * var(--passport-px, 1px));
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: calc(0.75 * var(--passport-rem, 1rem));
   white-space: nowrap;
 }
 
@@ -129,7 +129,7 @@
   display: inline-flex;
   flex-direction: row;
   overflow: visible;
-  font-size: 0.6875rem;
+  font-size: calc(0.6875 * var(--passport-rem, 1rem));
   line-height: 1.4;
   white-space: nowrap;
 }
@@ -144,15 +144,15 @@
 
 @media (min-width: 761px) {
   .passport-archive .flight-row {
-    min-height: 78px;
-    padding-block: 10px;
+    min-height: calc(78 * var(--passport-px, 1px));
+    padding-block: calc(10 * var(--passport-px, 1px));
   }
 
   .passport-archive .flight-route-cities {
-    font-size: 0.9375rem;
+    font-size: calc(0.9375 * var(--passport-rem, 1rem));
   }
 
   .passport-archive .flight-row .flight-date {
-    font-size: 0.6875rem;
+    font-size: calc(0.6875 * var(--passport-rem, 1rem));
   }
 }
