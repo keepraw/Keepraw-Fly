@@ -38,6 +38,7 @@ for (const theme of ["light", "dark"]) {
       timeout: 20_000,
     });
 
+    let baselineRowHeight: number | undefined;
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
       await page.locator(".passport-archive").evaluate((el) => {
@@ -67,9 +68,21 @@ for (const theme of ["light", "dark"]) {
           mapWidth: map.width,
           mapHeight: map.height,
           reportHeight: report.height,
-          statsTop: document
-            .querySelector(".passport-core-stats")!
-            .getBoundingClientRect().top,
+          reportBottom: document
+            .querySelector(".passport-highlights")!
+            .getBoundingClientRect().bottom,
+          rowHeight: document
+            .querySelector(".passport-archive .flight-row")!
+            .getBoundingClientRect().height,
+          headerAligned:
+            Math.abs(
+              document
+                .querySelector(".site-header-inner")!
+                .getBoundingClientRect().left -
+                document
+                  .querySelector(".passport-archive-page")!
+                  .getBoundingClientRect().left,
+            ) <= 1,
           rightClientHeight: document.querySelector(".passport-visual-sticky")!
             .clientHeight,
           rightScrollHeight: document.querySelector(".passport-visual-sticky")!
@@ -106,11 +119,28 @@ for (const theme of ["light", "dark"]) {
       expect(geometry.mapHeight).toBeGreaterThanOrEqual(
         viewport.height > 540 ? 260 : 135,
       );
-      // Tall (2K/4K CSS) viewports cap the map instead of growing it with
-      // the viewport, so the stats stay near the map rather than the bottom.
-      expect(geometry.mapHeight).toBeLessThanOrEqual(501);
-      if (viewport.height >= 900)
-        expect(geometry.statsTop).toBeLessThanOrEqual(720);
+      // The archive column never takes the extra width of ultra-wide shells.
+      expect(geometry.archiveWidth).toBeLessThanOrEqual(371);
+      expect(geometry.headerAligned).toBe(true);
+      if (viewport.width >= 1280) {
+        baselineRowHeight ??= geometry.rowHeight;
+        expect(geometry.rowHeight).toBeCloseTo(baselineRowHeight, 0);
+      }
+      // The map is bounded in both dimensions: it neither absorbs the whole
+      // height of tall viewports nor stays shallow on 2K/4K CSS viewports.
+      if (viewport.height >= 1000) {
+        expect(geometry.mapHeight).toBeGreaterThan(viewport.height * 0.34);
+        expect(geometry.mapHeight).toBeLessThan(viewport.height * 0.5);
+        expect(geometry.mapHeight).toBeLessThanOrEqual(
+          Math.max(geometry.mapWidth / 2, 480) + 1,
+        );
+      }
+      // On very tall viewports the complete report uses a meaningful share of
+      // the height without being pushed to the bottom edge.
+      if (viewport.height >= 1400) {
+        expect(geometry.reportBottom / viewport.height).toBeGreaterThan(0.5);
+        expect(geometry.reportBottom / viewport.height).toBeLessThan(0.8);
+      }
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
       await expect(

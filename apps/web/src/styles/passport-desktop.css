@@ -1,13 +1,27 @@
 /* Desktop Passport layout and interactions; approved palette lives in shared-page-theme.css. */
 @media (min-width: 761px) {
+  .app-shell:has(.passport-archive-page) {
+    /*
+     * Up to a 1920px CSS viewport the shell keeps its 1800px cap. Beyond that
+     * it widens progressively (about 2300px at 2560, capped at 2750px) so
+     * ultra-wide screens give the extra width to the report; the archive
+     * column keeps its own clamp and does not grow.
+     */
+    --passport-shell-max: clamp(
+      1800px,
+      calc(1800px + (100vw - 1920px) * 0.78),
+      2750px
+    );
+  }
+
   .app-shell:has(.passport-archive-page) .site-header-inner,
   .app-shell:has(.passport-archive-page) .page-notices {
-    max-width: 1800px;
+    max-width: var(--passport-shell-max);
     padding-inline: 24px;
   }
 
   .passport-archive-page {
-    max-width: 1800px;
+    max-width: var(--passport-shell-max);
     padding: 12px 24px max(24px, env(safe-area-inset-bottom));
     color: var(--color-text);
   }
@@ -184,13 +198,20 @@
     box-shadow: inset 2px 0 var(--passport-selection);
   }
 
+  .passport-visual {
+    container-type: inline-size;
+  }
+
   .passport-visual-sticky {
     /*
-     * The map row still shrinks with short viewports, but stops growing at a
-     * CSS-pixel ceiling so tall (e.g. 4K) viewports do not inflate the globe
-     * and push the core stats and highlights towards the bottom edge.
+     * The map row is bounded in two dimensions instead of absorbing all of
+     * the remaining height: it grows gently with the viewport height (about
+     * 480px at 900px tall, 880px at 2160px) and, once taller than 480px, never
+     * exceeds half the report width, so tall-but-narrow windows do not get a
+     * towering globe. Short viewports still shrink it to the space left by
+     * the stats, exactly as before.
      */
-    --passport-map-max-height: clamp(480px, calc(280px + 15vh), 500px);
+    --passport-map-max-height: min(calc(31.7vh + 195px), max(50cqi, 480px));
 
     min-height: 0;
     grid-template-rows:
