@@ -80,6 +80,27 @@ export interface GlobeController {
 
 const vector = (v: Vec3) => new THREE.Vector3(...v);
 
+/** Opt-in interaction geometry. By default every label, hit and line
+ * threshold is in CSS pixels at their original values (Flight Detail, Globe
+ * Lab). `scaleWithLayout` multiplies them by the host's CSS-pixel layout
+ * unit, `--passport-px` (1 up to the 1920x1080 reference), so label spacing,
+ * label offsets, pointer hit radii and route widths stay proportional to the
+ * Passport's scaled labels and markers. Pointer coordinates and the camera
+ * projection both stay in CSS pixels; devicePixelRatio is never involved. */
+export interface GlobeInteraction {
+  scaleWithLayout?: boolean;
+}
+
+function measureLayoutUnit(host: HTMLElement) {
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "position:absolute;visibility:hidden;pointer-events:none;width:calc(1000 * var(--passport-px, 1px));height:0";
+  host.append(probe);
+  const unit = probe.offsetWidth / 1000;
+  probe.remove();
+  return unit > 0 ? unit : 1;
+}
+
 export function createGlobe(
   host: HTMLDivElement,
   labels: HTMLDivElement,
@@ -96,6 +117,7 @@ export function createGlobe(
   },
   viewMode: "passport" | "detail" = "passport",
   framing: GlobeFraming = {},
+  interaction: GlobeInteraction = {},
 ): GlobeController {
   const cleanup: (() => void)[] = [];
   try {
@@ -108,6 +130,7 @@ export function createGlobe(
       callbacks,
       viewMode,
       framing,
+      interaction,
       cleanup,
     );
   } catch (cause) {
@@ -143,6 +166,7 @@ function initializeGlobe(
   },
   viewMode: "passport" | "detail",
   framing: GlobeFraming,
+  interaction: GlobeInteraction,
   cleanup: (() => void)[],
 ): GlobeController {
   const start = performance.now();
@@ -352,7 +376,8 @@ function initializeGlobe(
     width = 1,
     height = 1,
     selected: GlobeSelection | null = null,
-    highlight: string | undefined;
+    highlight: string | undefined,
+    unit = interaction.scaleWithLayout ? measureLayoutUnit(host) : 1;
   cleanup.push(() => {
     disposed = true;
     cancelAnimationFrame(frame);
@@ -421,11 +446,7 @@ function initializeGlobe(
             : hovered
               ? 2.4
               : 2.1
-          : active
-            ? 1.65
-            : hovered
-              ? 1.3
-              : 0.93 + level * 0.06;
+          : (active ? 1.65 : hovered ? 1.3 : 0.93 + level * 0.06) * unit;
       item.line.material.opacity =
         viewMode === "detail"
           ? 0.95
@@ -479,20 +500,22 @@ function initializeGlobe(
         viewMode === "detail" || item.label.classList.contains("is-selected");
       const visible =
         visibleFrom(v, cam) &&
-        p.x > 12 &&
-        p.x < width - 45 &&
-        p.y > 42 &&
-        p.y < height - 45 &&
+        p.x > 12 * unit &&
+        p.x < width - 45 * unit &&
+        p.y > 42 * unit &&
+        p.y < height - 45 * unit &&
         p.z < 1;
       const collision = boxes.some(
-        (b) => Math.abs(b.x - p.x) < 43 && Math.abs(b.y - p.y) < 21,
+        (b) =>
+          Math.abs(b.x - p.x) < 43 * unit && Math.abs(b.y - p.y) < 21 * unit,
       );
       const show =
         visible && (!collision || required) && (required || boxes.length < 12);
       item.label.hidden = !show;
       if (show) {
-        const labelY = viewMode === "detail" && collision ? p.y + 8 : p.y - 16;
-        item.label.style.transform = `translate(${p.x + 7}px,${labelY}px)`;
+        const labelY =
+          viewMode === "detail" && collision ? p.y + 8 : p.y - 16 * unit;
+        item.label.style.transform = `translate(${p.x + 7 * unit}px,${labelY}px)`;
         boxes.push(p);
       }
     }
@@ -530,6 +553,7 @@ function initializeGlobe(
       fov: camera.fov,
       viewOffset,
       viewport: { width, height },
+      layoutUnit: unit,
       home,
       atHome,
       physicalRoutes: routeLines.length,
@@ -610,6 +634,13 @@ function initializeGlobe(
   };
   reviewHost.globeReviewView = (view) => flyTo(view);
   function resize() {
+    if (interaction.scaleWithLayout) {
+      const next = measureLayoutUnit(host);
+      if (next !== unit) {
+        unit = next;
+        paintStyles();
+      }
+    }
     width = Math.max(1, host.clientWidth);
     height = Math.max(1, host.clientHeight);
     renderer.setSize(width, height);
@@ -730,13 +761,13 @@ function initializeGlobe(
     for (const item of markers) {
       const v = item.marker.position.toArray() as unknown as Vec3,
         p = project(v);
-      if (visibleFrom(v, cam) && Math.hypot(p.x - x, p.y - y) < 12)
+      if (visibleFrom(v, cam) && Math.hypot(p.x - x, p.y - y) < 12 * unit)
         return {
           selection: { kind: "airport", code: item.point.iata },
           text: callbacks.airportLabel(item.point.iata, item.point.flightCount),
         };
     }
-    let best = 8,
+    let best = 8 * unit,
       hit: null | { selection: GlobeSelection; text: string; key?: string } =
         null;
     for (const item of routeLines)

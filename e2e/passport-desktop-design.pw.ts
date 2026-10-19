@@ -85,6 +85,16 @@ for (const theme of ["light", "dark"]) {
           rowHeight: document
             .querySelector(".passport-archive .flight-row")!
             .getBoundingClientRect().height,
+          // Passport layout scale (1 up to the 1920x1080 reference).
+          scale: (() => {
+            const probe = document.createElement("div");
+            probe.style.cssText =
+              "position:absolute;visibility:hidden;width:calc(1000 * var(--passport-px, 1px))";
+            document.querySelector(".app-shell")!.append(probe);
+            const value = probe.getBoundingClientRect().width / 1000;
+            probe.remove();
+            return value;
+          })(),
           headerAligned:
             Math.abs(
               document
@@ -133,13 +143,16 @@ for (const theme of ["light", "dark"]) {
       );
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
-      // The left archive never changes: same column cap and row rhythm, and
-      // the header stays aligned with the Passport shell.
-      expect(geometry.archiveWidth).toBeLessThanOrEqual(371);
+      // The left archive keeps its column cap and row rhythm in Passport
+      // layout units (CSS px up to 1920x1080, scaled together above it),
+      // and the header stays aligned with the Passport shell.
+      expect(geometry.archiveWidth).toBeLessThanOrEqual(371 * geometry.scale);
       expect(geometry.headerAligned).toBe(true);
       if (viewport.width >= 1280) {
-        laptopRowHeight ??= geometry.rowHeight;
-        expect(geometry.rowHeight).toBeCloseTo(laptopRowHeight, 0);
+        laptopRowHeight ??= geometry.rowHeight / geometry.scale;
+        expect(
+          Math.abs(geometry.rowHeight - laptopRowHeight * geometry.scale),
+        ).toBeLessThanOrEqual(geometry.scale);
       }
       await expect(
         page.locator(

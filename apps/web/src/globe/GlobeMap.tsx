@@ -110,6 +110,9 @@ export function GlobeMap({
         // Passport keeps the whole home globe disc within the map width;
         // Globe Lab keeps its cropped-cap composition.
         variant === "passport" ? { containDisc: true } : {},
+        // Passport labels and markers follow its layout scale, so label
+        // spacing, pointer hit radii and route widths follow it too.
+        variant === "passport" ? { scaleWithLayout: true } : {},
       );
       controller.current = instance;
       instance.lighting(latest.current.lighting);
