@@ -410,6 +410,8 @@ async function globeComposition(page: Page) {
       (Math.tan(Math.asin(1 / distance)) /
         Math.tan((view.fov * Math.PI) / 360)) *
       view.viewport.height;
+    // Disc centre after the camera's fractional view offset.
+    const centerX = (0.5 - (view.viewOffset?.x ?? 0)) * view.viewport.width;
     const inFrame = (box: DOMRect) =>
       box.left >= frame.left - 1 &&
       box.right <= frame.right + 1 &&
@@ -431,6 +433,9 @@ async function globeComposition(page: Page) {
       frameWidth: frame.width,
       frameHeight: frame.height,
       diameter,
+      discLeft: centerX - diameter / 2,
+      discRight: centerX + diameter / 2,
+      canvasWidth: view.viewport.width,
       canvasPixels: canvas.width * canvas.height,
       webglCanvases: document.querySelectorAll(".globe-webgl").length,
       labels: labels.length,
@@ -476,13 +481,10 @@ test("formal Passport globe keeps a real, usable composition from laptop to 4K",
       expect(view.webglCanvases).toBe(1);
       expect(view.canvasPixels).toBeGreaterThan(0);
       expect(view.overflowX).toBe(false);
-      // Recorded, not asserted: the Passport camera deliberately composes a
-      // cropped globe cap from the canvas height (see globe-math tests), so
-      // the disc may be wider than a tall map. The report states it.
-      test.info().annotations.push({
-        type: "globe-composition",
-        description: `${viewport.width}x${viewport.height}: map ${Math.round(view.frameWidth)}x${Math.round(view.frameHeight)}, globe diameter ${Math.round(view.diameter)}px`,
-      });
+      // Passport home framing keeps the whole globe disc inside the map
+      // width (no left/right crop) at every desktop size.
+      expect(view.discLeft).toBeGreaterThanOrEqual(-1);
+      expect(view.discRight).toBeLessThanOrEqual(view.canvasWidth + 1);
       expect(view.labels).toBeGreaterThanOrEqual(3);
       expect(view.labelsInFrame).toBe(true);
       expect(view.minLabelFont).toBeGreaterThanOrEqual(11);
