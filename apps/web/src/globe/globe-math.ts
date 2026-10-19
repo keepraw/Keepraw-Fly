@@ -126,6 +126,30 @@ export interface GlobeViewport {
   width: number;
   height: number;
 }
+
+/** Optional home-view framing. `containDisc` keeps the whole globe disc
+ * inside the viewport width (Passport); without it the composition may crop
+ * the cap at the sides (Globe Lab). */
+export interface GlobeFraming {
+  containDisc?: boolean;
+}
+
+/** Apparent globe disc width as a fraction of the viewport width, for the
+ * fixed 34° vertical field of view and a unit-radius sphere. */
+export function globeDiscWidthFraction(
+  distance: number,
+  viewport: GlobeViewport,
+) {
+  return (
+    viewport.height /
+    (viewport.width * tangent * Math.sqrt(distance * distance - 1))
+  );
+}
+
+/** Nearest camera distance at which the disc exactly spans the width. */
+function discFitDistance(viewport: GlobeViewport) {
+  return Math.sqrt(1 + (viewport.height / (viewport.width * tangent)) ** 2);
+}
 const defaultViewport = { width: 1008, height: 610 };
 const tangent = Math.tan((17 * Math.PI) / 180);
 
@@ -243,7 +267,9 @@ export function composeGlobeView(
   routes: RouteSegment[],
   representative: Vec3,
   viewport: GlobeViewport = defaultViewport,
+  framing: GlobeFraming = {},
 ): GlobeView {
+  const minDistance = framing.containDisc ? discFitDistance(viewport) : 0;
   const airports = globeAirports(routes).map((p) => ({
     point: scale(spherePoint(p), 1.005),
     weight:
@@ -263,9 +289,11 @@ export function composeGlobeView(
   const total = airports.reduce((s, p) => s + p.weight, 0) || 1;
   for (const latitudeShift of [-12, -18, -24, -30])
     for (const longitudeShift of [-7, 0, 7])
-      for (const distance of [
+      for (const candidate of [
         1.68, 1.8, 1.94, 2.1, 2.35, 2.65, 3.1, 3.8, 4.4,
       ]) {
+        // Contained framing moves only candidates nearer than the fit.
+        const distance = Math.max(candidate, minDistance);
         const direction = spherePoint({
           latitude: Math.max(-78, Math.min(78, geo.latitude + latitudeShift)),
           longitude: geo.longitude + longitudeShift,
@@ -279,8 +307,15 @@ export function composeGlobeView(
         const weight = visible.reduce((s, p) => s + p.weight, 0) || 1;
         const x = visible.reduce((s, p) => s + p.x * p.weight, 0) / weight;
         const y = visible.reduce((s, p) => s + p.y * p.weight, 0) / weight;
+        // A contained disc may shift sideways only by its spare width.
+        const maxShiftX = framing.containDisc
+          ? Math.min(
+              0.12,
+              Math.max(0, (1 - globeDiscWidthFraction(distance, viewport)) / 2),
+            )
+          : 0.12;
         view.offset = {
-          x: Math.max(-0.12, Math.min(0.12, x - 0.5)),
+          x: Math.max(-maxShiftX, Math.min(maxShiftX, x - 0.5)),
           y: Math.max(-0.9, Math.min(-0.1, y - 0.6)),
         };
         let score = 0;
@@ -337,14 +372,22 @@ export function composeGlobeView(
 export function defaultGlobeView(
   input: RouteSegment[],
   viewport: GlobeViewport = defaultViewport,
+  framing: GlobeFraming = {},
 ): GlobeView {
   if (!input.length)
     return {
       direction: spherePoint({ latitude: 20, longitude: 110 }),
-      distance: 2.35,
+      distance: framing.containDisc
+        ? Math.max(2.35, discFitDistance(viewport))
+        : 2.35,
       offset: { x: 0, y: -0.25 },
     };
-  return composeGlobeView(input, representativeGlobeDirection(input), viewport);
+  return composeGlobeView(
+    input,
+    representativeGlobeDirection(input),
+    viewport,
+    framing,
+  );
 }
 
 export function selectedRouteView(

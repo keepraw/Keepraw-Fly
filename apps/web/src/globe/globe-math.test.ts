@@ -5,6 +5,7 @@ import {
   dot,
   geographicPoint,
   globeAirports,
+  globeDiscWidthFraction,
   physicalGlobeRoutes,
   projectGlobePoint,
   interpolateSphere,
@@ -233,5 +234,71 @@ describe("intelligent globe camera", () => {
         }
       }
     }
+  });
+  it("Passport contained framing keeps the whole disc inside the width", () => {
+    const sets = [
+      [route(PVG, HKG, 12), route(HKG, NRT, 7), route(SFO, JFK)],
+      [route(SFO, LAX, 12), route(SFO, JFK, 8), route(PVG, HKG)],
+      [route(SYD, airport("AKL", -37, 174.8), 8)],
+      [],
+    ];
+    for (const routes of sets)
+      for (const viewport of [
+        { width: 1006, height: 608 },
+        { width: 860, height: 428 },
+        { width: 650, height: 610 },
+        { width: 1358, height: 1028 },
+        { width: 1358, height: 1748 },
+      ]) {
+        const view = defaultGlobeView(routes, viewport, { containDisc: true });
+        const disc = globeDiscWidthFraction(view.distance, viewport);
+        const centre = 0.5 - (view.offset?.x ?? 0);
+        expect(centre - disc / 2).toBeGreaterThanOrEqual(-1e-9);
+        expect(centre + disc / 2).toBeLessThanOrEqual(1 + 1e-9);
+        for (const point of globeAirports(routes).filter(
+          (p) => p.flightCount > 5,
+        )) {
+          const p = projectGlobePoint(spherePoint(point), view, viewport);
+          expect(p.visible).toBe(true);
+          expect(p.x).toBeGreaterThan(0);
+          expect(p.x).toBeLessThan(1);
+          expect(p.y).toBeGreaterThan(0);
+          expect(p.y).toBeLessThan(1);
+        }
+      }
+  });
+  it("Passport contained framing keeps wide laptop compositions, only clamping the side shift", () => {
+    const routes = [route(PVG, HKG, 12), route(HKG, NRT, 7), route(SFO, JFK)];
+    for (const viewport of [
+      { width: 998, height: 489 },
+      { width: 1358, height: 668 },
+    ]) {
+      const free = defaultGlobeView(routes, viewport);
+      const contained = defaultGlobeView(routes, viewport, {
+        containDisc: true,
+      });
+      const spare = (1 - globeDiscWidthFraction(free.distance, viewport)) / 2;
+      expect(spare).toBeGreaterThan(0);
+      expect(contained.direction).toEqual(free.direction);
+      expect(contained.distance).toBe(free.distance);
+      expect(contained.offset!.y).toBe(free.offset!.y);
+      expect(contained.offset!.x).toBeCloseTo(
+        Math.max(-spare, Math.min(spare, free.offset!.x)),
+        10,
+      );
+    }
+  });
+  it("keeps the Globe Lab cropped cap when no framing is requested", () => {
+    const routes = [route(PVG, HKG, 12), route(HKG, NRT, 7), route(SFO, JFK)];
+    const viewport = { width: 650, height: 610 };
+    expect(defaultGlobeView(routes, viewport, {})).toEqual(
+      defaultGlobeView(routes, viewport),
+    );
+    expect(
+      globeDiscWidthFraction(
+        defaultGlobeView(routes, viewport).distance,
+        viewport,
+      ),
+    ).toBeGreaterThan(1);
   });
 });

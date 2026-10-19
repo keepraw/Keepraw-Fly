@@ -9,6 +9,9 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 
 const viewports = [
   { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+  { width: 2560, height: 1440 },
+  { width: 3840, height: 2160 },
   { width: 1366, height: 768 },
   { width: 1280, height: 720 },
   { width: 1024, height: 768 },
@@ -35,8 +38,24 @@ for (const theme of ["light", "dark"]) {
       timeout: 20_000,
     });
 
+    let laptopRowHeight: number | undefined;
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
+      // Measure only once the resize has been laid out.
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              new Promise<string>((resolve) =>
+                requestAnimationFrame(() =>
+                  requestAnimationFrame(() =>
+                    resolve(`${innerWidth}x${innerHeight}`),
+                  ),
+                ),
+              ),
+          ),
+        )
+        .toBe(`${viewport.width}x${viewport.height}`);
       await page.locator(".passport-archive").evaluate((el) => {
         el.scrollTop = 0;
       });
@@ -63,6 +82,18 @@ for (const theme of ["light", "dark"]) {
           archiveWidth: archive.width,
           mapWidth: map.width,
           mapHeight: map.height,
+          rowHeight: document
+            .querySelector(".passport-archive .flight-row")!
+            .getBoundingClientRect().height,
+          headerAligned:
+            Math.abs(
+              document
+                .querySelector(".site-header-inner")!
+                .getBoundingClientRect().left -
+                document
+                  .querySelector(".passport-archive-page")!
+                  .getBoundingClientRect().left,
+            ) <= 1,
           reportHeight: report.height,
           rightClientHeight: document.querySelector(".passport-visual-sticky")!
             .clientHeight,
@@ -102,6 +133,14 @@ for (const theme of ["light", "dark"]) {
       );
       expect(geometry.rightFits).toBe(true);
       expect(geometry.statsCount).toBe(6);
+      // The left archive never changes: same column cap and row rhythm, and
+      // the header stays aligned with the Passport shell.
+      expect(geometry.archiveWidth).toBeLessThanOrEqual(371);
+      expect(geometry.headerAligned).toBe(true);
+      if (viewport.width >= 1280) {
+        laptopRowHeight ??= geometry.rowHeight;
+        expect(geometry.rowHeight).toBeCloseTo(laptopRowHeight, 0);
+      }
       await expect(
         page.locator(
           ".flight-ledger-duration, .flight-ledger-exception, .flight-scheduled-times, .flight-deviation",

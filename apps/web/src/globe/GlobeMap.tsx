@@ -107,6 +107,9 @@ export function GlobeMap({
           error: fail,
         },
         variant === "detail" ? "detail" : "passport",
+        // Passport keeps the whole home globe disc within the map width;
+        // Globe Lab keeps its cropped-cap composition.
+        variant === "passport" ? { containDisc: true } : {},
       );
       controller.current = instance;
       instance.lighting(latest.current.lighting);
