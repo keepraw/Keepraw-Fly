@@ -679,23 +679,6 @@
   }
 }
 
-/* Wide desktops (above the existing 1100px compact breakpoint): the map follows
- * the report width at the 2:1 frame main already renders on a laptop
- * (998x489 at 1440x900), because the Passport camera frames the globe from
- * the canvas height. Its height ceiling is still the space the title,
- * statistics and highlights leave; it no longer absorbs spare height on tall
- * screens, so the report packs to the top. Compact widths keep 1fr. */
-@media (min-width: 1101px) {
-  .passport-visual {
-    container-type: inline-size;
-  }
-
-  .passport-visual-sticky {
-    grid-template-rows: minmax(28px, auto) minmax(0, 50cqi) auto auto;
-    align-content: start;
-  }
-}
-
 @media (min-width: 761px) and (max-width: 1100px) {
   .app-shell:has(.passport-archive-page) .site-header-inner,
   .app-shell:has(.passport-archive-page) .page-notices {

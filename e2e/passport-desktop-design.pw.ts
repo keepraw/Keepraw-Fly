@@ -41,7 +41,7 @@ for (const theme of ["light", "dark"]) {
     let laptopRowHeight: number | undefined;
     for (const viewport of viewports) {
       await page.setViewportSize(viewport);
-      // Measure only once the resize and its container queries have laid out.
+      // Measure only once the resize has been laid out.
       await expect
         .poll(() =>
           page.evaluate(
