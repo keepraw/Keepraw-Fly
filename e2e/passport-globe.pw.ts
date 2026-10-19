@@ -11,6 +11,8 @@ import {
   normalize,
   routeArc,
   scale,
+  spherePoint,
+  visibleFrom,
   type Vec3,
 } from "../apps/web/src/globe/globe-math";
 
@@ -531,4 +533,310 @@ test("formal Passport globe keeps a real, usable composition from laptop to 4K",
     expect(view.labelsInFrame).toBe(true);
     expect(view.controls).toEqual([true, true, true]);
   });
+});
+
+// Passport labels and markers grow with the layout scale (1x at 1920x1080,
+// about 1.33x at 2560x1440, 2x at 3840x2160). Label avoidance, label offsets
+// and pointer hit radii must follow, measured here from rendered DOM label
+// boxes and real pointer events on the WebGL canvas (CSS pixels).
+type SceneRoute = {
+  key: string;
+  origin: { iata: string; latitude: number; longitude: number };
+  destination: { iata: string; latitude: number; longitude: number };
+};
+
+async function screenGeometry(page: Page) {
+  const view = await scene(page);
+  const box = (await page.locator(".globe-webgl").boundingBox())!;
+  const cam = view.camera as Vec3;
+  const forward = scale(normalize(cam), -1),
+    right = normalize(cross(forward, [0, 1, 0])),
+    up = cross(right, forward);
+  const tangent = Math.tan(((view.fov as number) * Math.PI) / 360);
+  const offset = view.viewOffset ?? { x: 0, y: 0 };
+  // Same projection as the renderer, including the Passport view offset.
+  const toScreen = (point: Vec3) => {
+    const delta = add(point, scale(cam, -1)),
+      depth = dot(delta, forward);
+    return {
+      x:
+        box.x +
+        box.width / 2 +
+        ((dot(delta, right) / depth / tangent) * box.height) / 2 -
+        offset.x * box.width,
+      y:
+        box.y +
+        box.height / 2 -
+        ((dot(delta, up) / depth / tangent) * box.height) / 2 -
+        offset.y * box.height,
+      visible: visibleFrom(point, cam),
+    };
+  };
+  const inside = (p: { x: number; y: number }, margin: number) =>
+    p.x > box.x + margin &&
+    p.x < box.x + box.width - margin &&
+    p.y > box.y + margin &&
+    p.y < box.y + box.height - margin;
+  const routes = (view.routes as SceneRoute[]).map((route) => ({
+    route,
+    samples: routeArc(route as never).map(toScreen),
+  }));
+  const airports = new Map<string, ReturnType<typeof toScreen>>();
+  for (const { route } of routes)
+    for (const point of [route.origin, route.destination])
+      airports.set(point.iata, toScreen(spherePoint(point)));
+  return {
+    unit: view.layoutUnit as number,
+    routes,
+    airports,
+    inside,
+  };
+}
+
+async function visibleLabels(page: Page) {
+  return page.evaluate(() => {
+    const frame = document
+      .querySelector(".passport-globe-frame")!
+      .getBoundingClientRect();
+    const labels = [
+      ...document.querySelectorAll<HTMLElement>(".globe-airport-label"),
+    ]
+      .filter((label) => !label.hidden && label.getClientRects().length)
+      .map((label) => ({
+        code: label.textContent!.trim(),
+        selected: label.classList.contains("is-selected"),
+        box: label.getBoundingClientRect().toJSON() as DOMRect,
+      }));
+    const overlaps: string[] = [];
+    for (let i = 0; i < labels.length; i++)
+      for (let j = i + 1; j < labels.length; j++) {
+        const a = labels[i]!,
+          b = labels[j]!;
+        // A selected airport label is always shown; it may sit beside others.
+        if (a.selected || b.selected) continue;
+        const x =
+            Math.min(a.box.right, b.box.right) -
+            Math.max(a.box.left, b.box.left),
+          y =
+            Math.min(a.box.bottom, b.box.bottom) -
+            Math.max(a.box.top, b.box.top);
+        if (x > 0.5 && y > 0.5) overlaps.push(`${a.code}/${b.code}`);
+      }
+    return {
+      codes: labels.map((label) => label.code).sort(),
+      overlaps,
+      outside: labels
+        .filter(
+          ({ box }) =>
+            box.left < frame.left ||
+            box.right > frame.right ||
+            box.top < frame.top ||
+            box.bottom > frame.bottom,
+        )
+        .map((label) => label.code),
+    };
+  });
+}
+
+function distanceToSegment(
+  p: { x: number; y: number },
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+) {
+  const dx = b.x - a.x,
+    dy = b.y - a.y;
+  const t = Math.max(
+    0,
+    Math.min(
+      1,
+      ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1),
+    ),
+  );
+  return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
+}
+
+/** A visible route point far from other routes and airports, with its
+ * screen normal, so near/far pointer probes are unambiguous. */
+function isolatedRoutePoint(
+  geometry: Awaited<ReturnType<typeof screenGeometry>>,
+) {
+  // Wider than the 20-unit empty probe plus the 8-unit route hit band.
+  const clearance = 30 * geometry.unit;
+  for (const { route, samples } of geometry.routes)
+    for (let i = 20; i < samples.length - 20; i += 4) {
+      const p = samples[i]!,
+        q = samples[i + 1]!;
+      if (!p.visible || !q.visible || !geometry.inside(p, clearance)) continue;
+      const length = Math.hypot(q.x - p.x, q.y - p.y) || 1;
+      const normal = { x: -(q.y - p.y) / length, y: (q.x - p.x) / length };
+      // Both directions of a pair share one physical arc.
+      const pair = (r: SceneRoute) =>
+        [r.origin.iata, r.destination.iata].sort().join("-");
+      const others = geometry.routes.filter(
+        (other) => pair(other.route) !== pair(route),
+      );
+      const clear =
+        others.every(({ samples: other }) =>
+          other.every(
+            (a, j) =>
+              j === 0 ||
+              !a.visible ||
+              !other[j - 1]!.visible ||
+              distanceToSegment(p, other[j - 1]!, a) > clearance,
+          ),
+        ) &&
+        [...geometry.airports.values()].every(
+          (a) => !a.visible || Math.hypot(a.x - p.x, a.y - p.y) > clearance,
+        );
+      if (clear) return { key: route.key, point: p, normal };
+    }
+  return null;
+}
+
+async function cameraSettled(page: Page) {
+  const host = page.locator(".globe-host");
+  let last = "";
+  await expect
+    .poll(
+      async () => {
+        const now = (await host.getAttribute("data-camera"))!;
+        const still = now === last;
+        last = now;
+        return still;
+      },
+      { intervals: [250] },
+    )
+    .toBe(true);
+}
+
+async function expectScaledInteraction(page: Page, label: string) {
+  await test.step(label, async () => {
+    await cameraSettled(page);
+    const geometry = await screenGeometry(page);
+    const labels = await visibleLabels(page);
+    expect(labels.overlaps).toEqual([]);
+    expect(labels.outside).toEqual([]);
+
+    // The route picker <details> may still be open from an earlier probe.
+    const navigation = page.locator(".passport-globe-navigation");
+    if (!(await navigation.evaluate((el) => (el as HTMLDetailsElement).open)))
+      await navigation.locator("summary").click();
+    const route = page.getByRole("combobox", {
+      name: "Select a route",
+      exact: true,
+    });
+    await route.selectOption("");
+    const target = isolatedRoutePoint(geometry);
+    expect(target, "an isolated visible route segment").not.toBeNull();
+    const { point, normal, key } = target!;
+    // Empty map near a route (well outside its scaled hit band) selects nothing.
+    await page.mouse.click(
+      point.x + normal.x * 20 * geometry.unit,
+      point.y + normal.y * 20 * geometry.unit,
+    );
+    await expect(route).toHaveValue("");
+    // Just beside the visible line, in layout units, selects that route.
+    await page.mouse.click(
+      point.x + normal.x * 5 * geometry.unit,
+      point.y + normal.y * 5 * geometry.unit,
+    );
+    await expect(route).toHaveValue(key);
+    await route.selectOption("");
+
+    // Selecting a route flies the camera; re-measure once it settles.
+    await cameraSettled(page);
+    const current = await screenGeometry(page);
+    const { codes } = await visibleLabels(page);
+    // A visible airport marker, probed beside its centre in layout units.
+    const code = codes.find((code) => {
+      const p = current.airports.get(code);
+      return p?.visible && current.inside(p, 30 * current.unit);
+    })!;
+    const marker = current.airports.get(code)!;
+    await page.mouse.click(marker.x, marker.y + 8 * geometry.unit);
+    await expect(page.locator(".globe-airport-label.is-selected")).toHaveText([
+      code,
+    ]);
+    await route.selectOption("");
+    await expect(page.locator(".globe-airport-label.is-selected")).toHaveCount(
+      0,
+    );
+  });
+}
+
+test("formal Passport labels and pointer hits follow the layout scale", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== "chromium",
+    "Real-WebGL 4K matrix runs on Chromium",
+  );
+  test.setTimeout(180_000);
+  await importFlights(page);
+  test.skip(
+    (await globeMode(page)) !== "webgl",
+    "WebGL2 is unavailable here; the SVG fallback is not evidence of real-globe interaction",
+  );
+  let referenceLabels: string[] = [];
+  for (const viewport of [
+    { width: 1920, height: 1080 },
+    { width: 2560, height: 1440 },
+    { width: 3840, height: 2160 },
+  ]) {
+    await settleViewport(page, viewport);
+    await globeComposition(page);
+    // Earlier probes selected routes and moved the camera; return Home.
+    await page.locator(".globe-webgl").focus();
+    await page.keyboard.press("Home");
+    await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+    await cameraSettled(page);
+    const view = await scene(page);
+    // The renderer reads the same layout unit the Passport CSS uses.
+    const unit = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.style.width = "calc(1000 * var(--passport-px, 1px))";
+      document.querySelector(".globe-host")!.append(probe);
+      const width = probe.offsetWidth / 1000;
+      probe.remove();
+      return width;
+    });
+    expect(view.layoutUnit).toBe(unit);
+    // The scaled composition shows the same avoided label set as 1080p.
+    const { codes } = await visibleLabels(page);
+    if (viewport.width === 1920) referenceLabels = codes;
+    else expect(codes).toEqual(referenceLabels);
+    await expectScaledInteraction(page, `${viewport.width}x${viewport.height}`);
+  }
+
+  // 4K after zoom out, rotation, Home and Fit.
+  const host = page.locator(".globe-host");
+  await page.getByRole("button", { name: "Zoom out", exact: true }).click();
+  await expect.poll(async () => (await scene(page)).atHome).toBe(false);
+  await expectScaledInteraction(page, "4K zoomed out");
+  await page.locator(".globe-webgl").focus();
+  const before = await host.getAttribute("data-camera");
+  await page.keyboard.press("ArrowLeft");
+  await expect(host).not.toHaveAttribute("data-camera", before!);
+  await expectScaledInteraction(page, "4K rotated");
+  await page.locator(".globe-webgl").focus();
+  await page.keyboard.press("Home");
+  await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+  await page.getByRole("button", { name: "Zoom in", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Fit recorded routes", exact: true })
+    .click();
+  await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+  await expectScaledInteraction(page, "4K after Home and Fit");
+
+  // Shrinking back restores the reference unit and the same behaviour.
+  await settleViewport(page, { width: 1920, height: 1080 });
+  await globeComposition(page);
+  await page.locator(".globe-webgl").focus();
+  await page.keyboard.press("Home");
+  await expect.poll(async () => (await scene(page)).atHome).toBe(true);
+  await cameraSettled(page);
+  expect((await scene(page)).layoutUnit).toBe(1);
+  expect((await visibleLabels(page)).codes).toEqual(referenceLabels);
+  await expectScaledInteraction(page, "back to 1920x1080");
 });
