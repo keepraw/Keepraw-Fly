@@ -32,12 +32,12 @@
     "check:webfont-sri": "node scripts/verify-webfont-sri.mjs"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.64.0",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.3.0",
     "d3-geo": "3.1.1",
     "opencc-js": "1.4.2",
-    "postcss": "8.5.29",
+    "postcss": "8.5.30",
     "postcss-value-parser": "^4.2.0",
     "prettier": "^3.9.10",
     "stylelint": "^17.16.0",
