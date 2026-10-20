@@ -113,11 +113,6 @@ export function FlightRow({
         onFocus={() => onHoverChange?.(flight)}
         onBlur={() => onHoverChange?.(null)}
         style={{ "--flight-row-index": revealIndex } as CSSProperties}
-        aria-label={t("flights.openFlight", {
-          flightNumber: flight.flightNumber,
-          origin: flight.origin.iata,
-          destination: flight.destination.iata,
-        })}
       >
         <AirlineLogo
           key={airlineLogo?.src ?? airlineMark}
@@ -178,6 +173,13 @@ export function FlightRow({
             </div>
           </div>
         </div>
+        <span className="sr-only">
+          {t("flights.openFlight", {
+            flightNumber: flight.flightNumber,
+            origin: flight.origin.iata,
+            destination: flight.destination.iata,
+          })}
+        </span>
       </button>
     </div>
   );

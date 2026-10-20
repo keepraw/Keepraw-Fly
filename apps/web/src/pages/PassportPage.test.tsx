@@ -294,9 +294,14 @@ describe("Passport narrative and spotlights", () => {
         );
       }
       expect(
-        buttons.every((button) =>
-          /aria-label="[^"]*[Ff]ilter flights/.test(button),
-        ),
+        buttons.every((button) => /[Ff]ilter flights/.test(button)),
+      ).toBe(true);
+      expect(
+        buttons
+          .filter((button) =>
+            /passport-airport-rank|passport-longest-flight/.test(button),
+          )
+          .every((button) => !/aria-label=/.test(button)),
       ).toBe(true);
     },
   );
