@@ -24,9 +24,9 @@ export async function expectDetailHero(page: Page, width: number) {
     .toBe(width >= 1200 ? 2 : 1);
   // Wait for breakpoint styles and React's mount/unmount before measuring.
   await expect(hero).toHaveCSS("row-gap", width >= 1200 ? "32px" : "0px");
-  const map = page.locator(".detail-hero-grid > .detail-route-map");
-  if (width >= 1200) await expect(map).toBeVisible();
-  else await expect(map).toHaveCount(0);
+  const map_ = page.locator(".detail-hero-grid > .detail-route-map");
+  if (width >= 1200) await expect(map_).toBeVisible();
+  else await expect(map_).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => window.scrollTo(0, 0));
   const geometry = await hero.evaluate((element) => {
@@ -55,6 +55,7 @@ export async function expectDetailHero(page: Page, width: number) {
       heroPaddingTop: parseFloat(getComputedStyle(element).paddingTop),
       heroPaddingBottom: parseFloat(getComputedStyle(element).paddingBottom),
       viewportHeight: innerHeight,
+      scrollHeight: document.documentElement.scrollHeight,
       overflow: document.documentElement.scrollWidth - innerWidth,
     };
   });
@@ -79,33 +80,32 @@ export async function expectDetailHero(page: Page, width: number) {
       expect(skyBounds.y + skyBounds.height).toBeLessThanOrEqual(
         geometry.shelf.top + 1,
       );
-    const host = page.locator(".detail-globe-frame .globe-host");
+    const host = page.locator(".detail-globe-frame .globe-host:not([hidden])");
     if (await host.count()) {
       await expect(host).toHaveAttribute("data-ready", "true", {
         timeout: 25000,
       });
-      // The map fills the Hero row, independently of the information's height.
-      expect(map.top).toBeCloseTo(
-        geometry.hero.top + geometry.heroPaddingTop,
+      // Content-led Hero: no viewport-driven padding or row height. The title
+      // starts at the Hero's natural top; the Globe is its own square frame
+      // with 16px breathing room, capped at 560px, and the Hero is exactly as
+      // tall as the taller of the two columns.
+      expect(geometry.heroPaddingTop).toBe(0);
+      expect(geometry.heroPaddingBottom).toBe(0);
+      expect(geometry.information.top).toBeCloseTo(geometry.hero.top, 0);
+      expect(geometry.heading.top).toBeCloseTo(geometry.hero.top, 0);
+      expect(map.top).toBeCloseTo(geometry.hero.top + 16, 0);
+      expect(map.height).toBeCloseTo(Math.min(map.width, 560), 0);
+      expect(geometry.hero.height).toBeCloseTo(
+        Math.max(geometry.information.height, map.height + 32),
         0,
       );
-      expect(map.bottom).toBeCloseTo(
-        geometry.hero.bottom - geometry.heroPaddingBottom,
-        0,
+      expect(geometry.stops.bottom).toBeLessThanOrEqual(
+        geometry.information.bottom + 1,
       );
-      const contentHeight = geometry.stops.bottom - geometry.heading.top;
-      const minimumHeight =
-        contentHeight + geometry.heroPaddingTop + geometry.heroPaddingBottom;
-      if (minimumHeight <= geometry.viewportHeight - geometry.hero.top) {
-        expect(geometry.heroBottom).toBeCloseTo(geometry.viewportHeight, 0);
-      }
-      // Keep exceptional information readable rather than clipping its end.
-      expect(geometry.heading.top).toBeGreaterThanOrEqual(map.top - 1);
-      expect(geometry.stops.bottom).toBeLessThanOrEqual(map.bottom + 1);
+      expect(skyBounds.height).toBeLessThanOrEqual(560 + 96 + 1);
       const viewport = (await host.boundingBox())!;
-      expect(viewport.height).toBeLessThanOrEqual(
-        Math.min(560, Math.max(360, geometry.viewportHeight * 0.52)) + 1,
-      );
+      expect(viewport.width).toBeCloseTo(map.width, 0);
+      expect(viewport.height).toBeCloseTo(map.height, 0);
       expect(viewport.y + viewport.height / 2).toBeCloseTo(
         map.top + map.height / 2,
         0,
@@ -137,8 +137,26 @@ export async function expectDetailHero(page: Page, width: number) {
       });
       expect(atmosphereRatio).toBeLessThanOrEqual(0.98);
     } else {
-      // Status-only views retain their compact layout and have no sky/viewport.
+      // Status-only views keep their own natural height: no square slot, no
+      // breathing margins and no sky.
       expect(Math.abs(map.top - geometry.heading.top)).toBeLessThanOrEqual(8);
+      await expect(map_).toHaveCSS("aspect-ratio", "auto");
+      await expect(map_).toHaveCSS("margin-top", "0px");
+      const content = await map_.evaluate((element) => {
+        const child = element.querySelector<HTMLElement>(
+          ".detail-globe-message, .globe-fallback",
+        )!;
+        return {
+          height: child.scrollHeight,
+          clipped: child.scrollHeight > child.clientHeight + 1,
+        };
+      });
+      expect(content.clipped).toBe(false);
+      expect(map.height).toBeLessThan(map.width / 2);
+      expect(geometry.hero.height).toBeCloseTo(
+        Math.max(geometry.information.height, map.height),
+        0,
+      );
     }
   } else {
     expect(geometry.map).toBeNull();

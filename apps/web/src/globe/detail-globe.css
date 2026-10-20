@@ -186,8 +186,8 @@
 }
 
 @media (min-width: 1200px) {
-  /* The stage fills the Hero for overlays. Keep the rendering and label boxes
-     identical and centered, with a viewport-dependent Earth size ceiling. */
+  /* The stage fills the square Globe frame. Keep the rendering and label
+     boxes identical and centered, under the Earth size ceiling. */
   .detail-globe-frame .globe-host,
   .detail-globe-frame .globe-labels {
     top: 50%;
@@ -196,9 +196,18 @@
     transform: translateY(-50%);
   }
 
+  /* The square frame is the rendering viewport, so the controls sit in its
+     bottom-right corner, clear of the physical atmosphere. */
   .detail-globe-frame .globe-controls {
-    right: clamp(24px, 4vw, 64px);
-    bottom: clamp(24px, 4svh, 48px);
+    right: 8px;
+    bottom: 8px;
+  }
+
+  /* The decorative sky extends a little above and below the Hero, capped so
+     a long flight record never grows an overlong empty sky. */
+  .detail-hero-space {
+    inset-block: -36px -24px;
+    max-height: calc(var(--detail-globe-max-height) + 96px);
   }
 
   .detail-hero-space .detail-globe-space i:nth-child(n + 49) {
@@ -212,10 +221,10 @@
     .detail-hero-space {
     grid-column: 2;
     grid-row: 1;
-    inset-block: calc(-1 * var(--detail-hero-gutter)) 0;
+    inset-block: -36px -24px;
     inset-inline: -32px
       calc(-1 * max(var(--layout-gutter), (100vw - 1240px) / 2));
-    max-height: none;
+    max-height: calc(var(--detail-globe-max-height) + 96px);
   }
 
   .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])

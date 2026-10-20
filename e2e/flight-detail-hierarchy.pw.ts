@@ -187,7 +187,9 @@ for (const appearance of ["light", "dark"] as const) {
         });
         await expectTimeGrid(page, width);
         const geometry = await expectDetailHero(page, width);
-        expect(geometry.heroBottom).toBeCloseTo(height, 0);
+        // Content-led: the Hero no longer stretches to the viewport bottom,
+        // yet the core flight information still reads within the first screen.
+        expect(geometry.heroBottom).toBeLessThan(height);
         expect(geometry.stops.bottom).toBeLessThanOrEqual(height);
         const frame = page.locator(".detail-globe-frame");
         await expect(frame).toHaveAttribute("data-theme", appearance);
@@ -195,14 +197,10 @@ for (const appearance of ["light", "dark"] as const) {
         const controls = frame.locator(".globe-controls");
         await expect(controls).toHaveCSS("opacity", "1");
         const box = (await controls.boundingBox())!;
-        expect(geometry.map!.right - box.x - box.width).toBeCloseTo(
-          Math.min(64, Math.max(24, width * 0.04)),
-          0,
-        );
-        expect(geometry.map!.bottom - box.y - box.height).toBeCloseTo(
-          Math.min(48, Math.max(24, height * 0.04)),
-          0,
-        );
+        // The square Globe frame is the rendering viewport; its controls sit
+        // in the frame's corner instead of a viewport-driven Hero gutter.
+        expect(geometry.map!.right - box.x - box.width).toBeCloseTo(8, 0);
+        expect(geometry.map!.bottom - box.y - box.height).toBeCloseTo(8, 0);
         // The controls must clear the physical atmosphere, not merely labels.
         const viewport = (await host.boundingBox())!;
         const atmosphereRadius = await host.evaluate((element) => {

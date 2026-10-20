@@ -195,44 +195,31 @@
 
 @media (min-width: 1200px) {
   .app-shell:has(.detail-page) > .page-notices {
-    /* Include the banners' margins in the measured notice height. */
+    /* Keep the banners' margins inside the notices' normal flow box. */
     display: flow-root;
   }
 
   .detail-hero-grid {
-    --detail-globe-max-height: clamp(360px, 52svh, 560px);
-    --detail-hero-gutter: clamp(24px, calc(25svh - 168px), 76px);
-    --detail-hero-notices-height: 0px;
+    --detail-globe-max-height: 560px;
 
-    /* Reserve the rest of the first screen after the CSS header/page insets
-       and measured notices. Tall flight information can still grow the Hero;
-       the absolutely positioned Globe never supplies intrinsic height. */
-    height: calc(
-      100svh - var(--layout-header-height) - 1px -
-        var(--detail-page-start, 36px) - env(safe-area-inset-top) -
-        var(--detail-hero-notices-height)
-    );
-    min-height: min-content;
-
-    /* Preserve the information's content minimum so centering cannot push it
-       above the Hero row when the viewport is shorter than the flight details. */
-    grid-template-rows: minmax(auto, 1fr);
-    padding-block: var(--detail-hero-gutter);
-  }
-
-  .detail-hero-grid > .detail-hero-information {
-    align-content: center;
+    /* Content-led Hero: its natural height comes from the flight information
+       and the Globe's own square frame, never from the viewport height. */
+    align-items: start;
   }
 
   .detail-hero-grid > .detail-route-map {
-    height: 100%;
-    max-height: none;
+    width: 100%;
+    height: auto;
+    max-height: var(--detail-globe-max-height);
+    margin-block: 16px;
+    aspect-ratio: 1 / 1;
   }
 
-  .detail-hero-grid:has(.detail-globe-message, .globe-fallback) {
-    /* Status-only views have no sky to accommodate. */
-    height: auto;
-    padding-block: 0;
+  .detail-hero-grid
+    > .detail-route-map:has(.detail-globe-message, .globe-fallback) {
+    /* Status-only views keep their own natural height; no empty sphere slot. */
+    margin-block: 0;
+    aspect-ratio: auto;
   }
 
   /* The flight information inherits the Light page's ink and canvas. Only
