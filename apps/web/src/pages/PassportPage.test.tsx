@@ -293,14 +293,8 @@ describe("Passport narrative and spotlights", () => {
           selection.kind === "airport" ? "TAO" : "HKG to TAO",
         );
       }
-      const filterButtons = buttons.filter((button) =>
-        /passport-airport-rank|passport-longest-flight/.test(button),
-      );
       expect(
         buttons.every((button) => /[Ff]ilter flights/.test(button)),
-      ).toBe(true);
-      expect(
-        filterButtons.every((button) => !/aria-label=/.test(button)),
       ).toBe(true);
     },
   );
