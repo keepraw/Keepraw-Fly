@@ -148,4 +148,55 @@ describe("share text", () => {
       expect(visible(narrow.lines.join(""))).toBe("ab（c）");
     });
   });
+
+  describe("opening punctuation followed by whitespace", () => {
+    it("keeps （ with the next character across a space", () => {
+      // Before the fix: ["甲", "（", "乙"] — the mark was stranded alone.
+      const result = wrapShareText("甲（ 乙", measure, 4);
+      expect(result.lines).toEqual(["甲", "（乙"]);
+      expectWrapInvariants("甲（ 乙", result.lines, 4);
+    });
+
+    it("applies to other opening marks", () => {
+      for (const mark of ["「", "《", "【"]) {
+        const text = `甲${mark} 乙`;
+        const result = wrapShareText(text, measure, 4);
+        expect(result.lines).toEqual(["甲", `${mark}乙`]);
+        expectWrapInvariants(text, result.lines, 4);
+      }
+    });
+
+    it("keeps the space when the group fits on the line", () => {
+      expect(wrapShareText("甲（ 乙", measure, 7).lines).toEqual(["甲（ 乙"]);
+      expect(shareTextTokens("甲（ 乙")).toEqual(["甲", "（ 乙"]);
+    });
+
+    it("keeps opening marks with following text in mixed content", () => {
+      const text = "Flight 「 Passport」 来自（ 2025 年）的航程";
+      for (const width of [8, 10, 12, 16, 24, 40]) {
+        const first = wrapShareText(text, measure, width);
+        expect(wrapShareText(text, measure, width)).toEqual(first);
+        expectWrapInvariants(text, first.lines, width);
+      }
+      // 「 Passport」 is 13 units: at 12 the inner space collapses instead of
+      // stranding 「; at 14 the group fits and the space is kept.
+      expect(wrapShareText(text, measure, 12).lines).toEqual([
+        "Flight",
+        "「Passport」",
+        "来自（ 2025",
+        "年）的航程",
+      ]);
+      expect(wrapShareText(text, measure, 14).lines[1]).toBe("「 Passport」");
+    });
+
+    it("respects the width when the mark and next character cannot fit together", () => {
+      // Width 2 holds one full-width character: the pair is impossible, so
+      // the width wins and the mark stands alone rather than overflowing.
+      const result = wrapShareText("甲（ 乙", measure, 2);
+      expect(result.lines).toEqual(["甲", "（", "乙"]);
+      for (const line of result.lines)
+        expect(measure(line)).toBeLessThanOrEqual(2);
+      expect(visible(result.lines.join(""))).toBe("甲（乙");
+    });
+  });
 });
