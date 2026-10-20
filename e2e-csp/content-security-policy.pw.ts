@@ -237,7 +237,7 @@ test("core journeys raise no CSP violation: import, Passport map/Globe, detail G
     page.locator(".passport-globe-frame, .route-map-canvas").first(),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
+    .getByRole("button", { name: /Open UA123, SFO to LAX/ })
     .click();
   await expect(page.locator("#flight-detail-title")).toBeVisible();
   await expect(page.locator(".detail-globe-frame .globe-host")).toHaveAttribute(
