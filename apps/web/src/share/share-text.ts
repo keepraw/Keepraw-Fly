@@ -5,7 +5,7 @@ import { loadChineseWebfonts } from "../typography/load-webfonts";
  * so every draw sets family, size, weight, alignment and baseline explicitly.
  * Families mirror design-system.css; nothing here adds a font source.
  */
-export type ShareLocale = "en" | "zh-CN" | "zh-TW";
+export type ShareLocale = "en" | "zh-CN" | "zh-TW" | "ja-JP" | "ko-KR";
 
 const LATIN = [
   '"Inter"',
@@ -31,6 +31,38 @@ const SYSTEM_TC = [
   '"Noto Sans CJK TC"',
   '"Source Han Sans TC"',
 ];
+const SYSTEM_JA = [
+  '"Hiragino Sans"',
+  '"Hiragino Kaku Gothic ProN"',
+  '"Yu Gothic UI"',
+  '"Yu Gothic"',
+  '"Meiryo"',
+  '"Noto Sans CJK JP"',
+  '"Source Han Sans JP"',
+];
+const SYSTEM_KO = [
+  '"Apple SD Gothic Neo"',
+  '"Malgun Gothic"',
+  '"Noto Sans CJK KR"',
+  '"Source Han Sans KR"',
+];
+const SYSTEM_CJK: Partial<Record<ShareLocale, string[]>> = {
+  "zh-CN": SYSTEM_SC,
+  "zh-TW": SYSTEM_TC,
+  "ja-JP": SYSTEM_JA,
+  "ko-KR": SYSTEM_KO,
+};
+
+/** Every UI language maps to one share typography locale. Latin-script
+ * languages share the Latin stack; CJK languages get their own system stack
+ * (and, for Chinese, the app's pinned webfont). */
+export function shareLocaleForLanguage(language: string): ShareLocale {
+  if (language === "zh-CN" || language === "zh-TW") return language;
+  if (language.startsWith("ja")) return "ja-JP";
+  if (language.startsWith("ko")) return "ko-KR";
+  return "en";
+}
+
 const WEBFONT: Partial<Record<ShareLocale, string>> = {
   "zh-CN": "MiSans",
   "zh-TW": "MiSans TC",
@@ -38,8 +70,7 @@ const WEBFONT: Partial<Record<ShareLocale, string>> = {
 
 /** The exact family list used for a locale, with or without its webfont. */
 export function shareFontFamily(locale: ShareLocale, webfont: boolean) {
-  const cjk =
-    locale === "zh-CN" ? SYSTEM_SC : locale === "zh-TW" ? SYSTEM_TC : [];
+  const cjk = SYSTEM_CJK[locale] ?? [];
   const named = webfont && WEBFONT[locale] ? [`"${WEBFONT[locale]}"`] : [];
   // Latin first so digits/Latin glyphs match the UI; CJK falls through.
   return [
