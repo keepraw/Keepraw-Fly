@@ -3,6 +3,7 @@ import {
   buildRouteSegments,
   calculatePassportStatistics,
   distanceForFlight,
+  flightDuration,
   type RouteSegment,
 } from "@keepraw-fly/core";
 
@@ -58,6 +59,14 @@ export interface ShareStatistics {
   /** Non-cancelled flights whose distance is known / unknown. */
   distanceKnownFlights: number;
   distanceUnknownFlights: number;
+  /**
+   * Total time in the air, in whole minutes, over flights whose duration is
+   * reliable (see `reliableFlightMinutes`). Flights with missing, invalid or
+   * implausible times add nothing here and are counted below instead.
+   */
+  durationMinutes: number;
+  durationKnownFlights: number;
+  durationUnknownFlights: number;
   countries: number;
   airports: number;
   airlines: number;
@@ -100,6 +109,24 @@ const serviceYear = (flight: KeeprawFlight): number | null => {
   const match = /^(\d{4})-/.exec(flight.serviceDate);
   return match ? Number(match[1]) : null;
 };
+
+/** Longest plausible single flight; anything above is treated as bad data. */
+export const MAX_RELIABLE_FLIGHT_MINUTES = 36 * 60;
+
+/**
+ * The flight's duration with the same source preference as the Passport
+ * (actual times when both exist, otherwise scheduled), or null when the times
+ * are missing, unparsable, zero/negative or implausibly long. Unknown time is
+ * never folded into totals as a guess.
+ */
+export function reliableFlightMinutes(flight: KeeprawFlight): number | null {
+  const minutes = flightDuration(flight).minutes;
+  return Number.isFinite(minutes) &&
+    minutes > 0 &&
+    minutes <= MAX_RELIABLE_FLIGHT_MINUTES
+    ? minutes
+    : null;
+}
 
 const point = (latitude: number, longitude: number): ShareGeoPoint => ({
   latitude,
@@ -184,6 +211,9 @@ export function buildShareRenderModel(
   const unknownDistance = counted.filter(
     (flight) => distanceForFlight(flight) === null,
   ).length;
+  const durations = counted
+    .map(reliableFlightMinutes)
+    .filter((minutes): minutes is number => minutes !== null);
   const segments = buildRouteSegments(scoped);
   const plottable = segments.reduce((sum, s) => sum + s.flightCount, 0);
   const years = counted
@@ -203,6 +233,9 @@ export function buildShareRenderModel(
       distanceKilometers: stats.distanceKilometers,
       distanceKnownFlights: counted.length - unknownDistance,
       distanceUnknownFlights: unknownDistance,
+      durationMinutes: durations.reduce((sum, minutes) => sum + minutes, 0),
+      durationKnownFlights: durations.length,
+      durationUnknownFlights: counted.length - durations.length,
       countries: stats.countries,
       airports: stats.airports,
       airlines: stats.airlines,
