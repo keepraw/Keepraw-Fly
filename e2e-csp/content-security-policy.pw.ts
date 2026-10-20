@@ -141,7 +141,7 @@ async function watchViolations(page: Page, browserName: string) {
           state.__blockedStyles.push(candidate.nodeName);
         }
     };
-    new MutationObserver((records) => {
+    const observer = new MutationObserver((records) => {
       for (const record of records) {
         if (record.type === "attributes" && record.target instanceof Element)
           check(record.target);
@@ -153,12 +153,29 @@ async function watchViolations(page: Page, browserName: string) {
               (node.matches("select") ? 1 : 0) +
               node.querySelectorAll("select").length;
       }
-    }).observe(document, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["style"],
     });
+    const observe = (node: Node) =>
+      observer.observe(node, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ["style"],
+      });
+    observe(document);
+    // Detached application nodes never reach the document observer. Watch
+    // each newly created element before its caller can set a style, including
+    // parsed descendants. Native UA shadow trees remain browser-internal.
+    for (const method of ["createElement", "createElementNS"] as const) {
+      const create = Document.prototype[method];
+      Object.defineProperty(Document.prototype, method, {
+        ...Object.getOwnPropertyDescriptor(Document.prototype, method),
+        value: function (this: Document, ...args: unknown[]) {
+          const element = Reflect.apply(create, this, args) as Element;
+          observe(element);
+          return element;
+        },
+      });
+    }
   });
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
@@ -447,37 +464,44 @@ for (const lifecycle of ["attached", "removed", "never attached"] as const) {
   });
 }
 
-test("a real detached inline style survives the native select exemption @cross-browser", async ({
-  page,
-  browserName,
-}) => {
-  const watch = await watchViolations(page, browserName);
-  await page.goto("/");
-  await page.evaluate(() => {
-    document.createElement("select");
-    const div = document.createElement("div");
-    div.setAttribute("style", "color:red");
+for (const declaration of ["color:red", "text-overflow:inherit"]) {
+  test(`a real detached inline style (${declaration}) survives the native select exemption @cross-browser`, async ({
+    page,
+    browserName,
+  }) => {
+    const watch = await watchViolations(page, browserName);
+    await page.goto("/");
+    await page.evaluate((declaration) => {
+      document.createElement("select");
+      const div = document.createElement("div");
+      div.setAttribute("style", declaration);
+    }, declaration);
+    await expect
+      .poll(async () => (await watch.readAll()).violations.length)
+      .toBe(browserName === "webkit" ? 4 : 1);
+    const observed = await watch.readAll();
+    // Neither node enters the document. Observe newly created elements too:
+    // an application declaration can be identical to WebKit's UA sample.
+    expect(observed.blockedStyles).toEqual(
+      browserName === "firefox" ? [] : ["DIV"],
+    );
+    expect(observed.selectsRemoved).toBe(0);
+    expect(
+      browserName === "webkit"
+        ? webkitSelectQuirks(observed).real
+        : observed.violations,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          directive: "style-src-attr",
+          disposition: "enforce",
+          target: "#document",
+        }),
+      ]),
+    );
+    await expect(watch.cspConsoleErrors()).rejects.toThrow();
   });
-  await expect
-    .poll(async () => (await watch.readAll()).violations.length)
-    .toBe(browserName === "webkit" ? 4 : 1);
-  const observed = await watch.readAll();
-  // Neither node ever entered the observed DOM. The sampled declaration,
-  // rather than the MutationObserver or the document target, distinguishes
-  // the genuine violation from the UA quirk.
-  expect(observed.blockedStyles).toEqual([]);
-  expect(observed.selectsRemoved).toBe(0);
-  expect(await watch.violations()).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        directive: "style-src-attr",
-        disposition: "enforce",
-        target: "#document",
-      }),
-    ]),
-  );
-  await expect(watch.cspConsoleErrors()).rejects.toThrow();
-});
+}
 
 test("a real inline style is detected on a page that has <select> elements @cross-browser", async ({
   page,
