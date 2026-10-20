@@ -22,6 +22,8 @@ type Observed = {
   violations: Violation[];
   /** Elements seen carrying a style attribute that CSP refused to apply. */
   blockedStyles: string[];
+  /** Distinct native selects created or inserted since load. */
+  selectsCreated: number;
   /** <select> elements removed from the document since load. */
   selectsRemoved: number;
 };
@@ -30,14 +32,15 @@ type Observed = {
 // if the select is never attached. Its queued event then targets document,
 // without any observable select removal. A test-only report-sample policy
 // identifies that exact internal declaration; the enforced production meta
-// policy remains unchanged. Pair reports one-to-one, so an extra document
-// event, an unknown sample, or any refused application style still fails.
+// policy remains unchanged. Pair reports one-to-one, capped by the observed
+// native selects, so even an extra pair with the same sample still fails.
 const isQuirkShape = (violation: Violation) =>
   violation.directive === "style-src-attr" &&
   violation.blocked === "inline" &&
   violation.sample === "";
 function webkitSelectQuirks(observed: Observed) {
   const remaining = new Set(observed.violations);
+  let pairs = 0;
   if (observed.blockedStyles.length === 0) {
     for (const violation of observed.violations) {
       if (
@@ -56,9 +59,10 @@ function webkitSelectQuirks(observed: Observed) {
           !report.targetStyled &&
           report.sample === "text-overflow:inherit",
       );
-      if (sample) {
+      if (sample && pairs < observed.selectsCreated) {
         remaining.delete(sample);
         remaining.delete(violation);
+        pairs++;
       }
     }
   }
@@ -97,10 +101,12 @@ async function watchViolations(page: Page, browserName: string) {
     const state = window as unknown as {
       __cspViolations: unknown[];
       __blockedStyles: string[];
+      __selectsCreated: number;
       __selectsRemoved: number;
     };
     state.__cspViolations = [];
     state.__blockedStyles = [];
+    state.__selectsCreated = 0;
     state.__selectsRemoved = 0;
     document.addEventListener(
       "securitypolicyviolation",
@@ -132,7 +138,16 @@ async function watchViolations(page: Page, browserName: string) {
       );
     };
     const blocked = new WeakSet<Element>();
+    const selects = new WeakSet<HTMLSelectElement>();
+    const countSelects = (element: Element) => {
+      for (const candidate of [element, ...element.querySelectorAll("select")])
+        if (candidate instanceof HTMLSelectElement && !selects.has(candidate)) {
+          selects.add(candidate);
+          state.__selectsCreated++;
+        }
+    };
     const check = (element: Element) => {
+      countSelects(element);
       for (const candidate of [element, ...element.querySelectorAll("[style]")])
         if (refused(candidate) && !blocked.has(candidate)) {
           // One element can occur in both insertion and attribute records
@@ -171,6 +186,7 @@ async function watchViolations(page: Page, browserName: string) {
         ...Object.getOwnPropertyDescriptor(Document.prototype, method),
         value: function (this: Document, ...args: unknown[]) {
           const element = Reflect.apply(create, this, args) as Element;
+          countSelects(element);
           observe(element);
           return element;
         },
@@ -187,11 +203,13 @@ async function watchViolations(page: Page, browserName: string) {
       const state = window as unknown as {
         __cspViolations: Violation[];
         __blockedStyles: string[];
+        __selectsCreated: number;
         __selectsRemoved: number;
       };
       return {
         violations: state.__cspViolations,
         blockedStyles: state.__blockedStyles,
+        selectsCreated: state.__selectsCreated,
         selectsRemoved: state.__selectsRemoved,
       } satisfies Observed;
     });
@@ -456,7 +474,20 @@ for (const lifecycle of ["attached", "removed", "never attached"] as const) {
           violations: [...observed.violations, extra],
         }).real,
       ).toEqual([extra]);
+      // A matching report is not sufficient either: a genuine detached
+      // style can have the same declaration as the UA. One native select
+      // can account for only one report/enforce pair.
+      const extraReport = {
+        ...observed.violations.find((v) => v.disposition === "report")!,
+      };
+      expect(
+        webkitSelectQuirks({
+          ...observed,
+          violations: [...observed.violations, extraReport, extra],
+        }).real,
+      ).toEqual([extraReport, extra]);
     }
+    expect(observed.selectsCreated).toBe(1);
     expect(observed.selectsRemoved).toBe(lifecycle === "removed" ? 1 : 0);
     expect(observed.blockedStyles).toEqual([]);
     expect(await watch.violations()).toEqual([]);
@@ -464,27 +495,38 @@ for (const lifecycle of ["attached", "removed", "never attached"] as const) {
   });
 }
 
-for (const declaration of ["color:red", "text-overflow:inherit"]) {
-  test(`a real detached inline style (${declaration}) survives the native select exemption @cross-browser`, async ({
+for (const { declaration, cloned } of [
+  { declaration: "color:red", cloned: false },
+  { declaration: "text-overflow:inherit", cloned: false },
+  { declaration: "text-overflow:inherit", cloned: true },
+]) {
+  test(`a real detached inline style (${declaration}, cloned=${cloned}) survives the native select exemption @cross-browser`, async ({
     page,
     browserName,
   }) => {
     const watch = await watchViolations(page, browserName);
     await page.goto("/");
-    await page.evaluate((declaration) => {
-      document.createElement("select");
-      const div = document.createElement("div");
-      div.setAttribute("style", declaration);
-    }, declaration);
+    await page.evaluate(
+      ({ declaration, cloned }) => {
+        document.createElement("select");
+        const original = document.createElement("div");
+        const div = cloned ? (original.cloneNode() as Element) : original;
+        div.setAttribute("style", declaration);
+      },
+      { declaration, cloned },
+    );
     await expect
       .poll(async () => (await watch.readAll()).violations.length)
       .toBe(browserName === "webkit" ? 4 : 1);
     const observed = await watch.readAll();
     // Neither node enters the document. Observe newly created elements too:
     // an application declaration can be identical to WebKit's UA sample.
+    // The clone is outside that observer too; the native select count must
+    // still prevent its genuine violation from borrowing an extra UA pair.
     expect(observed.blockedStyles).toEqual(
-      browserName === "firefox" ? [] : ["DIV"],
+      browserName === "firefox" || cloned ? [] : ["DIV"],
     );
+    expect(observed.selectsCreated).toBe(1);
     expect(observed.selectsRemoved).toBe(0);
     expect(
       browserName === "webkit"
