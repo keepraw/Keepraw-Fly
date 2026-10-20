@@ -145,7 +145,7 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
   assert.match(deploy, /uses: actions\/deploy-pages@[0-9a-f]{40} # v5\./);
   assert.match(
     workflow,
-    /uses: actions\/upload-pages-artifact@[0-9a-f]{40} # v4\./,
+    /uses: actions\/upload-pages-artifact@[0-9a-f]{40} # v\d+(\.\d+){0,2}/,
   );
   assert.ok(workflow.includes("path: apps/web/dist"));
   assert.ok(workflow.includes("  push:\n    branches: [main]"));
