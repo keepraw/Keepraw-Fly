@@ -293,11 +293,9 @@ describe("Passport narrative and spotlights", () => {
           selection.kind === "airport" ? "TAO" : "HKG to TAO",
         );
       }
-      expect(
-        buttons.every((button) =>
-          /aria-label="[^"]*[Ff]ilter flights/.test(button),
-        ),
-      ).toBe(true);
+      expect(buttons.every((button) => /[Ff]ilter flights/.test(button))).toBe(
+        true,
+      );
     },
   );
 

@@ -22,8 +22,7 @@ for (const width of [1280, 390]) {
       page,
     }) => {
       const row = page.getByRole("button", {
-        name: "Open UA123, SFO to LAX",
-        exact: true,
+        name: /Open UA123, SFO to LAX/,
       });
       await expect(row).toBeVisible();
       await expect(
@@ -72,8 +71,7 @@ for (const width of [1280, 390]) {
       page,
     }) => {
       const row = page.getByRole("button", {
-        name: "Open UA123, SFO to LAX",
-        exact: true,
+        name: /Open UA123, SFO to LAX/,
       });
       for (const theme of ["light", "dark"]) {
         await page.goto("/#settings");

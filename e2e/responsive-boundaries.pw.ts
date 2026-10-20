@@ -79,9 +79,7 @@ for (const viewport of viewports) {
     });
 
     await test.step("Flight Detail: correct column/map mode, flight content and edit/back actions", async () => {
-      await page
-        .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
-        .click();
+      await page.getByRole("button", { name: /Open UA123/ }).click();
       await expect(page.locator(".detail-heading-eyebrow")).toContainText(
         "UA123",
       );
@@ -171,9 +169,7 @@ test(
       }
     });
 
-    await page
-      .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
-      .click();
+    await page.getByRole("button", { name: /Open UA123/ }).click();
     await test.step("Flight Detail: narrow resizes retain mobile layout and 1199↔1200 toggles Hero/map on the same flight", async () => {
       for (const width of [
         761, 760, 761, 760, 1023, 1024, 1199, 1200, 1199, 1200,
@@ -317,9 +313,7 @@ for (const theme of ["light", "dark"]) {
     });
 
     await test.step("Detail and Edit: map, operational data, adjacent navigation, save and delete confirmation", async () => {
-      await page
-        .getByRole("button", { name: "Open UA123, SFO to LAX", exact: true })
-        .click();
+      await page.getByRole("button", { name: /Open UA123/ }).click();
       await expectDetailLayout(page);
       await expectReachable(page.locator(".detail-header-more summary"));
       await page.locator(".detail-header-more summary").click();

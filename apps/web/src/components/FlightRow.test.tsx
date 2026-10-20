@@ -204,6 +204,7 @@ describe("FlightRow", () => {
       );
       expect(markup).toContain('aria-current="true"');
       expect(markup.match(/<button/g)).toHaveLength(1);
+      expect(markup).not.toMatch(/<button[^>]*aria-label=/);
       expect(markup).not.toContain("flight-row-open");
       expect(markup).not.toContain(i18n.t("flights.details"));
       expect(markup).toContain(
