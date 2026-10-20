@@ -187,6 +187,7 @@ const OPENING = /^[（「『【〔〈《“‘([{]$/u;
 const CLOSING = /^[），。、；：！？」』】〕〉》”’,.;:!?)\]}%]$/u;
 
 const isOpening = (char: string) => OPENING.test(char);
+const OPENING_SPACE = /([（「『【〔〈《“‘([{])\s+/gu;
 const isClosing = (char: string) => CLOSING.test(char);
 
 /**
@@ -211,9 +212,13 @@ export function shareTextTokens(text: string): string[] {
   };
   for (const char of Array.from(text)) {
     if (/\s/u.test(char)) {
-      word += opening + char;
-      opening = "";
-      pushWord();
+      // Whitespace after an opening mark stays in the pending group, so the
+      // mark still travels with the text after it.
+      if (opening) opening += char;
+      else {
+        word += char;
+        pushWord();
+      }
     } else if (isOpening(char)) {
       pushWord();
       opening += char;
@@ -274,7 +279,15 @@ export function wrapShareText(
     line = "";
   };
   /** Starts `token` on the current (empty) line, splitting it if needed. */
-  const startToken = (token: string) => {
+  const startToken = (whole: string) => {
+    if (fits(whole)) {
+      line = whole;
+      return;
+    }
+    // Whitespace between an opening mark and its text is collapsible: it is
+    // kept while the group fits, and dropped before the mark would be split
+    // off onto a line of its own.
+    const token = whole.replace(OPENING_SPACE, "$1");
     if (fits(token)) {
       line = token;
       return;
