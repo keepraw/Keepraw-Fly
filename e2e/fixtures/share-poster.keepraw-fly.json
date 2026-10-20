@@ -1,0 +1,1486 @@
+{
+  "format": "keepraw-fly",
+  "formatVersion": "0.1.0",
+  "profile": {
+    "name": {
+      "native": "SHARE_SENTINEL_NAME",
+      "romanized": "Share Sentinel",
+      "primary": "romanized"
+    }
+  },
+  "flights": [
+    {
+      "id": "share-2017-02",
+      "flightNumber": "NH576",
+      "serviceDate": "2017-02-06",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "NRT"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2017-02-06T08:30:00+09:00",
+      "scheduledArrival": "2017-02-06T09:09:00+09:00"
+    },
+    {
+      "id": "share-2017-00",
+      "flightNumber": "KE183",
+      "serviceDate": "2017-07-21",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "ICN"
+      },
+      "scheduledDeparture": "2017-07-21T20:45:00+08:00",
+      "scheduledArrival": "2017-07-21T23:21:00+09:00"
+    },
+    {
+      "id": "share-2017-01",
+      "flightNumber": "CX192",
+      "serviceDate": "2017-08-03",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2017-08-03T10:45:00+08:00",
+      "scheduledArrival": "2017-08-03T09:14:00-08:00"
+    },
+    {
+      "id": "share-2017-03",
+      "flightNumber": "EK426",
+      "serviceDate": "2017-10-15",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "DXB"
+      },
+      "scheduledDeparture": "2017-10-15T21:00:00+08:00",
+      "scheduledArrival": "2017-10-16T01:38:00+04:00"
+    },
+    {
+      "id": "share-2018-06",
+      "flightNumber": "CA987",
+      "serviceDate": "2018-02-25",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "SZX"
+      },
+      "scheduledDeparture": "2018-02-25T17:15:00+08:00",
+      "scheduledArrival": "2018-02-25T20:16:00+08:00"
+    },
+    {
+      "id": "share-2018-01",
+      "flightNumber": "NH195",
+      "serviceDate": "2018-04-19",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2018-04-19T16:15:00+08:00",
+      "scheduledArrival": "2018-04-19T20:30:00+09:00"
+    },
+    {
+      "id": "share-2018-04",
+      "flightNumber": "CX388",
+      "serviceDate": "2018-07-24",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "TPE"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2018-07-24T17:15:00+08:00",
+      "scheduledArrival": "2018-07-24T22:03:00+00:00"
+    },
+    {
+      "id": "share-2018-05",
+      "flightNumber": "KE321",
+      "serviceDate": "2018-07-27",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "LAX"
+      },
+      "scheduledDeparture": "2018-07-27T14:15:00+08:00",
+      "scheduledArrival": "2018-07-27T11:51:00-08:00"
+    },
+    {
+      "id": "share-2018-00",
+      "flightNumber": "NH568",
+      "serviceDate": "2018-08-02",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2018-08-02T15:15:00+09:00",
+      "scheduledArrival": "2018-08-02T09:11:00-08:00"
+    },
+    {
+      "id": "share-2018-03",
+      "flightNumber": "NH728",
+      "serviceDate": "2018-10-18",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2018-10-18T17:45:00+09:00",
+      "scheduledArrival": "2018-10-18T11:41:00-08:00"
+    },
+    {
+      "id": "share-2018-02",
+      "flightNumber": "CA809",
+      "serviceDate": "2018-12-22",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2018-12-22T08:45:00+08:00",
+      "scheduledArrival": "2018-12-22T10:54:00+08:00"
+    },
+    {
+      "id": "share-2019-01",
+      "flightNumber": "KE381",
+      "serviceDate": "2019-01-27",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2019-01-27T18:30:00-08:00",
+      "scheduledArrival": "2019-01-28T23:05:00+09:00"
+    },
+    {
+      "id": "share-2019-08",
+      "flightNumber": "UA830",
+      "serviceDate": "2019-02-23",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "JFK"
+      },
+      "destination": {
+        "iata": "LAX"
+      },
+      "scheduledDeparture": "2019-02-23T21:30:00-05:00",
+      "scheduledArrival": "2019-02-24T00:03:00-08:00"
+    },
+    {
+      "id": "share-2019-00",
+      "flightNumber": "UA575",
+      "serviceDate": "2019-03-28",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2019-03-28T21:15:00-08:00",
+      "scheduledArrival": "2019-03-28T22:30:00-08:00"
+    },
+    {
+      "id": "share-2019-07",
+      "flightNumber": "KE904",
+      "serviceDate": "2019-04-02",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "ICN"
+      },
+      "scheduledDeparture": "2019-04-02T10:15:00-08:00",
+      "scheduledArrival": "2019-04-03T15:52:00+09:00"
+    },
+    {
+      "id": "share-2019-06",
+      "flightNumber": "KE528",
+      "serviceDate": "2019-07-02",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "ICN"
+      },
+      "scheduledDeparture": "2019-07-02T19:30:00+09:00",
+      "scheduledArrival": "2019-07-02T21:35:00+09:00"
+    },
+    {
+      "id": "share-2019-02",
+      "flightNumber": "SQ588",
+      "serviceDate": "2019-07-23",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "BKK"
+      },
+      "scheduledDeparture": "2019-07-23T10:45:00+08:00",
+      "scheduledArrival": "2019-07-23T12:26:00+07:00"
+    },
+    {
+      "id": "share-2019-04",
+      "flightNumber": "MU124",
+      "serviceDate": "2019-07-24",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2019-07-24T13:45:00+07:00",
+      "scheduledArrival": "2019-07-24T18:57:00+08:00"
+    },
+    {
+      "id": "share-2019-09",
+      "flightNumber": "EK973",
+      "serviceDate": "2019-08-04",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "DXB"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2019-08-04T09:30:00+04:00",
+      "scheduledArrival": "2019-08-05T07:08:00+10:00"
+    },
+    {
+      "id": "share-2019-03",
+      "flightNumber": "UA597",
+      "serviceDate": "2019-08-09",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2019-08-09T21:45:00-08:00",
+      "scheduledArrival": "2019-08-11T03:21:00+08:00"
+    },
+    {
+      "id": "share-2019-05",
+      "flightNumber": "NH907",
+      "serviceDate": "2019-08-14",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2019-08-14T11:45:00+08:00",
+      "scheduledArrival": "2019-08-14T15:56:00+09:00"
+    },
+    {
+      "id": "share-2019-11",
+      "flightNumber": "NH905",
+      "serviceDate": "2019-10-03",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2019-10-03T14:30:00+08:00",
+      "scheduledArrival": "2019-10-03T18:45:00+09:00"
+    },
+    {
+      "id": "share-2019-10",
+      "flightNumber": "KE137",
+      "serviceDate": "2019-11-15",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2019-11-15T20:30:00-08:00",
+      "scheduledArrival": "2019-11-17T01:05:00+09:00"
+    },
+    {
+      "id": "share-2020-01",
+      "flightNumber": "EK115",
+      "serviceDate": "2020-03-17",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "DXB"
+      },
+      "scheduledDeparture": "2020-03-17T19:00:00+00:00",
+      "scheduledArrival": "2020-03-18T06:27:00+04:00"
+    },
+    {
+      "id": "share-2020-00",
+      "flightNumber": "EK531",
+      "serviceDate": "2020-07-14",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2020-07-14T12:15:00+08:00",
+      "scheduledArrival": "2020-07-15T00:39:00+10:00"
+    },
+    {
+      "id": "share-2021-01",
+      "flightNumber": "UA207",
+      "serviceDate": "2021-08-09",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2021-08-09T07:30:00-08:00",
+      "scheduledArrival": "2021-08-10T11:21:00+09:00"
+    },
+    {
+      "id": "share-2021-02",
+      "flightNumber": "CX780",
+      "serviceDate": "2021-10-02",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2021-10-02T18:30:00+08:00",
+      "scheduledArrival": "2021-10-02T23:07:00+00:00"
+    },
+    {
+      "id": "share-2021-00",
+      "flightNumber": "CA779",
+      "serviceDate": "2021-11-19",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "SZX"
+      },
+      "scheduledDeparture": "2021-11-19T16:30:00+00:00",
+      "scheduledArrival": "2021-11-20T13:04:00+08:00"
+    },
+    {
+      "id": "share-2022-02",
+      "flightNumber": "MU506",
+      "serviceDate": "2022-05-01",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "NRT"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2022-05-01T12:30:00+09:00",
+      "scheduledArrival": "2022-05-01T14:45:00+08:00"
+    },
+    {
+      "id": "share-2022-04",
+      "flightNumber": "NH270",
+      "serviceDate": "2022-06-21",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2022-06-21T11:15:00+09:00",
+      "scheduledArrival": "2022-06-21T13:26:00+08:00"
+    },
+    {
+      "id": "share-2022-05",
+      "flightNumber": "CX421",
+      "serviceDate": "2022-08-04",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2022-08-04T15:30:00+08:00",
+      "scheduledArrival": "2022-08-04T20:07:00+00:00"
+    },
+    {
+      "id": "share-2022-03",
+      "flightNumber": "EK683",
+      "serviceDate": "2022-08-25",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2022-08-25T12:30:00+00:00",
+      "scheduledArrival": "2022-08-26T08:38:00+08:00"
+    },
+    {
+      "id": "share-2022-00",
+      "flightNumber": "MU363",
+      "serviceDate": "2022-10-11",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2022-10-11T08:45:00+07:00",
+      "scheduledArrival": "2022-10-11T14:28:00+08:00"
+    },
+    {
+      "id": "share-2022-01",
+      "flightNumber": "MU119",
+      "serviceDate": "2022-12-25",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "CDG"
+      },
+      "destination": {
+        "iata": "BKK"
+      },
+      "scheduledDeparture": "2022-12-25T13:15:00+01:00",
+      "scheduledArrival": "2022-12-26T07:38:00+07:00"
+    },
+    {
+      "id": "share-2023-03",
+      "flightNumber": "UA768",
+      "serviceDate": "2023-03-12",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2023-03-12T14:45:00-08:00",
+      "scheduledArrival": "2023-03-13T20:21:00+08:00"
+    },
+    {
+      "id": "share-2023-08",
+      "flightNumber": "MU853",
+      "serviceDate": "2023-03-24",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "SYD"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2023-03-24T20:00:00+10:00",
+      "scheduledArrival": "2023-03-25T05:22:00+09:00"
+    },
+    {
+      "id": "share-2023-07",
+      "flightNumber": "CX933",
+      "serviceDate": "2023-05-14",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2023-05-14T14:00:00+08:00",
+      "scheduledArrival": "2023-05-14T18:37:00+00:00"
+    },
+    {
+      "id": "share-2023-09",
+      "flightNumber": "UA409",
+      "serviceDate": "2023-06-28",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2023-06-28T17:45:00-08:00",
+      "scheduledArrival": "2023-06-29T22:40:00+08:00"
+    },
+    {
+      "id": "share-2023-13",
+      "flightNumber": "CX726",
+      "serviceDate": "2023-07-01",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "TPE"
+      },
+      "scheduledDeparture": "2023-07-01T12:15:00+00:00",
+      "scheduledArrival": "2023-07-02T09:03:00+08:00"
+    },
+    {
+      "id": "share-2023-06",
+      "flightNumber": "UA663",
+      "serviceDate": "2023-08-10",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2023-08-10T13:00:00+08:00",
+      "scheduledArrival": "2023-08-10T16:49:00+09:00"
+    },
+    {
+      "id": "share-2023-01",
+      "flightNumber": "MU773",
+      "serviceDate": "2023-08-13",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "SYD"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2023-08-13T20:15:00+10:00",
+      "scheduledArrival": "2023-08-14T06:02:00+08:00"
+    },
+    {
+      "id": "share-2023-11",
+      "flightNumber": "CX887",
+      "serviceDate": "2023-08-25",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "SIN"
+      },
+      "scheduledDeparture": "2023-08-25T13:30:00+00:00",
+      "scheduledArrival": "2023-08-26T11:41:00+08:00"
+    },
+    {
+      "id": "share-2023-02",
+      "flightNumber": "SQ341",
+      "serviceDate": "2023-09-06",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "HKG"
+      },
+      "scheduledDeparture": "2023-09-06T16:30:00+07:00",
+      "scheduledArrival": "2023-09-06T20:11:00+08:00"
+    },
+    {
+      "id": "share-2023-04",
+      "flightNumber": "MU931",
+      "serviceDate": "2023-10-11",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "NRT"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2023-10-11T11:15:00+09:00",
+      "scheduledArrival": "2023-10-11T13:30:00+08:00"
+    },
+    {
+      "id": "share-2023-00",
+      "flightNumber": "SQ293",
+      "serviceDate": "2023-10-25",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2023-10-25T11:45:00+08:00",
+      "scheduledArrival": "2023-10-25T23:34:00+10:00"
+    },
+    {
+      "id": "share-2023-10",
+      "flightNumber": "KE753",
+      "serviceDate": "2023-11-20",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2023-11-20T15:30:00+08:00",
+      "scheduledArrival": "2023-11-20T19:15:00+09:00"
+    },
+    {
+      "id": "share-2023-05",
+      "flightNumber": "CX640",
+      "serviceDate": "2023-12-05",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2023-12-05T20:00:00+00:00",
+      "scheduledArrival": "2023-12-05T23:21:00-08:00"
+    },
+    {
+      "id": "share-2023-12",
+      "flightNumber": "MU762",
+      "serviceDate": "2023-12-09",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2023-12-09T10:30:00+08:00",
+      "scheduledArrival": "2023-12-10T00:17:00+10:00"
+    },
+    {
+      "id": "share-2024-09",
+      "flightNumber": "MU301",
+      "serviceDate": "2024-01-01",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "NRT"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2024-01-01T18:00:00+09:00",
+      "scheduledArrival": "2024-01-01T20:15:00+08:00"
+    },
+    {
+      "id": "share-2024-08",
+      "flightNumber": "CA546",
+      "serviceDate": "2024-01-08",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "SZX"
+      },
+      "destination": {
+        "iata": "HKG"
+      },
+      "scheduledDeparture": "2024-01-08T10:45:00+08:00",
+      "scheduledArrival": "2024-01-08T11:22:00+08:00"
+    },
+    {
+      "id": "share-2024-06",
+      "flightNumber": "SQ935",
+      "serviceDate": "2024-02-28",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "SIN"
+      },
+      "destination": {
+        "iata": "BKK"
+      },
+      "scheduledDeparture": "2024-02-28T15:00:00+08:00",
+      "scheduledArrival": "2024-02-28T16:21:00+07:00"
+    },
+    {
+      "id": "share-2024-18",
+      "flightNumber": "UA441",
+      "serviceDate": "2024-02-28",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "JFK"
+      },
+      "scheduledDeparture": "2024-02-28T16:30:00-08:00",
+      "scheduledArrival": "2024-02-29T01:16:00-05:00"
+    },
+    {
+      "id": "share-2024-17",
+      "flightNumber": "EK740",
+      "serviceDate": "2024-03-20",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "DXB"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2024-03-20T12:15:00+04:00",
+      "scheduledArrival": "2024-03-21T00:53:00+08:00"
+    },
+    {
+      "id": "share-2024-15",
+      "flightNumber": "KE887",
+      "serviceDate": "2024-03-22",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "ICN"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2024-03-22T11:00:00+09:00",
+      "scheduledArrival": "2024-03-22T13:05:00+09:00"
+    },
+    {
+      "id": "share-2024-14",
+      "flightNumber": "CX915",
+      "serviceDate": "2024-04-02",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "SIN"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2024-04-02T21:30:00+08:00",
+      "scheduledArrival": "2024-04-03T03:41:00+00:00"
+    },
+    {
+      "id": "share-2024-02",
+      "flightNumber": "CX665",
+      "serviceDate": "2024-05-22",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "HKG"
+      },
+      "destination": {
+        "iata": "SIN"
+      },
+      "scheduledDeparture": "2024-05-22T15:30:00+08:00",
+      "scheduledArrival": "2024-05-22T19:17:00+08:00"
+    },
+    {
+      "id": "share-2024-01",
+      "flightNumber": "UA379",
+      "serviceDate": "2024-05-25",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "NRT"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2024-05-25T19:30:00+09:00",
+      "scheduledArrival": "2024-05-25T13:21:00-08:00"
+    },
+    {
+      "id": "share-2024-04",
+      "flightNumber": "MU880",
+      "serviceDate": "2024-06-07",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2024-06-07T08:15:00+08:00",
+      "scheduledArrival": "2024-06-07T20:39:00+10:00"
+    },
+    {
+      "id": "share-2024-13",
+      "flightNumber": "EK710",
+      "serviceDate": "2024-06-27",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2024-06-27T17:45:00+08:00",
+      "scheduledArrival": "2024-06-27T21:53:00+00:00"
+    },
+    {
+      "id": "share-2024-00",
+      "flightNumber": "EK960",
+      "serviceDate": "2024-07-07",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "DXB"
+      },
+      "scheduledDeparture": "2024-07-07T18:30:00+08:00",
+      "scheduledArrival": "2024-07-07T23:08:00+04:00"
+    },
+    {
+      "id": "share-2024-07",
+      "flightNumber": "UA544",
+      "serviceDate": "2024-07-17",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "JFK"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2024-07-17T18:00:00-05:00",
+      "scheduledArrival": "2024-07-17T20:46:00-08:00"
+    },
+    {
+      "id": "share-2024-11",
+      "flightNumber": "SQ232",
+      "serviceDate": "2024-08-26",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "SIN"
+      },
+      "destination": {
+        "iata": "HKG"
+      },
+      "scheduledDeparture": "2024-08-26T18:00:00+08:00",
+      "scheduledArrival": "2024-08-26T21:47:00+08:00"
+    },
+    {
+      "id": "share-2024-12",
+      "flightNumber": "CA876",
+      "serviceDate": "2024-09-16",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "CAN"
+      },
+      "destination": {
+        "iata": "JFK"
+      },
+      "scheduledDeparture": "2024-09-16T21:00:00+08:00",
+      "scheduledArrival": "2024-09-17T00:39:00-05:00"
+    },
+    {
+      "id": "share-2024-03",
+      "flightNumber": "MU813",
+      "serviceDate": "2024-10-24",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2024-10-24T16:15:00+07:00",
+      "scheduledArrival": "2024-10-25T00:38:00+09:00"
+    },
+    {
+      "id": "share-2024-05",
+      "flightNumber": "KE113",
+      "serviceDate": "2024-11-19",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "ICN"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2024-11-19T16:45:00+09:00",
+      "scheduledArrival": "2024-11-19T18:50:00+09:00"
+    },
+    {
+      "id": "share-2024-10",
+      "flightNumber": "KE328",
+      "serviceDate": "2024-12-02",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "ICN"
+      },
+      "destination": {
+        "iata": "HND"
+      },
+      "scheduledDeparture": "2024-12-02T17:15:00+09:00",
+      "scheduledArrival": "2024-12-02T19:20:00+09:00"
+    },
+    {
+      "id": "share-2024-16",
+      "flightNumber": "NH342",
+      "serviceDate": "2024-12-22",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2024-12-22T13:45:00+09:00",
+      "scheduledArrival": "2024-12-22T07:41:00-08:00"
+    },
+    {
+      "id": "share-2025-03",
+      "flightNumber": "KE726",
+      "serviceDate": "2025-01-07",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "ICN"
+      },
+      "scheduledDeparture": "2025-01-07T10:45:00-08:00",
+      "scheduledArrival": "2025-01-08T16:22:00+09:00"
+    },
+    {
+      "id": "share-2025-19",
+      "flightNumber": "CA462",
+      "serviceDate": "2025-02-06",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "CTU"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2025-02-06T12:30:00+08:00",
+      "scheduledArrival": "2025-02-06T15:27:00+00:00"
+    },
+    {
+      "id": "share-2025-01",
+      "flightNumber": "NH118",
+      "serviceDate": "2025-02-14",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2025-02-14T20:45:00+09:00",
+      "scheduledArrival": "2025-02-14T22:56:00+08:00"
+    },
+    {
+      "id": "share-2025-10",
+      "flightNumber": "KE524",
+      "serviceDate": "2025-03-04",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2025-03-04T17:30:00+09:00",
+      "scheduledArrival": "2025-03-04T19:15:00+08:00"
+    },
+    {
+      "id": "share-2025-15",
+      "flightNumber": "UA116",
+      "serviceDate": "2025-03-21",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2025-03-21T21:30:00-08:00",
+      "scheduledArrival": "2025-03-23T02:25:00+08:00"
+    },
+    {
+      "id": "share-2025-12",
+      "flightNumber": "UA192",
+      "serviceDate": "2025-03-24",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2025-03-24T19:30:00+08:00",
+      "scheduledArrival": "2025-03-24T16:25:00-08:00"
+    },
+    {
+      "id": "share-2025-14",
+      "flightNumber": "CA680",
+      "serviceDate": "2025-04-01",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "CAN"
+      },
+      "scheduledDeparture": "2025-04-01T17:30:00+08:00",
+      "scheduledArrival": "2025-04-01T19:35:00+08:00"
+    },
+    {
+      "id": "share-2025-13",
+      "flightNumber": "EK891",
+      "serviceDate": "2025-04-02",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "DXB"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2025-04-02T11:00:00+04:00",
+      "scheduledArrival": "2025-04-03T08:38:00+10:00"
+    },
+    {
+      "id": "share-2025-16",
+      "flightNumber": "NH463",
+      "serviceDate": "2025-05-13",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "PEK"
+      },
+      "scheduledDeparture": "2025-05-13T20:45:00-08:00",
+      "scheduledArrival": "2025-05-15T01:12:00+08:00"
+    },
+    {
+      "id": "share-2025-05",
+      "flightNumber": "KE798",
+      "serviceDate": "2025-06-01",
+      "airline": {
+        "iata": "KE"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "ICN"
+      },
+      "scheduledDeparture": "2025-06-01T15:00:00+09:00",
+      "scheduledArrival": "2025-06-01T17:05:00+09:00"
+    },
+    {
+      "id": "share-2025-21",
+      "flightNumber": "CX725",
+      "serviceDate": "2025-06-07",
+      "airline": {
+        "iata": "CX"
+      },
+      "origin": {
+        "iata": "TPE"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2025-06-07T21:15:00+08:00",
+      "scheduledArrival": "2025-06-07T18:49:00-08:00"
+    },
+    {
+      "id": "share-unknown-airport",
+      "flightNumber": "ZZ101",
+      "serviceDate": "2025-06-14",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "QQX"
+      },
+      "scheduledDeparture": "2025-06-14T09:00:00+08:00",
+      "scheduledArrival": "2025-06-14T11:00:00+08:00"
+    },
+    {
+      "id": "share-2025-08",
+      "flightNumber": "CA201",
+      "serviceDate": "2025-07-01",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "LHR"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2025-07-01T10:30:00+00:00",
+      "scheduledArrival": "2025-07-02T06:38:00+08:00"
+    },
+    {
+      "id": "share-2025-22",
+      "flightNumber": "MU862",
+      "serviceDate": "2025-08-03",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "CDG"
+      },
+      "scheduledDeparture": "2025-08-03T12:45:00+07:00",
+      "scheduledArrival": "2025-08-03T19:08:00+01:00"
+    },
+    {
+      "id": "share-2025-04",
+      "flightNumber": "UA490",
+      "serviceDate": "2025-08-08",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "LAX"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2025-08-08T16:45:00-08:00",
+      "scheduledArrival": "2025-08-09T21:16:00+09:00"
+    },
+    {
+      "id": "share-2025-11",
+      "flightNumber": "NH872",
+      "serviceDate": "2025-08-10",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "HND"
+      },
+      "destination": {
+        "iata": "SFO"
+      },
+      "scheduledDeparture": "2025-08-10T21:45:00+09:00",
+      "scheduledArrival": "2025-08-10T15:41:00-08:00"
+    },
+    {
+      "id": "share-2025-00",
+      "flightNumber": "CA767",
+      "serviceDate": "2025-08-17",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "CAN"
+      },
+      "destination": {
+        "iata": "HKG"
+      },
+      "scheduledDeparture": "2025-08-17T18:00:00+08:00",
+      "scheduledArrival": "2025-08-17T18:45:00+08:00"
+    },
+    {
+      "id": "share-2025-17",
+      "flightNumber": "EK878",
+      "serviceDate": "2025-08-22",
+      "airline": {
+        "iata": "EK"
+      },
+      "origin": {
+        "iata": "SYD"
+      },
+      "destination": {
+        "iata": "LHR"
+      },
+      "scheduledDeparture": "2025-08-22T10:00:00+10:00",
+      "scheduledArrival": "2025-08-22T21:51:00+00:00"
+    },
+    {
+      "id": "share-2025-02",
+      "flightNumber": "UA232",
+      "serviceDate": "2025-10-04",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2025-10-04T08:00:00-08:00",
+      "scheduledArrival": "2025-10-05T12:55:00+08:00"
+    },
+    {
+      "id": "share-2025-18",
+      "flightNumber": "MU263",
+      "serviceDate": "2025-10-04",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2025-10-04T08:00:00+08:00",
+      "scheduledArrival": "2025-10-04T21:47:00+10:00"
+    },
+    {
+      "id": "share-2025-09",
+      "flightNumber": "UA473",
+      "serviceDate": "2025-10-05",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2025-10-05T09:45:00-08:00",
+      "scheduledArrival": "2025-10-06T13:36:00+09:00"
+    },
+    {
+      "id": "share-2025-07",
+      "flightNumber": "MU148",
+      "serviceDate": "2025-10-26",
+      "airline": {
+        "iata": "MU"
+      },
+      "origin": {
+        "iata": "PVG"
+      },
+      "destination": {
+        "iata": "CDG"
+      },
+      "scheduledDeparture": "2025-10-26T21:30:00+08:00",
+      "scheduledArrival": "2025-10-27T02:40:00+01:00"
+    },
+    {
+      "id": "share-cancelled",
+      "flightNumber": "CA999",
+      "serviceDate": "2025-11-03",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "SYD"
+      },
+      "scheduledDeparture": "2025-11-03T09:00:00+08:00",
+      "scheduledArrival": "2025-11-03T20:00:00+11:00",
+      "cancelled": true
+    },
+    {
+      "id": "share-2025-20",
+      "flightNumber": "NH495",
+      "serviceDate": "2025-11-11",
+      "airline": {
+        "iata": "NH"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "NRT"
+      },
+      "scheduledDeparture": "2025-11-11T10:45:00-08:00",
+      "scheduledArrival": "2025-11-12T14:36:00+09:00"
+    },
+    {
+      "id": "share-2025-06",
+      "flightNumber": "SQ683",
+      "serviceDate": "2025-12-27",
+      "airline": {
+        "iata": "SQ"
+      },
+      "origin": {
+        "iata": "BKK"
+      },
+      "destination": {
+        "iata": "SIN"
+      },
+      "scheduledDeparture": "2025-12-27T11:15:00+07:00",
+      "scheduledArrival": "2025-12-27T14:36:00+08:00"
+    }
+  ]
+}
