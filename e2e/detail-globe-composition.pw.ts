@@ -84,9 +84,11 @@ test(
       infoBounds.x + infoBounds.width - 1,
     );
     expect(bounds!.y).toBeLessThan(foreground.y);
-    expect(bounds!.y).toBeCloseTo(heroBounds.y, 0);
+    // The decorative sky extends 36px above and 24px below the natural Hero,
+    // capped at the Globe ceiling + 96px so long records grow no empty sky.
+    expect(bounds!.y).toBeCloseTo(heroBounds.y - 36, 0);
     expect(bounds!.y + bounds!.height).toBeCloseTo(
-      heroBounds.y + heroBounds.height,
+      Math.min(heroBounds.y + heroBounds.height + 24, bounds!.y + 560 + 96),
       0,
     );
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(shelf.y + 1);

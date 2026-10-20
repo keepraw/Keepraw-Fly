@@ -1,0 +1,221 @@
+{
+  "format": "keepraw-fly",
+  "formatVersion": "0.1.0",
+  "profile": {
+    "name": {
+      "native": "张鸿川",
+      "romanized": "Hongchuan Zhang",
+      "primary": "native"
+    }
+  },
+  "flights": [
+    {
+      "id": "ca1831",
+      "flightNumber": "CA1831",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PEK",
+        "terminal": "T3",
+        "gate": "C21"
+      },
+      "destination": {
+        "iata": "PVG",
+        "terminal": "T2"
+      },
+      "scheduledDeparture": "2026-09-21T10:00:00+08:00",
+      "scheduledArrival": "2026-09-21T12:15:00+08:00",
+      "actualDeparture": "2026-09-21T10:11:00+08:00",
+      "actualArrival": "2026-09-21T12:05:00+08:00",
+      "baggageCarousel": "8",
+      "ticketNumber": "9991234567890",
+      "bookingReference": "AB12CD",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "Airbus A321",
+          "registration": "B-1234"
+        },
+        "keepraw-fly.seat": {
+          "seat": "12A",
+          "cabin": "economy",
+          "bookingClass": "Y"
+        }
+      }
+    },
+    {
+      "id": "overnight",
+      "flightNumber": "ZH9911",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "ZH"
+      },
+      "origin": {
+        "iata": "SZX"
+      },
+      "destination": {
+        "iata": "TAO"
+      },
+      "scheduledDeparture": "2026-09-21T22:00:00+08:00",
+      "scheduledArrival": "2026-09-22T01:00:00+08:00",
+      "actualDeparture": "2026-09-21T22:10:00+08:00",
+      "actualArrival": "2026-09-22T01:20:00+08:00",
+      "baggageCarousel": "8",
+      "ticketNumber": "9991234567890",
+      "bookingReference": "AB12CD",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "Airbus A321",
+          "registration": "B-1234"
+        },
+        "keepraw-fly.seat": {
+          "seat": "12A",
+          "cabin": "economy",
+          "bookingClass": "Y"
+        }
+      }
+    },
+    {
+      "id": "sparse",
+      "flightNumber": "CA1833",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PEK"
+      },
+      "destination": {
+        "iata": "PVG"
+      },
+      "scheduledDeparture": "2026-09-21T10:00:00+08:00",
+      "scheduledArrival": "2026-09-21T12:15:00+08:00",
+      "actualDeparture": "2026-09-21T10:11:00+08:00"
+    },
+    {
+      "id": "rich",
+      "flightNumber": "UA857",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "UA"
+      },
+      "origin": {
+        "iata": "SFO",
+        "terminal": "I",
+        "gate": "G98"
+      },
+      "destination": {
+        "iata": "PVG",
+        "terminal": "T2",
+        "gate": "D215"
+      },
+      "scheduledDeparture": "2026-09-21T11:00:00-07:00",
+      "scheduledArrival": "2026-09-22T16:00:00+08:00",
+      "actualDeparture": "2026-09-21T11:30:00-07:00",
+      "actualArrival": "2026-09-22T15:50:00+08:00",
+      "baggageCarousel": "8",
+      "ticketNumber": "9991234567890",
+      "bookingReference": "AB12CD",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "Boeing 787-10",
+          "registration": "N12010"
+        },
+        "keepraw-fly.seat": {
+          "seat": "1K",
+          "cabin": "business",
+          "bookingClass": "J"
+        }
+      },
+      "frequentFlyer": {
+        "membershipId": "review-membership",
+        "tierAtFlight": "Gold"
+      }
+    },
+    {
+      "id": "cancelled",
+      "flightNumber": "CA1832",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "PEK",
+        "terminal": "T3",
+        "gate": "C21"
+      },
+      "destination": {
+        "iata": "PVG",
+        "terminal": "T2"
+      },
+      "scheduledDeparture": "2026-09-21T10:00:00+08:00",
+      "scheduledArrival": "2026-09-21T12:15:00+08:00",
+      "baggageCarousel": "8",
+      "ticketNumber": "9991234567890",
+      "bookingReference": "AB12CD",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "Airbus A321",
+          "registration": "B-1234"
+        },
+        "keepraw-fly.seat": {
+          "seat": "12A",
+          "cabin": "economy",
+          "bookingClass": "Y"
+        }
+      },
+      "cancelled": true
+    },
+    {
+      "id": "diversion",
+      "flightNumber": "UA123",
+      "serviceDate": "2026-09-21",
+      "airline": {
+        "iata": "CA"
+      },
+      "origin": {
+        "iata": "SFO"
+      },
+      "destination": {
+        "iata": "LAX",
+        "terminal": "7",
+        "gate": "71"
+      },
+      "scheduledDeparture": "2026-09-21T11:00:00-07:00",
+      "scheduledArrival": "2026-09-21T13:00:00-07:00",
+      "actualDeparture": "2026-09-21T11:00:00-07:00",
+      "actualArrival": "2026-09-21T20:00:00-04:00",
+      "baggageCarousel": "8",
+      "ticketNumber": "9991234567890",
+      "bookingReference": "AB12CD",
+      "extensions": {
+        "keepraw-fly.aircraft": {
+          "type": "Airbus A321",
+          "registration": "B-1234"
+        },
+        "keepraw-fly.seat": {
+          "seat": "12A",
+          "cabin": "economy",
+          "bookingClass": "Y"
+        }
+      },
+      "divertedTo": {
+        "iata": "JFK",
+        "terminal": "4",
+        "gate": "B22"
+      }
+    }
+  ],
+  "frequentFlyerMemberships": [
+    {
+      "id": "review-membership",
+      "programId": "mileageplus",
+      "programName": "MileagePlus",
+      "memberNumber": "MP-0042",
+      "tier": "Premier Gold",
+      "associatedAirlines": ["UA"],
+      "defaultAirline": "UA"
+    }
+  ]
+}
