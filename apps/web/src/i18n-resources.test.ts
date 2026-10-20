@@ -152,6 +152,8 @@ describe("complete released resources", () => {
     (language) => {
       const shared = [
         "{{value}} km",
+        "km",
+        "mi",
         "{{value}} mi",
         "{{distance}} km",
         "{{countries}} · {{airports}} · {{airlines}} · {{types}}",
@@ -161,6 +163,7 @@ describe("complete released resources", () => {
         "ko-KR": [],
         "fr-FR": [
           "Destination",
+          "Format",
           "Destination IATA",
           "Terminal",
           "Distance",
@@ -169,6 +172,7 @@ describe("complete released resources", () => {
         ],
         "de-DE": [
           "Details",
+          "Format",
           "Route",
           "Terminal",
           "Gate",
