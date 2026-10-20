@@ -8,9 +8,7 @@ async function open(page: Page) {
   });
   await page.setViewportSize({ width: 390, height: 900 });
   await importArchive(page);
-  await page
-    .getByRole("button", { name: /Open UA123, SFO to LAX/ })
-    .click();
+  await page.getByRole("button", { name: /Open UA123/ }).click();
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(page.locator(".detail-globe-frame .globe-host")).toHaveAttribute(
     "data-ready",
