@@ -180,32 +180,71 @@ export type MeasureText = (text: string) => number;
 
 const CJK =
   /[\u2E80-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u3000-\u303F]/u;
-// Closing punctuation never starts a line; opening never ends one.
-const NO_LINE_START = /^[，。、；：！？）》」』】〕”’,.;:!?)\]}%]/u;
+// Kinsoku subset for English, Simplified and Traditional Chinese: closing
+// punctuation never starts a line, opening punctuation never ends one. ASCII
+// " and ' are ambiguous (open or close, apostrophes) and stay with their word.
+const OPENING = /^[（「『【〔〈《“‘([{]$/u;
+const CLOSING = /^[），。、；：！？」』】〕〉》”’,.;:!?)\]}%]$/u;
 
-/** Break opportunities: words for Latin, every character for CJK. */
+const isOpening = (char: string) => OPENING.test(char);
+const isClosing = (char: string) => CLOSING.test(char);
+
+/**
+ * Break units. Latin and digits break at spaces (each unit keeps its trailing
+ * whitespace); every CJK character is its own unit; closing punctuation is
+ * glued to the unit before it and opening punctuation to the unit after it,
+ * so a break between units never strands either. Every character is kept, in
+ * order.
+ */
 export function shareTextTokens(text: string): string[] {
   const tokens: string[] = [];
-  let buffer = "";
-  const flush = () => {
-    if (buffer) tokens.push(buffer);
-    buffer = "";
+  let word = "";
+  let opening = "";
+  const pushWord = () => {
+    if (word) tokens.push(word);
+    word = "";
+  };
+  const attachToPrevious = (value: string) => {
+    if (word) word += value;
+    else if (tokens.length) tokens[tokens.length - 1] += value;
+    else word = value;
   };
   for (const char of Array.from(text)) {
     if (/\s/u.test(char)) {
-      buffer += char;
-      flush();
+      word += opening + char;
+      opening = "";
+      pushWord();
+    } else if (isOpening(char)) {
+      pushWord();
+      opening += char;
+    } else if (isClosing(char)) {
+      // An empty bracket pair stays together with what precedes it.
+      attachToPrevious(opening + char);
+      opening = "";
     } else if (CJK.test(char)) {
-      flush();
-      if (NO_LINE_START.test(char) && tokens.length)
-        tokens[tokens.length - 1] += char;
-      else tokens.push(char);
-    } else if (NO_LINE_START.test(char) && !buffer && tokens.length)
-      tokens[tokens.length - 1] += char;
-    else buffer += char;
+      pushWord();
+      tokens.push(opening + char);
+      opening = "";
+    } else {
+      word += opening + char;
+      opening = "";
+    }
   }
-  flush();
+  if (opening) attachToPrevious(opening);
+  pushWord();
   return tokens;
+}
+
+const segmenter =
+  typeof Intl !== "undefined" && "Segmenter" in Intl
+    ? new Intl.Segmenter(undefined, { granularity: "grapheme" })
+    : null;
+
+/** User-perceived characters, so a split never cuts a grapheme cluster. */
+export function shareGraphemes(text: string): string[] {
+  return segmenter
+    ? Array.from(segmenter.segment(text), (part) => part.segment)
+    : Array.from(text);
 }
 
 export interface WrapResult {
@@ -214,9 +253,11 @@ export interface WrapResult {
 }
 
 /**
- * Greedy wrapping against a real measurement function. Lines never exceed
- * `maxWidth` (an over-long single token is split by characters); when the
- * text needs more than `maxLines`, the last line ends with an ellipsis.
+ * Greedy wrapping against a real measurement function. Lines break between
+ * tokens (see shareTextTokens); a token wider than `maxWidth`, wherever it
+ * occurs, is split into graphemes. No line exceeds `maxWidth` unless a single
+ * grapheme does. When the text needs more than `maxLines`, the last line ends
+ * with an ellipsis.
  */
 export function wrapShareText(
   text: string,
@@ -227,35 +268,52 @@ export function wrapShareText(
 ): WrapResult {
   const lines: string[] = [];
   let line = "";
-  const pushToken = (token: string) => {
-    const candidate = line + token;
-    if (!line || measure(candidate.trimEnd()) <= maxWidth) {
-      if (!line && measure(token.trimEnd()) > maxWidth) {
-        for (const char of Array.from(token)) {
-          if (line && measure((line + char).trimEnd()) > maxWidth) {
-            lines.push(line.trimEnd());
-            line = "";
-          }
-          line += char;
-        }
-        return;
-      }
-      line = candidate;
+  const fits = (value: string) => measure(value.trimEnd()) <= maxWidth;
+  const breakLine = () => {
+    lines.push(line.trimEnd());
+    line = "";
+  };
+  /** Starts `token` on the current (empty) line, splitting it if needed. */
+  const startToken = (token: string) => {
+    if (fits(token)) {
+      line = token;
       return;
     }
-    lines.push(line.trimEnd());
-    line = token.trimStart();
+    for (const grapheme of shareGraphemes(token)) {
+      if (!line || fits(line + grapheme)) {
+        line += grapheme;
+        continue;
+      }
+      // Inside a split, still keep opening punctuation off the line end and
+      // closing punctuation off the line start when the width allows it.
+      const kept = shareGraphemes(line);
+      const last = kept.at(-1)!;
+      const carry =
+        kept.length > 1 &&
+        (isOpening(last) || isClosing(grapheme)) &&
+        fits(last + grapheme);
+      if (carry) line = kept.slice(0, -1).join("");
+      breakLine();
+      line = (carry ? last : "") + grapheme;
+    }
+  };
+  const pushToken = (token: string) => {
+    if (!line) startToken(token);
+    else if (fits(line + token)) line += token;
+    else {
+      breakLine();
+      startToken(token.trimStart());
+    }
   };
   for (const paragraph of text.split("\n")) {
     for (const token of shareTextTokens(paragraph)) pushToken(token);
-    lines.push(line.trimEnd());
-    line = "";
+    breakLine();
   }
   if (lines.length <= maxLines) return { lines, truncated: false };
   const kept = lines.slice(0, maxLines);
   let last = kept[maxLines - 1] ?? "";
   while (last && measure(last + ellipsis) > maxWidth)
-    last = Array.from(last).slice(0, -1).join("");
+    last = shareGraphemes(last).slice(0, -1).join("");
   kept[maxLines - 1] = last.trimEnd() + ellipsis;
   return { lines: kept, truncated: true };
 }
