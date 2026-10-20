@@ -2,12 +2,16 @@ import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
 import { importArchive } from "../e2e/helpers/responsive";
 import { openSettingsCategory } from "../e2e/helpers/settings";
-import { documentPolicy } from "../apps/web/security-policy.mjs";
+import {
+  documentDirectives,
+  documentPolicy,
+} from "../apps/web/security-policy.mjs";
 
 type Violation = {
   directive: string;
   blocked: string;
   sample: string;
+  disposition: SecurityPolicyViolationEvent["disposition"];
   /** nodeName of the event target at the moment of the violation. */
   target: string;
   /** Whether that target carried a style attribute at that moment. */
@@ -18,43 +22,91 @@ type Observed = {
   violations: Violation[];
   /** Elements seen carrying a style attribute that CSP refused to apply. */
   blockedStyles: string[];
+  /** Distinct native selects created or inserted since load. */
+  selectsCreated: number;
   /** <select> elements removed from the document since load. */
   selectsRemoved: number;
 };
 
-// WebKit (and only WebKit) reports a style-src-attr violation when a
-// <select> renders: its user-agent shadow tree is styled internally. A
-// minimal repro (production policy, bare page) shows the event targets the
-// <select> itself, which has no style attribute; a real page violation
-// targets the element carrying the style attribute (a <select> with its own
-// style attribute included). When the <select> has already left the
-// document by the time WebKit dispatches, the event is retargeted to the
-// document; that shape is exempt only after a <select> was removed and while
-// an independent detector (below) has seen no refused style attribute on any
-// element. A real inline style anywhere, also on a page that has <select>s,
-// is still caught.
+// WebKit 27.2 styles a native <select>'s UA shadow slot at creation, even
+// if the select is never attached. Its queued event then targets document,
+// without any observable select removal. A test-only report-sample policy
+// identifies that exact internal declaration; the enforced production meta
+// policy remains unchanged. Pair reports one-to-one, capped by the observed
+// native selects, so even an extra pair with the same sample still fails.
 const isQuirkShape = (violation: Violation) =>
   violation.directive === "style-src-attr" &&
   violation.blocked === "inline" &&
   violation.sample === "";
-const webkitSelectQuirk = (violation: Violation, observed: Observed) =>
-  isQuirkShape(violation) &&
-  ((violation.target === "SELECT" && !violation.targetStyled) ||
-    (violation.target === "#document" &&
-      observed.selectsRemoved > 0 &&
-      observed.blockedStyles.length === 0));
+function webkitSelectQuirks(observed: Observed) {
+  const remaining = new Set(observed.violations);
+  let pairs = 0;
+  if (observed.blockedStyles.length === 0) {
+    for (const violation of observed.violations) {
+      if (
+        violation.disposition !== "enforce" ||
+        !isQuirkShape(violation) ||
+        violation.targetStyled ||
+        !["SELECT", "#document"].includes(violation.target)
+      )
+        continue;
+      const sample = [...remaining].find(
+        (report) =>
+          report.disposition === "report" &&
+          report.directive === violation.directive &&
+          report.blocked === violation.blocked &&
+          report.target === violation.target &&
+          !report.targetStyled &&
+          report.sample === "text-overflow:inherit",
+      );
+      if (sample && pairs < observed.selectsCreated) {
+        remaining.delete(sample);
+        remaining.delete(violation);
+        pairs++;
+      }
+    }
+  }
+  return {
+    real: [...remaining],
+    quirks: observed.violations.filter(
+      (violation) => !remaining.has(violation),
+    ),
+  };
+}
 const webkitSelectConsole =
-  /^Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive/;
+  /^(?:\[Report Only\] )?Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive/;
 
 async function watchViolations(page: Page, browserName: string) {
+  if (browserName === "webkit") {
+    // style-src (rather than style-src-attr) makes WebKit include samples.
+    // Keep the production source list and collect reports locally only.
+    const style = documentDirectives.find(([name]) => name === "style-src")!;
+    await page.route("**/*", async (route) => {
+      if (route.request().resourceType() !== "document")
+        return route.fallback();
+      const response = await route.fetch();
+      await route.fulfill({
+        response,
+        headers: {
+          ...response.headers(),
+          "content-security-policy-report-only": `${style[0]} ${style[1].join(" ")} 'report-sample'; report-uri /__csp-observer-report`,
+        },
+      });
+    });
+    await page.route("**/__csp-observer-report", (route) =>
+      route.fulfill({ status: 204, body: "" }),
+    );
+  }
   await page.addInitScript(() => {
     const state = window as unknown as {
       __cspViolations: unknown[];
       __blockedStyles: string[];
+      __selectsCreated: number;
       __selectsRemoved: number;
     };
     state.__cspViolations = [];
     state.__blockedStyles = [];
+    state.__selectsCreated = 0;
     state.__selectsRemoved = 0;
     document.addEventListener(
       "securitypolicyviolation",
@@ -64,6 +116,7 @@ async function watchViolations(page: Page, browserName: string) {
           directive: event.effectiveDirective || event.violatedDirective,
           blocked: event.blockedURI,
           sample: event.sample,
+          disposition: event.disposition,
           target: target instanceof Element ? target.nodeName : "#document",
           targetStyled:
             target instanceof Element && target.hasAttribute("style"),
@@ -75,7 +128,7 @@ async function watchViolations(page: Page, browserName: string) {
     // Chromium) a style attribute CSP refused keeps its text but exposes no
     // declarations (CSSOM writes, which CSP allows, keep the two in sync).
     // Firefox keeps the declarations without applying them, so there this
-    // detector stays silent; it only gates WebKit's document exemption.
+    // detector stays silent; it only gates WebKit's sampled exemption.
     const refused = (element: Element) => {
       const text = element.getAttribute("style");
       return (
@@ -84,11 +137,26 @@ async function watchViolations(page: Page, browserName: string) {
         (element as HTMLElement).style?.cssText === ""
       );
     };
-    const check = (element: Element) => {
-      for (const candidate of [element, ...element.querySelectorAll("[style]")])
-        if (refused(candidate)) state.__blockedStyles.push(candidate.nodeName);
+    const blocked = new WeakSet<Element>();
+    const selects = new WeakSet<HTMLSelectElement>();
+    const countSelects = (element: Element) => {
+      for (const candidate of [element, ...element.querySelectorAll("select")])
+        if (candidate instanceof HTMLSelectElement && !selects.has(candidate)) {
+          selects.add(candidate);
+          state.__selectsCreated++;
+        }
     };
-    new MutationObserver((records) => {
+    const check = (element: Element) => {
+      countSelects(element);
+      for (const candidate of [element, ...element.querySelectorAll("[style]")])
+        if (refused(candidate) && !blocked.has(candidate)) {
+          // One element can occur in both insertion and attribute records
+          // in the same delivery. Count elements, not mutation records.
+          blocked.add(candidate);
+          state.__blockedStyles.push(candidate.nodeName);
+        }
+    };
+    const observer = new MutationObserver((records) => {
       for (const record of records) {
         if (record.type === "attributes" && record.target instanceof Element)
           check(record.target);
@@ -100,12 +168,30 @@ async function watchViolations(page: Page, browserName: string) {
               (node.matches("select") ? 1 : 0) +
               node.querySelectorAll("select").length;
       }
-    }).observe(document, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["style"],
     });
+    const observe = (node: Node) =>
+      observer.observe(node, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ["style"],
+      });
+    observe(document);
+    // Detached application nodes never reach the document observer. Watch
+    // each newly created element before its caller can set a style, including
+    // parsed descendants. Native UA shadow trees remain browser-internal.
+    for (const method of ["createElement", "createElementNS"] as const) {
+      const create = Document.prototype[method];
+      Object.defineProperty(Document.prototype, method, {
+        ...Object.getOwnPropertyDescriptor(Document.prototype, method),
+        value: function (this: Document, ...args: unknown[]) {
+          const element = Reflect.apply(create, this, args) as Element;
+          countSelects(element);
+          observe(element);
+          return element;
+        },
+      });
+    }
   });
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
@@ -117,19 +203,19 @@ async function watchViolations(page: Page, browserName: string) {
       const state = window as unknown as {
         __cspViolations: Violation[];
         __blockedStyles: string[];
+        __selectsCreated: number;
         __selectsRemoved: number;
       };
       return {
         violations: state.__cspViolations,
         blockedStyles: state.__blockedStyles,
+        selectsCreated: state.__selectsCreated,
         selectsRemoved: state.__selectsRemoved,
       } satisfies Observed;
     });
   const real = (observed: Observed) =>
     browserName === "webkit"
-      ? observed.violations.filter(
-          (violation) => !webkitSelectQuirk(violation, observed),
-        )
+      ? webkitSelectQuirks(observed).real
       : observed.violations;
   return {
     readAll,
@@ -153,9 +239,7 @@ async function watchViolations(page: Page, browserName: string) {
       if (browserName !== "webkit") return csp;
       const quirks = csp.filter((text) => webkitSelectConsole.test(text));
       expect(quirks.length).toBeLessThanOrEqual(
-        observed.violations.filter((violation) =>
-          webkitSelectQuirk(violation, observed),
-        ).length,
+        webkitSelectQuirks(observed).quirks.length,
       );
       return csp.filter((text) => !webkitSelectConsole.test(text));
     },
@@ -348,31 +432,118 @@ test("a tampered MiSans stylesheet is rejected by SRI and the UI falls back to s
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-TW");
 });
 
-test("calibration: WebKit's <select> quirk keeps its exempt shape, other engines report nothing @cross-browser", async ({
-  page,
-  browserName,
-}) => {
-  const watch = await watchViolations(page, browserName);
-  await page.goto("/");
-  await page.evaluate(async () => {
-    const select = document.createElement("select");
-    select.append(new Option("x"), new Option("y"));
-    document.body.append(select);
-    select.getBoundingClientRect();
-    select.value = "y";
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    select.remove();
+for (const lifecycle of ["attached", "removed", "never attached"] as const) {
+  test(`calibration: native <select> ${lifecycle} keeps its sampled WebKit shape @cross-browser`, async ({
+    page,
+    browserName,
+  }) => {
+    const watch = await watchViolations(page, browserName);
+    await page.goto("/");
+    await page.evaluate((lifecycle) => {
+      const select = document.createElement("select");
+      select.append(new Option("x"), new Option("y"));
+      if (lifecycle !== "never attached") {
+        document.body.append(select);
+        select.getBoundingClientRect();
+        select.value = "y";
+        if (lifecycle === "removed") select.remove();
+      }
+    }, lifecycle);
+    // Wait for the actual queued events, rather than an arbitrary delay.
+    await expect
+      .poll(async () => (await watch.readAll()).violations.length)
+      .toBe(browserName === "webkit" ? 2 : 0);
+    const observed = await watch.readAll();
+    // If WebKit changes the declaration or event shape, re-derive the
+    // exemption. Never keep a stale exemption by weakening calibration.
+    expect(webkitSelectQuirks(observed).quirks).toHaveLength(
+      browserName === "webkit" ? 2 : 0,
+    );
+    if (browserName === "webkit") {
+      expect(observed.violations.map((v) => v.target)).toEqual([
+        lifecycle === "attached" ? "SELECT" : "#document",
+        lifecycle === "attached" ? "SELECT" : "#document",
+      ]);
+      const enforced = observed.violations.find(
+        (v) => v.disposition === "enforce",
+      )!;
+      const extra = { ...enforced };
+      expect(
+        webkitSelectQuirks({
+          ...observed,
+          violations: [...observed.violations, extra],
+        }).real,
+      ).toEqual([extra]);
+      // A matching report is not sufficient either: a genuine detached
+      // style can have the same declaration as the UA. One native select
+      // can account for only one report/enforce pair.
+      const extraReport = {
+        ...observed.violations.find((v) => v.disposition === "report")!,
+      };
+      expect(
+        webkitSelectQuirks({
+          ...observed,
+          violations: [...observed.violations, extraReport, extra],
+        }).real,
+      ).toEqual([extraReport, extra]);
+    }
+    expect(observed.selectsCreated).toBe(1);
+    expect(observed.selectsRemoved).toBe(lifecycle === "removed" ? 1 : 0);
+    expect(observed.blockedStyles).toEqual([]);
+    expect(await watch.violations()).toEqual([]);
+    expect(await watch.cspConsoleErrors()).toEqual([]);
   });
-  const observed = await watch.readAll();
-  // If WebKit stops reporting this (or changes its shape), this fails:
-  // remove or re-derive the exemption instead of letting it linger.
-  expect(
-    observed.violations.filter((v) => webkitSelectQuirk(v, observed)),
-  ).toHaveLength(browserName === "webkit" ? 1 : 0);
-  expect(observed.violations.filter((v) => !isQuirkShape(v))).toEqual([]);
-  expect(observed.blockedStyles).toEqual([]);
-  expect(await watch.violations()).toEqual([]);
-});
+}
+
+for (const { declaration, cloned } of [
+  { declaration: "color:red", cloned: false },
+  { declaration: "text-overflow:inherit", cloned: false },
+  { declaration: "text-overflow:inherit", cloned: true },
+]) {
+  test(`a real detached inline style (${declaration}, cloned=${cloned}) survives the native select exemption @cross-browser`, async ({
+    page,
+    browserName,
+  }) => {
+    const watch = await watchViolations(page, browserName);
+    await page.goto("/");
+    await page.evaluate(
+      ({ declaration, cloned }) => {
+        document.createElement("select");
+        const original = document.createElement("div");
+        const div = cloned ? (original.cloneNode() as Element) : original;
+        div.setAttribute("style", declaration);
+      },
+      { declaration, cloned },
+    );
+    await expect
+      .poll(async () => (await watch.readAll()).violations.length)
+      .toBe(browserName === "webkit" ? 4 : 1);
+    const observed = await watch.readAll();
+    // Neither node enters the document. Observe newly created elements too:
+    // an application declaration can be identical to WebKit's UA sample.
+    // The clone is outside that observer too; the native select count must
+    // still prevent its genuine violation from borrowing an extra UA pair.
+    expect(observed.blockedStyles).toEqual(
+      browserName === "firefox" || cloned ? [] : ["DIV"],
+    );
+    expect(observed.selectsCreated).toBe(1);
+    expect(observed.selectsRemoved).toBe(0);
+    expect(
+      browserName === "webkit"
+        ? webkitSelectQuirks(observed).real
+        : observed.violations,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          directive: "style-src-attr",
+          disposition: "enforce",
+          target: "#document",
+        }),
+      ]),
+    );
+    await expect(watch.cspConsoleErrors()).rejects.toThrow();
+  });
+}
 
 test("a real inline style is detected on a page that has <select> elements @cross-browser", async ({
   page,
@@ -380,12 +551,11 @@ test("a real inline style is detected on a page that has <select> elements @cros
 }) => {
   const watch = await watchViolations(page, browserName);
   await page.goto("/");
-  await page.evaluate(async () => {
+  await page.evaluate(() => {
     const select = document.createElement("select");
     select.append(new Option("x"));
     document.body.append(select);
     select.getBoundingClientRect();
-    await new Promise((resolve) => setTimeout(resolve, 200));
     // Real violations: a scripted style attribute, parsed markup, a style
     // attribute on the <select> itself (the quirk's own element), and a
     // styled element removed at once alongside a <select>, so its event is
@@ -405,8 +575,14 @@ test("a real inline style is detected on a page that has <select> elements @cros
     document.body.append(spare);
     fleeting.remove();
     spare.remove();
-    await new Promise((resolve) => setTimeout(resolve, 300));
   });
+  await expect
+    .poll(async () =>
+      (await watch.readAll()).violations
+        .filter((v) => v.disposition === "enforce")
+        .map((v) => v.target),
+    )
+    .toEqual(expect.arrayContaining(["DIV", "SPAN", "SELECT", "#document"]));
   const observed = await watch.readAll();
   // The second detector sees every one where the exemption depends on it.
   if (browserName !== "firefox")
@@ -418,11 +594,11 @@ test("a real inline style is detected on a page that has <select> elements @cros
     ]);
   // With a refused style seen, no document-targeted event is exempt, and
   // each engine's own reports for the attached elements survive the filter.
-  const reported = observed.violations.filter(
-    (v) =>
-      v.directive === "style-src-attr" &&
-      !(browserName === "webkit" && webkitSelectQuirk(v, observed)),
-  );
+  const reported = (
+    browserName === "webkit"
+      ? webkitSelectQuirks(observed).real
+      : observed.violations
+  ).filter((v) => v.directive === "style-src-attr");
   expect(reported.map((v) => v.target)).toEqual(
     expect.arrayContaining(["DIV", "SPAN", "SELECT", "#document"]),
   );
