@@ -62,7 +62,7 @@ JSON 导出是主要的备份与迁移手段。建议定期导出 Keepraw Fly JS
 
 ## 开发者：本地运行
 
-环境要求：Node.js 20.19 或更高版本，以及 pnpm 10.14.0。CI 使用 Node.js 24。
+环境要求：Node.js 24 LTS（`^24.0.0`）和 pnpm 10.14.0，与 CI 一致。运行 `nvm use` 可选择 `.nvmrc` 中的版本；安装时会拒绝不受支持的 Node.js 版本。
 
 ```bash
 pnpm install --frozen-lockfile
