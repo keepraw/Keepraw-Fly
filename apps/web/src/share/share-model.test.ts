@@ -4,7 +4,7 @@ import {
   calculatePassportStatistics,
   distanceForFlight,
 } from "@keepraw-fly/core";
-import { buildShareRenderModel } from "./share-model";
+import { buildShareRenderModel, reliableFlightMinutes } from "./share-model";
 
 // Sentinels: none of these may ever appear in a serialized share model.
 const SENTINELS = {
@@ -306,5 +306,62 @@ describe("buildShareRenderModel", () => {
       scope: { kind: "year", year: 2024 },
     });
     expect(year.model.statistics.flights).toBe(1);
+  });
+
+  it("totals reliable flight time and reports unknown durations separately", () => {
+    // base: actual 08:50 → 11:05 (+08:00) = 135 minutes.
+    expect(buildShareRenderModel([base]).model.statistics).toMatchObject({
+      durationMinutes: 135,
+      durationKnownFlights: 1,
+      durationUnknownFlights: 0,
+    });
+    const scheduledOnly = flight(
+      { actualDeparture: undefined, actualArrival: undefined },
+      20,
+    );
+    const invalid = flight(
+      {
+        actualDeparture: undefined,
+        actualArrival: undefined,
+        scheduledDeparture: "not-a-time",
+      },
+      21,
+    );
+    const reversed = flight(
+      {
+        actualDeparture: undefined,
+        actualArrival: undefined,
+        scheduledDeparture: "2024-03-17T12:00:00+08:00",
+        scheduledArrival: "2024-03-17T10:00:00+08:00",
+      },
+      22,
+    );
+    const implausible = flight(
+      {
+        actualDeparture: undefined,
+        actualArrival: undefined,
+        scheduledDeparture: "2024-03-17T08:00:00+08:00",
+        scheduledArrival: "2024-03-20T08:00:00+08:00",
+      },
+      23,
+    );
+    const cancelled = flight({ cancelled: true }, 24);
+    const { model } = buildShareRenderModel([
+      base,
+      scheduledOnly,
+      invalid,
+      reversed,
+      implausible,
+      cancelled,
+    ]);
+    // scheduledOnly: 08:41 → 11:00 = 139 minutes.
+    expect(model.statistics.durationMinutes).toBe(135 + 139);
+    expect(model.statistics.durationKnownFlights).toBe(2);
+    expect(model.statistics.durationUnknownFlights).toBe(3);
+    expect(model.statistics.flights).toBe(5);
+    expect(Number.isFinite(model.statistics.durationMinutes)).toBe(true);
+    expect(reliableFlightMinutes(invalid)).toBeNull();
+    expect(reliableFlightMinutes(reversed)).toBeNull();
+    expect(reliableFlightMinutes(implausible)).toBeNull();
   });
 });
