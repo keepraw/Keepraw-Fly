@@ -14,6 +14,7 @@ import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
+import { ShareStudioPage } from "./pages/ShareStudioPage";
 import {
   initialPassportView,
   passportVisibleFlights,
@@ -749,6 +750,16 @@ export function App() {
           appearance={settings.appearance}
           solarMode={settings.solarMode}
         />
+      ) : page === "share" ? (
+        <ShareStudioPage
+          document={document}
+          locale={locale}
+          distanceUnit={settings.distanceUnit}
+          onBack={() => {
+            setPage("passport");
+            window.location.hash = "passport";
+          }}
+        />
       ) : page === "passport" ? (
         <PassportPage
           view={passportView}
@@ -760,6 +771,10 @@ export function App() {
           appearance={settings.appearance}
           solarMode={settings.solarMode}
           onOpenFlight={openFlight}
+          onOpenShare={() => {
+            setPage("share");
+            window.location.hash = "share";
+          }}
           onAddFlight={() => {
             editorReturnFocusRef.current =
               window.document.activeElement instanceof HTMLElement
@@ -841,5 +856,7 @@ function pageFromHash(): Page {
 function pageFromLocationHash(): Page | null {
   const hash = window.location.hash.slice(1);
   if (hash === "flights") return "passport";
-  return hash === "passport" || hash === "settings" ? hash : null;
+  return hash === "passport" || hash === "settings" || hash === "share"
+    ? hash
+    : null;
 }
