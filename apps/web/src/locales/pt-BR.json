@@ -754,13 +754,17 @@
     "lifetime": "Todo o histórico",
     "year": "Ano",
     "aspect": "Formato",
-    "aspectPortrait": "4:5 retrato",
-    "aspectStory": "9:16 story",
+    "aspectPortrait": "3:4 retrato",
+    "aspectPortraitHint": "1200 × 1600 · celular",
+    "aspectLandscape": "4:3 paisagem",
+    "aspectLandscapeHint": "1600 × 1200 · computador",
     "privacy": "Privacidade",
-    "privacyOverview": "Visão geral privada",
-    "privacyOverviewHint": "Apenas totais e tendências. Sem aeroportos, rotas ou datas.",
-    "privacyAirports": "Mostrar aeroportos",
-    "privacyAirportsHint": "Adiciona seus principais aeroportos com código e nome. Sem mapas, rotas ou datas.",
+    "privacyRoutes": "Mostrar rotas reais",
+    "privacyRoutesHint": "Desenha as rotas do período escolhido e pontos de aeroporto sem rótulo. Sem códigos, nomes ou datas.",
+    "privacyOverviewHint": "Visão privada: apenas o mapa e os totais. Sem rotas, aeroportos ou datas.",
+    "privacyAirports": "Mostrar códigos e nomes de aeroportos",
+    "privacyAirportsHint": "Rotula seus aeroportos mais frequentes. Requer rotas reais.",
+    "privacyLocalHint": "Gerado neste dispositivo. Nomes, números de voo, códigos de reserva e horários exatos nunca são desenhados.",
     "preview": "Pré-visualização",
     "previewLabel": "Pré-visualização do pôster: {{title}}, {{scope}}",
     "download": "Baixar PNG",
@@ -804,7 +808,13 @@
       "visitsCount_many": "{{count, number}} visitas",
       "undatedFlights_one": "{{count, number}} voo sem data fora do gráfico",
       "undatedFlights_other": "{{count, number}} voos sem data fora do gráfico",
-      "undatedFlights_many": "{{count, number}} voos sem data fora do gráfico"
+      "undatedFlights_many": "{{count, number}} voos sem data fora do gráfico",
+      "hoursUnit": "h",
+      "activeMonths": "Meses ativos",
+      "routesCurated": "As {{shown, number}} rotas mais voadas de {{total, number}}",
+      "routesAll_one": "A única rota é mostrada",
+      "routesAll_other": "Todas as {{count, number}} rotas mostradas",
+      "routesAll_many": "Todas as {{count, number}} rotas mostradas"
     }
   }
 }

@@ -169,6 +169,7 @@ describe("complete released resources", () => {
           "Distance",
           "Miles",
           "min",
+          "h",
         ],
         "de-DE": [
           "Details",
@@ -180,8 +181,8 @@ describe("complete released resources", () => {
           "Import",
           "System",
         ],
-        es: ["Terminal", "General", "min"],
-        "pt-BR": ["Terminal", "Backup", "min"],
+        es: ["Terminal", "General", "min", "h"],
+        "pt-BR": ["Terminal", "Backup", "min", "h"],
       };
       const allowed = new Set([...shared, ...nativeShared[language]!]);
       const base = flattenResource(en);

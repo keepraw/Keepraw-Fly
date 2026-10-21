@@ -4,7 +4,12 @@ import {
   type DistanceUnit,
   type SupportedLocale,
 } from "@keepraw-fly/core";
-import type { PosterDataModel, PosterHighlight } from "./poster-data";
+import type {
+  PosterDataModel,
+  PosterHighlight,
+  PosterMapAirport,
+  PosterRoute,
+} from "./poster-data";
 import { shareLocaleForLanguage, type ShareLocale } from "./share-text";
 
 /**
@@ -21,6 +26,8 @@ export interface PosterStat {
 export interface PosterChart {
   title: string;
   labels: string[];
+  /** One-letter (or shortest) month labels for narrow charts. */
+  narrowLabels: string[];
   values: number[];
   valueLabels: string[];
   /** Bar drawn in the accent color (Year in Flight's busiest month). */
@@ -32,6 +39,19 @@ export interface PosterAirportRow {
   code: string;
   name: string;
   value: string;
+}
+
+/**
+ * What the map may draw. `routes` and `airports` are empty in the default
+ * privacy overview, so only the base world map is drawn; `centerLongitude`
+ * is then fixed and does not depend on the archive.
+ */
+export interface PosterMapCopy {
+  routes: PosterRoute[];
+  airports: PosterMapAirport[];
+  centerLongitude: number;
+  /** "All 50 routes" or "Busiest 60 of 112 routes"; null without routes. */
+  note: string | null;
 }
 
 export interface PosterCopy {
@@ -50,6 +70,31 @@ export interface PosterCopy {
   highlights: PosterStat[];
   airports: { title: string; rows: PosterAirportRow[] } | null;
   notes: string[];
+  map: PosterMapCopy;
+  /** Year in Flight: months with flights, e.g. "9 / 12". */
+  activeMonths: PosterStat | null;
+  /** Flight Passport: two machine-readable-zone style lines built only from
+   * the brand, the scope and the aggregate totals (ASCII, no identity). */
+  mrz: [string, string];
+  /** Short stamp text: scope ("LIFETIME", "2025") and span. */
+  stamp: { top: string; middle: string; bottom: string };
+}
+
+/** Machine-readable-zone line: A–Z, 0–9 and "<", padded to `length`. */
+export function posterMrzLine(parts: string[], length = 44): string {
+  const clean = parts
+    .map((part) =>
+      part
+        .toUpperCase()
+        .normalize("NFKD")
+        .replace(/[^A-Z0-9]+/g, "<")
+        .replace(/^<+|<+$/g, ""),
+    )
+    .filter(Boolean)
+    .join("<<");
+  return clean.length >= length
+    ? clean.slice(0, length)
+    : clean + "<".repeat(length - clean.length);
 }
 
 export type PosterTranslate = (
@@ -72,7 +117,7 @@ export function buildPosterCopy(
   );
   const distance = (kilometers: number) =>
     formatDistance(kilometers, language, distanceUnit);
-  const month = (value: number, style: "short" | "long") =>
+  const month = (value: number, style: "short" | "long" | "narrow") =>
     new Intl.DateTimeFormat(language, { month: style, timeZone: "UTC" }).format(
       new Date(Date.UTC(2001, value - 1, 1)),
     );
@@ -153,10 +198,17 @@ export function buildPosterCopy(
       unit,
     },
     flights: { label: t("share.poster.flights"), value: number(stats.flights) },
-    duration: {
-      label: t("share.poster.duration"),
-      value: formatDuration(stats.durationMinutes, language),
-    },
+    duration:
+      stats.durationMinutes >= 600
+        ? {
+            label: t("share.poster.duration"),
+            value: number(Math.round(stats.durationMinutes / 60)),
+            unit: t("share.poster.hoursUnit"),
+          }
+        : {
+            label: t("share.poster.duration"),
+            value: formatDuration(stats.durationMinutes, language),
+          },
     secondary: [
       { label: t("share.poster.airports"), value: number(stats.airports) },
       { label: t("share.poster.airlines"), value: number(stats.airlines) },
@@ -172,6 +224,11 @@ export function buildPosterCopy(
       labels: points.map((point) =>
         model.trend.kind === "month"
           ? month(point.label, "short")
+          : String(point.label),
+      ),
+      narrowLabels: points.map((point) =>
+        model.trend.kind === "month"
+          ? month(point.label, "narrow")
           : String(point.label),
       ),
       values: points.map((point) => point.flights),
@@ -192,5 +249,45 @@ export function buildPosterCopy(
           }
         : null,
     notes,
+    map: {
+      routes: model.map?.routes ?? [],
+      airports: model.map?.airports ?? [],
+      centerLongitude: model.map?.centerLongitude ?? 0,
+      note: !model.map
+        ? null
+        : model.map.curated
+          ? t("share.poster.routesCurated", {
+              shown: model.map.routes.length,
+              total: model.map.totalRoutes,
+            })
+          : t("share.poster.routesAll", { count: model.map.totalRoutes }),
+    },
+    activeMonths:
+      model.activeMonths === null
+        ? null
+        : {
+            label: t("share.poster.activeMonths"),
+            value: `${number(model.activeMonths)} / ${number(12)}`,
+          },
+    mrz: [
+      posterMrzLine(["KEEPRAW FLY", "FLIGHT PASSPORT"]),
+      posterMrzLine([
+        yearText ?? "LIFETIME",
+        range ? `${range.first}${range.last}` : "",
+        `${stats.flights}FLT`,
+        `${Math.round(stats.distanceKilometers)}KM`,
+        `${Math.round(stats.durationMinutes / 60)}H`,
+      ]),
+    ],
+    stamp: {
+      top: POSTER_BRAND,
+      middle:
+        yearText ??
+        (range ? `${range.first}–${String(range.last).slice(-2)}` : ""),
+      bottom: (yearText
+        ? t("share.poster.yearTitle")
+        : t("share.poster.passportTitle")
+      ).toLocaleUpperCase(),
+    },
   };
 }
