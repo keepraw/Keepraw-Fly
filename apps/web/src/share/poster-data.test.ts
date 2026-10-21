@@ -3,6 +3,7 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   calculatePassportStatistics,
   distanceForFlight,
+  formatDistance,
 } from "@keepraw-fly/core";
 import { passportVisibleFlights } from "../data/passport-exploration";
 import {
@@ -14,6 +15,7 @@ import {
 import {
   buildPosterCopy,
   posterMrzLine,
+  posterNumberFormat,
   type PosterTranslate,
 } from "./poster-copy";
 import {
@@ -34,6 +36,8 @@ import {
   routePolylines,
 } from "./poster-map";
 import { buildShareRenderModel } from "./share-model";
+import { createInstance } from "i18next";
+import { i18nOptions } from "../locales/test-resources";
 
 const SENTINELS = [
   "SENTINEL_NAME",
@@ -95,8 +99,15 @@ const archive: KeeprawFlight[] = [
   flight("2022-01-01", "PEK", "PVG", { cancelled: true }),
 ];
 
-const t: PosterTranslate = (key, options) =>
-  options ? `${key}:${JSON.stringify(options)}` : key;
+// formatParams only carries the ungrouped number style; keep keys readable.
+const t: PosterTranslate = (key, options) => {
+  if (!options) return key;
+  const { formatParams, ...values } = options;
+  if (formatParams)
+    for (const name of Object.keys(values))
+      expect(formatParams).toHaveProperty([name, "useGrouping"], false);
+  return `${key}:${JSON.stringify(values)}`;
+};
 
 const CODES = ["PEK", "PVG", "HND", "SYD", "SFO", "NRT", "QQX", "LHR"];
 
@@ -310,23 +321,23 @@ describe("poster copy, layout and palettes", () => {
       );
       const { safe } = layout;
       expect(safe.x).toBe(POSTER_SAFE_INSET);
+      const blocks = [layout.distance, ...layout.primary, ...layout.secondary];
       const baselines = [
         layout.brand.baseline,
         layout.title.baseline,
-        layout.distance.baseline,
-        layout.primary.baseline,
-        layout.secondary.label,
-        layout.mapNote.baseline,
+        layout.span.baseline,
+        layout.notes.baseline,
+        ...blocks.flatMap((block) => [block.label, block.baseline]),
         ...layout.mrz.lines,
-        layout.issuer.baseline,
       ];
       for (const y of baselines) {
         expect(y).toBeGreaterThan(safe.y);
         expect(y).toBeLessThan(safe.y + safe.height);
       }
-      // The issuer line closes the composition below every statistic.
-      expect(layout.issuer.baseline).toBeGreaterThan(layout.mrz.lines[1]);
-      expect(layout.issuer.baseline).toBeGreaterThan(layout.secondary.label);
+      // Issuer shares the header row with the brand; nothing sits below
+      // the machine-readable zone any more.
+      expect(layout.issuer.baseline).toBe(layout.brand.baseline);
+      expect(Math.max(...baselines)).toBe(layout.mrz.lines[1]);
       // The map keeps its true proportions inside the artboard.
       expect(layout.map.x).toBeGreaterThanOrEqual(0);
       expect(layout.map.x + layout.map.width).toBeLessThanOrEqual(layout.width);
@@ -334,18 +345,128 @@ describe("poster copy, layout and palettes", () => {
         POSTER_MAP_RATIO,
         0,
       );
-      // Brand clearly larger than labels, figures smaller than the title.
-      expect(layout.brand.size).toBeGreaterThanOrEqual(26);
-      expect(layout.brand.size).toBeLessThan(layout.title.size);
-      expect(layout.distance.size).toBeLessThanOrEqual(130);
-      expect(layout.primary.labelSize).toBeGreaterThanOrEqual(17);
+      // Readable small text and a calmer hierarchy.
+      expect(layout.brand.size).toBeGreaterThanOrEqual(34);
+      expect(layout.brand.size).toBeLessThanOrEqual(38);
+      expect(layout.issuer.size).toBeGreaterThanOrEqual(24);
+      expect(layout.issuer.size).toBeLessThan(layout.brand.size);
+      expect(layout.notes.size).toBeGreaterThanOrEqual(24);
+      expect(layout.mapNote.size).toBeGreaterThanOrEqual(24);
+      expect(layout.span.labelSize).toBeGreaterThanOrEqual(26);
+      for (const block of blocks) {
+        expect(block.labelSize).toBeGreaterThanOrEqual(28);
+        expect(block.labelSize).toBeLessThanOrEqual(32);
+        // Label above figure, inside the block's own column.
+        expect(block.baseline - block.label).toBeGreaterThan(block.size * 0.6);
+        expect(block.x).toBeGreaterThanOrEqual(layout.left);
+        expect(block.x + block.width).toBeLessThanOrEqual(layout.right + 0.5);
+      }
+      expect(layout.distance.size).toBeLessThanOrEqual(120);
+      expect(layout.distance.size).toBeLessThan(layout.title.size * 1.5);
+      for (const block of layout.primary)
+        expect(block.size).toBeGreaterThanOrEqual(68);
+      for (const block of layout.secondary)
+        expect(block.size).toBeGreaterThanOrEqual(48);
+      // Every row shares one label baseline and one figure baseline, and
+      // every rule spans the same content width.
+      for (const row of [layout.primary, layout.secondary]) {
+        expect(new Set(row.map((block) => block.label)).size).toBe(1);
+        expect(new Set(row.map((block) => block.baseline)).size).toBe(1);
+      }
+      for (const rule of layout.rules) {
+        expect(rule.x0).toBe(layout.left);
+        expect(rule.x1).toBe(layout.right);
+      }
+      // Rows read rule → label with the same spacing everywhere.
+      const gaps = blocks.map(
+        (block) =>
+          block.label -
+          Math.max(
+            ...layout.rules.filter((r) => r.y < block.label).map((r) => r.y),
+          ),
+      );
+      expect(new Set(gaps).size).toBe(1);
+      // Columns start on grid lines shared across rows.
+      const starts = new Set(blocks.map((block) => block.x));
+      expect(starts.has(layout.left)).toBe(true);
     }
     const [portrait, landscape] = layouts;
-    // Independent compositions, not crops or scaled copies of each other.
-    expect(portrait!.map.y).toBeGreaterThan(portrait!.title.baseline);
-    expect(landscape!.map.x).toBeGreaterThan(landscape!.title.x + 400);
+    // 3:4: halves and thirds on one 6-column grid.
+    expect(portrait!.primary[0].x).toBe(portrait!.secondary[0].x);
+    expect(portrait!.primary[1].x).toBeGreaterThan(portrait!.secondary[1].x);
+    expect(portrait!.primary[1].x).toBeLessThan(portrait!.secondary[2].x);
+    // 4:3: distance, flights and time in one row; the stat columns start on
+    // the same zone boundaries as the row below, and the map sits over them.
+    expect(landscape!.distance.label).toBe(landscape!.primary[0].label);
+    expect(landscape!.distance.baseline).toBe(landscape!.primary[0].baseline);
+    expect(landscape!.primary.map((b) => b.x)).toEqual(
+      landscape!.secondary.slice(1).map((b) => b.x),
+    );
+    expect(landscape!.map.x).toBeLessThanOrEqual(landscape!.primary[0].x);
+    expect(landscape!.map.x + landscape!.map.width).toBeGreaterThan(
+      landscape!.primary[1].x + landscape!.primary[1].width,
+    );
     expect(portrait!.title.lines).toBe(1);
     expect(landscape!.title.lines).toBe(2);
+  });
+
+  it("formats poster numbers without digit grouping", () => {
+    const many = Array.from({ length: 1234 }, (_, index) =>
+      flight(
+        "2024-05-01",
+        index % 2 ? "PEK" : "JFK",
+        index % 2 ? "JFK" : "PEK",
+      ),
+    );
+    for (const locale of [
+      "en-US",
+      "de-DE",
+      "fr-FR",
+      "ja-JP",
+      "zh-CN",
+    ] as const) {
+      const copy = buildPosterCopy(
+        buildPosterModel(many),
+        t,
+        locale,
+        "kilometers",
+      );
+      expect(copy.flights.value).toBe("1234");
+      expect(copy.distance.value).toMatch(/^\d+$/);
+      expect(Number(copy.distance.value)).toBeGreaterThan(10_000_000);
+      expect(copy.duration.value).toMatch(/^\d+$/);
+    }
+    const miles = buildPosterCopy(buildPosterModel(many), t, "en-US", "miles");
+    const km = buildPosterCopy(
+      buildPosterModel(many),
+      t,
+      "en-US",
+      "kilometers",
+    );
+    expect(Number(miles.distance.value)).toBe(
+      Math.round(Number(km.distance.value) * 0.6213711922),
+    );
+    expect(posterNumberFormat("en-US").format(571474)).toBe("571474");
+    // The app's own formatter keeps grouping.
+    expect(formatDistance(571474, "en-US", "kilometers")).toBe("571,474");
+  });
+
+  it("keeps interpolated poster counts ungrouped with real translations", async () => {
+    const instance = createInstance();
+    await instance.init({ ...i18nOptions, lng: "en-US" });
+    const many = Array.from({ length: 1500 }, (_, index) =>
+      flight("2024-05-01", "PEK", "QQX", { id: `many-${index}` }),
+    );
+    const copy = buildPosterCopy(
+      buildPosterModel(many),
+      instance.t.bind(instance) as PosterTranslate,
+      "en-US",
+      "kilometers",
+    );
+    // QQX is unknown, so distance coverage is reported for all 1500.
+    expect(copy.notes.join(" ")).toContain("of 1500 flights");
+    expect(copy.notes.join(" ")).not.toMatch(/\d,\d{3}/);
+    expect(copy.flights.value).toBe("1500");
   });
 
   it("picks the aspect from the viewport width at the 760 px breakpoint", () => {
