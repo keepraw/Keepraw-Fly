@@ -14,7 +14,7 @@ The single policy source is [`apps/web/security-policy.mjs`](../apps/web/securit
 | `script-src`                                         | `'self'`                          | No inline script, no `eval`; the theme bootstrap is a file. |
 | `style-src`                                          | `'self' https://cdn.jsdelivr.net` | App CSS plus the SRI-pinned MiSans stylesheets.             |
 | `font-src`                                           | `'self' https://cdn.jsdelivr.net` | MiSans WOFF2 subsets.                                       |
-| `img-src`                                            | `'self' data:`                    | `data:` carries the canvas-projected map relief.            |
+| `img-src`                                            | `'self' data: blob:`              | `data:` map relief; `blob:` local Flight Passport previews. |
 | `connect-src`                                        | `'self'`                          | Reference data and locales only; blocks fetch/beacon exfil. |
 | `manifest-src`                                       | `'self'`                          | Web app manifest.                                           |
 | `worker-src`, `frame-src`, `media-src`, `object-src` | `'none'`                          | Not used.                                                   |
