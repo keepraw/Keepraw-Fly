@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { shareFontFamily, shareTextTokens, wrapShareText } from "./share-text";
+import {
+  shareFontFamily,
+  shareLocaleForLanguage,
+  shareTextTokens,
+  wrapShareText,
+} from "./share-text";
 
 const OPENING = "（「『【〔〈《“‘([{";
 const CLOSING = "），。、；：！？」』】〕〉》”’,.;:!?)]}";
@@ -198,5 +203,30 @@ describe("share text", () => {
         expect(measure(line)).toBeLessThanOrEqual(2);
       expect(visible(result.lines.join(""))).toBe("甲（乙");
     });
+  });
+});
+
+describe("share typography locales", () => {
+  it("maps every UI language to a share typography locale", () => {
+    expect(shareLocaleForLanguage("zh-CN")).toBe("zh-CN");
+    expect(shareLocaleForLanguage("zh-TW")).toBe("zh-TW");
+    expect(shareLocaleForLanguage("ja-JP")).toBe("ja-JP");
+    expect(shareLocaleForLanguage("ko-KR")).toBe("ko-KR");
+    for (const language of ["en-US", "en-GB", "fr-FR", "de-DE", "es", "pt-BR"])
+      expect(shareLocaleForLanguage(language)).toBe("en");
+  });
+
+  it("uses system CJK stacks for Japanese and Korean without a webfont", () => {
+    const ja = shareFontFamily("ja-JP", true);
+    const ko = shareFontFamily("ko-KR", true);
+    expect(ja).toContain('"Noto Sans CJK JP"');
+    expect(ja).toContain('"Hiragino Sans"');
+    expect(ko).toContain('"Malgun Gothic"');
+    expect(ko).toContain('"Noto Sans CJK KR"');
+    for (const family of [ja, ko]) {
+      expect(family).not.toContain("MiSans");
+      expect(family.indexOf('"Inter"')).toBe(0);
+      expect(family.endsWith("sans-serif")).toBe(true);
+    }
   });
 });

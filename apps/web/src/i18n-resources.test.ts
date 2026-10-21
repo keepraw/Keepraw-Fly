@@ -152,6 +152,8 @@ describe("complete released resources", () => {
     (language) => {
       const shared = [
         "{{value}} km",
+        "km",
+        "mi",
         "{{value}} mi",
         "{{distance}} km",
         "{{countries}} · {{airports}} · {{airlines}} · {{types}}",
@@ -161,14 +163,17 @@ describe("complete released resources", () => {
         "ko-KR": [],
         "fr-FR": [
           "Destination",
+          "Format",
           "Destination IATA",
           "Terminal",
           "Distance",
           "Miles",
           "min",
+          "h",
         ],
         "de-DE": [
           "Details",
+          "Format",
           "Route",
           "Terminal",
           "Gate",
@@ -176,8 +181,8 @@ describe("complete released resources", () => {
           "Import",
           "System",
         ],
-        es: ["Terminal", "General", "min"],
-        "pt-BR": ["Terminal", "Backup", "min"],
+        es: ["Terminal", "General", "min", "h"],
+        "pt-BR": ["Terminal", "Backup", "min", "h"],
       };
       const allowed = new Set([...shared, ...nativeShared[language]!]);
       const base = flattenResource(en);
