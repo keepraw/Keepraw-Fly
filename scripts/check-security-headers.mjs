@@ -24,7 +24,7 @@ import assert from "node:assert/strict";
 const root = new URL("..", import.meta.url).pathname;
 const dist = join(root, "apps/web/dist");
 const caddyfile = readFileSync(join(root, "deploy/Caddyfile"), "utf8");
-const { documentPolicy, headerPolicy } = await import(
+const { documentDirectives, documentPolicy, headerPolicy } = await import(
   new URL("../apps/web/security-policy.mjs", import.meta.url).href
 );
 
@@ -51,6 +51,23 @@ assert.ok(
   "CSP <meta> must precede every script",
 );
 assert.doesNotMatch(metaPolicy, /unsafe-(inline|eval|hashes)|\*|http:/);
+// Blob-backed Flight Passport previews need img-src permission only.
+// Pin the sensitive boundaries so fixing an image cannot enable Blob fetches,
+// scripts or workers, or broaden the default policy.
+const directives = new Map(documentDirectives);
+for (const [name, sources] of [
+  ["img-src", ["'self'", "data:", "blob:"]],
+  ["default-src", ["'none'"]],
+  ["script-src", ["'self'"]],
+  ["connect-src", ["'self'"]],
+  ["worker-src", ["'none'"]],
+]) {
+  assert.deepEqual(directives.get(name), sources, `${name}: allowed sources`);
+}
+for (const [name, sources] of documentDirectives) {
+  if (name !== "img-src")
+    assert.ok(!sources.includes("blob:"), `${name} must not allow blob:`);
+}
 assert.doesNotMatch(
   metaPolicy,
   /frame-ancestors|report-uri|sandbox/,
