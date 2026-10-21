@@ -11,7 +11,10 @@ import {
   type PosterTemplate,
 } from "../share/poster-data";
 import { buildPosterCopy, type PosterCopy } from "../share/poster-copy";
-import { createPosterLayout } from "../share/poster-layout";
+import {
+  createPosterLayout,
+  defaultPosterAspect,
+} from "../share/poster-layout";
 import {
   downloadPosterBlob,
   exportPosterPng,
@@ -62,7 +65,19 @@ function copySample(copy: PosterCopy) {
     copy.airports?.title ?? "",
     ...copy.notes,
     copy.span?.label ?? "",
+    copy.map.note ?? "",
+    copy.activeMonths?.label ?? "",
+    copy.stamp.bottom,
   ].join("");
+}
+
+/** Phones open on 3:4, wider screens on 4:3; the user can switch. */
+function initialAspect(): PosterAspect {
+  const narrow =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 760px)").matches;
+  return defaultPosterAspect(narrow);
 }
 
 export function ShareStudioPage({
@@ -78,8 +93,15 @@ export function ShareStudioPage({
   );
   const [template, setTemplate] = useState<PosterTemplate>("passport");
   const [scope, setScope] = useState<ShareScope>({ kind: "lifetime" });
-  const [aspect, setAspect] = useState<PosterAspect>("4:5");
-  const [privacy, setPrivacy] = useState<PosterPrivacy>("overview");
+  const [aspect, setAspect] = useState<PosterAspect>(initialAspect);
+  // Each step is its own explicit opt-in; both start off.
+  const [showRoutes, setShowRoutes] = useState(false);
+  const [showAirports, setShowAirports] = useState(false);
+  const privacy: PosterPrivacy = !showRoutes
+    ? "overview"
+    : showAirports
+      ? "airports"
+      : "routes";
   const [exportState, setExportState] = useState<ExportState>({
     status: "idle",
   });
@@ -105,11 +127,8 @@ export function ShareStudioPage({
     [model, t, locale, distanceUnit],
   );
   const layout = useMemo(
-    () =>
-      createPosterLayout(template, aspect, {
-        airports: Boolean(copy.airports),
-      }),
-    [template, aspect, copy.airports],
+    () => createPosterLayout(template, aspect),
+    [template, aspect],
   );
 
   const shareLocale = shareLocaleForLanguage(locale);
@@ -166,7 +185,13 @@ export function ShareStudioPage({
       Math.min(layout.width, Math.round(frameWidth * ratio)),
     );
     try {
-      renderPosterToCanvas(canvas, { layout, copy, fonts }, pixelWidth);
+      const report = renderPosterToCanvas(
+        canvas,
+        { layout, copy, fonts },
+        pixelWidth,
+      );
+      canvas.dataset.mapRoutes = String(report.map.routes);
+      canvas.dataset.mapAirports = String(report.map.airports);
       canvas.dataset.previewReady = fontsReady ? "true" : "false";
     } catch {
       canvas.dataset.previewReady = "error";
@@ -386,29 +411,74 @@ export function ShareStudioPage({
             t("share.aspect"),
             aspect,
             [
-              { value: "4:5", label: t("share.aspectPortrait") },
-              { value: "9:16", label: t("share.aspectStory") },
+              {
+                value: "3:4",
+                label: t("share.aspectPortrait"),
+                hint: t("share.aspectPortraitHint"),
+              },
+              {
+                value: "4:3",
+                label: t("share.aspectLandscape"),
+                hint: t("share.aspectLandscapeHint"),
+              },
             ],
             setAspect,
           )}
-          {optionGroup(
-            "share-privacy",
-            t("share.privacy"),
-            privacy,
-            [
-              {
-                value: "overview",
-                label: t("share.privacyOverview"),
-                hint: t("share.privacyOverviewHint"),
-              },
-              {
-                value: "airports",
-                label: t("share.privacyAirports"),
-                hint: t("share.privacyAirportsHint"),
-              },
-            ],
-            setPrivacy,
-          )}
+          <fieldset className="share-studio-field">
+            <legend>{t("share.privacy")}</legend>
+            <div className="share-studio-options share-studio-options--stacked">
+              <label
+                className="share-studio-option share-studio-toggle"
+                data-checked={showRoutes}
+              >
+                <input
+                  type="checkbox"
+                  name="share-routes"
+                  checked={showRoutes}
+                  onChange={(event) => {
+                    setExportState({ status: "idle" });
+                    setShowRoutes(event.target.checked);
+                    // Revoking routes also revokes the airport grant.
+                    if (!event.target.checked) setShowAirports(false);
+                  }}
+                />
+                <span className="share-studio-option-label">
+                  {t("share.privacyRoutes")}
+                </span>
+                <span className="share-studio-option-hint">
+                  {t("share.privacyRoutesHint")}
+                </span>
+              </label>
+              <label
+                className="share-studio-option share-studio-toggle"
+                data-checked={showAirports}
+              >
+                <input
+                  type="checkbox"
+                  name="share-airports"
+                  checked={showAirports}
+                  disabled={!showRoutes}
+                  onChange={(event) => {
+                    setExportState({ status: "idle" });
+                    setShowAirports(event.target.checked);
+                  }}
+                />
+                <span className="share-studio-option-label">
+                  {t("share.privacyAirports")}
+                </span>
+                <span className="share-studio-option-hint">
+                  {t("share.privacyAirportsHint")}
+                </span>
+              </label>
+            </div>
+            <p className="share-studio-note" data-privacy-note={privacy}>
+              {t(
+                privacy === "overview"
+                  ? "share.privacyOverviewHint"
+                  : "share.privacyLocalHint",
+              )}
+            </p>
+          </fieldset>
           <div className="share-studio-actions">
             <button
               className="button-primary share-studio-download"

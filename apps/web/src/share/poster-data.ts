@@ -1,3 +1,4 @@
+import { geoInterpolate } from "d3-geo";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   airportByIata,
@@ -8,6 +9,7 @@ import {
 import {
   buildShareRenderModel,
   filterShareScope,
+  type ShareGeoPoint,
   type ShareScope,
 } from "./share-model";
 
@@ -19,14 +21,20 @@ import {
  * id, flight number, exact date or time, seat, PNR, ticket, member number,
  * name, gate, terminal or coordinate.
  *
- * Privacy:
- * - "overview" (default): aggregate numbers and year/month trends only.
- * - "airports": additionally the top airports by visits (IATA code, display
- *   name, visit count). Codes and names exist in the model only in this mode.
+ * Privacy (each step needs its own explicit opt-in):
+ * - "overview" (default): the base world map plus aggregate numbers and
+ *   year/month trends. No routes, no airport positions, no identifiers; the
+ *   map framing never depends on the archive.
+ * - "routes": additionally the real great-circle routes of the chosen scope
+ *   and unlabelled airport dots (public airport coordinates and flight
+ *   counts per airport pair; no dates, no flight identity).
+ * - "airports": "routes" plus airport IATA codes and display names for the
+ *   busiest airports. Codes and names exist in the model only in this mode.
  */
 export type PosterTemplate = "passport" | "year";
-export type PosterAspect = "4:5" | "9:16";
-export type PosterPrivacy = "overview" | "airports";
+/** 3:4 phone portrait (1200×1600) or 4:3 desktop landscape (1600×1200). */
+export type PosterAspect = "3:4" | "4:3";
+export type PosterPrivacy = "overview" | "routes" | "airports";
 
 export interface PosterModelOptions {
   template: PosterTemplate;
@@ -77,6 +85,34 @@ export interface PosterAirport {
   visits: number;
 }
 
+/** One stroke per airport pair (both directions merged). */
+export interface PosterRoute {
+  from: ShareGeoPoint;
+  to: ShareGeoPoint;
+  flights: number;
+}
+
+export interface PosterMapAirport extends ShareGeoPoint {
+  flights: number;
+  /** Present only in "airports" privacy, for the labelled busiest airports. */
+  code?: string;
+}
+
+/**
+ * Real routes for the map. Present only when routes were explicitly enabled.
+ * When the scope has more airport pairs than a poster can draw legibly, only
+ * the busiest `MAX_POSTER_ROUTES` are kept and `curated` is true, so the
+ * poster can say it shows a selection rather than every route.
+ */
+export interface PosterMap {
+  routes: PosterRoute[];
+  totalRoutes: number;
+  curated: boolean;
+  airports: PosterMapAirport[];
+  /** Longitude the map is centred on so the routes are not cut at the seam. */
+  centerLongitude: number;
+}
+
 export interface PosterDataModel {
   version: 1;
   template: PosterTemplate;
@@ -89,11 +125,70 @@ export interface PosterDataModel {
   highlights: PosterHighlight[];
   /** Empty unless privacy is "airports". At most three. */
   airports: PosterAirport[];
+  /** Null unless privacy is "routes" or "airports". */
+  map: PosterMap | null;
+  /** Year scope: months (1–12) with at least one flight. */
+  activeMonths: number | null;
 }
 
 /** Bars a 1080 px wide artboard can draw legibly. */
 export const MAX_TREND_YEARS = 30;
 export const MAX_POSTER_AIRPORTS = 3;
+/** Routes a poster map draws before it switches to a curated selection. */
+export const MAX_POSTER_ROUTES = 60;
+/** Airport dots drawn on the map; labels go to the busiest few only. */
+export const MAX_POSTER_MAP_AIRPORTS = 120;
+export const MAX_POSTER_MAP_LABELS = 5;
+
+const wrapLongitude = (value: number) =>
+  ((((value + 180) % 360) + 360) % 360) - 180;
+
+/** Does the great circle cross the map seam (center ± 180°)? */
+function crossesSeam(route: PosterRoute, center: number): boolean {
+  const interpolate = geoInterpolate(
+    [route.from.longitude, route.from.latitude],
+    [route.to.longitude, route.to.latitude],
+  );
+  let previous: number | null = null;
+  for (let index = 0; index <= 24; index += 1) {
+    const relative = wrapLongitude(interpolate(index / 24)[0] - center);
+    if (previous !== null && Math.abs(relative - previous) > 180) return true;
+    previous = relative;
+  }
+  return false;
+}
+
+/**
+ * Centre longitude for a routes map: the 5° step whose seam cuts the fewest
+ * flights, then the one that keeps airports farthest from the seam, then the
+ * one closest to 0°. Deterministic; 0 when there is nothing to frame.
+ */
+export function posterCenterLongitude(
+  routes: readonly PosterRoute[],
+  points: readonly ShareGeoPoint[] = [],
+): number {
+  if (!routes.length && !points.length) return 0;
+  let best = { center: 0, cut: Infinity, clearance: -Infinity };
+  for (let center = -175; center <= 180; center += 5) {
+    let cut = 0;
+    for (const route of routes)
+      if (crossesSeam(route, center)) cut += route.flights;
+    const clearance = Math.min(
+      180,
+      ...points.map(
+        (point) => 180 - Math.abs(wrapLongitude(point.longitude - center)),
+      ),
+    );
+    const better =
+      cut < best.cut ||
+      (cut === best.cut && clearance > best.clearance + 1e-9) ||
+      (cut === best.cut &&
+        Math.abs(clearance - best.clearance) <= 1e-9 &&
+        Math.abs(center) < Math.abs(best.center));
+    if (better) best = { center, cut, clearance };
+  }
+  return best.center;
+}
 
 const datePart = (flight: KeeprawFlight) =>
   /^(\d{4})-(\d{2})-\d{2}/.exec(flight.serviceDate);
@@ -232,7 +327,9 @@ export function buildPosterModel(
       ? { kind: "year", year: Math.trunc(options.scope.year) }
       : { kind: "lifetime" };
   const privacy: PosterPrivacy =
-    options.privacy === "airports" ? "airports" : "overview";
+    options.privacy === "airports" || options.privacy === "routes"
+      ? options.privacy
+      : "overview";
   // Reuse the 3A whitelist for every shared number (overview: no routes).
   const share = buildShareRenderModel(flights, { scope, privacy: "overview" });
   const source = share.model.statistics;
@@ -256,6 +353,43 @@ export function buildPosterModel(
     ? { first: share.model.yearRange.first, last: share.model.yearRange.last }
     : null;
   const trend = trendFor(counted, scope, yearRange);
+  let map: PosterMap | null = null;
+  if (privacy !== "overview") {
+    // Routes come from the same 3A whitelist, now with explicit consent.
+    const routed = buildShareRenderModel(flights, {
+      scope,
+      privacy: "routes",
+      airportLabels: privacy === "airports",
+    }).model;
+    const routes = routed.routes.slice(0, MAX_POSTER_ROUTES).map((route) => ({
+      from: { ...route.from },
+      to: { ...route.to },
+      flights: route.flights,
+    }));
+    const airports = routed.airports
+      .slice(0, MAX_POSTER_MAP_AIRPORTS)
+      .map((airport, index): PosterMapAirport => {
+        const value: PosterMapAirport = {
+          latitude: airport.latitude,
+          longitude: airport.longitude,
+          flights: airport.flights,
+        };
+        if (
+          privacy === "airports" &&
+          airport.code &&
+          index < MAX_POSTER_MAP_LABELS
+        )
+          value.code = airport.code;
+        return value;
+      });
+    map = {
+      routes,
+      totalRoutes: routed.routes.length,
+      curated: routed.routes.length > routes.length,
+      airports,
+      centerLongitude: posterCenterLongitude(routed.routes, routed.airports),
+    };
+  }
   return {
     version: 1,
     template: options.template === "year" ? "year" : "passport",
@@ -269,5 +403,10 @@ export function buildPosterModel(
       privacy === "airports"
         ? topAirports(counted, options.locale ?? "en-US")
         : [],
+    map,
+    activeMonths:
+      trend.kind === "month"
+        ? trend.points.filter((point) => point.flights > 0).length
+        : null,
   };
 }

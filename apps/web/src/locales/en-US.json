@@ -723,13 +723,17 @@
     "lifetime": "Lifetime",
     "year": "Year",
     "aspect": "Format",
-    "aspectPortrait": "4:5 Portrait",
-    "aspectStory": "9:16 Story",
+    "aspectPortrait": "3:4 Portrait",
+    "aspectPortraitHint": "1200 × 1600 · phone",
+    "aspectLandscape": "4:3 Landscape",
+    "aspectLandscapeHint": "1600 × 1200 · desktop",
     "privacy": "Privacy",
-    "privacyOverview": "Privacy overview",
-    "privacyOverviewHint": "Totals and trends only. No airports, routes or dates.",
-    "privacyAirports": "Show airport info",
-    "privacyAirportsHint": "Adds your top airports by code and name. No maps, routes or dates.",
+    "privacyRoutes": "Show real routes",
+    "privacyRoutesHint": "Draws the routes of the selected range and unlabelled airport dots. No codes, names or dates.",
+    "privacyOverviewHint": "Privacy overview: the map and totals only. No routes, airports or dates.",
+    "privacyAirports": "Show airport codes and names",
+    "privacyAirportsHint": "Labels your busiest airports. Needs real routes.",
+    "privacyLocalHint": "Generated on this device. Names, flight numbers, booking codes and exact times are never drawn.",
     "preview": "Preview",
     "previewLabel": "Poster preview: {{title}}, {{scope}}",
     "download": "Download PNG",
@@ -769,7 +773,12 @@
       "visitsCount_one": "{{count, number}} visit",
       "visitsCount_other": "{{count, number}} visits",
       "undatedFlights_one": "{{count, number}} undated flight not charted",
-      "undatedFlights_other": "{{count, number}} undated flights not charted"
+      "undatedFlights_other": "{{count, number}} undated flights not charted",
+      "hoursUnit": "h",
+      "activeMonths": "Active months",
+      "routesCurated": "Busiest {{shown, number}} of {{total, number}} routes shown",
+      "routesAll_one": "All {{count, number}} route shown",
+      "routesAll_other": "All {{count, number}} routes shown"
     }
   }
 }

@@ -689,13 +689,17 @@
     "lifetime": "全部歷史",
     "year": "年份",
     "aspect": "比例",
-    "aspectPortrait": "4:5 直式",
-    "aspectStory": "9:16 全螢幕",
+    "aspectPortrait": "3:4 直式",
+    "aspectPortraitHint": "1200 × 1600 · 手機",
+    "aspectLandscape": "4:3 橫式",
+    "aspectLandscapeHint": "1600 × 1200 · 桌面",
     "privacy": "隱私",
-    "privacyOverview": "隱私概覽",
-    "privacyOverviewHint": "僅顯示彙總與趨勢，不含機場、航段或日期。",
-    "privacyAirports": "顯示機場資訊",
-    "privacyAirportsHint": "加入最常造訪機場的代碼與名稱，不含地圖、航段或日期。",
+    "privacyRoutes": "顯示真實航線",
+    "privacyRoutesHint": "繪製所選範圍內的航線和不含標註的機場點，不含代碼、名稱或日期。",
+    "privacyOverviewHint": "隱私概覽：僅顯示地圖與彙總統計，不含航線、機場或日期。",
+    "privacyAirports": "顯示機場代碼和名稱",
+    "privacyAirportsHint": "為最常到訪的機場加上標註，需先顯示真實航線。",
+    "privacyLocalHint": "海報在此裝置上產生，不會繪製姓名、航班號碼、訂位代號或精確時間。",
     "preview": "預覽",
     "previewLabel": "海報預覽：{{title}}，{{scope}}",
     "download": "下載高畫質 PNG",
@@ -731,7 +735,11 @@
       "flightsByRecentYears": "年度航班 · 最近 {{count, number}} 年",
       "flightsCount": "{{count, number}} 個航班",
       "visitsCount": "{{count, number}} 次",
-      "undatedFlights": "{{count, number}} 個航班缺少日期，未計入圖表"
+      "undatedFlights": "{{count, number}} 個航班缺少日期，未計入圖表",
+      "hoursUnit": "小時",
+      "activeMonths": "有飛行的月份",
+      "routesCurated": "精選呈現：{{total, number}} 條航線中最常飛的 {{shown, number}} 條",
+      "routesAll": "已顯示全部 {{count, number}} 條航線"
     }
   }
 }
