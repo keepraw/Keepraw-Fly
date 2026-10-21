@@ -2063,7 +2063,10 @@ test("enforces the static responsive UI acceptance constraints", async ({
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", { name: "Flight Passport" });
+    const detailBack = page.getByRole("button", {
+      name: "Flight Passport",
+      exact: true,
+    });
     if (await detailBack.isVisible()) await detailBack.click();
     else await navigateTo(page, "passport");
 
@@ -2181,7 +2184,10 @@ test("enforces the static responsive UI acceptance constraints", async ({
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", { name: "Flight Passport" });
+    const detailBack = page.getByRole("button", {
+      name: "Flight Passport",
+      exact: true,
+    });
     if (await detailBack.isVisible()) await detailBack.click();
     else await navigateTo(page, "passport");
     await page.getByRole("button", { name: "Add flight" }).click();
