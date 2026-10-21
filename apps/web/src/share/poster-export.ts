@@ -1,6 +1,10 @@
 import type { PosterCopy } from "./poster-copy";
 import type { PosterLayout } from "./poster-layout";
-import { drawPoster, type PosterDrawReport } from "./poster-render";
+import {
+  drawPoster,
+  type PosterDrawReport,
+  type PosterTone,
+} from "./poster-render";
 import { readPngHeader } from "./share-png";
 import type { ShareFonts } from "./share-text";
 
@@ -25,9 +29,11 @@ export interface PosterRenderInput {
   layout: PosterLayout;
   copy: PosterCopy;
   fonts: Pick<ShareFonts, "family">;
+  /** Dark navy or light paper passport. */
+  tone: PosterTone;
 }
 
-/** Draws into an existing canvas at `pixelWidth` (preview and export). */
+/** Draws into an existing canvas at `pixelWidth`. */
 export function renderPosterToCanvas(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   input: PosterRenderInput,
@@ -47,7 +53,13 @@ export function renderPosterToCanvas(
     );
   context.setTransform(scale, 0, 0, scale, 0, 0);
   context.imageSmoothingEnabled = true;
-  const report = drawPoster(context, input.layout, input.copy, input.fonts);
+  const report = drawPoster(
+    context,
+    input.layout,
+    input.copy,
+    input.fonts,
+    input.tone,
+  );
   context.setTransform(1, 0, 0, 1, 0, 0);
   return report;
 }
@@ -122,39 +134,4 @@ export async function exportPosterPng(
     canvas.width = 0;
     canvas.height = 0;
   }
-}
-
-/** Saves a Blob through a temporary object URL that is always revoked. */
-export function downloadPosterBlob(
-  blob: Blob,
-  filename: string,
-  owner: Document = document,
-): void {
-  const url = URL.createObjectURL(blob);
-  const link = owner.createElement("a");
-  try {
-    link.href = url;
-    link.download = filename;
-    link.rel = "noopener";
-    link.style.display = "none";
-    owner.body.append(link);
-    link.click();
-  } finally {
-    link.remove();
-    // Revoke after the click has been dispatched to the download manager.
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-}
-
-export function posterFilename(options: {
-  template: "passport" | "year";
-  scope: { kind: "lifetime" } | { kind: "year"; year: number };
-  aspect: "3:4" | "4:3";
-}): string {
-  const template =
-    options.template === "year" ? "year-in-flight" : "flight-passport";
-  const scope =
-    options.scope.kind === "year" ? String(options.scope.year) : "lifetime";
-  const aspect = options.aspect === "4:3" ? "4x3" : "3x4";
-  return `keepraw-fly-${template}-${scope}-${aspect}.png`;
 }
