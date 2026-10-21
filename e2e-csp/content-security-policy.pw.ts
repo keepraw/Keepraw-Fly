@@ -307,6 +307,106 @@ test("the demo archive starts without CSP violations @cross-browser", async ({
   expect(await watch.cspConsoleErrors()).toEqual([]);
 });
 
+for (const { name, viewport, size } of [
+  {
+    name: "desktop",
+    viewport: { width: 1440, height: 1000 },
+    size: { width: 1600, height: 1200 },
+  },
+  {
+    name: "phone",
+    viewport: { width: 390, height: 844 },
+    size: { width: 1200, height: 1600 },
+  },
+]) {
+  test(`Flight Passport share decodes and releases its image under production CSP (${name}) @cross-browser`, async ({
+    page,
+    browserName,
+  }) => {
+    const watch = await watchViolations(page, browserName);
+    await page.route("https://cdn.jsdelivr.net/**", (route) => route.abort());
+    await page.setViewportSize(viewport);
+    await page.addInitScript(() => {
+      const urls = {
+        created: [] as string[],
+        revoked: [] as { url: string; inUse: boolean }[],
+      };
+      (window as unknown as { __shareUrls: typeof urls }).__shareUrls = urls;
+      const create = URL.createObjectURL.bind(URL);
+      const revoke = URL.revokeObjectURL.bind(URL);
+      URL.createObjectURL = (object) => {
+        const url = create(object);
+        urls.created.push(url);
+        return url;
+      };
+      URL.revokeObjectURL = (url) => {
+        urls.revoked.push({
+          url,
+          inUse: [...document.images].some((image) => image.src === url),
+        });
+        revoke(url);
+      };
+    });
+    const readUrls = () =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              __shareUrls: {
+                created: string[];
+                revoked: { url: string; inUse: boolean }[];
+              };
+            }
+          ).__shareUrls,
+      );
+
+    // Import through the UI: production bundles have no /src module endpoints.
+    await importArchive(page);
+    await expect(
+      page.locator('meta[http-equiv="Content-Security-Policy"]'),
+    ).toHaveAttribute("content", documentPolicy);
+    const before = page.url();
+    await page.locator(".passport-share-button").click();
+    const dialog = page.getByRole("dialog", { name: "Flight Passport" });
+    await expect(dialog).toBeVisible();
+    const image = dialog.locator(".share-overlay-image");
+    await expect(image).toBeVisible({ timeout: 20_000 });
+    await expect(dialog.locator(".share-overlay-hint")).toBeVisible();
+    const url = await image.getAttribute("src");
+    expect(url).toMatch(/^blob:/);
+
+    // Decode the displayed <img> itself. fetch(blob:) would exercise
+    // connect-src instead of img-src and is deliberately not allowed.
+    const decoded = await image.evaluate(async (element: HTMLImageElement) => {
+      const decoded = await element.decode().then(
+        () => true,
+        () => false,
+      );
+      return {
+        decoded,
+        width: element.naturalWidth,
+        height: element.naturalHeight,
+      };
+    });
+    expect.soft(decoded).toEqual({ decoded: true, ...size });
+    expect(page.url()).toBe(before);
+    expect(await readUrls()).toEqual({ created: [url], revoked: [] });
+    expect.soft(await watch.violations()).toEqual([]);
+
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect.poll(readUrls).toEqual({
+      created: [url],
+      revoked: [{ url, inUse: false }],
+    });
+    // The wrapper delegates to native revokeObjectURL. Checking that call
+    // and its timing is portable: Firefox can reuse decoded image pixels
+    // even for a new Image with the revoked URL. fetch(blob:) is CSP-blocked.
+    expect(await watch.violations()).toEqual([]);
+    expect(await watch.cspConsoleErrors()).toEqual([]);
+  });
+}
+
 test("core journeys raise no CSP violation: import, Passport map/Globe, detail Globe, settings, export @cross-browser", async ({
   page,
   browserName,
