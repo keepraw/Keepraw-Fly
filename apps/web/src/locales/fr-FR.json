@@ -754,13 +754,17 @@
     "lifetime": "Depuis le début",
     "year": "Année",
     "aspect": "Format",
-    "aspectPortrait": "4:5 portrait",
-    "aspectStory": "9:16 story",
+    "aspectPortrait": "3:4 portrait",
+    "aspectPortraitHint": "1200 × 1600 · mobile",
+    "aspectLandscape": "4:3 paysage",
+    "aspectLandscapeHint": "1600 × 1200 · ordinateur",
     "privacy": "Confidentialité",
-    "privacyOverview": "Aperçu confidentiel",
-    "privacyOverviewHint": "Totaux et tendances uniquement. Aucun aéroport, trajet ni date.",
-    "privacyAirports": "Afficher les aéroports",
-    "privacyAirportsHint": "Ajoute vos principaux aéroports (code et nom). Aucune carte, aucun trajet ni date.",
+    "privacyRoutes": "Afficher les vrais trajets",
+    "privacyRoutesHint": "Trace les trajets de la période choisie et des points d’aéroport sans étiquette. Ni codes, ni noms, ni dates.",
+    "privacyOverviewHint": "Aperçu confidentiel : la carte et les totaux uniquement. Ni trajets, ni aéroports, ni dates.",
+    "privacyAirports": "Afficher les codes et noms d’aéroports",
+    "privacyAirportsHint": "Étiquette vos aéroports les plus fréquentés. Nécessite les vrais trajets.",
+    "privacyLocalHint": "Créé sur cet appareil. Les noms, numéros de vol, codes de réservation et heures exactes ne sont jamais tracés.",
     "preview": "Aperçu",
     "previewLabel": "Aperçu de l’affiche : {{title}}, {{scope}}",
     "download": "Télécharger le PNG",
@@ -804,7 +808,13 @@
       "visitsCount_many": "{{count, number}} passages",
       "undatedFlights_one": "{{count, number}} vol sans date hors graphique",
       "undatedFlights_other": "{{count, number}} vols sans date hors graphique",
-      "undatedFlights_many": "{{count, number}} vols sans date hors graphique"
+      "undatedFlights_many": "{{count, number}} vols sans date hors graphique",
+      "hoursUnit": "h",
+      "activeMonths": "Mois actifs",
+      "routesCurated": "{{shown, number}} trajets les plus fréquents sur {{total, number}}",
+      "routesAll_one": "Le trajet unique est affiché",
+      "routesAll_other": "Les {{count, number}} trajets sont affichés",
+      "routesAll_many": "Les {{count, number}} trajets sont affichés"
     }
   }
 }

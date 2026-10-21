@@ -754,13 +754,17 @@
     "lifetime": "Todo el historial",
     "year": "Año",
     "aspect": "Formato",
-    "aspectPortrait": "4:5 vertical",
-    "aspectStory": "9:16 historia",
+    "aspectPortrait": "3:4 vertical",
+    "aspectPortraitHint": "1200 × 1600 · móvil",
+    "aspectLandscape": "4:3 horizontal",
+    "aspectLandscapeHint": "1600 × 1200 · escritorio",
     "privacy": "Privacidad",
-    "privacyOverview": "Resumen privado",
-    "privacyOverviewHint": "Solo totales y tendencias. Sin aeropuertos, rutas ni fechas.",
-    "privacyAirports": "Mostrar aeropuertos",
-    "privacyAirportsHint": "Añade tus aeropuertos principales con código y nombre. Sin mapas, rutas ni fechas.",
+    "privacyRoutes": "Mostrar rutas reales",
+    "privacyRoutesHint": "Dibuja las rutas del periodo elegido y puntos de aeropuerto sin etiqueta. Sin códigos, nombres ni fechas.",
+    "privacyOverviewHint": "Resumen privado: solo el mapa y los totales. Sin rutas, aeropuertos ni fechas.",
+    "privacyAirports": "Mostrar códigos y nombres de aeropuertos",
+    "privacyAirportsHint": "Etiqueta tus aeropuertos más frecuentes. Requiere rutas reales.",
+    "privacyLocalHint": "Se genera en este dispositivo. Nunca se dibujan nombres, números de vuelo, códigos de reserva ni horas exactas.",
     "preview": "Vista previa",
     "previewLabel": "Vista previa del póster: {{title}}, {{scope}}",
     "download": "Descargar PNG",
@@ -804,7 +808,13 @@
       "visitsCount_many": "{{count, number}} visitas",
       "undatedFlights_one": "{{count, number}} vuelo sin fecha fuera del gráfico",
       "undatedFlights_other": "{{count, number}} vuelos sin fecha fuera del gráfico",
-      "undatedFlights_many": "{{count, number}} vuelos sin fecha fuera del gráfico"
+      "undatedFlights_many": "{{count, number}} vuelos sin fecha fuera del gráfico",
+      "hoursUnit": "h",
+      "activeMonths": "Meses activos",
+      "routesCurated": "Se muestran las {{shown, number}} rutas más voladas de {{total, number}}",
+      "routesAll_one": "Se muestra la única ruta",
+      "routesAll_other": "Se muestran las {{count, number}} rutas",
+      "routesAll_many": "Se muestran las {{count, number}} rutas"
     }
   }
 }

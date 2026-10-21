@@ -126,11 +126,11 @@
 }
 
 .share-studio-frame {
-  width: min(100%, 460px);
+  width: min(100%, 480px);
 }
 
-.share-studio-frame[data-aspect="9:16"] {
-  width: min(100%, 380px);
+.share-studio-frame[data-aspect="4:3"] {
+  width: min(100%, 760px);
 }
 
 .share-studio-canvas {
@@ -214,6 +214,23 @@
   pointer-events: none;
 }
 
+.share-studio-toggle {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-3);
+}
+
+.share-studio-toggle input {
+  position: static;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  opacity: 1;
+  accent-color: var(--color-accent);
+  pointer-events: auto;
+  grid-row: span 2;
+  align-self: start;
+}
+
 .share-studio-option-label {
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -295,9 +312,12 @@
     grid-row: 2;
   }
 
-  .share-studio-frame,
-  .share-studio-frame[data-aspect="9:16"] {
-    width: min(100%, 360px);
+  .share-studio-frame {
+    width: min(100%, 380px);
+  }
+
+  .share-studio-frame[data-aspect="4:3"] {
+    width: 100%;
   }
 
   .passport-share-button {

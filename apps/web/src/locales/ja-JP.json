@@ -689,13 +689,17 @@
     "lifetime": "全期間",
     "year": "年",
     "aspect": "比率",
-    "aspectPortrait": "4:5 縦長",
-    "aspectStory": "9:16 ストーリー",
+    "aspectPortrait": "3:4 縦長",
+    "aspectPortraitHint": "1200 × 1600・スマートフォン",
+    "aspectLandscape": "4:3 横長",
+    "aspectLandscapeHint": "1600 × 1200・デスクトップ",
     "privacy": "プライバシー",
-    "privacyOverview": "プライバシー概要",
-    "privacyOverviewHint": "合計と推移のみ。空港、区間、日付は含みません。",
-    "privacyAirports": "空港情報を表示",
-    "privacyAirportsHint": "よく利用する空港のコードと名称を追加します。地図、区間、日付は含みません。",
+    "privacyRoutes": "実際の航路を表示",
+    "privacyRoutesHint": "選んだ期間の航路と、ラベルなしの空港の点を描きます。コード・名称・日付は含みません。",
+    "privacyOverviewHint": "プライバシー概要：地図と合計のみ。航路・空港・日付は含みません。",
+    "privacyAirports": "空港コードと名称を表示",
+    "privacyAirportsHint": "よく利用する空港にラベルを付けます。実際の航路の表示が必要です。",
+    "privacyLocalHint": "この端末で生成されます。氏名、便名、予約番号、正確な時刻は描かれません。",
     "preview": "プレビュー",
     "previewLabel": "ポスターのプレビュー：{{title}}、{{scope}}",
     "download": "PNG をダウンロード",
@@ -731,7 +735,11 @@
       "flightsByRecentYears_other": "年別フライト数 · 直近 {{count, number}} 年",
       "flightsCount_other": "{{count, number}} 便",
       "visitsCount_other": "{{count, number}} 回",
-      "undatedFlights_other": "日付不明の {{count, number}} 便はグラフ対象外"
+      "undatedFlights_other": "日付不明の {{count, number}} 便はグラフ対象外",
+      "hoursUnit": "時間",
+      "activeMonths": "搭乗した月",
+      "routesCurated": "全 {{total, number}} 航路のうち多い順に {{shown, number}} 航路を表示",
+      "routesAll_other": "全 {{count, number}} 航路を表示"
     }
   }
 }

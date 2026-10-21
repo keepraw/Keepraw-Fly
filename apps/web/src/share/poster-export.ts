@@ -149,12 +149,12 @@ export function downloadPosterBlob(
 export function posterFilename(options: {
   template: "passport" | "year";
   scope: { kind: "lifetime" } | { kind: "year"; year: number };
-  aspect: "4:5" | "9:16";
+  aspect: "3:4" | "4:3";
 }): string {
   const template =
     options.template === "year" ? "year-in-flight" : "flight-passport";
   const scope =
     options.scope.kind === "year" ? String(options.scope.year) : "lifetime";
-  const aspect = options.aspect === "9:16" ? "9x16" : "4x5";
+  const aspect = options.aspect === "4:3" ? "4x3" : "3x4";
   return `keepraw-fly-${template}-${scope}-${aspect}.png`;
 }
