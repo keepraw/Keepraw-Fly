@@ -20,7 +20,8 @@ export const documentDirectives = [
   ["style-src", ["'self'", fontCdnOrigin]],
   ["font-src", ["'self'", fontCdnOrigin]],
   // data: carries the canvas-projected map relief (MapRelief toDataURL).
-  ["img-src", ["'self'", "data:"]],
+  // blob: carries the locally generated Flight Passport PNG preview.
+  ["img-src", ["'self'", "data:", "blob:"]],
   // Same-origin JSON reference data and locale resources only; this blocks
   // fetch/XHR/WebSocket/beacon exfiltration of archive data to other hosts.
   ["connect-src", ["'self'"]],
