@@ -134,7 +134,7 @@ Verify the selected archive against `SHA256SUMS`, extract it and publish the dir
 
 ## Developers and official publishing
 
-Only developers need Node.js **20.19+** and pnpm **10.14.0** (official CI uses Node 24):
+Only developers need Node.js **24 LTS** (`^24.0.0`) and pnpm **10.14.0**, matching official CI. Run `nvm use` in the repository; installation rejects unsupported Node.js versions:
 
 ```bash
 pnpm install --frozen-lockfile

@@ -6,7 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@10.14.0",
   "engines": {
-    "node": ">=20.19"
+    "node": "^24.0.0"
   },
   "scripts": {
     "dev": "pnpm --filter @keepraw-fly/web dev",
@@ -32,17 +32,17 @@
     "check:webfont-sri": "node scripts/verify-webfont-sri.mjs"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.64.0",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.3.0",
     "d3-geo": "3.1.1",
     "opencc-js": "1.4.2",
-    "postcss": "8.5.29",
+    "postcss": "8.5.30",
     "postcss-value-parser": "^4.2.0",
     "prettier": "^3.9.10",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^5.9.2",
-    "vitest": "^4.1.12"
+    "vitest": "^5.0.5"
   }
 }
