@@ -918,7 +918,9 @@ for (const locale of localeCases)
       expectNoIdentifiers(drawn);
       const text = drawn.join("\n");
       // The 4:3 title may break over two lines.
-      expect(drawn.join(" ").toLocaleUpperCase()).toContain(locale.title);
+      const squash = (value: string) =>
+        value.replace(/\s+/g, "").toLocaleUpperCase();
+      expect(squash(drawn.join(""))).toContain(squash(locale.title));
       expect(text).toContain(locale.issuer);
       expect(text).toContain("Keepraw Fly");
       await keep(
