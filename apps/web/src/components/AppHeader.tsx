@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-export type Page = "passport" | "settings" | "share";
+export type Page = "passport" | "settings";
 
 interface AppHeaderProps {
   currentPage: Page;
@@ -147,7 +147,7 @@ export function AppHeader({
           )}
           {!detailActions ? (
             <div className="mobile-page-heading">
-              {currentPage === "settings" || currentPage === "share" ? (
+              {currentPage === "settings" ? (
                 <button
                   className="mobile-page-back"
                   type="button"
@@ -157,13 +157,7 @@ export function AppHeader({
                   <HeaderIcon kind="back" />
                 </button>
               ) : null}
-              <h1>
-                {t(
-                  currentPage === "share"
-                    ? "share.studioTitle"
-                    : `nav.${currentPage}`,
-                )}
-              </h1>
+              <h1>{t(`nav.${currentPage}`)}</h1>
               {currentPage === "passport" ? (
                 <button
                   className="mobile-settings-button"

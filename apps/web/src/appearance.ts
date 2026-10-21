@@ -18,3 +18,24 @@ export function applyAppearance(appearance: Appearance) {
     // A blocked cosmetic cache must not prevent loading or changing preferences.
   }
 }
+
+export type ResolvedAppearance = "light" | "dark";
+
+/**
+ * The theme actually on screen. "system" follows the operating system's
+ * prefers-color-scheme, the same media query the stylesheets use, so callers
+ * never treat the literal "system" as light or dark.
+ */
+export function resolveAppearance(
+  appearance: Appearance,
+  matchMedia:
+    ((query: string) => { matches: boolean }) | undefined = typeof window ===
+  "undefined"
+    ? undefined
+    : window.matchMedia?.bind(window),
+): ResolvedAppearance {
+  if (appearance === "light" || appearance === "dark") return appearance;
+  return matchMedia?.("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}

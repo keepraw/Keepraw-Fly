@@ -14,7 +14,11 @@ import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
-import { ShareStudioPage } from "./pages/ShareStudioPage";
+import {
+  FlightPassportShareDialog,
+  type FlightPassportShareRequest,
+} from "./components/FlightPassportShareDialog";
+import { posterAspectForViewport } from "./share/poster-layout";
 import {
   initialPassportView,
   passportVisibleFlights,
@@ -33,7 +37,11 @@ import {
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
-import { applyAppearance, initialAppearance } from "./appearance";
+import {
+  applyAppearance,
+  initialAppearance,
+  resolveAppearance,
+} from "./appearance";
 import { changeUiLanguage } from "./i18n";
 import { warmLocaleCache } from "./locales/resources";
 import {
@@ -122,6 +130,8 @@ export function App() {
     ),
   );
   const [page, setPage] = useState<Page>(pageFromHash);
+  const [shareRequest, setShareRequest] =
+    useState<FlightPassportShareRequest | null>(null);
   const [settingsInitialCategory, setSettingsInitialCategory] = useState<
     "general" | "data"
   >("general");
@@ -331,14 +341,19 @@ export function App() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [page, selectedFlightId]);
 
+  // Leaving Passport closes the share overlay; returning never reopens it.
   useEffect(() => {
-    if (window.location.hash === "#flights") {
+    setShareRequest(null);
+  }, [page, selectedFlightId]);
+
+  useEffect(() => {
+    if (retiredPassportHashes.has(window.location.hash.slice(1))) {
       window.history.replaceState(null, "", "#passport");
     }
     const handleHashChange = () => {
       const nextPage = pageFromLocationHash();
       if (nextPage) {
-        if (window.location.hash === "#flights") {
+        if (retiredPassportHashes.has(window.location.hash.slice(1))) {
           window.history.replaceState(null, "", "#passport");
         }
         setPage(nextPage);
@@ -750,16 +765,6 @@ export function App() {
           appearance={settings.appearance}
           solarMode={settings.solarMode}
         />
-      ) : page === "share" ? (
-        <ShareStudioPage
-          document={document}
-          locale={locale}
-          distanceUnit={settings.distanceUnit}
-          onBack={() => {
-            setPage("passport");
-            window.location.hash = "passport";
-          }}
-        />
       ) : page === "passport" ? (
         <PassportPage
           view={passportView}
@@ -771,10 +776,16 @@ export function App() {
           appearance={settings.appearance}
           solarMode={settings.solarMode}
           onOpenFlight={openFlight}
-          onOpenShare={() => {
-            setPage("share");
-            window.location.hash = "share";
-          }}
+          onOpenShare={() =>
+            setShareRequest({
+              // Decided once, when Share is pressed.
+              aspect: posterAspectForViewport(window.innerWidth),
+              tone:
+                resolveAppearance(settings.appearance) === "dark"
+                  ? "light"
+                  : "dark",
+            })
+          }
           onAddFlight={() => {
             editorReturnFocusRef.current =
               window.document.activeElement instanceof HTMLElement
@@ -821,6 +832,16 @@ export function App() {
           }}
         />
       ) : null}
+      {document && shareRequest && page === "passport" && !selectedFlight ? (
+        <FlightPassportShareDialog
+          document={document}
+          locale={locale}
+          distanceUnit={settings.distanceUnit}
+          aspect={shareRequest.aspect}
+          tone={shareRequest.tone}
+          onClose={() => setShareRequest(null)}
+        />
+      ) : null}
       {confirmDemoExport ? (
         <ConfirmationDialog
           themeScope={page === "settings" ? "settings" : undefined}
@@ -853,10 +874,12 @@ function pageFromHash(): Page {
   return pageFromLocationHash() ?? "passport";
 }
 
+/** Retired hashes that now land on Passport: the old flight list and the
+ * removed Share Studio page (sharing is an overlay on Passport). */
+const retiredPassportHashes = new Set(["flights", "share"]);
+
 function pageFromLocationHash(): Page | null {
   const hash = window.location.hash.slice(1);
-  if (hash === "flights") return "passport";
-  return hash === "passport" || hash === "settings" || hash === "share"
-    ? hash
-    : null;
+  if (retiredPassportHashes.has(hash)) return "passport";
+  return hash === "passport" || hash === "settings" ? hash : null;
 }
