@@ -93,6 +93,86 @@ interface ShareLog {
   revoked: string[];
 }
 
+interface PosterTextDraw {
+  text: string;
+  x: number;
+  y: number;
+  maxWidth: number | null;
+  font: string;
+  spacing: string;
+  align: CanvasTextAlign;
+  baseline: CanvasTextBaseline;
+  direction: CanvasDirection;
+  fill: string;
+  alpha: number;
+  composite: GlobalCompositeOperation;
+  transform: number[];
+  advance: number;
+  bounds: { x: number; y: number; width: number; height: number };
+}
+
+interface PosterPaint {
+  width: number;
+  height: number;
+  texts: PosterTextDraw[];
+}
+
+/** Capture the text on the actual canvas passed to PNG encoding. TextMetrics
+ * ink bounds can change with font hinting; draw positions and advances cannot. */
+async function recordPosterPaint(page: Page) {
+  await page.addInitScript(() => {
+    const paints: PosterPaint[] = [];
+    (window as unknown as { __posterPaints: PosterPaint[] }).__posterPaints =
+      paints;
+    const texts = new WeakMap<HTMLCanvasElement, PosterTextDraw[]>();
+    const fillText = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (
+      text,
+      x,
+      y,
+      ...rest
+    ) {
+      const metrics = this.measureText(text);
+      const list = texts.get(this.canvas) ?? [];
+      const { a, b, c, d, e, f } = this.getTransform();
+      list.push({
+        text: String(text),
+        x,
+        y,
+        maxWidth: rest[0] ?? null,
+        font: this.font,
+        spacing: this.letterSpacing,
+        align: this.textAlign,
+        baseline: this.textBaseline,
+        direction: this.direction,
+        fill: String(this.fillStyle),
+        alpha: this.globalAlpha,
+        composite: this.globalCompositeOperation,
+        transform: [a, b, c, d, e, f],
+        advance: metrics.width,
+        bounds: {
+          x: x - metrics.actualBoundingBoxLeft,
+          y: y - metrics.actualBoundingBoxAscent,
+          width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+          height:
+            metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
+        },
+      });
+      texts.set(this.canvas, list);
+      return Reflect.apply(fillText, this, [text, x, y, ...rest]);
+    };
+    const toBlob = HTMLCanvasElement.prototype.toBlob;
+    HTMLCanvasElement.prototype.toBlob = function (callback, ...rest) {
+      paints.push({
+        width: this.width,
+        height: this.height,
+        texts: [...(texts.get(this) ?? [])],
+      });
+      return Reflect.apply(toBlob, this, [callback, ...rest]);
+    };
+  });
+}
+
 /** Records Canvas work, drawn text and Blob URLs from the first script on. */
 async function instrument(page: Page) {
   await page.addInitScript(() => {
@@ -884,7 +964,11 @@ async function shareIn(
     scale?: number;
     mobile?: boolean;
   },
-  options: { appearance?: Appearance; colorScheme?: "light" | "dark" } = {},
+  options: {
+    appearance?: Appearance;
+    colorScheme?: "light" | "dark";
+    recordPaint?: boolean;
+  } = {},
 ) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
@@ -895,6 +979,7 @@ async function shareIn(
   });
   const page = await context.newPage();
   await instrument(page);
+  if (options.recordPaint) await recordPosterPaint(page);
   await seed(page, await loadArchive(), { appearance: options.appearance });
   await openShare(page);
   const result = await decodeImage(page);
@@ -946,24 +1031,95 @@ for (const [name, viewport, aspect] of viewportCases)
 
 test("the same portrait PNG comes out at every device scale", async ({
   browser,
-}) => {
+}, testInfo) => {
   const images: Buffer[] = [];
+  const paints: PosterPaint[] = [];
   for (const viewport of [
     { width: 390, height: 844, scale: 3, mobile: true },
     { width: 700, height: 900, scale: 1 },
     { width: 360, height: 740, scale: 2, mobile: true },
   ]) {
-    const { context, result } = await shareIn(browser, viewport);
-    expect(result.decoded.ihdr).toEqual(SIZE["3:4"]);
+    const { context, page, result } = await shareIn(browser, viewport, {
+      recordPaint: true,
+    });
+    await keep(testInfo, `portrait-dpr-${viewport.scale}.png`, result.bytes);
+    expectPassport(result.decoded, "3:4", "dark");
+    await expect(image(page)).toHaveAttribute("data-truncated", "0");
+    await expect(image(page)).toHaveAttribute("data-map-routes", "49");
+    await expect(image(page)).toHaveAttribute("data-map-airports", "19");
+    const paint = await page.evaluate(() =>
+      (
+        window as unknown as { __posterPaints: PosterPaint[] }
+      ).__posterPaints.at(-1)!,
+    );
+    expect({ width: paint.width, height: paint.height }).toEqual(SIZE["3:4"]);
+    const drawn = paint.texts.map((draw) => draw.text);
+    expectNoIdentifiers(drawn);
+    expect(drawn).toEqual(
+      expect.arrayContaining([
+        "Keepraw Fly",
+        "Issued by Keepraw Fly",
+        "FLIGHT PASSPORT",
+        "571474",
+        "91",
+        "768",
+        "20",
+        "8",
+        "12",
+        "ALL 49 ROUTES SHOWN",
+      ]),
+    );
+    for (const draw of paint.texts) {
+      expect(draw.text).not.toContain("…");
+      expect(draw.transform).toEqual([1, 0, 0, 1, 0, 0]);
+      const { x, y, width, height } = draw.bounds;
+      expect(x).toBeGreaterThanOrEqual(64);
+      expect(y).toBeGreaterThanOrEqual(64);
+      expect(x + width).toBeLessThanOrEqual(1200 - 64);
+      expect(y + height).toBeLessThanOrEqual(1600 - 64);
+    }
+    // Check actual glyph ink for collisions at every DPR, independently of
+    // the all-locale grid test's renderer report.
+    for (let a = 0; a < paint.texts.length; a += 1)
+      for (let b = a + 1; b < paint.texts.length; b += 1) {
+        const p = paint.texts[a]!.bounds;
+        const q = paint.texts[b]!.bounds;
+        expect(
+          p.x < q.x + q.width - 1 &&
+            q.x < p.x + p.width - 1 &&
+            p.y < q.y + q.height - 1 &&
+            q.y < p.y + p.height - 1,
+          `DPR ${viewport.scale}: ${drawn[a]} / ${drawn[b]}`,
+        ).toBe(false);
+      }
     images.push(result.bytes);
+    paints.push(paint);
     await context.close();
   }
-  // Same composition everywhere; only glyph antialiasing may differ by
-  // device, never layout or content.
+  await testInfo.attach("dpr-paint", {
+    body: JSON.stringify(paints, null, 2),
+    contentType: "application/json",
+  });
+  // Compare the actual text drawing contract exactly: content, fitting,
+  // baselines, alignment, font, tracking, paint and transform. Only raster
+  // ink bounds vary with hinting, so they are checked for safety above.
+  const commands = (paint: PosterPaint) =>
+    paint.texts.map(({ bounds, ...command }) => {
+      void bounds;
+      return command;
+    });
+  for (const paint of paints.slice(1))
+    expect(commands(paint)).toEqual(commands(paints[0]!));
+
+  // CI #342: DPR 2/3 were byte-identical; DPR 1 differed only on glyphs
+  // (7827 pixels > 96 RGB distance, mean channel error 0.383). A changed-
+  // pixel budget scales with text perimeter and broke when type grew.
+  // Keep the original mean-error bound, plus exact non-text pixels and the
+  // exact drawing contract above, instead of increasing that pixel budget.
   const context = await browser.newContext();
   const page = await context.newPage();
   const diffs = await page.evaluate(
-    async (encoded) => {
+    async ({ encoded, paints }) => {
       const decode = async (base64: string) => {
         const data = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
         const bitmap = await createImageBitmap(new Blob([data]));
@@ -973,29 +1129,47 @@ test("the same portrait PNG comes out at every device scale", async ({
         return context.getImageData(0, 0, bitmap.width, bitmap.height).data;
       };
       const base = await decode(encoded[0]!);
-      const result: { mean: number; changed: number }[] = [];
-      for (const image of encoded.slice(1)) {
-        const other = await decode(image);
+      const result: { mean: number; outsideText: number }[] = [];
+      for (let index = 1; index < encoded.length; index += 1) {
+        const other = await decode(encoded[index]!);
+        // Use measured glyph bounds from both actual exports, with a pixel
+        // for edge coverage. Never mask the map, rules or whole text rows.
+        const textPixels = new Uint8Array(1200 * 1600);
+        for (const draw of [...paints[0]!.texts, ...paints[index]!.texts]) {
+          const { x, y, width, height } = draw.bounds;
+          const left = Math.max(0, Math.floor(x) - 1);
+          const right = Math.min(1200, Math.ceil(x + width) + 1);
+          for (
+            let row = Math.max(0, Math.floor(y) - 1);
+            row < Math.min(1600, Math.ceil(y + height) + 1);
+            row += 1
+          )
+            textPixels.fill(1, row * 1200 + left, row * 1200 + right);
+        }
         let sum = 0,
-          changed = 0;
+          outsideText = 0;
         for (let i = 0; i < base.length; i += 4) {
           const d =
             Math.abs(base[i]! - other[i]!) +
             Math.abs(base[i + 1]! - other[i + 1]!) +
             Math.abs(base[i + 2]! - other[i + 2]!);
           sum += d;
-          if (d > 96) changed += 1;
+          if (d !== 0 && !textPixels[i / 4]) outsideText += 1;
         }
-        result.push({ mean: sum / (base.length / 4) / 3, changed });
+        result.push({ mean: sum / (base.length / 4) / 3, outsideText });
       }
       return result;
     },
-    images.map((bytes) => bytes.toString("base64")),
+    { encoded: images.map((bytes) => bytes.toString("base64")), paints },
   );
   await context.close();
+  await testInfo.attach("dpr-differences", {
+    body: JSON.stringify(diffs, null, 2),
+    contentType: "application/json",
+  });
   for (const diff of diffs) {
     expect(diff.mean).toBeLessThan(1);
-    expect(diff.changed).toBeLessThan(1200 * 1600 * 0.004);
+    expect(diff.outsideText).toBe(0);
   }
 });
 
