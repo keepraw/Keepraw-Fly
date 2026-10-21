@@ -123,7 +123,7 @@ sudo docker compose -p keepraw-fly down
 
 ## 开发者与官方发布
 
-仅开发者需要 Node.js **20.19+** 和 pnpm **10.14.0**（官方 CI 使用 Node 24）：
+仅开发者需要 Node.js **24 LTS**（`^24.0.0`）和 pnpm **10.14.0**，与官方 CI 一致。在仓库中运行 `nvm use` 选择版本；安装时会拒绝不受支持的 Node.js 版本：
 
 ```bash
 pnpm install --frozen-lockfile

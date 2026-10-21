@@ -67,7 +67,7 @@ Local airport timestamps use the bundled IANA timezone data; RFC 3339 timestamps
 
 ## Developers: run locally
 
-Requirements: Node.js 20.19 or newer and pnpm 10.14.0. CI uses Node.js 24.
+Requirements: Node.js 24 LTS (`^24.0.0`) and pnpm 10.14.0, matching CI. Run `nvm use` to select the version in `.nvmrc`; installation rejects unsupported Node.js versions.
 
 ```bash
 pnpm install --frozen-lockfile

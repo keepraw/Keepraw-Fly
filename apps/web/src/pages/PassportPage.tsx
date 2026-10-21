@@ -264,15 +264,17 @@ export function PassportPage({
       <button
         type="button"
         className="passport-highlight passport-spotlight-item passport-longest-flight"
-        aria-label={t("passport.filterRoute", {
-          context,
-          origin: target.origin,
-          destination: target.destination,
-        })}
         aria-pressed={isSelected(target)}
         onClick={() => toggleHighlight(target)}
       >
         {content}
+        <span className="sr-only">
+          {t("passport.filterRoute", {
+            context,
+            origin: target.origin,
+            destination: target.destination,
+          })}
+        </span>
       </button>
     ) : (
       <div className="passport-highlight passport-spotlight-item passport-longest-flight is-unavailable">
@@ -792,7 +794,6 @@ export function PassportPage({
                                   className="passport-highlight passport-spotlight-item passport-airport-rank"
                                   data-airport={code}
                                   data-visits={count}
-                                  aria-label={`${t("passport.filterAirport", { airport: name, code })} · ${t("passport.visitFrequency", { count })}`}
                                   aria-pressed={isSelected(target)}
                                   onClick={() => toggleHighlight(target)}
                                 >
@@ -820,6 +821,12 @@ export function PassportPage({
                                   </span>
                                   <span className="sr-only">
                                     {t("passport.visitFrequency", { count })}
+                                  </span>
+                                  <span className="sr-only">
+                                    {t("passport.filterAirport", {
+                                      airport: name,
+                                      code,
+                                    })}
                                   </span>
                                 </button>
                               </li>
