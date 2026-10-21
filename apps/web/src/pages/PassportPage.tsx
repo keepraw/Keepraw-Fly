@@ -52,6 +52,8 @@ interface PassportPageProps {
   solarMode: SolarMode;
   onAddFlight: () => void;
   onOpenImport: () => void;
+  /** Opens the Share Studio; optional so embedded uses can omit it. */
+  onOpenShare?: () => void;
   onOpenFlight: (flightId: string) => void;
   view: PassportViewState;
   onViewChange: (view: PassportViewState) => void;
@@ -66,6 +68,7 @@ export function PassportPage({
   solarMode,
   onAddFlight,
   onOpenImport,
+  onOpenShare,
   onOpenFlight,
   view,
   onViewChange,
@@ -865,6 +868,16 @@ export function PassportPage({
               >
                 {t("actions.importFlights")}
               </button>
+              {onOpenShare ? (
+                <button
+                  className="passport-share-button"
+                  type="button"
+                  title={t("share.entryHint")}
+                  onClick={onOpenShare}
+                >
+                  {t("share.entry")}
+                </button>
+              ) : null}
             </div>
             <div className="search-field passport-search-field">
               <svg aria-hidden="true" viewBox="0 0 24 24">
