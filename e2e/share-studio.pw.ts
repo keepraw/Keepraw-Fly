@@ -10,7 +10,13 @@ import path from "node:path";
  */
 
 type Template = "passport" | "year";
-type Aspect = "4:5" | "9:16";
+type Aspect = "3:4" | "4:3";
+type Privacy = "overview" | "routes" | "airports";
+const SIZE: Record<Aspect, { width: number; height: number }> = {
+  "3:4": { width: 1200, height: 1600 },
+  "4:3": { width: 1600, height: 1200 },
+};
+const slug = (aspect: Aspect) => (aspect === "3:4" ? "3x4" : "4x3");
 
 const fixtureUrl = new URL(
   "./fixtures/share-poster.keepraw-fly.json",
@@ -112,7 +118,7 @@ async function configure(
     template?: Template;
     year?: number | "lifetime";
     aspect?: Aspect;
-    privacy?: "overview" | "airports";
+    privacy?: Privacy;
   },
 ) {
   const pick = async (name: string, value: string) => {
@@ -131,7 +137,19 @@ async function configure(
       .selectOption(String(options.year));
   }
   if (options.aspect) await pick("share-aspect", options.aspect);
-  if (options.privacy) await pick("share-privacy", options.privacy);
+  if (options.privacy) {
+    // Two separate opt-ins: real routes, then airport codes and names.
+    const toggle = async (name: string, on: boolean) => {
+      const input = page.locator(`input[name="${name}"]`);
+      if ((await input.isChecked()) !== on) await input.setChecked(on);
+      await expect(input).toBeChecked({ checked: on });
+    };
+    await toggle("share-routes", options.privacy !== "overview");
+    if (options.privacy !== "overview")
+      await toggle("share-airports", options.privacy === "airports");
+    else
+      await expect(page.locator('input[name="share-airports"]')).toBeDisabled();
+  }
   await expect(page.locator(".share-studio-canvas")).toHaveAttribute(
     "data-preview-ready",
     "true",
@@ -269,13 +287,13 @@ async function keep(testInfo: TestInfo, name: string, bytes: Buffer) {
 }
 
 function expectPoster(decoded: Decoded, aspect: Aspect, template: Template) {
-  const height = aspect === "4:5" ? 1350 : 1920;
-  expect(decoded.width).toBe(1080);
+  const { width, height } = SIZE[aspect];
+  expect(decoded.width).toBe(width);
   expect(decoded.height).toBe(height);
-  expect(decoded.ihdr.width).toBe(1080);
+  expect(decoded.ihdr.width).toBe(width);
   expect(decoded.ihdr.height).toBe(height);
   expect(decoded.opaque).toBe(true);
-  // Neither black, blank nor a flat fill: real typography and bars.
+  // Neither black, blank nor a flat fill: real typography and the map.
   expect(decoded.std).toBeGreaterThan(12);
   expect(decoded.colors).toBeGreaterThan(40);
   // Content spread over most of the artboard height (not shifted/cropped).
@@ -314,31 +332,37 @@ test.describe("Share Studio", () => {
     // Only what happens from here on is Studio work.
     await resetLog(page);
 
-    // Defaults: Flight Passport, Lifetime, 4:5, privacy overview.
+    // Defaults: Flight Passport, Lifetime, 4:3 on a desktop, privacy
+    // overview (no routes, no airports).
     for (const [name, value] of [
       ["share-template", "passport"],
       ["share-range", "lifetime"],
-      ["share-aspect", "4:5"],
-      ["share-privacy", "overview"],
+      ["share-aspect", "4:3"],
     ])
       await expect(
         page.locator(`input[name="${name}"][value="${value}"]`),
       ).toBeChecked();
+    await expect(page.locator('input[name="share-routes"]')).not.toBeChecked();
+    await expect(page.locator('input[name="share-airports"]')).toBeDisabled();
+    await expect(page.locator(".share-studio-canvas")).toHaveAttribute(
+      "data-map-routes",
+      "0",
+    );
 
     const combos: Array<{ template: Template; aspect: Aspect; file: string }> =
       [
         {
           template: "passport",
-          aspect: "4:5",
-          file: "flight-passport-4x5.png",
+          aspect: "3:4",
+          file: "flight-passport-3x4.png",
         },
         {
           template: "passport",
-          aspect: "9:16",
-          file: "flight-passport-9x16.png",
+          aspect: "4:3",
+          file: "flight-passport-4x3.png",
         },
-        { template: "year", aspect: "4:5", file: "year-in-flight-4x5.png" },
-        { template: "year", aspect: "9:16", file: "year-in-flight-9x16.png" },
+        { template: "year", aspect: "3:4", file: "year-in-flight-3x4.png" },
+        { template: "year", aspect: "4:3", file: "year-in-flight-4x3.png" },
       ];
     const hashes = new Set<string>();
     for (const combo of combos) {
@@ -352,11 +376,12 @@ test.describe("Share Studio", () => {
       expectPoster(result.decoded, combo.aspect, combo.template);
       expect(result.name).toBe(
         combo.template === "year"
-          ? `keepraw-fly-year-in-flight-2025-${combo.aspect === "4:5" ? "4x5" : "9x16"}.png`
-          : `keepraw-fly-flight-passport-lifetime-${combo.aspect === "4:5" ? "4x5" : "9x16"}.png`,
+          ? `keepraw-fly-year-in-flight-2025-${slug(combo.aspect)}.png`
+          : `keepraw-fly-flight-passport-lifetime-${slug(combo.aspect)}.png`,
       );
+      const { width, height } = SIZE[combo.aspect];
       await expect(page.locator(".share-studio-status")).toHaveText(
-        `PNG saved · 1080 × ${combo.aspect === "4:5" ? 1350 : 1920}`,
+        `PNG saved · ${width} × ${height}`,
       );
       hashes.add(result.hash);
       await keep(testInfo, combo.file, result.bytes);
@@ -376,9 +401,12 @@ test.describe("Share Studio", () => {
     expect(drawn).not.toMatch(/\b[A-Z]{2}\d{3}\b/); // flight numbers
     expect(drawn).toContain("FLIGHT PASSPORT");
     expect(drawn).toContain("2025");
+    // Machine-readable band: brand, scope and totals only.
+    expect(drawn).toMatch(/LIFETIME<<20172025<<91FLT<<\d+KM<<\d+H/);
     // Lifetime totals and trends come from the full archive.
     expect(drawn).toContain("91"); // 92 records, one cancelled
-    for (const year of ["2017", "2020", "2024"]) expect(drawn).toContain(year);
+    // Lifetime span and monthly trend come from the full archive too.
+    expect(drawn).toContain("2017 – 2025");
     expect(drawn).toContain("Distance from 90 of 91 flights");
 
     // Local only: no uploads, no new third-party endpoints.
@@ -433,7 +461,7 @@ test.describe("Share Studio", () => {
         "en-US",
         "kilometers",
       );
-      const layout = layoutModule.createPosterLayout("passport", "4:5");
+      const layout = layoutModule.createPosterLayout("passport", "4:3");
       const fonts = await text.prepareShareFonts("en");
       const result = await exporter.exportPosterPng({ layout, copy, fonts });
       const bytes = new Uint8Array(await result.blob.arrayBuffer());
@@ -445,34 +473,121 @@ test.describe("Share Studio", () => {
     ).toBe(fromStudio.hash);
   });
 
-  test("airport info appears only after it is explicitly enabled", async ({
+  test("routes and airport labels appear only after explicit opt-in", async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await seed(page, await loadArchive());
     await openStudio(page);
-    await configure(page, { aspect: "9:16" });
+    await configure(page, { aspect: "3:4" });
+    const canvas = page.locator(".share-studio-canvas");
+    await expect(canvas).toHaveAttribute("data-map-routes", "0");
+    await expect(canvas).toHaveAttribute("data-map-airports", "0");
+    const overview = await download(page);
+
+    // Step 1: real routes, still without codes or names.
+    await resetLog(page);
+    await configure(page, { privacy: "routes" });
+    await expect(canvas).toHaveAttribute("data-privacy", "routes");
+    const routes = Number(await canvas.getAttribute("data-map-routes"));
+    expect(routes).toBe(49); // every plottable airport pair in the archive
+    // Every airport with known coordinates (the unknown one is not drawn).
+    expect(Number(await canvas.getAttribute("data-map-airports"))).toBe(19);
+    const withRoutes = await download(page);
+    expectPoster(withRoutes.decoded, "3:4", "passport");
+    expect(withRoutes.hash).not.toBe(overview.hash);
+    await keep(testInfo, "flight-passport-3x4-routes.png", withRoutes.bytes);
+    let drawn = (await readLog(page)).text;
+    expect(drawn.filter((text) => /^[A-Z]{3}$/.test(text))).toEqual([]);
+    expect(drawn.join("\n")).toContain("ALL 49 ROUTES SHOWN");
+    expect(drawn.join("\n")).not.toMatch(/\b[A-Z]{2}\d{3}\b|2025-\d\d/);
+
+    // Step 2: the separate airport grant adds codes and names.
     await resetLog(page);
     await configure(page, { privacy: "airports" });
     const withAirports = await download(page);
-    expectPoster(withAirports.decoded, "9:16", "passport");
+    expectPoster(withAirports.decoded, "3:4", "passport");
     await keep(
       testInfo,
-      "flight-passport-9x16-airports.png",
+      "flight-passport-3x4-airports.png",
       withAirports.bytes,
     );
-    const drawn = (await readLog(page)).text;
+    drawn = (await readLog(page)).text;
     const codes = new Set(drawn.filter((text) => /^[A-Z]{3}$/.test(text)));
     expect(codes.size).toBeGreaterThan(0);
-    expect(codes.size).toBeLessThanOrEqual(3); // top three at most
+    expect(codes.size).toBeLessThanOrEqual(8); // 5 map labels + top 3
     expect(drawn.join("\n")).not.toMatch(/\b[A-Z]{2}\d{3}\b|2025-\d\d/);
 
+    // Turning routes off revokes both grants again.
     await resetLog(page);
     await configure(page, { privacy: "overview" });
-    await download(page);
+    await expect(
+      page.locator('input[name="share-airports"]'),
+    ).not.toBeChecked();
+    await expect(canvas).toHaveAttribute("data-map-routes", "0");
+    const again = await download(page);
+    expect(again.hash).toBe(overview.hash);
     expect(
       (await readLog(page)).text.filter((text) => /^[A-Z]{3}$/.test(text)),
     ).toEqual([]);
+  });
+
+  test("dense archives draw a clearly labelled selection of routes", async ({
+    page,
+  }) => {
+    const archive = await loadArchive();
+    const codes = [
+      "PEK",
+      "PVG",
+      "CAN",
+      "HKG",
+      "NRT",
+      "HND",
+      "ICN",
+      "SIN",
+      "BKK",
+      "DXB",
+      "LHR",
+      "CDG",
+      "FRA",
+      "AMS",
+      "JFK",
+      "SFO",
+      "LAX",
+      "SYD",
+      "YVR",
+      "GRU",
+    ];
+    const template = archive.flights[0];
+    const flights: object[] = [];
+    codes.forEach((from, i) =>
+      codes.forEach((to, j) => {
+        if (j <= i) return;
+        const day = `2024-${String(1 + ((i + j) % 12)).padStart(2, "0")}-15`;
+        flights.push({
+          ...template,
+          id: `dense-${i}-${j}`,
+          serviceDate: day,
+          origin: { iata: from },
+          destination: { iata: to },
+          scheduledDeparture: `${day}T08:00:00Z`,
+          scheduledArrival: `${day}T14:00:00Z`,
+        });
+      }),
+    );
+    archive.flights = flights;
+    await seed(page, archive);
+    await openStudio(page);
+    await resetLog(page);
+    await configure(page, { privacy: "routes" });
+    const canvas = page.locator(".share-studio-canvas");
+    await expect(canvas).toHaveAttribute("data-map-routes", "60");
+    const result = await download(page);
+    expectPoster(result.decoded, "4:3", "passport");
+    const drawn = (await readLog(page)).text.join("\n");
+    expect(drawn).toContain("Busiest 60 of 190 routes shown".toUpperCase());
+    // Totals still count every flight, not just the drawn selection.
+    expect(drawn).toContain("190");
   });
 
   test("blocks misleading posters when no year has completed flights", async ({
@@ -520,14 +635,14 @@ test.describe("Share Studio", () => {
     ]);
     await configure(page, { year: 2020 });
     const result = await download(page);
-    expect(result.name).toBe("keepraw-fly-year-in-flight-2020-4x5.png");
-    expectPoster(result.decoded, "4:5", "year");
+    expect(result.name).toBe("keepraw-fly-year-in-flight-2020-4x3.png");
+    expectPoster(result.decoded, "4:3", "year");
   });
 
   test("repeated and concurrent exports are stable", async ({ page }) => {
     await seed(page, await loadArchive());
     await openStudio(page);
-    await configure(page, { template: "year", aspect: "9:16" });
+    await configure(page, { template: "year", aspect: "3:4" });
     const first = await download(page);
     const second = await download(page);
     const third = await download(page);
@@ -536,9 +651,9 @@ test.describe("Share Studio", () => {
     let downloads = 0;
     page.on("download", () => (downloads += 1));
     await page.locator(".share-studio-download").dblclick();
-    // Encoding a 1080×1920 PNG can take a few seconds on CI machines.
+    // Encoding a 1200×1600 PNG can take a few seconds on CI machines.
     await expect(page.locator(".share-studio-status")).toHaveText(
-      "PNG saved · 1080 × 1920",
+      "PNG saved · 1200 × 1600",
       { timeout: 20_000 },
     );
     await page.waitForTimeout(300);
@@ -585,19 +700,19 @@ for (const locale of localeCases)
     await page.goto("/#share");
     await expect(page.locator(".share-studio-canvas")).toBeVisible();
     for (const [template, aspect, privacy] of [
-      ["passport", "4:5", "airports"],
-      ["year", "9:16", "airports"],
-      ["year", "4:5", "overview"],
-      ["passport", "9:16", "overview"],
+      ["passport", "3:4", "airports"],
+      ["year", "4:3", "airports"],
+      ["year", "3:4", "overview"],
+      ["passport", "4:3", "overview"],
     ] as const) {
       await configure(page, { template, aspect, privacy });
       const result = await download(page);
       // exportPosterPng refuses layouts whose text leaves the safe area.
       expectPoster(result.decoded, aspect, template);
-      if (aspect === "9:16" && privacy === "airports")
+      if (privacy === "airports")
         await keep(
           testInfo,
-          `${locale.language}-${template}-9x16.png`,
+          `${locale.language}-${template}-${slug(aspect)}.png`,
           result.bytes,
         );
     }
@@ -622,7 +737,7 @@ test("Chinese posters fall back to system fonts when the webfont fails", async (
     page.getByText("海报字体加载失败，已改用系统字体。"),
   ).toBeVisible();
   const result = await download(page);
-  expectPoster(result.decoded, "4:5", "passport");
+  expectPoster(result.decoded, "4:3", "passport");
 });
 
 test("PNG size and composition are stable across DPR and viewports", async ({
@@ -645,7 +760,13 @@ test("PNG size and composition are stable across DPR and viewports", async ({
     await instrument(page);
     await seed(page, await loadArchive());
     await page.goto("/#share");
-    await configure(page, { template: "year", aspect: "4:5" });
+    // Phones open on 3:4, desktops on 4:3.
+    await expect(
+      page.locator(
+        `input[name="share-aspect"][value="${viewport.mobile ? "3:4" : "4:3"}"]`,
+      ),
+    ).toBeChecked();
+    await configure(page, { template: "year", aspect: "3:4" });
     const preview = page.locator(".share-studio-canvas");
     const previewBox = (await preview.boundingBox())!;
     const controlsBox = (await page
@@ -667,9 +788,9 @@ test("PNG size and composition are stable across DPR and viewports", async ({
     }
     expect(
       await preview.evaluate((canvas: HTMLCanvasElement) => canvas.width),
-    ).toBeLessThanOrEqual(1080);
+    ).toBeLessThanOrEqual(1200);
     const result = await download(page);
-    expectPoster(result.decoded, "4:5", "year");
+    expectPoster(result.decoded, "3:4", "year");
     exports.push({ name: viewport.name, bytes: result.bytes });
     await context.close();
   }
@@ -708,8 +829,56 @@ test("PNG size and composition are stable across DPR and viewports", async ({
   );
   await context.close();
   for (const diff of diffs) {
-    // Text antialiasing may differ by device; layout and content may not.
+    // Text antialiasing may differ by device (the poster carries many small
+    // glyphs: stamp ring, labels); layout and content may not.
     expect(diff.mean).toBeLessThan(1);
-    expect(diff.changed).toBeLessThan(1080 * 1350 * 0.002);
+    expect(diff.changed).toBeLessThan(1200 * 1600 * 0.004);
   }
+});
+
+// Engine coverage: the same Studio export in Chromium, Firefox and WebKit.
+// Canvas 2D text, Path2D map geometry, toBlob encoding and the download all
+// differ by engine, so every poster here is a real download in that engine.
+test("Studio exports all four posters in this engine @cross-browser", async ({
+  page,
+  browserName,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  await instrument(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await seed(page, await loadArchive());
+  await openStudio(page);
+  await resetLog(page);
+  const hashes = new Set<string>();
+  for (const [template, aspect, privacy] of [
+    ["passport", "3:4", "overview"],
+    ["passport", "4:3", "routes"],
+    ["year", "3:4", "routes"],
+    ["year", "4:3", "overview"],
+  ] as const) {
+    await configure(page, { template, aspect, privacy });
+    const canvas = page.locator(".share-studio-canvas");
+    await expect(canvas).toHaveAttribute(
+      "data-map-routes",
+      privacy === "overview" ? "0" : template === "year" ? "20" : "49",
+    );
+    const result = await download(page);
+    expectPoster(result.decoded, aspect, template);
+    const { width, height } = SIZE[aspect];
+    await expect(page.locator(".share-studio-status")).toHaveText(
+      `PNG saved · ${width} × ${height}`,
+    );
+    hashes.add(result.hash);
+    await keep(
+      testInfo,
+      `${browserName}-${template}-${slug(aspect)}-${privacy}.png`,
+      result.bytes,
+    );
+  }
+  expect(hashes.size).toBe(4);
+  const log = await readLog(page);
+  expect(log.contexts.filter((type) => type !== "studio:2d")).toEqual([]);
+  const drawn = log.text.join("\n");
+  expect(drawn).not.toMatch(/\b[A-Z]{2}\d{3}\b|2025-\d\d/);
+  expect(log.text.filter((text) => /^[A-Z]{3}$/.test(text))).toEqual([]);
 });
