@@ -780,6 +780,21 @@ function transparent(hex: string) {
 
 // ------------------------------------------------------------- passport --
 
+/**
+ * Splits a title into words: spaces where the script has them, otherwise
+ * dictionary word boundaries (フライト|パスポート, 飞行|护照).
+ */
+function titleWords(text: string, locale: string): string[] {
+  const spaced = text.split(/\s+/).filter(Boolean);
+  if (spaced.length > 1 || typeof Intl.Segmenter !== "function") return spaced;
+  const words = [
+    ...new Intl.Segmenter(locale, { granularity: "word" }).segment(text),
+  ]
+    .map((part) => part.segment)
+    .filter((part) => part.trim());
+  return words.length > 1 ? words : spaced;
+}
+
 function passportTitle(
   painter: Painter,
   copy: PosterCopy,
@@ -788,32 +803,61 @@ function passportTitle(
 ) {
   const { title } = layout;
   const text = copy.title.toLocaleUpperCase();
-  const style = {
-    size: title.size,
+  const min = Math.round(title.size * 0.5);
+  const style = (size: number) => ({
+    size,
     weight: 400 as const,
     font: "serif" as const,
     color: p.ink,
-    letterSpacing: title.size * 0.03,
+    letterSpacing: size * 0.03,
     maxWidth: title.maxWidth,
-    minSize: Math.round(title.size * 0.6),
+    minSize: min,
+  });
+  // Width at a size, without the trailing letter-spacing canvas adds.
+  const width = (line: string, size: number) =>
+    painter.measure(line, style(size)) - size * 0.03;
+  /** Largest size (down to min) at which every line fits. */
+  const fit = (lines: string[]) => {
+    let size = title.size;
+    while (
+      size > min &&
+      Math.max(...lines.map((line) => width(line, size))) > title.maxWidth
+    )
+      size = Math.max(min, Math.floor(size * 0.96));
+    return size;
   };
-  const words = text.split(/\s+/).filter(Boolean);
-  if (title.lines === 2 && words.length > 1) {
-    const cut = Math.ceil(words.length / 2);
-    painter.text(words.slice(0, cut).join(" "), title.x, title.baseline, style);
+  const spaced = /\s/.test(text);
+  const words = titleWords(text, copy.locale);
+  const oneLine = width(text, title.size) <= title.maxWidth;
+  if (title.lines === 2 && words.length > 1 && !oneLine) {
+    // The cut that keeps the wider of the two lines narrowest.
+    const join = (part: string[]) => part.join(spaced ? " " : "");
+    let best = [join(words.slice(0, 1)), join(words.slice(1))];
+    let bestWidth = Infinity;
+    for (let cut = 1; cut < words.length; cut += 1) {
+      const lines = [join(words.slice(0, cut)), join(words.slice(cut))];
+      const widest = Math.max(...lines.map((line) => width(line, title.size)));
+      if (widest < bestWidth) {
+        bestWidth = widest;
+        best = lines;
+      }
+    }
+    const size = fit(best);
+    painter.text(best[0]!, title.x, title.baseline, style(size));
     painter.text(
-      words.slice(cut).join(" "),
+      best[1]!,
       title.x,
-      title.baseline + title.size * 1.02,
-      style,
+      title.baseline + Math.max(size * 1.02, title.size * 0.9),
+      style(size),
     );
-  } else
-    painter.text(
-      text,
-      title.x,
-      title.baseline + (title.lines === 2 ? title.size * 0.5 : 0),
-      style,
-    );
+    return;
+  }
+  painter.text(
+    text,
+    title.x,
+    title.baseline + (title.lines === 2 ? title.size * 0.5 : 0),
+    style(fit([text])),
+  );
 }
 
 function machineReadableZone(
