@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { applyAppearance, initialAppearance } from "./appearance";
+import {
+  applyAppearance,
+  initialAppearance,
+  resolveAppearance,
+} from "./appearance";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -36,5 +40,22 @@ describe("early appearance hint", () => {
     expect(dataset.theme).toBe("dark");
     applyAppearance("system");
     expect(dataset.theme).toBeUndefined();
+  });
+});
+
+describe("resolved appearance", () => {
+  const media = (dark: boolean) => (query: string) => ({
+    matches: query === "(prefers-color-scheme: dark)" && dark,
+  });
+
+  it("keeps explicit light and dark regardless of the system", () => {
+    expect(resolveAppearance("light", media(true))).toBe("light");
+    expect(resolveAppearance("dark", media(false))).toBe("dark");
+  });
+
+  it("resolves System through prefers-color-scheme", () => {
+    expect(resolveAppearance("system", media(true))).toBe("dark");
+    expect(resolveAppearance("system", media(false))).toBe("light");
+    expect(resolveAppearance("system", undefined)).toBe("light");
   });
 });

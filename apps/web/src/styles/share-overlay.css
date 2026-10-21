@@ -1,0 +1,215 @@
+/* Flight Passport share: the Passport entry button and the image overlay. */
+
+.passport-share-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--type-leading-label);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.passport-share-button:hover {
+  background: var(--color-surface-sunken);
+}
+
+/* Desktop Passport: match the quiet text action beside "Import flights". */
+@media (min-width: 761px) {
+  /* Long localized labels wrap to a second row instead of overflowing. */
+  .passport-archive .archive-controls {
+    flex-wrap: wrap;
+    row-gap: calc(4 * var(--passport-px, 1px));
+  }
+
+  .passport-archive .archive-controls .passport-import-button,
+  .passport-archive .archive-controls .passport-share-button {
+    white-space: nowrap;
+  }
+
+  .passport-archive .archive-controls .passport-share-button {
+    min-height: calc(32 * var(--passport-px, 1px));
+    padding: calc(4 * var(--passport-px, 1px)) 0;
+    border: 0;
+    color: var(--muted);
+    background: transparent;
+    font-size: calc(0.75 * var(--passport-rem, 1rem));
+    font-weight: inherit;
+  }
+
+  .passport-archive .archive-controls .passport-share-button:hover {
+    color: var(--color-text);
+    background: transparent;
+  }
+}
+
+/* The overlay shows the finished PNG as a real <img>. Nothing here may block
+   the browser's own image menu or long-press save: no pointer-events: none,
+   no user-select or -webkit-touch-callout overrides on the image. */
+.share-overlay-backdrop {
+  --share-overlay-pad: var(--space-5);
+  --share-overlay-chrome: 112px;
+
+  position: fixed;
+  z-index: 130;
+  inset: 0;
+  display: grid;
+  overflow: auto;
+  overscroll-behavior: contain;
+  place-items: center;
+  padding: max(var(--share-overlay-pad), env(safe-area-inset-top))
+    max(var(--share-overlay-pad), env(safe-area-inset-right))
+    max(var(--share-overlay-pad), env(safe-area-inset-bottom))
+    max(var(--share-overlay-pad), env(safe-area-inset-left));
+
+  /* Darker than the dialog scrim: a photo-viewer backdrop for either theme. */
+  background: rgb(10 14 22 / 86%);
+}
+
+.share-overlay {
+  display: flex;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  outline: none;
+}
+
+.share-overlay-close {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  align-self: flex-end;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  cursor: pointer;
+}
+
+.share-overlay-close svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.share-overlay-close:hover {
+  background: var(--color-surface-sunken);
+}
+
+.share-overlay-close:focus-visible,
+.share-overlay-retry:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The stage keeps the artboard's own ratio and the largest size that fits
+   the viewport below the close button and above the hint, so the image is
+   never cropped, stretched or covered. */
+.share-overlay-stage {
+  --share-overlay-room: calc(
+    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) -
+      var(--share-overlay-pad) * 2 - var(--share-overlay-chrome)
+  );
+
+  display: grid;
+  max-width: 100%;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.share-overlay[data-aspect="4:3"] .share-overlay-stage {
+  width: min(
+    1600px,
+    calc(100vw - var(--share-overlay-pad) * 2),
+    calc(var(--share-overlay-room) * 4 / 3)
+  );
+  aspect-ratio: 4 / 3;
+}
+
+.share-overlay[data-aspect="3:4"] .share-overlay-stage {
+  width: min(
+    1200px,
+    calc(100vw - var(--share-overlay-pad) * 2),
+    calc(var(--share-overlay-room) * 3 / 4)
+  );
+  aspect-ratio: 3 / 4;
+}
+
+.share-overlay-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.share-overlay-message {
+  display: grid;
+  max-width: 36ch;
+  justify-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+  line-height: var(--type-leading-body);
+  text-align: center;
+}
+
+.share-overlay-message p {
+  margin: 0;
+}
+
+.share-overlay-loading {
+  color: var(--color-text-muted);
+}
+
+.share-overlay-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--color-line);
+  border-top-color: var(--color-accent);
+  border-radius: 999px;
+  animation: share-overlay-spin 0.9s linear infinite;
+}
+
+@keyframes share-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share-overlay-spinner {
+    animation: none;
+  }
+}
+
+.share-overlay-hint {
+  max-width: 60ch;
+  margin: 0;
+  color: rgb(255 255 255 / 88%);
+  font-size: var(--font-size-label);
+  line-height: var(--type-leading-label);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .share-overlay-backdrop {
+    --share-overlay-pad: var(--space-4);
+  }
+}
