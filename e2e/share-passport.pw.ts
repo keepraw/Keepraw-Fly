@@ -373,6 +373,9 @@ test.describe("Flight Passport share overlay", () => {
     // 4:3 sets the title over two lines.
     expect(drawn.join(" ")).toContain("FLIGHT PASSPORT");
     expect(text).toContain("Issued by Keepraw Fly");
+    // Poster figures never use digit grouping (the app UI still does).
+    expect(drawn).toContain("571474");
+    expect(text).not.toMatch(/\d,\d{3}/);
     expect(text).toContain("ALL 49 ROUTES SHOWN");
     expect(text).toContain("2017 – 2025");
     expect(text).toContain("91"); // 92 records, one cancelled
@@ -682,6 +685,193 @@ test.describe("Flight Passport share overlay", () => {
     await expect(page).toHaveURL(/#passport$/);
     await expect(page.locator(".passport-share-button")).toBeVisible();
   });
+});
+
+// ------------------------------------------------------------- grid ----
+
+const gridLocales = [
+  "en-US",
+  "en-GB",
+  "zh-CN",
+  "zh-TW",
+  "ja-JP",
+  "ko-KR",
+  "de-DE",
+  "fr-FR",
+  "es",
+  "pt-BR",
+] as const;
+
+test("header, grid and type scale hold in every locale and format", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const archive = await loadArchive();
+  await page.goto("/");
+  const results = await page.evaluate(
+    async ({ flights, locales }) => {
+      const load = (p: string) => import(/* @vite-ignore */ p);
+      const [data, copyModule, layoutModule, exporter, text, i18n] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/share-text.ts"),
+          load("/src/i18n.ts"),
+        ]);
+      const out = [];
+      for (const language of locales) {
+        await i18n.changeUiLanguage(language);
+        for (const unit of ["miles", "kilometers"])
+          for (const aspect of ["3:4", "4:3"])
+            for (const tone of ["dark", "light"]) {
+              const copy = copyModule.buildPosterCopy(
+                data.buildPosterModel(flights),
+                i18n.i18n.t.bind(i18n.i18n),
+                language,
+                unit,
+              );
+              const layout = layoutModule.createPosterLayout(aspect);
+              const fonts = await text.prepareShareFonts(
+                text.shareLocaleForLanguage(language),
+              );
+              const canvas = document.createElement("canvas");
+              const report = exporter.renderPosterToCanvas(
+                canvas,
+                { layout, copy, fonts, tone },
+                layout.width,
+              );
+              canvas.width = 0;
+              out.push({ language, unit, aspect, tone, copy, layout, report });
+            }
+      }
+      return out;
+    },
+    { flights: archive.flights, locales: [...gridLocales] },
+  );
+  type Box = {
+    text: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  const find = (texts: Box[], value: string) => {
+    const box = texts.find((item) => item.text === value);
+    expect(box, value).toBeTruthy();
+    return box!;
+  };
+  for (const {
+    language,
+    unit,
+    aspect,
+    tone,
+    copy,
+    layout,
+    report,
+  } of results) {
+    const where = `${language} ${unit} ${aspect} ${tone}`;
+    expect(report.outside, where).toEqual([]);
+    expect(report.truncated, where).toEqual([]);
+    const texts = report.texts as Box[];
+    // Issuer: on the brand's row, right-aligned to the content edge, above
+    // the first rule, and clear of the brand.
+    const brand = find(texts, copy.brand);
+    const issuer = find(texts, copy.issuer);
+    const firstRule = layout.rules[0].y;
+    expect(issuer.y + issuer.height, where).toBeLessThan(firstRule);
+    expect(issuer.y + issuer.height, where).toBeGreaterThan(brand.y);
+    expect(issuer.y, where).toBeLessThan(brand.y + brand.height);
+    expect(
+      Math.abs(issuer.x + issuer.width - layout.right),
+      where,
+    ).toBeLessThan(2);
+    expect(issuer.x, where).toBeGreaterThan(brand.x + brand.width + 24);
+    // Nothing is drawn below the machine-readable zone.
+    const lowest = Math.max(...texts.map((box) => box.y + box.height));
+    expect(lowest, where).toBeLessThanOrEqual(layout.mrz.lines[1] + 8);
+    // Each stat: label and figure start on the block's grid line, and the
+    // label's last line sits on the row's shared label baseline.
+    const stats = [
+      [copy.distance, layout.distance],
+      [copy.flights, layout.primary[0]],
+      [copy.duration, layout.primary[1]],
+      ...copy.secondary.map((stat: unknown, index: number) => [
+        stat,
+        layout.secondary[index],
+      ]),
+    ] as Array<
+      [{ label: string; value: string }, { x: number; label: number }]
+    >;
+    for (const [stat, block] of stats) {
+      const value = find(texts, stat.value);
+      expect(
+        Math.abs(value.x - block.x),
+        `${where} ${stat.label}`,
+      ).toBeLessThan(6);
+      const labelLines = texts.filter(
+        (box) =>
+          stat.label.toLocaleUpperCase().includes(box.text) &&
+          Math.abs(box.x - block.x) < 1 &&
+          box.y < value.y,
+      );
+      expect(labelLines.length, `${where} ${stat.label}`).toBeGreaterThan(0);
+      const last = labelLines.at(-1)!;
+      expect(last.y + last.height, where).toBeGreaterThan(block.label - 30);
+      expect(last.y + last.height, where).toBeLessThan(block.label + 12);
+      // A wrapped label never reaches the rule above it.
+      const ruleAbove = Math.max(
+        ...layout.rules
+          .map((r: { y: number }) => r.y)
+          .filter((y: number) => y < block.label),
+      );
+      expect(labelLines[0]!.y, where).toBeGreaterThan(ruleAbove + 4);
+      expect(value.x, where).toBeGreaterThanOrEqual(layout.left - 6);
+    }
+    // No text box overlaps another.
+    for (let a = 0; a < texts.length; a += 1)
+      for (let b = a + 1; b < texts.length; b += 1) {
+        const p = texts[a]!,
+          q = texts[b]!;
+        const overlap =
+          p.x < q.x + q.width - 1 &&
+          q.x < p.x + p.width - 1 &&
+          p.y < q.y + q.height - 1 &&
+          q.y < p.y + p.height - 1;
+        expect(overlap, `${where}: "${p.text}" × "${q.text}"`).toBe(false);
+      }
+    // No digit grouping anywhere on the poster.
+    expect(texts.map((box) => box.text).join("\n"), where).not.toMatch(
+      /\d[,.\u00a0\u202f\u2009 ]\d{3}(?!\d)/,
+    );
+  }
+});
+
+test("small text stays legible at phone width", async ({ page }) => {
+  // A 3:4 poster shown 390 px wide on a phone: labels must stay above
+  // roughly 9 CSS px, the issuer and notes above 8 px.
+  const archive = await loadArchive();
+  await page.goto("/");
+  const sizes = await page.evaluate(async () => {
+    const load = (p: string) => import(/* @vite-ignore */ p);
+    const layoutModule = await load("/src/share/poster-layout.ts");
+    const layout = layoutModule.createPosterLayout("3:4");
+    const scale = 390 / layout.width;
+    return {
+      label: layout.primary[0].labelSize * scale,
+      secondaryFigure: layout.secondary[0].size * scale,
+      issuer: layout.issuer.size * scale,
+      note: layout.notes.size * scale,
+      brand: layout.brand.size * scale,
+    };
+  });
+  void archive;
+  expect(sizes.label).toBeGreaterThanOrEqual(9);
+  expect(sizes.secondaryFigure).toBeGreaterThanOrEqual(15);
+  expect(sizes.issuer).toBeGreaterThanOrEqual(8);
+  expect(sizes.note).toBeGreaterThanOrEqual(8);
+  expect(sizes.brand).toBeGreaterThan(sizes.issuer);
 });
 
 // ------------------------------------------------------------ viewports ----
