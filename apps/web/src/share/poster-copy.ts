@@ -1,5 +1,4 @@
 import {
-  formatDistance,
   formatDuration,
   type DistanceUnit,
   type SupportedLocale,
@@ -78,14 +77,38 @@ export type PosterTranslate = (
 /** The product name is a brand and is never translated. */
 export const POSTER_BRAND = "Keepraw Fly";
 
+/** Same factor as core `formatDistance`, so the poster and app agree. */
+const MILES_PER_KILOMETER = 0.6213711922;
+
+/**
+ * Poster numbers never use digit grouping ("571474", not "571,474"), in
+ * every locale. Only the poster: the app keeps its own grouped formats.
+ */
+export function posterNumberFormat(language: SupportedLocale) {
+  return new Intl.NumberFormat(language, {
+    maximumFractionDigits: 0,
+    useGrouping: false,
+  });
+}
+
+/** i18next `{{name, number}}` interpolations, ungrouped like the figures. */
+function ungrouped(values: Record<string, number>) {
+  return {
+    ...values,
+    formatParams: Object.fromEntries(
+      Object.keys(values).map((key) => [key, { useGrouping: false }]),
+    ),
+  };
+}
+
 export function buildPosterCopy(
   model: PosterDataModel,
   t: PosterTranslate,
   language: SupportedLocale,
   distanceUnit: DistanceUnit,
 ): PosterCopy {
-  const number = (value: number) =>
-    new Intl.NumberFormat(language, { maximumFractionDigits: 0 }).format(value);
+  const formatter = posterNumberFormat(language);
+  const number = (value: number) => formatter.format(value);
   const unit = t(
     distanceUnit === "miles" ? "share.poster.mi" : "share.poster.km",
   );
@@ -94,17 +117,17 @@ export function buildPosterCopy(
   const notes: string[] = [];
   if (stats.distanceUnknownFlights > 0)
     notes.push(
-      t("share.poster.distanceCoverage", {
-        known: stats.distanceKnownFlights,
-        total: stats.flights,
-      }),
+      t(
+        "share.poster.distanceCoverage",
+        ungrouped({ known: stats.distanceKnownFlights, total: stats.flights }),
+      ),
     );
   if (stats.durationUnknownFlights > 0)
     notes.push(
-      t("share.poster.durationCoverage", {
-        known: stats.durationKnownFlights,
-        total: stats.flights,
-      }),
+      t(
+        "share.poster.durationCoverage",
+        ungrouped({ known: stats.durationKnownFlights, total: stats.flights }),
+      ),
     );
 
   const range = model.yearRange;
@@ -125,7 +148,11 @@ export function buildPosterCopy(
       : null,
     distance: {
       label: t("share.poster.distance"),
-      value: formatDistance(stats.distanceKilometers, language, distanceUnit),
+      value: number(
+        distanceUnit === "miles"
+          ? stats.distanceKilometers * MILES_PER_KILOMETER
+          : stats.distanceKilometers,
+      ),
       unit,
     },
     flights: { label: t("share.poster.flights"), value: number(stats.flights) },
@@ -153,11 +180,11 @@ export function buildPosterCopy(
       note: !map.totalRoutes
         ? null
         : map.curated
-          ? t("share.poster.routesCurated", {
-              shown: map.routes.length,
-              total: map.totalRoutes,
-            })
-          : t("share.poster.routesAll", { count: map.totalRoutes }),
+          ? t(
+              "share.poster.routesCurated",
+              ungrouped({ shown: map.routes.length, total: map.totalRoutes }),
+            )
+          : t("share.poster.routesAll", ungrouped({ count: map.totalRoutes })),
     },
     mrz: [
       posterMrzLine(["KEEPRAW FLY", "FLIGHT PASSPORT"]),

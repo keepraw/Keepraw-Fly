@@ -1,5 +1,9 @@
 import type { PosterCopy, PosterStat } from "./poster-copy";
-import type { PosterLayout, PosterRect, PosterStatRow } from "./poster-layout";
+import type {
+  PosterLayout,
+  PosterRect,
+  PosterStatBlock,
+} from "./poster-layout";
 import {
   posterMapFrame,
   posterWorldPaths,
@@ -97,7 +101,7 @@ export const DARK_PASSPORT_PALETTE: PosterPalette = {
   accent: "#e3c48f",
   brandMark: "#e3c48f",
   mrzBand: "rgba(242, 236, 225, 0.035)",
-  mrzInk: "rgba(242, 236, 225, 0.6)",
+  mrzInk: "rgba(242, 236, 225, 0.42)",
   map: {
     sphere: "rgba(140, 180, 230, 0.035)",
     sphereStroke: "rgba(242, 236, 225, 0.10)",
@@ -134,7 +138,7 @@ export const LIGHT_PASSPORT_PALETTE: PosterPalette = {
   accent: "#94692a",
   brandMark: "#94692a",
   mrzBand: "rgba(16, 32, 60, 0.045)",
-  mrzInk: "rgba(16, 32, 60, 0.62)",
+  mrzInk: "rgba(16, 32, 60, 0.46)",
   map: {
     sphere: "rgba(26, 52, 98, 0.025)",
     sphereStroke: "rgba(16, 32, 60, 0.12)",
@@ -267,6 +271,9 @@ class Painter {
   }
 }
 
+/** Tracking for labels, as a share of the font size. */
+const LABEL_TRACKING = 0.08;
+
 /** Small-caps style label: tracked, upper case where the script has case. */
 function label(
   painter: Painter,
@@ -275,23 +282,27 @@ function label(
   y: number,
   maxWidth: number,
   color: string,
-  size = 17,
+  size: number,
   align: CanvasTextAlign = "left",
 ) {
   return painter.text(text.toLocaleUpperCase(), x, y, {
     size,
     weight: 500,
     color,
-    letterSpacing: size * 0.16,
+    letterSpacing: size * LABEL_TRACKING,
     maxWidth,
-    minSize: Math.round(size * 0.78),
+    minSize: Math.round(size * 0.8),
     align,
   });
 }
 
-/** A label that wraps onto a second line (at a space) instead of being
- * truncated when it does not fit at its minimum size. */
-function wrappingLabel(
+/**
+ * A stat label whose LAST line sits on `y`, so the figure below keeps its
+ * place. A label too wide at full size wraps onto a line above at a word
+ * boundary (keeping one type size across the row); a single word shrinks
+ * (to 80%), and only then shortens.
+ */
+function stackedLabel(
   painter: Painter,
   text: string,
   x: number,
@@ -301,36 +312,41 @@ function wrappingLabel(
   size: number,
 ) {
   const upper = text.toLocaleUpperCase();
-  const style = { size, weight: 500 as const, letterSpacing: size * 0.16 };
-  const min = Math.round(size * 0.78);
+  const min = Math.round(size * 0.8);
+  const style = (s: number) => ({
+    size: s,
+    weight: 500 as const,
+    letterSpacing: s * LABEL_TRACKING,
+  });
   const words = upper.split(" ");
-  if (
-    words.length < 2 ||
-    painter.measure(upper, {
-      ...style,
-      size: min,
-      letterSpacing: min * 0.16,
-    }) <= maxWidth
-  )
+  if (words.length < 2 || painter.measure(upper, style(size)) <= maxWidth)
     return label(painter, text, x, y, maxWidth, color, size);
   let best = 1;
   let bestWidth = Infinity;
   for (let cut = 1; cut < words.length; cut += 1) {
     const widest = Math.max(
-      painter.measure(words.slice(0, cut).join(" "), style),
-      painter.measure(words.slice(cut).join(" "), style),
+      painter.measure(words.slice(0, cut).join(" "), style(size)),
+      painter.measure(words.slice(cut).join(" "), style(size)),
     );
     if (widest < bestWidth) {
       bestWidth = widest;
       best = cut;
     }
   }
-  label(painter, words.slice(0, best).join(" "), x, y, maxWidth, color, size);
+  label(
+    painter,
+    words.slice(0, best).join(" "),
+    x,
+    y - Math.round(size * 1.15),
+    maxWidth,
+    color,
+    size,
+  );
   return label(
     painter,
     words.slice(best).join(" "),
     x,
-    y + size * 1.2,
+    y,
     maxWidth,
     color,
     size,
@@ -349,7 +365,8 @@ function figure(
   unitColor: string,
   align: "left" | "right" = "left",
 ) {
-  const unitSize = Math.max(18, Math.round(size * 0.32));
+  // Units read like labels: never smaller than the small-text scale.
+  const unitSize = Math.max(26, Math.round(size * 0.3));
   const gap = Math.round(size * 0.14);
   const valueStyle = (s: number): TextStyle => ({
     size: s,
@@ -384,46 +401,38 @@ function figure(
   return valueSize;
 }
 
-/** A row of statistics with hairline separators between columns. */
-function statRow(
+/**
+ * One statistic on the grid: label on the row's label baseline, figure on
+ * the row's figure baseline, both starting at the block's left edge (the
+ * serif figure is nudged by its side bearing so the two edges line up).
+ */
+function statBlock(
   painter: Painter,
-  stats: PosterStat[],
-  row: PosterStatRow,
-  palette: PosterPalette,
-  options: { figureColor: string; labelSize?: number; separators?: boolean },
+  stat: PosterStat,
+  block: PosterStatBlock,
+  labelColor: string,
+  figureColor: string,
+  unitColor: string,
 ) {
-  const column = row.width / stats.length;
-  stats.forEach((stat, index) => {
-    const x = row.x + index * column + (index ? 24 : 0);
-    const width = column - (index ? 48 : 24);
-    if (index && options.separators !== false)
-      painter.rule(
-        row.x + index * column,
-        row.x + index * column + 1,
-        row.baseline - row.size * 0.78,
-        palette.rule,
-        row.label - row.baseline + row.size * 0.78 + 6,
-      );
-    figure(
-      painter,
-      stat,
-      x,
-      row.baseline,
-      row.size,
-      width,
-      options.figureColor,
-      palette.muted,
-    );
-    wrappingLabel(
-      painter,
-      stat.label,
-      x,
-      row.label,
-      width,
-      palette.muted,
-      options.labelSize ?? 15,
-    );
-  });
+  stackedLabel(
+    painter,
+    stat.label,
+    block.x,
+    block.label,
+    block.width,
+    labelColor,
+    block.labelSize,
+  );
+  figure(
+    painter,
+    stat,
+    block.x - Math.round(block.size * 0.03),
+    block.baseline,
+    block.size,
+    block.width,
+    figureColor,
+    unitColor,
+  );
 }
 
 // ---------------------------------------------------------------- art ----
@@ -475,21 +484,24 @@ function brand(
   color: string,
   markColor: string,
 ) {
-  const mark = size * 0.6;
+  // The mark is centred on the x-height middle of the wordmark.
+  const mark = size * 0.58;
   plane(
     painter.context,
     x + mark,
-    y - size * 0.4,
+    y - size * 0.36,
     mark,
     Math.PI / 4,
     markColor,
   );
-  return painter.text(text, x + mark * 2 + size * 0.55, y, {
+  const offset = mark * 2 + size * 0.5;
+  const drawn = painter.text(text, x + offset, y, {
     size,
     weight: 600,
     color,
-    letterSpacing: size * 0.06,
+    letterSpacing: size * 0.04,
   });
+  return { ...drawn, right: offset + drawn.width };
 }
 
 function passportBackground(
@@ -912,7 +924,8 @@ function drawPassport(
 ) {
   const { left, right } = layout;
   const width = right - left;
-  brand(
+  // Header row: brand on the left, issuer right-aligned on the same line.
+  const mark = brand(
     painter,
     copy.brand,
     left,
@@ -921,11 +934,21 @@ function drawPassport(
     p.ink,
     p.brandMark,
   );
+  const brandRight = left + mark.right;
+  painter.text(copy.issuer, right, layout.issuer.baseline, {
+    size: layout.issuer.size,
+    weight: 500,
+    color: p.muted,
+    letterSpacing: layout.issuer.size * 0.02,
+    align: "right",
+    maxWidth: right - brandRight - 48,
+    minSize: 18,
+  });
   layout.rules.forEach((rule) =>
     painter.rule(rule.x0, rule.x1, rule.y, p.rule),
   );
   passportTitle(painter, copy, layout, p);
-  if (layout.span && copy.span) {
+  if (copy.span) {
     const span = layout.span;
     const spanLabel = label(
       painter,
@@ -936,7 +959,7 @@ function drawPassport(
       p.muted,
       span.labelSize,
     );
-    painter.text(copy.span.value, left + spanLabel.width + 20, span.baseline, {
+    painter.text(copy.span.value, left + spanLabel.width + 24, span.baseline, {
       size: span.valueSize,
       weight: 500,
       font: "mono",
@@ -953,58 +976,41 @@ function drawPassport(
       copy.map.note,
       note.x,
       note.baseline,
-      width * 0.55,
+      note.maxWidth,
       p.muted,
       note.size,
-      note.align,
+      "right",
     );
   if (copy.notes.length)
-    painter.text(copy.notes.join(" · "), left, layout.notes.baseline, {
-      size: layout.notes.size,
-      weight: 400,
-      color: p.faint,
-      maxWidth: copy.map.note ? width * 0.4 : width,
-      minSize: 12,
-    });
+    painter.text(
+      copy.notes.join(" · "),
+      layout.notes.x,
+      layout.notes.baseline,
+      {
+        size: layout.notes.size,
+        weight: 400,
+        color: p.faint,
+        maxWidth: copy.map.note ? layout.notes.maxWidth : width,
+        minSize: 18,
+      },
+    );
 
-  const d = layout.distance;
-  label(
-    painter,
-    copy.distance.label,
-    d.x,
-    d.label,
-    d.maxWidth,
-    p.accent,
-    d.labelSize,
-  );
-  figure(
+  statBlock(
     painter,
     copy.distance,
-    d.x - 4,
-    d.baseline,
-    d.size,
-    d.maxWidth,
+    layout.distance,
+    p.accent,
     p.figure,
     p.muted,
   );
-  statRow(painter, [copy.flights, copy.duration], layout.primary, p, {
-    figureColor: p.ink,
-    labelSize: layout.primary.labelSize,
-    separators: layout.aspect === "3:4",
-  });
-  statRow(painter, copy.secondary, layout.secondary, p, {
-    figureColor: p.ink,
-    labelSize: layout.secondary.labelSize,
+  [copy.flights, copy.duration].forEach((stat, index) =>
+    statBlock(painter, stat, layout.primary[index]!, p.muted, p.ink, p.muted),
+  );
+  copy.secondary.forEach((stat, index) => {
+    const block = layout.secondary[index];
+    if (block) statBlock(painter, stat, block, p.muted, p.ink, p.muted);
   });
   machineReadableZone(painter, copy, layout, p);
-  painter.text(copy.issuer, left, layout.issuer.baseline, {
-    size: layout.issuer.size,
-    weight: 500,
-    color: p.muted,
-    letterSpacing: layout.issuer.size * 0.04,
-    maxWidth: width,
-    minSize: 14,
-  });
   return map;
 }
 
