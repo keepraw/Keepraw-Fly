@@ -1,10 +1,22 @@
-import type { PosterAspect, PosterTemplate } from "./poster-data";
+import type { PosterAspect } from "./poster-data";
 
 /**
- * Poster compositions in artboard units. Preview and export draw from the
- * same description; only the pixel scale differs. Each of the four
- * template × aspect pairs is composed on its own: the 3:4 and 4:3 artboards
- * are never cropped, stretched or scaled copies of one another.
+ * Flight Passport compositions in artboard units, built on one grid system.
+ *
+ * Both formats share the same rules: a 96-unit content margin, a 48-unit
+ * gutter, one hairline weight, and stat rows that always read
+ * rule → label → figure with the same spacing. Every block in a row starts
+ * on a grid column and shares the row's label baseline and figure baseline,
+ * and each label's left edge is its figure's left edge.
+ *
+ * - 3:4 is one vertical column: title, full-bleed map, the distance row,
+ *   a two-column row (flights, time) and a three-column row (airports,
+ *   airlines, countries) on a shared 6-column grid.
+ * - 4:3 has two zones split on the grid: title on the left, map on the
+ *   right, and stat columns that start on the same zone boundaries.
+ *
+ * The two artboards are composed separately: neither is a cropped,
+ * stretched or scaled copy of the other.
  */
 export interface PosterRect {
   x: number;
@@ -23,31 +35,51 @@ export const POSTER_SIZE: Record<
 /** Nothing but the background, frame and map art may come closer than this
  * to the artboard edge. Every text box is checked against it. */
 export const POSTER_SAFE_INSET = 64;
+/** Content margin and column gutter shared by both formats. */
+export const POSTER_MARGIN = 96;
+export const POSTER_GUTTER = 48;
+/** The app's existing phone breakpoint (`max-width: 760px`). */
+export const POSTER_PORTRAIT_MAX_VIEWPORT = 760;
 
-/** Default format per device class: phones 3:4, desktops 4:3. */
-export function defaultPosterAspect(narrowViewport: boolean): PosterAspect {
-  return narrowViewport ? "3:4" : "4:3";
+/** Viewports up to 760 px wide share 3:4 portrait, wider ones 4:3. */
+export function posterAspectForViewport(viewportWidth: number): PosterAspect {
+  return viewportWidth <= POSTER_PORTRAIT_MAX_VIEWPORT ? "3:4" : "4:3";
 }
 
-export interface PosterStatRow {
-  /** Left edge of the row and its width. */
+/** Type scale (artboard units). Small text is sized for a phone screen:
+ * a 1200-wide 3:4 poster shown about 360 px wide still reads clearly. */
+export const POSTER_TYPE = {
+  brand: 36,
+  issuer: 26,
+  label: 30,
+  note: 26,
+  spanLabel: 28,
+  spanValue: 30,
+  mrz: 22,
+} as const;
+
+/** One statistic: label above, figure below, both starting at `x`. */
+export interface PosterStatBlock {
   x: number;
   width: number;
-  baseline: number;
+  /** Baseline of the label (its last line when it wraps). */
   label: number;
+  /** Baseline of the figure. */
+  baseline: number;
   size: number;
+  labelSize: number;
 }
 
 export interface PosterLayout {
-  template: PosterTemplate;
   aspect: PosterAspect;
   width: number;
   height: number;
   safe: PosterRect;
   left: number;
   right: number;
-  header: number;
-  /** Passport: title block. Year: the large year. */
+  /** Brand at the left of the header row; issuer right-aligned on it. */
+  brand: { baseline: number; size: number };
+  issuer: { baseline: number; size: number };
   title: {
     x: number;
     baseline: number;
@@ -55,47 +87,41 @@ export interface PosterLayout {
     maxWidth: number;
     lines: 1 | 2;
   };
-  span: { baseline: number } | null;
-  /** Circular passport stamp or the rectangular Year in Flight stamp. */
-  stamp: { x: number; y: number; radius: number };
+  span: { baseline: number; labelSize: number; valueSize: number };
   map: PosterRect;
-  mapNote: { x: number; baseline: number; align: "left" | "right" };
-  distance: {
-    x: number;
-    label: number;
-    baseline: number;
-    size: number;
-    maxWidth: number;
-  };
-  primary: PosterStatRow;
-  secondary: PosterStatRow;
+  /** Coverage notes, left-aligned under the map. */
+  notes: { x: number; baseline: number; size: number; maxWidth: number };
+  /** "All 49 routes shown", right-aligned under the map. */
+  mapNote: { x: number; baseline: number; size: number; maxWidth: number };
+  distance: PosterStatBlock;
+  /** Flights, time in the air. */
+  primary: [PosterStatBlock, PosterStatBlock];
+  /** Airports, airlines, countries and regions. */
+  secondary: [PosterStatBlock, PosterStatBlock, PosterStatBlock];
+  /** Hairlines on row boundaries, all spanning the content width. */
   rules: Array<{ x0: number; x1: number; y: number }>;
-  airports: {
-    x: number;
-    baseline: number;
-    width: number;
-    align: "left" | "right";
-  };
-  /** Year in Flight only: active months, monthly chart and highlights. */
-  active: { x: number; label: number; baseline: number; size: number } | null;
-  chart: { title: number; bars: PosterRect; labels: number } | null;
-  highlights: {
-    x: number;
-    width: number;
-    title: number | null;
-    rows: Array<{ x: number; label: number; baseline: number; width: number }>;
-    size: number;
-  } | null;
-  /** Flight Passport only: machine-readable-zone style band. */
-  mrz: { top: number; lines: [number, number]; size: number } | null;
-  notes: { baseline: number };
-  footer: { rule: number; baseline: number } | null;
+  /** Machine-readable-zone style band. */
+  mrz: { top: number; lines: [number, number]; size: number };
 }
 
-export function createPosterLayout(
-  template: PosterTemplate,
-  aspect: PosterAspect,
-): PosterLayout {
+/** Spacing every stat row uses, so rows read as one system. */
+const ROW = {
+  /** Hairline to the label baseline: room for a label that wraps onto a
+   * second line above, so figures never move. */
+  ruleToLabel: 76,
+} as const;
+
+function block(
+  x: number,
+  width: number,
+  label: number,
+  baseline: number,
+  size: number,
+): PosterStatBlock {
+  return { x, width, label, baseline, size, labelSize: POSTER_TYPE.label };
+}
+
+export function createPosterLayout(aspect: PosterAspect): PosterLayout {
   const { width, height } = POSTER_SIZE[aspect];
   const safe = {
     x: POSTER_SAFE_INSET,
@@ -103,155 +129,95 @@ export function createPosterLayout(
     width: width - POSTER_SAFE_INSET * 2,
     height: height - POSTER_SAFE_INSET * 2,
   };
-  const left = 96;
-  const right = width - 96;
-  const base = { template, aspect, width, height, safe, left, right };
+  const left = POSTER_MARGIN;
+  const right = width - POSTER_MARGIN;
+  const content = right - left;
+  const rule = (y: number) => ({ x0: left, x1: right, y });
+  const base = { aspect, width, height, safe, left, right };
 
-  if (template === "passport" && aspect === "3:4")
+  if (aspect === "3:4") {
+    // 6-column grid: halves start at columns 1 and 4, thirds at 1, 3, 5.
+    const column = (content - POSTER_GUTTER * 5) / 6;
+    const at = (index: number) => left + index * (column + POSTER_GUTTER);
+    const span = (count: number) =>
+      count * column + (count - 1) * POSTER_GUTTER;
+    const rules = [184, 872, 1100, 1294];
+    const row = (index: number) => rules[index]! + ROW.ruleToLabel;
     return {
       ...base,
-      header: 132,
-      title: { x: left, baseline: 268, size: 84, maxWidth: 780, lines: 1 },
-      span: { baseline: 324 },
-      stamp: { x: 1010, y: 262, radius: 76 },
-      map: { x: 52, y: 372, width: 1096, height: 466 },
-      mapNote: { x: right, baseline: 872, align: "right" },
-      distance: {
-        x: left,
-        label: 948,
-        baseline: 1100,
-        size: 156,
-        maxWidth: 1008,
+      brand: { baseline: 142, size: POSTER_TYPE.brand },
+      issuer: { baseline: 142, size: POSTER_TYPE.issuer },
+      title: { x: left, baseline: 298, size: 84, maxWidth: content, lines: 1 },
+      span: {
+        baseline: 352,
+        labelSize: POSTER_TYPE.spanLabel,
+        valueSize: POSTER_TYPE.spanValue,
       },
-      primary: { x: left, width: 1008, baseline: 1236, label: 1276, size: 68 },
-      secondary: {
+      map: { x: 52, y: 384, width: 1096, height: 430 },
+      notes: {
         x: left,
-        width: 1008,
-        baseline: 1366,
-        label: 1400,
-        size: 44,
+        baseline: 846,
+        size: POSTER_TYPE.note,
+        maxWidth: span(3),
       },
-      rules: [
-        { x0: left, x1: right, y: 166 },
-        { x0: left, x1: right, y: 1150 },
-        { x0: left, x1: right, y: 1312 },
+      mapNote: {
+        x: right,
+        baseline: 846,
+        size: POSTER_TYPE.note,
+        maxWidth: span(3),
+      },
+      distance: block(left, content, row(1), row(1) + 116, 116),
+      primary: [
+        block(at(0), span(3), row(2), row(2) + 84, 72),
+        block(at(3), span(3), row(2), row(2) + 84, 72),
       ],
-      airports: { x: left, baseline: 1448, width: 1008, align: "left" },
-      active: null,
-      chart: null,
-      highlights: null,
-      mrz: { top: 1460, lines: [1494, 1528], size: 24 },
-      notes: { baseline: 872 },
-      footer: null,
-    };
-  if (template === "passport")
-    return {
-      ...base,
-      header: 124,
-      title: { x: left, baseline: 290, size: 84, maxWidth: 440, lines: 2 },
-      span: { baseline: 470 },
-      stamp: { x: 436, y: 548, radius: 58 },
-      map: { x: 556, y: 166, width: 968, height: 412 },
-      mapNote: { x: right, baseline: 624, align: "right" },
-      distance: {
-        x: left,
-        label: 712,
-        baseline: 862,
-        size: 150,
-        maxWidth: 760,
-      },
-      primary: { x: 920, width: 584, baseline: 862, label: 782, size: 72 },
-      secondary: { x: left, width: 780, baseline: 990, label: 1024, size: 44 },
-      rules: [
-        { x0: left, x1: right, y: 158 },
-        { x0: left, x1: right, y: 660 },
-        { x0: left, x1: right, y: 924 },
+      secondary: [
+        block(at(0), span(2), row(3), row(3) + 66, 50),
+        block(at(2), span(2), row(3), row(3) + 66, 50),
+        block(at(4), span(2), row(3), row(3) + 66, 50),
       ],
-      airports: { x: 920, baseline: 990, width: 584, align: "left" },
-      active: null,
-      chart: null,
-      highlights: null,
-      mrz: { top: 1060, lines: [1094, 1128], size: 26 },
-      notes: { baseline: 624 },
-      footer: null,
+      rules: rules.map(rule),
+      mrz: { top: 1462, lines: [1490, 1516], size: POSTER_TYPE.mrz },
     };
-  if (aspect === "3:4")
-    return {
-      ...base,
-      header: 124,
-      title: { x: left - 8, baseline: 368, size: 248, maxWidth: 680, lines: 1 },
-      span: null,
-      stamp: { x: 994, y: 772, radius: 74 },
-      map: { x: 76, y: 412, width: 1048, height: 446 },
-      mapNote: { x: left, baseline: 890, align: "left" },
-      distance: {
-        x: left,
-        label: 958,
-        baseline: 1048,
-        size: 96,
-        maxWidth: 520,
-      },
-      primary: { x: left, width: 520, baseline: 1144, label: 1176, size: 54 },
-      secondary: { x: left, width: 520, baseline: 1250, label: 1280, size: 40 },
-      rules: [
-        { x0: left, x1: right, y: 920 },
-        { x0: left, x1: right, y: 1332 },
-      ],
-      airports: { x: right, baseline: 890, width: 560, align: "right" },
-      active: { x: 812, label: 262, baseline: 344, size: 64 },
-      chart: {
-        title: 958,
-        bars: { x: 668, y: 986, width: 436, height: 244 },
-        labels: 1272,
-      },
-      highlights: {
-        x: left,
-        width: 1008,
-        title: null,
-        rows: [
-          { x: left, label: 1384, baseline: 1446, width: 480 },
-          { x: 624, label: 1384, baseline: 1446, width: 480 },
-        ],
-        size: 48,
-      },
-      mrz: null,
-      notes: { baseline: 890 },
-      footer: { rule: 1484, baseline: 1524 },
-    };
+  }
+
+  // 4:3: two zones on a 4-column grid. Title and distance own columns 1–2,
+  // the map and the flights/time columns own columns 3–4.
+  const column = (content - POSTER_GUTTER * 3) / 4;
+  const at = (index: number) => left + index * (column + POSTER_GUTTER);
+  const zone = 2 * column + POSTER_GUTTER;
+  const rules = [170, 600, 846];
+  const row = (index: number) => rules[index]! + ROW.ruleToLabel;
   return {
     ...base,
-    header: 116,
-    title: { x: left - 8, baseline: 300, size: 196, maxWidth: 480, lines: 1 },
-    span: null,
-    stamp: { x: 1428, y: 610, radius: 62 },
-    map: { x: 772, y: 150, width: 792, height: 336 },
-    mapNote: { x: 780, baseline: 530, align: "left" },
-    distance: { x: left, label: 394, baseline: 484, size: 84, maxWidth: 620 },
-    primary: { x: left, width: 620, baseline: 572, label: 604, size: 52 },
-    secondary: { x: left, width: 620, baseline: 670, label: 700, size: 38 },
-    rules: [
-      { x0: left, x1: 716, y: 342 },
-      { x0: left, x1: right, y: 736 },
+    brand: { baseline: 128, size: POSTER_TYPE.brand },
+    issuer: { baseline: 128, size: POSTER_TYPE.issuer },
+    title: { x: left, baseline: 282, size: 80, maxWidth: zone, lines: 2 },
+    span: {
+      baseline: 446,
+      labelSize: POSTER_TYPE.spanLabel,
+      valueSize: POSTER_TYPE.spanValue,
+    },
+    // Map art may bleed past the grid; its drawn land starts on column 3.
+    map: { x: at(2) - 48, y: 196, width: 768, height: 318 },
+    notes: { x: left, baseline: 560, size: POSTER_TYPE.note, maxWidth: zone },
+    mapNote: {
+      x: right,
+      baseline: 560,
+      size: POSTER_TYPE.note,
+      maxWidth: zone,
+    },
+    distance: block(at(0), zone, row(1), row(1) + 124, 112),
+    primary: [
+      block(at(2), column, row(1), row(1) + 124, 72),
+      block(at(3), column, row(1), row(1) + 124, 72),
     ],
-    airports: { x: 780, baseline: 568, width: 520, align: "left" },
-    active: { x: 596, label: 216, baseline: 296, size: 52 },
-    chart: {
-      title: 786,
-      bars: { x: left, y: 812, width: 860, height: 196 },
-      labels: 1044,
-    },
-    highlights: {
-      x: 1060,
-      width: 444,
-      title: 786,
-      rows: [
-        { x: 1060, label: 852, baseline: 914, width: 444 },
-        { x: 1060, label: 970, baseline: 1032, width: 444 },
-      ],
-      size: 50,
-    },
-    mrz: null,
-    notes: { baseline: 524 },
-    footer: { rule: 1080, baseline: 1124 },
+    secondary: [
+      block(at(0), zone, row(2), row(2) + 68, 50),
+      block(at(2), column, row(2), row(2) + 68, 50),
+      block(at(3), column, row(2), row(2) + 68, 50),
+    ],
+    rules: rules.map(rule),
+    mrz: { top: 1028, lines: [1058, 1086], size: POSTER_TYPE.mrz },
   };
 }

@@ -52,7 +52,7 @@ interface PassportPageProps {
   solarMode: SolarMode;
   onAddFlight: () => void;
   onOpenImport: () => void;
-  /** Opens the Share Studio; optional so embedded uses can omit it. */
+  /** Opens the Flight Passport share overlay; optional so embedded uses can omit it. */
   onOpenShare?: () => void;
   onOpenFlight: (flightId: string) => void;
   view: PassportViewState;
@@ -872,6 +872,7 @@ export function PassportPage({
                 <button
                   className="passport-share-button"
                   type="button"
+                  aria-haspopup="dialog"
                   title={t("share.entryHint")}
                   onClick={onOpenShare}
                 >
