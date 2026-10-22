@@ -9,13 +9,19 @@ for (const source of ["CSV", "Flighty"] as const) {
     await page.goto("/#settings");
     await openSettingsCategory(page, "Data and backup");
 
-    // Cancel from the page while row processing is underway. A synchronous
-    // preflight prevents this timer from observing the pending preview.
+    // Observe two separate rendering opportunities while preflight is pending, then
+    // cancel from the page. Do not assume how many interval callbacks WebKit
+    // dispatches before a competing wall-clock deadline on a busy runner.
+    // Synchronous/microtask-only row processing finishes before these frames can
+    // observe pending state and therefore still fails this responsiveness check.
     await page.evaluate(() => {
       const state = {
-        beats: 0,
-        pending: false,
-        disabled: false,
+        beats: [] as {
+          pending: boolean;
+          disabled: boolean;
+          cancellable: boolean;
+        }[],
+        focused: false,
         cancelled: false,
       };
       Object.assign(window, { importProbe: state });
@@ -25,19 +31,29 @@ for (const source of ["CSV", "Flighty"] as const) {
         );
         if (!preview) return;
         observer.disconnect();
-        const timer = setInterval(() => state.beats++, 0);
-        setTimeout(() => {
-          state.pending = preview.getAttribute("aria-busy") === "true";
-          state.disabled = Boolean(
-            preview.querySelector<HTMLButtonElement>(".button-primary")
-              ?.disabled,
-          );
-          preview
-            .querySelector<HTMLButtonElement>(".button-secondary")
-            ?.click();
+        const beat = () => {
+          const cancel =
+            preview.querySelector<HTMLButtonElement>(".button-secondary");
+          state.beats.push({
+            pending:
+              preview.isConnected &&
+              preview.getAttribute("aria-busy") === "true",
+            disabled: Boolean(
+              preview.querySelector<HTMLButtonElement>(".button-primary")
+                ?.disabled,
+            ),
+            cancellable: Boolean(cancel && !cancel.disabled),
+          });
+          if (state.beats.length < 2) {
+            requestAnimationFrame(beat);
+            return;
+          }
+          cancel?.focus();
+          state.focused = document.activeElement === cancel;
+          cancel?.click();
           state.cancelled = true;
-          clearInterval(timer);
-        }, 40);
+        };
+        requestAnimationFrame(beat);
       });
       observer.observe(document.body, {
         subtree: true,
@@ -84,13 +100,22 @@ for (const source of ["CSV", "Flighty"] as const) {
       () =>
         (
           window as unknown as {
-            importProbe: { beats: number; pending: boolean; disabled: boolean };
+            importProbe: {
+              beats: {
+                pending: boolean;
+                disabled: boolean;
+                cancellable: boolean;
+              }[];
+              focused: boolean;
+            };
           }
         ).importProbe,
     );
-    expect(probe.pending).toBe(true);
-    expect(probe.disabled).toBe(true);
-    expect(probe.beats).toBeGreaterThan(1);
+    expect(probe.beats).toEqual([
+      { pending: true, disabled: true, cancellable: true },
+      { pending: true, disabled: true, cancellable: true },
+    ]);
+    expect(probe.focused).toBe(true);
     await expect(page.locator(".csv-preview")).toHaveCount(0);
 
     await input.setInputFiles({

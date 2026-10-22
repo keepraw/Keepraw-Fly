@@ -68,6 +68,7 @@ if (process.env.GITHUB_STEP_SUMMARY)
 if (
   report.stats.skipped ||
   report.stats.unexpected ||
+  report.stats.flaky ||
   report.errors?.length ||
   !Object.keys(files).length
 )

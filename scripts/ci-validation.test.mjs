@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 import {
   existsSync,
   readdirSync,
@@ -34,6 +35,25 @@ function runReport(report, env = {}) {
     rmSync(directory, { recursive: true });
   }
 }
+
+test("browser jobs pin the official runtime matching the installed Playwright version", () => {
+  const version = createRequire(import.meta.url)(
+    "@playwright/test/package.json",
+  ).version;
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  const images = [...workflow.matchAll(/image: (\S+)/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(images.length, 3);
+  assert.equal(new Set(images).size, 1);
+  assert.ok(
+    images[0].startsWith(
+      `mcr.microsoft.com/playwright:v${version}-noble@sha256:`,
+    ),
+  );
+  assert.match(images[0], /@sha256:[a-f0-9]{64}$/);
+  assert.doesNotMatch(workflow, /playwright install|prepare-playwright-apt/);
+});
 
 function fixture(status = "expected") {
   return {
@@ -93,7 +113,7 @@ test("report fails skipped, unexpected, empty and globally errored suites", () =
   );
 });
 
-test("flaky retries retain failure diagnostics and annotation text is escaped", () => {
+test("flaky retries fail the summary, retain diagnostics and escape annotation text", () => {
   const report = fixture("flaky");
   report.stats.flaky = 1;
   report.suites[0].suites[0].specs[0].title = "100%\n::error::literal";
@@ -101,7 +121,7 @@ test("flaky retries retain failure diagnostics and annotation text is escaped", 
     { message: "overlap" },
   ];
   const result = runReport(report, { GITHUB_ACTIONS: "true" });
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   const [json, annotation] = result.stdout.trim().split("\n");
   assert.deepEqual(JSON.parse(json).failures[0].errors, ["overlap"]);
   assert.match(annotation, /100%25/);
