@@ -90,7 +90,7 @@ jobs:
   chromium:
     if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
-    # Spread the full regression and responsive Hero checks across runners.
+    # Balance whole files by measured duration; discover new files automatically.
     # Keep one worker per runner and preserve all test/job timeouts and gates.
     timeout-minutes: 20
     strategy:
@@ -116,15 +116,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prepare official Ubuntu archive
+        run: bash scripts/prepare-playwright-apt.sh
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+
       - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
 
       - name: Run full Chromium regression journeys
-        run: pnpm test:e2e --project=chromium --workers=1 --shard=${{ matrix.shard }}/6 --reporter=list,html,json
+        env:
+          CI_CHROMIUM_SHARD: ${{ matrix.shard }}/6
+        run: pnpm test:e2e --project=chromium --workers=1 --reporter=list,html,json
 
       - name: Summarize Chromium results
         if: always()
-        run: node scripts/report-playwright.mjs test-results/results.json
+        run: node scripts/report-playwright.mjs test-results/results.json chromium-${{ matrix.shard }}/6
 
       - name: Upload Chromium diagnostics
         if: always()
@@ -163,18 +171,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browser and system dependencies
-        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Prepare official Ubuntu archive
+        run: bash scripts/prepare-playwright-apt.sh
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps ${{ matrix.browser }}
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install ${{ matrix.browser }}
 
       # Each project selects @cross-browser tests in playwright.config.ts.
       # Keep engine diagnostics independent; Chromium shards run all E2E.
+      # Files have isolated contexts; serial suites remain serial. Two workers
+      # share this runner, with no additional runners or engine reductions.
       # A virtual display lets Firefox exercise the actual WebGL scene.
       - name: Run cross-browser smoke journeys
-        run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=1 --reporter=list,html,json
+        run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=2 --reporter=list,html,json
 
       - name: Summarize browser results
         if: always()
-        run: node scripts/report-playwright.mjs test-results/results.json
+        run: node scripts/report-playwright.mjs test-results/results.json ${{ matrix.browser }}
 
       - name: Upload browser diagnostics
         if: always()
@@ -213,8 +229,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browser and system dependencies
-        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Prepare official Ubuntu archive
+        run: bash scripts/prepare-playwright-apt.sh
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps ${{ matrix.browser }}
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install ${{ matrix.browser }}
 
       # Production build + vite preview: the dev server deliberately has no CSP.
       - name: Run CSP and font SRI journeys against the production build
