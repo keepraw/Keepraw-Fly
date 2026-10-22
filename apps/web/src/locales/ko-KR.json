@@ -702,6 +702,17 @@
       "hoursUnit": "시간",
       "routesCurated": "전체 {{total, number}}개 항로 중 많이 탄 {{shown, number}}개 표시",
       "routesAll_other": "전체 {{count, number}}개 항로 표시"
+    },
+    "journal": {
+      "flightRecord": "하늘 위의 여행 기록",
+      "traveller": "여행자",
+      "routes": "노선",
+      "editName": "이름 편집",
+      "holderName": "소지자 이름 / 여행 별명",
+      "saveName": "저장",
+      "nameHint": "별명은 최대 32자입니다. 이 브라우저에만 저장되며 신분증 정보는 필요하지 않습니다.",
+      "storageError": "로컬 저장을 사용할 수 없습니다. 브라우저 세션이 끝나면 이름과 번호가 유지되지 않습니다.",
+      "disclaimer": "가상의 여행 기념품 · 신분증이나 여행 서류가 아닙니다"
     }
   }
 }

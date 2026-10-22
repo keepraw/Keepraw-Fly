@@ -769,6 +769,17 @@
       "routesAll_one": "Se muestra la única ruta",
       "routesAll_other": "Se muestran las {{count, number}} rutas",
       "routesAll_many": "Se muestran las {{count, number}} rutas"
+    },
+    "journal": {
+      "flightRecord": "El mundo a través de los viajes",
+      "traveller": "VIAJERO",
+      "routes": "Rutas",
+      "editName": "Editar nombre",
+      "holderName": "Nombre / apodo de viaje",
+      "saveName": "Guardar",
+      "nameHint": "Usa un apodo de hasta 32 caracteres. Solo se guarda en este navegador; no se necesitan datos de identidad.",
+      "storageError": "El almacenamiento local no está disponible. El nombre y el número no se conservarán al terminar esta sesión.",
+      "disclaimer": "Recuerdo de viaje ficticio · No es un documento de identidad ni de viaje"
     }
   }
 }

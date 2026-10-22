@@ -702,6 +702,17 @@
       "hoursUnit": "小時",
       "routesCurated": "精選呈現：{{total, number}} 條航線中最常飛的 {{shown, number}} 條",
       "routesAll": "已顯示全部 {{count, number}} 條航線"
+    },
+    "journal": {
+      "flightRecord": "飛行足跡",
+      "traveller": "旅行者",
+      "routes": "航線",
+      "editName": "編輯姓名",
+      "holderName": "持有人姓名 / 旅行暱稱",
+      "saveName": "儲存",
+      "nameHint": "可使用暱稱，最多 32 個字元。僅儲存在本機瀏覽器，無需真實證件資訊。",
+      "storageError": "本機儲存無法使用，姓名和編號無法在本次瀏覽器工作階段結束後保留。",
+      "disclaimer": "虛構旅行紀念品 · 不用於身分驗證或出入境"
     }
   }
 }

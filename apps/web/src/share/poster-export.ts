@@ -1,10 +1,6 @@
 import type { PosterCopy } from "./poster-copy";
 import type { PosterLayout } from "./poster-layout";
-import {
-  drawPoster,
-  type PosterDrawReport,
-  type PosterTone,
-} from "./poster-render";
+import { drawPoster, type PosterDrawReport } from "./poster-render";
 import { readPngHeader } from "./share-png";
 import type { ShareFonts } from "./share-text";
 
@@ -29,8 +25,6 @@ export interface PosterRenderInput {
   layout: PosterLayout;
   copy: PosterCopy;
   fonts: Pick<ShareFonts, "family">;
-  /** Dark navy or light paper passport. */
-  tone: PosterTone;
 }
 
 /** Draws into an existing canvas at `pixelWidth`. */
@@ -53,13 +47,7 @@ export function renderPosterToCanvas(
     );
   context.setTransform(scale, 0, 0, scale, 0, 0);
   context.imageSmoothingEnabled = true;
-  const report = drawPoster(
-    context,
-    input.layout,
-    input.copy,
-    input.fonts,
-    input.tone,
-  );
+  const report = drawPoster(context, input.layout, input.copy, input.fonts);
   context.setTransform(1, 0, 0, 1, 0, 0);
   return report;
 }

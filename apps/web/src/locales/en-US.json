@@ -737,6 +737,17 @@
       "routesCurated": "Busiest {{shown, number}} of {{total, number}} routes shown",
       "routesAll_one": "All {{count, number}} route shown",
       "routesAll_other": "All {{count, number}} routes shown"
+    },
+    "journal": {
+      "flightRecord": "A world in journeys",
+      "traveller": "TRAVELLER",
+      "routes": "Routes",
+      "editName": "Edit name",
+      "holderName": "Holder name / travel nickname",
+      "saveName": "Save",
+      "nameHint": "Use a nickname, up to 32 characters. Saved only in this browser; no ID details needed.",
+      "storageError": "Local saving is unavailable. Your name and number cannot be kept after this browser session.",
+      "disclaimer": "A fictional travel keepsake · Not an identity or travel document"
     }
   }
 }

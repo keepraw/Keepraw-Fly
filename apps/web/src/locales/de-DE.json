@@ -737,6 +737,17 @@
       "routesCurated": "Die {{shown, number}} meistgeflogenen von {{total, number}} Strecken",
       "routesAll_one": "Alle {{count, number}} Strecke",
       "routesAll_other": "Alle {{count, number}} Strecken"
+    },
+    "journal": {
+      "flightRecord": "Die Welt in Reiseerinnerungen",
+      "traveller": "REISENDE",
+      "routes": "Strecken",
+      "editName": "Name bearbeiten",
+      "holderName": "Name / Reisepseudonym",
+      "saveName": "Speichern",
+      "nameHint": "Ein Pseudonym mit bis zu 32 Zeichen genügt. Nur in diesem Browser gespeichert; keine Ausweisdaten nötig.",
+      "storageError": "Lokales Speichern ist nicht verfügbar. Name und Nummer bleiben nach dieser Sitzung nicht erhalten.",
+      "disclaimer": "Fiktives Reisesouvenir · Kein Ausweis oder Reisedokument"
     }
   }
 }

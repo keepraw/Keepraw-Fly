@@ -54,7 +54,7 @@
    no user-select or -webkit-touch-callout overrides on the image. */
 .share-overlay-backdrop {
   --share-overlay-pad: var(--space-5);
-  --share-overlay-chrome: 112px;
+  --share-overlay-chrome: 132px;
 
   position: fixed;
   z-index: 130;
@@ -109,12 +109,6 @@
   background: var(--color-surface-sunken);
 }
 
-.share-overlay-close:focus-visible,
-.share-overlay-retry:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
 /* The stage keeps the artboard's own ratio and the largest size that fits
    the viewport below the close button and above the hint, so the image is
    never cropped, stretched or covered. */
@@ -128,26 +122,95 @@
   max-width: 100%;
   place-items: center;
   overflow: hidden;
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
-}
-
-.share-overlay[data-aspect="4:3"] .share-overlay-stage {
+  background: transparent;
   width: min(
-    1600px,
+    840px,
     calc(100vw - var(--share-overlay-pad) * 2),
-    calc(var(--share-overlay-room) * 4 / 3)
-  );
-  aspect-ratio: 4 / 3;
-}
-
-.share-overlay[data-aspect="3:4"] .share-overlay-stage {
-  width: min(
-    1200px,
-    calc(100vw - var(--share-overlay-pad) * 2),
-    calc(var(--share-overlay-room) * 3 / 4)
+    max(240px, calc(var(--share-overlay-room) * 3 / 4))
   );
   aspect-ratio: 3 / 4;
+}
+
+.share-overlay[data-editing="true"] {
+  --share-overlay-chrome: 300px;
+}
+
+.share-overlay-toolbar {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  color: rgb(255 255 255 / 88%);
+  font-size: var(--font-size-label);
+}
+
+.share-overlay-toolbar > span {
+  flex: 1;
+  font-size: var(--font-size-label);
+  letter-spacing: 0.05em;
+}
+
+.share-overlay-toolbar small {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.share-profile-edit,
+.share-profile-form button {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-control);
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.share-profile-form {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  padding: var(--space-4);
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-size: var(--font-size-label);
+}
+
+.share-profile-input-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.share-profile-input-row input {
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-text);
+  background: var(--color-surface);
+  font: inherit;
+}
+
+.share-profile-input-row button {
+  flex-shrink: 0;
+}
+
+.share-profile-form p {
+  margin: var(--space-2) 0 0;
+  line-height: var(--type-leading-label);
+}
+
+.share-profile-warning {
+  max-width: 50ch;
+  margin: 0;
+  color: rgb(255 255 255 / 88%);
+  font-size: var(--font-size-label);
 }
 
 .share-overlay-image {
@@ -212,4 +275,12 @@
   .share-overlay-backdrop {
     --share-overlay-pad: var(--space-4);
   }
+}
+
+.share-overlay-close:focus-visible,
+.share-overlay-retry:focus-visible,
+.share-profile-edit:focus-visible,
+.share-profile-form :focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }

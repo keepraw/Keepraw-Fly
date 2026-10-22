@@ -769,6 +769,17 @@
       "routesAll_one": "Le trajet unique est affiché",
       "routesAll_other": "Les {{count, number}} trajets sont affichés",
       "routesAll_many": "Les {{count, number}} trajets sont affichés"
+    },
+    "journal": {
+      "flightRecord": "Le monde au fil des voyages",
+      "traveller": "VOYAGEUR",
+      "routes": "Liaisons",
+      "editName": "Modifier le nom",
+      "holderName": "Nom du titulaire / pseudonyme",
+      "saveName": "Enregistrer",
+      "nameHint": "Utilisez un pseudonyme de 32 caractères maximum. Stockage local dans ce navigateur, sans pièce d’identité.",
+      "storageError": "Le stockage local est indisponible. Le nom et le numéro ne seront pas conservés après cette session.",
+      "disclaimer": "Souvenir de voyage fictif · Ne constitue ni une pièce d’identité ni un titre de voyage"
     }
   }
 }

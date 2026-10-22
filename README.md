@@ -26,7 +26,7 @@ Get the installer or directly deployable ZIP/tar.gz from the [v0.1.1 release](ht
 
 ## Highlights
 
-- **Flight Passport:** explore lifetime or yearly totals, delay, airports, airlines, aircraft and route highlights.
+- **Flight Passport:** explore lifetime or yearly totals, delay, airports, airlines, aircraft and route highlights. Save a two-page digital travel journal with a local nickname and stable souvenir number.
 - **Flight archive and detail:** search, filter, add, edit, duplicate and review complete flight records.
 - **Route visualization:** browse recorded routes on the desktop Passport and Flight Detail maps.
 - **Portable data:** export and migrate a validated Keepraw Fly JSON archive; preview JSON, Keepraw Fly CSV and Flighty CSV imports before writing.
@@ -36,7 +36,7 @@ Get the installer or directly deployable ZIP/tar.gz from the [v0.1.1 release](ht
 
 ## Data and privacy
 
-Flight records are stored locally in the current origin's IndexedDB. Keepraw Fly has no account system or cloud backend that stores your flight history. The default static build does not upload flight records or include analytics SDKs.
+Flight records are stored locally in the current origin's IndexedDB. Keepraw Fly has no account system or cloud backend that stores your flight history. The default static build does not upload flight records or include analytics SDKs. The [souvenir passport](docs/flight-passport-journal.md) stores its nickname and virtual number separately in localStorage; they stay in this browser and are included in the saved image.
 
 Persistent storage is an optional browser capability. When supported and granted, it reduces the risk of automatic eviction under storage pressure. It cannot prevent manually clearing site data or guarantee permanent retention, and does not replace JSON backups. Installing Keepraw Fly as an app is neither required to request it nor a guarantee that it is granted.
 

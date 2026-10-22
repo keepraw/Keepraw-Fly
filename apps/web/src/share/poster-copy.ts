@@ -8,12 +8,14 @@ import type {
   PosterMapAirport,
   PosterRoute,
 } from "./poster-data";
+import type { PassportProfile } from "../storage/passport-profile";
 import { shareLocaleForLanguage, type ShareLocale } from "./share-text";
 
 /**
  * Poster Copy: the finished strings a poster draws, plus the route geometry.
  * This is the drawing layer's entire input besides the layout and palette.
- * No flight objects, no dates, no ids, no airport codes or names.
+ * No flight objects, internal IDs, airport codes or airport names. The only
+ * identity is the explicitly edited local journal profile.
  */
 export interface PosterStat {
   label: string;
@@ -36,6 +38,12 @@ export interface PosterMapCopy {
 
 export interface PosterCopy {
   locale: ShareLocale;
+  holder: PassportProfile;
+  firstFlight: string;
+  recordPeriod: string;
+  recordTitle: string;
+  disclaimer: string;
+  routes: PosterStat;
   brand: string;
   title: string;
   /** "Issued by Keepraw Fly" in the interface language. */
@@ -47,26 +55,8 @@ export interface PosterCopy {
   secondary: PosterStat[];
   notes: string[];
   map: PosterMapCopy;
-  /** Two machine-readable-zone style lines built only from the brand and
-   * the aggregate totals (ASCII, no identity). */
+  /** Decorative journal lines. Slash and spaces deliberately rule out ICAO MRZ encoding. */
   mrz: [string, string];
-}
-
-/** Machine-readable-zone line: A–Z, 0–9 and "<", padded to `length`. */
-export function posterMrzLine(parts: string[], length = 44): string {
-  const clean = parts
-    .map((part) =>
-      part
-        .toUpperCase()
-        .normalize("NFKD")
-        .replace(/[^A-Z0-9]+/g, "<")
-        .replace(/^<+|<+$/g, ""),
-    )
-    .filter(Boolean)
-    .join("<<");
-  return clean.length >= length
-    ? clean.slice(0, length)
-    : clean + "<".repeat(length - clean.length);
 }
 
 export type PosterTranslate = (
@@ -106,6 +96,7 @@ export function buildPosterCopy(
   t: PosterTranslate,
   language: SupportedLocale,
   distanceUnit: DistanceUnit,
+  profile: PassportProfile = { name: "", number: "—" },
 ): PosterCopy {
   const formatter = posterNumberFormat(language);
   const number = (value: number) => formatter.format(value);
@@ -134,6 +125,20 @@ export function buildPosterCopy(
   const map = model.map;
   return {
     locale: shareLocaleForLanguage(language),
+    holder: {
+      name: profile.name || t("share.journal.traveller"),
+      number: profile.number,
+    },
+    firstFlight: model.recordPeriod?.first.replaceAll("-", ".") ?? "—",
+    recordPeriod: model.recordPeriod
+      ? `${model.recordPeriod.first.replaceAll("-", ".")} — ${model.recordPeriod.last.replaceAll("-", ".")}`
+      : "—",
+    recordTitle: t("share.journal.flightRecord"),
+    disclaimer: t("share.journal.disclaimer"),
+    routes: {
+      label: t("share.journal.routes"),
+      value: number(model.routeCount),
+    },
     brand: POSTER_BRAND,
     title: t("share.poster.passportTitle"),
     issuer: t("share.poster.issuedBy", { brand: POSTER_BRAND }),
@@ -187,14 +192,8 @@ export function buildPosterCopy(
           : t("share.poster.routesAll", ungrouped({ count: map.totalRoutes })),
     },
     mrz: [
-      posterMrzLine(["KEEPRAW FLY", "FLIGHT PASSPORT"]),
-      posterMrzLine([
-        "LIFETIME",
-        range ? `${range.first}${range.last}` : "",
-        `${stats.flights}FLT`,
-        `${Math.round(stats.distanceKilometers)}KM`,
-        `${Math.round(stats.durationMinutes / 60)}H`,
-      ]),
+      "JOURNAL / KEEPRAW FLY << FLIGHT MEMORIES",
+      "SOUVENIR / NOT VALID FOR TRAVEL <<<<<<",
     ],
   };
 }
