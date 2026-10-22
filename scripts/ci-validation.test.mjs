@@ -231,3 +231,78 @@ test("release workflow derives the version and attests provenance with least pri
     );
   }
 });
+
+test("browser setup uses bounded HTTPS Ubuntu downloads before installing dependencies", () => {
+  const directory = mkdtempSync(join(tmpdir(), "keepraw-ci-apt-"));
+  try {
+    writeFileSync(
+      join(directory, "apt-mirrors.txt"),
+      "http://azure.archive.ubuntu.com/ubuntu/ priority:1\n",
+    );
+    writeFileSync(
+      join(directory, "apt-mirrors-security.txt"),
+      "http://azure.archive.ubuntu.com/ubuntu/\n",
+    );
+    writeFileSync(
+      join(directory, "sources.list"),
+      "deb mirror+file:/etc/apt/apt-mirrors.txt noble main\n",
+    );
+    const configure = () =>
+      spawnSync("bash", ["scripts/configure-ci-apt.sh", directory], {
+        encoding: "utf8",
+      });
+    for (let run = 0; run < 2; run += 1) {
+      const result = configure();
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(
+        readFileSync(join(directory, "apt-mirrors.txt"), "utf8"),
+        "https://archive.ubuntu.com/ubuntu/\n",
+      );
+      assert.equal(
+        readFileSync(join(directory, "apt-mirrors-security.txt"), "utf8"),
+        "https://security.ubuntu.com/ubuntu/\n",
+      );
+    }
+    // Preserve signed source definitions and parse the settings with APT itself.
+    assert.equal(
+      readFileSync(join(directory, "sources.list"), "utf8"),
+      "deb mirror+file:/etc/apt/apt-mirrors.txt noble main\n",
+    );
+    const config = join(directory, "apt.conf.d", "80keepraw-ci-network");
+    const parsed = spawnSync("apt-config", ["-c", config, "dump"], {
+      encoding: "utf8",
+    });
+    // Non-APT development machines still exercise the isolated file setup.
+    if (parsed.error?.code !== "ENOENT")
+      assert.equal(parsed.status, 0, parsed.stderr);
+    const configured = readFileSync(config, "utf8");
+    for (const setting of [
+      'Acquire::Retries "2"',
+      'Acquire::http::Timeout "20"',
+      'Acquire::https::Timeout "20"',
+      'APT::Update::Error-Mode "any"',
+    ]) {
+      assert.ok(configured.includes(setting), setting);
+      if (parsed.error?.code !== "ENOENT")
+        assert.ok(parsed.stdout.includes(setting), setting);
+    }
+    assert.doesNotMatch(
+      readFileSync(config, "utf8"),
+      /AllowUnauthenticated|Verify-Peer|Verify-Host/,
+    );
+  } finally {
+    rmSync(directory, { recursive: true });
+  }
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  for (const job of ["chromium", "cross-browser", "csp"]) {
+    const section = workflow.split(`  ${job}:\n`)[1].split(/\n  [\w-]+:\n/)[0];
+    const configure = section.indexOf(
+      "run: sudo bash scripts/configure-ci-apt.sh",
+    );
+    assert.ok(
+      configure > 0 &&
+        configure < section.indexOf("pnpm exec playwright install --with-deps"),
+      job,
+    );
+  }
+});
