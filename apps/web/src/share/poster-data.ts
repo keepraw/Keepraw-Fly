@@ -11,17 +11,15 @@ import {
  * from. Like the 3A Share Data Model it is assembled field by field (default
  * deny) from the complete local archive, never from Passport exploration
  * state (year filter, search, airport selection), and never holds a flight
- * object, id, flight number, exact date or time, seat, PNR, ticket, member
- * number, name, gate, terminal, airport code or airport name.
+ * object, id, flight number, time, seat, PNR, ticket, member
+ * number, name, gate, terminal, airport code or airport name. Only the first
+ * and last non-cancelled service dates are explicitly allowed for this journal.
  *
  * The passport always shows the lifetime totals and the real great-circle
  * routes of every plottable airport pair, with unlabelled airport dots
  * (public airport coordinates and flight counts per pair; no dates, no flight
  * identity). Airport codes and names never enter the model.
  */
-/** 3:4 portrait (1200×1600) or 4:3 landscape (1600×1200). */
-export type PosterAspect = "3:4" | "4:3";
-
 export interface PosterStatistics {
   flights: number;
   distanceKilometers: number;
@@ -62,7 +60,10 @@ export interface PosterMap {
 }
 
 export interface PosterDataModel {
-  version: 2;
+  version: 3;
+  /** Recorded airport pairs, including unplottable ones; directions merged. */
+  routeCount: number;
+  recordPeriod: { first: string; last: string } | null;
   yearRange: { first: number; last: number } | null;
   statistics: PosterStatistics;
   map: PosterMap;
@@ -160,8 +161,27 @@ export function buildPosterModel(
       longitude: airport.longitude,
       flights: airport.flights,
     }));
+  const dates = flights
+    .filter(
+      (flight) =>
+        !flight.cancelled && /^\d{4}-\d{2}-\d{2}$/.test(flight.serviceDate),
+    )
+    .map((flight) => flight.serviceDate)
+    .sort();
   return {
-    version: 2,
+    version: 3,
+    routeCount: new Set(
+      flights
+        .filter((flight) => !flight.cancelled)
+        .map((flight) =>
+          [flight.origin.iata, (flight.divertedTo ?? flight.destination).iata]
+            .sort()
+            .join("–"),
+        ),
+    ).size,
+    recordPeriod: dates.length
+      ? { first: dates[0]!, last: dates.at(-1)! }
+      : null,
     yearRange: share.yearRange
       ? { first: share.yearRange.first, last: share.yearRange.last }
       : null,

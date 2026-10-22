@@ -702,6 +702,17 @@
       "hoursUnit": "時間",
       "routesCurated": "全 {{total, number}} 航路のうち多い順に {{shown, number}} 航路を表示",
       "routesAll_other": "全 {{count, number}} 航路を表示"
+    },
+    "journal": {
+      "flightRecord": "空の旅の記録",
+      "traveller": "旅人",
+      "routes": "路線",
+      "editName": "名前を編集",
+      "holderName": "所有者名 / 旅のニックネーム",
+      "saveName": "保存",
+      "nameHint": "ニックネームを32文字以内で入力。このブラウザにのみ保存され、身分証情報は不要です。",
+      "storageError": "ローカル保存が利用できません。名前と番号はこのブラウザのセッション終了後に保持されません。",
+      "disclaimer": "架空の旅の記念品 · 身分証明書や渡航書類ではありません"
     }
   }
 }
