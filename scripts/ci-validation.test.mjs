@@ -69,6 +69,12 @@ test("report aggregates nested specs and retry durations without losing counts",
   assert.equal(summary.expected, 1);
   assert.deepEqual(summary.filesMs, { "example.pw.ts": 30 });
   assert.deepEqual(summary.failures, []);
+  assert.equal(summary.tests, 1);
+  assert.equal(summary.attempts, 2);
+  assert.equal(summary.retries, 1);
+  assert.equal(summary.retryMs, 20);
+  assert.equal(summary.executionMs, 30);
+  assert.deepEqual(summary.filesTests, { "example.pw.ts": 1 });
 });
 
 test("report fails skipped, unexpected, empty and globally errored suites", () => {
