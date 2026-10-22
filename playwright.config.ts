@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { chromiumShardMatch } from "./scripts/playwright-shards.mjs";
 
 // Honor an outbound proxy for live CDN checks on sandboxed runners.
 function proxyFromEnvironment() {
@@ -32,6 +33,7 @@ export default defineConfig({
     // business regression matrices. New tests do not need a tag to run here.
     {
       name: "chromium",
+      testMatch: chromiumShardMatch(process.env.CI_CHROMIUM_SHARD),
       use: {
         ...devices["Desktop Chrome"],
         launchOptions: process.env.PLAYWRIGHT_EXECUTABLE_PATH
