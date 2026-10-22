@@ -9,14 +9,16 @@ for (const source of ["CSV", "Flighty"] as const) {
     await page.goto("/#settings");
     await openSettingsCategory(page, "Data and backup");
 
-    // Observe two separate rendering opportunities while preflight is pending, then
-    // cancel from the page. Do not assume how many interval callbacks WebKit
-    // dispatches before a competing wall-clock deadline on a busy runner.
-    // Synchronous/microtask-only row processing finishes before these frames can
-    // observe pending state and therefore still fails this responsiveness check.
+    // Observe two rendering opportunities after real row processing starts,
+    // then cancel. Counting native ID allocations (forwarded unchanged) proves
+    // we are inside the work, not just seeing a pending preview before its effect
+    // starts or a stale pending DOM after synchronous work has finished.
+    const rowCount = 2000;
     await page.evaluate(() => {
       const state = {
+        generatedIds: 0,
         beats: [] as {
+          generatedIds: number;
           pending: boolean;
           disabled: boolean;
           cancellable: boolean;
@@ -25,35 +27,47 @@ for (const source of ["CSV", "Flighty"] as const) {
         cancelled: false,
       };
       Object.assign(window, { importProbe: state });
+      let preview: HTMLElement | null = null;
+      const randomUUID = crypto.randomUUID;
+      const beat = () => {
+        const cancel =
+          preview?.querySelector<HTMLButtonElement>(".button-secondary");
+        state.beats.push({
+          generatedIds: state.generatedIds,
+          pending: Boolean(
+            preview?.isConnected &&
+            preview.getAttribute("aria-busy") === "true",
+          ),
+          disabled: Boolean(
+            preview?.querySelector<HTMLButtonElement>(".button-primary")
+              ?.disabled,
+          ),
+          cancellable: Boolean(cancel && !cancel.disabled),
+        });
+        if (state.beats.length < 2) {
+          requestAnimationFrame(beat);
+          return;
+        }
+        crypto.randomUUID = randomUUID;
+        cancel?.focus();
+        state.focused = document.activeElement === cancel;
+        cancel?.click();
+        state.cancelled = true;
+      };
+      crypto.randomUUID = () => {
+        const id = randomUUID.call(crypto);
+        if (preview) {
+          state.generatedIds++;
+          if (state.generatedIds === 1) requestAnimationFrame(beat);
+        }
+        return id;
+      };
       const observer = new MutationObserver(() => {
-        const preview = document.querySelector<HTMLElement>(
+        preview = document.querySelector<HTMLElement>(
           '.csv-preview[aria-busy="true"]',
         );
         if (!preview) return;
         observer.disconnect();
-        const beat = () => {
-          const cancel =
-            preview.querySelector<HTMLButtonElement>(".button-secondary");
-          state.beats.push({
-            pending:
-              preview.isConnected &&
-              preview.getAttribute("aria-busy") === "true",
-            disabled: Boolean(
-              preview.querySelector<HTMLButtonElement>(".button-primary")
-                ?.disabled,
-            ),
-            cancellable: Boolean(cancel && !cancel.disabled),
-          });
-          if (state.beats.length < 2) {
-            requestAnimationFrame(beat);
-            return;
-          }
-          cancel?.focus();
-          state.focused = document.activeElement === cancel;
-          cancel?.click();
-          state.cancelled = true;
-        };
-        requestAnimationFrame(beat);
       });
       observer.observe(document.body, {
         subtree: true,
@@ -82,9 +96,10 @@ for (const source of ["CSV", "Flighty"] as const) {
       name: "large.csv",
       mimeType: "text/csv",
       buffer: Buffer.from(
-        [headers, ...Array.from({ length: 2000 }, (_, i) => makeRow(i))].join(
-          "\n",
-        ),
+        [
+          headers,
+          ...Array.from({ length: rowCount }, (_, i) => makeRow(i)),
+        ].join("\n"),
       ),
     });
     await expect
@@ -102,6 +117,7 @@ for (const source of ["CSV", "Flighty"] as const) {
           window as unknown as {
             importProbe: {
               beats: {
+                generatedIds: number;
                 pending: boolean;
                 disabled: boolean;
                 cancellable: boolean;
@@ -112,9 +128,26 @@ for (const source of ["CSV", "Flighty"] as const) {
         ).importProbe,
     );
     expect(probe.beats).toEqual([
-      { pending: true, disabled: true, cancellable: true },
-      { pending: true, disabled: true, cancellable: true },
+      {
+        generatedIds: expect.any(Number),
+        pending: true,
+        disabled: true,
+        cancellable: true,
+      },
+      {
+        generatedIds: expect.any(Number),
+        pending: true,
+        disabled: true,
+        cancellable: true,
+      },
     ]);
+    // Each valid row allocates at least one native ID. A synchronous regression
+    // exhausts the file before these frames, even if React has not committed its
+    // completed state yet. Cancellation must happen with actual rows remaining.
+    for (const beat of probe.beats) {
+      expect(beat.generatedIds).toBeGreaterThan(0);
+      expect(beat.generatedIds).toBeLessThan(rowCount);
+    }
     expect(probe.focused).toBe(true);
     await expect(page.locator(".csv-preview")).toHaveCount(0);
 
