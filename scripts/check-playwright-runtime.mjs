@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
+import { homedir } from "node:os";
 import { chromium, firefox, webkit } from "@playwright/test";
 
 const require = createRequire(import.meta.url);
@@ -29,6 +30,12 @@ if (!existsSync(executable))
   throw new Error(
     `Missing ${name} executable for Playwright ${version}: ${executable}`,
   );
+const uid = process.getuid();
+const homeOwner = statSync(homedir()).uid;
+if (uid !== homeOwner)
+  throw new Error(
+    `Browser process uid ${uid} must match its home owner ${homeOwner}`,
+  );
 console.log(
   JSON.stringify({
     image: images[0],
@@ -38,5 +45,7 @@ console.log(
     arch: process.arch,
     browser: name,
     executable,
+    uid,
+    homeOwner,
   }),
 );

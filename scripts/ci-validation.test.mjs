@@ -53,6 +53,7 @@ test("browser jobs pin the official runtime matching the installed Playwright ve
   );
   assert.match(images[0], /@sha256:[a-f0-9]{64}$/);
   assert.doesNotMatch(workflow, /playwright install|prepare-playwright-apt/);
+  assert.equal((workflow.match(/options: --user 1001/g) ?? []).length, 3);
 });
 
 function fixture(status = "expected") {
