@@ -311,7 +311,7 @@ for (const { name, viewport, size } of [
   {
     name: "desktop",
     viewport: { width: 1440, height: 1000 },
-    size: { width: 1600, height: 1200 },
+    size: { width: 1200, height: 1600 },
   },
   {
     name: "phone",

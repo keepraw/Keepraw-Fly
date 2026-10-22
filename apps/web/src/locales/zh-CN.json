@@ -702,6 +702,17 @@
       "hoursUnit": "小时",
       "routesCurated": "精选展示：{{total, number}} 条航线中最常飞的 {{shown, number}} 条",
       "routesAll": "已显示全部 {{count, number}} 条航线"
+    },
+    "journal": {
+      "flightRecord": "飞行足迹",
+      "traveller": "旅行者",
+      "routes": "航线",
+      "editName": "编辑姓名",
+      "holderName": "持有人姓名 / 旅行昵称",
+      "saveName": "保存",
+      "nameHint": "可使用昵称，最多 32 个字符。仅保存在本机浏览器，无需真实证件信息。",
+      "storageError": "本地保存不可用，姓名和编号无法在本次浏览器会话结束后保留。",
+      "disclaimer": "虚构旅行纪念品 · 不用于身份认证或出入境"
     }
   }
 }
