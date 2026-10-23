@@ -41,7 +41,7 @@ export function createPosterLayout(): PosterLayout {
     recordPage: { x: 32, y: 26, width: 1136, height: 758 },
     binding: { x: 32, y: 784, width: 1136, height: 32 },
     holderPage: { x: 32, y: 816, width: 1136, height: 758 },
-    map: { x: 82, y: 222, width: 1036, height: 410 },
+    map: { x: 82, y: 124, width: 1036, height: 610 },
     left: 90,
     right: 1110,
     distance: {

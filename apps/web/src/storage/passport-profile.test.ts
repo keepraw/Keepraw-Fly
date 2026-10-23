@@ -22,17 +22,45 @@ describe("local souvenir profile", () => {
     const first = await storage();
     const loaded = first.loadPassportProfile();
     expect(loaded.persisted).toBe(true);
-    expect(loaded.profile.number).toMatch(/^KRF-[A-F0-9]{16}$/);
+    expect(loaded.profile.id).toMatch(/^KRF-[A-F0-9]{16}$/);
+    expect(loaded.profile.number).toMatch(/^[A-Z0-9]{9}$/);
     first.savePassportProfile({
       ...loaded.profile,
-      name: "  Cloud   Walker  ",
+      name: "Cloud Walker",
     });
     const second = await storage(first.values.get(key));
     expect(second.loadPassportProfile()).toEqual({
-      profile: { name: "Cloud Walker", number: loaded.profile.number },
+      profile: { ...loaded.profile, name: "Cloud Walker" },
       persisted: true,
     });
     expect(second.local.setItem).not.toHaveBeenCalled();
+  });
+
+  it("migrates the entire legacy ID deterministically without changing its saved nickname", async () => {
+    const legacy = { name: "  云间漫游  ", number: "KRF-C1670C279628ACE1" };
+    const first = await storage(JSON.stringify(legacy));
+    const migrated = first.loadPassportProfile();
+    expect(migrated.profile).toEqual({
+      id: legacy.number,
+      name: legacy.name,
+      number: first.souvenirDocumentNumber(legacy.number),
+    });
+    expect(migrated.profile.number).toBe("MKN4KMM01");
+    expect(first.souvenirDocumentNumber("KRF-C1670C279628ACE2")).not.toBe(
+      migrated.profile.number,
+    );
+    expect(first.souvenirDocumentNumber("KRF-01670C279628ACE1")).not.toBe(
+      migrated.profile.number,
+    );
+    const reload = await storage(first.values.get(key));
+    expect(reload.loadPassportProfile()).toEqual(migrated);
+    const retry = await storage(JSON.stringify(legacy));
+    retry.local.setItem.mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    expect(retry.loadPassportProfile().profile).toEqual(migrated.profile);
+    expect(retry.loadPassportProfile().profile).toEqual(migrated.profile);
+    expect(() => retry.souvenirDocumentNumber("KRF-bad")).toThrow();
   });
 
   it("limits names by Unicode grapheme and removes control/bidi overrides", async () => {
@@ -49,9 +77,7 @@ describe("local souvenir profile", () => {
       '{"name":"x","number":"internal-user-id"}',
     ]) {
       const { loadPassportProfile } = await storage(invalid);
-      expect(loadPassportProfile().profile.number).toMatch(
-        /^KRF-[A-F0-9]{16}$/,
-      );
+      expect(loadPassportProfile().profile.number).toMatch(/^[A-Z0-9]{9}$/);
     }
   });
 
