@@ -706,13 +706,33 @@
     "journal": {
       "flightRecord": "空の旅の記録",
       "traveller": "旅人",
-      "routes": "路線",
+      "routes": "記録航路",
       "editName": "名前を編集",
       "holderName": "所有者名 / 旅のニックネーム",
       "saveName": "保存",
       "nameHint": "ニックネームを32文字以内で入力。このブラウザにのみ保存され、身分証情報は不要です。",
       "storageError": "ローカル保存が利用できません。名前と番号はこのブラウザのセッション終了後に保持されません。",
-      "disclaimer": "架空の旅の記念品 · 身分証明書や渡航書類ではありません"
+      "disclaimer": "架空の旅の記念品 · 身分証明書や渡航書類ではありません",
+      "archive": "旅のアーカイブ",
+      "heading": "飛行記録",
+      "journeys": "記録した旅",
+      "explore": "次の旅へ",
+      "profile": "所持人情報",
+      "documentType": "冊子の種類",
+      "documentValue": "フライトパスポート",
+      "issuingState": "発行地域",
+      "issuingAuthority": "発行元",
+      "name": "所持人氏名",
+      "number": "パスポート番号",
+      "firstFlight": "初フライト",
+      "period": "記録期間",
+      "journal": "デジタル旅日記",
+      "zoomIn": "画像を拡大",
+      "zoomOut": "縮小",
+      "fit": "画面に合わせる",
+      "exitZoom": "拡大表示を終了",
+      "zoomHint": "画像をクリック、または Enter で拡大。スクロールやスワイプで移動し、Esc で全体表示に戻ります。",
+      "routeCoverage": "記録した {{total, number}} 航路のうち {{shown, number}} 航路を地図に表示"
     }
   }
 }

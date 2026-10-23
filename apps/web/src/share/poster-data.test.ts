@@ -238,7 +238,24 @@ describe("poster privacy and routes", () => {
       "kilometers",
     );
     expect(copy.map.note).toBe(
-      `share.poster.routesAll:${JSON.stringify({ count: 4 })}`,
+      `share.journal.routeCoverage:${JSON.stringify({ shown: 4, total: 5 })}`,
+    );
+  });
+
+  it("reports recorded pairs even when none have coordinates, merging directions and respecting diversion", () => {
+    const records = [
+      flight("2024-01-01", "QQX", "QQY"),
+      flight("2024-01-02", "QQY", "QQX"),
+      flight("2024-01-03", "QQX", "QQZ", { cancelled: true }),
+      flight("2024-01-04", "QQX", "PEK", { divertedTo: { iata: "QQY" } }),
+    ];
+    const model = buildPosterModel(records);
+    expect(model.routeCount).toBe(1);
+    expect(model.map.routes).toHaveLength(0);
+    const copy = buildPosterCopy(model, t, "en-US", "kilometers");
+    expect(copy.routes.value).toBe("1");
+    expect(copy.map.note).toBe(
+      `share.journal.routeCoverage:${JSON.stringify({ shown: 0, total: 1 })}`,
     );
   });
 
@@ -280,7 +297,7 @@ describe("poster privacy and routes", () => {
     expect(map.curated).toBe(true);
     const copy = buildPosterCopy(model, t, "en-US", "kilometers");
     expect(copy.map.note).toBe(
-      `share.poster.routesCurated:${JSON.stringify({ shown: MAX_POSTER_ROUTES, total: map.totalRoutes })}`,
+      `share.journal.routeCoverage:${JSON.stringify({ shown: MAX_POSTER_ROUTES, total: model.routeCount })}`,
     );
     // Totals still come from every flight, not from the drawn selection.
     expect(model.statistics.flights).toBe(dense.length);
@@ -411,7 +428,11 @@ describe("poster copy, layout and palettes", () => {
     expect(copy.firstFlight).toBe("2023.02.10");
     expect(copy.recordPeriod).toBe("2023.02.10 — 2025.08.30");
     expect(copy.routes.value).toBe("5");
-    expect(copy.mrz.join(" ")).toContain("SOUVENIR / NOT VALID FOR TRAVEL");
+    expect(copy.mrz).toHaveLength(2);
+    expect(copy.mrz[0].length).toBe(copy.mrz[1].length);
+    expect(copy.mrz[0]).toContain("KEEPRAW.FLY");
+    expect(copy.mrz[0]).toContain("~9~5~");
+    for (const line of copy.mrz) expect(line).toMatch(/ \/ /);
     for (const line of copy.mrz) expect(line).not.toMatch(/^[A-Z0-9<]{30,44}$/);
     for (const sentinel of SENTINELS)
       expect(JSON.stringify(copy)).not.toContain(sentinel);

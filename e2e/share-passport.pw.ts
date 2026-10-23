@@ -385,8 +385,8 @@ test("opened book uses actual archive totals and stays local @cross-browser", as
   expectNoPrivateFields(drawn);
   expect(drawn).toEqual(
     expect.arrayContaining([
-      "FLIGHT RECORD",
-      "FLIGHT PASSPORT",
+      "Flight record",
+      "Flight Passport",
       "HOLDER NAME",
       "TRAVELLER",
       "PASSPORT NO.",
@@ -402,10 +402,17 @@ test("opened book uses actual archive totals and stays local @cross-browser", as
       "8",
       "12",
       "50",
-      "DIGITAL TRAVEL JOURNAL",
+      "RECORDED ROUTES",
+      "MAP: 49 OF 50 RECORDED ROUTES",
     ]),
   );
   expect(drawn.some((text) => /^KRF-[A-F0-9]{16}$/.test(text))).toBe(true);
+  await expect(page.locator(".share-overlay-toolbar")).toContainText(
+    "Digital travel journal",
+  );
+  await expect(page.locator(".share-overlay-disclaimer")).toContainText(
+    "fictional travel keepsake",
+  );
   expect(writes).toEqual([]);
 });
 
@@ -478,9 +485,14 @@ test("native save, focus trap, backdrop close and Blob lifetime remain intact @c
   );
   expect(prevented).toEqual([false, false, false, false]);
   await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("button", { name: "Enlarge passport", exact: true }),
+  ).toBeFocused();
+  await image(page).focus();
+  await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Edit name" })).toBeFocused();
   await page.keyboard.press("Shift+Tab");
-  await expect(page.getByRole("button", { name: "Close" })).toBeFocused();
+  await expect(image(page)).toBeFocused();
   expect((await readLog(page)).revoked).not.toContain(src);
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toHaveCount(0);
@@ -583,7 +595,9 @@ test("all locales, units and long Unicode names render without overlaps or lost 
         for (const unit of ["miles", "kilometers"]) {
           const name = language.startsWith("zh")
             ? "云间漫游者".repeat(6) + "飞行"
-            : "W".repeat(32);
+            : language === "fr-FR"
+              ? "Élodie Žluťoučká São Luís 東京 김하늘"
+              : "W".repeat(32);
           const copy = copyModule.buildPosterCopy(
             data.buildPosterModel(flights),
             i18n.i18n.t.bind(i18n.i18n),
@@ -602,15 +616,23 @@ test("all locales, units and long Unicode names render without overlaps or lost 
             { layout, copy, fonts },
             layout.width,
           );
+          const png = canvas.toDataURL("image/png");
           canvas.width = 0;
-          out.push({ language, unit, report, copy, layout });
+          out.push({ language, unit, report, copy, layout, png });
         }
       }
       return out;
     },
     (await loadArchive()).flights,
   );
-  for (const { language, unit, report, copy, layout } of results) {
+  for (const { language, unit, report, copy, layout, png } of results) {
+    if (artifactDir) {
+      await mkdir(artifactDir, { recursive: true });
+      await writeFile(
+        path.join(artifactDir, `${language}-${unit}.png`),
+        Buffer.from(png.split(",")[1], "base64"),
+      );
+    }
     const where = `${language} ${unit}`;
     expect(report.outside, where).toEqual([]);
     expect(report.truncated, where).toEqual([]);
@@ -624,10 +646,44 @@ test("all locales, units and long Unicode names render without overlaps or lost 
     }>;
     expect(
       texts.filter((box) => box.y < layout.binding.y).map((box) => box.text),
-    ).toContain("FLIGHT RECORD");
+    ).toContain(copy.labels.heading);
     expect(
       texts.filter((box) => box.y > layout.holderPage.y).map((box) => box.text),
-    ).toContain("HOLDER NAME");
+    ).toContain(copy.labels.name.toLocaleUpperCase());
+    for (const value of Object.values(copy.labels) as string[]) {
+      const shown = texts.map((box) => box.text);
+      // Journal wording is discreet viewer chrome; all other labels are on the PNG.
+      if (value !== copy.labels.journal)
+        expect(shown, where).toContain(
+          value === copy.labels.heading || value === copy.labels.documentValue
+            ? value
+            : value === copy.labels.profile
+              ? `02 / ${value}`.toLocaleUpperCase()
+              : value === copy.labels.archive
+                ? `KEEPRAW FLY / ${value}`.toLocaleUpperCase()
+                : value.toLocaleUpperCase(),
+        );
+    }
+    const footer = texts.filter((box) => box.y > 1490);
+    expect(footer, where).toHaveLength(2);
+    expect(footer[0]!.text.length, where).toBe(footer[1]!.text.length);
+    expect(footer[0]!.width, where).toBeCloseTo(footer[1]!.width, 1);
+    expect(footer[0]!.x, where).toBe(footer[1]!.x);
+    // Actual measured labels stay single-line on the shared statistic baselines.
+    for (const [index, stat] of [
+      copy.flights,
+      copy.duration,
+      ...copy.secondary,
+      copy.routes,
+    ].entries()) {
+      const label = texts.filter(
+        (box) => box.text === stat.label.toLocaleUpperCase(),
+      );
+      expect(label, `${where}: ${stat.label}`).toHaveLength(1);
+      expect(label[0]!.width, where).toBeLessThanOrEqual(
+        layout.achievements[index].width + 0.5,
+      );
+    }
     for (let a = 0; a < texts.length; a++)
       for (let b = a + 1; b < texts.length; b++) {
         const p = texts[a]!,
@@ -802,7 +858,7 @@ test("dense archives retain complete statistics while labelling the map selectio
   await expect(image(page)).toHaveAttribute("data-truncated", "0");
   const drawn = (await readLog(page)).text;
   expectNoPrivateFields(drawn);
-  expect(drawn).toContain("BUSIEST 60 OF 190 ROUTES SHOWN");
+  expect(drawn).toContain("MAP: 60 OF 190 RECORDED ROUTES");
   expect(drawn).toContain("190");
 });
 
@@ -816,4 +872,84 @@ test("Chinese journals and nicknames remain available when webfonts fail", async
   await expect(page.locator(".share-overlay-hint")).toContainText("系统字体");
   expectPassport((await decodeImage(page)).decoded);
   expect((await readLog(page)).text).toContain("飞行足迹");
+});
+
+test("enlarged reading scrolls the native PNG and restores focus and fit @cross-browser", async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(page, await loadArchive());
+  await openShare(page);
+  const src = await image(page).getAttribute("src");
+  await image(page).click();
+  await expect(dialog(page)).toHaveAttribute("data-zoom", "2");
+  const stage = page.locator(".share-overlay-stage");
+  await expect(stage).toBeFocused();
+  expect(
+    await stage.evaluate(
+      (el) =>
+        el.scrollWidth > el.clientWidth && el.scrollHeight > el.clientHeight,
+    ),
+  ).toBe(true);
+  await stage.evaluate((el) => el.scrollTo(400, 700));
+  await expect
+    .poll(() => stage.evaluate((el) => [el.scrollLeft, el.scrollTop]))
+    .toEqual([400, 700]);
+  await expect(image(page)).toHaveAttribute("src", src!);
+  expect(
+    await image(page).evaluate((img) => {
+      const e = new Event("contextmenu", { bubbles: true, cancelable: true });
+      img.dispatchEvent(e);
+      return e.defaultPrevented;
+    }),
+  ).toBe(false);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("zoom-mobile.png") });
+  await page.getByRole("button", { name: "Zoom out", exact: true }).click();
+  await expect(dialog(page)).toHaveAttribute("data-zoom", "1");
+  await page
+    .getByRole("button", { name: "Fit to screen", exact: true })
+    .click();
+  await expect(image(page)).toBeFocused();
+  expectPassport((await decodeImage(page)).decoded);
+  await page.keyboard.press("Enter");
+  await expect(dialog(page)).toHaveAttribute("data-zoom", "2");
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveAttribute("data-zoom", "0");
+  await expect(image(page)).toBeFocused();
+  await page.keyboard.press("Space");
+  await page
+    .getByRole("button", { name: "Exit enlarged view", exact: true })
+    .click();
+  await expect(dialog(page)).toHaveAttribute("data-zoom", "0");
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(page.locator(".passport-share-button")).toBeFocused();
+});
+
+test("language changes redraw the open journal and localize reader controls", async ({
+  page,
+}) => {
+  await seed(page, await loadArchive());
+  await openShare(page);
+  const src = await image(page).getAttribute("src");
+  await page.evaluate(async () => {
+    const modulePath = "/src/i18n.ts";
+    const { changeUiLanguage } = await import(/* @vite-ignore */ modulePath);
+    await changeUiLanguage("fr-FR");
+  });
+  await expect(
+    page.getByRole("button", { name: "Agrandir le passeport", exact: true }),
+  ).toBeVisible();
+  await expect(image(page)).toBeVisible();
+  await expect(image(page)).not.toHaveAttribute("src", src!);
+  expect((await readLog(page)).text).toContain("Carnet de vol");
+  expect((await readLog(page)).text).toContain("NOM DU TITULAIRE");
+  await expect(page.locator(".share-overlay-disclaimer")).not.toContainText(
+    "fictional travel keepsake",
+  );
 });
