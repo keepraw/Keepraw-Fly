@@ -38,6 +38,23 @@ export interface PosterMapCopy {
 
 export interface PosterCopy {
   locale: ShareLocale;
+  labels: Record<
+    | "archive"
+    | "heading"
+    | "journeys"
+    | "explore"
+    | "profile"
+    | "documentType"
+    | "documentValue"
+    | "issuingState"
+    | "issuingAuthority"
+    | "name"
+    | "number"
+    | "firstFlight"
+    | "period"
+    | "journal",
+    string
+  >;
   holder: PassportProfile;
   firstFlight: string;
   recordPeriod: string;
@@ -55,7 +72,7 @@ export interface PosterCopy {
   secondary: PosterStat[];
   notes: string[];
   map: PosterMapCopy;
-  /** Decorative journal lines. Slash and spaces deliberately rule out ICAO MRZ encoding. */
+  /** Two equal-length decorative lines; punctuation excludes ICAO MRZ syntax. */
   mrz: [string, string];
 }
 
@@ -123,8 +140,31 @@ export function buildPosterCopy(
 
   const range = model.yearRange;
   const map = model.map;
+  const labels = Object.fromEntries(
+    [
+      "archive",
+      "heading",
+      "journeys",
+      "explore",
+      "profile",
+      "documentType",
+      "documentValue",
+      "issuingState",
+      "issuingAuthority",
+      "name",
+      "number",
+      "firstFlight",
+      "period",
+      "journal",
+    ].map((key) => [key, t(`share.journal.${key}`)]),
+  ) as PosterCopy["labels"];
+  // Fixed 63-cell rhythm, independent of language, scripts and nickname length.
+  // Punctuation and separators deliberately exclude official MRZ syntax.
+  const cells = (parts: string[]) =>
+    parts.map((part) => part.slice(0, 19).padEnd(19, ".")).join(" / ");
   return {
     locale: shareLocaleForLanguage(language),
+    labels,
     holder: {
       name: profile.name || t("share.journal.traveller"),
       number: profile.number,
@@ -182,18 +222,33 @@ export function buildPosterCopy(
       routes: map.routes,
       airports: map.airports,
       centerLongitude: map.centerLongitude,
-      note: !map.totalRoutes
-        ? null
-        : map.curated
-          ? t(
-              "share.poster.routesCurated",
-              ungrouped({ shown: map.routes.length, total: map.totalRoutes }),
-            )
-          : t("share.poster.routesAll", ungrouped({ count: map.totalRoutes })),
+      note:
+        model.routeCount === 0
+          ? null
+          : map.routes.length !== model.routeCount
+            ? t(
+                "share.journal.routeCoverage",
+                ungrouped({
+                  shown: map.routes.length,
+                  total: model.routeCount,
+                }),
+              )
+            : t(
+                "share.poster.routesAll",
+                ungrouped({ count: model.routeCount }),
+              ),
     },
     mrz: [
-      "JOURNAL / KEEPRAW FLY << FLIGHT MEMORIES",
-      "SOUVENIR / NOT VALID FOR TRAVEL <<<<<<",
+      cells([
+        "KEEPRAW.FLY",
+        profile.number,
+        `~${stats.flights}~${model.routeCount}~`,
+      ]),
+      cells([
+        "~.~.~.~.~.~.~.~.~.~",
+        `~${range?.first ?? "...."}~${range?.last ?? "...."}~`,
+        "~.~.~.~.~.~.~.~.~.~",
+      ]),
     ],
   };
 }

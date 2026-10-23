@@ -50,6 +50,8 @@ const focusableSelector = [
 /** Every glyph the poster may draw, so unicode-range webfont subsets load. */
 function copySample(copy: PosterCopy) {
   return [
+    ...Object.values(copy.labels),
+    copy.routes.label,
     copy.holder.name,
     copy.recordTitle,
     copy.disclaimer,
@@ -86,6 +88,17 @@ export function FlightPassportShareDialog({
   const titleId = useId();
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(0);
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  const zoomHintId = useId();
+  const fit = () => {
+    setZoom(0);
+    stageRef.current?.scrollTo(0, 0);
+    imageRef.current?.focus({ preventScroll: true });
+  };
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -160,7 +173,11 @@ export function FlightPassportShareDialog({
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        onCloseRef.current();
+        if (zoomRef.current) {
+          setZoom(0);
+          stageRef.current?.scrollTo(0, 0);
+          imageRef.current?.focus({ preventScroll: true });
+        } else onCloseRef.current();
         return;
       }
       if (event.key !== "Tab" || !dialogRef.current) return;
@@ -195,6 +212,12 @@ export function FlightPassportShareDialog({
     };
   }, []);
 
+  // The scroll region becomes keyboard-focusable only after the enlarged
+  // layout commits. Focusing in the click handler would precede tabIndex.
+  useEffect(() => {
+    if (zoom > 0) stageRef.current?.focus({ preventScroll: true });
+  }, [zoom]);
+
   // Keep local edits in sync when another tab saves the souvenir profile.
   useEffect(() => {
     const sync = (event: StorageEvent) => {
@@ -225,6 +248,7 @@ export function FlightPassportShareDialog({
         aria-labelledby={titleId}
         data-layout="top-bottom"
         data-editing={editing}
+        data-zoom={zoom}
         data-status={empty ? "empty" : state.status}
       >
         <h2 id={titleId} className="sr-only">
@@ -232,7 +256,7 @@ export function FlightPassportShareDialog({
         </h2>
         <div className="share-overlay-toolbar">
           <span aria-hidden="true">
-            KEEPRAW FLY <small>/ DIGITAL TRAVEL JOURNAL</small>
+            KEEPRAW FLY <small>/ {copy.labels.journal}</small>
           </span>
           <button
             type="button"
@@ -308,14 +332,73 @@ export function FlightPassportShareDialog({
             {t("share.journal.storageError")}
           </p>
         ) : null}
-        <div className="share-overlay-stage">
+        {state.status === "ready" && !empty ? (
+          <div
+            className="share-zoom-controls"
+            role="group"
+            aria-label={t("share.journal.zoomIn")}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setZoom(2);
+              }}
+              disabled={zoom === 2}
+            >
+              {t("share.journal.zoomIn")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (zoom === 1) fit();
+                else {
+                  setZoom(1);
+                }
+              }}
+              disabled={zoom === 0}
+            >
+              {t("share.journal.zoomOut")}
+            </button>
+            <button type="button" onClick={fit}>
+              {t("share.journal.fit")}
+            </button>
+            {zoom > 0 ? (
+              <button type="button" onClick={fit}>
+                {t("share.journal.exitZoom")}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        <div
+          ref={stageRef}
+          className="share-overlay-stage"
+          tabIndex={zoom ? 0 : undefined}
+          role={zoom ? "region" : undefined}
+          aria-label={zoom ? t("share.journal.zoomHint") : undefined}
+        >
           {empty ? (
             <p className="share-overlay-message" role="alert">
               {t("share.noFlights")}
             </p>
           ) : state.status === "ready" ? (
             <img
+              ref={imageRef}
               className="share-overlay-image"
+              tabIndex={0}
+              aria-describedby={zoomHintId}
+              onClick={() => {
+                if (!zoom) {
+                  setZoom(2);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  if (!zoom) {
+                    setZoom(2);
+                  } else fit();
+                }
+              }}
               src={state.url}
               width={state.width}
               height={state.height}
@@ -357,8 +440,8 @@ export function FlightPassportShareDialog({
             {copy.holder.name} · {copy.holder.number}
           </p>
           <p>
-            FIRST FLIGHT: {copy.firstFlight} · RECORD PERIOD:{" "}
-            {copy.recordPeriod}
+            {copy.labels.firstFlight}: {copy.firstFlight} · {copy.labels.period}
+            : {copy.recordPeriod}
           </p>
           <p>
             {[
@@ -371,14 +454,18 @@ export function FlightPassportShareDialog({
               .map((stat) => `${stat.label}: ${stat.value} ${stat.unit ?? ""}`)
               .join(" · ")}
           </p>
-          <p>{copy.disclaimer}</p>
+          <p>{copy.map.note}</p>
         </div>
         {state.status === "ready" && !empty ? (
-          <p className="share-overlay-hint">
-            {state.fonts === "fallback"
-              ? t("share.fontFallback")
-              : t("share.saveHint")}
-          </p>
+          <div className="share-overlay-hint">
+            <p id={zoomHintId}>{t("share.journal.zoomHint")}</p>
+            <p>
+              {state.fonts === "fallback"
+                ? t("share.fontFallback")
+                : t("share.saveHint")}
+            </p>
+            <p className="share-overlay-disclaimer">{copy.disclaimer}</p>
+          </div>
         ) : null}
       </section>
     </div>,
