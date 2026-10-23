@@ -44,7 +44,7 @@ test("browser jobs pin the official runtime matching the installed Playwright ve
   const images = [...workflow.matchAll(/image: (\S+)/g)].map(
     (match) => match[1],
   );
-  assert.equal(images.length, 3);
+  assert.equal(images.length, 2);
   assert.equal(new Set(images).size, 1);
   assert.ok(
     images[0].startsWith(
@@ -52,8 +52,17 @@ test("browser jobs pin the official runtime matching the installed Playwright ve
     ),
   );
   assert.match(images[0], /@sha256:[a-f0-9]{64}$/);
-  assert.doesNotMatch(workflow, /playwright install|prepare-playwright-apt/);
-  assert.equal((workflow.match(/options: --user 1001/g) ?? []).length, 3);
+  assert.doesNotMatch(
+    workflow,
+    /playwright install-deps|--with-deps|prepare-playwright-apt/,
+  );
+  assert.equal((workflow.match(/options: --user 1001/g) ?? []).length, 2);
+  const chromium = workflow
+    .split("  chromium:\n")[1]
+    .split("  cross-browser:\n")[0];
+  assert.match(chromium, /runs-on: ubuntu-24\.04/);
+  assert.doesNotMatch(chromium, /container:/);
+  assert.match(chromium, /playwright install chromium/);
 });
 
 function fixture(status = "expected") {
