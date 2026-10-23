@@ -14,7 +14,7 @@ title: route map on page 01 and holder profile on page 02. The map retains its
 projection scale and full width beneath the header. Holder details use a fixed
 grid: name and number, authority and first flight, then a full-width record period.
 Names can occupy two grapheme-safe lines with one fitted font size; statistics
-and coverage notes keep their existing positions below the grid.
+and coverage notes share a compact grid above a dedicated machine-readable area.
 
 ## Existing data and settings
 
@@ -125,13 +125,17 @@ pinyin and fixed expiry remain explicit issues in `PosterCopy.mrzIssues`.
 
 This implements TD3 data layout and checks. It does **not** issue a real travel
 credential, establish legal authority, or certify full document compliance.
-Empty/unencodable names remain an explicit compatibility limitation. No bundled
-OCR-B font exists: the renderer measures the existing monospace stack, starts at
-30 canvas units and adds uniform tracking to centre both complete lines at 90%
-of the content width. Both rows share their size, origin and baseline spacing.
-A Canvas tracking probe selects native letter spacing or explicit equal-width
-glyph positions when tracking is absent or ineffective. Only drawing changes;
-the encoder's characters, fields and checks remain unchanged.
+Empty/unencodable names remain an explicit compatibility limitation. The lower
+leaf reserves Y=1424–1550 (126 units, 16.6% of its height) for the machine-readable
+area. Its barely warm paper tint uses the existing `mrzBand` role; paper fibres
+remain, while security curves stop above it. IBM Plex Mono at 26 units prints
+both complete rows at baselines 1474 and 1512, on one fixed 18.5-unit character
+grid. This occupies about 80% of the content width without stretching to fill it.
+Native Canvas tracking is probed, with explicit equal-width positions when
+tracking is absent or ineffective. The second row's ink ends around Y=1516,
+comfortably inside the Y=1534 print margin and Y=1550 paper frame. Export checks
+both the whole-canvas safe area and actual lower-leaf print/separator boundaries.
+Only drawing changes; encoding, fields, checks and souvenir policy are unchanged.
 Physical OCR-B printing, dimensions and optical certification are outside this
 PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 
@@ -158,10 +162,60 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
   aligned fields, both complete MRZ lines and absence of removed captions. The
   matrix also forces system fonts with long mixed-script names and emoji. MRZ
   tests inspect actual Canvas calls and ink bounds with native, absent and
-  ineffective tracking, checking equal cell advances and 88–92% width occupancy.
+  ineffective tracking, checking fixed cell advances, paper margins and separator clearance.
+- Additional font journeys load every role before measuring, decode the PNG and
+  compare its pixels with the preview renderer. They exercise Chinese, English,
+  Traditional Chinese, Japanese, Korean, accented/long names, missing names and
+  both coverage notes. Aborted font requests and retry after a timeout keep an
+  already resolved fallback render pixel-identical. Production CSP tests check
+  real font loading, native stylesheet SRI rejection and unchanged MiSans UI fonts.
 
 Run `pnpm test`, `pnpm typecheck`, `pnpm lint:css`, `pnpm check:css-tokens`,
 `pnpm format:check`, `pnpm build` and
 `pnpm exec playwright test e2e/share-passport.pw.ts --project=chromium`.
 Browser tests may retain screenshots of actual generated output for diagnostics;
 no design mockups or image-generation tools participate in implementation.
+
+## Passport font loading
+
+`poster-fonts.ts` owns five Canvas roles: display/name (500), field text/labels
+(400), serif figures (400), brand (600) and monospace MRZ (400). Latin roles use
+IBM Plex Serif, IBM Plex Sans, Barlow Semi Condensed and IBM Plex Mono. Chinese
+labels have no added tracking; Latin labels use modest tracking. Large distance
+figures retain serif numerals. Names fit by width, including two complete lines;
+accented capitals also have room below their labels.
+
+Simplified Chinese display text uses Source Han Serif SC Medium; labels use
+Source Han Sans SC Regular. Traditional Chinese, Japanese and Korean use their
+regional Noto Serif/Sans CJK counterparts from the same Adobe/Google typeface
+project. The locale determines Han forms; native names in a Latin UI also trigger
+CJK loading, with kana/Hangul selecting Japanese/Korean. Mixed-script names can
+request additional regional faces. All faces register under private `KRF …`
+names, so no website font stack or MiSans loading code changes.
+
+The ten bundled Latin/Latin Extended WOFF2 assets total 175332 bytes (~171 KiB).
+Their URLs are emitted by Vite, but FontFace loading happens only for passport
+preparation. CJK fonts remain remote, Unicode-range subsetted, version-pinned
+and SHA-384 SRI checked at the existing jsDelivr origin. No full CJK binaries,
+new dependency or new CSP origin is introduced. Only glyphs actually drawn
+(including names, uppercase accents and notes) select subsets. The serif role
+requests only title/name glyphs; the browser
+HTTP cache reuses them, and per-document promises reuse local faces/stylesheets.
+First-use CJK network cost depends on glyph coverage, typically hundreds of KiB
+to a few MiB, rather than downloading an entire multi-megabyte typeface.
+
+Preparation awaits the exact font roles used for measurement and drawing, with
+a six-second bound. Failed roles use explicit regional serif/sans or monospace
+system fallbacks; successful local Latin roles remain available if the CDN fails.
+The returned family mapping excludes unfinished private faces and is fixed for
+that render, even if requests finish later. A new export may retry failed loads.
+Fallback CJK glyphs depend on fonts installed on the device; a complete font
+network failure cannot guarantee identical glyph shapes across operating
+systems. All fallback measurements still use exactly the families drawn.
+Preview and PNG export consume the same prepared mapping and Canvas renderer.
+
+OFL notices, pinned package sources, WOFF2 checksums and byte counts are in
+`src/share/fonts/` (relative to `apps/web`). Stylesheet SRI covers CSS, with the
+same limitation and pinned font URLs as existing MiSans. Use
+`node scripts/verify-passport-fonts.mjs --remote` to independently verify all
+eight CSS pins against jsDelivr and unpkg. CSP is unchanged.

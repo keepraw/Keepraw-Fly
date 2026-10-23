@@ -33,6 +33,10 @@ export interface PosterLayout {
   safe: PosterRect;
   recordPage: PosterRect;
   holderPage: PosterRect;
+  /** Inside the paper frame, with a further 16-unit print margin. */
+  holderContent: PosterRect;
+  statsRule: number;
+  notesBaseline: number;
   binding: PosterRect;
   map: PosterRect;
   left: number;
@@ -58,11 +62,13 @@ export interface PosterLayout {
     nameLineHeight: number;
   };
   mrz: {
+    area: PosterRect;
     rule: number;
     baseline: number;
     lineHeight: number;
     size: number;
-    widthRatio: number;
+    /** Fixed advance, independent of the available page width. */
+    cellAdvance: number;
   };
   distance: PosterStatBlock;
   achievements: PosterStatBlock[];
@@ -86,6 +92,9 @@ export function createPosterLayout(): PosterLayout {
     recordPage: { x: 32, y: 26, width: 1136, height: 758 },
     binding: { x: 32, y: 784, width: 1136, height: 32 },
     holderPage: { x: 32, y: 816, width: 1136, height: 758 },
+    holderContent: { x: 72, y: 856, width: 1056, height: 678 },
+    statsRule: 1246,
+    notesBaseline: 1410,
     // Keep the full map width and projection scale beneath the new header.
     map: { x: 82, y: 144, width: 1036, height: 590 },
     left,
@@ -100,36 +109,37 @@ export function createPosterLayout(): PosterLayout {
     profile: {
       name: field(left, nameWidth, 1000, 1058),
       number: field(secondColumn, right - secondColumn, 1000, 1058),
-      authority: field(left, nameWidth, 1144, 1178),
-      firstFlight: field(secondColumn, right - secondColumn, 1144, 1178),
-      period: field(left, right - left, 1210, 1244),
+      authority: field(left, nameWidth, 1126, 1158),
+      firstFlight: field(secondColumn, right - secondColumn, 1126, 1158),
+      period: field(left, right - left, 1190, 1224),
       labelSize: 20,
       valueSize: 27,
-      nameSize: 58,
+      nameSize: 50,
       nameMinSize: 34,
-      nameWrappedSize: 44,
-      nameLineHeight: 46,
+      nameWrappedSize: 34,
+      nameLineHeight: 38,
     },
     mrz: {
-      rule: 1490,
-      baseline: 1518,
-      lineHeight: 34,
-      size: 30,
-      widthRatio: 0.9,
+      area: { x: 56, y: 1424, width: 1088, height: 126 },
+      rule: 1424,
+      baseline: 1474,
+      lineHeight: 38,
+      size: 26,
+      cellAdvance: 18.5,
     },
     distance: {
       x: 90,
       width: 340,
-      label: 1312,
-      baseline: 1392,
-      size: 76,
+      label: 1278,
+      baseline: 1352,
+      size: 72,
       labelSize: 24,
     },
     achievements: Array.from({ length: 6 }, (_, index) => ({
       x: 474 + (index % 3) * 218,
       width: 200,
-      label: 1312 + Math.floor(index / 3) * 98,
-      baseline: 1356 + Math.floor(index / 3) * 98,
+      label: 1278 + Math.floor(index / 3) * 68,
+      baseline: 1318 + Math.floor(index / 3) * 68,
       size: 42,
       labelSize: 20,
     })),
