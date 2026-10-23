@@ -2,6 +2,9 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { PosterCopy } from "../apps/web/src/share/poster-copy";
+import type { PosterLayout } from "../apps/web/src/share/poster-layout";
+import type { PosterDrawReport } from "../apps/web/src/share/poster-render";
 
 /**
  * Flight Passport share overlay. Pressing Share on Passport generates the
@@ -346,6 +349,10 @@ function expectPassport(decoded: Decoded) {
   expect(decoded.inkRows).toBeGreaterThan(800);
   expect(decoded.box.width / decoded.box.height).toBeCloseTo(0.75, 2);
   expect(decoded.box.x).toBeGreaterThanOrEqual(0);
+  expect(decoded.box.y).toBeGreaterThanOrEqual(0);
+  expect(decoded.box.y + decoded.box.height).toBeLessThanOrEqual(
+    decoded.viewport.height + 0.5,
+  );
   expect(decoded.box.x + decoded.box.width).toBeLessThanOrEqual(
     decoded.viewport.width + 0.5,
   );
@@ -572,7 +579,9 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await seed(page, await loadArchive(), { appearance: "dark" });
     await openShare(page);
-    expectPassport((await decodeImage(page)).decoded);
+    const exported = await decodeImage(page);
+    expectPassport(exported.decoded);
+    await keep(testInfo, `passport-${viewport.width}.png`, exported.bytes);
     const fits = await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     );
@@ -583,6 +592,136 @@ for (const viewport of [
       fullPage: false,
     });
   });
+
+/** Validate measured output against relationships, not one machine's font pixels. */
+function expectLayout(
+  report: PosterDrawReport,
+  copy: PosterCopy,
+  layout: PosterLayout,
+  where: string,
+) {
+  const { texts } = report;
+  const top = texts.filter((box) => box.y < layout.binding.y);
+  expect(
+    top.map((box) => box.text),
+    where,
+  ).toEqual([
+    "KEEPRAW FLY",
+    `01 / ${copy.labels.routeMap}`.toLocaleUpperCase(),
+  ]);
+  for (const box of top) {
+    expect(box.baseline, where).toBe(layout.header.record);
+    expect(box.y + box.height, where).toBeLessThan(layout.map.y);
+  }
+  const lowerBrand = texts.find(
+    (box) =>
+      box.text === "KEEPRAW FLY" && box.baseline === layout.header.holder,
+  )!;
+  expect(lowerBrand.x, where).toBe(top[0]!.x);
+  const lowerTitle = texts.find(
+    (box) => box.text === `02 / ${copy.labels.profile}`.toLocaleUpperCase(),
+  )!;
+  expect(
+    Math.abs(top[1]!.x + top[1]!.width - lowerTitle.x - lowerTitle.width),
+    where,
+  ).toBeLessThan(1);
+  const shown = texts.map((box) => box.text);
+  expect(shown).not.toContain(copy.labels.heading);
+  expect(shown).not.toContain(copy.labels.documentType.toLocaleUpperCase());
+  expect(shown).not.toContain(copy.labels.issuingState.toLocaleUpperCase());
+  const { profile } = layout;
+  const caption = (text: string) =>
+    texts.find((box) => box.text === text.toLocaleUpperCase())!;
+  const name = caption(copy.labels.name);
+  const number = caption(copy.labels.number);
+  const authority = caption(copy.labels.issuingAuthority);
+  const first = caption(copy.labels.firstFlight);
+  const period = caption(copy.labels.period);
+  expect(name.baseline, where).toBe(number.baseline);
+  expect(authority.baseline, where).toBe(first.baseline);
+  expect(name.baseline, where).toBeLessThan(authority.baseline);
+  expect(authority.baseline, where).toBeLessThan(period.baseline);
+  for (const [key, box] of [
+    ["name", name],
+    ["number", number],
+    ["authority", authority],
+    ["firstFlight", first],
+    ["period", period],
+  ] as const) {
+    expect(box.x, where).toBe(profile[key].x);
+    expect(box.baseline, where).toBe(profile[key].label);
+    expect(box.color, where).toBe(name.color);
+  }
+  expect(authority.x, where).toBe(name.x);
+  expect(period.x, where).toBe(name.x);
+  expect(first.x, where).toBe(number.x);
+  const numberValue = texts.find((box) => box.text === copy.holder.number)!;
+  const authorityValue = texts.find(
+    (box) =>
+      box.text === "KEEPRAW FLY" && box.baseline === profile.authority.baseline,
+  )!;
+  const firstValue = texts.find((box) => box.text === copy.firstFlight)!;
+  const periodValue = texts.find((box) => box.text === copy.recordPeriod)!;
+  expect(numberValue.baseline, where).toBe(profile.name.baseline);
+  expect(authorityValue.baseline, where).toBe(firstValue.baseline);
+  for (const [key, box] of [
+    ["number", numberValue],
+    ["authority", authorityValue],
+    ["firstFlight", firstValue],
+    ["period", periodValue],
+  ] as const) {
+    expect(box.x, where).toBe(profile[key].x);
+    expect(box.baseline, where).toBe(profile[key].baseline);
+    expect(box.color, where).toBe(numberValue.color);
+    expect(box.color, where).not.toBe(name.color);
+  }
+  const nameLines = texts.filter(
+    (box) =>
+      box.x === profile.name.x &&
+      box.baseline >= profile.name.baseline &&
+      box.baseline <= profile.name.baseline + profile.nameLineHeight,
+  );
+  expect(nameLines.map((box) => box.text).join(""), where).toBe(
+    copy.holder.name,
+  );
+  expect(nameLines.length, where).toBeLessThanOrEqual(2);
+  for (const line of nameLines) {
+    expect(line.x + line.width, where).toBeLessThanOrEqual(
+      profile.name.x + profile.name.width + 0.5,
+    );
+    expect(line.y + line.height, where).toBeLessThan(authority.y);
+  }
+  expect(periodValue.y + periodValue.height, where).toBeLessThan(
+    layout.distance.label - 24,
+  );
+  const footer = texts.filter((box) => box.baseline >= layout.mrz.baseline);
+  expect(
+    footer.map((line) => line.text),
+    where,
+  ).toEqual(copy.mrz);
+  expect(
+    footer.map((line) => line.text.length),
+    where,
+  ).toEqual([44, 44]);
+  expect(footer[0]!.width, where).toBeCloseTo(footer[1]!.width, 1);
+  expect(footer[0]!.x, where).toBe(footer[1]!.x);
+  expect(footer[1]!.baseline - footer[0]!.baseline, where).toBe(
+    layout.mrz.lineHeight,
+  );
+  for (const line of footer) {
+    const available = layout.right - layout.left;
+    expect(line.width / available, where).toBeGreaterThanOrEqual(0.88);
+    expect(line.width / available, where).toBeLessThanOrEqual(0.92);
+    expect(
+      Math.abs(line.x - layout.left - (layout.right - line.x - line.width)),
+      where,
+    ).toBeLessThan(1);
+    expect(line.y, where).toBeGreaterThan(layout.mrz.rule);
+    expect(line.y + line.height, where).toBeLessThanOrEqual(
+      layout.safe.y + layout.safe.height,
+    );
+  }
+}
 
 test("all locales, units and long Unicode names render without overlaps or lost text", async ({
   page,
@@ -615,97 +754,80 @@ test("all locales, units and long Unicode names render without overlaps or lost 
         "pt-BR",
       ]) {
         await i18n.changeUiLanguage(language);
-        for (const unit of ["miles", "kilometers"]) {
-          const name = language.startsWith("zh")
-            ? "云间漫游者".repeat(6) + "飞行"
-            : language === "fr-FR"
-              ? "Élodie Žluťoučká São Luís 東京 김하늘"
-              : "W".repeat(32);
-          const copy = copyModule.buildPosterCopy(
-            data.buildPosterModel(flights),
-            i18n.i18n.t.bind(i18n.i18n),
-            language,
-            unit,
-            { number: "123ABC456" },
-            { native: name },
-          );
-          const layout = layoutModule.createPosterLayout();
-          const fonts = await text.prepareShareFonts(
-            text.shareLocaleForLanguage(language),
-            { sample: name + copy.title + copy.recordTitle + copy.disclaimer },
-          );
-          const canvas = document.createElement("canvas");
-          const report = exporter.renderPosterToCanvas(
-            canvas,
-            { layout, copy, fonts },
-            layout.width,
-          );
-          const png = canvas.toDataURL("image/png");
-          canvas.width = 0;
-          out.push({ language, unit, report, copy, layout, png });
+        for (const disableWebfont of [false, true]) {
+          for (const unit of ["miles", "kilometers"]) {
+            const name = disableWebfont
+              ? "W".repeat(64) + "👩🏽‍✈️e\u0301東京김하늘"
+              : language.startsWith("zh")
+                ? "云间漫游者".repeat(6) + "飞行"
+                : language === "fr-FR"
+                  ? "Élodie Žluťoučká São Luís 東京 김하늘"
+                  : "W".repeat(32);
+            const copy = copyModule.buildPosterCopy(
+              data.buildPosterModel(flights),
+              i18n.i18n.t.bind(i18n.i18n),
+              language,
+              unit,
+              { number: "123ABC456" },
+              { native: name },
+            );
+            const layout = layoutModule.createPosterLayout();
+            const fonts = await text.prepareShareFonts(
+              text.shareLocaleForLanguage(language),
+              {
+                disableWebfont,
+                sample: name + copy.title + Object.values(copy.labels).join(""),
+              },
+            );
+            const canvas = document.createElement("canvas");
+            const report = exporter.renderPosterToCanvas(
+              canvas,
+              { layout, copy, fonts },
+              layout.width,
+            );
+            const png = canvas.toDataURL("image/png");
+            canvas.width = 0;
+            out.push({
+              language,
+              unit,
+              disableWebfont,
+              report,
+              copy,
+              layout,
+              png,
+            });
+          }
         }
       }
       return out;
     },
     (await loadArchive()).flights,
   );
-  for (const { language, unit, report, copy, layout, png } of results) {
+  for (const {
+    language,
+    unit,
+    disableWebfont,
+    report,
+    copy,
+    layout,
+    png,
+  } of results) {
     if (artifactDir) {
       await mkdir(artifactDir, { recursive: true });
       await writeFile(
-        path.join(artifactDir, `${language}-${unit}.png`),
+        path.join(
+          artifactDir,
+          `${language}-${unit}${disableWebfont ? "-system" : ""}.png`,
+        ),
         Buffer.from(png.split(",")[1], "base64"),
       );
     }
-    const where = `${language} ${unit}`;
+    const where = `${language} ${unit} ${disableWebfont ? "system" : "default"}`;
     expect(report.outside, where).toEqual([]);
     expect(report.truncated, where).toEqual([]);
     expect(report.map.routes).toBe(49);
-    const texts = report.texts as Array<{
-      text: string;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      baseline: number;
-      color: string;
-    }>;
-    expect(
-      texts.filter((box) => box.y < layout.binding.y),
-      where,
-    ).toEqual([]);
-    const shown = texts.map((box) => box.text);
-    expect(shown).not.toContain(copy.labels.heading);
-    expect(shown).not.toContain(copy.labels.documentType.toLocaleUpperCase());
-    expect(shown).not.toContain(copy.labels.issuingState.toLocaleUpperCase());
-    expect(shown).toContain(copy.labels.name.toLocaleUpperCase());
-    // The two document fields share label/value baselines, margins and colors.
-    const authority = texts.find(
-      (box) => box.text === copy.labels.issuingAuthority.toLocaleUpperCase(),
-    )!;
-    const number = texts.find(
-      (box) => box.text === copy.labels.number.toLocaleUpperCase(),
-    )!;
-    expect(authority.baseline).toBe(number.baseline);
-    expect(authority.color).toBe(number.color);
-    const authorityValue = texts.find(
-      (box) =>
-        box.text === "KEEPRAW FLY" && box.baseline === authority.baseline + 34,
-    )!;
-    const numberValue = texts.find((box) => box.text === copy.holder.number)!;
-    expect(authorityValue.baseline).toBe(numberValue.baseline);
-    expect(authorityValue.color).toBe(numberValue.color);
-    expect(authorityValue.color).not.toBe(authority.color);
-    expect(authority.x).toBe(layout.left);
-    expect(number.x).toBe(layout.left + (layout.right - layout.left + 48) / 2);
-    const footer = texts.filter((box) => box.y > 1490);
-    expect(footer, where).toHaveLength(2);
-    expect(
-      footer.map((line) => line.text.length),
-      where,
-    ).toEqual([44, 44]);
-    expect(footer[0]!.width, where).toBeCloseTo(footer[1]!.width, 1);
-    expect(footer[0]!.x, where).toBe(footer[1]!.x);
+    expectLayout(report, copy, layout, where);
+    const texts = report.texts;
     // Actual measured labels stay single-line on the shared statistic baselines.
     for (const [index, stat] of [
       copy.flights,
@@ -733,11 +855,155 @@ test("all locales, units and long Unicode names render without overlaps or lost 
           `${where}: ${p.text} / ${q.text}`,
         ).toBe(false);
       }
-    const nameLines = texts
-      .filter((box) => box.y > 1080 && box.y < 1190)
-      .map((box) => box.text)
-      .join("");
-    expect(nameLines).toBe(copy.holder.name);
+  }
+});
+
+test("MRZ uses equal measured cells with native, absent and ignored Canvas tracking @cross-browser", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const results = await page.evaluate(
+    async (flights) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const [data, copyModule, layoutModule, exporter, text, i18n] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/share-text.ts"),
+          load("/src/i18n.ts"),
+        ]);
+      const layout = layoutModule.createPosterLayout();
+      const copy = copyModule.buildPosterCopy(
+        data.buildPosterModel(flights),
+        i18n.i18n.t.bind(i18n.i18n),
+        "en-US",
+        "kilometers",
+        { number: "123ABC456" },
+        { native: "Élodie, Tokyo" },
+      );
+      const fonts = await text.prepareShareFonts("en", {
+        disableWebfont: true,
+      });
+      const prototype = CanvasRenderingContext2D.prototype;
+      const descriptor = Object.getOwnPropertyDescriptor(
+        prototype,
+        "letterSpacing",
+      );
+      const results = [];
+      try {
+        for (const mode of ["native", "absent", "ignored"]) {
+          if (mode === "absent")
+            delete (prototype as Partial<CanvasRenderingContext2D>)
+              .letterSpacing;
+          if (mode === "ignored")
+            Object.defineProperty(prototype, "letterSpacing", {
+              configurable: true,
+              get: () => "0px",
+              set: () => {},
+            });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d")!;
+          const draw = context.fillText;
+          const calls: Array<{
+            text: string;
+            x: number;
+            y: number;
+            font: string;
+            spacing: string;
+            maxWidth: number | undefined;
+            transform: number[];
+            left: number;
+            right: number;
+            top: number;
+            bottom: number;
+          }> = [];
+          context.fillText = function (value, x, y, maxWidth) {
+            const metrics = this.measureText(value);
+            const { a, b, c, d, e, f } = this.getTransform();
+            calls.push({
+              text: value,
+              x,
+              y,
+              font: this.font,
+              spacing: this.letterSpacing ?? "0px",
+              maxWidth,
+              transform: [a, b, c, d, e, f],
+              left: x - metrics.actualBoundingBoxLeft,
+              right: x + metrics.actualBoundingBoxRight,
+              top: y - metrics.actualBoundingBoxAscent,
+              bottom: y + metrics.actualBoundingBoxDescent,
+            });
+            draw.call(this, value, x, y);
+          };
+          const report = exporter.renderPosterToCanvas(
+            canvas,
+            { layout, copy, fonts },
+            layout.width,
+          );
+          results.push({
+            mode,
+            layout,
+            copy,
+            report,
+            calls: calls.filter((call) => call.y >= layout.mrz.baseline),
+          });
+          canvas.width = 0;
+        }
+      } finally {
+        if (descriptor)
+          Object.defineProperty(prototype, "letterSpacing", descriptor);
+        else
+          delete (prototype as Partial<CanvasRenderingContext2D>).letterSpacing;
+      }
+      return results;
+    },
+    (await loadArchive()).flights,
+  );
+  for (const { mode, layout, copy, report, calls } of results) {
+    expect(report.outside, mode).toEqual([]);
+    expect(report.truncated, mode).toEqual([]);
+    expectLayout(report, copy, layout, mode);
+    const widths = [];
+    for (const [index, line] of copy.mrz.entries()) {
+      const row = calls.filter(
+        (call) =>
+          call.y === layout.mrz.baseline + index * layout.mrz.lineHeight,
+      );
+      expect(row.map((call) => call.text).join(""), mode).toBe(line);
+      if (mode !== "native") {
+        expect(row, mode).toHaveLength(44);
+        const advance = row[1]!.x - row[0]!.x;
+        for (let cell = 1; cell < row.length; cell++)
+          expect(row[cell]!.x - row[cell - 1]!.x, mode).toBeCloseTo(advance, 5);
+      }
+      const inkLeft = Math.min(...row.map((call) => call.left));
+      const inkRight = Math.max(...row.map((call) => call.right));
+      const width = inkRight - inkLeft;
+      widths.push(width);
+      expect(width / (layout.right - layout.left), mode).toBeGreaterThanOrEqual(
+        0.88,
+      );
+      expect(width / (layout.right - layout.left), mode).toBeLessThanOrEqual(
+        0.92,
+      );
+      expect(
+        Math.abs(inkLeft - layout.left - (layout.right - inkRight)),
+        mode,
+      ).toBeLessThan(6);
+      for (const call of row) {
+        expect(call.font, mode).toBe(calls[0]!.font);
+        expect(call.spacing, mode).toBe(calls[0]!.spacing);
+        expect(call.maxWidth, mode).toBeUndefined();
+        expect(call.transform, mode).toEqual([1, 0, 0, 1, 0, 0]);
+        expect(call.top, mode).toBeGreaterThan(layout.mrz.rule);
+        expect(call.bottom, mode).toBeLessThanOrEqual(
+          layout.safe.y + layout.safe.height,
+        );
+      }
+    }
+    expect(Math.abs(widths[0]! - widths[1]!), mode).toBeLessThan(4);
   }
 });
 
