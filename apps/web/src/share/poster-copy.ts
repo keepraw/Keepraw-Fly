@@ -47,6 +47,7 @@ export interface PosterCopy {
     | "journeys"
     | "explore"
     | "profile"
+    | "routeMap"
     | "documentType"
     | "documentValue"
     | "issuingState"
@@ -153,6 +154,7 @@ export function buildPosterCopy(
       "journeys",
       "explore",
       "profile",
+      "routeMap",
       "documentType",
       "documentValue",
       "issuingState",

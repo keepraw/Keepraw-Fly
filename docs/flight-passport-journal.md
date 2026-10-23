@@ -9,6 +9,13 @@ editor, saving instructions or disclaimer captions. The image remains a Blob-bac
 Escape restores the whole photograph, then closes it. Clicking the backdrop also
 closes it. Focus stays in the viewer and returns to the Passport share action.
 
+Both leaves share the existing plane wordmark and a right-aligned localized page
+title: route map on page 01 and holder profile on page 02. The map retains its
+projection scale and full width beneath the header. Holder details use a fixed
+grid: name and number, authority and first flight, then a full-width record period.
+Names can occupy two grapheme-safe lines with one fitted font size; statistics
+and coverage notes keep their existing positions below the grid.
+
 ## Existing data and settings
 
 - Totals and map geometry still come from the full archive, independently of year,
@@ -119,8 +126,12 @@ pinyin and fixed expiry remain explicit issues in `PosterCopy.mrzIssues`.
 This implements TD3 data layout and checks. It does **not** issue a real travel
 credential, establish legal authority, or certify full document compliance.
 Empty/unencodable names remain an explicit compatibility limitation. No bundled
-OCR-B font exists: the renderer uses the existing monospace stack with zero
-tracking, equal left alignment and complete lines sized to the available width.
+OCR-B font exists: the renderer measures the existing monospace stack, starts at
+30 canvas units and adds uniform tracking to centre both complete lines at 90%
+of the content width. Both rows share their size, origin and baseline spacing.
+A Canvas tracking probe selects native letter spacing or explicit equal-width
+glyph positions when tracking is absent or ineffective. Only drawing changes;
+the encoder's characters, fields and checks remain unchanged.
 Physical OCR-B printing, dimensions and optical certification are outside this
 PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 
@@ -144,7 +155,10 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
   Settings edits, full-archive totals, native saving, focus, zoom, retry, blocked
   storage, DPR, dense maps and font failure. It checks 320–1440 px plus short
   landscape viewports; the locale/unit matrix verifies measured text boxes,
-  aligned fields, both complete MRZ lines and absence of removed captions.
+  aligned fields, both complete MRZ lines and absence of removed captions. The
+  matrix also forces system fonts with long mixed-script names and emoji. MRZ
+  tests inspect actual Canvas calls and ink bounds with native, absent and
+  ineffective tracking, checking equal cell advances and 88–92% width occupancy.
 
 Run `pnpm test`, `pnpm typecheck`, `pnpm lint:css`, `pnpm check:css-tokens`,
 `pnpm format:check`, `pnpm build` and

@@ -1,6 +1,7 @@
 import type { PosterCopy, PosterStat } from "./poster-copy";
 import type {
   PosterLayout,
+  PosterProfileField,
   PosterRect,
   PosterStatBlock,
 } from "./poster-layout";
@@ -821,52 +822,84 @@ function transparent(hex: string) {
 
 // ------------------------------------------------------------- leaves ----
 
+/** The two leaves share one wordmark and page-title treatment. */
+function pageHeader(
+  painter: Painter,
+  copy: PosterCopy,
+  layout: PosterLayout,
+  p: PosterPalette,
+  page: "record" | "holder",
+) {
+  const { header, left, right } = layout;
+  const y = header[page];
+  brand(painter, "KEEPRAW FLY", left, y, header.brandSize, p.ink, p.accent);
+  label(
+    painter,
+    page === "record"
+      ? `01 / ${copy.labels.routeMap}`
+      : `02 / ${copy.labels.profile}`,
+    right,
+    y,
+    header.labelWidth,
+    p.muted,
+    header.labelSize,
+    "right",
+  );
+}
+
 function drawRecordPage(
   painter: Painter,
   copy: PosterCopy,
   layout: PosterLayout,
   p: PosterPalette,
 ) {
-  const map = drawMap(painter, layout.map, copy, p, layout);
-  return map;
+  pageHeader(painter, copy, layout, p, "record");
+  return drawMap(painter, layout.map, copy, p, layout);
 }
 
 function profileField(
   painter: Painter,
   labelText: string,
   value: string,
-  x: number,
-  y: number,
-  width: number,
+  field: PosterProfileField,
+  profile: PosterLayout["profile"],
   p: PosterPalette,
 ) {
-  label(painter, labelText, x, y, width, p.muted, 20);
-  painter.text(value, x, y + 34, {
-    size: 27,
+  label(
+    painter,
+    labelText,
+    field.x,
+    field.label,
+    field.width,
+    p.muted,
+    profile.labelSize,
+  );
+  painter.text(value, field.x, field.baseline, {
+    size: profile.valueSize,
     color: p.ink,
-    maxWidth: width,
+    maxWidth: field.width,
     minSize: 22,
   });
 }
 
-/** Preserve the entire nickname, wrapping at grapheme boundaries if needed. */
+/** Keep the saved name intact. Both lines use one fitted size, and the
+ * first baseline always aligns with the number in the adjacent column. */
 function holderName(
   painter: Painter,
   name: string,
-  x: number,
-  y: number,
-  width: number,
+  profile: PosterLayout["profile"],
   p: PosterPalette,
 ) {
+  const { x, baseline, width } = profile.name;
   const style = {
-    size: 58,
-    minSize: 34,
+    size: profile.nameSize,
+    minSize: profile.nameMinSize,
     font: "serif" as const,
     color: p.ink,
     maxWidth: width,
   };
-  if (painter.measure(name, { ...style, size: 34 }) <= width) {
-    painter.text(name, x, y, style);
+  if (painter.measure(name, { ...style, size: profile.nameMinSize }) <= width) {
+    painter.text(name, x, baseline, style);
     return;
   }
   const graphemes = shareGraphemes(name);
@@ -876,23 +909,88 @@ function holderName(
     const widest = Math.max(
       painter.measure(graphemes.slice(0, index).join(""), {
         ...style,
-        size: 44,
+        size: profile.nameWrappedSize,
       }),
-      painter.measure(graphemes.slice(index).join(""), { ...style, size: 44 }),
+      painter.measure(graphemes.slice(index).join(""), {
+        ...style,
+        size: profile.nameWrappedSize,
+      }),
     );
     if (widest < bestWidth) {
       bestWidth = widest;
       cut = index;
     }
   }
-  painter.text(graphemes.slice(0, cut).join(""), x, y - 10, {
-    ...style,
-    size: 44,
-  });
-  painter.text(graphemes.slice(cut).join(""), x, y + 38, {
-    ...style,
-    size: 44,
-  });
+  // Settings names have no nickname length limit. Fit both complete halves
+  // rather than sending either through the ellipsis path at a fixed minimum.
+  const size = Math.min(
+    profile.nameWrappedSize,
+    (profile.nameWrappedSize * width) / bestWidth,
+  );
+  for (const [index, line] of [
+    graphemes.slice(0, cut).join(""),
+    graphemes.slice(cut).join(""),
+  ].entries()) {
+    painter.text(line, x, baseline + index * profile.nameLineHeight, {
+      size,
+      font: style.font,
+      color: p.ink,
+    });
+  }
+}
+
+/** MRZ encoding is untouched: only the advance between equal-width cells
+ * changes. Native Canvas tracking is probed rather than assumed; older or
+ * partial implementations draw the same glyphs at explicit cell positions. */
+function drawMrz(
+  painter: Painter,
+  copy: PosterCopy,
+  layout: PosterLayout,
+  p: PosterPalette,
+) {
+  const { mrz, left, right } = layout;
+  const width = (right - left) * mrz.widthRatio;
+  const x = left + (right - left - width) / 2;
+  const cells = copy.mrz[0].length;
+  const baseStyle: TextStyle = {
+    size: mrz.size,
+    font: "mono",
+    color: p.mrzInk,
+  };
+  const naturalWidth = painter.measure(copy.mrz[0], baseStyle);
+  // Usually 30px + about 3px tracking. A wider system face can shrink first.
+  const size = Math.min(mrz.size, (mrz.size * width) / naturalWidth);
+  const style = { ...baseStyle, size };
+  const cellWidth = painter.measure("0", style);
+  const spacing = Math.max(0, (width - cells * cellWidth) / (cells - 1));
+  const probe =
+    painter.measure(copy.mrz[0], { ...style, letterSpacing: 3 }) -
+    painter.measure(copy.mrz[0], style);
+  // Native letterSpacing includes a trailing cell of tracking; report/text
+  // positioning excludes that last gap to centre the visible row.
+  const nativeTracking = Math.abs(probe - cells * 3) < 0.1;
+  for (const [index, line] of copy.mrz.entries()) {
+    const y = mrz.baseline + index * mrz.lineHeight;
+    if (nativeTracking) {
+      painter.text(line, x, y, { ...style, letterSpacing: spacing });
+      continue;
+    }
+    painter.apply(style);
+    const metrics = painter.context.measureText(line);
+    for (const [cell, character] of [...line].entries())
+      painter.context.fillText(character, x + cell * (cellWidth + spacing), y);
+    const ascent = metrics.actualBoundingBoxAscent || size * 0.8;
+    const descent = metrics.actualBoundingBoxDescent || size * 0.2;
+    painter.texts.push({
+      text: line,
+      x,
+      y: y - ascent,
+      width,
+      height: ascent + descent,
+      baseline: y,
+      color: p.mrzInk,
+    });
+  }
 }
 
 function drawHolderPage(
@@ -902,17 +1000,7 @@ function drawHolderPage(
   p: PosterPalette,
 ) {
   const { left, right } = layout;
-  brand(painter, "KEEPRAW FLY", left, 878, 28, p.ink, p.accent);
-  label(
-    painter,
-    `02 / ${copy.labels.profile}`,
-    right,
-    878,
-    440,
-    p.muted,
-    22,
-    "right",
-  );
+  pageHeader(painter, copy, layout, p, "holder");
   painter.text(copy.title, left, 944, {
     size: 52,
     font: "serif",
@@ -921,40 +1009,47 @@ function drawHolderPage(
     minSize: 36,
   });
   painter.rule(left, right, 968, p.rule);
-  const columnGap = 48;
-  const columnWidth = (right - left - columnGap) / 2;
-  for (const [index, [caption, value]] of [
-    [copy.labels.issuingAuthority, "KEEPRAW FLY"],
-    [copy.labels.number, copy.holder.number],
-  ].entries()) {
-    profileField(
-      painter,
-      caption!,
-      value!,
-      left + index * (columnWidth + columnGap),
-      1000,
-      columnWidth,
-      p,
-    );
-  }
-  label(painter, copy.labels.name, left, 1080, 650, p.muted, 22);
-  holderName(painter, copy.holder.name, left, 1142, right - left, p);
+  const { profile } = layout;
+  label(
+    painter,
+    copy.labels.name,
+    profile.name.x,
+    profile.name.label,
+    profile.name.width,
+    p.muted,
+    profile.labelSize,
+  );
+  holderName(painter, copy.holder.name, profile, p);
+  profileField(
+    painter,
+    copy.labels.number,
+    copy.holder.number,
+    profile.number,
+    profile,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.issuingAuthority,
+    "KEEPRAW FLY",
+    profile.authority,
+    profile,
+    p,
+  );
   profileField(
     painter,
     copy.labels.firstFlight,
     copy.firstFlight,
-    left,
-    1210,
-    300,
+    profile.firstFlight,
+    profile,
     p,
   );
   profileField(
     painter,
     copy.labels.period,
     copy.recordPeriod,
-    440,
-    1210,
-    670,
+    profile.period,
+    profile,
     p,
   );
   painter.rule(left, right, 1266, p.rule);
@@ -978,17 +1073,8 @@ function drawHolderPage(
       color: p.muted,
       maxWidth: 1020,
     });
-  painter.rule(left, right, 1490, p.rule);
-  // Identical ASCII cell count, font, baseline spacing and full-width columns.
-  for (const [index, line] of copy.mrz.entries())
-    painter.text(line, left, 1518 + index * 34, {
-      size: 30,
-      minSize: 24,
-      letterSpacing: 0,
-      font: "mono",
-      color: p.mrzInk,
-      maxWidth: right - left,
-    });
+  painter.rule(left, right, layout.mrz.rule, p.rule);
+  drawMrz(painter, copy, layout, p);
 }
 
 /** Preview/export share the two independent leaf renderers and the sewn hinge.
