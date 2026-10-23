@@ -45,9 +45,11 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           .selectOption(viewport.theme);
         await page.goto("/#passport");
         await expect(page.locator("html")).toHaveAttribute("lang", language);
+        const canvas =
+          viewport.theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)";
         await expect(page.locator(".app-shell")).toHaveCSS(
           "background-color",
-          viewport.theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)",
+          canvas,
         );
         const primaryText =
           viewport.theme === "dark" ? "rgb(229, 234, 242)" : "rgb(30, 43, 62)";
@@ -70,6 +72,11 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           ),
         ).toBe(true);
         const heading = page.locator(".mobile-page-heading h1");
+        await expect(heading).toHaveCSS("color", primaryText);
+        await expect(page.locator(".site-header")).toHaveCSS(
+          "background-color",
+          canvas,
+        );
         expect(
           await heading.evaluate((el) => el.scrollWidth <= el.clientWidth),
         ).toBe(true);
@@ -112,6 +119,33 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
       expect(loadedGlobeResources).toEqual([]);
     });
   }
+
+  test("reduced motion updates inherited header text and canvas together", async ({
+    page,
+  }) => {
+    await expect(page.locator(".mobile-page-heading h1")).toHaveCSS(
+      "color",
+      "rgb(30, 43, 62)",
+    );
+    for (const theme of ["dark", "light"] as const) {
+      // Change the CSS theme source and sample in the same task: polling here
+      // would hide transitions that leave inherited text on the old palette.
+      const palette = await page.evaluate((nextTheme) => {
+        document.documentElement.dataset.theme = nextTheme;
+        return {
+          canvas: getComputedStyle(document.querySelector(".site-header")!)
+            .backgroundColor,
+          text: getComputedStyle(
+            document.querySelector(".mobile-page-heading h1")!,
+          ).color,
+        };
+      }, theme);
+      expect(palette).toEqual({
+        canvas: theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)",
+        text: theme === "dark" ? "rgb(229, 234, 242)" : "rgb(30, 43, 62)",
+      });
+    }
+  });
 
   test("cancelled status stays readable on a keyboard-focused row", async ({
     page,
