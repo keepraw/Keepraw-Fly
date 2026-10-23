@@ -139,6 +139,9 @@
   gap: 4px;
 }
 .globe-theme-switch button {
+  /* Switch text and surface together: interpolating the previous selection
+     against the new theme can briefly violate text contrast. */
+  transition: none;
   border: 0;
   background: transparent;
   border-radius: 3px;

@@ -40,7 +40,7 @@ export const POSTER_SERIF = [
   '"DejaVu Serif"',
   '"Times New Roman"',
 ].join(", ");
-/** Monospace for the machine-readable zone and codes. */
+/** Monospace for fictional decorative character lines and codes. */
 export const POSTER_MONO = [
   '"SFMono-Regular"',
   '"SF Mono"',
@@ -52,10 +52,7 @@ export const POSTER_MONO = [
   "monospace",
 ].join(", ");
 
-export type PosterTone = "dark" | "light";
-
 export interface PosterPalette {
-  tone: PosterTone;
   backgroundTop: string;
   backgroundBottom: string;
   guilloche: [string, string];
@@ -86,79 +83,36 @@ export interface PosterPalette {
   };
 }
 
-/** Dark passport (light app): deep navy cover, warm white type, ice routes. */
-export const DARK_PASSPORT_PALETTE: PosterPalette = {
-  tone: "dark",
-  backgroundTop: "#0f1f38",
-  backgroundBottom: "#08142a",
-  guilloche: ["rgba(160, 196, 240, 0.035)", "rgba(232, 214, 178, 0.03)"],
-  frame: "rgba(232, 214, 178, 0.30)",
-  rule: "rgba(242, 236, 225, 0.16)",
-  ink: "#f3ede2",
-  muted: "#a3b1c6",
-  faint: "rgba(242, 236, 225, 0.5)",
-  figure: "#f3ede2",
-  accent: "#e3c48f",
-  brandMark: "#e3c48f",
-  mrzBand: "rgba(242, 236, 225, 0.035)",
-  mrzInk: "rgba(242, 236, 225, 0.42)",
-  map: {
-    sphere: "rgba(140, 180, 230, 0.035)",
-    sphereStroke: "rgba(242, 236, 225, 0.10)",
-    graticule: "rgba(163, 200, 240, 0.075)",
-    land: "rgba(86, 124, 176, 0.30)",
-    landShade: null,
-    dots: "rgba(186, 214, 246, 0.32)",
-    borders: "rgba(9, 21, 42, 0.55)",
-    route: [222, 236, 255],
-    routeGlow: [120, 176, 240],
-    airport: "#f3ede2",
-    airportStroke: "rgba(227, 196, 143, 0.55)",
-    hub: "#e9b878",
-    composite: "lighter",
-  },
-};
-
-/**
- * Light passport (dark app): the same passport on ivory security paper.
- * Navy ink and the cover's gold, re-weighted for paper; routes in deep
- * cobalt so they stay the strongest mark on the map.
- */
-export const LIGHT_PASSPORT_PALETTE: PosterPalette = {
-  tone: "light",
-  backgroundTop: "#f8f4ea",
-  backgroundBottom: "#efe8d8",
-  guilloche: ["rgba(26, 52, 98, 0.05)", "rgba(150, 112, 52, 0.05)"],
-  frame: "rgba(150, 112, 52, 0.38)",
+export const PASSPORT_PALETTE: PosterPalette = {
+  backgroundTop: "#f5f7f6",
+  backgroundBottom: "#f5f7f6",
+  guilloche: ["rgba(55, 96, 128, 0.065)", "rgba(125, 161, 181, 0.065)"],
+  frame: "rgba(150, 136, 102, 0.48)",
   rule: "rgba(16, 32, 60, 0.16)",
-  ink: "#10203c",
-  muted: "#4f5d72",
+  ink: "#10243a",
+  muted: "#475d70",
   faint: "rgba(16, 32, 60, 0.58)",
-  figure: "#10203c",
-  accent: "#94692a",
-  brandMark: "#94692a",
+  figure: "#10243a",
+  accent: "#88734c",
+  brandMark: "#88734c",
   mrzBand: "rgba(16, 32, 60, 0.045)",
-  mrzInk: "rgba(16, 32, 60, 0.46)",
+  mrzInk: "#475d70",
   map: {
     sphere: "rgba(26, 52, 98, 0.025)",
     sphereStroke: "rgba(16, 32, 60, 0.12)",
-    graticule: "rgba(26, 52, 98, 0.07)",
-    land: "#d9e1e8",
-    landShade: "rgba(52, 86, 140, 0.16)",
+    graticule: "rgba(55, 96, 128, 0.12)",
+    land: "#c4d6df",
+    landShade: null,
     dots: null,
-    borders: "rgba(248, 244, 234, 0.95)",
-    route: [24, 62, 168],
+    borders: "rgba(245, 247, 246, 0.95)",
+    route: [44, 91, 126],
     routeGlow: null,
-    airport: "#fbf8f0",
-    airportStroke: "#183ea8",
-    hub: "#b5772a",
+    airport: "#f5f7f6",
+    airportStroke: "#88734c",
+    hub: "#a18b60",
     composite: "source-over",
   },
 };
-
-export function posterPalette(tone: PosterTone): PosterPalette {
-  return tone === "light" ? LIGHT_PASSPORT_PALETTE : DARK_PASSPORT_PALETTE;
-}
 
 export interface PosterTextBox {
   text: string;
@@ -319,7 +273,7 @@ function stackedLabel(
     letterSpacing: s * LABEL_TRACKING,
   });
   const words = upper.split(" ");
-  if (words.length < 2 || painter.measure(upper, style(size)) <= maxWidth)
+  if (words.length < 2 || painter.measure(upper, style(min)) <= maxWidth)
     return label(painter, text, x, y, maxWidth, color, size);
   let best = 1;
   let bestWidth = Infinity;
@@ -504,43 +458,114 @@ function brand(
   return { ...drawn, right: offset + drawn.width };
 }
 
-function passportBackground(
+/** Each leaf has its own paper, security pattern, margins and frame. */
+function pagePaper(context: Context2D, rect: PosterRect, p: PosterPalette) {
+  context.save();
+  context.beginPath();
+  context.rect(rect.x, rect.y, rect.width, rect.height);
+  context.clip();
+  context.fillStyle = p.backgroundTop;
+  context.fillRect(rect.x, rect.y, rect.width, rect.height);
+  // Deterministic fibres rather than a raster texture or noisy filter.
+  context.strokeStyle = "rgba(61, 92, 114, 0.035)";
+  context.lineWidth = 0.7;
+  for (let i = 0; i < 1800; i += 1) {
+    const x = rect.x + ((i * 137.508) % rect.width);
+    const y = rect.y + ((i * 71.713) % rect.height);
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x + 1 + (i % 5), y + 0.6);
+    context.stroke();
+  }
+  context.strokeStyle = p.guilloche[0];
+  for (let line = 0; line < 18; line += 1) {
+    context.beginPath();
+    for (let x = 0; x <= rect.width; x += 8) {
+      const y =
+        rect.y +
+        rect.height * 0.72 +
+        line * 6 +
+        Math.sin(x / 72 + line * 0.18) * 34;
+      if (!x) context.moveTo(rect.x + x, y);
+      else context.lineTo(rect.x + x, y);
+    }
+    context.stroke();
+  }
+  context.strokeStyle = p.frame;
+  context.lineWidth = 0.8;
+  context.strokeRect(
+    rect.x + 24,
+    rect.y + 24,
+    rect.width - 48,
+    rect.height - 48,
+  );
+  context.restore();
+}
+
+function bookBackground(
   context: Context2D,
   layout: PosterLayout,
   p: PosterPalette,
 ) {
-  const { width, height } = layout;
-  const gradient = context.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, p.backgroundTop);
-  gradient.addColorStop(1, p.backgroundBottom);
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, width, height);
-  // Guilloche: fine interleaved sine bands, barely above the paper.
+  context.fillStyle = "#10243a";
+  context.fillRect(0, 0, layout.width, layout.height);
+  // The cover lip and offset fore-edge lines give the leaves physical depth.
+  context.strokeStyle = "#968866";
+  context.lineWidth = 1;
+  context.strokeRect(17, 12, layout.width - 34, layout.height - 24);
+  context.fillStyle = "#cbd4d7";
+  context.fillRect(28, 32, layout.width - 56, layout.height - 52);
+  for (let edge = 0; edge < 4; edge += 1) {
+    context.strokeStyle = edge % 2 ? "#e6ecec" : "#a8b8bf";
+    context.strokeRect(
+      28 + edge,
+      30 + edge * 2,
+      layout.width - 56 - edge * 2,
+      layout.height - 52 - edge * 2,
+    );
+  }
+  pagePaper(context, layout.recordPage, p);
+  pagePaper(context, layout.holderPage, p);
+}
+
+/** A curved gutter on both leaves, a recessed hinge and visible sewn thread. */
+function drawBinding(context: Context2D, layout: PosterLayout) {
+  const { x, y, width, height } = layout.binding;
   context.save();
-  context.lineWidth = 0.7;
-  for (let band = 0; band < 2; band += 1) {
-    context.strokeStyle = p.guilloche[band]!;
-    for (let line = 0; line < 26; line += 1) {
-      context.beginPath();
-      const base = height * (band === 0 ? 0.08 : 0.62) + line * 9;
-      for (let x = 0; x <= width; x += 8) {
-        const y =
-          base +
-          Math.sin(x / 61 + line * 0.32 + band) * 22 +
-          Math.sin(x / 23 + line * 0.11) * 4;
-        if (x === 0) context.moveTo(x, y);
-        else context.lineTo(x, y);
-      }
-      context.stroke();
-    }
+  const curve = context.createLinearGradient(0, y - 48, 0, y + height + 48);
+  curve.addColorStop(0, "rgba(52, 76, 94, 0)");
+  curve.addColorStop(0.33, "rgba(52, 76, 94, 0.14)");
+  curve.addColorStop(0.49, "rgba(24, 42, 58, 0.42)");
+  curve.addColorStop(0.51, "rgba(24, 42, 58, 0.42)");
+  curve.addColorStop(0.67, "rgba(52, 76, 94, 0.17)");
+  curve.addColorStop(1, "rgba(52, 76, 94, 0)");
+  context.fillStyle = "#c6d0d5";
+  context.fillRect(x, y, width, height);
+  context.fillStyle = curve;
+  context.fillRect(x, y - 48, width, height + 96);
+  const middle = y + height / 2;
+  context.strokeStyle = "rgba(30, 49, 64, 0.5)";
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.moveTo(x, middle);
+  context.lineTo(x + width, middle);
+  context.stroke();
+  context.setLineDash([12, 7]);
+  context.strokeStyle = "#e1e7e7";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(x + 18, middle + 1);
+  context.lineTo(x + width - 18, middle + 1);
+  context.stroke();
+  context.setLineDash([]);
+  for (const center of [220, 600, 980]) {
+    context.strokeStyle = "#98a8b1";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.ellipse(center, middle, 30, 5, 0, 0, Math.PI * 2);
+    context.stroke();
   }
   context.restore();
-  // Double frame like a passport cover.
-  context.strokeStyle = p.frame;
-  context.lineWidth = 1.5;
-  context.strokeRect(36, 36, width - 72, height - 72);
-  context.lineWidth = 0.75;
-  context.strokeRect(44, 44, width - 88, height - 88);
 }
 
 // ---------------------------------------------------------------- map ----
@@ -790,247 +815,257 @@ function transparent(hex: string) {
   return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, 0)`;
 }
 
-// ------------------------------------------------------------- passport --
+// ------------------------------------------------------------- leaves ----
 
-/**
- * Splits a title into words: spaces where the script has them, otherwise
- * dictionary word boundaries (フライト|パスポート, 飞行|护照).
- */
-function titleWords(text: string, locale: string): string[] {
-  const spaced = text.split(/\s+/).filter(Boolean);
-  if (spaced.length > 1 || typeof Intl.Segmenter !== "function") return spaced;
-  const words = [
-    ...new Intl.Segmenter(locale, { granularity: "word" }).segment(text),
-  ]
-    .map((part) => part.segment)
-    .filter((part) => part.trim());
-  return words.length > 1 ? words : spaced;
-}
-
-function passportTitle(
-  painter: Painter,
-  copy: PosterCopy,
-  layout: PosterLayout,
-  p: PosterPalette,
-) {
-  const { title } = layout;
-  const text = copy.title.toLocaleUpperCase();
-  const min = Math.round(title.size * 0.5);
-  const style = (size: number) => ({
-    size,
-    weight: 400 as const,
-    font: "serif" as const,
-    color: p.ink,
-    letterSpacing: size * 0.03,
-    maxWidth: title.maxWidth,
-    minSize: min,
-  });
-  // Width at a size, without the trailing letter-spacing canvas adds.
-  const width = (line: string, size: number) =>
-    painter.measure(line, style(size)) - size * 0.03;
-  /** Largest size (down to min) at which every line fits. */
-  const fit = (lines: string[]) => {
-    let size = title.size;
-    while (
-      size > min &&
-      Math.max(...lines.map((line) => width(line, size))) > title.maxWidth
-    )
-      size = Math.max(min, Math.floor(size * 0.96));
-    return size;
-  };
-  const spaced = /\s/.test(text);
-  const words = titleWords(text, copy.locale);
-  const oneLine = width(text, title.size) <= title.maxWidth;
-  if (title.lines === 2 && words.length > 1 && !oneLine) {
-    // The cut that keeps the wider of the two lines narrowest.
-    const join = (part: string[]) => part.join(spaced ? " " : "");
-    let best = [join(words.slice(0, 1)), join(words.slice(1))];
-    let bestWidth = Infinity;
-    for (let cut = 1; cut < words.length; cut += 1) {
-      const lines = [join(words.slice(0, cut)), join(words.slice(cut))];
-      const widest = Math.max(...lines.map((line) => width(line, title.size)));
-      if (widest < bestWidth) {
-        bestWidth = widest;
-        best = lines;
-      }
-    }
-    const size = fit(best);
-    painter.text(best[0]!, title.x, title.baseline, style(size));
-    painter.text(
-      best[1]!,
-      title.x,
-      title.baseline + Math.max(size * 1.02, title.size * 0.9),
-      style(size),
-    );
-    return;
-  }
-  painter.text(
-    text,
-    title.x,
-    title.baseline + (title.lines === 2 ? title.size * 0.5 : 0),
-    style(fit([text])),
-  );
-}
-
-function machineReadableZone(
-  painter: Painter,
-  copy: PosterCopy,
-  layout: PosterLayout,
-  p: PosterPalette,
-) {
-  const { mrz, left, right } = layout;
-  const width = right - left;
-  painter.context.fillStyle = p.mrzBand;
-  painter.context.fillRect(
-    48,
-    mrz.top,
-    layout.width - 96,
-    mrz.lines[1] - mrz.top + 18,
-  );
-  // Spread each line across the full column like a real MRZ.
-  const mono = {
-    size: mrz.size,
-    weight: 500 as const,
-    font: "mono" as const,
-  };
-  const cell = painter.measure("<", mono) + 3;
-  const length = Math.max(30, Math.floor((width + 3) / cell));
-  copy.mrz.forEach((source, index) => {
-    const trimmed = source.replace(/<*$/, "");
-    const line =
-      source.length >= length
-        ? source.slice(0, length)
-        : trimmed + "<".repeat(length - trimmed.length);
-    const natural = painter.measure(line, mono);
-    const spacing = Math.max(
-      0,
-      Math.min(9, (width - natural) / Math.max(1, line.length - 1)),
-    );
-    painter.text(line, left, mrz.lines[index]!, {
-      ...mono,
-      color: p.mrzInk,
-      letterSpacing: spacing,
-      maxWidth: width + spacing,
-      minSize: 14,
-    });
-  });
-}
-
-function drawPassport(
+function drawRecordPage(
   painter: Painter,
   copy: PosterCopy,
   layout: PosterLayout,
   p: PosterPalette,
 ) {
   const { left, right } = layout;
-  const width = right - left;
-  // Header row: brand on the left, issuer right-aligned on the same line.
-  const mark = brand(
+  label(
     painter,
-    copy.brand,
+    `KEEPRAW FLY / ${copy.labels.archive}`,
     left,
-    layout.brand.baseline,
-    layout.brand.size,
-    p.ink,
-    p.brandMark,
-  );
-  const brandRight = left + mark.right;
-  painter.text(copy.issuer, right, layout.issuer.baseline, {
-    size: layout.issuer.size,
-    weight: 500,
-    color: p.muted,
-    letterSpacing: layout.issuer.size * 0.02,
-    align: "right",
-    maxWidth: right - brandRight - 48,
-    minSize: 18,
-  });
-  layout.rules.forEach((rule) =>
-    painter.rule(rule.x0, rule.x1, rule.y, p.rule),
-  );
-  passportTitle(painter, copy, layout, p);
-  if (copy.span) {
-    const span = layout.span;
-    const spanLabel = label(
-      painter,
-      copy.span.label,
-      left,
-      span.baseline,
-      width / 3,
-      p.muted,
-      span.labelSize,
-    );
-    painter.text(copy.span.value, left + spanLabel.width + 24, span.baseline, {
-      size: span.valueSize,
-      weight: 500,
-      font: "mono",
-      color: p.accent,
-      letterSpacing: 2,
-      maxWidth: width / 2,
-    });
-  }
-  const map = drawMap(painter, layout.map, copy, p, layout);
-  const note = layout.mapNote;
-  if (copy.map.note)
-    label(
-      painter,
-      copy.map.note,
-      note.x,
-      note.baseline,
-      note.maxWidth,
-      p.muted,
-      note.size,
-      "right",
-    );
-  if (copy.notes.length)
-    painter.text(
-      copy.notes.join(" · "),
-      layout.notes.x,
-      layout.notes.baseline,
-      {
-        size: layout.notes.size,
-        weight: 400,
-        color: p.faint,
-        maxWidth: copy.map.note ? layout.notes.maxWidth : width,
-        minSize: 18,
-      },
-    );
-
-  statBlock(
-    painter,
-    copy.distance,
-    layout.distance,
-    p.accent,
-    p.figure,
+    94,
+    780,
     p.muted,
+    24,
   );
-  [copy.flights, copy.duration].forEach((stat, index) =>
-    statBlock(painter, stat, layout.primary[index]!, p.muted, p.ink, p.muted),
-  );
-  copy.secondary.forEach((stat, index) => {
-    const block = layout.secondary[index];
-    if (block) statBlock(painter, stat, block, p.muted, p.ink, p.muted);
+  label(painter, "01", right, 94, 100, p.accent, 24, "right");
+  painter.text(copy.labels.heading, left, 160, {
+    size: 60,
+    minSize: 44,
+    maxWidth: 760,
+    font: "serif",
+    color: p.ink,
   });
-  machineReadableZone(painter, copy, layout, p);
+  painter.text(copy.recordTitle, left, 204, {
+    size: 28,
+    color: p.muted,
+    maxWidth: 660,
+  });
+  painter.text(copy.span?.value ?? "—", right, 172, {
+    size: 32,
+    font: "mono",
+    color: p.accent,
+    align: "right",
+    maxWidth: 330,
+  });
+  const map = drawMap(painter, layout.map, copy, p, layout);
+  painter.rule(left, right, 656, p.rule);
+  if (copy.map.note)
+    label(painter, copy.map.note, left, 694, 1020, p.muted, 24);
+  // A restrained legend, with no invented airports, dates or flights.
+  painter.context.strokeStyle = p.ink;
+  painter.context.lineWidth = 2;
+  painter.context.beginPath();
+  painter.context.moveTo(left, 737);
+  painter.context.lineTo(left + 44, 737);
+  painter.context.stroke();
+  painter.context.beginPath();
+  painter.context.arc(left + 22, 737, 4, 0, Math.PI * 2);
+  painter.context.fillStyle = p.accent;
+  painter.context.fill();
+  label(painter, copy.labels.journeys, left + 60, 744, 600, p.muted, 20);
+  label(painter, copy.labels.explore, right, 744, 360, p.accent, 20, "right");
   return map;
 }
 
-/**
- * Draws a complete Flight Passport in artboard units. The caller sets the
- * transform (scale = pixel width / artboard width). Returns every text box
- * for the safe-area check and what the map actually drew.
- */
+function profileField(
+  painter: Painter,
+  labelText: string,
+  value: string,
+  x: number,
+  y: number,
+  width: number,
+  p: PosterPalette,
+) {
+  label(painter, labelText, x, y, width, p.muted, 20);
+  painter.text(value, x, y + 34, {
+    size: 27,
+    color: p.ink,
+    maxWidth: width,
+    minSize: 22,
+  });
+}
+
+/** Preserve the entire nickname, wrapping at grapheme boundaries if needed. */
+function holderName(
+  painter: Painter,
+  name: string,
+  x: number,
+  y: number,
+  width: number,
+  p: PosterPalette,
+) {
+  const style = {
+    size: 58,
+    minSize: 34,
+    font: "serif" as const,
+    color: p.ink,
+    maxWidth: width,
+  };
+  if (painter.measure(name, { ...style, size: 34 }) <= width) {
+    painter.text(name, x, y, style);
+    return;
+  }
+  const graphemes = shareGraphemes(name);
+  let cut = 1;
+  let bestWidth = Infinity;
+  for (let index = 1; index < graphemes.length; index += 1) {
+    const widest = Math.max(
+      painter.measure(graphemes.slice(0, index).join(""), {
+        ...style,
+        size: 44,
+      }),
+      painter.measure(graphemes.slice(index).join(""), { ...style, size: 44 }),
+    );
+    if (widest < bestWidth) {
+      bestWidth = widest;
+      cut = index;
+    }
+  }
+  painter.text(graphemes.slice(0, cut).join(""), x, y - 10, {
+    ...style,
+    size: 44,
+  });
+  painter.text(graphemes.slice(cut).join(""), x, y + 38, {
+    ...style,
+    size: 44,
+  });
+}
+
+function drawHolderPage(
+  painter: Painter,
+  copy: PosterCopy,
+  layout: PosterLayout,
+  p: PosterPalette,
+) {
+  const { left, right } = layout;
+  brand(painter, "KEEPRAW FLY", left, 878, 28, p.ink, p.accent);
+  label(
+    painter,
+    `02 / ${copy.labels.profile}`,
+    right,
+    878,
+    440,
+    p.muted,
+    22,
+    "right",
+  );
+  painter.text(copy.title, left, 944, {
+    size: 52,
+    font: "serif",
+    color: p.ink,
+    maxWidth: 1020,
+    minSize: 36,
+  });
+  painter.rule(left, right, 968, p.rule);
+  profileField(
+    painter,
+    copy.labels.documentType,
+    copy.labels.documentValue,
+    left,
+    1000,
+    320,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.issuingState,
+    "KEEPRAW FLY",
+    440,
+    1000,
+    260,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.issuingAuthority,
+    "KEEPRAW FLY",
+    770,
+    1000,
+    340,
+    p,
+  );
+  label(painter, copy.labels.name, left, 1080, 650, p.muted, 22);
+  holderName(painter, copy.holder.name, left, 1142, 680, p);
+  profileField(
+    painter,
+    copy.labels.number,
+    copy.holder.number,
+    816,
+    1080,
+    294,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.firstFlight,
+    copy.firstFlight,
+    left,
+    1210,
+    300,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.period,
+    copy.recordPeriod,
+    440,
+    1210,
+    670,
+    p,
+  );
+  painter.rule(left, right, 1266, p.rule);
+  statBlock(painter, copy.distance, layout.distance, p.accent, p.ink, p.muted);
+  [copy.flights, copy.duration, ...copy.secondary, copy.routes].forEach(
+    (stat, index) => {
+      statBlock(
+        painter,
+        stat,
+        layout.achievements[index]!,
+        p.muted,
+        p.ink,
+        p.muted,
+      );
+    },
+  );
+  if (copy.notes.length)
+    painter.text(copy.notes.join(" · "), left, 1472, {
+      size: 20,
+      minSize: 16,
+      color: p.muted,
+      maxWidth: 1020,
+    });
+  painter.rule(left, right, 1490, p.rule);
+  // Identical ASCII cell count, font, baseline spacing and full-width columns.
+  for (const [index, line] of copy.mrz.entries())
+    painter.text(line, left, 1514 + index * 28, {
+      size: 24,
+      font: "mono",
+      color: p.mrzInk,
+      maxWidth: right - left,
+    });
+}
+
+/** Preview/export share the two independent leaf renderers and the sewn hinge.
+ * No full-page source image is cropped, sliced or captured from the DOM. */
 export function drawPoster(
   context: Context2D,
   layout: PosterLayout,
   copy: PosterCopy,
   fonts: Pick<ShareFonts, "family">,
-  tone: PosterTone = "dark",
 ): PosterDrawReport {
   const painter = new Painter(context, fonts);
-  const palette = posterPalette(tone);
+  const palette = PASSPORT_PALETTE;
   context.save();
-  passportBackground(context, layout, palette);
-  const map = drawPassport(painter, copy, layout, palette);
+  bookBackground(context, layout, palette);
+  const map = drawRecordPage(painter, copy, layout, palette);
+  drawHolderPage(painter, copy, layout, palette);
+  drawBinding(context, layout);
   context.restore();
   const { safe } = layout;
   const outside = painter.texts.filter(
