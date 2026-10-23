@@ -14,7 +14,6 @@ import {
 } from "./poster-data";
 import {
   buildPosterCopy,
-  posterMrzLine,
   posterNumberFormat,
   type PosterTranslate,
 } from "./poster-copy";
@@ -22,13 +21,7 @@ import {
   createPosterLayout,
   POSTER_SAFE_INSET,
   POSTER_SIZE,
-  posterAspectForViewport,
 } from "./poster-layout";
-import {
-  DARK_PASSPORT_PALETTE,
-  LIGHT_PASSPORT_PALETTE,
-  posterPalette,
-} from "./poster-render";
 import {
   POSTER_MAP_RATIO,
   posterMapFrame,
@@ -117,6 +110,7 @@ describe("poster data model", () => {
     const core = calculatePassportStatistics(archive);
     expect(model.statistics.flights).toBe(core.flights);
     expect(model.statistics.flights).toBe(9);
+    expect(model.routeCount).toBe(5);
     expect(model.statistics.distanceKilometers).toBeCloseTo(
       core.distanceKilometers,
       6,
@@ -177,7 +171,14 @@ describe("poster privacy and routes", () => {
   it("whitelists the model: totals, span and unlabelled route geometry only", () => {
     const model = buildPosterModel(archive);
     expect(Object.keys(model).sort()).toEqual(
-      ["map", "statistics", "version", "yearRange"].sort(),
+      [
+        "map",
+        "statistics",
+        "version",
+        "yearRange",
+        "recordPeriod",
+        "routeCount",
+      ].sort(),
     );
     expect(Object.keys(model.map).sort()).toEqual(
       [
@@ -200,7 +201,11 @@ describe("poster privacy and routes", () => {
     // Airport codes and names never enter the model, in any mode.
     for (const code of CODES) expect(text).not.toContain(code);
     for (const sentinel of SENTINELS) expect(text).not.toContain(sentinel);
-    expect(text).not.toMatch(/serviceDate|flightNumber|code|name|2025-|2023-/);
+    expect(text).not.toMatch(/serviceDate|flightNumber|code|name/);
+    expect(model.recordPeriod).toEqual({
+      first: "2023-02-10",
+      last: "2025-08-30",
+    });
   });
 
   it("draws every real route by default, with the cancelled one left out", () => {
@@ -233,7 +238,24 @@ describe("poster privacy and routes", () => {
       "kilometers",
     );
     expect(copy.map.note).toBe(
-      `share.poster.routesAll:${JSON.stringify({ count: 4 })}`,
+      `share.journal.routeCoverage:${JSON.stringify({ shown: 4, total: 5 })}`,
+    );
+  });
+
+  it("reports recorded pairs even when none have coordinates, merging directions and respecting diversion", () => {
+    const records = [
+      flight("2024-01-01", "QQX", "QQY"),
+      flight("2024-01-02", "QQY", "QQX"),
+      flight("2024-01-03", "QQX", "QQZ", { cancelled: true }),
+      flight("2024-01-04", "QQX", "PEK", { divertedTo: { iata: "QQY" } }),
+    ];
+    const model = buildPosterModel(records);
+    expect(model.routeCount).toBe(1);
+    expect(model.map.routes).toHaveLength(0);
+    const copy = buildPosterCopy(model, t, "en-US", "kilometers");
+    expect(copy.routes.value).toBe("1");
+    expect(copy.map.note).toBe(
+      `share.journal.routeCoverage:${JSON.stringify({ shown: 0, total: 1 })}`,
     );
   });
 
@@ -275,7 +297,7 @@ describe("poster privacy and routes", () => {
     expect(map.curated).toBe(true);
     const copy = buildPosterCopy(model, t, "en-US", "kilometers");
     expect(copy.map.note).toBe(
-      `share.poster.routesCurated:${JSON.stringify({ shown: MAX_POSTER_ROUTES, total: map.totalRoutes })}`,
+      `share.journal.routeCoverage:${JSON.stringify({ shown: MAX_POSTER_ROUTES, total: model.routeCount })}`,
     );
     // Totals still come from every flight, not from the drawn selection.
     expect(model.statistics.flights).toBe(dense.length);
@@ -309,105 +331,24 @@ describe("poster copy, layout and palettes", () => {
     for (const sentinel of SENTINELS) expect(text).not.toContain(sentinel);
   });
 
-  it("composes 3:4 and 4:3 separately at the two fixed sizes", () => {
-    expect(POSTER_SIZE).toEqual({
-      "3:4": { width: 1200, height: 1600 },
-      "4:3": { width: 1600, height: 1200 },
-    });
-    const layouts = (["3:4", "4:3"] as const).map(createPosterLayout);
-    for (const layout of layouts) {
-      expect({ width: layout.width, height: layout.height }).toEqual(
-        POSTER_SIZE[layout.aspect],
+  it("keeps independent leaves above and below a full-width binding", () => {
+    const layout = createPosterLayout();
+    expect({ width: layout.width, height: layout.height }).toEqual(POSTER_SIZE);
+    expect(layout.safe.x).toBe(POSTER_SAFE_INSET);
+    expect(layout.recordPage.y + layout.recordPage.height).toBe(
+      layout.binding.y,
+    );
+    expect(layout.binding.y + layout.binding.height).toBe(layout.holderPage.y);
+    expect(layout.recordPage.width).toBe(layout.holderPage.width);
+    expect(layout.binding.width).toBe(layout.recordPage.width);
+    expect(layout.map.y).toBeGreaterThan(layout.recordPage.y);
+    expect(layout.map.y + layout.map.height).toBeLessThan(layout.binding.y);
+    for (const block of [layout.distance, ...layout.achievements]) {
+      expect(block.label).toBeGreaterThan(layout.holderPage.y);
+      expect(block.baseline).toBeLessThan(
+        layout.holderPage.y + layout.holderPage.height,
       );
-      const { safe } = layout;
-      expect(safe.x).toBe(POSTER_SAFE_INSET);
-      const blocks = [layout.distance, ...layout.primary, ...layout.secondary];
-      const baselines = [
-        layout.brand.baseline,
-        layout.title.baseline,
-        layout.span.baseline,
-        layout.notes.baseline,
-        ...blocks.flatMap((block) => [block.label, block.baseline]),
-        ...layout.mrz.lines,
-      ];
-      for (const y of baselines) {
-        expect(y).toBeGreaterThan(safe.y);
-        expect(y).toBeLessThan(safe.y + safe.height);
-      }
-      // Issuer shares the header row with the brand; nothing sits below
-      // the machine-readable zone any more.
-      expect(layout.issuer.baseline).toBe(layout.brand.baseline);
-      expect(Math.max(...baselines)).toBe(layout.mrz.lines[1]);
-      // The map keeps its true proportions inside the artboard.
-      expect(layout.map.x).toBeGreaterThanOrEqual(0);
-      expect(layout.map.x + layout.map.width).toBeLessThanOrEqual(layout.width);
-      expect(layout.map.width / layout.map.height).toBeCloseTo(
-        POSTER_MAP_RATIO,
-        0,
-      );
-      // Readable small text and a calmer hierarchy.
-      expect(layout.brand.size).toBeGreaterThanOrEqual(34);
-      expect(layout.brand.size).toBeLessThanOrEqual(38);
-      expect(layout.issuer.size).toBeGreaterThanOrEqual(24);
-      expect(layout.issuer.size).toBeLessThan(layout.brand.size);
-      expect(layout.notes.size).toBeGreaterThanOrEqual(24);
-      expect(layout.mapNote.size).toBeGreaterThanOrEqual(24);
-      expect(layout.span.labelSize).toBeGreaterThanOrEqual(26);
-      for (const block of blocks) {
-        expect(block.labelSize).toBeGreaterThanOrEqual(28);
-        expect(block.labelSize).toBeLessThanOrEqual(32);
-        // Label above figure, inside the block's own column.
-        expect(block.baseline - block.label).toBeGreaterThan(block.size * 0.6);
-        expect(block.x).toBeGreaterThanOrEqual(layout.left);
-        expect(block.x + block.width).toBeLessThanOrEqual(layout.right + 0.5);
-      }
-      expect(layout.distance.size).toBeLessThanOrEqual(120);
-      expect(layout.distance.size).toBeLessThan(layout.title.size * 1.5);
-      for (const block of layout.primary)
-        expect(block.size).toBeGreaterThanOrEqual(68);
-      for (const block of layout.secondary)
-        expect(block.size).toBeGreaterThanOrEqual(48);
-      // Every row shares one label baseline and one figure baseline, and
-      // every rule spans the same content width.
-      for (const row of [layout.primary, layout.secondary]) {
-        expect(new Set(row.map((block) => block.label)).size).toBe(1);
-        expect(new Set(row.map((block) => block.baseline)).size).toBe(1);
-      }
-      for (const rule of layout.rules) {
-        expect(rule.x0).toBe(layout.left);
-        expect(rule.x1).toBe(layout.right);
-      }
-      // Rows read rule → label with the same spacing everywhere.
-      const gaps = blocks.map(
-        (block) =>
-          block.label -
-          Math.max(
-            ...layout.rules.filter((r) => r.y < block.label).map((r) => r.y),
-          ),
-      );
-      expect(new Set(gaps).size).toBe(1);
-      // Columns start on grid lines shared across rows.
-      const starts = new Set(blocks.map((block) => block.x));
-      expect(starts.has(layout.left)).toBe(true);
     }
-    const [portrait, landscape] = layouts;
-    // 3:4: halves and thirds on one 6-column grid.
-    expect(portrait!.primary[0].x).toBe(portrait!.secondary[0].x);
-    expect(portrait!.primary[1].x).toBeGreaterThan(portrait!.secondary[1].x);
-    expect(portrait!.primary[1].x).toBeLessThan(portrait!.secondary[2].x);
-    // 4:3: distance, flights and time in one row; the stat columns start on
-    // the same zone boundaries as the row below, and the map sits over them.
-    expect(landscape!.distance.label).toBe(landscape!.primary[0].label);
-    expect(landscape!.distance.baseline).toBe(landscape!.primary[0].baseline);
-    expect(landscape!.primary.map((b) => b.x)).toEqual(
-      landscape!.secondary.slice(1).map((b) => b.x),
-    );
-    expect(landscape!.map.x).toBeLessThanOrEqual(landscape!.primary[0].x);
-    expect(landscape!.map.x + landscape!.map.width).toBeGreaterThan(
-      landscape!.primary[1].x + landscape!.primary[1].width,
-    );
-    expect(portrait!.title.lines).toBe(1);
-    expect(landscape!.title.lines).toBe(2);
   });
 
   it("formats poster numbers without digit grouping", () => {
@@ -469,51 +410,32 @@ describe("poster copy, layout and palettes", () => {
     expect(copy.flights.value).toBe("1500");
   });
 
-  it("picks the aspect from the viewport width at the 760 px breakpoint", () => {
-    expect(posterAspectForViewport(320)).toBe("3:4");
-    expect(posterAspectForViewport(760)).toBe("3:4");
-    expect(posterAspectForViewport(761)).toBe("4:3");
-    expect(posterAspectForViewport(1440)).toBe("4:3");
-  });
-
-  it("has two complete, opposite passport palettes", () => {
-    expect(posterPalette("dark")).toBe(DARK_PASSPORT_PALETTE);
-    expect(posterPalette("light")).toBe(LIGHT_PASSPORT_PALETTE);
-    const luma = (hex: string) => {
-      const value = Number.parseInt(hex.slice(1), 16);
-      return (
-        0.2126 * ((value >> 16) & 255) +
-        0.7152 * ((value >> 8) & 255) +
-        0.0722 * (value & 255)
-      );
-    };
-    const dark = DARK_PASSPORT_PALETTE;
-    const light = LIGHT_PASSPORT_PALETTE;
-    expect(luma(dark.backgroundTop)).toBeLessThan(60);
-    expect(luma(light.backgroundTop)).toBeGreaterThan(200);
-    expect(luma(dark.ink)).toBeGreaterThan(200);
-    expect(luma(light.ink)).toBeLessThan(60);
-    // Every role is themed, not just the background.
-    for (const key of Object.keys(dark) as Array<keyof typeof dark>)
-      if (key !== "map") expect(light[key], key).not.toEqual(dark[key]);
-    for (const key of ["land", "route", "airport", "hub"] as const)
-      expect(light.map[key], key).not.toEqual(dark.map[key]);
-  });
-
-  it("builds machine-readable lines only from brand and totals", () => {
+  it("allows only the local nickname, virtual number and boundary service dates", () => {
     const copy = buildPosterCopy(
       buildPosterModel(archive),
       t,
       "en-US",
       "kilometers",
+      {
+        name: "Sky Wanderer",
+        number: "KRF-1234567890ABCDEF",
+      },
     );
-    expect(copy.mrz[0]).toMatch(/^KEEPRAW<FLY<<FLIGHT<PASSPORT<+$/);
-    expect(copy.mrz[1]).toMatch(/^LIFETIME<<20232025<<9FLT<<\d+KM<<\d+H<*$/);
-    for (const line of copy.mrz) {
-      expect(line).toMatch(/^[A-Z0-9<]+$/);
-      for (const sentinel of SENTINELS) expect(line).not.toContain(sentinel);
-    }
-    expect(posterMrzLine(["Ä b", "c"], 8)).toBe("A<B<<C<<");
+    expect(copy.holder).toEqual({
+      name: "Sky Wanderer",
+      number: "KRF-1234567890ABCDEF",
+    });
+    expect(copy.firstFlight).toBe("2023.02.10");
+    expect(copy.recordPeriod).toBe("2023.02.10 — 2025.08.30");
+    expect(copy.routes.value).toBe("5");
+    expect(copy.mrz).toHaveLength(2);
+    expect(copy.mrz[0].length).toBe(copy.mrz[1].length);
+    expect(copy.mrz[0]).toContain("KEEPRAW.FLY");
+    expect(copy.mrz[0]).toContain("~9~5~");
+    for (const line of copy.mrz) expect(line).toMatch(/ \/ /);
+    for (const line of copy.mrz) expect(line).not.toMatch(/^[A-Z0-9<]{30,44}$/);
+    for (const sentinel of SENTINELS)
+      expect(JSON.stringify(copy)).not.toContain(sentinel);
   });
 });
 
