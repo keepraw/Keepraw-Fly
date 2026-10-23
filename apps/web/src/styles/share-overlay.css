@@ -54,7 +54,7 @@
    no user-select or -webkit-touch-callout overrides on the image. */
 .share-overlay-backdrop {
   --share-overlay-pad: var(--space-5);
-  --share-overlay-chrome: 228px;
+  --share-overlay-chrome: 0px;
 
   position: fixed;
   z-index: 130;
@@ -81,37 +81,7 @@
   outline: none;
 }
 
-.share-overlay-close {
-  display: inline-grid;
-  width: 44px;
-  height: 44px;
-  flex: none;
-  align-self: flex-end;
-  place-items: center;
-  padding: 0;
-  border: 1px solid var(--color-line-strong);
-  border-radius: 999px;
-  color: var(--color-text);
-  background: var(--color-surface-raised);
-  cursor: pointer;
-}
-
-.share-overlay-close svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentcolor;
-  stroke-linecap: round;
-  stroke-width: 2;
-}
-
-.share-overlay-close:hover {
-  background: var(--color-surface-sunken);
-}
-
-/* The stage keeps the artboard's own ratio and the largest size that fits
-   the viewport below the close button and above the hint, so the image is
-   never cropped, stretched or covered. */
+/* Fit the complete photograph to the available viewport. */
 .share-overlay-stage {
   --share-overlay-room: calc(
     100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) -
@@ -129,88 +99,6 @@
     max(96px, calc(var(--share-overlay-room) * 3 / 4))
   );
   aspect-ratio: 3 / 4;
-}
-
-.share-overlay[data-editing="true"] {
-  --share-overlay-chrome: 396px;
-}
-
-.share-overlay-toolbar {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  color: rgb(255 255 255 / 88%);
-  font-size: var(--font-size-label);
-}
-
-.share-overlay-toolbar > span {
-  flex: 1;
-  font-size: var(--font-size-label);
-  letter-spacing: 0.05em;
-}
-
-.share-overlay-toolbar small {
-  display: block;
-  margin-top: var(--space-1);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-}
-
-.share-profile-edit,
-.share-profile-form button {
-  min-height: 44px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid currentcolor;
-  border-radius: var(--radius-control);
-  color: inherit;
-  background: transparent;
-  font: inherit;
-  cursor: pointer;
-}
-
-.share-profile-form {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 600px;
-  padding: var(--space-4);
-  color: var(--color-text);
-  background: var(--color-surface);
-  font-size: var(--font-size-label);
-}
-
-.share-profile-input-row {
-  display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
-
-.share-profile-input-row input {
-  width: 100%;
-  min-width: 0;
-  padding: var(--space-2);
-  border: 1px solid var(--color-line-strong);
-  border-radius: var(--radius-control);
-  color: var(--color-text);
-  background: var(--color-surface);
-  font: inherit;
-}
-
-.share-profile-input-row button {
-  flex-shrink: 0;
-}
-
-.share-profile-form p {
-  margin: var(--space-2) 0 0;
-  line-height: var(--type-leading-label);
-}
-
-.share-profile-warning {
-  max-width: 50ch;
-  margin: 0;
-  color: rgb(255 255 255 / 88%);
-  font-size: var(--font-size-label);
 }
 
 .share-overlay-image {
@@ -262,28 +150,15 @@
   }
 }
 
-.share-overlay-hint {
-  max-width: 60ch;
-  margin: 0;
-  color: rgb(255 255 255 / 88%);
-  font-size: var(--font-size-label);
-  line-height: var(--type-leading-label);
-  text-align: center;
+.share-overlay-retry:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 @media (max-width: 760px) {
   .share-overlay-backdrop {
     --share-overlay-pad: var(--space-4);
-    --share-overlay-chrome: 300px;
   }
-}
-
-.share-overlay-close:focus-visible,
-.share-overlay-retry:focus-visible,
-.share-profile-edit:focus-visible,
-.share-profile-form :focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
 }
 
 .share-overlay-image:focus-visible,
@@ -294,7 +169,6 @@
 
 /* Scroll the full native PNG in a bounded region; touch scrolling and image
    context menus use browser defaults. The page itself never grows wider. */
-.share-overlay[data-zoom="1"] .share-overlay-stage,
 .share-overlay[data-zoom="2"] .share-overlay-stage {
   display: block;
   width: min(1100px, calc(100vw - var(--share-overlay-pad) * 2));
@@ -302,12 +176,6 @@
   aspect-ratio: auto;
   overflow: auto;
   overscroll-behavior: contain;
-}
-
-.share-overlay[data-zoom="1"] .share-overlay-image {
-  width: 900px;
-  height: 1200px;
-  max-width: none;
 }
 
 .share-overlay[data-zoom="2"] .share-overlay-image {
@@ -318,43 +186,4 @@
 
 .share-overlay[data-zoom="0"] .share-overlay-image {
   cursor: zoom-in;
-}
-
-.share-zoom-controls {
-  display: flex;
-  max-width: min(100%, 600px);
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2);
-}
-
-.share-zoom-controls button {
-  min-height: 44px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid currentcolor;
-  border-radius: var(--radius-control);
-  color: var(--color-text);
-  background: var(--color-surface);
-  font: inherit;
-  font-size: var(--font-size-label);
-  cursor: pointer;
-}
-
-.share-zoom-controls button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.share-overlay-hint p {
-  margin: 0;
-}
-
-.share-overlay-disclaimer {
-  margin-top: var(--space-1);
-  font-size: var(--font-size-label);
-}
-
-.share-zoom-controls button:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
 }

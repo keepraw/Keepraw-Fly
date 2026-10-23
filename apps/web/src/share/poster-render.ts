@@ -40,7 +40,7 @@ export const POSTER_SERIF = [
   '"DejaVu Serif"',
   '"Times New Roman"',
 ].join(", ");
-/** Monospace for fictional decorative character lines and codes. */
+/** Monospace for MRZ and codes; no bundled OCR-B resource is available. */
 export const POSTER_MONO = [
   '"SFMono-Regular"',
   '"SF Mono"',
@@ -120,6 +120,8 @@ export interface PosterTextBox {
   y: number;
   width: number;
   height: number;
+  baseline: number;
+  color: string;
 }
 
 export interface PosterDrawReport {
@@ -215,6 +217,8 @@ class Painter {
       y: y - ascent,
       width,
       height: ascent + descent,
+      baseline: y,
+      color: String(this.context.fillStyle),
     });
     return { width, size };
   }
@@ -823,53 +827,7 @@ function drawRecordPage(
   layout: PosterLayout,
   p: PosterPalette,
 ) {
-  const { left, right } = layout;
-  label(
-    painter,
-    `KEEPRAW FLY / ${copy.labels.archive}`,
-    left,
-    94,
-    780,
-    p.muted,
-    24,
-  );
-  label(painter, "01", right, 94, 100, p.accent, 24, "right");
-  painter.text(copy.labels.heading, left, 160, {
-    size: 60,
-    minSize: 44,
-    maxWidth: 760,
-    font: "serif",
-    color: p.ink,
-  });
-  painter.text(copy.recordTitle, left, 204, {
-    size: 28,
-    color: p.muted,
-    maxWidth: 660,
-  });
-  painter.text(copy.span?.value ?? "—", right, 172, {
-    size: 32,
-    font: "mono",
-    color: p.accent,
-    align: "right",
-    maxWidth: 330,
-  });
   const map = drawMap(painter, layout.map, copy, p, layout);
-  painter.rule(left, right, 656, p.rule);
-  if (copy.map.note)
-    label(painter, copy.map.note, left, 694, 1020, p.muted, 24);
-  // A restrained legend, with no invented airports, dates or flights.
-  painter.context.strokeStyle = p.ink;
-  painter.context.lineWidth = 2;
-  painter.context.beginPath();
-  painter.context.moveTo(left, 737);
-  painter.context.lineTo(left + 44, 737);
-  painter.context.stroke();
-  painter.context.beginPath();
-  painter.context.arc(left + 22, 737, 4, 0, Math.PI * 2);
-  painter.context.fillStyle = p.accent;
-  painter.context.fill();
-  label(painter, copy.labels.journeys, left + 60, 744, 600, p.muted, 20);
-  label(painter, copy.labels.explore, right, 744, 360, p.accent, 20, "right");
   return map;
 }
 
@@ -963,44 +921,24 @@ function drawHolderPage(
     minSize: 36,
   });
   painter.rule(left, right, 968, p.rule);
-  profileField(
-    painter,
-    copy.labels.documentType,
-    copy.labels.documentValue,
-    left,
-    1000,
-    320,
-    p,
-  );
-  profileField(
-    painter,
-    copy.labels.issuingState,
-    "KEEPRAW FLY",
-    440,
-    1000,
-    260,
-    p,
-  );
-  profileField(
-    painter,
-    copy.labels.issuingAuthority,
-    "KEEPRAW FLY",
-    770,
-    1000,
-    340,
-    p,
-  );
+  const columnGap = 48;
+  const columnWidth = (right - left - columnGap) / 2;
+  for (const [index, [caption, value]] of [
+    [copy.labels.issuingAuthority, "KEEPRAW FLY"],
+    [copy.labels.number, copy.holder.number],
+  ].entries()) {
+    profileField(
+      painter,
+      caption!,
+      value!,
+      left + index * (columnWidth + columnGap),
+      1000,
+      columnWidth,
+      p,
+    );
+  }
   label(painter, copy.labels.name, left, 1080, 650, p.muted, 22);
-  holderName(painter, copy.holder.name, left, 1142, 680, p);
-  profileField(
-    painter,
-    copy.labels.number,
-    copy.holder.number,
-    816,
-    1080,
-    294,
-    p,
-  );
+  holderName(painter, copy.holder.name, left, 1142, right - left, p);
   profileField(
     painter,
     copy.labels.firstFlight,
@@ -1043,8 +981,10 @@ function drawHolderPage(
   painter.rule(left, right, 1490, p.rule);
   // Identical ASCII cell count, font, baseline spacing and full-width columns.
   for (const [index, line] of copy.mrz.entries())
-    painter.text(line, left, 1514 + index * 28, {
-      size: 24,
+    painter.text(line, left, 1518 + index * 34, {
+      size: 30,
+      minSize: 24,
+      letterSpacing: 0,
       font: "mono",
       color: p.mrzInk,
       maxWidth: right - left,

@@ -371,7 +371,12 @@ for (const { name, viewport, size } of [
     await expect(dialog).toBeVisible();
     const image = dialog.locator(".share-overlay-image");
     await expect(image).toBeVisible({ timeout: 20_000 });
-    await expect(dialog.locator(".share-overlay-hint")).toBeVisible();
+    await expect(
+      dialog.locator(
+        ".share-overlay-toolbar, .share-zoom-controls, .share-overlay-hint, .share-overlay-disclaimer",
+      ),
+    ).toHaveCount(0);
+    await expect(dialog.getByRole("button")).toHaveCount(0);
     const url = await image.getAttribute("src");
     expect(url).toMatch(/^blob:/);
 
@@ -393,8 +398,11 @@ for (const { name, viewport, size } of [
     expect(await readUrls()).toEqual({ created: [url], revoked: [] });
     expect.soft(await watch.violations()).toEqual([]);
 
-    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    // The photo-only viewer closes through its existing keyboard/backdrop
+    // behavior; do not require the toolbar's removed Close button.
+    await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
+    await expect(page.locator(".passport-share-button")).toBeFocused();
     await expect.poll(readUrls).toEqual({
       created: [url],
       revoked: [{ url, inUse: false }],
