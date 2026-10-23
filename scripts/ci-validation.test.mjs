@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 import {
   existsSync,
   readdirSync,
@@ -35,6 +36,35 @@ function runReport(report, env = {}) {
   }
 }
 
+test("browser jobs pin the official runtime matching the installed Playwright version", () => {
+  const version = createRequire(import.meta.url)(
+    "@playwright/test/package.json",
+  ).version;
+  const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+  const images = [...workflow.matchAll(/image: (\S+)/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(images.length, 2);
+  assert.equal(new Set(images).size, 1);
+  assert.ok(
+    images[0].startsWith(
+      `mcr.microsoft.com/playwright:v${version}-noble@sha256:`,
+    ),
+  );
+  assert.match(images[0], /@sha256:[a-f0-9]{64}$/);
+  assert.doesNotMatch(
+    workflow,
+    /playwright install-deps|--with-deps|prepare-playwright-apt/,
+  );
+  assert.equal((workflow.match(/options: --user 1001/g) ?? []).length, 2);
+  const chromium = workflow
+    .split("  chromium:\n")[1]
+    .split("  cross-browser:\n")[0];
+  assert.match(chromium, /runs-on: ubuntu-24\.04/);
+  assert.doesNotMatch(chromium, /container:/);
+  assert.match(chromium, /playwright install chromium/);
+});
+
 function fixture(status = "expected") {
   return {
     stats: { expected: 1, unexpected: 0, flaky: 0, skipped: 0, duration: 30 },
@@ -69,6 +99,12 @@ test("report aggregates nested specs and retry durations without losing counts",
   assert.equal(summary.expected, 1);
   assert.deepEqual(summary.filesMs, { "example.pw.ts": 30 });
   assert.deepEqual(summary.failures, []);
+  assert.equal(summary.tests, 1);
+  assert.equal(summary.attempts, 2);
+  assert.equal(summary.retries, 1);
+  assert.equal(summary.retryMs, 20);
+  assert.equal(summary.executionMs, 30);
+  assert.deepEqual(summary.filesTests, { "example.pw.ts": 1 });
 });
 
 test("report fails skipped, unexpected, empty and globally errored suites", () => {
@@ -87,7 +123,7 @@ test("report fails skipped, unexpected, empty and globally errored suites", () =
   );
 });
 
-test("flaky retries retain failure diagnostics and annotation text is escaped", () => {
+test("flaky retries fail the summary, retain diagnostics and escape annotation text", () => {
   const report = fixture("flaky");
   report.stats.flaky = 1;
   report.suites[0].suites[0].specs[0].title = "100%\n::error::literal";
@@ -95,7 +131,7 @@ test("flaky retries retain failure diagnostics and annotation text is escaped", 
     { message: "overlap" },
   ];
   const result = runReport(report, { GITHUB_ACTIONS: "true" });
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   const [json, annotation] = result.stdout.trim().split("\n");
   assert.deepEqual(JSON.parse(json).failures[0].errors, ["overlap"]);
   assert.match(annotation, /100%25/);

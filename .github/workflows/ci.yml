@@ -89,8 +89,10 @@ jobs:
 
   chromium:
     if: github.repository == 'keepraw/Keepraw-Fly'
-    runs-on: ubuntu-latest
-    # Spread the full regression and responsive Hero checks across runners.
+    # Keep the hosted runner's font baseline for exact DPR/layout assertions.
+    # Its libraries are checked explicitly; no runtime apt install is needed.
+    runs-on: ubuntu-24.04
+    # Balance whole files by measured duration; discover new files automatically.
     # Keep one worker per runner and preserve all test/job timeouts and gates.
     timeout-minutes: 20
     strategy:
@@ -116,15 +118,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Download locked Playwright Chromium
+        run: pnpm exec playwright install chromium
+
+      - name: Check matching Playwright runtime
+        run: node scripts/check-playwright-runtime.mjs chromium
 
       - name: Run full Chromium regression journeys
-        run: pnpm test:e2e --project=chromium --workers=1 --shard=${{ matrix.shard }}/6 --reporter=list,html,json
+        env:
+          CI_CHROMIUM_SHARD: ${{ matrix.shard }}/6
+        run: pnpm test:e2e --project=chromium --workers=1 --reporter=list,html,json
 
       - name: Summarize Chromium results
         if: always()
-        run: node scripts/report-playwright.mjs test-results/results.json
+        run: node scripts/report-playwright.mjs test-results/results.json chromium-${{ matrix.shard }}/6
 
       - name: Upload Chromium diagnostics
         if: always()
@@ -139,11 +146,20 @@ jobs:
   cross-browser:
     if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
+    # Official runtime includes the matching browsers, fonts and system libraries.
+    # Digest pinning avoids mutable tags and per-runner apt/download stalls.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf
+      options: --user 1001
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        browser: [firefox, webkit]
+        include:
+          - browser: firefox
+            workers: 1
+          - browser: webkit
+            workers: 2
 
     steps:
       - name: Check out repository
@@ -163,18 +179,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browser and system dependencies
-        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Check matching Playwright runtime
+        run: node scripts/check-playwright-runtime.mjs ${{ matrix.browser }}
 
       # Each project selects @cross-browser tests in playwright.config.ts.
       # Keep engine diagnostics independent; Chromium shards run all E2E.
+      # WebKit overlaps independent files. Firefox keeps one worker: the
+      # two-worker trial had a hover retry and little wall-time benefit.
       # A virtual display lets Firefox exercise the actual WebGL scene.
       - name: Run cross-browser smoke journeys
-        run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=1 --reporter=list,html,json
+        run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=${{ matrix.workers }} --reporter=list,html,json
 
       - name: Summarize browser results
         if: always()
-        run: node scripts/report-playwright.mjs test-results/results.json
+        run: node scripts/report-playwright.mjs test-results/results.json ${{ matrix.browser }}
 
       - name: Upload browser diagnostics
         if: always()
@@ -189,6 +207,11 @@ jobs:
   csp:
     if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
+    # Official runtime includes the matching browsers, fonts and system libraries.
+    # Digest pinning avoids mutable tags and per-runner apt/download stalls.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf
+      options: --user 1001
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -213,12 +236,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browser and system dependencies
-        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Check matching Playwright runtime
+        run: node scripts/check-playwright-runtime.mjs ${{ matrix.browser }}
 
       # Production build + vite preview: the dev server deliberately has no CSP.
       - name: Run CSP and font SRI journeys against the production build
-        run: xvfb-run -a pnpm test:e2e:csp --project=${{ matrix.browser }}
+        run: xvfb-run -a pnpm test:e2e:csp --project=${{ matrix.browser }} --reporter=list,json
+
+      - name: Summarize CSP results
+        if: always()
+        run: node scripts/report-playwright.mjs test-results/results.json csp-${{ matrix.browser }}
 
       - name: Upload CSP diagnostics
         if: failure()
