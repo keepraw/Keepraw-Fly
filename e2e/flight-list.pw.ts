@@ -9,9 +9,15 @@ for (const [locale, origin, destination] of [
   ["zh-CN", "亚的斯亚贝巴", "约翰内斯堡"],
   ["zh-TW", "亞的斯亞貝巴", "約翰內斯堡"],
 ] as const) {
-  test(`compact flight list keeps complete cities and one time pair in ${locale} @cross-browser`, async ({
+  test(`compact flight list keeps complete cities and one time pair with system fonts in ${locale} @cross-browser`, async ({
     page,
   }) => {
+    // Measure the supported system-font fallback without a live CDN download
+    // holding document.fonts.ready open. Typography/CSP suites cover webfonts.
+    await page.route(
+      "https://cdn.jsdelivr.net/npm/misans-webfont@*/**",
+      (route) => route.abort(),
+    );
     await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto("/");
@@ -49,6 +55,11 @@ for (const [locale, origin, destination] of [
       await page.emulateMedia({ colorScheme: sample.colorScheme });
       await page.goto("/#settings");
       await page.locator(".settings-fields select").nth(0).selectOption(locale);
+      await expect(
+        page.locator(
+          'link[data-chinese-webfont][data-font-status="unavailable"]',
+        ),
+      ).toHaveCount(locale === "en-US" ? 0 : 3);
       await page
         .locator(".settings-fields select")
         .nth(1)
