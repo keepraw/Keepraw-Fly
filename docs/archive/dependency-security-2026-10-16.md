@@ -2,6 +2,13 @@
 
 Author: keepraw
 
+Status: historical security assessment of the pinned 2026-10-16 revision below.
+Retained for advisory/exposure reasoning and release references. Its runner-upgrade
+recommendation and dependency counts are superseded by later upgrades, including
+[PR #87](https://github.com/keepraw/Keepraw-Fly/pull/87). Current policy and open
+advisory follow-up live in [security](../security.md#known-dependency-advisory).
+Commands below are the original audit record, not instructions to downgrade.
+
 Reviewed on 2026-10-16 against main `7c6b4dd036de6837936724af3e9cc192ac61a821`, including PR #68. This follows up P2-3 of the audit in PR #63. The current lockfile, npm audit responses, published package versions and GitHub advisory details were checked directly; closed Dependabot PRs were not treated as evidence of remediation.
 
 ## Audit results and change

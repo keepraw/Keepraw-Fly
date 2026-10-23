@@ -16,12 +16,12 @@ explains the source measurements. Texture source metadata and licensing remain i
 [`globe-night-texture.source.json`](../../../apps/web/src/globe/globe-night-texture.source.json)
 and [third-party notices](../../../THIRD_PARTY_NOTICES.md). The six approved PNG
 references and their original approval/scene manifest remain together in
-[`docs/visual-review/task-1b-7b2/`](../../../docs/visual-review/task-1b-7b2/README.md).
+[`docs/archive/visual-review/task-1b-7b2/`](../../../docs/archive/visual-review/task-1b-7b2/README.md).
 
 `scripts/audit-globe-night.mjs` writes fresh candidates to
 `artifacts/globe-night-audit/texture-audit.json`, never here. Replacing a fixture
 requires a deliberate reviewed change: retain source provenance, compare the
 candidate with the existing measurements, explain the baseline change and run
 the consuming tests through CI. Do not copy new measurements over these inputs
-as part of a routine capture. See the [evidence inventory](../../../docs/visual-review/README.md)
+as part of a routine capture. See the [evidence inventory](../../../docs/archive/README.md)
 for retained history and each helper's ignored output directory.
