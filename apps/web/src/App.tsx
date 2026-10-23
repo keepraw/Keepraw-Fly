@@ -14,11 +14,7 @@ import { FlightEditor } from "./components/FlightEditor";
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { FlightDetailPage } from "./pages/FlightDetailPage";
 import { PassportPage } from "./pages/PassportPage";
-import {
-  FlightPassportShareDialog,
-  type FlightPassportShareRequest,
-} from "./components/FlightPassportShareDialog";
-import { posterAspectForViewport } from "./share/poster-layout";
+import { FlightPassportShareDialog } from "./components/FlightPassportShareDialog";
 import {
   initialPassportView,
   passportVisibleFlights,
@@ -37,11 +33,7 @@ import {
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
-import {
-  applyAppearance,
-  initialAppearance,
-  resolveAppearance,
-} from "./appearance";
+import { applyAppearance, initialAppearance } from "./appearance";
 import { changeUiLanguage } from "./i18n";
 import { warmLocaleCache } from "./locales/resources";
 import {
@@ -130,8 +122,7 @@ export function App() {
     ),
   );
   const [page, setPage] = useState<Page>(pageFromHash);
-  const [shareRequest, setShareRequest] =
-    useState<FlightPassportShareRequest | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
   const [settingsInitialCategory, setSettingsInitialCategory] = useState<
     "general" | "data"
   >("general");
@@ -343,7 +334,7 @@ export function App() {
 
   // Leaving Passport closes the share overlay; returning never reopens it.
   useEffect(() => {
-    setShareRequest(null);
+    setShareOpen(false);
   }, [page, selectedFlightId]);
 
   useEffect(() => {
@@ -776,16 +767,7 @@ export function App() {
           appearance={settings.appearance}
           solarMode={settings.solarMode}
           onOpenFlight={openFlight}
-          onOpenShare={() =>
-            setShareRequest({
-              // Decided once, when Share is pressed.
-              aspect: posterAspectForViewport(window.innerWidth),
-              tone:
-                resolveAppearance(settings.appearance) === "dark"
-                  ? "light"
-                  : "dark",
-            })
-          }
+          onOpenShare={() => setShareOpen(true)}
           onAddFlight={() => {
             editorReturnFocusRef.current =
               window.document.activeElement instanceof HTMLElement
@@ -832,14 +814,12 @@ export function App() {
           }}
         />
       ) : null}
-      {document && shareRequest && page === "passport" && !selectedFlight ? (
+      {document && shareOpen && page === "passport" && !selectedFlight ? (
         <FlightPassportShareDialog
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
-          aspect={shareRequest.aspect}
-          tone={shareRequest.tone}
-          onClose={() => setShareRequest(null)}
+          onClose={() => setShareOpen(false)}
         />
       ) : null}
       {confirmDemoExport ? (
