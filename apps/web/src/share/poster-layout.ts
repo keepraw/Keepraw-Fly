@@ -46,19 +46,19 @@ export function createPosterLayout(): PosterLayout {
     right: 1110,
     distance: {
       x: 90,
-      width: 440,
+      width: 340,
       label: 1312,
       baseline: 1392,
       size: 76,
-      labelSize: 26,
+      labelSize: 24,
     },
     achievements: Array.from({ length: 6 }, (_, index) => ({
-      x: 580 + (index % 3) * 184,
-      width: 162,
+      x: 474 + (index % 3) * 218,
+      width: 200,
       label: 1312 + Math.floor(index / 3) * 98,
       baseline: 1356 + Math.floor(index / 3) * 98,
       size: 42,
-      labelSize: 22,
+      labelSize: 20,
     })),
   };
 }

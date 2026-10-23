@@ -40,7 +40,7 @@ export const POSTER_SERIF = [
   '"DejaVu Serif"',
   '"Times New Roman"',
 ].join(", ");
-/** Monospace for the machine-readable zone and codes. */
+/** Monospace for fictional decorative character lines and codes. */
 export const POSTER_MONO = [
   '"SFMono-Regular"',
   '"SF Mono"',
@@ -84,32 +84,32 @@ export interface PosterPalette {
 }
 
 export const PASSPORT_PALETTE: PosterPalette = {
-  backgroundTop: "#f8f4ea",
-  backgroundBottom: "#f8f4ea",
-  guilloche: ["rgba(26, 52, 98, 0.05)", "rgba(150, 112, 52, 0.05)"],
-  frame: "rgba(150, 112, 52, 0.38)",
+  backgroundTop: "#f5f7f6",
+  backgroundBottom: "#f5f7f6",
+  guilloche: ["rgba(55, 96, 128, 0.065)", "rgba(125, 161, 181, 0.065)"],
+  frame: "rgba(150, 136, 102, 0.48)",
   rule: "rgba(16, 32, 60, 0.16)",
-  ink: "#10203c",
-  muted: "#4f5d72",
+  ink: "#10243a",
+  muted: "#475d70",
   faint: "rgba(16, 32, 60, 0.58)",
-  figure: "#10203c",
-  accent: "#94692a",
-  brandMark: "#94692a",
+  figure: "#10243a",
+  accent: "#88734c",
+  brandMark: "#88734c",
   mrzBand: "rgba(16, 32, 60, 0.045)",
-  mrzInk: "rgba(16, 32, 60, 0.46)",
+  mrzInk: "#475d70",
   map: {
     sphere: "rgba(26, 52, 98, 0.025)",
     sphereStroke: "rgba(16, 32, 60, 0.12)",
-    graticule: "rgba(26, 52, 98, 0.07)",
-    land: "#d9dedc",
+    graticule: "rgba(55, 96, 128, 0.12)",
+    land: "#c4d6df",
     landShade: null,
     dots: null,
-    borders: "rgba(248, 244, 234, 0.95)",
-    route: [25, 48, 74],
+    borders: "rgba(245, 247, 246, 0.95)",
+    route: [44, 91, 126],
     routeGlow: null,
-    airport: "#fbf8f0",
-    airportStroke: "#94692a",
-    hub: "#b5772a",
+    airport: "#f5f7f6",
+    airportStroke: "#88734c",
+    hub: "#a18b60",
     composite: "source-over",
   },
 };
@@ -273,7 +273,7 @@ function stackedLabel(
     letterSpacing: s * LABEL_TRACKING,
   });
   const words = upper.split(" ");
-  if (words.length < 2 || painter.measure(upper, style(size)) <= maxWidth)
+  if (words.length < 2 || painter.measure(upper, style(min)) <= maxWidth)
     return label(painter, text, x, y, maxWidth, color, size);
   let best = 1;
   let bestWidth = Infinity;
@@ -467,7 +467,7 @@ function pagePaper(context: Context2D, rect: PosterRect, p: PosterPalette) {
   context.fillStyle = p.backgroundTop;
   context.fillRect(rect.x, rect.y, rect.width, rect.height);
   // Deterministic fibres rather than a raster texture or noisy filter.
-  context.strokeStyle = "rgba(114, 94, 61, 0.035)";
+  context.strokeStyle = "rgba(61, 92, 114, 0.035)";
   context.lineWidth = 0.7;
   for (let i = 0; i < 1800; i += 1) {
     const x = rect.x + ((i * 137.508) % rect.width);
@@ -507,16 +507,16 @@ function bookBackground(
   layout: PosterLayout,
   p: PosterPalette,
 ) {
-  context.fillStyle = "#14273d";
+  context.fillStyle = "#10243a";
   context.fillRect(0, 0, layout.width, layout.height);
   // The cover lip and offset fore-edge lines give the leaves physical depth.
-  context.strokeStyle = "#967b4f";
+  context.strokeStyle = "#968866";
   context.lineWidth = 1;
   context.strokeRect(17, 12, layout.width - 34, layout.height - 24);
-  context.fillStyle = "#d3cab8";
+  context.fillStyle = "#cbd4d7";
   context.fillRect(28, 32, layout.width - 56, layout.height - 52);
   for (let edge = 0; edge < 4; edge += 1) {
-    context.strokeStyle = edge % 2 ? "#e9e1d1" : "#bcb29f";
+    context.strokeStyle = edge % 2 ? "#e6ecec" : "#a8b8bf";
     context.strokeRect(
       28 + edge,
       30 + edge * 2,
@@ -533,25 +533,25 @@ function drawBinding(context: Context2D, layout: PosterLayout) {
   const { x, y, width, height } = layout.binding;
   context.save();
   const curve = context.createLinearGradient(0, y - 48, 0, y + height + 48);
-  curve.addColorStop(0, "rgba(94, 74, 44, 0)");
-  curve.addColorStop(0.33, "rgba(94, 74, 44, 0.14)");
-  curve.addColorStop(0.49, "rgba(44, 34, 23, 0.42)");
-  curve.addColorStop(0.51, "rgba(44, 34, 23, 0.42)");
-  curve.addColorStop(0.67, "rgba(94, 74, 44, 0.17)");
-  curve.addColorStop(1, "rgba(94, 74, 44, 0)");
-  context.fillStyle = "#d4c7af";
+  curve.addColorStop(0, "rgba(52, 76, 94, 0)");
+  curve.addColorStop(0.33, "rgba(52, 76, 94, 0.14)");
+  curve.addColorStop(0.49, "rgba(24, 42, 58, 0.42)");
+  curve.addColorStop(0.51, "rgba(24, 42, 58, 0.42)");
+  curve.addColorStop(0.67, "rgba(52, 76, 94, 0.17)");
+  curve.addColorStop(1, "rgba(52, 76, 94, 0)");
+  context.fillStyle = "#c6d0d5";
   context.fillRect(x, y, width, height);
   context.fillStyle = curve;
   context.fillRect(x, y - 48, width, height + 96);
   const middle = y + height / 2;
-  context.strokeStyle = "rgba(55, 43, 29, 0.5)";
+  context.strokeStyle = "rgba(30, 49, 64, 0.5)";
   context.lineWidth = 1.5;
   context.beginPath();
   context.moveTo(x, middle);
   context.lineTo(x + width, middle);
   context.stroke();
   context.setLineDash([12, 7]);
-  context.strokeStyle = "#e6d9be";
+  context.strokeStyle = "#e1e7e7";
   context.lineWidth = 2;
   context.beginPath();
   context.moveTo(x + 18, middle + 1);
@@ -559,7 +559,7 @@ function drawBinding(context: Context2D, layout: PosterLayout) {
   context.stroke();
   context.setLineDash([]);
   for (const center of [220, 600, 980]) {
-    context.strokeStyle = "#b5a382";
+    context.strokeStyle = "#98a8b1";
     context.lineWidth = 2;
     context.beginPath();
     context.ellipse(center, middle, 30, 5, 0, 0, Math.PI * 2);
@@ -824,10 +824,20 @@ function drawRecordPage(
   p: PosterPalette,
 ) {
   const { left, right } = layout;
-  label(painter, "KEEPRAW FLY / TRAVEL ARCHIVE", left, 94, 780, p.muted, 24);
+  label(
+    painter,
+    `KEEPRAW FLY / ${copy.labels.archive}`,
+    left,
+    94,
+    780,
+    p.muted,
+    24,
+  );
   label(painter, "01", right, 94, 100, p.accent, 24, "right");
-  painter.text("FLIGHT RECORD", left, 160, {
+  painter.text(copy.labels.heading, left, 160, {
     size: 60,
+    minSize: 44,
+    maxWidth: 760,
     font: "serif",
     color: p.ink,
   });
@@ -858,8 +868,8 @@ function drawRecordPage(
   painter.context.arc(left + 22, 737, 4, 0, Math.PI * 2);
   painter.context.fillStyle = p.accent;
   painter.context.fill();
-  label(painter, "RECORDED JOURNEYS", left + 60, 744, 600, p.muted, 20);
-  label(painter, "KEEP EXPLORING", right, 744, 360, p.accent, 20, "right");
+  label(painter, copy.labels.journeys, left + 60, 744, 600, p.muted, 20);
+  label(painter, copy.labels.explore, right, 744, 360, p.accent, 20, "right");
   return map;
 }
 
@@ -902,7 +912,21 @@ function holderName(
     return;
   }
   const graphemes = shareGraphemes(name);
-  const cut = Math.ceil(graphemes.length / 2);
+  let cut = 1;
+  let bestWidth = Infinity;
+  for (let index = 1; index < graphemes.length; index += 1) {
+    const widest = Math.max(
+      painter.measure(graphemes.slice(0, index).join(""), {
+        ...style,
+        size: 44,
+      }),
+      painter.measure(graphemes.slice(index).join(""), { ...style, size: 44 }),
+    );
+    if (widest < bestWidth) {
+      bestWidth = widest;
+      cut = index;
+    }
+  }
   painter.text(graphemes.slice(0, cut).join(""), x, y - 10, {
     ...style,
     size: 44,
@@ -921,7 +945,16 @@ function drawHolderPage(
 ) {
   const { left, right } = layout;
   brand(painter, "KEEPRAW FLY", left, 878, 28, p.ink, p.accent);
-  label(painter, "02 / HOLDER PROFILE", right, 878, 440, p.muted, 22, "right");
+  label(
+    painter,
+    `02 / ${copy.labels.profile}`,
+    right,
+    878,
+    440,
+    p.muted,
+    22,
+    "right",
+  );
   painter.text(copy.title, left, 944, {
     size: 52,
     font: "serif",
@@ -930,14 +963,62 @@ function drawHolderPage(
     minSize: 36,
   });
   painter.rule(left, right, 968, p.rule);
-  profileField(painter, "DOCUMENT TYPE", "FLIGHT PASSPORT", left, 1000, 320, p);
-  profileField(painter, "ISSUING STATE", "KEEPRAW FLY", 440, 1000, 260, p);
-  profileField(painter, "ISSUING AUTHORITY", "KEEPRAW FLY", 770, 1000, 340, p);
-  label(painter, "HOLDER NAME", left, 1080, 650, p.muted, 22);
+  profileField(
+    painter,
+    copy.labels.documentType,
+    copy.labels.documentValue,
+    left,
+    1000,
+    320,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.issuingState,
+    "KEEPRAW FLY",
+    440,
+    1000,
+    260,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.issuingAuthority,
+    "KEEPRAW FLY",
+    770,
+    1000,
+    340,
+    p,
+  );
+  label(painter, copy.labels.name, left, 1080, 650, p.muted, 22);
   holderName(painter, copy.holder.name, left, 1142, 680, p);
-  profileField(painter, "PASSPORT NO.", copy.holder.number, 816, 1080, 294, p);
-  profileField(painter, "FIRST FLIGHT", copy.firstFlight, left, 1210, 300, p);
-  profileField(painter, "RECORD PERIOD", copy.recordPeriod, 440, 1210, 670, p);
+  profileField(
+    painter,
+    copy.labels.number,
+    copy.holder.number,
+    816,
+    1080,
+    294,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.firstFlight,
+    copy.firstFlight,
+    left,
+    1210,
+    300,
+    p,
+  );
+  profileField(
+    painter,
+    copy.labels.period,
+    copy.recordPeriod,
+    440,
+    1210,
+    670,
+    p,
+  );
   painter.rule(left, right, 1266, p.rule);
   statBlock(painter, copy.distance, layout.distance, p.accent, p.ink, p.muted);
   [copy.flights, copy.duration, ...copy.secondary, copy.routes].forEach(
@@ -960,29 +1041,14 @@ function drawHolderPage(
       maxWidth: 1020,
     });
   painter.rule(left, right, 1490, p.rule);
-  painter.text(copy.mrz[0], left, 1514, {
-    size: 18,
-    font: "mono",
-    color: p.mrzInk,
-    maxWidth: 570,
-  });
-  label(
-    painter,
-    "DIGITAL TRAVEL JOURNAL",
-    right,
-    1514,
-    430,
-    p.accent,
-    20,
-    "right",
-  );
-  // Deliberately outside the decorative code: readable, explicit souvenir status.
-  painter.text(copy.disclaimer, left, 1540, {
-    size: 18,
-    color: p.muted,
-    maxWidth: 1020,
-    minSize: 14,
-  });
+  // Identical ASCII cell count, font, baseline spacing and full-width columns.
+  for (const [index, line] of copy.mrz.entries())
+    painter.text(line, left, 1514 + index * 28, {
+      size: 24,
+      font: "mono",
+      color: p.mrzInk,
+      maxWidth: right - left,
+    });
 }
 
 /** Preview/export share the two independent leaf renderers and the sewn hinge.
