@@ -8,6 +8,9 @@ import type {
   PosterMapAirport,
   PosterRoute,
 } from "./poster-data";
+import type { ProfileName } from "@keepraw-fly/schema";
+import { pinyin } from "pinyin-pro";
+import { buildTd3Mrz, latinMrzName, SOUVENIR_TD3 } from "./td3-mrz";
 import type { PassportProfile } from "../storage/passport-profile";
 import { shareLocaleForLanguage, type ShareLocale } from "./share-text";
 
@@ -15,7 +18,7 @@ import { shareLocaleForLanguage, type ShareLocale } from "./share-text";
  * Poster Copy: the finished strings a poster draws, plus the route geometry.
  * This is the drawing layer's entire input besides the layout and palette.
  * No flight objects, internal IDs, airport codes or airport names. The only
- * identity is the explicitly edited local journal profile.
+ * identity is the saved Settings name and the local souvenir display number.
  */
 export interface PosterStat {
   label: string;
@@ -24,8 +27,8 @@ export interface PosterStat {
 }
 
 /**
- * What the map draws: every route of the archive (or a clearly labelled
- * busiest selection) and unlabelled airport dots.
+ * Map geometry and coverage diagnostics. The photograph draws routes and
+ * unlabelled airport dots; it has no map captions or legend.
  */
 export interface PosterMapCopy {
   routes: PosterRoute[];
@@ -55,7 +58,9 @@ export interface PosterCopy {
     | "journal",
     string
   >;
-  holder: PassportProfile;
+  holder: { name: string; number: string };
+  /** Encoding limitations are metadata, never extra photo captions. */
+  mrzIssues: string[];
   firstFlight: string;
   recordPeriod: string;
   recordTitle: string;
@@ -72,7 +77,7 @@ export interface PosterCopy {
   secondary: PosterStat[];
   notes: string[];
   map: PosterMapCopy;
-  /** Two equal-length decorative lines; punctuation excludes ICAO MRZ syntax. */
+  /** ICAO TD3: two 44-character lines. Specimen policy, not a travel credential. */
   mrz: [string, string];
 }
 
@@ -113,7 +118,8 @@ export function buildPosterCopy(
   t: PosterTranslate,
   language: SupportedLocale,
   distanceUnit: DistanceUnit,
-  profile: PassportProfile = { name: "", number: "—" },
+  profile: Pick<PassportProfile, "number">,
+  name?: ProfileName,
 ): PosterCopy {
   const formatter = posterNumberFormat(language);
   const number = (value: number) => formatter.format(value);
@@ -158,17 +164,55 @@ export function buildPosterCopy(
       "journal",
     ].map((key) => [key, t(`share.journal.${key}`)]),
   ) as PosterCopy["labels"];
-  // Fixed 63-cell rhythm, independent of language, scripts and nickname length.
-  // Punctuation and separators deliberately exclude official MRZ syntax.
-  const cells = (parts: string[]) =>
-    parts.map((part) => part.slice(0, 19).padEnd(19, ".")).join(" / ");
+  const displayName =
+    (name?.primary === "romanized"
+      ? name.romanized || name.native
+      : name?.native || name?.romanized) ?? "";
+  // The profile has one unstructured full name, so do not guess its surname.
+  // An explicit comma is the ICAO primary/secondary separator; otherwise the
+  // entire saved name is the primary identifier (Part 3 §3.4).
+  const usePinyin =
+    !name?.romanized?.trim() && /\p{Script=Han}/u.test(displayName);
+  const sourceName =
+    name?.romanized?.trim() ||
+    (usePinyin
+      ? pinyin(displayName, {
+          toneType: "none",
+          type: "array",
+          surname: "head",
+          toneSandhi: false,
+        }).join(" ")
+      : displayName);
+  const [primarySource, ...secondarySources] = sourceName.split(",");
+  const primaryName = latinMrzName(primarySource ?? "");
+  const secondaryName = latinMrzName(secondarySources.join(" "));
+  const encodable = !!primaryName && secondaryName !== null;
+  const mrz = buildTd3Mrz({
+    ...SOUVENIR_TD3,
+    documentNumber: profile.number,
+    primaryName: encodable ? primaryName : "",
+    secondaryName: encodable ? secondaryName : "",
+  });
   return {
     locale: shareLocaleForLanguage(language),
     labels,
     holder: {
-      name: profile.name || t("share.journal.traveller"),
+      name: displayName,
       number: profile.number,
     },
+    mrzIssues: [
+      ...(usePinyin ? ["automatic-pinyin"] : []),
+      ...(!sourceName.trim()
+        ? ["missing-name"]
+        : !encodable || !primaryName
+          ? ["name-needs-romanization"]
+          : []),
+      "birth-date-unknown",
+      "nationality-unspecified",
+      "sex-unspecified",
+      "specimen-issuer",
+      "fixed-souvenir-expiry",
+    ],
     firstFlight: model.recordPeriod?.first.replaceAll("-", ".") ?? "—",
     recordPeriod: model.recordPeriod
       ? `${model.recordPeriod.first.replaceAll("-", ".")} — ${model.recordPeriod.last.replaceAll("-", ".")}`
@@ -238,17 +282,6 @@ export function buildPosterCopy(
                 ungrouped({ count: model.routeCount }),
               ),
     },
-    mrz: [
-      cells([
-        "KEEPRAW.FLY",
-        profile.number,
-        `~${stats.flights}~${model.routeCount}~`,
-      ]),
-      cells([
-        "~.~.~.~.~.~.~.~.~.~",
-        `~${range?.first ?? "...."}~${range?.last ?? "...."}~`,
-        "~.~.~.~.~.~.~.~.~.~",
-      ]),
-    ],
+    mrz,
   };
 }

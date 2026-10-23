@@ -153,9 +153,10 @@ describe("poster data model", () => {
     expect(model.yearRange).toBeNull();
     expect(model.map.routes).toEqual([]);
     expect(model.map.totalRoutes).toBe(0);
-    expect(buildPosterCopy(model, t, "en-US", "kilometers").map.note).toBe(
-      null,
-    );
+    expect(
+      buildPosterCopy(model, t, "en-US", "kilometers", { number: "123ABC456" })
+        .map.note,
+    ).toBe(null);
   });
 
   it("does not modify the archive", () => {
@@ -236,6 +237,7 @@ describe("poster privacy and routes", () => {
       t,
       "en-US",
       "kilometers",
+      { number: "123ABC456" },
     );
     expect(copy.map.note).toBe(
       `share.journal.routeCoverage:${JSON.stringify({ shown: 4, total: 5 })}`,
@@ -252,7 +254,9 @@ describe("poster privacy and routes", () => {
     const model = buildPosterModel(records);
     expect(model.routeCount).toBe(1);
     expect(model.map.routes).toHaveLength(0);
-    const copy = buildPosterCopy(model, t, "en-US", "kilometers");
+    const copy = buildPosterCopy(model, t, "en-US", "kilometers", {
+      number: "123ABC456",
+    });
     expect(copy.routes.value).toBe("1");
     expect(copy.map.note).toBe(
       `share.journal.routeCoverage:${JSON.stringify({ shown: 0, total: 1 })}`,
@@ -295,7 +299,9 @@ describe("poster privacy and routes", () => {
     expect(map.totalRoutes).toBeGreaterThan(MAX_POSTER_ROUTES);
     expect(map.routes).toHaveLength(MAX_POSTER_ROUTES);
     expect(map.curated).toBe(true);
-    const copy = buildPosterCopy(model, t, "en-US", "kilometers");
+    const copy = buildPosterCopy(model, t, "en-US", "kilometers", {
+      number: "123ABC456",
+    });
     expect(copy.map.note).toBe(
       `share.journal.routeCoverage:${JSON.stringify({ shown: MAX_POSTER_ROUTES, total: model.routeCount })}`,
     );
@@ -311,6 +317,7 @@ describe("poster copy, layout and palettes", () => {
       t,
       "en-US",
       "kilometers",
+      { number: "123ABC456" },
     );
     const walk = (value: unknown): void => {
       if (value === null) return;
@@ -371,18 +378,22 @@ describe("poster copy, layout and palettes", () => {
         t,
         locale,
         "kilometers",
+        { number: "123ABC456" },
       );
       expect(copy.flights.value).toBe("1234");
       expect(copy.distance.value).toMatch(/^\d+$/);
       expect(Number(copy.distance.value)).toBeGreaterThan(10_000_000);
       expect(copy.duration.value).toMatch(/^\d+$/);
     }
-    const miles = buildPosterCopy(buildPosterModel(many), t, "en-US", "miles");
+    const miles = buildPosterCopy(buildPosterModel(many), t, "en-US", "miles", {
+      number: "123ABC456",
+    });
     const km = buildPosterCopy(
       buildPosterModel(many),
       t,
       "en-US",
       "kilometers",
+      { number: "123ABC456" },
     );
     expect(Number(miles.distance.value)).toBe(
       Math.round(Number(km.distance.value) * 0.6213711922),
@@ -403,6 +414,7 @@ describe("poster copy, layout and palettes", () => {
       instance.t.bind(instance) as PosterTranslate,
       "en-US",
       "kilometers",
+      { number: "123ABC456" },
     );
     // QQX is unknown, so distance coverage is reported for all 1500.
     expect(copy.notes.join(" ")).toContain("of 1500 flights");
@@ -410,30 +422,28 @@ describe("poster copy, layout and palettes", () => {
     expect(copy.flights.value).toBe("1500");
   });
 
-  it("allows only the local nickname, virtual number and boundary service dates", () => {
+  it("uses the saved settings name, souvenir number and boundary service dates", () => {
     const copy = buildPosterCopy(
       buildPosterModel(archive),
       t,
       "en-US",
       "kilometers",
-      {
-        name: "Sky Wanderer",
-        number: "KRF-1234567890ABCDEF",
-      },
+      { number: "123ABC456" },
+      { native: "Sky Wanderer" },
     );
     expect(copy.holder).toEqual({
       name: "Sky Wanderer",
-      number: "KRF-1234567890ABCDEF",
+      number: "123ABC456",
     });
     expect(copy.firstFlight).toBe("2023.02.10");
     expect(copy.recordPeriod).toBe("2023.02.10 — 2025.08.30");
     expect(copy.routes.value).toBe("5");
     expect(copy.mrz).toHaveLength(2);
-    expect(copy.mrz[0].length).toBe(copy.mrz[1].length);
-    expect(copy.mrz[0]).toContain("KEEPRAW.FLY");
-    expect(copy.mrz[0]).toContain("~9~5~");
-    for (const line of copy.mrz) expect(line).toMatch(/ \/ /);
-    for (const line of copy.mrz) expect(line).not.toMatch(/^[A-Z0-9<]{30,44}$/);
+    expect(copy.mrz[0]).toHaveLength(44);
+    expect(copy.mrz[1]).toHaveLength(44);
+    expect(copy.mrz[0]).toContain("SKY<WANDERER");
+    expect(copy.mrz[1].slice(0, 9)).toBe(copy.holder.number);
+    for (const line of copy.mrz) expect(line).toMatch(/^[A-Z0-9<]{44}$/);
     for (const sentinel of SENTINELS)
       expect(JSON.stringify(copy)).not.toContain(sentinel);
   });
