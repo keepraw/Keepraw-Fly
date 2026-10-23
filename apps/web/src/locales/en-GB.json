@@ -1,4 +1,9 @@
 {
+  "share": {
+    "journal": {
+      "routeMap": "Route map"
+    }
+  },
   "status": {
     "cancelled": "Cancelled"
   },
