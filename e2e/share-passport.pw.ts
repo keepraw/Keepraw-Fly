@@ -709,18 +709,21 @@ function expectLayout(
     layout.mrz.lineHeight,
   );
   for (const line of footer) {
-    const available = layout.right - layout.left;
-    expect(line.width / available, where).toBeGreaterThanOrEqual(0.88);
-    expect(line.width / available, where).toBeLessThanOrEqual(0.92);
+    const gridWidth = 44 * layout.mrz.cellAdvance;
+    expect(line.width, where).toBeGreaterThanOrEqual(
+      gridWidth - layout.mrz.cellAdvance / 2,
+    );
+    expect(line.width, where).toBeLessThanOrEqual(gridWidth);
     expect(
       Math.abs(line.x - layout.left - (layout.right - line.x - line.width)),
       where,
     ).toBeLessThan(1);
-    expect(line.y, where).toBeGreaterThan(layout.mrz.rule);
+    expect(line.y, where).toBeGreaterThanOrEqual(layout.mrz.rule + 20);
     expect(line.y + line.height, where).toBeLessThanOrEqual(
-      layout.safe.y + layout.safe.height,
+      layout.holderContent.y + layout.holderContent.height,
     );
   }
+  expect(report.paperOutside, where).toEqual([]);
 }
 
 test("all locales, units and long Unicode names render without overlaps or lost text", async ({
@@ -728,6 +731,9 @@ test("all locales, units and long Unicode names render without overlaps or lost 
 }) => {
   test.setTimeout(120_000);
   await page.goto("/");
+  await expect(
+    page.locator(".site-header, input[type=file]").first(),
+  ).toBeAttached();
   const results = await page.evaluate(
     async (flights) => {
       const load = (path: string) => import(/* @vite-ignore */ path);
@@ -737,7 +743,7 @@ test("all locales, units and long Unicode names render without overlaps or lost 
           load("/src/share/poster-copy.ts"),
           load("/src/share/poster-layout.ts"),
           load("/src/share/poster-export.ts"),
-          load("/src/share/share-text.ts"),
+          load("/src/share/poster-fonts.ts"),
           load("/src/i18n.ts"),
         ]);
       const out = [];
@@ -772,13 +778,10 @@ test("all locales, units and long Unicode names render without overlaps or lost 
               { native: name },
             );
             const layout = layoutModule.createPosterLayout();
-            const fonts = await text.prepareShareFonts(
-              text.shareLocaleForLanguage(language),
-              {
-                disableWebfont,
-                sample: name + copy.title + Object.values(copy.labels).join(""),
-              },
-            );
+            const fonts = await text.preparePosterFonts(copy.locale, {
+              disableWebfont,
+              copy,
+            });
             const canvas = document.createElement("canvas");
             const report = exporter.renderPosterToCanvas(
               canvas,
@@ -862,6 +865,9 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
   page,
 }) => {
   await page.goto("/");
+  await expect(
+    page.locator(".site-header, input[type=file]").first(),
+  ).toBeAttached();
   const results = await page.evaluate(
     async (flights) => {
       const load = (path: string) => import(/* @vite-ignore */ path);
@@ -871,7 +877,7 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
           load("/src/share/poster-copy.ts"),
           load("/src/share/poster-layout.ts"),
           load("/src/share/poster-export.ts"),
-          load("/src/share/share-text.ts"),
+          load("/src/share/poster-fonts.ts"),
           load("/src/i18n.ts"),
         ]);
       const layout = layoutModule.createPosterLayout();
@@ -883,7 +889,7 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
         { number: "123ABC456" },
         { native: "Élodie, Tokyo" },
       );
-      const fonts = await text.prepareShareFonts("en", {
+      const fonts = await text.preparePosterFonts("en", {
         disableWebfont: true,
       });
       const prototype = CanvasRenderingContext2D.prototype;
@@ -982,12 +988,10 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
       const inkRight = Math.max(...row.map((call) => call.right));
       const width = inkRight - inkLeft;
       widths.push(width);
-      expect(width / (layout.right - layout.left), mode).toBeGreaterThanOrEqual(
-        0.88,
+      expect(width, mode).toBeGreaterThanOrEqual(
+        44 * layout.mrz.cellAdvance - 10,
       );
-      expect(width / (layout.right - layout.left), mode).toBeLessThanOrEqual(
-        0.92,
-      );
+      expect(width, mode).toBeLessThanOrEqual(44 * layout.mrz.cellAdvance);
       expect(
         Math.abs(inkLeft - layout.left - (layout.right - inkRight)),
         mode,
@@ -997,9 +1001,9 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
         expect(call.spacing, mode).toBe(calls[0]!.spacing);
         expect(call.maxWidth, mode).toBeUndefined();
         expect(call.transform, mode).toEqual([1, 0, 0, 1, 0, 0]);
-        expect(call.top, mode).toBeGreaterThan(layout.mrz.rule);
+        expect(call.top, mode).toBeGreaterThanOrEqual(layout.mrz.rule + 20);
         expect(call.bottom, mode).toBeLessThanOrEqual(
-          layout.safe.y + layout.safe.height,
+          layout.holderContent.y + layout.holderContent.height,
         );
       }
     }
@@ -1170,7 +1174,9 @@ test("dense archives retain complete statistics without extra map captions", asy
 test("Chinese journals and nicknames remain available when webfonts fail", async ({
   page,
 }) => {
-  await page.route(/misans-webfont/, (route) => route.abort());
+  await page.route(/cn-fontsource-source-han|@fontsource\/noto-/, (route) =>
+    route.abort(),
+  );
   await seed(page, await loadArchive(), { language: "zh-CN" });
   await openShare(page);
   await expect(image(page)).toHaveAttribute("data-fonts", "fallback");
@@ -1251,4 +1257,277 @@ test("language changes redraw the open photograph without reader controls", asyn
     .toContain("Passeport de vol");
   expect((await readLog(page)).text).toContain("NOM DU TITULAIRE");
   await expect(page.locator(".share-overlay-disclaimer")).toHaveCount(0);
+});
+
+test("passport font roles load before measurement and preview matches PNG @cross-browser", async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  await page.goto("/");
+  await expect(
+    page.locator(".site-header, input[type=file]").first(),
+  ).toBeAttached();
+  const results = await page.evaluate(
+    async (flights) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const [data, copyModule, layoutModule, exporter, typography, i18n] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/poster-fonts.ts"),
+          load("/src/i18n.ts"),
+        ]);
+      const results = [];
+      for (const [language, name, dense] of [
+        ["zh-CN", "张三", false],
+        ["en-US", "Élodie Eriksson", false],
+        ["zh-TW", "陳怡君", false],
+        ["ja-JP", "山田はるか", false],
+        ["ko-KR", "김하늘", false],
+        ["en-US", "Alexandra-Catherine Montgomery Wellington".repeat(2), true],
+        ["zh-CN", "", true],
+      ] as const) {
+        await i18n.changeUiLanguage(language);
+        // Dense data plus both distance/time coverage notes, using real copy logic.
+        const inputFlights = dense
+          ? Array.from({ length: 4 }, (_, index) =>
+              flights.map((flight: object) => ({
+                ...flight,
+                id: `dense-${index}-${(flight as { id: string }).id}`,
+                scheduledDeparture: undefined,
+                scheduledArrival: undefined,
+              })),
+            ).flat()
+          : flights;
+        const copy = copyModule.buildPosterCopy(
+          data.buildPosterModel(inputFlights),
+          i18n.i18n.t.bind(i18n.i18n),
+          language,
+          "kilometers",
+          { number: "123ABC456" },
+          { native: name },
+        );
+        const layout = layoutModule.createPosterLayout();
+        const fonts = await typography.preparePosterFonts(copy.locale, {
+          copy,
+          timeoutMs: 15_000,
+        });
+        const canvas = document.createElement("canvas");
+        const input = { layout, copy, fonts };
+        const report = exporter.renderPosterToCanvas(
+          canvas,
+          input,
+          layout.width,
+        );
+        const before = canvas
+          .getContext("2d")!
+          .getImageData(0, 0, canvas.width, canvas.height).data;
+        const exported = await exporter.exportPosterPng(input);
+        const bitmap = await createImageBitmap(exported.blob);
+        const decoded = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const context = decoded.getContext("2d")!;
+        context.drawImage(bitmap, 0, 0);
+        const after = context.getImageData(
+          0,
+          0,
+          bitmap.width,
+          bitmap.height,
+        ).data;
+        const samePixels =
+          before.length === after.length &&
+          before.every((byte, index) => byte === after[index]);
+        bitmap.close();
+        results.push({
+          language,
+          dense,
+          name,
+          fonts,
+          layout,
+          copy,
+          report,
+          samePixels,
+          png: canvas.toDataURL("image/png"),
+          width: exported.width,
+          height: exported.height,
+          type: exported.blob.type,
+        });
+        canvas.width = 0;
+      }
+      return results;
+    },
+    (await loadArchive()).flights,
+  );
+  for (const [index, result] of results.entries()) {
+    const where = `${result.language} ${result.name}`;
+    expect(result.fonts.status, where).toBe("webfont");
+    for (const role of ["text", "display", "figures", "mono", "brand"] as const)
+      expect(result.fonts.families[role], where).toContain(`"KRF ${role}"`);
+    if (result.language !== "en-US")
+      expect(result.fonts.families.display, where).toContain(
+        `KRF ${result.copy.locale}-serif`,
+      );
+    expect(result.samePixels, where).toBe(true);
+    expect([result.width, result.height, result.type]).toEqual([
+      1200,
+      1600,
+      "image/png",
+    ]);
+    expect(result.report.outside, where).toEqual([]);
+    expect(result.report.truncated, where).toEqual([]);
+    expectLayout(result.report, result.copy, result.layout, where);
+    const texts = result.report.texts;
+    for (let a = 0; a < texts.length; a++)
+      for (let b = a + 1; b < texts.length; b++) {
+        const p = texts[a]!,
+          q = texts[b]!;
+        expect(
+          p.x < q.x + q.width - 1 &&
+            q.x < p.x + p.width - 1 &&
+            p.y < q.y + q.height - 1 &&
+            q.y < p.y + p.height - 1,
+          `${where}: ${p.text} / ${q.text}`,
+        ).toBe(false);
+      }
+    if (result.dense) expect(result.copy.notes).toHaveLength(2);
+    await keep(
+      testInfo,
+      `passport-type-${index}-${result.language}.png`,
+      Buffer.from(result.png.split(",")[1]!, "base64"),
+    );
+  }
+});
+
+test("failed fonts and late stylesheet completion keep fallback measurements stable @cross-browser", async ({
+  page,
+}, testInfo) => {
+  await page.route(
+    /cn-fontsource-source-han|@fontsource\/noto-|\/share\/fonts\/.*\.woff2/,
+    (route) =>
+      /cn-fontsource-source-han|@fontsource\/noto-/.test(
+        route.request().url(),
+      ) || route.request().resourceType() === "font"
+        ? route.abort()
+        : route.continue(),
+  );
+  const archive = await loadArchive();
+  archive.profile.name = {
+    native: "张三",
+    romanized: "ZHANG, SAN",
+    primary: "native",
+  };
+  await seed(page, archive, { language: "zh-CN" });
+  await openShare(page);
+  await expect(image(page)).toHaveAttribute("data-fonts", "fallback");
+  await keep(
+    testInfo,
+    "passport-font-failure.png",
+    (await decodeImage(page)).bytes,
+  );
+  const result = await page.evaluate(
+    async (flights) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const [data, copyModule, layoutModule, exporter, typography, i18n] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/poster-fonts.ts"),
+          load("/src/i18n.ts"),
+        ]);
+      const copy = copyModule.buildPosterCopy(
+        data.buildPosterModel(flights),
+        i18n.i18n.t.bind(i18n.i18n),
+        "zh-CN",
+        "kilometers",
+        { number: "123ABC456" },
+        { native: "张三" },
+      );
+      const fonts = await typography.preparePosterFonts("zh-CN", {
+        copy,
+        timeoutMs: 1,
+      });
+      const layout = layoutModule.createPosterLayout();
+      const canvas = document.createElement("canvas");
+      const input = { copy, fonts, layout };
+      const report = exporter.renderPosterToCanvas(canvas, input, layout.width);
+      const first = canvas.toDataURL();
+      return { input, report, first };
+    },
+    (await loadArchive()).flights,
+  );
+  expect(result.input.fonts.status).toBe("fallback");
+  expect(result.report.paperOutside).toEqual([]);
+  await page.unroute(
+    /cn-fontsource-source-han|@fontsource\/noto-|\/share\/fonts\/.*\.woff2/,
+  );
+  const after = await page.evaluate(async ({ input, first }) => {
+    const typography = await import(
+      /* @vite-ignore */ "/src/share/poster-fonts.ts"
+    );
+    const exporter = await import(
+      /* @vite-ignore */ "/src/share/poster-export.ts"
+    );
+    const loaded = await typography.preparePosterFonts("zh-CN", {
+      copy: input.copy,
+      timeoutMs: 15_000,
+    });
+    const canvas = document.createElement("canvas");
+    exporter.renderPosterToCanvas(canvas, input, input.layout.width);
+    return { status: loaded.status, same: canvas.toDataURL() === first };
+  }, result);
+  expect(after.status).toBe("webfont");
+  expect(after.same).toBe(true);
+});
+
+test("export rejects MRZ crossing the paper frame even inside canvas safety", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const result = await page.evaluate(
+    async (flights) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const [data, copyModule, layoutModule, exporter, typography, i18n] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/poster-fonts.ts"),
+          load("/src/i18n.ts"),
+        ]);
+      const copy = copyModule.buildPosterCopy(
+        data.buildPosterModel(flights),
+        i18n.i18n.t.bind(i18n.i18n),
+        "en-US",
+        "kilometers",
+        { number: "123ABC456" },
+      );
+      const fonts = await typography.preparePosterFonts("en", {
+        disableWebfont: true,
+      });
+      const layout = layoutModule.createPosterLayout();
+      layout.mrz.baseline = 1518;
+      layout.mrz.lineHeight = 34;
+      const input = { copy, fonts, layout };
+      const report = exporter.renderPosterToCanvas(
+        document.createElement("canvas"),
+        input,
+        layout.width,
+      );
+      try {
+        await exporter.exportPosterPng(input);
+        return { report, error: null };
+      } catch (error) {
+        return { report, error: (error as { kind: string }).kind };
+      }
+    },
+    (await loadArchive()).flights,
+  );
+  expect(result.report.outside).toEqual([]);
+  expect(result.report.paperOutside).toHaveLength(1);
+  expect(result.report.paperOutside[0]!.baseline).toBe(1552);
+  expect(result.error).toBe("layout-overflow");
 });
