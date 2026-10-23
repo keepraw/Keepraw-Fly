@@ -14,7 +14,7 @@ failure exposes a localized retry and the existing interactive SVG
 `PassportRouteMap` fallback. Mobile Passport does not mount this Globe.
 
 Desktop Flight Detail lazily loads `DetailGlobe` for the current flight at the
-same 761px boundary. It builds a single route through core `buildRouteSegments`,
+1200px boundary. It builds a single route through core `buildRouteSegments`,
 using the diversion airport when applicable. Cancelled flights or unavailable
 route coordinates show localized explanations. Detail failures expose localized
 retry without an SVG fallback. Mobile Detail creates no Globe context or imagery
@@ -59,8 +59,8 @@ released application's lazy modules.
 | [Lighting](../apps/web/src/globe/globe-lighting.ts) / [solar](../apps/web/src/globe/globe-solar.ts)                                           | Current material defaults and fixed/realtime solar model      |
 | [Day provenance](../apps/web/src/globe/globe-texture.source.json) / [night provenance](../apps/web/src/globe/globe-night-texture.source.json) | Texture origin, hashes and reproducible generation            |
 
-The [approved Control record](visual-review/task-1b-7b2/README.md) preserves the
+The [approved Control record](archive/visual-review/task-1b-7b2/README.md) preserves the
 owner-approved design baseline; its camera dimensions and test counts are
-historical. The [retained evidence index](visual-review/README.md) explains which
+historical. The [historical archive](archive/README.md) explains which
 numerical records are still inputs to current tests. Recapture the current
 product for layout review instead of treating a historical PNG as current geometry.

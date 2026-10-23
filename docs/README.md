@@ -1,43 +1,35 @@
 # Documentation
 
-## Current documentation
+## Maintained entry points
 
-Start with [architecture](architecture.md) for package, storage and import
-boundaries. Its [schema](schema.md) and [Globe](globe.md) guides cover portable
-facts and the production renderer. Use [deployment](deployment.md) to run an
-instance, [security](security.md) for the CSP, provenance and data-protection
-model, and [testing](testing.md) to verify changes against current CI gates.
+| Topic                                                                      | Authoritative entry                                                                |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Contribution rules, directory ownership, commit identity and quality gates | [Engineering standards](engineering-standards.md)                                  |
+| UI layout, typography, themes, tokens, components and interaction          | [Design system](design-system.md)                                                  |
+| Packages, storage, imports, statistics and localization boundaries         | [Architecture](architecture.md)                                                    |
+| Portable archive and supported CSV formats                                 | [Schema](schema.md), with [user examples](../examples/README.md)                   |
+| Production Globe rendering and lifecycle                                   | [Globe](globe.md)                                                                  |
+| Flight Passport image, TD3 specimen policy and migration rationale         | [Flight Passport journal](flight-passport-journal.md)                              |
+| Language resources and open translation questions                          | [Locale notes](i18n-locales.md)                                                    |
+| Browser layers, fixtures, captures and CI                                  | [Testing](testing.md)                                                              |
+| CSP, privacy, dependency exposure and release provenance                   | [Security](security.md)                                                            |
+| Installation, hosting, upgrades and publishing                             | [Deployment — English](deployment.md) / [部署指南 — 简体中文](deployment.zh-CN.md) |
+| Current scope limits                                                       | [Product boundaries](not-implemented.md)                                           |
 
-UI conventions live in the [visual system](design-system.md) and
-[locale notes](i18n-locales.md). Read the [third-party notices](../THIRD_PARTY_NOTICES.md)
-before distribution; they link to the unresolved permission review.
+Executable configurations and source code are linked from their owning guides;
+do not maintain parallel copies of their values in task reports.
 
-## Historical archive
+## Release, legal and historical records
 
-The [archive](archive/README.md) holds selected design rationale and otherwise
-unrecoverable source provenance. Routine completion reports, temporary audits and
-obsolete validation results belong in pull requests and Git history.
+- [v0.1.1 release notes](releases/v0.1.1.md) and [v0.1.0 release notes](releases/v0.1.0.md)
+  describe their published versions.
+- [Third-party notices](../THIRD_PARTY_NOTICES.md), [license](../LICENSE),
+  [trademark](../TRADEMARK.md) and [permission review](license-review-2026-10-10.md)
+  retain distribution requirements and unresolved owner decisions.
+- [Historical archive](archive/README.md) contains selected decisions, approved
+  Globe references and source provenance with explicit status. Historical geometry,
+  experimental parameters and test counts do not override current guidance.
 
-[Legacy evidence paths](visual-review/README.md) retain approved visual references,
-historical evidence and capture helpers. Formal Globe regression inputs live in
-[test fixtures](../tests/fixtures/globe/README.md); fresh captures belong in ignored
-`artifacts/`. Historical evidence does not define current product behavior.
-
-## Contribution guidance
-
-- Update current guidance with the implementation it describes. Link a new detail
-  document from its owning topic; this reading guide is not a file inventory and
-  only changes when a primary topic or entry point changes.
-- Archive only a lasting decision, rejected alternative or source provenance that
-  future maintainers need. Explain its value and pin the original revision. A
-  completed task alone is not a reason to archive its report.
-- Move unresolved questions into the maintained topic before removing a report.
-  Use Git history for superseded instructions and one-time validation results.
-- Keep machine-readable test fixtures with tests and generated captures in ignored
-  `artifacts/`. Check consumers before relocating existing legacy paths.
-- Run `pnpm check:docs` and formatting checks after changing documentation. The
-  existing documentation checker also checks archived Markdown links.
-
-- [Deployment guide — English](deployment.md) / [部署指南 — 简体中文](deployment.zh-CN.md)
-- [v0.1.1 release notes / 发行说明](releases/v0.1.1.md)
-- [v0.1.0 release notes / 发行说明](releases/v0.1.0.md)
+Routine task reports and obsolete captures are available through Git history.
+New generated evidence belongs in ignored `artifacts/`; formal regression inputs
+remain with tests. Follow the retention and review rules in the engineering standards.

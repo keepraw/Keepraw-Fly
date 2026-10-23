@@ -63,6 +63,25 @@ Export validates again before creating a readable, indented JSON download. It
 does not include search indexes, statistics, Viewer preferences or temporary UI
 state.
 
+## Import preflight responsiveness
+
+CSV and Flighty share row-validation and duplicate-assessment generators.
+Synchronous APIs drain those same generators; UI preflight yields between batches
+with an 8 ms cooperative budget. It invalidates stale results after file, mapping
+or archive changes and aborts on cancellation, replacement or unmount. Confirmation
+stays disabled until the complete preview is ready. No partial archive is written.
+
+Timezone conversion still checks every candidate offset and DST gap/overlap.
+Fixed `Intl.DateTimeFormat` configurations are reused by timezone in a bounded
+128-entry FIFO cache; invalid zones are not cached. This avoids repeated formatter
+construction without memoizing flight data or changing timezone semantics.
+
+One row or duplicate lookup is indivisible, and CSV text parsing is synchronous;
+8 ms is not a hard deadline. Large archives and slow devices still require review.
+Use `node scripts/benchmark-import-preflight.mjs` to measure the current code with
+valid synthetic rows. The historical measurements in
+[PR #68](https://github.com/keepraw/Keepraw-Fly/pull/68) are not CI thresholds.
+
 ## Localization and reference data
 
 React text uses i18next keys for Simplified Chinese, Traditional Chinese (Taiwan),
@@ -107,7 +126,7 @@ The texture is 554 KiB and does not replace airport/route geometry. Regenerate t
 `python scripts/generate-map-relief.py /path/to/SR_50M.tif`; the pinned download,
 archive checksum and public-domain license are in `map-relief.source.json`.
 
-Desktop Flight Detail (at least 761px) lazily loads `DetailGlobe`, reusing the
+Desktop Flight Detail (at least 1200px) lazily loads `DetailGlobe`, reusing the
 Passport Three.js renderer and `buildRouteSegments([flight])`. It draws only the
 current route, including the actual diversion airport; cancelled flights and
 unknown or invalid coordinates show localized explanations. Its independent
