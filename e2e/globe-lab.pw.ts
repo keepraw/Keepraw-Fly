@@ -48,6 +48,24 @@ async function settledCamera(page: Page) {
     .toBe(true);
 }
 
+async function selectSettledTheme(page: Page, theme: "Light" | "Dark") {
+  const button = page.getByRole("button", { name: theme, exact: true });
+  await button.click();
+  const lab = page.locator(".globe-lab");
+  await expect(lab).toHaveAttribute("data-theme", theme.toLowerCase());
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  // The surface changes immediately, but global button styles transition their
+  // colors. Scan only after those transitions finish, including in WebKit.
+  await lab.evaluate(async (root) => {
+    await Promise.all(
+      root
+        .getAnimations({ subtree: true })
+        .filter((animation) => animation instanceof CSSTransition)
+        .map((transition) => transition.finished),
+    );
+  });
+}
+
 test("globe actual browser screenshots, viewports, selection and resource measurements @cross-browser", async ({
   page,
   browserName,
@@ -321,8 +339,8 @@ test("globe direct route and airport picking, motion and accessibility @cross-br
   await page.goto("/globe-lab");
   if ((await globeMode(page)) === "svg") {
     await exerciseSvgFallback(page);
-    for (const theme of ["Light", "Dark"]) {
-      await page.getByRole("button", { name: theme, exact: true }).click();
+    for (const theme of ["Light", "Dark"] as const) {
+      await selectSettledTheme(page, theme);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     }
     return;
@@ -417,8 +435,8 @@ test("globe direct route and airport picking, motion and accessibility @cross-br
     expect(n).toBeCloseTo(targetView.direction[i]! * targetView.distance, 8),
   );
   const axeResults = [];
-  for (const theme of ["Light", "Dark"]) {
-    await page.getByRole("button", { name: theme, exact: true }).click();
+  for (const theme of ["Light", "Dark"] as const) {
+    await selectSettledTheme(page, theme);
     const results = await new AxeBuilder({ page }).analyze();
     axeResults.push({ theme, violations: results.violations });
     expect(results.violations).toEqual([]);
