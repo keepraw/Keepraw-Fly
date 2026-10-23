@@ -183,3 +183,31 @@ The same NASA [media guidelines](https://www.nasa.gov/nasa-brand-center/images-a
 and non-endorsement restrictions apply. The textures contain no NASA logos or
 identifiable people; the NASA attribution describes the underlying imagery
 and does not imply sponsorship or approval.
+
+## Flight Passport typography (Canvas export only)
+
+The passport uses Barlow Semi Condensed (600), IBM Plex Sans (400), IBM Plex
+Serif (400 and 500) and IBM Plex Mono (400). Latin and Latin Extended WOFF2
+subsets from the pinned `@fontsource/*` 5.3.0 npm packages are redistributed in
+`apps/web/src/share/fonts/` with their unmodified SIL Open Font License 1.1
+notices. Credits: Barlow — Jeremy Tribby; IBM Plex — IBM Corp.
+
+Simplified Chinese uses Adobe's Source Han Serif SC at Medium (500) and Source
+Han Sans SC at Regular (400), distributed as variable Unicode-range subsets by
+`cn-fontsource-source-han-serif-sc-vf@1.0.9` and
+`cn-fontsource-source-han-sans-sc-vf@1.0.10`. Traditional Chinese, Japanese and
+Korean use their regional Noto Serif and Noto Sans CJK counterparts from
+`@fontsource/noto-{serif,sans}-{tc,jp,kr}@5.3.1`, also licensed under SIL OFL 1.1.
+Noto CJK and Source Han are the Google/Adobe joint CJK typeface family; TC, JP and
+KR retain their own regional glyph forms. Credit: Adobe and Google, with the
+copyright statements preserved in each font's adjacent `.OFL.txt` notice.
+
+Only the required regional Unicode subsets are requested, on opening a share
+image. Each remote stylesheet has an exact version and SHA-384 SRI pin; its
+WOFF2 resources stay within the same pinned package and existing font CSP.
+As with MiSans, stylesheet SRI does not authenticate each referenced font file.
+No OCR-B font is redistributed. Source locations, packaged asset sizes,
+checksums, Unicode ranges and stylesheet integrity values are recorded in
+`apps/web/src/share/fonts/sources.json`. Run `pnpm check:passport-fonts` for
+local asset verification, or `node scripts/verify-passport-fonts.mjs --remote`
+to cross-check stylesheet bytes at jsDelivr and unpkg.

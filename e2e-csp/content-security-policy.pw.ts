@@ -722,3 +722,97 @@ test("a real inline style is detected on a page that has <select> elements @cros
     ),
   ).toBe("");
 });
+
+test("passport regional fonts load through pinned SRI without changing UI fonts @cross-browser", async ({
+  page,
+  browserName,
+}) => {
+  test.setTimeout(90_000);
+  const watch = await watchViolations(page, browserName);
+  await importArchive(page);
+  await page.goto("/#settings");
+  await page.locator(".settings-fields select").first().selectOption("zh-CN");
+  await page.goto("/#passport");
+  await page.locator(".passport-share-button").click();
+  const image = page.locator(".share-overlay-image");
+  await expect(image).toBeVisible({ timeout: 20_000 });
+  // A cold CDN can exceed the bounded preparation time. Reopen after the
+  // native font set settles to exercise the loaded path with the same CSP.
+  if ((await image.getAttribute("data-fonts")) === "fallback") {
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+    await page.keyboard.press("Escape");
+    await page.locator(".passport-share-button").click();
+    await expect(image).toBeVisible({ timeout: 20_000 });
+  }
+  await expect(image).toHaveAttribute("data-fonts", "webfont");
+  const links = page.locator("link[data-passport-font]");
+  await expect(links).toHaveCount(2);
+  expect(
+    await links.evaluateAll((elements) =>
+      elements.every((element) => {
+        const link = element as HTMLLinkElement;
+        return (
+          link.integrity.startsWith("sha384-") &&
+          link.crossOrigin === "anonymous" &&
+          link.dataset.fontStatus === "loaded" &&
+          [...link.sheet!.cssRules].every((rule) =>
+            (rule as CSSFontFaceRule).style.fontFamily.includes(
+              `KRF ${link.dataset.passportFont}`,
+            ),
+          )
+        );
+      }),
+    ),
+  ).toBe(true);
+  await expect(page.locator(".passport-map-title")).toHaveCSS(
+    "font-family",
+    /MiSans/,
+  );
+  expect(await watch.violations()).toEqual([]);
+  expect(await watch.cspConsoleErrors()).toEqual([]);
+});
+
+test("SRI rejects a tampered passport font stylesheet and exports with fallback @cross-browser", async ({
+  page,
+  browserName,
+}) => {
+  const watch = await watchViolations(page, browserName);
+  const served: string[] = [];
+  await page.route(/cn-fontsource-source-han.*\/font\.css/, (route) => {
+    served.push(route.request().url());
+    return route.fulfill({
+      status: 200,
+      contentType: "text/css",
+      headers: { "access-control-allow-origin": "*" },
+      body: 'body { background-image: url("https://example.com/font-tamper"); }',
+    });
+  });
+  await importArchive(page);
+  await page.goto("/#settings");
+  await page.locator(".settings-fields select").first().selectOption("zh-CN");
+  await page.goto("/#passport");
+  await page.locator(".passport-share-button").click();
+  await expect(page.locator(".share-overlay-image")).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.locator(".share-overlay-image")).toHaveAttribute(
+    "data-fonts",
+    "fallback",
+  );
+  expect(served).toHaveLength(2);
+  expect(
+    await page
+      .locator("link[data-passport-font]")
+      .evaluateAll((elements) =>
+        elements.map(
+          (element) => (element as HTMLLinkElement).dataset.fontStatus,
+        ),
+      ),
+  ).toEqual(["unavailable", "unavailable"]);
+  expect(
+    await page.evaluate(() => getComputedStyle(document.body).backgroundImage),
+  ).toBe("none");
+  expect(await watch.violations()).toEqual([]);
+});

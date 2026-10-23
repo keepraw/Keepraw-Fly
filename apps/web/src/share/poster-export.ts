@@ -2,7 +2,7 @@ import type { PosterCopy } from "./poster-copy";
 import type { PosterLayout } from "./poster-layout";
 import { drawPoster, type PosterDrawReport } from "./poster-render";
 import { readPngHeader } from "./share-png";
-import type { ShareFonts } from "./share-text";
+import type { PosterFonts } from "./poster-fonts";
 
 /**
  * Canvas 2D poster export: fixed-size canvas → `image/png` Blob, verified by
@@ -24,7 +24,7 @@ export class PosterExportError extends Error {
 export interface PosterRenderInput {
   layout: PosterLayout;
   copy: PosterCopy;
-  fonts: Pick<ShareFonts, "family">;
+  fonts: PosterFonts;
 }
 
 /** Draws into an existing canvas at `pixelWidth`. */
@@ -94,10 +94,10 @@ export async function exportPosterPng(
   const canvas = owner.createElement("canvas");
   try {
     const report = renderPosterToCanvas(canvas, input, input.layout.width);
-    if (report.outside.length)
+    if (report.outside.length || report.paperOutside.length)
       throw new PosterExportError(
         "layout-overflow",
-        `Poster text left the safe area: ${report.outside.length} item(s)`,
+        `Poster text left its print area: ${report.outside.length + report.paperOutside.length} item(s)`,
       );
     const blob = await encode(canvas);
     const header = readPngHeader(new Uint8Array(await blob.arrayBuffer()));
