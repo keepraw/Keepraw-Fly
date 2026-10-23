@@ -10,8 +10,6 @@ import { exportPosterPng } from "../share/poster-export";
 import {
   PASSPORT_PROFILE_KEY,
   loadPassportProfile,
-  savePassportProfile,
-  normalizePassportName,
 } from "../storage/passport-profile";
 import {
   prepareShareFonts,
@@ -87,13 +85,11 @@ export function FlightPassportShareDialog({
   const { t } = useTranslation();
   const titleId = useId();
   const dialogRef = useRef<HTMLElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(0);
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
-  const zoomHintId = useId();
   const fit = () => {
     setZoom(0);
     stageRef.current?.scrollTo(0, 0);
@@ -103,15 +99,20 @@ export function FlightPassportShareDialog({
   onCloseRef.current = onClose;
 
   const [identity, setIdentity] = useState(loadPassportProfile);
-  const [editing, setEditing] = useState(false);
-  const [draftName, setDraftName] = useState(identity.profile.name);
-  const [saveFailed, setSaveFailed] = useState(false);
 
   // Always the complete archive: never Passport's year, search or airport.
   const model = useMemo(() => buildPosterModel(archive.flights), [archive]);
   const copy = useMemo(
-    () => buildPosterCopy(model, t, locale, distanceUnit, identity.profile),
-    [model, t, locale, distanceUnit, identity.profile],
+    () =>
+      buildPosterCopy(
+        model,
+        t,
+        locale,
+        distanceUnit,
+        identity.profile,
+        archive.profile.name,
+      ),
+    [model, t, locale, distanceUnit, identity.profile, archive.profile.name],
   );
   const layout = useMemo(() => createPosterLayout(), []);
   const empty = model.statistics.flights === 0;
@@ -167,7 +168,7 @@ export function FlightPassportShareDialog({
       appRoot.setAttribute("aria-hidden", "true");
     }
     html.style.overflow = "hidden";
-    closeRef.current?.focus();
+    dialogRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -212,6 +213,11 @@ export function FlightPassportShareDialog({
     };
   }, []);
 
+  useEffect(() => {
+    if (state.status === "ready")
+      imageRef.current?.focus({ preventScroll: true });
+  }, [state]);
+
   // The scroll region becomes keyboard-focusable only after the enlarged
   // layout commits. Focusing in the click handler would precede tabIndex.
   useEffect(() => {
@@ -247,134 +253,19 @@ export function FlightPassportShareDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         data-layout="top-bottom"
-        data-editing={editing}
+        tabIndex={-1}
         data-zoom={zoom}
         data-status={empty ? "empty" : state.status}
       >
         <h2 id={titleId} className="sr-only">
           {copy.title}
         </h2>
-        <div className="share-overlay-toolbar">
-          <span aria-hidden="true">
-            KEEPRAW FLY <small>/ {copy.labels.journal}</small>
-          </span>
-          <button
-            type="button"
-            className="share-profile-edit"
-            onClick={() => {
-              setDraftName(identity.profile.name);
-              setSaveFailed(false);
-              setEditing(!editing);
-            }}
-            aria-expanded={editing}
-            aria-controls={editing ? "passport-profile-form" : undefined}
-          >
-            {t("share.journal.editName")}
-          </button>
-          <button
-            ref={closeRef}
-            className="share-overlay-close"
-            type="button"
-            aria-label={t("share.close")}
-            onClick={onClose}
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg>
-          </button>
-        </div>
-        {editing ? (
-          <form
-            id="passport-profile-form"
-            className="share-profile-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const name = normalizePassportName(draftName);
-              if (!name) return;
-              const profile = { ...identity.profile, name };
-              if (!savePassportProfile(profile)) {
-                setSaveFailed(true);
-                return;
-              }
-              setIdentity({ profile, persisted: true });
-              setEditing(false);
-              closeRef.current?.focus();
-            }}
-          >
-            <label htmlFor="passport-holder-name">
-              {t("share.journal.holderName")}
-            </label>
-            <div className="share-profile-input-row">
-              <input
-                id="passport-holder-name"
-                value={draftName}
-                autoFocus
-                autoComplete="off"
-                maxLength={128}
-                onChange={(event) => setDraftName(event.target.value)}
-                aria-describedby="passport-name-hint"
-              />
-              <button
-                type="submit"
-                disabled={!normalizePassportName(draftName)}
-              >
-                {t("share.journal.saveName")}
-              </button>
-            </div>
-            <p id="passport-name-hint">{t("share.journal.nameHint")}</p>
-            {saveFailed ? (
-              <p role="alert">{t("share.journal.storageError")}</p>
-            ) : null}
-          </form>
-        ) : null}
-        {!identity.persisted ? (
-          <p className="share-profile-warning" role="status">
-            {t("share.journal.storageError")}
-          </p>
-        ) : null}
-        {state.status === "ready" && !empty ? (
-          <div
-            className="share-zoom-controls"
-            role="group"
-            aria-label={t("share.journal.zoomIn")}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setZoom(2);
-              }}
-              disabled={zoom === 2}
-            >
-              {t("share.journal.zoomIn")}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (zoom === 1) fit();
-                else {
-                  setZoom(1);
-                }
-              }}
-              disabled={zoom === 0}
-            >
-              {t("share.journal.zoomOut")}
-            </button>
-            <button type="button" onClick={fit}>
-              {t("share.journal.fit")}
-            </button>
-            {zoom > 0 ? (
-              <button type="button" onClick={fit}>
-                {t("share.journal.exitZoom")}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
         <div
           ref={stageRef}
           className="share-overlay-stage"
           tabIndex={zoom ? 0 : undefined}
           role={zoom ? "region" : undefined}
-          aria-label={zoom ? t("share.journal.zoomHint") : undefined}
+          aria-label={zoom ? copy.title : undefined}
         >
           {empty ? (
             <p className="share-overlay-message" role="alert">
@@ -385,7 +276,6 @@ export function FlightPassportShareDialog({
               ref={imageRef}
               className="share-overlay-image"
               tabIndex={0}
-              aria-describedby={zoomHintId}
               onClick={() => {
                 if (!zoom) {
                   setZoom(2);
@@ -456,17 +346,6 @@ export function FlightPassportShareDialog({
           </p>
           <p>{copy.map.note}</p>
         </div>
-        {state.status === "ready" && !empty ? (
-          <div className="share-overlay-hint">
-            <p id={zoomHintId}>{t("share.journal.zoomHint")}</p>
-            <p>
-              {state.fonts === "fallback"
-                ? t("share.fontFallback")
-                : t("share.saveHint")}
-            </p>
-            <p className="share-overlay-disclaimer">{copy.disclaimer}</p>
-          </div>
-        ) : null}
       </section>
     </div>,
     window.document.body,
