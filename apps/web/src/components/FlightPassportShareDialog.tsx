@@ -4,18 +4,14 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import type { DistanceUnit, SupportedLocale } from "@keepraw-fly/core";
 import { buildPosterModel } from "../share/poster-data";
-import { buildPosterCopy, type PosterCopy } from "../share/poster-copy";
+import { buildPosterCopy } from "../share/poster-copy";
 import { createPosterLayout } from "../share/poster-layout";
 import { exportPosterPng } from "../share/poster-export";
 import {
   PASSPORT_PROFILE_KEY,
   loadPassportProfile,
 } from "../storage/passport-profile";
-import {
-  prepareShareFonts,
-  shareLocaleForLanguage,
-  type ShareFonts,
-} from "../share/share-text";
+import { preparePosterFonts, type PosterFonts } from "../share/poster-fonts";
 
 interface FlightPassportShareDialogProps {
   document: KeeprawFlyDocument;
@@ -34,7 +30,7 @@ type ShareState =
       routes: number;
       airports: number;
       truncated: number;
-      fonts: ShareFonts["status"];
+      fonts: PosterFonts["status"];
     }
   | { status: "error" };
 
@@ -44,31 +40,6 @@ const focusableSelector = [
   "input:not([disabled])",
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
-
-/** Every glyph the poster may draw, so unicode-range webfont subsets load. */
-function copySample(copy: PosterCopy) {
-  return [
-    ...Object.values(copy.labels),
-    copy.routes.label,
-    copy.holder.name,
-    copy.recordTitle,
-    copy.disclaimer,
-    copy.brand,
-    copy.title,
-    copy.issuer,
-    copy.distance.label,
-    copy.distance.value,
-    copy.distance.unit ?? "",
-    copy.flights.label,
-    copy.duration.label,
-    copy.duration.value,
-    copy.duration.unit ?? "",
-    ...copy.secondary.map((stat) => stat.label),
-    ...copy.notes,
-    copy.span?.label ?? "",
-    copy.map.note ?? "",
-  ].join("");
-}
 
 /**
  * Share: generates the full-resolution Flight Passport PNG on this device and
@@ -124,10 +95,9 @@ export function FlightPassportShareDialog({
     let active = true;
     let url: string | null = null;
     setState({ status: "generating" });
-    const shareLocale = shareLocaleForLanguage(locale);
     void (async () => {
-      const fonts = await prepareShareFonts(shareLocale, {
-        sample: copySample(copy),
+      const fonts = await preparePosterFonts(copy.locale, {
+        copy,
       });
       const result = await exportPosterPng({ layout, copy, fonts });
       if (!active) return;

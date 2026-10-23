@@ -1,3 +1,4 @@
+import type { PosterFonts, PosterFontRole } from "./poster-fonts";
 import type { PosterCopy, PosterStat } from "./poster-copy";
 import type {
   PosterLayout,
@@ -15,7 +16,6 @@ import {
 import {
   applyTextStyle,
   shareGraphemes,
-  type ShareFonts,
   type ShareTextStyle,
 } from "./share-text";
 
@@ -27,31 +27,6 @@ import {
  * smaller scale.
  */
 type Context2D = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-
-/** Display serif for figures and titles; system fonts only, no new source. */
-export const POSTER_SERIF = [
-  '"Iowan Old Style"',
-  '"Palatino Linotype"',
-  "Palatino",
-  '"Book Antiqua"',
-  '"P052"',
-  '"URW Palladio L"',
-  "Georgia",
-  '"Noto Serif"',
-  '"DejaVu Serif"',
-  '"Times New Roman"',
-].join(", ");
-/** Monospace for MRZ and codes; no bundled OCR-B resource is available. */
-export const POSTER_MONO = [
-  '"SFMono-Regular"',
-  '"SF Mono"',
-  "Menlo",
-  '"Cascadia Mono"',
-  "Consolas",
-  '"Liberation Mono"',
-  '"DejaVu Sans Mono"',
-  "monospace",
-].join(", ");
 
 export interface PosterPalette {
   backgroundTop: string;
@@ -96,7 +71,7 @@ export const PASSPORT_PALETTE: PosterPalette = {
   figure: "#10243a",
   accent: "#88734c",
   brandMark: "#88734c",
-  mrzBand: "rgba(16, 32, 60, 0.045)",
+  mrzBand: "rgba(136, 115, 76, 0.022)",
   mrzInk: "#475d70",
   map: {
     sphere: "rgba(26, 52, 98, 0.025)",
@@ -133,12 +108,12 @@ export interface PosterDrawReport {
   truncated: string[];
   /** Routes and airport dots actually drawn on the map. */
   map: { routes: number; airports: number };
+  /** Includes paper print margins, MRZ area and separator clearance. */
+  paperOutside: PosterTextBox[];
 }
 
-type FontRole = "sans" | "serif" | "mono";
-
 interface TextStyle extends ShareTextStyle {
-  font?: FontRole;
+  font?: PosterFontRole;
 }
 
 interface TextOptions extends TextStyle {
@@ -152,14 +127,11 @@ class Painter {
   readonly truncated: string[] = [];
   constructor(
     readonly context: Context2D,
-    readonly fonts: Pick<ShareFonts, "family">,
+    readonly fonts: PosterFonts,
   ) {}
 
-  family(role: FontRole = "sans") {
-    if (role === "serif")
-      return { family: `${POSTER_SERIF}, ${this.fonts.family}` };
-    if (role === "mono") return { family: `${POSTER_MONO}` };
-    return this.fonts;
+  family(role: PosterFontRole = "text") {
+    return { family: this.fonts.families[role] };
   }
 
   apply(style: TextStyle) {
@@ -210,8 +182,8 @@ class Painter {
         : align === "center"
           ? x - metrics.width / 2
           : x;
-    const ascent = metrics.actualBoundingBoxAscent || size * 0.8;
-    const descent = metrics.actualBoundingBoxDescent || size * 0.2;
+    const ascent = metrics.actualBoundingBoxAscent ?? size * 0.8;
+    const descent = metrics.actualBoundingBoxDescent ?? size * 0.2;
     this.texts.push({
       text,
       x: left,
@@ -231,7 +203,13 @@ class Painter {
 }
 
 /** Tracking for labels, as a share of the font size. */
-const LABEL_TRACKING = 0.08;
+const LABEL_TRACKING = 0.045;
+const labelTracking = (text: string) =>
+  /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(
+    text,
+  )
+    ? 0
+    : LABEL_TRACKING;
 
 /** Small-caps style label: tracked, upper case where the script has case. */
 function label(
@@ -246,9 +224,9 @@ function label(
 ) {
   return painter.text(text.toLocaleUpperCase(), x, y, {
     size,
-    weight: 500,
+    weight: 400,
     color,
-    letterSpacing: size * LABEL_TRACKING,
+    letterSpacing: size * labelTracking(text),
     maxWidth,
     minSize: Math.round(size * 0.8),
     align,
@@ -274,8 +252,8 @@ function stackedLabel(
   const min = Math.round(size * 0.8);
   const style = (s: number) => ({
     size: s,
-    weight: 500 as const,
-    letterSpacing: s * LABEL_TRACKING,
+    weight: 400 as const,
+    letterSpacing: s * labelTracking(text),
   });
   const words = upper.split(" ");
   if (words.length < 2 || painter.measure(upper, style(min)) <= maxWidth)
@@ -330,11 +308,11 @@ function figure(
   const valueStyle = (s: number): TextStyle => ({
     size: s,
     weight: 400,
-    font: "serif",
+    font: "figures",
     letterSpacing: -s * 0.015,
   });
   const unitWidth = stat.unit
-    ? painter.measure(stat.unit, { size: unitSize, weight: 500 }) + gap
+    ? painter.measure(stat.unit, { size: unitSize, weight: 400 }) + gap
     : 0;
   let valueSize = size;
   while (
@@ -352,7 +330,7 @@ function figure(
   if (stat.unit)
     painter.text(stat.unit, start + drawn.width + gap, y, {
       size: unitSize,
-      weight: 500,
+      weight: 400,
       color: unitColor,
       maxWidth: Math.max(30, maxWidth - drawn.width - gap),
       minSize: 13,
@@ -457,6 +435,7 @@ function brand(
   const drawn = painter.text(text, x + offset, y, {
     size,
     weight: 600,
+    font: "brand",
     color,
     letterSpacing: size * 0.04,
   });
@@ -464,7 +443,12 @@ function brand(
 }
 
 /** Each leaf has its own paper, security pattern, margins and frame. */
-function pagePaper(context: Context2D, rect: PosterRect, p: PosterPalette) {
+function pagePaper(
+  context: Context2D,
+  rect: PosterRect,
+  p: PosterPalette,
+  mrz?: PosterLayout["mrz"],
+) {
   context.save();
   context.beginPath();
   context.rect(rect.x, rect.y, rect.width, rect.height);
@@ -482,6 +466,13 @@ function pagePaper(context: Context2D, rect: PosterRect, p: PosterPalette) {
     context.lineTo(x + 1 + (i % 5), y + 0.6);
     context.stroke();
   }
+  // The machine-readable area keeps fibres but no crossing security curves.
+  context.save();
+  if (mrz) {
+    context.beginPath();
+    context.rect(rect.x, rect.y, rect.width, mrz.area.y - rect.y - 12);
+    context.clip();
+  }
   context.strokeStyle = p.guilloche[0];
   for (let line = 0; line < 18; line += 1) {
     context.beginPath();
@@ -495,6 +486,12 @@ function pagePaper(context: Context2D, rect: PosterRect, p: PosterPalette) {
       else context.lineTo(rect.x + x, y);
     }
     context.stroke();
+  }
+  context.restore();
+  if (mrz) {
+    context.fillStyle = p.mrzBand;
+    const { x, y, width, height } = mrz.area;
+    context.fillRect(x, y, width, height);
   }
   context.strokeStyle = p.frame;
   context.lineWidth = 0.8;
@@ -530,7 +527,7 @@ function bookBackground(
     );
   }
   pagePaper(context, layout.recordPage, p);
-  pagePaper(context, layout.holderPage, p);
+  pagePaper(context, layout.holderPage, p, layout.mrz);
 }
 
 /** A curved gutter on both leaves, a recessed hinge and visible sewn thread. */
@@ -893,8 +890,9 @@ function holderName(
   const { x, baseline, width } = profile.name;
   const style = {
     size: profile.nameSize,
+    weight: 500 as const,
     minSize: profile.nameMinSize,
-    font: "serif" as const,
+    font: "display" as const,
     color: p.ink,
     maxWidth: width,
   };
@@ -934,6 +932,7 @@ function holderName(
     painter.text(line, x, baseline + index * profile.nameLineHeight, {
       size,
       font: style.font,
+      weight: 500,
       color: p.ink,
     });
   }
@@ -949,20 +948,14 @@ function drawMrz(
   p: PosterPalette,
 ) {
   const { mrz, left, right } = layout;
-  const width = (right - left) * mrz.widthRatio;
-  const x = left + (right - left - width) / 2;
   const cells = copy.mrz[0].length;
-  const baseStyle: TextStyle = {
-    size: mrz.size,
-    font: "mono",
-    color: p.mrzInk,
-  };
-  const naturalWidth = painter.measure(copy.mrz[0], baseStyle);
-  // Usually 30px + about 3px tracking. A wider system face can shrink first.
-  const size = Math.min(mrz.size, (mrz.size * width) / naturalWidth);
-  const style = { ...baseStyle, size };
+  const style: TextStyle = { size: mrz.size, font: "mono", color: p.mrzInk };
   const cellWidth = painter.measure("0", style);
-  const spacing = Math.max(0, (width - cells * cellWidth) / (cells - 1));
+  // Fixed print grid: never stretch a row to fill the leaf. Both rows use
+  // precisely the same type size and cell advance, including fallback faces.
+  const spacing = Math.max(0, mrz.cellAdvance - cellWidth);
+  const width = cells * cellWidth + (cells - 1) * spacing;
+  const x = left + (right - left - width) / 2;
   const probe =
     painter.measure(copy.mrz[0], { ...style, letterSpacing: 3 }) -
     painter.measure(copy.mrz[0], style);
@@ -979,8 +972,8 @@ function drawMrz(
     const metrics = painter.context.measureText(line);
     for (const [cell, character] of [...line].entries())
       painter.context.fillText(character, x + cell * (cellWidth + spacing), y);
-    const ascent = metrics.actualBoundingBoxAscent || size * 0.8;
-    const descent = metrics.actualBoundingBoxDescent || size * 0.2;
+    const ascent = metrics.actualBoundingBoxAscent ?? mrz.size * 0.8;
+    const descent = metrics.actualBoundingBoxDescent ?? mrz.size * 0.2;
     painter.texts.push({
       text: line,
       x,
@@ -1003,7 +996,8 @@ function drawHolderPage(
   pageHeader(painter, copy, layout, p, "holder");
   painter.text(copy.title, left, 944, {
     size: 52,
-    font: "serif",
+    weight: 500,
+    font: "display",
     color: p.ink,
     maxWidth: 1020,
     minSize: 36,
@@ -1052,7 +1046,7 @@ function drawHolderPage(
     profile,
     p,
   );
-  painter.rule(left, right, 1266, p.rule);
+  painter.rule(left, right, layout.statsRule, p.rule);
   statBlock(painter, copy.distance, layout.distance, p.accent, p.ink, p.muted);
   [copy.flights, copy.duration, ...copy.secondary, copy.routes].forEach(
     (stat, index) => {
@@ -1067,7 +1061,7 @@ function drawHolderPage(
     },
   );
   if (copy.notes.length)
-    painter.text(copy.notes.join(" · "), left, 1472, {
+    painter.text(copy.notes.join(" · "), left, layout.notesBaseline, {
       size: 20,
       minSize: 16,
       color: p.muted,
@@ -1083,7 +1077,7 @@ export function drawPoster(
   context: Context2D,
   layout: PosterLayout,
   copy: PosterCopy,
-  fonts: Pick<ShareFonts, "family">,
+  fonts: PosterFonts,
 ): PosterDrawReport {
   const painter = new Painter(context, fonts);
   const palette = PASSPORT_PALETTE;
@@ -1101,5 +1095,32 @@ export function drawPoster(
       box.x + box.width > safe.x + safe.width + 0.5 ||
       box.y + box.height > safe.y + safe.height + 0.5,
   );
-  return { texts: painter.texts, outside, truncated: painter.truncated, map };
+  const inside = (box: PosterTextBox, rect: PosterRect) =>
+    box.x >= rect.x - 0.5 &&
+    box.y >= rect.y - 0.5 &&
+    box.x + box.width <= rect.x + rect.width + 0.5 &&
+    box.y + box.height <= rect.y + rect.height + 0.5;
+  const paperOutside = painter.texts.filter((box) => {
+    if (box.baseline < layout.holderPage.y) return false;
+    if (!inside(box, layout.holderContent)) return true;
+    if (copy.mrz.includes(box.text))
+      return !inside(box, {
+        x: layout.holderContent.x,
+        y: layout.mrz.rule + 20,
+        width: layout.holderContent.width,
+        height:
+          layout.holderContent.y +
+          layout.holderContent.height -
+          layout.mrz.rule -
+          20,
+      });
+    return box.y + box.height > layout.mrz.rule - 8;
+  });
+  return {
+    texts: painter.texts,
+    outside,
+    paperOutside,
+    truncated: painter.truncated,
+    map,
+  };
 }
