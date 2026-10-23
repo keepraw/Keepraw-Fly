@@ -3,9 +3,19 @@ import { appendFile, readFile } from "node:fs/promises";
 const report = JSON.parse(await readFile(process.argv[2], "utf8"));
 const files = {};
 const failures = [];
+let tests = 0;
+let attempts = 0;
+let retryMs = 0;
+const filesTests = {};
 function visit(suite) {
   for (const spec of suite.specs ?? []) {
     for (const test of spec.tests) {
+      tests += 1;
+      attempts += test.results.length;
+      retryMs += test.results
+        .slice(1)
+        .reduce((sum, result) => sum + result.duration, 0);
+      filesTests[spec.file] = (filesTests[spec.file] ?? 0) + 1;
       files[spec.file] =
         (files[spec.file] ?? 0) +
         test.results.reduce((sum, result) => sum + result.duration, 0);
@@ -26,6 +36,15 @@ function visit(suite) {
 for (const suite of report.suites) visit(suite);
 const summary = {
   ...report.stats,
+  label: process.argv[3] ?? "Playwright",
+  shard: report.config?.shard ?? null,
+  workers: report.config?.workers ?? null,
+  tests,
+  attempts,
+  retries: attempts - tests,
+  retryMs,
+  executionMs: Object.values(files).reduce((sum, ms) => sum + ms, 0),
+  filesTests,
   filesMs: Object.fromEntries(
     Object.entries(files).sort((a, b) => b[1] - a[1]),
   ),
@@ -49,6 +68,7 @@ if (process.env.GITHUB_STEP_SUMMARY)
 if (
   report.stats.skipped ||
   report.stats.unexpected ||
+  report.stats.flaky ||
   report.errors?.length ||
   !Object.keys(files).length
 )
