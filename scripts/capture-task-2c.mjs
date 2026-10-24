@@ -367,7 +367,8 @@ for (const language of ["zh-CN", "zh-TW"]) {
       language + ": missing rendered weight " + weight,
     );
 }
-const control = "docs/visual-review/task-1b-7b2/comp-control-fixed-dark.png";
+const control =
+  "docs/archive/visual-review/task-1b-7b2/comp-control-fixed-dark.png";
 const approved =
   "c17d906dc74bd44d91e80f247bc784f6d41e6a19e083778dc2a54d07e8bf24d5";
 assert.equal(sha(await readFile(control)), approved);

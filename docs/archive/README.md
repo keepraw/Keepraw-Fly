@@ -1,43 +1,46 @@
 # Historical archive
 
-This archive preserves selected decisions and source provenance. It is not a
-store for completed tasks or routine audit output. Use [current documentation](../README.md)
-for implementation and operations; historical defaults, measurements and approval
-statements apply only to their recorded revisions.
+These are selected decisions, approved references, compliance assessments and
+otherwise unrecoverable source provenance. Current guidance starts at
+[the documentation index](../README.md). Historical measurements, experiment
+parameters and approval statements apply only to their recorded revisions.
 
 ## Design rationale
 
-| Record                                                          | Lasting value                                                                                                                                      |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Globe technology selection](globe/globe-prototype.md)          | Why Three.js was chosen over a projected SVG/Canvas globe or Globe.gl, including control and dependency tradeoffs                                  |
-| [Globe composition and routes](globe/globe-cinematic-scene.md)  | Why representative activity, aspect-aware framing and shared physical strokes preserve geographic and directed-flight semantics                    |
-| [Globe material alternatives](globe/globe-art-direction.md)     | The rejected brighter treatment and A/B tradeoffs explain why route hierarchy leads the visual design; later approved Control remains the baseline |
-| [Night-texture diagnosis](visual-review/task-1b-5/diagnosis.md) | Measured evidence explains low-signal recovery, the retained noise floor and bounded peaks in the current night-response tests                     |
+| Record                                                          | Status and retention reason                                                                                                                                    |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Globe technology selection](globe/globe-prototype.md)          | Decision still applicable: why Three.js was chosen; prototype acceptance and timings are superseded                                                            |
+| [Globe composition and routes](globe/globe-cinematic-scene.md)  | Rationale still applicable: geographic composition and physical strokes remain separate from directed flight facts; exact historical parameters are superseded |
+| [Globe material alternatives](globe/globe-art-direction.md)     | Superseded experiment: rejected brighter treatments explain the retained route-first visual hierarchy                                                          |
+| [Night-texture diagnosis](visual-review/task-1b-5/diagnosis.md) | Rationale still applicable to formal noise-floor and bounded-peak regression inputs; the transfer diagram describes historical curves                          |
 
-These records describe distinct decisions rather than parallel specifications.
-The earlier lighting implementation report, CSS/i18n acceptance audits, Task 5A/5B
-completion reports and superseded Detail captures are available in Git history.
-Their remaining lessons and open questions now belong to the current visual,
-Globe and locale guides.
+## Approved references and provenance
 
-## Source provenance exception
+- [Approved Globe Control](visual-review/task-1b-7b2/README.md): retain six
+  byte-identical PNGs and their canonical manifest. They cover the approved Dark
+  treatment, Light counterpart, Passport allocation, long-haul selection and two
+  post-specular regressions. The Dark Control hash is an input to the maintained
+  font-capture helper. They are deliberate reference inputs, not disposable
+  screenshots or a second specification for current page geometry.
+- [Task 2C font provenance](visual-review/task-2c/resume/README.md): retain the
+  original CDN/font hashes, rendered faces, native zoom and long-city records.
+  They support font-source and licensing review; historical screenshot names in
+  those records are not promises that every image remains in the checkout.
+- [Task A source provenance](visual-review/task-a/README.md): retain its small
+  source bundle because the capture revision is unavailable through GitHub and
+  equivalence to a recoverable published tree has not been established.
+- [Dependency security review, 2026-10-16](dependency-security-2026-10-16.md):
+  preserve the dated exposure analysis referenced by release notes. Dependency
+  counts and runner-upgrade recommendations are superseded; current follow-up is
+  in [security](../security.md#known-dependency-advisory).
 
-[Task A provenance](visual-review/task-a/README.md) retains a small reconstruction
-note and its source bundle. The bundled capture revision is not retrievable from
-the GitHub repository and equivalence to published trees has not been established.
-Its future value is uncertain, so the bundle is preserved until that mapping is
-verified. The full task report and gallery remain in Git history.
+Formal machine-readable Globe inputs remain in
+[tests/fixtures/globe](../../tests/fixtures/globe/README.md). Capture tools live in
+`scripts/` and default to ignored `artifacts/`; see [testing](../testing.md).
 
-## Retention policy
+## Retention
 
-Keep a record only when it explains a lasting choice or rejected alternative, or
-preserves source provenance that is not otherwise recoverable. Link it from the
-owning topic, identify the recorded revision and explain why Git history alone is
-insufficient. Do not add pass/fail logs, routine screenshots, completion reports
-or temporary investigations simply because a task finished.
-
-Before deleting an old report, carry unresolved actions into current guidance.
-Reassess a retained record when its owning design is superseded; remove it if its
-useful rationale is already covered by maintained guidance and Git history.
-Machine-readable fixtures belong with tests. The [legacy evidence inventory](../visual-review/README.md)
-records existing path debt without making it an archive admission rule.
+[Engineering standards](../engineering-standards.md#documentation-and-evidence)
+own retention rules. Completed reports, superseded galleries and temporary JSON
+are recoverable from Git history. Archive admission requires lasting rationale,
+compliance value or source provenance, not merely a completed PR.

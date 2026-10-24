@@ -19,7 +19,14 @@ After fetching the baseline commit, verify from the repository root:
 git bundle verify docs/archive/visual-review/task-a/capture-source.bundle
 ```
 
-The [historical capture helper](../../../visual-review/task-a/capture.md) documents
-source-checkout requirements. Map the bundle's original revisions to recoverable
-published source before removing this exception. Routine task reports or new
-capture bundles do not qualify for retention on this basis alone.
+The historical capture helper now lives at
+[`scripts/capture-theme-history.mjs`](../../../../scripts/capture-theme-history.mjs).
+It needs the recorded source checkout, dev server and Chromium; it is not a
+current UI baseline. From that checkout, run the helper with `before` or `after`.
+The `before` mode verifies the exact baseline SHA. Default output is ignored
+`artifacts/task-a/before/` or `artifacts/task-a/after/`; keep `TASK_A_CAPTURE_OUTPUT`
+and `TASK_A_CAPTURE_COMPUTED_OUTPUT` overrides under `artifacts/` as well.
+
+Map the bundle's original revisions to recoverable published source before removing
+this exception. Routine task reports or new capture bundles do not qualify for
+retention on this basis alone.

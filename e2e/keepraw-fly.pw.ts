@@ -595,13 +595,13 @@ test("previews a JSON import and renders its Passport route map", async ({
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
     "Recognized1Valid1With issues0New1Possible duplicate0Existing / duplicate0",
   );
-  await expect(preview.getByText("张鸿川")).toBeVisible();
+  await expect(preview.getByText("陈小明")).toBeVisible();
   await preview.getByRole("button", { name: "Import this archive" }).click();
 
   await expect(page.getByRole("button", { name: /Open UA123/ })).toBeVisible();
   await navigateTo(page, "passport");
   await expect(page.getByText("Flight archive · 1 flight")).toHaveCount(0);
-  await expect(page.getByText("张鸿川", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("陈小明", { exact: false })).toHaveCount(0);
   await expect(
     page.getByRole("group", { name: /World map showing 1 flight/ }),
   ).toBeVisible();

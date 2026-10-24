@@ -1,19 +1,24 @@
-import { access, readdir, readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const documentPaths = [
-  ...(await readdir(repositoryRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
-    .map((entry) => entry.name),
-  ...(await markdownFiles("docs")),
+// Include every tracked or new, non-ignored Markdown file, including examples,
+// fixture notes and source notices. Deleted working-tree paths are excluded.
+const candidates = [
+  ...new Set(
+    execFileSync(
+      "git",
+      ["ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+      { cwd: repositoryRoot, encoding: "utf8" },
+    )
+      .split("\0")
+      .filter((path) => path.endsWith(".md")),
+  ),
 ];
-for (const entry of await readdir(resolve(repositoryRoot, "packages"), {
-  withFileTypes: true,
-})) {
-  if (!entry.isDirectory()) continue;
-  const path = `packages/${entry.name}/README.md`;
+const documentPaths = [];
+for (const path of candidates) {
   if (await exists(resolve(repositoryRoot, path))) documentPaths.push(path);
 }
 const documents = Object.fromEntries(
@@ -84,20 +89,6 @@ if (problems.length > 0) {
   console.log(
     `Documentation checks passed for ${documentPaths.length} files: capabilities, developer demo and local links.`,
   );
-}
-
-async function markdownFiles(directory) {
-  const entries = await readdir(resolve(repositoryRoot, directory), {
-    withFileTypes: true,
-  });
-  const paths = await Promise.all(
-    entries.map((entry) => {
-      const path = `${directory}/${entry.name}`;
-      if (entry.isDirectory()) return markdownFiles(path);
-      return entry.isFile() && entry.name.endsWith(".md") ? [path] : [];
-    }),
-  );
-  return paths.flat();
 }
 
 async function exists(path) {

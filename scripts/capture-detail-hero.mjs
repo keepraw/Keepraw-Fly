@@ -2,8 +2,8 @@
 //
 // Usage (from the repository root, with a dev server for the checkout under
 // review already running):
-//   BASE_URL=http://127.0.0.1:5173 LABEL=after OUT=/tmp/detail-review \
-//     node docs/review/detail-content-led-hero/capture.mjs
+//   BASE_URL=http://127.0.0.1:5173 LABEL=after OUT=artifacts/detail-hero \
+//     node scripts/capture-detail-hero.mjs
 //
 // Every shot imports the same deterministic archive
 // (e2e/fixtures/detail-content-hero.keepraw-fly.json), uses DPR 1, reduced
@@ -15,10 +15,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const base = process.env.BASE_URL ?? "http://127.0.0.1:5173";
 const label = process.env.LABEL ?? "after";
-const out = process.env.OUT ?? "detail-review";
+const out = process.env.OUT ?? "artifacts/detail-hero";
 const archive = await readFile(
   new URL(
-    "../../../e2e/fixtures/detail-content-hero.keepraw-fly.json",
+    "../e2e/fixtures/detail-content-hero.keepraw-fly.json",
     import.meta.url,
   ),
 );

@@ -4,7 +4,7 @@ Historical pre-change diagnosis of the Task 1B-4 emission response. The
 [original record](https://github.com/keepraw/Keepraw-Fly/blob/8090372ac6d02d2c4c9dec4c09c78c2444f4641b/docs/visual-review/task-1b-5/diagnosis.md)
 contains every regional measurement and earlier response formula. These grayscale
 visualization signals are not calibrated luminance. See [current Globe implementation](../../../globe.md)
-and the [legacy evidence inventory](../../../visual-review/README.md) for current ownership.
+and the [legacy evidence inventory](../../README.md) for current ownership.
 
 ## Evidence and cause
 
@@ -35,10 +35,10 @@ peak. Preserve positive tonal ordering and verify dark-control pixels instead of
 inferring correctness from a brighter screenshot. This explains the constraints
 in `apps/web/src/globe/globe-night-response.test.ts`.
 
-![Historical transfer functions](../../../visual-review/task-1b-5/transfer-curves.svg)
+![Historical transfer functions](transfer-curves.svg)
 
 The plot shows earlier curves with default intensity, excluding palette and solar
 mask; it is a historical explanation, not a current response plot. The original
 per-region table, implementation chronology and old screenshots remain in Git
-history. The [approved Control](../../../visual-review/task-1b-7b2/README.md) records
+history. The [approved Control](../task-1b-7b2/README.md) records
 subsequent design acceptance rather than this investigation's status.
