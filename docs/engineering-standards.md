@@ -87,6 +87,9 @@ The known incorrect identity is `forgottenpedestrian@gmail.com` / `zzvw`.
 `pnpm check:commits -- <base-sha> <head-sha>` rejects it in new Author, Committer
 and `Co-authored-by` fields. CI checks the incoming commit range, including the
 PR merge commit. It does not impose an owner-only allowlist on other contributors.
+If a force push removes the event's previous SHA from the full checkout, CI
+checks all history reachable from the replacement head. An unavailable base
+still fails ordinary pushes and PRs; shallow checkouts cannot use this fallback.
 Review squash-message trailers before merging: GitHub may copy original
 coauthor emails. `.mailmap` alone does not establish a GitHub attribution repair.
 
