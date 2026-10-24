@@ -10,23 +10,13 @@
 
 **[https://fly.keepraw.com](https://fly.keepraw.com) 是开发者提供的 Demo**，用于在浏览器中体验 Keepraw Fly。可选择演示模式浏览虚构的示例航班，也可以创建个人档案。航班记录保存在当前浏览器中；Demo 不提供账号或云端同步。
 
-普通用户无需安装 Node.js、pnpm 或自行编译。Demo 与其他站点的数据按来源（origin）隔离；迁移前请导出 JSON 备份。
+首次使用时选择**创建我的档案**，再**添加航班**；也可以在欢迎页导入已有的 Keepraw Fly JSON。后续导入与导出位于**设置 → 数据与备份**。无需安装 Node.js、pnpm 或自行编译。
 
-## GitHub Pages 自托管（零编译）
-
-Fork 本仓库 → 在 Actions 启用工作流 → Settings → Pages 选择 GitHub Actions → 手动运行 **Deploy official release to Fork Pages**，选择 **v0.1.1**。它下载并校验官方发行包，不执行依赖安装、编译或完整 E2E，支持项目子目录和自定义域名。升级由你明确选择。
-
-**预构建模式不会运行 Fork 自己修改的源码。** 详见[中文部署指南](docs/deployment.zh-CN.md)。
-
-## VPS 自托管（Docker）
-
-安装 Docker 与 Compose v2 → 下载、校验并检查官方固定版本安装器 → 配置域名 → 使用 HTTPS 访问。只运行一个 Caddy 静态服务容器，无需 JavaScript 工具链。支持 amd64/arm64、digest 固定镜像、重复安装、升级与回滚。
-
-从 [v0.1.1 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) 获取安装器或直接可部署的 ZIP/tar.gz，按[中文 VPS 安装说明](docs/deployment.zh-CN.md#vpsdocker-与自动-https)执行。官方发布者与镜像作者为 **keepraw**。
+**请定期导出 JSON 备份，并在更换站点、浏览器或设备前备份。** Demo 与自托管站点之间不会同步数据。
 
 ## 主要功能
 
-- **飞行护照：** 浏览全部或指定年份的航班、距离、空中时间、延误、机场、航司、机型与航线亮点；可保存上下双页的旅行纪念护照，使用本地昵称与稳定虚拟编号。
+- **飞行护照：** 浏览全部或指定年份的航班、距离、空中时间、延误、机场、航司、机型与航线亮点；可保存上下双页的旅行纪念护照，使用档案姓名与保存在当前浏览器的纪念编号。
 - **航班档案与详情：** 搜索、筛选、新增、编辑、复制航班，并查看完整记录。
 - **航线可视化：** 在桌面端飞行护照和航班详情地图中浏览已记录航线。
 - **可迁移数据：** 导出及迁移经过验证的 Keepraw Fly JSON 档案；写入前预览 JSON、Keepraw Fly CSV 和 Flighty CSV。
@@ -34,86 +24,66 @@ Fork 本仓库 → 在 Actions 启用工作流 → Settings → Pages 选择 Git
 - **本地优先：** 航班历史保存在浏览器中；无需账号，也没有保存航班历史的云端后端。
 - **跨设备设计：** 适配桌面与移动端，支持简体中文、繁体中文（台湾）、美式英语、英式英语、日语、法语、德语、西班牙语、巴西葡萄牙语和韩语。
 
+本 README 描述当前 `main`。Demo 随成功的 `main` 部署更新，固定发行版的功能可能较少。例如，[v0.1.1](docs/releases/v0.1.1.md#简体中文) 不包含后续的 Passport/航班详情改版及护照图片生成器。[当前功能边界](docs/not-implemented.md)说明尚未实现的能力，不代表开发路线图。
+
 ## 本地数据与隐私
 
-航班记录默认保存在当前来源（origin）的 IndexedDB 中。Keepraw Fly 没有账号系统，也没有保存用户航班历史的云端后端。默认静态构建不会上传航班记录，也不包含分析 SDK。[旅行纪念护照](docs/flight-passport-journal.md)的昵称与虚拟编号单独保存在 localStorage，仅属于当前浏览器，并会包含在保存的图片中。
+航班记录默认保存在当前来源（origin）的 IndexedDB 中。Keepraw Fly 没有账号系统，也没有保存用户航班历史的云端后端。默认静态构建不会上传航班记录，也不包含分析 SDK。[旅行纪念护照](docs/flight-passport-journal.md)使用档案姓名，以及单独保存在 localStorage 中的纪念编号。编号不包含在 JSON 备份中；保存的图片包含姓名和编号，不是真实旅行证件。
 
 持久存储是浏览器提供的可选能力。浏览器支持并授予时，可降低因存储空间压力自动清理本站数据的概率；它不能防止手动清除网站数据，不保证永久保存，也不能替代 JSON 备份。申请持久存储无需安装为应用，安装也不代表浏览器已授予持久存储。
 
-不同域名、浏览器和设备的数据彼此独立；同一来源的项目路径不提供存储隔离。部署新版本不会主动清除档案；Docker 升级不等于个人数据备份或迁移。VPS 只托管网页，不保存航班档案。
+不同来源（协议、主机、端口）、浏览器配置和设备的数据彼此独立；同一来源的项目路径不提供存储隔离。部署新版本不会主动清除档案；Docker 升级不等于个人数据备份或迁移。VPS 只托管网页，不保存航班档案。
 
-JSON 导出是主要的备份与迁移手段。建议定期导出 Keepraw Fly JSON 档案，并在更换浏览器、设备或清除网站数据前备份。
+**清除网站数据或浏览器自动清理，可能删除唯一的档案副本。** 请在清除数据或升级前导出完整 Keepraw Fly JSON，并妥善保存下载文件。
 
 机场、航司和地图资源是随应用提供的参考数据，并非实时航班状态服务。来源与许可见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
-中文 UI 字体沿用固定版本 `misans-webfont@4.3.1` 的 jsDelivr MiSans / MiSans TC；仅中文语言加载相应 CSS 和 WOFF2 子集，拉丁语言使用 Inter/系统字体，日语和韩语使用系统字体。第三方服务接收正常资源请求元数据，不接收航班档案；失败时回退系统字体。
+中文 UI 字体，以及护照图片按需使用的 CJK 字体，会从固定版本的 jsDelivr 资源加载。该第三方服务接收正常资源请求元数据，不接收航班记录或档案内容；请求失败时回退系统字体。详见[字体来源与隐私说明](THIRD_PARTY_NOTICES.md)。
 
 ## 导入与备份
 
-打开**设置 → 数据与备份**，在导入修改档案之前查看预检结果。
+在**设置 → 数据与备份**选择**导出 Keepraw Fly JSON**，保存完整档案备份。迁移时，在目标站点选择 JSON 导入，打开下载文件，检查预览后确认。界面偏好和纪念编号仅保存在当前浏览器，不属于可迁移档案。
 
 - **Keepraw Fly JSON：** 导入或导出完整、可迁移的档案，用于备份及迁移。
 - **Keepraw Fly CSV 批量导入：** 映射并验证文档定义的字段，再添加记录。
 - **Flighty CSV：** 从 Flighty 导出文件导入受支持字段；这是单向导入，不是同步，也不代表完全兼容 Flighty 格式。
 
-导入到现有档案时会追加航班，保留当前个人资料和已有记录。完全重复的记录会跳过，可能重复的记录可在导入前检查；两种 CSV 流程都会在写入前验证每一行。没有现有档案时，JSON 导入会保留源文件的个人资料与文档元数据。参见[格式与 CSV 字段说明](docs/schema.md)和[示例文件](examples/README.md)。
+导入到现有档案时会追加航班，保留当前个人资料和已有记录。完全重复的记录会跳过；可能重复的记录需要明确选择，无效记录会阻止导入。没有现有档案时，JSON 导入会保留源文件的个人资料与文档元数据。参见[格式与 CSV 字段说明](docs/schema.md)和[示例文件](examples/README.md)。
 
-机场当地时间使用内置 IANA 时区数据解析；也支持带 offset 或 `Z` 的 RFC 3339 时间。
+**完整备份包含个人信息**，如姓名、PNR、客票号和常旅客会员号，请谨慎保存和分享。**导出去除个人信息的版本**用于分享，不能作为备份：精确日期、航线和座位仍会保留，因此并非完全匿名。详见[导出隐私说明](docs/security.md#personal-data-in-exports)。
+
+## 常见问题
+
+- **更换网址或浏览器后找不到记录？** 返回原来源和浏览器配置导出 JSON，再在目标导入。没有账号或服务器副本可供恢复。
+- **可以离线使用吗？** 缓存资源有时可用，但不保证离线启动。本地存储不等于完整离线应用。
+- **为什么导入被阻止？** 检查预览中的验证问题，并参照[支持的字段和示例](docs/schema.md#csv-import)。Flighty 仅支持部分 CSV 字段，不代表完整兼容。
+
+## GitHub Pages 自托管（零编译）
+
+按[Pages 指南](docs/deployment.zh-CN.md#github-pages无需编译)在 Fork 部署经过校验的官方发行版，支持项目子目录和自定义域名，无需本地编译。**这种模式不会运行 Fork 修改的源码。** 升级与回滚均由你明确选择版本。
+
+## VPS 自托管（Docker）
+
+按[VPS 指南](docs/deployment.zh-CN.md#vpsdocker-与自动-https)配置 Docker/Compose、校验安装器、启用 HTTPS 并维护部署。单个 Caddy 容器在 amd64/arm64 上提供静态网页；VPS 不保存航班档案。官方发布者与镜像作者为 **keepraw**。
+
+[v0.1.1 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) 提供安装器和预构建 ZIP/tar.gz；安装前请按指南检查前提条件并完成校验。
 
 ## 开发者：本地运行
 
-环境要求：Node.js 24 LTS（`^24.0.0`）和 pnpm 10.14.0，与 CI 一致。运行 `nvm use` 可选择 `.nvmrc` 中的版本；安装时会拒绝不受支持的 Node.js 版本。
-
-```bash
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-打开 <http://localhost:5173>。开发服务固定使用此端口，端口被占用时会退出。
-
-通过 HTTP 检查生产构建：
-
-```bash
-pnpm build
-pnpm preview
-```
-
-打开 <http://127.0.0.1:4173>（默认预览地址）。构建产物需通过 HTTP 服务访问，不支持直接打开 `apps/web/dist/index.html`。
+先阅读[本地开发说明](docs/engineering-standards.md#local-development)，获取所需工具链、依赖安装、开发服务和构建命令，再阅读[架构说明](docs/architecture.md)。
 
 ## 开发者：验证
 
-```bash
-pnpm format
-pnpm format:check
-pnpm lint:css
-pnpm check:css-tokens
-pnpm check:docs
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm test:e2e --project=chromium
-```
-
-需要时先运行 `pnpm exec playwright install chromium`。Chromium 运行完整 E2E 回归；Firefox 和 WebKit 仅运行带标记的兼容性 smoke，命令为 `pnpm test:e2e --project=firefox --project=webkit`（先安装对应浏览器）。分层和新增测试规则见[测试说明](docs/testing.md)。`pnpm check:docs` 会检查功能说明、Demo 标注及文档中的本地链接。官方 GitHub Actions 会针对 Pull Request 和 `main` 运行完整仓库检查；Fork 跳过这些官方作业，使用独立预构建部署流程，并在 `main` 检查通过后部署到 GitHub Pages。配置方式见[部署说明](docs/deployment.md)。
-
-Dependabot 每周检查 pnpm workspace 依赖和 GitHub Actions 的新版本。minor/patch 版本更新按生态分组，major 更新单独提交 PR。更新 PR 由现有 CI 验证，再由维护者人工审查并决定是否 squash merge；依赖更新不会自动合并。继续提交 `pnpm-lock.yaml`，并使用 `pnpm install --frozen-lockfile` 安装依赖。
+遵循[质量门禁与贡献规范](docs/engineering-standards.md#quality-gates)和[浏览器测试说明](docs/testing.md)。校验、CI 和依赖维护要求在这些文档中统一维护。
 
 ## 数据格式
 
-Keepraw Fly 使用可迁移的 `keepraw-fly` JSON 格式，并执行结构与语义校验。命名空间扩展随所属记录保留；向现有档案追加航班时，保留当前档案的文档级元数据。参见[数据格式说明](docs/schema.md)、[JSON Schema](packages/schema/keepraw-fly.schema.json)和[架构说明](docs/architecture.md)。
+可迁移的 `keepraw-fly` 档案执行结构与语义校验。参见[格式与兼容性指南](docs/schema.md)和[JSON Schema](packages/schema/keepraw-fly.schema.json)。
 
 ## 文档
 
-先阅读[文档索引](docs/README.md)中的当前指南；有长期参考价值的设计决策与源码溯源
-单独收录在[历史归档](docs/archive/README.md)。
-
-- [架构](docs/architecture.md)
-- [视觉系统](docs/design-system.md)
-- [部署（中文）](docs/deployment.zh-CN.md) / [English](docs/deployment.md)
-- [数据格式](docs/schema.md)
-- [当前功能边界](docs/not-implemented.md)
-- [第三方声明](THIRD_PARTY_NOTICES.md)
+[双语文档索引](docs/README.md)按读者分类提供用户帮助、自托管、开发指南、发布说明和历史记录入口。
 
 ## 许可证
 
-源代码采用 [MIT License](LICENSE)。该许可证不授予项目名称、Logo 或识别性标志的使用权，详见 [TRADEMARK.md](TRADEMARK.md)。
+源代码采用 [MIT License](LICENSE)。该许可证不授予项目名称、Logo 或识别性标志的使用权，详见 [TRADEMARK.md](TRADEMARK.md)。字体、数据集、图像和航司标志的独立条款见[第三方声明](THIRD_PARTY_NOTICES.md)。

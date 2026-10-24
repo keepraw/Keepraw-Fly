@@ -19,9 +19,9 @@ release number; this is not a claim to support every Flighty export version.
 ## Import
 
 Download a file using GitHub's **Raw / Download raw file** action. Open Keepraw Fly
-and choose the corresponding JSON, CSV or Flighty import action on the welcome
-screen or in Settings. For mapped CSV, review the detected column mapping. Inspect
-the preview and confirm only after validation passes. Use a disposable browser
+and choose the corresponding JSON, CSV or Flighty import action in
+**Settings → Data and backup**. The welcome screen also accepts Keepraw Fly JSON.
+For mapped CSV, review the detected column mapping. Inspect the preview and confirm only after validation passes. Use a disposable browser
 profile for experimentation: imports into an existing archive append selected
 flights, skip exact duplicates and preserve its profile. JSON imported without an
 active archive supplies the example profile. JSON is the backup format; CSV is an
