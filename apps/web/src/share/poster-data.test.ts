@@ -23,9 +23,8 @@ import {
   POSTER_SIZE,
 } from "./poster-layout";
 import {
-  POSTER_FRAME_MARGIN,
   POSTER_MAP_RATIO,
-  posterMapCrop,
+  posterMapBounds,
   posterMapFrame,
   projectToFrame,
   routePolylines,
@@ -485,7 +484,7 @@ describe("poster map geometry", () => {
         );
   });
 
-  it("frames the map around the routes and keeps points inside the rect", () => {
+  it("keeps route points inside the global view with the existing seam centre", () => {
     const routes = [
       {
         from: { latitude: 37.62, longitude: -122.38 },
@@ -503,10 +502,7 @@ describe("poster map geometry", () => {
       routes[0]!.to,
       routes[1]!.from,
     ]);
-    const frame = posterMapFrame(rect, center, {
-      routes,
-      airports: [routes[0]!.from, routes[0]!.to, routes[1]!.from],
-    });
+    const frame = posterMapFrame(rect, center);
     for (const route of routes)
       expect(routePolylines(frame, route.from, route.to)).toHaveLength(1);
     for (const route of routes)
@@ -568,76 +564,72 @@ describe("poster map geometry", () => {
       ...new Set(routes.flatMap((route) => [route.from, route.to])),
     ];
     const center = posterCenterLongitude(routes, airports);
-    const frame = posterMapFrame(poster, center, { routes, airports });
+    const frame = posterMapFrame(poster, center);
     return { frame, airports, box: extent(frame, routes, airports) };
   };
 
-  it("falls back to the whole inhabited world when nothing is plottable", () => {
-    for (const frame of [
-      posterMapFrame(poster, 120),
-      posterMapFrame(poster, 120, { routes: [], airports: [] }),
-    ]) {
-      expect(frame.fitted).toBe(false);
-      expect(frame.crop).toEqual(posterMapCrop());
-      expect(frame.crop.width * frame.scale).toBeCloseTo(poster.width, 6);
+  it("uses the same complete global extent and uniform scale for every route distribution", () => {
+    const distributions = [
+      [],
+      [["PVG", "HND"]],
+      [
+        ["PEK", "PVG"],
+        ["PVG", "HND"],
+        ["PVG", "ICN"],
+        ["HKG", "PVG"],
+        ["CAN", "PEK"],
+        ["TPE", "HND"],
+      ],
+      [
+        ["LHR", "PEK"],
+        ["SFO", "HND"],
+        ["SYD", "HND"],
+      ],
+    ];
+    const world = posterMapFrame(poster);
+    for (const distribution of distributions) {
+      const { frame } = frameFor(pairs(distribution));
+      expect(frame.extent).toEqual(posterMapBounds());
+      expect(frame.scale).toBe(world.scale);
+      expect(frame.offsetX).toBe(world.offsetX);
+      expect(frame.offsetY).toBe(world.offsetY);
+      // Both poles and the equatorial seam edges fit without anisotropic scaling.
+      for (const point of [
+        { latitude: 90, longitude: frame.centerLongitude },
+        { latitude: -90, longitude: frame.centerLongitude },
+        { latitude: 0, longitude: frame.centerLongitude + 179.999 },
+        { latitude: 0, longitude: frame.centerLongitude - 179.999 },
+      ]) {
+        const projected = projectToFrame(frame, point)!;
+        expect(projected.x).toBeGreaterThanOrEqual(poster.x - 0.01);
+        expect(projected.x).toBeLessThanOrEqual(poster.x + poster.width + 0.01);
+        expect(projected.y).toBeGreaterThanOrEqual(poster.y - 0.01);
+        expect(projected.y).toBeLessThanOrEqual(
+          poster.y + poster.height + 0.01,
+        );
+      }
+      expect(frame.extent.width * frame.scale).toBeCloseTo(poster.width, 6);
     }
   });
 
-  it("fits East Asia plus one South Asia route to most of the map width", () => {
-    const routes = pairs([
-      ["PEK", "PVG"],
-      ["PVG", "HND"],
-      ["PVG", "ICN"],
-      ["HKG", "PVG"],
-      ["HND", "ICN"],
-      ["PEK", "HND"],
-      ["CAN", "PEK"],
-      ["TPE", "HND"],
-      ["PVG", "DEL"],
-    ]);
-    const { frame, box } = frameFor(routes);
-    expect(frame.fitted).toBe(true);
-    expect((box.right - box.left) / poster.width).toBeGreaterThan(0.55);
-    // Uniform margins: everything inside, with the frame margin to spare on
-    // the limiting axis and at least that much on the other.
-    expect(box.left - poster.x).toBeGreaterThanOrEqual(
-      POSTER_FRAME_MARGIN - 0.5,
+  it("leaves East Asia at its geographic size within the world", () => {
+    const { box } = frameFor(
+      pairs([
+        ["PEK", "HND"],
+        ["HKG", "PVG"],
+        ["TPE", "HND"],
+      ]),
     );
-    expect(poster.x + poster.width - box.right).toBeGreaterThanOrEqual(
-      POSTER_FRAME_MARGIN - 0.5,
-    );
-    expect(box.top).toBeGreaterThan(poster.y);
-    expect(box.bottom).toBeLessThan(poster.y + poster.height);
-    // Equal Earth stays undistorted: one scale for both axes.
-    expect(frame.crop.width / frame.crop.height).toBeCloseTo(
-      poster.width / poster.height,
-      6,
-    );
+    expect((box.right - box.left) / poster.width).toBeLessThan(0.15);
   });
 
-  it("keeps a great-circle bulge inside the frame", () => {
-    // LHR–PEK arcs far north of both endpoints.
-    const routes = pairs([["LHR", "PEK"]]);
-    const { box } = frameFor(routes);
-    const ends = [AIRPORT.LHR!, AIRPORT.PEK!];
-    const { frame } = frameFor(routes);
+  it("keeps the full northern great-circle arc in the global view", () => {
+    const { frame, box } = frameFor(pairs([["LHR", "PEK"]]));
     const endTop = Math.min(
-      ...ends.map((airport) => projectToFrame(frame, airport)!.y),
+      ...[AIRPORT.LHR!, AIRPORT.PEK!].map((p) => projectToFrame(frame, p)!.y),
     );
-    expect(box.top).toBeLessThan(endTop - 20);
-    expect(box.top).toBeGreaterThanOrEqual(
-      poster.y + POSTER_FRAME_MARGIN - 0.5,
-    );
-  });
-
-  it("does not over-magnify one short hop", () => {
-    const routes = pairs([["PVG", "HND"]]);
-    const { frame, box } = frameFor(routes);
-    const world = posterMapFrame(poster, frame.centerLongitude);
-    expect(frame.scale / world.scale).toBeLessThan(9);
-    // The hop is framed with surroundings rather than stretched edge to edge.
-    expect((box.right - box.left) / poster.width).toBeLessThan(0.6);
-    expect(box.left).toBeGreaterThan(poster.x + POSTER_FRAME_MARGIN);
+    expect(box.top).toBeLessThan(endTop);
+    expect(box.top).toBeGreaterThan(poster.y);
   });
 
   it("keeps trans-Pacific routes split by the seam logic, never across the map", () => {
@@ -659,6 +651,5 @@ describe("poster map geometry", () => {
     expect(box.right).toBeLessThanOrEqual(poster.x + poster.width);
     expect(box.top).toBeGreaterThanOrEqual(poster.y);
     expect(box.bottom).toBeLessThanOrEqual(poster.y + poster.height);
-    expect((box.right - box.left) / poster.width).toBeGreaterThan(0.55);
   });
 });
