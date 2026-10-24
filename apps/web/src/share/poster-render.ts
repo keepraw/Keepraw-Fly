@@ -36,6 +36,9 @@ export interface PosterPalette {
   rule: string;
   ink: string;
   muted: string;
+  /** Small field and statistic labels: one step darker than `muted` so
+   * 20–24 unit captions survive downscaled previews. */
+  label: string;
   faint: string;
   figure: string;
   accent: string;
@@ -67,6 +70,7 @@ export const PASSPORT_PALETTE: PosterPalette = {
   rule: "rgba(16, 32, 60, 0.16)",
   ink: "#10243a",
   muted: "#475d70",
+  label: "#2f4559",
   faint: "rgba(16, 32, 60, 0.58)",
   figure: "#10243a",
   accent: "#88734c",
@@ -108,8 +112,10 @@ export interface PosterDrawReport {
   outside: PosterTextBox[];
   /** Text that had to be shortened with an ellipsis. */
   truncated: string[];
-  /** Routes and airport dots actually drawn on the map. */
+  /** Routes and airport dots drawn with the fixed global projection. */
   map: { routes: number; airports: number };
+  /** Effective holder geometry, resolved from actual glyph bounds. */
+  layout: PosterLayout;
   /** Includes paper print margins, MRZ area and separator clearance. */
   paperOutside: PosterTextBox[];
 }
@@ -130,6 +136,7 @@ class Painter {
   constructor(
     readonly context: Context2D,
     readonly fonts: PosterFonts,
+    readonly paint = true,
   ) {}
 
   family(role: PosterFontRole = "text") {
@@ -173,7 +180,7 @@ class Painter {
       }
     }
     this.apply(style);
-    this.context.fillText(text, x, y);
+    if (this.paint) this.context.fillText(text, x, y);
     const metrics = this.context.measureText(text);
     // Canvas letterSpacing adds trailing space after the last glyph.
     const width = Math.max(0, metrics.width - (style.letterSpacing ?? 0));
@@ -603,7 +610,10 @@ function landDots(
     frame.centerLongitude,
     rect.x,
     rect.width,
-    frame.offsetY,
+    frame.extent.x,
+    frame.extent.y,
+    rect.y,
+    rect.height,
     frame.scale,
     step,
   ].join("|");
@@ -615,11 +625,11 @@ function landDots(
       : document.createElement("canvas").getContext("2d");
   const land = new Path2D(landSvg);
   const points: number[] = [];
-  const bottom = frame.offsetY + frame.crop.height * frame.scale;
-  for (let y = frame.offsetY + step / 2; y < bottom; y += step)
+  const bottom = rect.y + rect.height;
+  for (let y = rect.y + step / 2; y < bottom; y += step)
     for (let x = rect.x + step / 2; x < rect.x + rect.width; x += step) {
-      const mx = frame.crop.x + (x - frame.offsetX) / frame.scale;
-      const my = frame.crop.y + (y - frame.offsetY) / frame.scale;
+      const mx = frame.extent.x + (x - frame.offsetX) / frame.scale;
+      const my = frame.extent.y + (y - frame.offsetY) / frame.scale;
       if (probe!.isPointInPath(land, mx, my)) points.push(x, y);
     }
   const value = Float32Array.from(points);
@@ -635,7 +645,7 @@ function withMapTransform(
   context.save();
   context.translate(frame.offsetX, frame.offsetY);
   context.scale(frame.scale, frame.scale);
-  context.translate(-frame.crop.x, -frame.crop.y);
+  context.translate(-frame.extent.x, -frame.extent.y);
   draw();
   context.restore();
 }
@@ -645,7 +655,6 @@ function drawMap(
   rect: PosterRect,
   copy: PosterCopy,
   palette: PosterPalette,
-  layout: PosterLayout,
 ): PosterDrawReport["map"] {
   const { context } = painter;
   const style = palette.map;
@@ -655,9 +664,9 @@ function drawMap(
   const land = path2d(world.land);
   const s = frame.scale;
   context.save();
-  // Only the inhabited latitudes; the crop edge fades out softly.
+  // Keep the complete Equal Earth outline, including both poles.
   context.beginPath();
-  context.rect(rect.x, frame.offsetY, rect.width, frame.crop.height * s);
+  context.rect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
   context.clip();
   withMapTransform(context, frame, () => {
     if (style.sphere) {
@@ -679,9 +688,9 @@ function drawMap(
       // Lower-latitude wash for depth on paper (pure gradient, no blur).
       const shade = context.createLinearGradient(
         0,
-        frame.crop.y,
+        frame.extent.y,
         0,
-        frame.crop.y + frame.crop.height,
+        frame.extent.y + frame.extent.height,
       );
       shade.addColorStop(0, "rgba(64, 120, 196, 0)");
       shade.addColorStop(1, style.landShade);
@@ -710,29 +719,6 @@ function drawMap(
     context.lineJoin = "round";
     context.stroke(path2d(world.borders));
   });
-  // Feather the cropped top and bottom edges into the background.
-  for (const [edge, direction] of [
-    [frame.offsetY, 1],
-    [frame.offsetY + frame.crop.height * s, -1],
-  ] as const) {
-    const color = backgroundAt(palette, edge / layout.height);
-    const fade = context.createLinearGradient(
-      0,
-      edge,
-      0,
-      edge + direction * 34,
-    );
-    fade.addColorStop(0, color);
-    fade.addColorStop(1, transparent(color));
-    context.fillStyle = fade;
-    context.fillRect(
-      rect.x,
-      Math.min(edge, edge + direction * 34),
-      rect.width,
-      34,
-    );
-  }
-
   // Routes: least-flown first so the busiest sit on top; width and opacity
   // follow frequency so a dense archive reads as structure, not a tangle.
   const routes = [...copy.map.routes].reverse();
@@ -767,9 +753,11 @@ function drawMap(
       trace();
       context.stroke();
     }
-    const alpha = (0.2 + 0.7 * weight) * (0.45 + 0.55 * density);
+    // Core line floors keep every route legible after downscaling (480 px
+    // previews, social-network recompression); weight still ranks them.
+    const alpha = (0.5 + 0.45 * weight) * (0.7 + 0.3 * density);
     context.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`;
-    context.lineWidth = 0.8 + (1.2 + 0.8 * density) * weight;
+    context.lineWidth = 1.2 + (1 + 0.6 * density) * weight;
     trace();
     context.stroke();
   }
@@ -783,11 +771,11 @@ function drawMap(
     const point = projectToFrame(frame, airport);
     if (!point) return;
     const weight = Math.sqrt(airport.flights / maxVisits);
-    const radius = 2.2 + 3.4 * weight;
+    const radius = 3 + 3.2 * weight;
     const hub = airports.indexOf(airport) < 5;
     if (hub) {
       context.strokeStyle = style.airportStroke;
-      context.lineWidth = 1.2;
+      context.lineWidth = 1.4;
       context.beginPath();
       context.arc(point.x, point.y, radius + 5, 0, Math.PI * 2);
       context.stroke();
@@ -798,30 +786,17 @@ function drawMap(
     context.fill();
     if (!hub) {
       context.strokeStyle = style.airportStroke;
-      context.lineWidth = 1;
+      context.lineWidth = 1.4;
       context.stroke();
     }
     placed.push({ x: point.x, y: point.y, r: radius + 5 });
   });
   context.restore();
 
-  return { routes: drawnRoutes, airports: placed.length };
-}
-
-/** The vertical background gradient's colour at `t` (0 top … 1 bottom). */
-function backgroundAt(palette: PosterPalette, t: number) {
-  const a = Number.parseInt(palette.backgroundTop.slice(1), 16);
-  const b = Number.parseInt(palette.backgroundBottom.slice(1), 16);
-  const mix = (shift: number) =>
-    Math.round(((a >> shift) & 255) * (1 - t) + ((b >> shift) & 255) * t);
-  const value = (mix(16) << 16) | (mix(8) << 8) | mix(0);
-  return `#${value.toString(16).padStart(6, "0")}`;
-}
-
-/** The same colour fully transparent (hex only), for clean gradients. */
-function transparent(hex: string) {
-  const value = Number.parseInt(hex.slice(1), 16);
-  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, 0)`;
+  return {
+    routes: drawnRoutes,
+    airports: placed.length,
+  };
 }
 
 // ------------------------------------------------------------- leaves ----
@@ -858,7 +833,7 @@ function drawRecordPage(
   p: PosterPalette,
 ) {
   pageHeader(painter, copy, layout, p, "record");
-  return drawMap(painter, layout.map, copy, p, layout);
+  return drawMap(painter, layout.map, copy, p);
 }
 
 function profileField(
@@ -875,7 +850,7 @@ function profileField(
     field.x,
     field.label,
     field.width,
-    p.muted,
+    p.label,
     profile.labelSize,
   );
   painter.text(value, field.x, field.baseline, {
@@ -943,6 +918,209 @@ function holderName(
       color: p.ink,
     });
   }
+}
+
+/** Measure with the same fitting/wrapping code used for paint. Baselines alone
+ * cannot describe a mixed-script name or a translated, two-line stat label. */
+function holderLayout(
+  context: Context2D,
+  fonts: PosterFonts,
+  source: PosterLayout,
+  copy: PosterCopy,
+  p: PosterPalette,
+): PosterLayout {
+  const probe = new Painter(context, fonts, false);
+  const group = (draw: () => void) => {
+    const start = probe.texts.length;
+    draw();
+    return probe.texts.slice(start);
+  };
+  const top = (boxes: PosterTextBox[]) =>
+    Math.min(...boxes.map((b) => b.ink.y));
+  const bottom = (boxes: PosterTextBox[]) =>
+    Math.max(...boxes.map((b) => b.ink.y + b.ink.height));
+  const { profile } = source;
+  const name = group(() => holderName(probe, copy.holder.name, profile, p));
+  const nameLabel = group(() =>
+    label(
+      probe,
+      copy.labels.name,
+      profile.name.x,
+      profile.name.label,
+      profile.name.width,
+      p.label,
+      profile.labelSize,
+    ),
+  );
+  const number = group(() =>
+    profileField(
+      probe,
+      copy.labels.number,
+      copy.holder.number,
+      profile.number,
+      profile,
+      p,
+    ),
+  );
+  const numberValue = number.at(-1)!;
+  // Two-line identities use eight units of the heading/identity breathing
+  // room. Even an empty or very small name must clear the number's label.
+  const labelShift = name.length > 1 ? -8 : 0;
+  const nameShift = Math.max(
+    bottom(nameLabel) + labelShift + 16 - top(name),
+    bottom([number[0]!]) +
+      labelShift +
+      16 +
+      numberValue.baseline -
+      numberValue.ink.y -
+      profile.name.baseline,
+  );
+  const nameBaseline = profile.name.baseline + nameShift;
+  const identityBottom = Math.max(
+    bottom(name) + nameShift,
+    numberValue.ink.y +
+      numberValue.ink.height +
+      nameBaseline -
+      numberValue.baseline,
+  );
+  const metadata = (["authority", "firstFlight", "period"] as const).map(
+    (key) => {
+      const value =
+        key === "authority"
+          ? "KEEPRAW FLY"
+          : key === "firstFlight"
+            ? copy.firstFlight
+            : copy.recordPeriod;
+      return group(() =>
+        profileField(
+          probe,
+          copy.labels[key === "authority" ? "issuingAuthority" : key],
+          value,
+          profile[key],
+          profile,
+          p,
+        ),
+      );
+    },
+  );
+  const metadataShift = identityBottom + 28 - top(metadata.map((g) => g[0]!));
+  const statsRule = bottom(metadata.map((g) => g[1]!)) + metadataShift + 24;
+  const stats = [copy.flights, copy.duration, ...copy.secondary, copy.routes];
+  const measured = stats.map((stat, index) =>
+    group(() =>
+      statBlock(
+        probe,
+        stat,
+        source.achievements[index]!,
+        p.label,
+        p.ink,
+        p.muted,
+      ),
+    ),
+  );
+  const row = (index: number) => {
+    const blocks = source.achievements.slice(index, index + 3);
+    const boxes = measured.slice(index, index + 3);
+    const labels = boxes.flatMap((g, i) =>
+      g.filter((b) => b.baseline <= blocks[i]!.label),
+    );
+    const figures = boxes.flatMap((g, i) =>
+      g.filter((b) => b.baseline === blocks[i]!.baseline),
+    );
+    return {
+      ascent: blocks[0]!.label - top(labels),
+      descent: bottom(labels) - blocks[0]!.label,
+      figureAscent: blocks[0]!.baseline - top(figures),
+      figureDescent: bottom(figures) - blocks[0]!.baseline,
+    };
+  };
+  const first = row(0),
+    second = row(3);
+  const distance = group(() =>
+    statBlock(probe, copy.distance, source.distance, p.accent, p.ink, p.muted),
+  );
+  const distanceLabels = distance.filter(
+    (b) => b.baseline <= source.distance.label,
+  );
+  const firstLabel =
+    statsRule +
+    16 +
+    Math.max(first.ascent, source.distance.label - top(distanceLabels));
+  const firstValue = firstLabel + first.descent + 14 + first.figureAscent;
+  const secondLabel =
+    firstValue + first.figureDescent + source.minStatRowGap + second.ascent;
+  const secondValue = secondLabel + second.descent + 14 + second.figureAscent;
+  // Settle the grid toward the MRZ, leaving 40 units of paper above its rule.
+  // Share spare room between the entry and inter-row gaps; never compress ink.
+  const spare = Math.max(
+    0,
+    source.mrz.rule - 40 - second.figureDescent - secondValue,
+  );
+  const upperLabel = firstLabel + spare / 2;
+  const upperValue = firstValue + spare / 2;
+  const lowerLabel = secondLabel + spare;
+  const lowerValue = secondValue + spare;
+  const resolvedProfile = {
+    ...profile,
+    name: {
+      ...profile.name,
+      label: profile.name.label + labelShift,
+      baseline: nameBaseline,
+    },
+    number: {
+      ...profile.number,
+      label: profile.number.label + labelShift,
+      baseline: nameBaseline,
+    },
+    ...Object.fromEntries(
+      (["authority", "firstFlight", "period"] as const).map((key) => [
+        key,
+        {
+          ...profile[key],
+          label: profile[key].label + metadataShift,
+          baseline: profile[key].baseline + metadataShift,
+        },
+      ]),
+    ),
+  };
+  const sections = {
+    ...source.sections,
+    identity: {
+      ...source.sections.identity,
+      y: source.sections.identity.y + labelShift,
+      height: identityBottom - source.sections.identity.y - labelShift + 14,
+    },
+    metadata: {
+      ...source.sections.metadata,
+      y: top(metadata.map((g) => g[0]!)) + metadataShift - 14,
+      height:
+        bottom(metadata.map((g) => g[1]!)) -
+        top(metadata.map((g) => g[0]!)) +
+        14,
+    },
+    statistics: {
+      ...source.sections.statistics,
+      y: statsRule,
+      height: lowerValue + second.figureDescent - statsRule,
+    },
+  };
+  return {
+    ...source,
+    profile: resolvedProfile,
+    sections,
+    statsRule,
+    statsRowPitch: lowerValue - upperValue,
+    distance: {
+      ...source.distance,
+      label: upperLabel,
+      baseline: (upperValue + lowerValue) / 2,
+    },
+    achievements: source.achievements.map((block, index) => ({
+      ...block,
+      label: index < 3 ? upperLabel : lowerLabel,
+      baseline: index < 3 ? upperValue : lowerValue,
+    })),
+  };
 }
 
 /** MRZ encoding is untouched: only the advance between equal-width cells
@@ -1029,7 +1207,7 @@ function drawHolderPage(
     profile.name.x,
     profile.name.label,
     profile.name.width,
-    p.muted,
+    p.label,
     profile.labelSize,
   );
   holderName(painter, copy.holder.name, profile, p);
@@ -1073,19 +1251,12 @@ function drawHolderPage(
         painter,
         stat,
         layout.achievements[index]!,
-        p.muted,
+        p.label,
         p.ink,
         p.muted,
       );
     },
   );
-  if (copy.notes.length)
-    painter.text(copy.notes.join(" · "), left, layout.notesBaseline, {
-      size: 20,
-      minSize: 16,
-      color: p.muted,
-      maxWidth: right - left,
-    });
   painter.rule(
     layout.mrz.x,
     layout.mrz.x + layout.mrz.print.width,
@@ -1107,6 +1278,7 @@ export function drawPoster(
   const painter = new Painter(context, fonts);
   const palette = PASSPORT_PALETTE;
   context.save();
+  layout = holderLayout(context, fonts, layout, copy, palette);
   bookBackground(context, layout, palette);
   const map = drawRecordPage(painter, copy, layout, palette);
   drawHolderPage(painter, copy, layout, palette);
@@ -1137,5 +1309,6 @@ export function drawPoster(
     paperOutside,
     truncated: painter.truncated,
     map,
+    layout,
   };
 }

@@ -10,14 +10,37 @@ Escape restores the whole photograph, then closes it. Clicking the backdrop also
 closes it. Focus stays in the viewer and returns to the Passport share action.
 
 Both leaves share the existing plane wordmark and a right-aligned localized page
-title: route map on page 01 and holder profile on page 02. The map retains its
-projection scale and full width beneath the header. Holder details use a fixed
-grid: name and number, then a single metadata row for authority, first flight
-and record period. Names can occupy two grapheme-safe lines with one fitted font
-size. A shared eight-unit rhythm separates the heading, identity, metadata,
-statistics, coverage notes and machine-readable area. The six secondary statistics
-use equal columns and a 96-unit row pitch, with measured ink clearance between
-first-row figures and second-row captions.
+title: route map on page 01 and holder profile on page 02. The map retains a
+complete world view beneath the header (see Route map framing). Holder details
+use two identity columns, then one metadata row for authority, first flight and
+record period. Names can occupy two grapheme-safe lines with one fitted font
+size. The number shares the name's first baseline rather than aligning cap tops.
+
+After fonts load, `poster-render.ts` measures the fitted text with Canvas
+`actualBoundingBoxAscent` / `actualBoundingBoxDescent` through the same text
+routine used for paint. Name ink starts at least 16 units below its label; metadata labels
+start 28 units below the lowest identity ink. Single-line names release the unused
+second line instead of reserving it. Two-line identities use eight units of the
+heading-to-identity gap to protect the lower grid. The statistics rule follows metadata ink by
+24 units. Statistic labels and figures have at least 14 units of ink clearance,
+and the right-hand rows have at least 24. Remaining paper is shared between the
+grid's entry and inter-row gaps, settling the last figures 40 units above the MRZ
+rule when space permits. The distance figure rests between the two right-hand
+figure baselines. `PosterDrawReport.layout` exposes this resolved geometry without
+mutating the input layout. Small labels keep the darker `label` ink, and the
+distance label keeps its gold accent. No caption row is added.
+
+## Route map framing
+
+`posterMapFrame` fits the complete Equal Earth sphere into the fixed map rectangle
+with one scale on both axes, independent of route distribution. Both poles and
+the entire outline remain visible, including when all routes are in East Asia.
+The existing `posterCenterLongitude` and route seam splitting remain unchanged.
+There is no route-dependent zoom, latitude crop, sliding frame or feathered crop
+edge. The same offline world geometry is used, with no new map asset, tiles or
+service. Route width and opacity still reflect frequency; the brighter opacity
+floor is retained, while strokes and airport rings are lighter at the restored
+global scale. Airport dots remain unlabelled.
 
 ## Existing data and settings
 
@@ -26,8 +49,10 @@ first-row figures and second-row captions.
   the busiest-60 selection and statistics retain all flights. Selection diagnostics
   remain in the model; the image no longer prints map coverage or legend captions.
 - Distance, duration, flights, airports, airlines, countries and recorded route
-  counts use the existing share statistics. Missing distance/time coverage notes
-  describe those statistics inside the photograph.
+  counts use the existing share statistics. The photograph prints no coverage
+  caption: totals are not qualified even when some flights lack a distance or a
+  time (deliberate product decision). The poster model no longer carries the
+  known/unknown counts; the 3A share model keeps them for its own renderer.
 - First flight and record period remain the earliest/latest non-cancelled service
   dates. They never become birth or expiry dates. Flight IDs, flight numbers,
   bookings, tickets, memberships, seats and airport labels remain excluded.
@@ -137,8 +162,9 @@ is 1136 × 800 design units, derived by rounding 88/125 of its width (ratio 1.42
 within 0.04% of nominal TD3). Two equal leaves, a 32-unit binding and 26-unit
 outer top/bottom margins derive the 1200 × 1684 integer PNG. The frame inset is
 24 units; glyph ink stays inside a further 16-unit print margin. Both leaves
-share these margins, header offset and binding relationship. The map fits a box
-derived from leaf height, retaining one uniform projection scale on both axes.
+share these margins and binding relationship. The map rectangle
+is derived from leaf height; framing keeps one uniform projection scale on both
+axes.
 The native image viewer and zoom sizes use the same artboard dimensions through
 CSSOM custom properties, with no separate CSS aspect-ratio constant.
 
@@ -155,8 +181,9 @@ clearance above the Y=1634 paper frame.
 
 The full reference MRZ height fits without reducing the statistics row spacing:
 a single metadata row reclaims room from the former stacked fields. Labels and
-ordinary values share one baseline gap; long names retain their reserved second
-line. Serif distance figures remain the main statistic, with smaller serif figures
+ordinary values share one baseline gap; long names push the metadata row down
+according to their actual two-line ink bounds. Serif distance figures remain the
+main statistic, with smaller serif figures
 and lighter units in the three-column/two-row grid. No rectangular MRZ wash is
 drawn. Security curves fade continuously to very faint ink, and the separator is
 a quiet hairline. No official marks or credential fields are added.
@@ -185,11 +212,14 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
   not rewrite the code, modify the parser table or claim `valid: true`.
 - `passport-profile.test.ts` checks migration, preservation of the legacy name,
   stable display number, malformed/blocked storage and reload.
-- `poster-data.test.ts` retains archive statistics, privacy and route coverage.
+- `poster-data.test.ts` retains archive statistics, privacy and route coverage,
+  plus a constant global extent and scale across empty, short-hop, East Asian and
+  intercontinental archives, both poles, great-circle arcs and seam splits.
 - `poster-layout.test.ts` verifies equal TD3 leaves, derived canvas/binding/frame
   geometry, the paper-relative MRZ arrangement, shared metadata baselines and
-  separated layout regions. Browser checks measure actual label/value gaps and
-  at least 24 units between statistics rows, including units and fallback faces.
+  separated nominal layout regions and the identity values' shared baseline.
+  Browser checks measure the resolved name/metadata gaps, statistics-rule clearance
+  and at least 24 units between statistics rows, including units and fallback faces.
 - `e2e/share-passport.pw.ts` exercises the real Canvas → PNG → Blob `<img>` flow,
   Settings edits, full-archive totals, native saving, focus, zoom, retry, blocked
   storage, DPR, dense maps and font failure. It checks 320–1440 px plus short
@@ -201,7 +231,10 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 - Additional font journeys load every role before measuring, decode the PNG and
   compare its pixels with the preview renderer. They exercise Chinese, English,
   Traditional Chinese, Japanese, Korean, accented/long names, missing names and
-  both coverage notes. Aborted font requests and retry after a timeout keep an
+  missing distances/times without any coverage caption. A framing journey renders
+  the fixture, an East Asia plus South Asia archive, and complete/incomplete
+  archives, inspecting the actual Canvas transforms to verify a constant global
+  scale on both axes. Aborted font requests and retry after a timeout keep an
   already resolved fallback render pixel-identical. Production CSP tests check
   real font loading, native stylesheet SRI rejection and unchanged MiSans UI fonts.
 

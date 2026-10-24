@@ -62,13 +62,12 @@ export interface PosterLayout {
   recordContent: PosterRect;
   holderContent: PosterRect;
   sections: Record<
-    "heading" | "identity" | "metadata" | "statistics" | "notes",
+    "heading" | "identity" | "metadata" | "statistics",
     PosterRect
   >;
   statsRule: number;
   statsRowPitch: number;
   minStatRowGap: number;
-  notesBaseline: number;
   binding: PosterRect;
   map: PosterRect;
   left: number;
@@ -146,21 +145,25 @@ export function createPosterLayout(): PosterLayout {
     height: bottom - top,
   });
 
-  // The same rhythm drives boundaries and baselines; large names reserve two
-  // lines. Three metadata fields share one label/value row, including period.
-  const brand = 8 * r;
-  const title = brand + 7 * r;
-  const nameLabel = title + 6 * r;
+  // Nominal holder positions. The Canvas renderer resolves the name,
+  // metadata and statistics against actual ink after fonts have loaded.
+  // The paper, header and TD3 machine-readable zone stay fixed.
+  const recordBrand = 8 * r;
+  const brand = 9 * r;
+  const title = 18 * r;
+  const nameLabel = title + 6.5 * r;
   const nameValue = nameLabel + 7 * r;
   const nameLineHeight = 5 * r;
-  const metadataLabel = nameValue + nameLineHeight + 5 * r;
+  const metadataLabel = nameValue + 8 * r;
   const fieldGap = 4 * r;
   const metadataValue = metadataLabel + fieldGap;
   const statsRule = metadataValue + 3 * r;
-  const statLabel = statsRule + 4 * r;
+  const statLabel = statsRule + 5 * r;
   const statValue = statLabel + 5 * r;
-  const statsRowPitch = 12 * r;
-  const notes = statValue + statsRowPitch + 5 * r;
+  const statsRowPitch = 13 * r;
+  // A shared first baseline lets the smaller number rest in the same
+  // visual row as the name, rather than floating at its cap height.
+  const numberValue = nameValue;
   const field = (
     x: number,
     width: number,
@@ -206,24 +209,22 @@ export function createPosterLayout(): PosterLayout {
       identity: region(nameLabel - 3 * r, metadataLabel - 3 * r),
       metadata: region(metadataLabel - 3 * r, metadataValue + r),
       statistics: region(statsRule, statValue + statsRowPitch + r),
-      notes: region(notes - 3 * r, notes + r),
     },
     statsRule: y(statsRule),
     statsRowPitch,
     minStatRowGap: 3 * r,
-    notesBaseline: y(notes),
     // Width still controls the existing uniform map projection. The taller
     // fitting box recentres it without stretching either geographic axis.
     map: {
       x: recordPage.x + 50,
-      y: recordPage.y + brand + 8 * r,
+      y: recordPage.y + recordBrand + 8 * r,
       width: recordPage.width - 100,
-      height: recordPage.height - brand - 8 * r - 6 * r,
+      height: recordPage.height - recordBrand - 8 * r - 6 * r,
     },
     left,
     right,
     header: {
-      record: recordPage.y + brand,
+      record: recordPage.y + recordBrand,
       holder: y(brand),
       title: y(title),
       titleSize: 48,
@@ -233,7 +234,7 @@ export function createPosterLayout(): PosterLayout {
     },
     profile: {
       name: field(left, nameWidth, nameLabel, nameValue),
-      number: field(numberX, right - numberX, nameLabel, nameValue),
+      number: field(numberX, right - numberX, nameLabel, numberValue),
       authority: field(left, authorityWidth, metadataLabel, metadataValue),
       firstFlight: field(firstX, firstWidth, metadataLabel, metadataValue),
       period: field(periodX, right - periodX, metadataLabel, metadataValue),

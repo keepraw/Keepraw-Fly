@@ -731,8 +731,6 @@
       "countries": "Länder/Regionen",
       "km": "km",
       "mi": "mi",
-      "distanceCoverage": "Strecke aus {{known, number}} von {{total, number}} Flügen",
-      "durationCoverage": "Flugzeit aus {{known, number}} von {{total, number}} Flügen",
       "hoursUnit": "Std.",
       "routesCurated": "Die {{shown, number}} meistgeflogenen von {{total, number}} Strecken",
       "routesAll_one": "Alle {{count, number}} Strecke",

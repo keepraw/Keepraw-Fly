@@ -63,8 +63,21 @@ describe("TD3 opened-book geometry", () => {
       expect(sections[index]!.y).toBeGreaterThanOrEqual(
         sections[index - 1]!.y + sections[index - 1]!.height,
       );
-    expect(layout.sections.notes.y + layout.sections.notes.height).toBeLessThan(
-      layout.mrz.area.y,
-    );
+    expect(Object.keys(layout.sections)).toEqual([
+      "heading",
+      "identity",
+      "metadata",
+      "statistics",
+    ]);
+    expect(
+      layout.sections.statistics.y + layout.sections.statistics.height,
+    ).toBeLessThan(layout.mrz.area.y);
+  });
+
+  it("keeps the nominal number on the first name baseline", () => {
+    const { name, number } = layout.profile;
+    expect(number.label).toBe(name.label);
+    expect(number.baseline).toBe(name.baseline);
+    expect(number.x).toBe(name.x + name.width + 48);
   });
 });

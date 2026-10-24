@@ -611,6 +611,7 @@ function expectLayout(
   layout: PosterLayout,
   where: string,
 ) {
+  layout = report.layout;
   const { texts } = report;
   const top = texts.filter((box) => box.y < layout.binding.y);
   expect(
@@ -677,6 +678,8 @@ function expectLayout(
   )!;
   const firstValue = texts.find((box) => box.text === copy.firstFlight)!;
   const periodValue = texts.find((box) => box.text === copy.recordPeriod)!;
+  // Mixed-size identity values rest on the same first baseline.
+  expect(numberValue.baseline, where).toBe(profile.number.baseline);
   expect(numberValue.baseline, where).toBe(profile.name.baseline);
   expect(authorityValue.baseline, where).toBe(firstValue.baseline);
   for (const [key, box] of [
@@ -700,6 +703,29 @@ function expectLayout(
     copy.holder.name,
   );
   expect(nameLines.length, where).toBeLessThanOrEqual(2);
+  const inkTop = (boxes: typeof texts) =>
+    Math.min(...boxes.map((box) => box.ink.y));
+  const inkBottom = (boxes: typeof texts) =>
+    Math.max(...boxes.map((box) => box.ink.y + box.ink.height));
+  expect(inkTop(nameLines) - inkBottom([name]), where).toBeGreaterThanOrEqual(
+    16,
+  );
+  expect(
+    inkTop([authority, first, period]) - inkBottom([...nameLines, numberValue]),
+    where,
+  ).toBeCloseTo(28, 5);
+  expect(
+    layout.statsRule - inkBottom([authorityValue, firstValue, periodValue]),
+    where,
+  ).toBeCloseTo(24, 5);
+  const lastStatBaseline = Math.max(
+    ...layout.achievements.map((block) => block.baseline),
+  );
+  expect(
+    layout.mrz.rule -
+      inkBottom(texts.filter((box) => box.baseline === lastStatBaseline)),
+    where,
+  ).toBeGreaterThanOrEqual(32);
   for (const line of nameLines) {
     expect(line.x + line.width, where).toBeLessThanOrEqual(
       profile.name.x + profile.name.width + 0.5,
@@ -859,7 +885,7 @@ test("all locales, units and long Unicode names render without overlaps or lost 
               disableWebfont,
               report,
               copy,
-              layout,
+              layout: report.layout,
               png,
             });
           }
@@ -1013,7 +1039,7 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
           );
           results.push({
             mode,
-            layout,
+            layout: report.layout,
             copy,
             report,
             calls: calls.filter((call) => call.y >= layout.mrz.baseline),
@@ -1354,7 +1380,7 @@ test("passport font roles load before measurement and preview matches PNG @cross
         ["zh-CN", "", true],
       ] as const) {
         await i18n.changeUiLanguage(language);
-        // Dense data plus both distance/time coverage notes, using real copy logic.
+        // Dense data with missing distances and times, using real copy logic.
         const inputFlights = dense
           ? Array.from({ length: 4 }, (_, index) =>
               flights.map((flight: object) => ({
@@ -1408,7 +1434,7 @@ test("passport font roles load before measurement and preview matches PNG @cross
           dense,
           name,
           fonts,
-          layout,
+          layout: report.layout,
           copy,
           report,
           samePixels,
@@ -1454,13 +1480,180 @@ test("passport font roles load before measurement and preview matches PNG @cross
           `${where}: ${p.text} / ${q.text}`,
         ).toBe(false);
       }
-    if (result.dense) expect(result.copy.notes).toHaveLength(2);
+    // Missing distance/time never prints a coverage caption.
+    expect(result.copy, where).not.toHaveProperty("notes");
+    expect(
+      texts.filter((box) => / (of|von|de|sur) \d+ /.test(box.text)),
+      where,
+    ).toEqual([]);
     await keep(
       testInfo,
       `passport-type-${index}-${result.language}.png`,
       Buffer.from(result.png.split(",")[1]!, "base64"),
     );
   }
+});
+
+test("full world at a constant scale and no coverage caption on complete and incomplete archives", async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  const fixture = (await loadArchive()).flights as Array<
+    Record<string, unknown> & {
+      origin: { iata: string };
+      destination: { iata: string };
+    }
+  >;
+  const asia = [
+    ["PEK", "PVG"],
+    ["PVG", "HND"],
+    ["PVG", "ICN"],
+    ["HKG", "PVG"],
+    ["HND", "ICN"],
+    ["PEK", "HND"],
+    ["CAN", "PEK"],
+    ["TPE", "HND"],
+    ["PVG", "DEL"],
+  ].map(([from, to], index) => ({
+    ...fixture[0]!,
+    id: `asia-${index}`,
+    origin: { iata: from },
+    destination: { iata: to },
+  }));
+  // Every airport known (QQX dropped) versus every ninth flight without a
+  // schedule (no time) plus the fixture's unknown airport (no distance).
+  const complete = fixture.filter(
+    (flight) =>
+      flight.origin.iata !== "QQX" && flight.destination.iata !== "QQX",
+  );
+  const incomplete = fixture.map((flight, index) =>
+    index % 9 === 0
+      ? {
+          ...flight,
+          scheduledDeparture: undefined,
+          scheduledArrival: undefined,
+        }
+      : flight,
+  );
+  await page.goto("/");
+  await expect(
+    page.locator(".site-header, input[type=file]").first(),
+  ).toBeAttached();
+  const results = await page.evaluate(
+    async (sets) => {
+      const load = (path: string) => import(/* @vite-ignore */ path);
+      const [data, copyModule, layoutModule, exporter, typography, i18n, maps] =
+        await Promise.all([
+          load("/src/share/poster-data.ts"),
+          load("/src/share/poster-copy.ts"),
+          load("/src/share/poster-layout.ts"),
+          load("/src/share/poster-export.ts"),
+          load("/src/share/poster-fonts.ts"),
+          load("/src/i18n.ts"),
+          load("/src/share/poster-map.ts"),
+        ]);
+      await i18n.changeUiLanguage("en-US");
+      const results = [];
+      for (const [name, flights] of Object.entries(sets)) {
+        const model = data.buildPosterModel(flights);
+        const copy = copyModule.buildPosterCopy(
+          model,
+          i18n.i18n.t.bind(i18n.i18n),
+          "en-US",
+          "kilometers",
+          { number: "OGC1Y6SQ6" },
+          { native: "Sky Wanderer" },
+        );
+        const layout = layoutModule.createPosterLayout();
+        const fonts = await typography.preparePosterFonts(copy.locale, {
+          copy,
+          timeoutMs: 15_000,
+        });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d")!;
+        const scales: number[][] = [];
+        const scale = context.scale;
+        context.scale = function (x, y) {
+          scales.push([x, y]);
+          scale.call(this, x, y);
+        };
+        const report = exporter.renderPosterToCanvas(
+          canvas,
+          { layout, copy, fonts },
+          layout.width,
+        );
+        results.push({
+          name,
+          layout: report.layout,
+          frame: maps.posterMapFrame(layout.map, copy.map.centerLongitude),
+          scales,
+          report,
+          statistics: model.statistics,
+          plottable: copy.map.airports.length,
+          png: canvas.toDataURL("image/png"),
+        });
+        canvas.width = 0;
+      }
+      return results;
+    },
+    { fixture, asia, complete, incomplete },
+  );
+  for (const result of results) {
+    const where = result.name;
+    const { map, texts } = result.report;
+    const rect = result.layout.map;
+    // Inspect the actual map transform used by Canvas, independent of where
+    // airports happen to lie. All sets retain both poles and the global width.
+    const { frame } = result;
+    const mapScales = result.scales.filter(([x]) => x < 2);
+    expect(mapScales.length, where).toBeGreaterThan(0);
+    for (const [x, y] of mapScales) {
+      expect(x, where).toBeCloseTo(frame.scale, 8);
+      expect(y, where).toBe(x);
+    }
+    expect(frame.scale, where).toBe(results[0]!.frame.scale);
+    expect(frame.extent, where).toEqual(results[0]!.frame.extent);
+    expect(frame.extent.width * frame.scale, where).toBeCloseTo(rect.width, 6);
+    expect(frame.extent.height * frame.scale, where).toBeLessThan(rect.height);
+    expect(map.airports, where).toBe(result.plottable);
+    // Acceptance (3): no coverage caption, whatever the data completeness,
+    // and nothing printed between the statistics and the MRZ rule.
+    expect(
+      texts.filter((box) => /\bof \d+ flights\b/i.test(box.text)),
+      where,
+    ).toEqual([]);
+    const lowStats = Math.max(
+      ...result.layout.achievements.map((block) => block.baseline),
+    );
+    expect(
+      texts.filter(
+        (box) =>
+          box.baseline > lowStats + 1 && box.baseline < result.layout.mrz.rule,
+      ),
+      where,
+    ).toEqual([]);
+    const lastInk = Math.max(
+      ...texts
+        .filter((box) => box.baseline === lowStats)
+        .map((box) => box.ink.y + box.ink.height),
+    );
+    expect(result.layout.mrz.rule - lastInk, where).toBeCloseTo(40, 5);
+    expect(result.report.paperOutside, where).toEqual([]);
+    await keep(
+      testInfo,
+      `passport-frame-${result.name}.png`,
+      Buffer.from(result.png.split(",")[1]!, "base64"),
+    );
+  }
+  const byName = Object.fromEntries(results.map((r) => [r.name, r]));
+  // The incomplete archive really is missing data, yet prints like the rest.
+  expect(byName.incomplete!.statistics.flights).toBe(
+    byName.fixture!.statistics.flights,
+  );
+  expect(byName.incomplete!.statistics.durationMinutes).toBeLessThan(
+    byName.fixture!.statistics.durationMinutes,
+  );
+  expect(byName.complete!.statistics.distanceKilometers).toBeGreaterThan(0);
 });
 
 test("failed fonts and late stylesheet completion keep fallback measurements stable @cross-browser", async ({
