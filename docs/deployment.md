@@ -2,6 +2,15 @@
 
 [简体中文](deployment.zh-CN.md) · [Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1)
 
+Choose the section for your task:
+
+- **Self-hosting:** [GitHub Pages](#github-pages-no-build-required), [Docker/VPS](#vps-docker-and-automatic-https) or [static files](#downloadable-static-files).
+- **Day-to-day operation:** [maintenance, upgrades and rollback](#maintenance-upgrade-rollback-and-uninstall), then [troubleshooting](#troubleshooting).
+- **Developers and official maintainers:** [source builds and publishing](#developers-and-official-publishing). This is not needed to install an existing release.
+
+This guide stays in one file because releases include it as a downloadable
+attachment. Installation and maintenance steps below are self-contained.
+
 ## Use online
 
 Open **<https://fly.keepraw.com>**. No installation is needed. This is a **demo provided by the developer**; choose **Try demo** for fictional flights or create your own archive.
@@ -146,10 +155,17 @@ Open <http://127.0.0.1:4173>. Static output is `apps/web/dist/`; directly openin
 
 The official [CI](../.github/workflows/ci.yml) keeps documentation, formatting, CSS, type, unit, build, six full Chromium shards and Firefox/WebKit smoke checks. `verify` requires all validation results to succeed; failure, cancellation or skipping prevents official deployment. Only a successful main push deploys the Pages artifact from **that same run**. Fork-only jobs cannot deploy to the official site.
 
+### Official maintainers only
+
+The following procedure is for a **new, unpublished version**, not for installing
+v0.1.1. That release already exists. In the release PR, update the application
+version and its versioned documentation/configuration consistently; derive the
+tag from `bash scripts/release-version.sh`. Never recreate a published version.
+
 For maintainers, the release procedure is:
 
 1. Merge the release PR normally and wait for **all main CI** (including Pages deployment) to succeed. Record its run ID and commit SHA. No protection bypasses.
-2. Confirm neither tag nor release `v0.1.1` exists. Create a lightweight `v0.1.1` tag at that SHA and push it; never move an existing tag.
+2. Confirm neither tag nor release for the new version exists. Create its lightweight tag at that SHA and push it; never move an existing tag.
 3. Run **Build verified release image** on main with that `ci_run_id`. It verifies the successful official main run and tag, downloads its existing production artifacts, and publishes linux/amd64 + linux/arm64. It never rebuilds the app or creates a Release using `GITHUB_TOKEN`. **Dispatch it while `main` is still at the CI commit:** the run's own `github.sha` (the tip of `main` at dispatch) is the source commit GitHub writes into every attestation, so the job refuses, before any push, signature or upload, unless the CI commit, `github.sha` and the tag commit are the same; after signing it verifies the new attestations against that commit. Releasing an older commit after `main` has moved is not supported. On first publication ensure the GHCR package is **public** (package settings); anonymous pull must work.
 4. With `gh` authenticated as **keepraw**, execute `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`, substituting the two actual run IDs. This verifies source, checksums and public image platforms; creates a draft; verifies the actual `author.login`; uploads and downloads every attachment for comparison; and finally publishes. A mismatched author leaves the draft unpublished. If permissions are unavailable, the owner runs this single final command after the artifacts are prepared.
 

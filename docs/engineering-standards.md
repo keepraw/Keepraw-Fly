@@ -23,6 +23,39 @@ Node range. Install with `pnpm install --frozen-lockfile`.
   Keep tests beside their module as `*.test.ts(x)`; browser journeys use `*.pw.ts`.
   Public format field names follow the [schema](schema.md), not naming cleanup.
 
+## Local development
+
+From the repository root, select the Node version and install the pinned dependencies:
+
+```sh
+nvm use
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Open <http://localhost:5173>. The development server uses this fixed port and
+exits if it is occupied. To inspect a production build:
+
+```sh
+pnpm build
+pnpm preview
+```
+
+Open <http://127.0.0.1:4173> (the default preview address). Serve `apps/web/dist/`
+over HTTP; opening `index.html` directly is unsupported. See
+[deployment](deployment.md#developers-and-official-publishing) for hosting source
+builds and the separate official publishing procedure.
+
+## Dependency maintenance
+
+[Dependabot](../.github/dependabot.yml) checks workspace dependencies and GitHub
+Actions weekly. Minor and patch updates are grouped by ecosystem. Major updates
+remain separate except for the coordinated Vite/plugin and i18next/React groups
+in that configuration. Existing CI validates them, and maintainers review and
+decide whether to squash merge; updates are never automatically merged. Commit
+`pnpm-lock.yaml` and keep frozen installs. See [security](security.md) for exposure
+and advisory review.
+
 ## Directory and module responsibilities
 
 | Location                         | Responsibility                                                                            |

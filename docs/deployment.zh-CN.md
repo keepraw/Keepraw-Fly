@@ -2,6 +2,14 @@
 
 [English](deployment.md) · [正式发行](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1)
 
+按使用目的选择章节：
+
+- **自托管部署：** [GitHub Pages](#github-pages无需编译)、[Docker/VPS](#vpsdocker-与自动-https)或[静态文件](#静态文件下载)。
+- **日常维护：** [维护、升级与回滚](#维护升级回滚与卸载)，以及[常见问题](#常见问题)。
+- **开发者与官方维护者：** [源码构建与发布](#开发者与官方发布)。安装已有发行版无需执行发布流程。
+
+发行包会直接附带本文，因此部署与维护步骤继续在同一文件内完整保留。
+
 ## 在线使用
 
 打开 **<https://fly.keepraw.com>** 即可使用，无需安装。这是**开发者提供的 Demo**；可选择演示模式查看虚构航班，或创建自己的档案。
@@ -135,10 +143,16 @@ pnpm preview
 
 官方 [CI](../.github/workflows/ci.yml) 保留文档、格式、CSS、类型、单元、构建、六分片完整 Chromium，以及 Firefox/WebKit smoke 检查。`verify` 要求所有验证成功，失败、取消或跳过均阻止官方部署。仅成功的 main push 部署**同一次运行**产生的 Pages 产物。Fork 专用流程不能部署官方站点。
 
+### 仅限官方维护者
+
+以下流程用于**尚未发布的新版本**，不是安装 v0.1.1 的步骤；v0.1.1 已经发布。
+请在发行 PR 中一致更新应用版本及相关版本化文档和配置，并通过
+`bash scripts/release-version.sh` 获取 Tag。不得重新创建已发布版本。
+
 维护者发布流程：
 
 1. 正常合并发行 PR，等待 **main 全部 CI**（含 Pages 部署）成功，记录 run ID 和 commit SHA，不绕过保护规则。
-2. 确认 `v0.1.1` Tag 和 Release 均不存在，在该 SHA 创建 lightweight `v0.1.1` Tag 并推送，不移动已有 Tag。
+2. 确认新版本的 Tag 和 Release 均不存在，在该 SHA 创建对应的 lightweight Tag 并推送，不移动已有 Tag。
 3. 在 main 手动运行 **Build verified release image**，填写 `ci_run_id`。它检查官方成功的 main CI 及 Tag，下载已有生产构建，发布 linux/amd64 和 linux/arm64 镜像；不重新编译应用，不用 `GITHUB_TOKEN` 创建 Release。**请在 `main` 仍指向该 CI commit 时运行：**本次运行自身的 `github.sha`（触发时 `main` 的最新提交）就是 GitHub 写入每份来源证明的源提交，因此 CI commit、`github.sha` 与 Tag commit 不一致时，任务会在任何推送、签名或上传之前拒绝；签名后还会按该 commit 校验新生成的来源证明。`main` 前进后不支持发布更早的提交。首次发布需在包设置确保 GHCR 包为 **public**，且匿名拉取可用。
 4. `gh` 以 **keepraw** 认证后执行 `bash scripts/publish-release.sh CI_RUN_ID IMAGE_RUN_ID --publish`，将两个参数替换为实际运行 ID。脚本验证来源、校验和及公开镜像架构；创建 Draft，核验真实 `author.login`，上传全部附件并重新下载比较后正式发布。作者不匹配时保留 Draft，不发布。若缺少权限，Owner 在产物准备完成后执行这一条最终命令。
 
