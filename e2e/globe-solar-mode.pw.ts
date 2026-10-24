@@ -291,10 +291,13 @@ test("real-time timer suspends while hidden and resumes on visibility", async ({
     solarDirectionFromUtc(new Date("2026-06-21T11:59:30.000Z")),
     2,
   );
+  const initialSun = await sun(page);
 
-  // First minute transition while visible. Wait for the rendered solar update
-  // before sampling: RAF-driven data-lighting lags the timer tick.
+  // data-lighting changes on RAF, after the timer/visibility handler. A previous
+  // minute's direction also passes the proximity tolerance, so wait for an
+  // actual rendered change before checking geography or sampling the next state.
   await page.clock.runFor(45_000);
+  await expect.poll(() => sun(page)).not.toEqual(initialSun);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
   const afterFirst = await sun(page);
   expect(
@@ -310,9 +313,9 @@ test("real-time timer suspends while hidden and resumes on visibility", async ({
 
   // Second minute transition while visible. Same deterministic ordering.
   await page.clock.runFor(70_000);
+  await expect.poll(() => sun(page)).not.toEqual(afterFirst);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
   const afterSecond = await sun(page);
-  expect(afterSecond).not.toEqual(afterFirst);
 
   // Hide across a minute boundary: no update may fire while hidden.
   await setPageHidden(page, true);
@@ -322,9 +325,11 @@ test("real-time timer suspends while hidden and resumes on visibility", async ({
 
   // Restore visibility: one resync, then the minute cadence resumes.
   await setPageHidden(page, false);
+  await expect.poll(() => sun(page)).not.toEqual(hiddenSun);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
-  expect(await sun(page)).not.toEqual(hiddenSun);
+  const restoredSun = await sun(page);
   await page.clock.runFor(70_000);
+  await expect.poll(() => sun(page)).not.toEqual(restoredSun);
   await expectSunCloseTo(page, solarDirectionFromUtc(await mockedNow()), 2);
 
   // Back to Fixed: the minute timer is cancelled.
