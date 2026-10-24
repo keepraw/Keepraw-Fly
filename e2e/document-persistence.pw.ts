@@ -970,28 +970,33 @@ declare global {
 }
 
 async function delayFirstFlightValidation(page: Page) {
-  await page.route("**/src/App.tsx", async (route) => {
-    const response = await route.fetch();
-    const source = await response.text();
-    const validation = "const { validateKeeprawFly } = await import(";
-    expect(source).toContain(validation);
-    expect(source).toContain("if (!loaded) {");
-    await route.fulfill({
-      response,
-      // Exercise the real callbacks; keep the test controls out of production.
-      // Pause at the import boundary, after the candidate snapshot was built.
-      body: source
-        .replace(
-          validation,
-          `await window.flightValidationDelay.wait();\n${validation}`,
-        )
-        .replace(
-          "if (!loaded) {",
-          `window.flightValidationActions = { clearDocument, importArchive, updateProfile, saveFlight };
+  // Inject into the initial app only; reload assertions exercise the real module.
+  await page.route(
+    "**/src/App.tsx",
+    async (route) => {
+      const response = await route.fetch();
+      const source = await response.text();
+      const validation = "const { validateKeeprawFly } = await import(";
+      expect(source).toContain(validation);
+      expect(source).toContain("if (!loaded) {");
+      await route.fulfill({
+        response,
+        // Exercise the real callbacks; keep the test controls out of production.
+        // Pause at the import boundary, after the candidate snapshot was built.
+        body: source
+          .replace(
+            validation,
+            `await window.flightValidationDelay.wait();\n${validation}`,
+          )
+          .replace(
+            "if (!loaded) {",
+            `window.flightValidationActions = { clearDocument, importArchive, updateProfile, saveFlight };
         if (!loaded) {`,
-        ),
-    });
-  });
+          ),
+      });
+    },
+    { times: 1 },
+  );
 }
 
 async function startDelayedFlightSave(page: Page, flight: KeeprawFlight) {
