@@ -611,6 +611,7 @@ function expectLayout(
   layout: PosterLayout,
   where: string,
 ) {
+  layout = report.layout;
   const { texts } = report;
   const top = texts.filter((box) => box.y < layout.binding.y);
   expect(
@@ -677,10 +678,9 @@ function expectLayout(
   )!;
   const firstValue = texts.find((box) => box.text === copy.firstFlight)!;
   const periodValue = texts.find((box) => box.text === copy.recordPeriod)!;
-  // The number keeps its own label cadence beside the larger name: raised
-  // above the name baseline so its cap height lines up with the name's.
+  // Mixed-size identity values rest on the same first baseline.
   expect(numberValue.baseline, where).toBe(profile.number.baseline);
-  expect(numberValue.baseline, where).toBeLessThan(profile.name.baseline);
+  expect(numberValue.baseline, where).toBe(profile.name.baseline);
   expect(authorityValue.baseline, where).toBe(firstValue.baseline);
   for (const [key, box] of [
     ["number", numberValue],
@@ -703,6 +703,29 @@ function expectLayout(
     copy.holder.name,
   );
   expect(nameLines.length, where).toBeLessThanOrEqual(2);
+  const inkTop = (boxes: typeof texts) =>
+    Math.min(...boxes.map((box) => box.ink.y));
+  const inkBottom = (boxes: typeof texts) =>
+    Math.max(...boxes.map((box) => box.ink.y + box.ink.height));
+  expect(inkTop(nameLines) - inkBottom([name]), where).toBeGreaterThanOrEqual(
+    16,
+  );
+  expect(
+    inkTop([authority, first, period]) - inkBottom([...nameLines, numberValue]),
+    where,
+  ).toBeCloseTo(28, 5);
+  expect(
+    layout.statsRule - inkBottom([authorityValue, firstValue, periodValue]),
+    where,
+  ).toBeCloseTo(24, 5);
+  const lastStatBaseline = Math.max(
+    ...layout.achievements.map((block) => block.baseline),
+  );
+  expect(
+    layout.mrz.rule -
+      inkBottom(texts.filter((box) => box.baseline === lastStatBaseline)),
+    where,
+  ).toBeGreaterThanOrEqual(32);
   for (const line of nameLines) {
     expect(line.x + line.width, where).toBeLessThanOrEqual(
       profile.name.x + profile.name.width + 0.5,
@@ -862,7 +885,7 @@ test("all locales, units and long Unicode names render without overlaps or lost 
               disableWebfont,
               report,
               copy,
-              layout,
+              layout: report.layout,
               png,
             });
           }
@@ -1016,7 +1039,7 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
           );
           results.push({
             mode,
-            layout,
+            layout: report.layout,
             copy,
             report,
             calls: calls.filter((call) => call.y >= layout.mrz.baseline),
@@ -1411,7 +1434,7 @@ test("passport font roles load before measurement and preview matches PNG @cross
           dense,
           name,
           fonts,
-          layout,
+          layout: report.layout,
           copy,
           report,
           samePixels,
@@ -1471,7 +1494,7 @@ test("passport font roles load before measurement and preview matches PNG @cross
   }
 });
 
-test("route-fitted map, legible routes and no coverage caption on complete and incomplete archives", async ({
+test("full world at a constant scale and no coverage caption on complete and incomplete archives", async ({
   page,
 }, testInfo) => {
   test.setTimeout(120_000);
@@ -1519,7 +1542,7 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
   const results = await page.evaluate(
     async (sets) => {
       const load = (path: string) => import(/* @vite-ignore */ path);
-      const [data, copyModule, layoutModule, exporter, typography, i18n] =
+      const [data, copyModule, layoutModule, exporter, typography, i18n, maps] =
         await Promise.all([
           load("/src/share/poster-data.ts"),
           load("/src/share/poster-copy.ts"),
@@ -1527,6 +1550,7 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
           load("/src/share/poster-export.ts"),
           load("/src/share/poster-fonts.ts"),
           load("/src/i18n.ts"),
+          load("/src/share/poster-map.ts"),
         ]);
       await i18n.changeUiLanguage("en-US");
       const results = [];
@@ -1546,6 +1570,13 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
           timeoutMs: 15_000,
         });
         const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d")!;
+        const scales: number[][] = [];
+        const scale = context.scale;
+        context.scale = function (x, y) {
+          scales.push([x, y]);
+          scale.call(this, x, y);
+        };
         const report = exporter.renderPosterToCanvas(
           canvas,
           { layout, copy, fonts },
@@ -1553,7 +1584,9 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
         );
         results.push({
           name,
-          layout,
+          layout: report.layout,
+          frame: maps.posterMapFrame(layout.map, copy.map.centerLongitude),
+          scales,
           report,
           statistics: model.statistics,
           plottable: copy.map.airports.length,
@@ -1569,22 +1602,19 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
     const where = result.name;
     const { map, texts } = result.report;
     const rect = result.layout.map;
-    expect(map.bounds, where).not.toBeNull();
-    const bounds = map.bounds!;
-    // Acceptance (1): the box around every drawn route vertex and airport
-    // centre spans more than 55% of the map rect, and stays inside both the
-    // rect and the visible (clipped, inhabited-latitude) map area.
-    expect(bounds.width / rect.width, where).toBeGreaterThan(0.55);
-    for (const area of [rect, map.visible]) {
-      expect(bounds.x, where).toBeGreaterThanOrEqual(area.x);
-      expect(bounds.y, where).toBeGreaterThanOrEqual(area.y);
-      expect(bounds.x + bounds.width, where).toBeLessThanOrEqual(
-        area.x + area.width,
-      );
-      expect(bounds.y + bounds.height, where).toBeLessThanOrEqual(
-        area.y + area.height,
-      );
+    // Inspect the actual map transform used by Canvas, independent of where
+    // airports happen to lie. All sets retain both poles and the global width.
+    const { frame } = result;
+    const mapScales = result.scales.filter(([x]) => x < 2);
+    expect(mapScales.length, where).toBeGreaterThan(0);
+    for (const [x, y] of mapScales) {
+      expect(x, where).toBeCloseTo(frame.scale, 8);
+      expect(y, where).toBe(x);
     }
+    expect(frame.scale, where).toBe(results[0]!.frame.scale);
+    expect(frame.extent, where).toEqual(results[0]!.frame.extent);
+    expect(frame.extent.width * frame.scale, where).toBeCloseTo(rect.width, 6);
+    expect(frame.extent.height * frame.scale, where).toBeLessThan(rect.height);
     expect(map.airports, where).toBe(result.plottable);
     // Acceptance (3): no coverage caption, whatever the data completeness,
     // and nothing printed between the statistics and the MRZ rule.
@@ -1602,9 +1632,12 @@ test("route-fitted map, legible routes and no coverage caption on complete and i
       ),
       where,
     ).toEqual([]);
-    expect(result.layout.mrz.rule - lowStats, where).toBeLessThanOrEqual(
-      result.layout.sectionGap,
+    const lastInk = Math.max(
+      ...texts
+        .filter((box) => box.baseline === lowStats)
+        .map((box) => box.ink.y + box.ink.height),
     );
+    expect(result.layout.mrz.rule - lastInk, where).toBeCloseTo(40, 5);
     expect(result.report.paperOutside, where).toEqual([]);
     await keep(
       testInfo,

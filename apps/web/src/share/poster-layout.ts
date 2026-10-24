@@ -68,9 +68,6 @@ export interface PosterLayout {
   statsRule: number;
   statsRowPitch: number;
   minStatRowGap: number;
-  /** Shared distance from a section's last baseline to the next section's
-   * label baseline (title → identity → metadata → statistics). */
-  sectionGap: number;
   binding: PosterRect;
   map: PosterRect;
   left: number;
@@ -148,31 +145,25 @@ export function createPosterLayout(): PosterLayout {
     height: bottom - top,
   });
 
-  // The same rhythm drives boundaries and baselines; large names reserve two
-  // lines. Three metadata fields share one label/value row, including period.
-  // Every section starts one `sectionGap` below the previous section's last
-  // baseline (the name's reserved second line for identity), so title →
-  // identity → metadata → statistics read as one cadence. The statistics
-  // grid fills the leaf down to the fixed TD3 machine-readable zone; there
-  // is no caption row beneath it.
-  const sectionGap = 7 * r;
-  const brand = 8 * r;
-  const title = brand + 7 * r;
-  const nameLabel = title + sectionGap;
+  // Nominal holder positions. The Canvas renderer resolves the name,
+  // metadata and statistics against actual ink after fonts have loaded.
+  // The paper, header and TD3 machine-readable zone stay fixed.
+  const recordBrand = 8 * r;
+  const brand = 9 * r;
+  const title = 18 * r;
+  const nameLabel = title + 6.5 * r;
   const nameValue = nameLabel + 7 * r;
   const nameLineHeight = 5 * r;
-  const metadataLabel = nameValue + nameLineHeight + sectionGap;
+  const metadataLabel = nameValue + 8 * r;
   const fieldGap = 4 * r;
   const metadataValue = metadataLabel + fieldGap;
   const statsRule = metadataValue + 3 * r;
-  const statLabel = metadataValue + sectionGap;
+  const statLabel = statsRule + 5 * r;
   const statValue = statLabel + 5 * r;
   const statsRowPitch = 13 * r;
-  // The 26-unit number sits beside a 48-unit name. Sharing the name's
-  // baseline made it look sunk and detached from its label; it keeps the
-  // metadata fields' label → value cadence instead, which also aligns its
-  // cap height with the top of the name's capitals.
-  const numberValue = nameLabel + 5 * r;
+  // A shared first baseline lets the smaller number rest in the same
+  // visual row as the name, rather than floating at its cap height.
+  const numberValue = nameValue;
   const field = (
     x: number,
     width: number,
@@ -222,19 +213,18 @@ export function createPosterLayout(): PosterLayout {
     statsRule: y(statsRule),
     statsRowPitch,
     minStatRowGap: 3 * r,
-    sectionGap,
     // Width still controls the existing uniform map projection. The taller
     // fitting box recentres it without stretching either geographic axis.
     map: {
       x: recordPage.x + 50,
-      y: recordPage.y + brand + 8 * r,
+      y: recordPage.y + recordBrand + 8 * r,
       width: recordPage.width - 100,
-      height: recordPage.height - brand - 8 * r - 6 * r,
+      height: recordPage.height - recordBrand - 8 * r - 6 * r,
     },
     left,
     right,
     header: {
-      record: recordPage.y + brand,
+      record: recordPage.y + recordBrand,
       holder: y(brand),
       title: y(title),
       titleSize: 48,
