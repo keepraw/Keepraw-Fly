@@ -40,7 +40,7 @@ export interface PosterPalette {
   figure: string;
   accent: string;
   brandMark: string;
-  mrzBand: string;
+  mrzTexture: string;
   mrzInk: string;
   map: {
     sphere: string | null;
@@ -71,7 +71,7 @@ export const PASSPORT_PALETTE: PosterPalette = {
   figure: "#10243a",
   accent: "#88734c",
   brandMark: "#88734c",
-  mrzBand: "rgba(136, 115, 76, 0.022)",
+  mrzTexture: "rgba(55, 96, 128, 0.010)",
   mrzInk: "#475d70",
   map: {
     sphere: "rgba(26, 52, 98, 0.025)",
@@ -98,6 +98,8 @@ export interface PosterTextBox {
   height: number;
   baseline: number;
   color: string;
+  /** Actual glyph ink, including bearings; distinct from logical advances. */
+  ink: PosterRect;
 }
 
 export interface PosterDrawReport {
@@ -192,6 +194,12 @@ class Painter {
       height: ascent + descent,
       baseline: y,
       color: String(this.context.fillStyle),
+      ink: {
+        x: x - metrics.actualBoundingBoxLeft,
+        y: y - ascent,
+        width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+        height: ascent + descent,
+      },
     });
     return { width, size };
   }
@@ -300,10 +308,10 @@ function figure(
   maxWidth: number,
   color: string,
   unitColor: string,
+  unitSize: number,
   align: "left" | "right" = "left",
 ) {
   // Units read like labels: never smaller than the small-text scale.
-  const unitSize = Math.max(26, Math.round(size * 0.3));
   const gap = Math.round(size * 0.14);
   const valueStyle = (s: number): TextStyle => ({
     size: s,
@@ -369,6 +377,7 @@ function statBlock(
     block.width,
     figureColor,
     unitColor,
+    block.unitSize,
   );
 }
 
@@ -447,6 +456,7 @@ function pagePaper(
   context: Context2D,
   rect: PosterRect,
   p: PosterPalette,
+  frameInset: number,
   mrz?: PosterLayout["mrz"],
 ) {
   context.save();
@@ -466,14 +476,16 @@ function pagePaper(
     context.lineTo(x + 1 + (i % 5), y + 0.6);
     context.stroke();
   }
-  // The machine-readable area keeps fibres but no crossing security curves.
-  context.save();
-  if (mrz) {
-    context.beginPath();
-    context.rect(rect.x, rect.y, rect.width, mrz.area.y - rect.y - 12);
-    context.clip();
+  // A continuous paper pattern fades through the nominal MRZ boundary.
+  // No rectangle/wash singles out the machine-readable zone.
+  const securityInk = mrz
+    ? context.createLinearGradient(0, mrz.area.y - 48, 0, mrz.area.y + 48)
+    : null;
+  if (securityInk) {
+    securityInk.addColorStop(0, p.guilloche[0]);
+    securityInk.addColorStop(1, p.mrzTexture);
   }
-  context.strokeStyle = p.guilloche[0];
+  context.strokeStyle = securityInk ?? p.guilloche[0];
   for (let line = 0; line < 18; line += 1) {
     context.beginPath();
     for (let x = 0; x <= rect.width; x += 8) {
@@ -487,19 +499,13 @@ function pagePaper(
     }
     context.stroke();
   }
-  context.restore();
-  if (mrz) {
-    context.fillStyle = p.mrzBand;
-    const { x, y, width, height } = mrz.area;
-    context.fillRect(x, y, width, height);
-  }
   context.strokeStyle = p.frame;
   context.lineWidth = 0.8;
   context.strokeRect(
-    rect.x + 24,
-    rect.y + 24,
-    rect.width - 48,
-    rect.height - 48,
+    rect.x + frameInset,
+    rect.y + frameInset,
+    rect.width - frameInset * 2,
+    rect.height - frameInset * 2,
   );
   context.restore();
 }
@@ -526,8 +532,8 @@ function bookBackground(
       layout.height - 52 - edge * 2,
     );
   }
-  pagePaper(context, layout.recordPage, p);
-  pagePaper(context, layout.holderPage, p, layout.mrz);
+  pagePaper(context, layout.recordPage, p, layout.frameInset);
+  pagePaper(context, layout.holderPage, p, layout.frameInset, layout.mrz);
 }
 
 /** A curved gutter on both leaves, a recessed hinge and visible sewn thread. */
@@ -560,7 +566,8 @@ function drawBinding(context: Context2D, layout: PosterLayout) {
   context.lineTo(x + width - 18, middle + 1);
   context.stroke();
   context.setLineDash([]);
-  for (const center of [220, 600, 980]) {
+  for (const part of [1 / 6, 1 / 2, 5 / 6]) {
+    const center = x + width * part;
     context.strokeStyle = "#98a8b1";
     context.lineWidth = 2;
     context.beginPath();
@@ -947,7 +954,7 @@ function drawMrz(
   layout: PosterLayout,
   p: PosterPalette,
 ) {
-  const { mrz, left, right } = layout;
+  const { mrz } = layout;
   const cells = copy.mrz[0].length;
   const style: TextStyle = { size: mrz.size, font: "mono", color: p.mrzInk };
   const cellWidth = painter.measure("0", style);
@@ -955,12 +962,12 @@ function drawMrz(
   // precisely the same type size and cell advance, including fallback faces.
   const spacing = Math.max(0, mrz.cellAdvance - cellWidth);
   const width = cells * cellWidth + (cells - 1) * spacing;
-  const x = left + (right - left - width) / 2;
+  const x = mrz.x;
   const probe =
     painter.measure(copy.mrz[0], { ...style, letterSpacing: 3 }) -
     painter.measure(copy.mrz[0], style);
   // Native letterSpacing includes a trailing cell of tracking; report/text
-  // positioning excludes that last gap to centre the visible row.
+  // positioning excludes that last gap from the row advance.
   const nativeTracking = Math.abs(probe - cells * 3) < 0.1;
   for (const [index, line] of copy.mrz.entries()) {
     const y = mrz.baseline + index * mrz.lineHeight;
@@ -970,8 +977,15 @@ function drawMrz(
     }
     painter.apply(style);
     const metrics = painter.context.measureText(line);
-    for (const [cell, character] of [...line].entries())
-      painter.context.fillText(character, x + cell * (cellWidth + spacing), y);
+    let inkLeft = Infinity,
+      inkRight = -Infinity;
+    for (const [cell, character] of [...line].entries()) {
+      const px = x + cell * (cellWidth + spacing);
+      const glyph = painter.context.measureText(character);
+      inkLeft = Math.min(inkLeft, px - glyph.actualBoundingBoxLeft);
+      inkRight = Math.max(inkRight, px + glyph.actualBoundingBoxRight);
+      painter.context.fillText(character, px, y);
+    }
     const ascent = metrics.actualBoundingBoxAscent ?? mrz.size * 0.8;
     const descent = metrics.actualBoundingBoxDescent ?? mrz.size * 0.2;
     painter.texts.push({
@@ -982,6 +996,12 @@ function drawMrz(
       height: ascent + descent,
       baseline: y,
       color: p.mrzInk,
+      ink: {
+        x: inkLeft,
+        y: y - ascent,
+        width: inkRight - inkLeft,
+        height: ascent + descent,
+      },
     });
   }
 }
@@ -994,15 +1014,14 @@ function drawHolderPage(
 ) {
   const { left, right } = layout;
   pageHeader(painter, copy, layout, p, "holder");
-  painter.text(copy.title, left, 944, {
-    size: 52,
+  painter.text(copy.title, left, layout.header.title, {
+    size: layout.header.titleSize,
     weight: 500,
     font: "display",
     color: p.ink,
-    maxWidth: 1020,
+    maxWidth: right - left,
     minSize: 36,
   });
-  painter.rule(left, right, 968, p.rule);
   const { profile } = layout;
   label(
     painter,
@@ -1065,9 +1084,15 @@ function drawHolderPage(
       size: 20,
       minSize: 16,
       color: p.muted,
-      maxWidth: 1020,
+      maxWidth: right - left,
     });
-  painter.rule(left, right, layout.mrz.rule, p.rule);
+  painter.rule(
+    layout.mrz.x,
+    layout.mrz.x + layout.mrz.print.width,
+    layout.mrz.rule,
+    "rgba(16, 32, 60, 0.07)",
+    0.7,
+  );
   drawMrz(painter, copy, layout, p);
 }
 
@@ -1088,33 +1113,23 @@ export function drawPoster(
   drawBinding(context, layout);
   context.restore();
   const { safe } = layout;
-  const outside = painter.texts.filter(
-    (box) =>
-      box.x < safe.x - 0.5 ||
-      box.y < safe.y - 0.5 ||
-      box.x + box.width > safe.x + safe.width + 0.5 ||
-      box.y + box.height > safe.y + safe.height + 0.5,
-  );
-  const inside = (box: PosterTextBox, rect: PosterRect) =>
+  const inside = (box: PosterRect, rect: PosterRect) =>
     box.x >= rect.x - 0.5 &&
     box.y >= rect.y - 0.5 &&
     box.x + box.width <= rect.x + rect.width + 0.5 &&
     box.y + box.height <= rect.y + rect.height + 0.5;
+  const outside = painter.texts.filter(
+    (box) => !inside(box, safe) || !inside(box.ink, safe),
+  );
   const paperOutside = painter.texts.filter((box) => {
+    const content =
+      box.baseline < layout.holderPage.y
+        ? layout.recordContent
+        : layout.holderContent;
+    if (!inside(box, content) || !inside(box.ink, content)) return true;
     if (box.baseline < layout.holderPage.y) return false;
-    if (!inside(box, layout.holderContent)) return true;
-    if (copy.mrz.includes(box.text))
-      return !inside(box, {
-        x: layout.holderContent.x,
-        y: layout.mrz.rule + 20,
-        width: layout.holderContent.width,
-        height:
-          layout.holderContent.y +
-          layout.holderContent.height -
-          layout.mrz.rule -
-          20,
-      });
-    return box.y + box.height > layout.mrz.rule - 8;
+    if (copy.mrz.includes(box.text)) return !inside(box.ink, layout.mrz.print);
+    return box.ink.y + box.ink.height > layout.mrz.rule - 8;
   });
   return {
     texts: painter.texts,
