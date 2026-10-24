@@ -61,7 +61,7 @@ Open **Settings → Data and backup** to preview an import before it changes you
 - **Keepraw Fly CSV bulk import:** map and validate documented columns before adding rows.
 - **Flighty CSV:** import supported fields from a Flighty export; this is a one-way import, not synchronization or complete Flighty-format compatibility.
 
-Imports into an existing archive append flights and preserve its profile and existing records. Exact duplicates are skipped, possible duplicates can be reviewed, and both CSV flows validate every row before writing. When importing JSON without an existing archive, the source profile and document metadata are retained. See the [format and CSV columns](docs/schema.md) and [example files](examples/).
+Imports into an existing archive append flights and preserve its profile and existing records. Exact duplicates are skipped, possible duplicates can be reviewed, and both CSV flows validate every row before writing. When importing JSON without an existing archive, the source profile and document metadata are retained. See the [format and CSV columns](docs/schema.md) and [example files](examples/README.md).
 
 Local airport timestamps use the bundled IANA timezone data; RFC 3339 timestamps with an offset or `Z` are also supported.
 

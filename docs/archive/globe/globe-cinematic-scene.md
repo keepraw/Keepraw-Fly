@@ -4,7 +4,7 @@ Historical Task 1B-2 decision. Baseline: `45f92e9c78a118417803dc7f43f027a821f95c
 rendered implementation: `c814eb3779d69aa6037c154370913a62a13b7af1`.
 The [original report](https://github.com/keepraw/Keepraw-Fly/blob/8090372ac6d02d2c4c9dec4c09c78c2444f4641b/docs/globe-cinematic-scene.md)
 contains fixed-camera measurements and validation. Use [current Globe implementation](../../globe.md)
-for the released surfaces and [approved Control](../../visual-review/task-1b-7b2/README.md)
+for the released surfaces and [approved Control](../visual-review/task-1b-7b2/README.md)
 for the later accepted design reference.
 
 ## Composition decision

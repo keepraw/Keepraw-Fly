@@ -32,19 +32,14 @@ effects and controls. `import.css`, `settings.css`, `flight-editor.css`,
 including their responsive rules. Passport also owns the archive and flight-row
 presentation.
 
-After `design-system.css`, the explicit imports in `main.tsx` load `base`, `shell`,
-`controls`, `welcome`, `import`, `settings`, `motion`, `recovery`, `flight-editor`,
-`route-map`, `flight-detail` and `passport`, in that order. Keep that order stable:
-source order is part of the cascade. Shared controls precede Settings so its mobile
-control sizing can preserve touch targets; shared motion
-follows Settings interaction rules so hover overrides retain their result where
-specificity ties. Passport flight-deviation colors follow Flight Detail
-stop-status colors for the same reason. Existing grouped motion selectors remain
-in `motion.css`; the combined mobile-hidden rule remains in
-`shell.css`. Repeated selectors and later composition or responsive overrides
-retain their order within their owner;
-this structural split does not consolidate or remove them. When moving a rule,
-check its cross-file dependencies before changing ownership or import order.
+The exact import order in [main.tsx](../apps/web/src/main.tsx) is authoritative.
+`shared-page-theme.css` follows base/shell and owns the shared Passport blue-gray
+palette; feature composition follows shared controls. Passport mobile/desktop,
+flight-list and share-overlay styles retain their explicit later positions.
+Do not duplicate that ordered list here. Source order is part of the cascade:
+shared motion follows Settings interaction rules, and Passport time/deviation
+colors follow Flight Detail status rules. Check cross-file dependencies before
+moving selectors; preserve specificity, shorthand effects and inheritance.
 
 ### Tokens, language and themes
 
@@ -63,7 +58,8 @@ new UI should prefer semantic roles instead of adding another palette.
 - Appearance defaults to **System**. Light and Dark are explicit user options.
   Both themes use the same semantic roles.
 - The shared content maximum is 1,280 px with fluid 20–40 px gutters; flight-detail
-  composition uses a 1,240 px maximum. The main mobile transition is 760 px.
+  composition uses a 1,240 px maximum. The shared navigation/Passport transition is 760/761 px. Flight Detail
+  has its own 1199/1200 px composition and lazy-Globe boundary.
   Mobile uses a page heading with settings/back actions in place of desktop
   navigation. Insets account for device safe areas.
 
@@ -87,7 +83,10 @@ retains the shared form defaults.
 
 The chronological flight list is part of Passport, not a separate page. Desktop
 can place the map and archive beside each other; mobile reorders the same content
-into document flow. Flight detail omits its route map on mobile.
+into document flow. Flight Detail mounts its Globe only at widths of at least 1200 px.
+Its hero is content-led; viewport height must not push the route heading downward.
+The [Flight Passport journal](flight-passport-journal.md) owns the exported image
+and MRZ specimen policy; it is distinct from the responsive Passport page.
 
 Prefer proximity, aligned rows and dividers for related facts. Use a surface for
 an interaction or containment boundary and elevation for overlap or floating
@@ -114,7 +113,7 @@ Demo data and destructive actions must be clearly identified.
 ### Responsive and accessibility checks
 
 Inspect 1,440 px desktop, 1,024 px tablet/narrow desktop and 390 px mobile layouts.
-Exercise 760/761 px around the shared transition; use 320 px as an extra overflow
+Exercise 760/761 px around the shared transition and 1199/1200 px for Detail; use 320 px as an extra overflow
 guard when changing dense content. These are verification widths, not separate
 layouts to hard-code.
 
@@ -129,7 +128,10 @@ displacing route identity or critical times.
 accessibility checks. Run the relevant cases with `pnpm test:e2e`; code changes
 also require `pnpm typecheck`, `pnpm test` and `pnpm build`. Automated checks support
 visual and keyboard review; they do not establish that every screen is accessible.
-Screenshots and Playwright reports are local test outputs, not product assets.
+New screenshots, visual comparisons and debug JSON default to ignored `artifacts/`.
+Playwright failure reports use its existing ignored output paths. Approved references
+and formal fixtures require separate review before replacement; see
+[engineering standards](engineering-standards.md#documentation-and-evidence).
 
 ### CSS maintenance
 
@@ -175,14 +177,11 @@ the browser does not then retry an earlier declaration of that property.
 `import.css`、`settings.css`、`flight-editor.css`、`flight-detail.css` 与 `passport.css`
 分别负责各自流程和构图，并包含所属响应式规则。Passport 同时负责档案列表与航班行展示。
 
-`main.tsx` 在 `design-system.css` 后按顺序显式导入：`base`、`shell`、`controls`、`welcome`、
-`import`、`settings`、`motion`、`recovery`、`flight-editor`、`route-map`、`flight-detail`、`passport`。
-保持导入顺序稳定：源码顺序是 cascade 的一部分。共享控件位于设置之前，让移动端会员添加
-规则继续覆盖次级按钮的 display；共享动效位于设置交互规则之后，保留 specificity 相同时的
-悬停覆盖结果。同样，Passport 的航班偏差颜色位于航班详情的状态颜色之后。
-原有分组动效 selector 保留在 `motion.css`，原有分组移动端隐藏规则保留在 `shell.css`。
-同一职责内的重复 selector、后期构图覆盖与响应式覆盖保留原有顺序；本次结构拆分不合并或
-删除这些规则。移动规则时，先检查跨文件依赖，再调整归属或导入顺序。
+[main.tsx](../apps/web/src/main.tsx) 中的实际导入顺序是唯一依据，不在文档复制一份列表。
+`shared-page-theme.css` 位于 base/shell 之后，负责共享蓝灰主题；特性构图位于共享控件之后。
+Passport 的移动/桌面、航班列表和分享浮层样式保留后续顺序。共享动效仍位于 Settings
+交互规则之后，Passport 时间偏差颜色仍位于详情状态规则之后。移动规则前检查跨文件依赖，
+保持 specificity、简写属性效果、继承和 cascade 顺序。
 
 ### Token、语言与主题
 
@@ -191,11 +190,12 @@ the browser does not then retry an earlier declaration of that property.
 
 - 颜色区分画布、表面、文字、边框、焦点和运行状态。正向、关注、严重与信息颜色必须
   表达状态。地图使用独立的共享语义色板。
-- 界面、展示、数据和等宽字体均使用本地可用字体。数据角色使用等宽数字；英文、
-  简体中文与繁体中文共享信息层级，并使用各自的 CJK 回退字体。
+- 英文使用本地 Inter/system 字体；简体与繁体中文按需加载固定版本 MiSans / MiSans TC，
+  请求失败时回退系统字体。数据角色保留 Latin-first 等宽数字与相应中文回退。
+  导出护照的专用字体和 MRZ 规则见[护照文档](flight-passport-journal.md)。
 - 外观默认**跟随系统**，用户可明确选择浅色或深色。两种主题使用同一套语义角色。
 - 共享内容最大宽度为 1,280 px，水平间距在 20–40 px 之间变化；航班详情采用
-  1,240 px 最大宽度。主要移动端切换点为 760 px。移动端使用页面标题及设置/返回
+  1,240 px 最大宽度。共享导航/Passport 切换点为 760/761 px；详情采用独立的 1199/1200 px 构图与 Globe 加载边界。移动端使用页面标题及设置/返回
   操作替代桌面导航；容器间距包含设备安全区域。
 
 ### 构图
@@ -209,7 +209,7 @@ the browser does not then retry an earlier declaration of that property.
 | 设置       | 数据归属与可编辑偏好             | 章节标签、导入/导出控件和存储信息           |
 
 按时间组织的航班列表属于 Passport，不再是独立页面。桌面端可以并排展示地图与档案，
-移动端将同样的内容重排为文档流。航班详情在移动端不展示航线地图。
+移动端将同样的内容重排为文档流。航班详情仅在宽度至少 1200 px 时挂载 Globe；Hero 高度由内容决定，不随窗口高度向下推移路线标题。
 
 相关事实优先通过邻近关系、对齐行和分隔线组织。表面用于表达交互或内容边界，纵深
 用于表达重叠或浮层。避免嵌套卡片、一字段一卡片、装饰性指标和相互竞争的主视觉。
@@ -230,7 +230,7 @@ the browser does not then retry an earlier declaration of that property.
 ### 响应式与可访问性检查
 
 检查 1,440 px 桌面、1,024 px 平板/窄桌面与 390 px 移动端布局。覆盖共享切换点附近的
-760/761 px；修改密集内容时，可增加 320 px 溢出检查。这些是验收宽度，不是需要
+760/761 px，以及详情的 1199/1200 px；修改密集内容时，可增加 320 px 溢出检查。这些是验收宽度，不是需要
 硬编码的独立布局。
 
 覆盖英文、简体中文和繁体中文、两种主题、键盘导航及减少动态效果。整个文档不得横向
@@ -239,5 +239,5 @@ the browser does not then retry an earlier declaration of that property.
 
 [浏览器测试](../e2e)覆盖代表性布局、交互和 Axe 可访问性检查。使用 `pnpm test:e2e`
 运行相关用例；代码改动还需要通过 `pnpm typecheck`、`pnpm test` 和 `pnpm build`。
-自动化检查辅助视觉和键盘审查，不代表所有界面都已满足可访问性要求。截图与 Playwright
-报告属于本地测试产物，不是产品资源。
+自动化检查辅助视觉和键盘审查，不代表所有界面都已满足可访问性要求。新截图、比较结果和调试 JSON 默认写入忽略的 `artifacts/`；Playwright 失败报告沿用其
+已有忽略路径。批准版参考和正式 Fixture 的替换需要独立审查，规则见[工程规范](engineering-standards.md)。

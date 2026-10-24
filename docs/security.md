@@ -44,14 +44,14 @@ fonts are ever self-hosted.
 Checks: `pnpm check:security-headers` (static parity; runs real Caddy when the
 binary is available), `pnpm test:e2e:csp` (Chromium, Firefox, WebKit against the
 production build), and header/cache assertions in `scripts/test-deployment.sh`.
-WebKit reports engine-internal `style-src-attr` violations (empty sample,
-blocked `inline`) while restyling native `<select>` controls. The CSP journeys
-exempt only that signature when the event targets a `<select>` that has no
-`style` attribute, or the document after a `<select>` was removed while no
-refused style attribute was seen anywhere. Any other inline style, including
-one on a `<select>` or on a page with `<select>`s, fails the journey (covered by
-a dedicated test), and a calibration test fails when WebKit stops reporting the
-quirk.
+WebKit can report engine-internal inline styles while creating native `<select>`
+controls, including elements never attached to the document. The CSP detector
+pairs only calibrated report-only samples with matching enforced violations and
+observed select instances. Extra events, reused samples, unknown declarations and
+real application styles remain failures. Attached, removed, never-attached and
+cloned-element regressions exercise that boundary in
+[`e2e-csp/content-security-policy.pw.ts`](../e2e-csp/content-security-policy.pw.ts). Production enforcement is unchanged;
+the report-only sampling policy is test-local.
 
 ## Webfont integrity
 
@@ -119,4 +119,10 @@ are picked up on the next load.
 via `stylelint → micromatch`). No patched `braces` release exists; it affects
 only the development lint tool, which receives trusted glob constants, and
 `pnpm audit --prod` reports no vulnerabilities. See the
-[dependency review](reviews/2026-10-16-dependency-security.md).
+[dated dependency review](archive/dependency-security-2026-10-16.md).
+
+The dated review's Vitest 3 / tinypool follow-up was superseded by subsequent
+runner upgrades, including [PR #87](https://github.com/keepraw/Keepraw-Fly/pull/87).
+The lockfile is the current dependency source; run `pnpm audit --json` and
+`pnpm audit --prod --json` for current advisory data. Do not interpret historical
+audit counts as a fresh security assessment or suppress the outstanding advisory.
