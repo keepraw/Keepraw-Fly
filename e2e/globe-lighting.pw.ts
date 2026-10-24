@@ -204,7 +204,14 @@ test("night texture failure falls back locally and retries both textures @cross-
     return;
   }
   await page.route("**/night-4096.webp", (route) => route.abort());
-  await page.reload();
+  // Reload can finish before the lazy Globe Lab module starts its textures.
+  // Check fallback only after the injected night-texture failure has occurred.
+  await Promise.all([
+    page.waitForEvent("requestfailed", {
+      predicate: (request) => request.url().endsWith("/night-4096.webp"),
+    }),
+    page.reload(),
+  ]);
   await expect(page.locator('.globe-fallback svg[role="group"]')).toBeVisible();
   await expect
     .poll(
