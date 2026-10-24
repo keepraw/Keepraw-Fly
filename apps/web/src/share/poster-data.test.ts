@@ -23,7 +23,9 @@ import {
   POSTER_SIZE,
 } from "./poster-layout";
 import {
+  POSTER_FRAME_MARGIN,
   POSTER_MAP_RATIO,
+  posterMapCrop,
   posterMapFrame,
   projectToFrame,
   routePolylines,
@@ -115,13 +117,18 @@ describe("poster data model", () => {
       core.distanceKilometers,
       6,
     );
-    expect(model.statistics.distanceUnknownFlights).toBe(1);
     expect(model.statistics.airports).toBe(core.airports);
     expect(model.statistics.airlines).toBe(core.airlines);
     expect(model.statistics.countries).toBe(core.countries);
     // 8 reliable flights × 150 minutes; the broken one is excluded.
     expect(model.statistics.durationMinutes).toBe(8 * 150);
-    expect(model.statistics.durationUnknownFlights).toBe(1);
+    // Coverage counts are not printed, so they never enter the poster model.
+    expect(Object.keys(model.statistics)).not.toContain(
+      "distanceUnknownFlights",
+    );
+    expect(Object.keys(model.statistics)).not.toContain(
+      "durationUnknownFlights",
+    );
     expect(model.yearRange).toEqual({ first: 2023, last: 2025 });
   });
 
@@ -143,7 +150,14 @@ describe("poster data model", () => {
   });
 
   it("keeps the 3A share statistics and the poster statistics identical", () => {
-    const share = buildShareRenderModel(archive).model.statistics;
+    const {
+      distanceKnownFlights: _distanceKnown,
+      distanceUnknownFlights: _distanceUnknown,
+      durationKnownFlights: _durationKnown,
+      durationUnknownFlights: _durationUnknown,
+      ...share
+    } = buildShareRenderModel(archive).model.statistics;
+    // Same totals; the 3A coverage counts stay in the share model only.
     expect(buildPosterModel(archive).statistics).toEqual(share);
   });
 
@@ -332,8 +346,12 @@ describe("poster copy, layout and palettes", () => {
     expect(copy.issuer).toBe(
       `share.poster.issuedBy:${JSON.stringify({ brand: "Keepraw Fly" })}`,
     );
-    expect(copy.notes).toHaveLength(2);
+    // One flight lacks distance and one lacks time; the photograph still
+    // prints no coverage caption (product decision: totals are unqualified).
+    expect(copy).not.toHaveProperty("notes");
     const text = JSON.stringify(copy);
+    expect(text).not.toContain("distanceCoverage");
+    expect(text).not.toContain("durationCoverage");
     for (const code of CODES) expect(text).not.toContain(code);
     for (const sentinel of SENTINELS) expect(text).not.toContain(sentinel);
   });
@@ -416,9 +434,9 @@ describe("poster copy, layout and palettes", () => {
       "kilometers",
       { number: "123ABC456" },
     );
-    // QQX is unknown, so distance coverage is reported for all 1500.
-    expect(copy.notes.join(" ")).toContain("of 1500 flights");
-    expect(copy.notes.join(" ")).not.toMatch(/\d,\d{3}/);
+    // QQX is unknown, so no flight has a distance; no coverage note is made.
+    expect(JSON.stringify(copy)).not.toContain("of 1500 flights");
+    expect(JSON.stringify(copy)).not.toMatch(/\d,\d{3}/);
     expect(copy.flights.value).toBe("1500");
   });
 
@@ -485,7 +503,10 @@ describe("poster map geometry", () => {
       routes[0]!.to,
       routes[1]!.from,
     ]);
-    const frame = posterMapFrame(rect, center);
+    const frame = posterMapFrame(rect, center, {
+      routes,
+      airports: [routes[0]!.from, routes[0]!.to, routes[1]!.from],
+    });
     for (const route of routes)
       expect(routePolylines(frame, route.from, route.to)).toHaveLength(1);
     for (const route of routes)
@@ -497,5 +518,147 @@ describe("poster map geometry", () => {
         expect(point.y).toBeLessThan(rect.height);
       }
     expect(posterCenterLongitude([], [])).toBe(0);
+  });
+
+  // Measured exactly like the e2e acceptance check: every drawn route vertex
+  // and airport centre, in poster units, against the map rect.
+  const extent = (
+    frame: ReturnType<typeof posterMapFrame>,
+    routes: Array<{ from: Geo; to: Geo }>,
+    airports: Geo[],
+  ) => {
+    const points = [
+      ...routes.flatMap((route) =>
+        routePolylines(frame, route.from, route.to).flat(),
+      ),
+      ...airports.map((airport) => projectToFrame(frame, airport)!),
+    ];
+    const xs = points.map((point) => point.x);
+    const ys = points.map((point) => point.y);
+    return {
+      left: Math.min(...xs),
+      right: Math.max(...xs),
+      top: Math.min(...ys),
+      bottom: Math.max(...ys),
+    };
+  };
+  type Geo = { latitude: number; longitude: number };
+  const AIRPORT: Record<string, Geo> = {
+    PEK: { latitude: 40.08, longitude: 116.58 },
+    PVG: { latitude: 31.14, longitude: 121.8 },
+    HND: { latitude: 35.55, longitude: 139.78 },
+    ICN: { latitude: 37.46, longitude: 126.44 },
+    HKG: { latitude: 22.31, longitude: 113.91 },
+    CAN: { latitude: 23.39, longitude: 113.3 },
+    TPE: { latitude: 25.08, longitude: 121.23 },
+    DEL: { latitude: 28.56, longitude: 77.1 },
+    SFO: { latitude: 37.62, longitude: -122.38 },
+    LHR: { latitude: 51.47, longitude: -0.45 },
+    SYD: { latitude: -33.95, longitude: 151.18 },
+  };
+  const pairs = (list: string[][]) =>
+    list.map(([from, to]) => ({
+      from: AIRPORT[from!]!,
+      to: AIRPORT[to!]!,
+      flights: 1,
+    }));
+  const poster = { x: 82, y: 154, width: 1036, height: 624 };
+  const frameFor = (routes: ReturnType<typeof pairs>) => {
+    const airports = [
+      ...new Set(routes.flatMap((route) => [route.from, route.to])),
+    ];
+    const center = posterCenterLongitude(routes, airports);
+    const frame = posterMapFrame(poster, center, { routes, airports });
+    return { frame, airports, box: extent(frame, routes, airports) };
+  };
+
+  it("falls back to the whole inhabited world when nothing is plottable", () => {
+    for (const frame of [
+      posterMapFrame(poster, 120),
+      posterMapFrame(poster, 120, { routes: [], airports: [] }),
+    ]) {
+      expect(frame.fitted).toBe(false);
+      expect(frame.crop).toEqual(posterMapCrop());
+      expect(frame.crop.width * frame.scale).toBeCloseTo(poster.width, 6);
+    }
+  });
+
+  it("fits East Asia plus one South Asia route to most of the map width", () => {
+    const routes = pairs([
+      ["PEK", "PVG"],
+      ["PVG", "HND"],
+      ["PVG", "ICN"],
+      ["HKG", "PVG"],
+      ["HND", "ICN"],
+      ["PEK", "HND"],
+      ["CAN", "PEK"],
+      ["TPE", "HND"],
+      ["PVG", "DEL"],
+    ]);
+    const { frame, box } = frameFor(routes);
+    expect(frame.fitted).toBe(true);
+    expect((box.right - box.left) / poster.width).toBeGreaterThan(0.55);
+    // Uniform margins: everything inside, with the frame margin to spare on
+    // the limiting axis and at least that much on the other.
+    expect(box.left - poster.x).toBeGreaterThanOrEqual(
+      POSTER_FRAME_MARGIN - 0.5,
+    );
+    expect(poster.x + poster.width - box.right).toBeGreaterThanOrEqual(
+      POSTER_FRAME_MARGIN - 0.5,
+    );
+    expect(box.top).toBeGreaterThan(poster.y);
+    expect(box.bottom).toBeLessThan(poster.y + poster.height);
+    // Equal Earth stays undistorted: one scale for both axes.
+    expect(frame.crop.width / frame.crop.height).toBeCloseTo(
+      poster.width / poster.height,
+      6,
+    );
+  });
+
+  it("keeps a great-circle bulge inside the frame", () => {
+    // LHR–PEK arcs far north of both endpoints.
+    const routes = pairs([["LHR", "PEK"]]);
+    const { box } = frameFor(routes);
+    const ends = [AIRPORT.LHR!, AIRPORT.PEK!];
+    const { frame } = frameFor(routes);
+    const endTop = Math.min(
+      ...ends.map((airport) => projectToFrame(frame, airport)!.y),
+    );
+    expect(box.top).toBeLessThan(endTop - 20);
+    expect(box.top).toBeGreaterThanOrEqual(
+      poster.y + POSTER_FRAME_MARGIN - 0.5,
+    );
+  });
+
+  it("does not over-magnify one short hop", () => {
+    const routes = pairs([["PVG", "HND"]]);
+    const { frame, box } = frameFor(routes);
+    const world = posterMapFrame(poster, frame.centerLongitude);
+    expect(frame.scale / world.scale).toBeLessThan(9);
+    // The hop is framed with surroundings rather than stretched edge to edge.
+    expect((box.right - box.left) / poster.width).toBeLessThan(0.6);
+    expect(box.left).toBeGreaterThan(poster.x + POSTER_FRAME_MARGIN);
+  });
+
+  it("keeps trans-Pacific routes split by the seam logic, never across the map", () => {
+    const routes = pairs([
+      ["SFO", "HND"],
+      ["SFO", "PVG"],
+      ["LHR", "SFO"],
+      ["SYD", "HND"],
+      ["PVG", "DEL"],
+    ]);
+    const { frame, box } = frameFor(routes);
+    for (const route of routes)
+      for (const line of routePolylines(frame, route.from, route.to))
+        for (let i = 1; i < line.length; i += 1)
+          expect(Math.abs(line[i]!.x - line[i - 1]!.x)).toBeLessThan(
+            poster.width / 4,
+          );
+    expect(box.left).toBeGreaterThanOrEqual(poster.x);
+    expect(box.right).toBeLessThanOrEqual(poster.x + poster.width);
+    expect(box.top).toBeGreaterThanOrEqual(poster.y);
+    expect(box.bottom).toBeLessThanOrEqual(poster.y + poster.height);
+    expect((box.right - box.left) / poster.width).toBeGreaterThan(0.55);
   });
 });

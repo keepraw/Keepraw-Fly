@@ -697,8 +697,6 @@
       "countries": "国・地域",
       "km": "km",
       "mi": "マイル",
-      "distanceCoverage": "距離は {{total, number}} 便中 {{known, number}} 便に基づく",
-      "durationCoverage": "時間は {{total, number}} 便中 {{known, number}} 便に基づく",
       "hoursUnit": "時間",
       "routesCurated": "全 {{total, number}} 航路のうち多い順に {{shown, number}} 航路を表示",
       "routesAll_other": "全 {{count, number}} 航路を表示"

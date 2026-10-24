@@ -697,8 +697,6 @@
       "countries": "国家及地区",
       "km": "公里",
       "mi": "英里",
-      "distanceCoverage": "里程基于 {{total, number}} 个航班中的 {{known, number}} 个",
-      "durationCoverage": "时间基于 {{total, number}} 个航班中的 {{known, number}} 个",
       "hoursUnit": "小时",
       "routesCurated": "精选展示：{{total, number}} 条航线中最常飞的 {{shown, number}} 条",
       "routesAll": "已显示全部 {{count, number}} 条航线"

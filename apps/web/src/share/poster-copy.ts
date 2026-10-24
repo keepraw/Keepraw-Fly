@@ -76,7 +76,6 @@ export interface PosterCopy {
   flights: PosterStat;
   duration: PosterStat;
   secondary: PosterStat[];
-  notes: string[];
   map: PosterMapCopy;
   /** ICAO TD3: two 44-character lines. Specimen policy, not a travel credential. */
   mrz: [string, string];
@@ -128,22 +127,6 @@ export function buildPosterCopy(
     distanceUnit === "miles" ? "share.poster.mi" : "share.poster.km",
   );
   const stats = model.statistics;
-
-  const notes: string[] = [];
-  if (stats.distanceUnknownFlights > 0)
-    notes.push(
-      t(
-        "share.poster.distanceCoverage",
-        ungrouped({ known: stats.distanceKnownFlights, total: stats.flights }),
-      ),
-    );
-  if (stats.durationUnknownFlights > 0)
-    notes.push(
-      t(
-        "share.poster.durationCoverage",
-        ungrouped({ known: stats.durationKnownFlights, total: stats.flights }),
-      ),
-    );
 
   const range = model.yearRange;
   const map = model.map;
@@ -263,7 +246,6 @@ export function buildPosterCopy(
       { label: t("share.poster.airlines"), value: number(stats.airlines) },
       { label: t("share.poster.countries"), value: number(stats.countries) },
     ],
-    notes,
     map: {
       routes: map.routes,
       airports: map.airports,
