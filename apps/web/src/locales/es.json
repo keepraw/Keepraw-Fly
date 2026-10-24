@@ -762,8 +762,6 @@
       "countries": "Países/regiones",
       "km": "km",
       "mi": "mi",
-      "distanceCoverage": "Distancia de {{known, number}} de {{total, number}} vuelos",
-      "durationCoverage": "Tiempo de {{known, number}} de {{total, number}} vuelos",
       "hoursUnit": "h",
       "routesCurated": "Se muestran las {{shown, number}} rutas más voladas de {{total, number}}",
       "routesAll_one": "Se muestra la única ruta",

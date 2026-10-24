@@ -9,21 +9,17 @@ import type { ShareGeoPoint } from "./share-model";
 /**
  * Poster map geometry: the app's existing offline Equal Earth world map
  * (`world-map.generated.ts` via `map-geometry.ts`), reprojected around a
- * centre longitude and cropped to inhabited latitudes. Everything here is
+ * centre longitude with the complete sphere in view. Everything here is
  * plain math on map units; the Canvas 2D drawing lives in poster-render.ts.
  * No new map asset, no globe, no WebGL.
  */
 
-/** Northern and southern crop of the poster map (drops most of Antarctica). */
-export const POSTER_MAP_NORTH = 83;
-export const POSTER_MAP_SOUTH = -57;
-
 export interface PosterMapFrame {
-  /** Map-unit box drawn into the poster rect. */
-  crop: { x: number; y: number; width: number; height: number };
+  /** Full-sphere map-unit box drawn into the poster rect. */
+  extent: { x: number; y: number; width: number; height: number };
   /** Map unit → poster unit. */
   scale: number;
-  /** Poster-unit offset of the crop's top-left corner. */
+  /** Poster-unit offset of the extent's top-left corner. */
   offsetX: number;
   offsetY: number;
   centerLongitude: number;
@@ -36,35 +32,34 @@ export interface PosterRectLike {
   height: number;
 }
 
-const projectedY = (latitude: number) => projectionAt(0)([0, latitude])![1];
-
-/** Map-unit crop box: the full sphere width, inhabited latitudes only. */
-export function posterMapCrop() {
-  const top = projectedY(POSTER_MAP_NORTH);
-  const bottom = projectedY(POSTER_MAP_SOUTH);
-  const left = projectionAt(0)([-180, 0])![0];
-  const right = projectionAt(0)([180, 0])![0];
+/** Fixed full-sphere bounds; route distribution never changes the scale. */
+export function posterMapBounds() {
+  const [[left, top], [right, bottom]] = geoPath(projectionAt(0)).bounds({
+    type: "Sphere",
+  });
   return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
-/** Aspect ratio (width / height) of the cropped poster map. */
 export const POSTER_MAP_RATIO = (() => {
-  const crop = posterMapCrop();
-  return crop.width / crop.height;
+  const bounds = posterMapBounds();
+  return bounds.width / bounds.height;
 })();
 
-/** Fits the cropped map into `rect`, centred, without distortion. */
+/** Fits the complete world into `rect`, centred, without distortion. */
 export function posterMapFrame(
   rect: PosterRectLike,
   centerLongitude = 0,
 ): PosterMapFrame {
-  const crop = posterMapCrop();
-  const scale = Math.min(rect.width / crop.width, rect.height / crop.height);
+  const extent = posterMapBounds();
+  const scale = Math.min(
+    rect.width / extent.width,
+    rect.height / extent.height,
+  );
   return {
-    crop,
+    extent,
     scale,
-    offsetX: rect.x + (rect.width - crop.width * scale) / 2,
-    offsetY: rect.y + (rect.height - crop.height * scale) / 2,
+    offsetX: rect.x + (rect.width - extent.width * scale) / 2,
+    offsetY: rect.y + (rect.height - extent.height * scale) / 2,
     centerLongitude,
   };
 }
@@ -74,8 +69,8 @@ export function framePoint(
   point: { x: number; y: number },
 ) {
   return {
-    x: frame.offsetX + (point.x - frame.crop.x) * frame.scale,
-    y: frame.offsetY + (point.y - frame.crop.y) * frame.scale,
+    x: frame.offsetX + (point.x - frame.extent.x) * frame.scale,
+    y: frame.offsetY + (point.y - frame.extent.y) * frame.scale,
   };
 }
 

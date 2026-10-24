@@ -23,11 +23,7 @@ import {
 export interface PosterStatistics {
   flights: number;
   distanceKilometers: number;
-  distanceKnownFlights: number;
-  distanceUnknownFlights: number;
   durationMinutes: number;
-  durationKnownFlights: number;
-  durationUnknownFlights: number;
   airports: number;
   airlines: number;
   countries: number;
@@ -139,11 +135,7 @@ export function buildPosterModel(
   const statistics: PosterStatistics = {
     flights: source.flights,
     distanceKilometers: source.distanceKilometers,
-    distanceKnownFlights: source.distanceKnownFlights,
-    distanceUnknownFlights: source.distanceUnknownFlights,
     durationMinutes: source.durationMinutes,
-    durationKnownFlights: source.durationKnownFlights,
-    durationUnknownFlights: source.durationUnknownFlights,
     airports: source.airports,
     airlines: source.airlines,
     countries: source.countries,

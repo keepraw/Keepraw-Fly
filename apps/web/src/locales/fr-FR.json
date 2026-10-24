@@ -762,8 +762,6 @@
       "countries": "Pays/régions",
       "km": "km",
       "mi": "mi",
-      "distanceCoverage": "Distance sur {{known, number}} vols sur {{total, number}}",
-      "durationCoverage": "Temps sur {{known, number}} vols sur {{total, number}}",
       "hoursUnit": "h",
       "routesCurated": "{{shown, number}} trajets les plus fréquents sur {{total, number}}",
       "routesAll_one": "Le trajet unique est affiché",
