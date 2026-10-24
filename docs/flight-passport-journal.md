@@ -1,6 +1,6 @@
 # Flight Passport digital travel journal
 
-From Passport, choose **Share Flight Passport** to view the finished 1200 × 1600
+From Passport, choose **Share Flight Passport** to view the finished 1200 × 1684
 PNG. The upper leaf retains the offline Equal Earth world map, real great-circle
 routes, airport dots and paper texture. The lower leaf retains holder information,
 flight statistics and the sewn binding. The viewer has no toolbar, second name
@@ -12,9 +12,12 @@ closes it. Focus stays in the viewer and returns to the Passport share action.
 Both leaves share the existing plane wordmark and a right-aligned localized page
 title: route map on page 01 and holder profile on page 02. The map retains its
 projection scale and full width beneath the header. Holder details use a fixed
-grid: name and number, authority and first flight, then a full-width record period.
-Names can occupy two grapheme-safe lines with one fitted font size; statistics
-and coverage notes share a compact grid above a dedicated machine-readable area.
+grid: name and number, then a single metadata row for authority, first flight
+and record period. Names can occupy two grapheme-safe lines with one fitted font
+size. A shared eight-unit rhythm separates the heading, identity, metadata,
+statistics, coverage notes and machine-readable area. The six secondary statistics
+use equal columns and a 96-unit row pitch, with measured ink clearance between
+first-row figures and second-row captions.
 
 ## Existing data and settings
 
@@ -125,17 +128,45 @@ pinyin and fixed expiry remain explicit issues in `PosterCopy.mrzIssues`.
 
 This implements TD3 data layout and checks. It does **not** issue a real travel
 credential, establish legal authority, or certify full document compliance.
-Empty/unencodable names remain an explicit compatibility limitation. The lower
-leaf reserves Y=1424–1550 (126 units, 16.6% of its height) for the machine-readable
-area. Its barely warm paper tint uses the existing `mrzBand` role; paper fibres
-remain, while security curves stop above it. IBM Plex Mono at 26 units prints
-both complete rows at baselines 1474 and 1512, on one fixed 18.5-unit character
-grid. This occupies about 80% of the content width without stretching to fill it.
-Native Canvas tracking is probed, with explicit equal-width positions when
-tracking is absent or ineffective. The second row's ink ends around Y=1516,
-comfortably inside the Y=1534 print margin and Y=1550 paper frame. Export checks
-both the whole-canvas safe area and actual lower-leaf print/separator boundaries.
-Only drawing changes; encoding, fields, checks and souvenir policy are unchanged.
+Empty/unencodable names remain an explicit compatibility limitation.
+
+## TD3 page and print geometry
+
+`poster-layout.ts` centralizes the physical references and book geometry. A leaf
+is 1136 × 800 design units, derived by rounding 88/125 of its width (ratio 1.42,
+within 0.04% of nominal TD3). Two equal leaves, a 32-unit binding and 26-unit
+outer top/bottom margins derive the 1200 × 1684 integer PNG. The frame inset is
+24 units; glyph ink stays inside a further 16-unit print margin. Both leaves
+share these margins, header offset and binding relationship. The map fits a box
+derived from leaf height, retaining one uniform projection scale on both axes.
+The native image viewer and zoom sizes use the same artboard dimensions through
+CSSOM custom properties, with no separate CSS aspect-ratio constant.
+
+The nominal MRZ spans the final 23.2 mm of the 88 mm leaf (210.84 units, 26.36%).
+Figure 3 and Part 4 §4.2.1.3 place its first character 6 mm from the paper's left
+edge; the 114 mm reference arrangement is independent of the statistics columns.
+IBM Plex Mono at 36 units uses a fixed 2.54 mm pitch (23.08352 units, 10 cpi),
+with only the small gap between its natural advance and that pitch. The complete
+44-character rows occupy approximately 89% of the leaf width within the 91.2%
+reference arrangement. No content-column centring or fill-to-width tracking is
+used. The upper baseline is 13.6 mm from the bottom, with 6.35 mm between rows:
+approximately Y=1534.4 and 1592.1 in the exported artboard. Both rows have ample
+clearance above the Y=1634 paper frame.
+
+The full reference MRZ height fits without reducing the statistics row spacing:
+a single metadata row reclaims room from the former stacked fields. Labels and
+ordinary values share one baseline gap; long names retain their reserved second
+line. Serif distance figures remain the main statistic, with smaller serif figures
+and lighter units in the three-column/two-row grid. No rectangular MRZ wash is
+drawn. Security curves fade continuously to very faint ink, and the separator is
+a quiet hairline. No official marks or credential fields are added.
+
+Native Canvas tracking is probed, with explicit cell positions when tracking is
+absent or ineffective. Export validates actual ink bearings and paper print
+boundaries as well as the outer safe area. Encoding, fields, checks and souvenir
+policy remain unchanged. The references guide this digital keepsake's appearance;
+the IBM Plex glyphs and decorative page frame do not establish physical OCR
+conformance.
 Physical OCR-B printing, dimensions and optical certification are outside this
 PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 
@@ -155,6 +186,10 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 - `passport-profile.test.ts` checks migration, preservation of the legacy name,
   stable display number, malformed/blocked storage and reload.
 - `poster-data.test.ts` retains archive statistics, privacy and route coverage.
+- `poster-layout.test.ts` verifies equal TD3 leaves, derived canvas/binding/frame
+  geometry, the paper-relative MRZ arrangement, shared metadata baselines and
+  separated layout regions. Browser checks measure actual label/value gaps and
+  at least 24 units between statistics rows, including units and fallback faces.
 - `e2e/share-passport.pw.ts` exercises the real Canvas → PNG → Blob `<img>` flow,
   Settings edits, full-archive totals, native saving, focus, zoom, retry, blocked
   storage, DPR, dense maps and font failure. It checks 320–1440 px plus short
@@ -173,7 +208,7 @@ PNG keepsake's scope. No new UI disclaimers or captions are drawn.
 Run `pnpm test`, `pnpm typecheck`, `pnpm lint:css`, `pnpm check:css-tokens`,
 `pnpm format:check`, `pnpm build` and
 `pnpm exec playwright test e2e/share-passport.pw.ts --project=chromium`.
-Browser tests may retain screenshots of actual generated output for diagnostics;
+Browser tests attach actual generated PNGs to the Playwright report for visual review;
 no design mockups or image-generation tools participate in implementation.
 
 ## Passport font loading

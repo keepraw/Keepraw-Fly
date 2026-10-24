@@ -60,19 +60,17 @@ describe("passport typography and print geometry", () => {
   it("reserves the machine-readable area inside the frame, including print margins", () => {
     const layout = createPosterLayout();
     const { holderPage, holderContent, mrz, achievements } = layout;
-    expect(mrz.area.height / holderPage.height).toBeGreaterThanOrEqual(0.16);
-    expect(mrz.area.height / holderPage.height).toBeLessThanOrEqual(0.2);
-    expect(mrz.area.y + mrz.area.height).toBe(
-      holderPage.y + holderPage.height - 24,
-    );
-    expect(holderContent.y + holderContent.height).toBe(
-      mrz.area.y + mrz.area.height - 16,
+    expect(mrz.area.height / holderPage.height).toBeGreaterThanOrEqual(0.263);
+    expect(mrz.area.height / holderPage.height).toBeLessThanOrEqual(0.265);
+    expect(mrz.area.y + mrz.area.height).toBe(holderPage.y + holderPage.height);
+    expect(holderContent.y + holderContent.height).toBeLessThan(
+      holderPage.y + holderPage.height - layout.frameInset,
     );
     expect(mrz.baseline - mrz.size).toBeGreaterThan(mrz.rule + 20);
     expect(mrz.baseline + mrz.lineHeight + mrz.size * 0.25).toBeLessThan(
       holderContent.y + holderContent.height,
     );
-    expect(44 * mrz.cellAdvance).toBeLessThan(layout.right - layout.left);
+    expect(44 * mrz.cellAdvance).toBeLessThan(mrz.print.width);
     expect(
       Math.max(...achievements.map((block) => block.baseline)) + 12,
     ).toBeLessThan(layout.notesBaseline);

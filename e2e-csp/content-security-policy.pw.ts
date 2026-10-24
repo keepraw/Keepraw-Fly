@@ -311,12 +311,12 @@ for (const { name, viewport, size } of [
   {
     name: "desktop",
     viewport: { width: 1440, height: 1000 },
-    size: { width: 1200, height: 1600 },
+    size: { width: 1200, height: 1684 },
   },
   {
     name: "phone",
     viewport: { width: 390, height: 844 },
-    size: { width: 1200, height: 1600 },
+    size: { width: 1200, height: 1684 },
   },
 ]) {
   test(`Flight Passport share decodes and releases its image under production CSP (${name}) @cross-browser`, async ({
