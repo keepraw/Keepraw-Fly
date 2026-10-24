@@ -290,7 +290,13 @@ test(
     await confirmation
       .getByRole("button", { name: "Load saved archive", exact: true })
       .click();
+    // The modal hides the app from role locators while the reload is pending.
+    // Wait for the restored archive, not just the temporarily hidden warning.
+    await expect(confirmation).toHaveCount(0);
     await expect(warning(stale)).toHaveCount(0);
+    await expect(
+      stale.getByRole("button", { name: /Open UA123/ }),
+    ).toBeVisible();
     await stale.evaluate(() =>
       window.archiveActions.updateProfile({
         native: "Saved after reload",
