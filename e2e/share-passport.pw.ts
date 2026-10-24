@@ -3,7 +3,11 @@ import { readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PosterCopy } from "../apps/web/src/share/poster-copy";
-import type { PosterLayout } from "../apps/web/src/share/poster-layout";
+import {
+  POSTER_SIZE,
+  TD3_MM,
+  type PosterLayout,
+} from "../apps/web/src/share/poster-layout";
 import type { PosterDrawReport } from "../apps/web/src/share/poster-render";
 
 /**
@@ -330,6 +334,10 @@ async function decodeImage(page: Page) {
 
 async function keep(testInfo: TestInfo, name: string, bytes: Buffer) {
   await writeFile(testInfo.outputPath(name), bytes);
+  await testInfo.attach(name, {
+    path: testInfo.outputPath(name),
+    contentType: "image/png",
+  });
   if (artifactDir) {
     await mkdir(artifactDir, { recursive: true });
     await writeFile(path.join(artifactDir, name), bytes);
@@ -341,13 +349,16 @@ function expectPassport(decoded: Decoded) {
   expect(decoded.tag).toBe("IMG");
   expect(decoded.src).toMatch(/^blob:/);
   expect(decoded.type).toBe("image/png");
-  expect(decoded.ihdr).toEqual({ width: 1200, height: 1600 });
+  expect(decoded.ihdr).toEqual(POSTER_SIZE);
   expect(decoded.natural).toEqual(decoded.ihdr);
   expect(decoded.opaque).toBe(true);
   expect(decoded.std).toBeGreaterThan(12);
   expect(decoded.colors).toBeGreaterThan(40);
   expect(decoded.inkRows).toBeGreaterThan(800);
-  expect(decoded.box.width / decoded.box.height).toBeCloseTo(0.75, 2);
+  expect(decoded.box.width / decoded.box.height).toBeCloseTo(
+    POSTER_SIZE.width / POSTER_SIZE.height,
+    3,
+  );
   expect(decoded.box.x).toBeGreaterThanOrEqual(0);
   expect(decoded.box.y).toBeGreaterThanOrEqual(0);
   expect(decoded.box.y + decoded.box.height).toBeLessThanOrEqual(
@@ -640,7 +651,7 @@ function expectLayout(
   expect(name.baseline, where).toBe(number.baseline);
   expect(authority.baseline, where).toBe(first.baseline);
   expect(name.baseline, where).toBeLessThan(authority.baseline);
-  expect(authority.baseline, where).toBeLessThan(period.baseline);
+  expect(authority.baseline, where).toBe(period.baseline);
   for (const [key, box] of [
     ["name", name],
     ["number", number],
@@ -653,8 +664,12 @@ function expectLayout(
     expect(box.color, where).toBe(name.color);
   }
   expect(authority.x, where).toBe(name.x);
-  expect(period.x, where).toBe(name.x);
-  expect(first.x, where).toBe(number.x);
+  expect(period.x, where).toBe(profile.period.x);
+  expect(first.x, where).toBe(profile.firstFlight.x);
+  expect(period.baseline, where).toBe(authority.baseline);
+  expect(period.x - first.x - profile.firstFlight.width, where).toBe(
+    first.x - authority.x - profile.authority.width,
+  );
   const numberValue = texts.find((box) => box.text === copy.holder.number)!;
   const authorityValue = texts.find(
     (box) =>
@@ -705,8 +720,11 @@ function expectLayout(
   ).toEqual([44, 44]);
   expect(footer[0]!.width, where).toBeCloseTo(footer[1]!.width, 1);
   expect(footer[0]!.x, where).toBe(footer[1]!.x);
-  expect(footer[1]!.baseline - footer[0]!.baseline, where).toBe(
+  // Physical millimetres produce fractional design units; subtraction may
+  // differ at IEEE-754 precision, far below a raster pixel.
+  expect(footer[1]!.baseline - footer[0]!.baseline, where).toBeCloseTo(
     layout.mrz.lineHeight,
+    8,
   );
   for (const line of footer) {
     const gridWidth = 44 * layout.mrz.cellAdvance;
@@ -714,14 +732,59 @@ function expectLayout(
       gridWidth - layout.mrz.cellAdvance / 2,
     );
     expect(line.width, where).toBeLessThanOrEqual(gridWidth);
-    expect(
-      Math.abs(line.x - layout.left - (layout.right - line.x - line.width)),
-      where,
-    ).toBeLessThan(1);
+    expect(line.x, where).toBeCloseTo(layout.mrz.x, 5);
+    expect(line.x + line.width, where).toBeLessThanOrEqual(
+      layout.mrz.print.x + layout.mrz.print.width,
+    );
+    expect(line.width / layout.holderPage.width, where).toBeGreaterThan(0.88);
+    expect(line.ink.x, where).toBeGreaterThanOrEqual(layout.mrz.print.x - 0.5);
     expect(line.y, where).toBeGreaterThanOrEqual(layout.mrz.rule + 20);
     expect(line.y + line.height, where).toBeLessThanOrEqual(
       layout.holderContent.y + layout.holderContent.height,
     );
+  }
+  for (const key of ["authority", "firstFlight", "period"] as const) {
+    const field = profile[key];
+    const caption = texts.find(
+      (box) => box.x === field.x && box.baseline === field.label,
+    )!;
+    const value = texts.find(
+      (box) => box.x === field.x && box.baseline === field.baseline,
+    )!;
+    expect(field.baseline - field.label, where).toBe(profile.fieldGap);
+    expect(
+      value.ink.y - caption.ink.y - caption.ink.height,
+      `${where}: ${key} label/value`,
+    ).toBeGreaterThanOrEqual(9);
+  }
+  for (let column = 0; column < 3; column++) {
+    const upper = layout.achievements[column]!;
+    const lower = layout.achievements[column + 3]!;
+    const numbers = texts.filter(
+      (box) =>
+        box.baseline === upper.baseline &&
+        box.x >= upper.x - 3 &&
+        box.x < upper.x + upper.width,
+    );
+    const labels = texts.filter(
+      (box) =>
+        box.baseline <= lower.label &&
+        box.baseline > upper.baseline &&
+        box.x === lower.x,
+    );
+    expect(numbers.length, where).toBeGreaterThan(0);
+    expect(labels.length, where).toBeGreaterThan(0);
+    const gap =
+      Math.min(...labels.map((box) => box.ink.y)) -
+      Math.max(...numbers.map((box) => box.ink.y + box.ink.height));
+    expect(
+      gap,
+      `${where}: statistics row gap ${column}`,
+    ).toBeGreaterThanOrEqual(layout.minStatRowGap);
+    for (const number of numbers)
+      expect(number.ink.x + number.ink.width, where).toBeLessThanOrEqual(
+        upper.x + upper.width,
+      );
   }
   expect(report.paperOutside, where).toEqual([]);
 }
@@ -992,10 +1055,11 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
         44 * layout.mrz.cellAdvance - 10,
       );
       expect(width, mode).toBeLessThanOrEqual(44 * layout.mrz.cellAdvance);
-      expect(
-        Math.abs(inkLeft - layout.left - (layout.right - inkRight)),
-        mode,
-      ).toBeLessThan(6);
+      expect(inkLeft, mode).toBeGreaterThanOrEqual(layout.mrz.x - 0.5);
+      expect(inkRight, mode).toBeLessThanOrEqual(
+        layout.mrz.print.x + layout.mrz.print.width,
+      );
+      expect(width / layout.holderPage.width, mode).toBeGreaterThan(0.88);
       for (const call of row) {
         expect(call.font, mode).toBe(calls[0]!.font);
         expect(call.spacing, mode).toBe(calls[0]!.spacing);
@@ -1281,7 +1345,7 @@ test("passport font roles load before measurement and preview matches PNG @cross
         ]);
       const results = [];
       for (const [language, name, dense] of [
-        ["zh-CN", "张三", false],
+        ["zh-CN", "张鸿川", false],
         ["en-US", "Élodie Eriksson", false],
         ["zh-TW", "陳怡君", false],
         ["ja-JP", "山田はるか", false],
@@ -1370,8 +1434,8 @@ test("passport font roles load before measurement and preview matches PNG @cross
       );
     expect(result.samePixels, where).toBe(true);
     expect([result.width, result.height, result.type]).toEqual([
-      1200,
-      1600,
+      POSTER_SIZE.width,
+      POSTER_SIZE.height,
       "image/png",
     ]);
     expect(result.report.outside, where).toEqual([]);
@@ -1509,8 +1573,14 @@ test("export rejects MRZ crossing the paper frame even inside canvas safety", as
         disableWebfont: true,
       });
       const layout = layoutModule.createPosterLayout();
-      layout.mrz.baseline = 1518;
-      layout.mrz.lineHeight = 34;
+      // Isolate paper validation from the independent outer-canvas gate.
+      layout.safe.height = layout.height - layout.safe.y - 16;
+      layout.mrz.baseline =
+        layout.holderPage.y +
+        layout.holderPage.height -
+        layout.frameInset +
+        4 -
+        layout.mrz.lineHeight;
       const input = { copy, fonts, layout };
       const report = exporter.renderPosterToCanvas(
         document.createElement("canvas"),
@@ -1519,15 +1589,28 @@ test("export rejects MRZ crossing the paper frame even inside canvas safety", as
       );
       try {
         await exporter.exportPosterPng(input);
-        return { report, error: null };
+        return {
+          report,
+          frameBottom:
+            layout.holderPage.y + layout.holderPage.height - layout.frameInset,
+          error: null,
+        };
       } catch (error) {
-        return { report, error: (error as { kind: string }).kind };
+        return {
+          report,
+          frameBottom:
+            layout.holderPage.y + layout.holderPage.height - layout.frameInset,
+          error: (error as { kind: string }).kind,
+        };
       }
     },
     (await loadArchive()).flights,
   );
   expect(result.report.outside).toEqual([]);
   expect(result.report.paperOutside).toHaveLength(1);
-  expect(result.report.paperOutside[0]!.baseline).toBe(1552);
+  expect(
+    result.report.paperOutside[0]!.ink.y +
+      result.report.paperOutside[0]!.ink.height,
+  ).toBeGreaterThan(result.frameBottom);
   expect(result.error).toBe("layout-overflow");
 });

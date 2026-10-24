@@ -96,9 +96,9 @@
   width: min(
     840px,
     calc(100vw - var(--share-overlay-pad) * 2),
-    max(96px, calc(var(--share-overlay-room) * 3 / 4))
+    max(96px, calc(var(--share-overlay-room) * var(--share-image-ratio)))
   );
-  aspect-ratio: 3 / 4;
+  aspect-ratio: var(--share-image-ratio);
 }
 
 .share-overlay-image {
@@ -179,8 +179,8 @@
 }
 
 .share-overlay[data-zoom="2"] .share-overlay-image {
-  width: 1200px;
-  height: 1600px;
+  width: var(--share-image-native-width);
+  height: var(--share-image-native-height);
   max-width: none;
 }
 

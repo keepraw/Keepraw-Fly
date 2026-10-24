@@ -1,4 +1,12 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
@@ -86,6 +94,22 @@ export function FlightPassportShareDialog({
     [model, t, locale, distanceUnit, identity.profile, archive.profile.name],
   );
   const layout = useMemo(() => createPosterLayout(), []);
+  // CSSOM custom properties keep the viewer tied to the Canvas artboard under
+  // production CSP, including native-size zoom. No duplicated aspect ratio.
+  const attachStage = useCallback(
+    (stage: HTMLDivElement | null) => {
+      stageRef.current = stage;
+      if (!stage) return;
+      const dimensions = {
+        "--share-image-ratio": layout.width / layout.height,
+        "--share-image-native-width": `${layout.width}px`,
+        "--share-image-native-height": `${layout.height}px`,
+      } as CSSProperties;
+      for (const [property, value] of Object.entries(dimensions))
+        stage.style.setProperty(property, String(value));
+    },
+    [layout],
+  );
   const empty = model.statistics.flights === 0;
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<ShareState>({ status: "generating" });
@@ -231,7 +255,7 @@ export function FlightPassportShareDialog({
           {copy.title}
         </h2>
         <div
-          ref={stageRef}
+          ref={attachStage}
           className="share-overlay-stage"
           tabIndex={zoom ? 0 : undefined}
           role={zoom ? "region" : undefined}
