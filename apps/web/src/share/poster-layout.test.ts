@@ -63,8 +63,64 @@ describe("TD3 opened-book geometry", () => {
       expect(sections[index]!.y).toBeGreaterThanOrEqual(
         sections[index - 1]!.y + sections[index - 1]!.height,
       );
-    expect(layout.sections.notes.y + layout.sections.notes.height).toBeLessThan(
-      layout.mrz.area.y,
+    expect(Object.keys(layout.sections)).toEqual([
+      "heading",
+      "identity",
+      "metadata",
+      "statistics",
+    ]);
+    expect(
+      layout.sections.statistics.y + layout.sections.statistics.height,
+    ).toBeLessThan(layout.mrz.area.y);
+  });
+
+  it("spaces title, identity, metadata and statistics on one section gap", () => {
+    const { profile, header, sectionGap, achievements } = layout;
+    expect(profile.name.label - header.title).toBe(sectionGap);
+    expect(
+      profile.authority.label -
+        (profile.name.baseline + profile.nameLineHeight),
+    ).toBe(sectionGap);
+    expect(achievements[0]!.label - profile.authority.baseline).toBe(
+      sectionGap,
     );
+    expect(layout.statsRule).toBeGreaterThan(profile.authority.baseline);
+    expect(layout.statsRule).toBeLessThan(achievements[0]!.label - 24);
+  });
+
+  it("leaves no empty band between the statistics and the MRZ zone", () => {
+    const lowest = Math.max(
+      ...layout.achievements.map((block) => block.baseline),
+    );
+    const descent = Math.max(...layout.achievements.map((b) => b.size)) * 0.25;
+    const clearance = layout.mrz.rule - (lowest + descent);
+    expect(clearance).toBeGreaterThan(8);
+    // No more than one section gap of paper above the MRZ rule.
+    expect(clearance).toBeLessThanOrEqual(layout.sectionGap);
+    // MRZ geometry is still TD3-derived (unchanged by the reflow).
+    const unitsPerMm = layout.holderPage.width / TD3_MM.width;
+    expect(
+      (layout.holderPage.y + layout.holderPage.height - layout.mrz.rule) /
+        unitsPerMm,
+    ).toBeCloseTo(TD3_MM.mrzHeight, 6);
+  });
+
+  it("raises the passport number to its own label cadence beside the name", () => {
+    const { name, number, authority, firstFlight } = layout.profile;
+    expect(number.label).toBe(name.label);
+    expect(number.x).toBe(name.x + name.width + 48);
+    // Same label → value distance as the metadata row's fields + one step
+    // for the larger name's cap height difference (26 vs 48 units).
+    expect(number.baseline - number.label).toBe(
+      authority.baseline - authority.label + 8,
+    );
+    expect(firstFlight.baseline - firstFlight.label).toBe(
+      layout.profile.fieldGap,
+    );
+    expect(number.baseline).toBeLessThan(name.baseline);
+    // Cap tops line up: name cap ≈ 0.7 × 48, number cap ≈ 0.7 × 26.
+    const nameCapTop = name.baseline - 0.7 * layout.profile.nameSize;
+    const numberCapTop = number.baseline - 0.7 * layout.profile.valueSize;
+    expect(Math.abs(nameCapTop - numberCapTop)).toBeLessThan(2);
   });
 });

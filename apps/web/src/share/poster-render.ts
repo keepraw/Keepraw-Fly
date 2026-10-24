@@ -36,6 +36,9 @@ export interface PosterPalette {
   rule: string;
   ink: string;
   muted: string;
+  /** Small field and statistic labels: one step darker than `muted` so
+   * 20–24 unit captions survive downscaled previews. */
+  label: string;
   faint: string;
   figure: string;
   accent: string;
@@ -67,6 +70,7 @@ export const PASSPORT_PALETTE: PosterPalette = {
   rule: "rgba(16, 32, 60, 0.16)",
   ink: "#10243a",
   muted: "#475d70",
+  label: "#2f4559",
   faint: "rgba(16, 32, 60, 0.58)",
   figure: "#10243a",
   accent: "#88734c",
@@ -108,8 +112,15 @@ export interface PosterDrawReport {
   outside: PosterTextBox[];
   /** Text that had to be shortened with an ellipsis. */
   truncated: string[];
-  /** Routes and airport dots actually drawn on the map. */
-  map: { routes: number; airports: number };
+  /** Routes and airport dots actually drawn on the map, the poster-unit
+   * box around every drawn route vertex and airport centre (null when none),
+   * and the visible map area they must stay inside. */
+  map: {
+    routes: number;
+    airports: number;
+    bounds: PosterRect | null;
+    visible: PosterRect;
+  };
   /** Includes paper print margins, MRZ area and separator clearance. */
   paperOutside: PosterTextBox[];
 }
@@ -603,7 +614,10 @@ function landDots(
     frame.centerLongitude,
     rect.x,
     rect.width,
-    frame.offsetY,
+    frame.crop.x,
+    frame.crop.y,
+    frame.visible.y,
+    frame.visible.height,
     frame.scale,
     step,
   ].join("|");
@@ -615,8 +629,8 @@ function landDots(
       : document.createElement("canvas").getContext("2d");
   const land = new Path2D(landSvg);
   const points: number[] = [];
-  const bottom = frame.offsetY + frame.crop.height * frame.scale;
-  for (let y = frame.offsetY + step / 2; y < bottom; y += step)
+  const bottom = frame.visible.y + frame.visible.height;
+  for (let y = frame.visible.y + step / 2; y < bottom; y += step)
     for (let x = rect.x + step / 2; x < rect.x + rect.width; x += step) {
       const mx = frame.crop.x + (x - frame.offsetX) / frame.scale;
       const my = frame.crop.y + (y - frame.offsetY) / frame.scale;
@@ -649,15 +663,18 @@ function drawMap(
 ): PosterDrawReport["map"] {
   const { context } = painter;
   const style = palette.map;
-  const frame = posterMapFrame(rect, copy.map.centerLongitude);
+  // Framed on the recorded routes and airports (whole world when none).
+  const frame = posterMapFrame(rect, copy.map.centerLongitude, copy.map);
+  const { visible } = frame;
   const world = posterWorldPaths(copy.map.centerLongitude);
   const sphere = path2d(world.sphere);
   const land = path2d(world.land);
   const s = frame.scale;
   context.save();
-  // Only the inhabited latitudes; the crop edge fades out softly.
+  // Only the framed area within the inhabited latitudes; its edges fade out
+  // softly into the paper.
   context.beginPath();
-  context.rect(rect.x, frame.offsetY, rect.width, frame.crop.height * s);
+  context.rect(visible.x, visible.y, visible.width, visible.height);
   context.clip();
   withMapTransform(context, frame, () => {
     if (style.sphere) {
@@ -710,27 +727,55 @@ function drawMap(
     context.lineJoin = "round";
     context.stroke(path2d(world.borders));
   });
-  // Feather the cropped top and bottom edges into the background.
+  // Feather the cropped edges into the background: top and bottom always,
+  // left and right too when the frame is cut from the world (route fit).
+  const feather = 34;
   for (const [edge, direction] of [
-    [frame.offsetY, 1],
-    [frame.offsetY + frame.crop.height * s, -1],
+    [visible.y, 1],
+    [visible.y + visible.height, -1],
   ] as const) {
     const color = backgroundAt(palette, edge / layout.height);
     const fade = context.createLinearGradient(
       0,
       edge,
       0,
-      edge + direction * 34,
+      edge + direction * feather,
     );
     fade.addColorStop(0, color);
     fade.addColorStop(1, transparent(color));
     context.fillStyle = fade;
     context.fillRect(
-      rect.x,
-      Math.min(edge, edge + direction * 34),
-      rect.width,
-      34,
+      visible.x,
+      Math.min(edge, edge + direction * feather),
+      visible.width,
+      feather,
     );
+  }
+  if (frame.fitted) {
+    const color = backgroundAt(
+      palette,
+      (visible.y + visible.height / 2) / layout.height,
+    );
+    for (const [edge, direction] of [
+      [visible.x, 1],
+      [visible.x + visible.width, -1],
+    ] as const) {
+      const fade = context.createLinearGradient(
+        edge,
+        0,
+        edge + direction * feather,
+        0,
+      );
+      fade.addColorStop(0, color);
+      fade.addColorStop(1, transparent(color));
+      context.fillStyle = fade;
+      context.fillRect(
+        Math.min(edge, edge + direction * feather),
+        visible.y,
+        feather,
+        visible.height,
+      );
+    }
   }
 
   // Routes: least-flown first so the busiest sit on top; width and opacity
@@ -746,11 +791,24 @@ function drawMap(
   const density = Math.min(1, Math.sqrt(16 / Math.max(1, routes.length)));
   const glowFrom = routes.length - 10;
   let drawnRoutes = 0;
+  const extent = {
+    minX: Infinity,
+    minY: Infinity,
+    maxX: -Infinity,
+    maxY: -Infinity,
+  };
+  const include = (point: { x: number; y: number }) => {
+    extent.minX = Math.min(extent.minX, point.x);
+    extent.minY = Math.min(extent.minY, point.y);
+    extent.maxX = Math.max(extent.maxX, point.x);
+    extent.maxY = Math.max(extent.maxY, point.y);
+  };
   for (const [order, route] of routes.entries()) {
     const weight = Math.sqrt(route.flights / max);
     const lines = routePolylines(frame, route.from, route.to);
     if (!lines.length) continue;
     drawnRoutes += 1;
+    for (const line of lines) line.forEach(include);
     const trace = () => {
       context.beginPath();
       for (const line of lines)
@@ -767,9 +825,11 @@ function drawMap(
       trace();
       context.stroke();
     }
-    const alpha = (0.2 + 0.7 * weight) * (0.45 + 0.55 * density);
+    // Core line floors keep every route legible after downscaling (480 px
+    // previews, social-network recompression); weight still ranks them.
+    const alpha = (0.5 + 0.45 * weight) * (0.7 + 0.3 * density);
     context.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(3)})`;
-    context.lineWidth = 0.8 + (1.2 + 0.8 * density) * weight;
+    context.lineWidth = 1.8 + (1.4 + 0.8 * density) * weight;
     trace();
     context.stroke();
   }
@@ -783,11 +843,12 @@ function drawMap(
     const point = projectToFrame(frame, airport);
     if (!point) return;
     const weight = Math.sqrt(airport.flights / maxVisits);
-    const radius = 2.2 + 3.4 * weight;
+    const radius = 3.6 + 3.6 * weight;
     const hub = airports.indexOf(airport) < 5;
+    include(point);
     if (hub) {
       context.strokeStyle = style.airportStroke;
-      context.lineWidth = 1.2;
+      context.lineWidth = 1.8;
       context.beginPath();
       context.arc(point.x, point.y, radius + 5, 0, Math.PI * 2);
       context.stroke();
@@ -798,14 +859,26 @@ function drawMap(
     context.fill();
     if (!hub) {
       context.strokeStyle = style.airportStroke;
-      context.lineWidth = 1;
+      context.lineWidth = 1.8;
       context.stroke();
     }
     placed.push({ x: point.x, y: point.y, r: radius + 5 });
   });
   context.restore();
 
-  return { routes: drawnRoutes, airports: placed.length };
+  return {
+    routes: drawnRoutes,
+    airports: placed.length,
+    bounds: Number.isFinite(extent.minX)
+      ? {
+          x: extent.minX,
+          y: extent.minY,
+          width: extent.maxX - extent.minX,
+          height: extent.maxY - extent.minY,
+        }
+      : null,
+    visible: { ...visible },
+  };
 }
 
 /** The vertical background gradient's colour at `t` (0 top … 1 bottom). */
@@ -875,7 +948,7 @@ function profileField(
     field.x,
     field.label,
     field.width,
-    p.muted,
+    p.label,
     profile.labelSize,
   );
   painter.text(value, field.x, field.baseline, {
@@ -1029,7 +1102,7 @@ function drawHolderPage(
     profile.name.x,
     profile.name.label,
     profile.name.width,
-    p.muted,
+    p.label,
     profile.labelSize,
   );
   holderName(painter, copy.holder.name, profile, p);
@@ -1073,19 +1146,12 @@ function drawHolderPage(
         painter,
         stat,
         layout.achievements[index]!,
-        p.muted,
+        p.label,
         p.ink,
         p.muted,
       );
     },
   );
-  if (copy.notes.length)
-    painter.text(copy.notes.join(" · "), left, layout.notesBaseline, {
-      size: 20,
-      minSize: 16,
-      color: p.muted,
-      maxWidth: right - left,
-    });
   painter.rule(
     layout.mrz.x,
     layout.mrz.x + layout.mrz.print.width,

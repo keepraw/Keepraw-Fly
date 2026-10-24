@@ -731,8 +731,6 @@
       "countries": "Countries/regions",
       "km": "km",
       "mi": "mi",
-      "distanceCoverage": "Distance from {{known, number}} of {{total, number}} flights",
-      "durationCoverage": "Time from {{known, number}} of {{total, number}} flights",
       "hoursUnit": "h",
       "routesCurated": "Busiest {{shown, number}} of {{total, number}} routes shown",
       "routesAll_one": "All {{count, number}} route shown",

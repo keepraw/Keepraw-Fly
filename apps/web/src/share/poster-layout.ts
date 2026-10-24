@@ -62,13 +62,15 @@ export interface PosterLayout {
   recordContent: PosterRect;
   holderContent: PosterRect;
   sections: Record<
-    "heading" | "identity" | "metadata" | "statistics" | "notes",
+    "heading" | "identity" | "metadata" | "statistics",
     PosterRect
   >;
   statsRule: number;
   statsRowPitch: number;
   minStatRowGap: number;
-  notesBaseline: number;
+  /** Shared distance from a section's last baseline to the next section's
+   * label baseline (title → identity → metadata → statistics). */
+  sectionGap: number;
   binding: PosterRect;
   map: PosterRect;
   left: number;
@@ -148,19 +150,29 @@ export function createPosterLayout(): PosterLayout {
 
   // The same rhythm drives boundaries and baselines; large names reserve two
   // lines. Three metadata fields share one label/value row, including period.
+  // Every section starts one `sectionGap` below the previous section's last
+  // baseline (the name's reserved second line for identity), so title →
+  // identity → metadata → statistics read as one cadence. The statistics
+  // grid fills the leaf down to the fixed TD3 machine-readable zone; there
+  // is no caption row beneath it.
+  const sectionGap = 7 * r;
   const brand = 8 * r;
   const title = brand + 7 * r;
-  const nameLabel = title + 6 * r;
+  const nameLabel = title + sectionGap;
   const nameValue = nameLabel + 7 * r;
   const nameLineHeight = 5 * r;
-  const metadataLabel = nameValue + nameLineHeight + 5 * r;
+  const metadataLabel = nameValue + nameLineHeight + sectionGap;
   const fieldGap = 4 * r;
   const metadataValue = metadataLabel + fieldGap;
   const statsRule = metadataValue + 3 * r;
-  const statLabel = statsRule + 4 * r;
+  const statLabel = metadataValue + sectionGap;
   const statValue = statLabel + 5 * r;
-  const statsRowPitch = 12 * r;
-  const notes = statValue + statsRowPitch + 5 * r;
+  const statsRowPitch = 13 * r;
+  // The 26-unit number sits beside a 48-unit name. Sharing the name's
+  // baseline made it look sunk and detached from its label; it keeps the
+  // metadata fields' label → value cadence instead, which also aligns its
+  // cap height with the top of the name's capitals.
+  const numberValue = nameLabel + 5 * r;
   const field = (
     x: number,
     width: number,
@@ -206,12 +218,11 @@ export function createPosterLayout(): PosterLayout {
       identity: region(nameLabel - 3 * r, metadataLabel - 3 * r),
       metadata: region(metadataLabel - 3 * r, metadataValue + r),
       statistics: region(statsRule, statValue + statsRowPitch + r),
-      notes: region(notes - 3 * r, notes + r),
     },
     statsRule: y(statsRule),
     statsRowPitch,
     minStatRowGap: 3 * r,
-    notesBaseline: y(notes),
+    sectionGap,
     // Width still controls the existing uniform map projection. The taller
     // fitting box recentres it without stretching either geographic axis.
     map: {
@@ -233,7 +244,7 @@ export function createPosterLayout(): PosterLayout {
     },
     profile: {
       name: field(left, nameWidth, nameLabel, nameValue),
-      number: field(numberX, right - numberX, nameLabel, nameValue),
+      number: field(numberX, right - numberX, nameLabel, numberValue),
       authority: field(left, authorityWidth, metadataLabel, metadataValue),
       firstFlight: field(firstX, firstWidth, metadataLabel, metadataValue),
       period: field(periodX, right - periodX, metadataLabel, metadataValue),

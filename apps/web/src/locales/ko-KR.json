@@ -697,8 +697,6 @@
       "countries": "국가·지역",
       "km": "km",
       "mi": "마일",
-      "distanceCoverage": "거리: {{total, number}}편 중 {{known, number}}편 기준",
-      "durationCoverage": "시간: {{total, number}}편 중 {{known, number}}편 기준",
       "hoursUnit": "시간",
       "routesCurated": "전체 {{total, number}}개 항로 중 많이 탄 {{shown, number}}개 표시",
       "routesAll_other": "전체 {{count, number}}개 항로 표시"

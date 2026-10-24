@@ -75,7 +75,7 @@ export function posterCjkLocales(
   return locales;
 }
 
-/** Include actual values, uppercase labels and notes before any measurement. */
+/** Include actual values and uppercase labels before any measurement. */
 export function posterFontSample(copy: PosterCopy): string {
   const strings: string[] = [];
   const collect = (value: unknown): void => {
@@ -105,7 +105,6 @@ export function posterFontSample(copy: PosterCopy): string {
       ...(copy.secondary ?? []),
       copy.routes,
     ],
-    notes: copy.notes,
     mrz: copy.mrz,
     brand: "KEEPRAW FLY 01 / 02",
   });

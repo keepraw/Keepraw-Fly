@@ -43,18 +43,16 @@ describe("passport typography and print geometry", () => {
     }
   });
 
-  it("includes uppercase accented labels, native names and coverage notes before loading", () => {
+  it("includes uppercase accented labels and native names before loading", () => {
     const copy = {
       holder: { name: "陳怡君" },
       title: "Passeport de vol",
       labels: { name: "Prénom" },
-      notes: ["航程資料不完整"],
       disclaimer: "龘",
     } as unknown as PosterCopy;
     const sample = posterFontSample(copy);
     expect(sample).not.toContain("龘");
-    for (const glyph of "陳怡君PRÉNOM航程資料不完整")
-      expect(sample).toContain(glyph);
+    for (const glyph of "陳怡君PRÉNOM") expect(sample).toContain(glyph);
   });
 
   it("reserves the machine-readable area inside the frame, including print margins", () => {
@@ -71,9 +69,10 @@ describe("passport typography and print geometry", () => {
       holderContent.y + holderContent.height,
     );
     expect(44 * mrz.cellAdvance).toBeLessThan(mrz.print.width);
+    // Statistics descenders clear the machine-readable zone's rule.
     expect(
-      Math.max(...achievements.map((block) => block.baseline)) + 12,
-    ).toBeLessThan(layout.notesBaseline);
-    expect(layout.notesBaseline + 8).toBeLessThan(mrz.rule);
+      Math.max(...achievements.map((block) => block.baseline)) +
+        Math.max(...achievements.map((block) => block.size)) * 0.25,
+    ).toBeLessThan(mrz.rule);
   });
 });
