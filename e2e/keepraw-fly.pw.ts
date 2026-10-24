@@ -279,9 +279,18 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await primaryName.getByRole("radio", { name: "Native", exact: true }).check();
   await openSettingsCategory(page, "Advanced");
   const powerUserMode = page.getByRole("switch", { name: /Power User Mode/ });
+  const savedPowerUserMode = () =>
+    page.evaluate(async () => {
+      const path = "/src/storage/browser.ts";
+      const { browserStorage } = await import(path);
+      return (await browserStorage.loadSettings())?.powerUserMode;
+    });
   await powerUserMode.check();
   await expect(powerUserMode).toBeChecked();
+  await expect.poll(savedPowerUserMode).toBe(true);
   await powerUserMode.uncheck();
+  // The switch updates optimistically; reload only after IndexedDB commits it.
+  await expect.poll(savedPowerUserMode).toBe(false);
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "General", exact: true }),

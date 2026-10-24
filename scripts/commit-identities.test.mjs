@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,10 +41,11 @@ test("incoming history rejects incorrect identities without rewriting other auth
       },
     ).trim();
   };
-  const check = (base, head) =>
+  const check = (base, head, env = {}) =>
     spawnSync(process.execPath, [script, base, head], {
       cwd: directory,
       encoding: "utf8",
+      env: { ...process.env, COMMIT_ALLOW_MISSING_BASE: "", ...env },
     });
   try {
     git("init", "--quiet");
@@ -121,6 +122,59 @@ test("incoming history rejects incorrect identities without rewriting other auth
       0,
       "missing range cannot silently pass",
     );
+
+    const missing = "1".repeat(40);
+    const forced = { COMMIT_ALLOW_MISSING_BASE: "true" };
+    assert.equal(
+      check(base, merge, forced).status,
+      0,
+      "available force-push bases retain the incoming range",
+    );
+    const root = makeCommit(owner, owner, "Rewritten root");
+    const rewrittenBot = makeCommit(bot, github, "Rewritten dependency", [
+      root,
+    ]);
+    const rewrittenIndependent = makeCommit(
+      independent,
+      independent,
+      "Rewritten independent work",
+      [root],
+    );
+    const rewrittenMerge = makeCommit(owner, github, "Rewritten merge", [
+      rewrittenBot,
+      rewrittenIndependent,
+    ]);
+    assert.notEqual(
+      check(missing, rewrittenMerge).status,
+      0,
+      "ordinary pushes and PRs still reject an unavailable base SHA",
+    );
+    assert.notEqual(check("missing-ref", rewrittenMerge, forced).status, 0);
+    const rewritten = check(missing, rewrittenMerge, forced);
+    assert.equal(rewritten.status, 0, rewritten.stderr);
+    assert.match(rewritten.stderr, /checking all history reachable/);
+    assert.match(rewritten.stdout, /passed for 4 incoming commits/);
+    assert.equal(
+      check(missing, merge, forced).status,
+      1,
+      "fallback still rejects incorrect identities in old reachable ancestors",
+    );
+    assert.equal(
+      check(
+        missing,
+        makeCommit(owner, github, "Replacement with incorrect side branch", [
+          rewrittenBot,
+          wrongBranch,
+        ]),
+        forced,
+      ).status,
+      1,
+      "replacement history checks every merge parent",
+    );
+    writeFileSync(join(directory, ".git/shallow"), `${rewrittenBot}\n`);
+    const shallow = check(missing, rewrittenMerge, forced);
+    assert.notEqual(shallow.status, 0);
+    assert.match(shallow.stderr, /requires a full checkout/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

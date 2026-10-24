@@ -1,7 +1,10 @@
 import { execFileSync } from "node:child_process";
 
 function git(...args) {
-  return execFileSync("git", args, { encoding: "utf8" }).trimEnd();
+  return execFileSync("git", args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trimEnd();
 }
 
 function commit(ref) {
@@ -22,7 +25,25 @@ const baseRef = args[0] ?? process.env.COMMIT_BASE_SHA;
 const head = commit(args[1] ?? "HEAD");
 if (!baseRef)
   throw new Error("Usage: check-commit-identities.mjs <base> [head]");
-const revision = /^0{40}$/.test(baseRef) ? head : `${commit(baseRef)}..${head}`;
+let revision = head;
+if (!/^0{40}$/.test(baseRef)) {
+  try {
+    revision = `${commit(baseRef)}..${head}`;
+  } catch (error) {
+    if (
+      process.env.COMMIT_ALLOW_MISSING_BASE !== "true" ||
+      !/^[a-f0-9]{40}$/i.test(baseRef)
+    )
+      throw error;
+    if (git("rev-parse", "--is-shallow-repository") !== "false")
+      throw new Error("Checking rewritten history requires a full checkout.");
+    // A force push can remove event.before from every fetched ref. Validate
+    // the entire replacement history instead of skipping the identity gate.
+    console.warn(
+      `Force-push base ${baseRef} is unavailable; checking all history reachable from ${head}.`,
+    );
+  }
+}
 const commits = git("rev-list", revision).split("\n").filter(Boolean);
 const failures = [];
 
