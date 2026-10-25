@@ -768,5 +768,45 @@
       "zoomHint": "Click the image or press Enter to enlarge. Scroll or swipe to explore; Escape returns to fit.",
       "routeCoverage": "Map: {{shown, number}} of {{total, number}} recorded routes"
     }
+  },
+  "umetripImport": {
+    "title": "Umetrip XLS import",
+    "description": "Add used historical flights from a supported 航旅纵横 export.",
+    "openFile": "Open Umetrip XLS",
+    "workflow": "Read and preview the XLS locally. Only tickets explicitly marked as used are eligible.",
+    "previewTitle": "Review Umetrip import",
+    "excludedRecords": "Excluded records",
+    "excludedDetails": "View excluded rows",
+    "firstRows": "Showing the first {{count}} rows.",
+    "location": "{{sheet}}, row {{number}}: ",
+    "timeNote": "Source clocks are saved as scheduled times, with no actual times or delays inferred. Arrival dates are inferred using airport timezones and broad duration bounds. Uncertain rows block import.",
+    "fileErrors": {
+      "unsupported-xls": "Select a genuine binary Excel .xls workbook. Renamed CSV, HTML and XLSX files are unsupported.",
+      "invalid-xls": "The XLS workbook is damaged, encrypted or unsupported. Nothing was imported.",
+      "missing-rows": "No flight rows were found in the workbook."
+    },
+    "issues": {
+      "missing-header": "A required header is missing or the worksheet layout is unsupported.",
+      "duplicate-header": "Multiple columns identify the same field. Check the headers.",
+      "unsupported-cell": "A required cell contains a formula, an Excel error or an unsupported value type.",
+      "unknown-status": "The ticket status is missing or unsupported. Check this row.",
+      "conflicting-status": "The used ticket status conflicts with the worksheet category. Check this row.",
+      "unknown-airline": "The airline prefix in the flight number is unknown.",
+      "unknown-airport": "The airport name or IATA code cannot be resolved. Check the source and use a known IATA code.",
+      "ambiguous-airport": "The airport name matches multiple IATA codes. Confirm the correct code in the source.",
+      "invalid-date": "The date is missing or invalid. Use an unambiguous calendar date or an Excel date cell.",
+      "invalid-duration": "No arrival date fits the route’s broad flight-duration bounds. Check the date and local clocks.",
+      "ambiguous-arrival-date": "More than one arrival date is plausible. Supply and verify an explicit arrival date.",
+      "future-used-flight": "A ticket marked as used arrives in the future. Check the date and status.",
+      "ambiguous-time": "This local clock occurs twice during daylight saving time. It cannot be imported without manual verification."
+    },
+    "exclusions": {
+      "unused": "Unused / upcoming",
+      "open": "OPEN ticket",
+      "refunded": "Refunded",
+      "exchanged": "Reissued / exchanged",
+      "invalid": "Invalid / voided"
+    },
+    "showMore": "Show more rows"
   }
 }

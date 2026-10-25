@@ -733,5 +733,45 @@
       "zoomHint": "이미지를 클릭하거나 Enter 키로 확대하세요. 스크롤이나 스와이프로 이동하고 Esc 키로 전체 보기에 돌아갑니다.",
       "routeCoverage": "기록한 {{total, number}}개 항로 중 {{shown, number}}개 지도에 표시"
     }
+  },
+  "umetripImport": {
+    "title": "Umetrip XLS 가져오기",
+    "description": "지원되는 航旅纵横 내보내기에서 사용한 과거 항공편을 추가합니다.",
+    "openFile": "Umetrip XLS 열기",
+    "workflow": "브라우저에서 XLS를 로컬로 읽고 미리 봅니다. 사용됨으로 명시된 항공권만 가져올 수 있습니다.",
+    "previewTitle": "Umetrip 가져오기 검토",
+    "excludedRecords": "제외된 기록",
+    "excludedDetails": "제외된 행 보기",
+    "firstRows": "처음 {{count}}개 행을 표시합니다.",
+    "location": "{{sheet}}, {{number}}행: ",
+    "timeNote": "원본 시각은 예정 시각으로 저장하며 실제 시각이나 지연을 추정하지 않습니다. 도착 날짜는 공항 시간대와 넓은 비행시간 범위로 추정합니다. 불확실한 행이 있으면 가져오기가 차단됩니다.",
+    "fileErrors": {
+      "unsupported-xls": "실제 바이너리 Excel .xls 파일을 선택하세요. 이름만 바꾼 CSV, HTML, XLSX는 지원하지 않습니다.",
+      "invalid-xls": "XLS가 손상되었거나 암호화되었거나 지원되지 않습니다. 가져온 데이터가 없습니다.",
+      "missing-rows": "통합 문서에서 항공편 행을 찾지 못했습니다."
+    },
+    "issues": {
+      "missing-header": "필수 머리글이 없거나 지원되지 않는 시트 형식입니다.",
+      "duplicate-header": "여러 열이 같은 필드에 해당합니다. 머리글을 확인하세요.",
+      "unsupported-cell": "필수 셀에 수식, Excel 오류 또는 지원되지 않는 값 형식이 있습니다.",
+      "unknown-status": "항공권 상태가 없거나 지원되지 않습니다. 해당 행을 확인하세요.",
+      "conflicting-status": "사용됨 상태가 시트 분류와 충돌합니다. 해당 행을 확인하세요.",
+      "unknown-airline": "항공편 번호의 항공사 코드를 인식할 수 없습니다.",
+      "unknown-airport": "공항 이름이나 IATA 코드를 인식할 수 없습니다. 원본을 확인하고 알려진 IATA 코드를 입력하세요.",
+      "ambiguous-airport": "공항 이름이 여러 IATA 코드와 일치합니다. 원본 파일에서 올바른 코드를 확인하세요.",
+      "invalid-date": "날짜가 없거나 올바르지 않습니다. 명확한 날짜나 Excel 날짜 셀을 사용하세요.",
+      "invalid-duration": "노선의 비행시간 범위에 맞는 도착 날짜가 없습니다. 날짜와 현지 시각을 확인하세요.",
+      "ambiguous-arrival-date": "가능한 도착 날짜가 여러 개입니다. 명확한 도착 날짜를 입력하고 확인하세요.",
+      "future-used-flight": "사용한 항공권의 도착이 미래입니다. 날짜와 상태를 확인하세요.",
+      "ambiguous-time": "일광 절약 시간 전환으로 이 현지 시각이 두 번 발생합니다. 수동 확인이 필요합니다."
+    },
+    "exclusions": {
+      "unused": "미사용 / 예정",
+      "open": "OPEN 항공권",
+      "refunded": "환불됨",
+      "exchanged": "재발행 / 교환됨",
+      "invalid": "무효 / 취소됨"
+    },
+    "showMore": "더 많은 행 표시"
   }
 }

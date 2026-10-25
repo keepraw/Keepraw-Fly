@@ -16,6 +16,7 @@ import type { ViewerSettings } from "../storage/types";
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { FlightyImportControl } from "../components/FlightyImportControl";
+import { UmetripImportControl } from "../components/UmetripImportControl";
 import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
@@ -802,6 +803,24 @@ export function SettingsPage({
                       <small>{t("settings.flightyImportDescription")}</small>
                     </div>
                     <FlightyImportControl
+                      document={document}
+                      onImport={onImport}
+                    />
+                  </section>
+                  <section
+                    className="settings-import-row settings-operation"
+                    aria-labelledby="settings-umetrip-title"
+                  >
+                    <div className="settings-operation-copy">
+                      <h3
+                        className="settings-item-title"
+                        id="settings-umetrip-title"
+                      >
+                        {t("umetripImport.title")}
+                      </h3>
+                      <small>{t("umetripImport.description")}</small>
+                    </div>
+                    <UmetripImportControl
                       document={document}
                       onImport={onImport}
                     />
