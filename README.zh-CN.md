@@ -24,7 +24,7 @@
 - **本地优先：** 航班历史保存在浏览器中；无需账号，也没有保存航班历史的云端后端。
 - **跨设备设计：** 适配桌面与移动端，支持简体中文、繁体中文（台湾）、美式英语、英式英语、日语、法语、德语、西班牙语、巴西葡萄牙语和韩语。
 
-本 README 描述当前 `main`。Demo 随成功的 `main` 部署更新，固定发行版的功能可能较少。例如，[v0.1.1](docs/releases/v0.1.1.md#简体中文) 不包含后续的 Passport/航班详情改版及护照图片生成器。[当前功能边界](docs/not-implemented.md)说明尚未实现的能力，不代表开发路线图。
+本 README 描述当前 `main`。Demo 随成功的 `main` 部署更新，固定发行版的功能可能较少。[v0.2.0 — Flight Passport Journal](docs/releases/v0.2.0.md#简体中文) 包含双页护照图片生成器和 Passport/航班详情显示优化。[历史发行说明](docs/README.md#release-legal-and-historical-records)保留各版本的功能范围。[当前功能边界](docs/not-implemented.md)说明尚未实现的能力，不代表开发路线图。
 
 ## 本地数据与隐私
 
@@ -66,7 +66,7 @@
 
 按[VPS 指南](docs/deployment.zh-CN.md#vpsdocker-与自动-https)配置 Docker/Compose、校验安装器、启用 HTTPS 并维护部署。单个 Caddy 容器在 amd64/arm64 上提供静态网页；VPS 不保存航班档案。官方发布者与镜像作者为 **keepraw**。
 
-[v0.1.1 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) 提供安装器和预构建 ZIP/tar.gz；安装前请按指南检查前提条件并完成校验。
+[v0.2.0 Release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.2.0) 提供安装器和预构建 ZIP/tar.gz；安装前请按指南检查前提条件并完成校验。
 
 ## 开发者：本地运行
 

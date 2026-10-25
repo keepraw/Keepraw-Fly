@@ -6,7 +6,7 @@ on:
       version:
         description: Official stable release (explicit opt-in for upgrades)
         required: true
-        default: v0.1.1
+        default: v0.2.0
       custom_domain:
         description: Optional DNS hostname configured in your Pages settings
         required: false
