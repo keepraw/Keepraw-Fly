@@ -1,30 +1,31 @@
 import { expect, test } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 import { openSettingsCategory } from "../e2e/helpers/settings";
+import { watchViolations } from "./helpers/csp-observer";
 
 test("the lazy XLS parser imports locally under the production CSP", async ({
   page,
-}) => {
-  await page.addInitScript(() => {
-    Object.assign(window, { umetripCspViolations: [] as string[] });
-    document.addEventListener("securitypolicyviolation", (event) => {
-      (
-        window as unknown as { umetripCspViolations: string[] }
-      ).umetripCspViolations.push(
-        `${event.effectiveDirective}: ${event.blockedURI}`,
-      );
-    });
-  });
+  browserName,
+  baseURL,
+}, testInfo) => {
+  const watch = await watchViolations(page, browserName);
+  const observerReportUrl = new URL("/__csp-observer-report", baseURL).href;
   const requests: string[] = [];
   const uploads: string[] = [];
   page.on("request", (request) => {
     requests.push(request.url());
-    if (["POST", "PUT", "PATCH"].includes(request.method()))
+    // The observer's report-only POST is fulfilled locally by its test route.
+    // Every other write request remains an import privacy failure.
+    if (
+      ["POST", "PUT", "PATCH"].includes(request.method()) &&
+      request.url() !== observerReportUrl
+    )
       uploads.push(request.url());
   });
   await page.goto("/#settings");
   await openSettingsCategory(page, "Data and backup");
   expect(requests.some((url) => /\/xlsx-[^/]+\.js/.test(url))).toBe(false);
+  const beforeXls = await watch.readAll();
   await page
     .locator('input[type="file"][accept*=".xls"]')
     .setInputFiles(
@@ -66,11 +67,14 @@ test("the lazy XLS parser imports locally under the production CSP", async ({
     )
     .toEqual(["CA1031"]);
   expect(uploads).toEqual([]);
-  expect(
-    await page.evaluate(
-      () =>
-        (window as unknown as { umetripCspViolations: string[] })
-          .umetripCspViolations,
+  await testInfo.attach("csp-observations", {
+    body: JSON.stringify(
+      { beforeXls, afterImport: await watch.readAll() },
+      null,
+      2,
     ),
-  ).toEqual([]);
+    contentType: "application/json",
+  });
+  expect(await watch.violations()).toEqual([]);
+  expect(await watch.cspConsoleErrors()).toEqual([]);
 });
