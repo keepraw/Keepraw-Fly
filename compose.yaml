@@ -1,7 +1,7 @@
 name: keepraw-fly
 services:
   web:
-    image: ${KEEPRAW_IMAGE:-ghcr.io/keepraw/keepraw-fly:v0.1.1}
+    image: ${KEEPRAW_IMAGE:-ghcr.io/keepraw/keepraw-fly:v0.2.0}
     restart: unless-stopped
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}

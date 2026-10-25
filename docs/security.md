@@ -115,14 +115,21 @@ are picked up on the next load.
 
 ## Known dependency advisory
 
-`pnpm audit` reports one high advisory, GHSA-vfj7-8cjw-p6xm (`braces` ≤ 3.0.3
-via `stylelint → micromatch`). No patched `braces` release exists; it affects
-only the development lint tool, which receives trusted glob constants, and
-`pnpm audit --prod` reports no vulnerabilities. See the
+The v0.2.0 release review on 2026-10-25 found four newly disclosed `fast-uri`
+advisories in Ajv's locked 3.1.8 dependency: GHSA-w74x-v6f9-j3xg,
+GHSA-xhq7-xmqj-769h, GHSA-wjr9-j795-jxcr and GHSA-333x-w4r6-6crp. The release
+updates only that transitive dependency to patched **3.1.9**, within Ajv's
+existing range, without overrides, exclusions or schema changes. Both
+`pnpm audit --json` and `pnpm audit --prod --json` then report no vulnerabilities.
+
+The earlier `braces` advisory
+[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) was
+withdrawn upstream on 2026-10-23; it is not suppressed locally. Its earlier
+development-lint exposure assessment remains in the
 [dated dependency review](archive/dependency-security-2026-10-16.md).
 
 The dated review's Vitest 3 / tinypool follow-up was superseded by subsequent
 runner upgrades, including [PR #87](https://github.com/keepraw/Keepraw-Fly/pull/87).
 The lockfile is the current dependency source; run `pnpm audit --json` and
 `pnpm audit --prod --json` for current advisory data. Do not interpret historical
-audit counts as a fresh security assessment or suppress the outstanding advisory.
+audit counts as a fresh security assessment or suppress new findings.

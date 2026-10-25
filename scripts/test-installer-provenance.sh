@@ -4,11 +4,12 @@
 # fakes; the installer's real decision logic runs unmodified. The fake gh
 # accepts a bundle only for the exact identity, ref, digest and files the real
 # release workflow would sign, so wrong identities and tampered files fail.
+# v99.0.0 is a synthetic attested release fixture, never a shipped version.
 set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-mkdir -p "$work/bin" "$work/fixture/v0.1.0" "$work/fixture/v0.2.0"
+mkdir -p "$work/bin" "$work/fixture/v0.1.0" "$work/fixture/v99.0.0"
 revision=$(printf '%040d' 7)
 
 identity=https://github.com/keepraw/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main
@@ -39,10 +40,10 @@ make_release() { # dir version [attested]
   fi
 }
 make_release "$work/fixture/v0.1.0" v0.1.0
-make_release "$work/fixture/v0.2.0" v0.2.0 attested
-cp -r "$work/fixture/v0.2.0" "$work/pristine"
-restore() { rm -rf "$work/fixture/v0.2.0"; cp -r "$work/pristine" "$work/fixture/v0.2.0"; }
-resum() { (cd "$work/fixture/v0.2.0" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS); }
+make_release "$work/fixture/v99.0.0" v99.0.0 attested
+cp -r "$work/fixture/v99.0.0" "$work/pristine"
+restore() { rm -rf "$work/fixture/v99.0.0"; cp -r "$work/pristine" "$work/fixture/v99.0.0"; }
+resum() { (cd "$work/fixture/v99.0.0" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS); }
 
 cat > "$work/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
@@ -105,12 +106,12 @@ run() { # expected-status description args...
   echo "ok - $description"
 }
 
-run ok "attested release verifies every file and the image before deployment" --version v0.2.0
+run ok "attested release verifies every file and the image before deployment" --version v99.0.0
 grep -q '^verify compose.yaml ' "$GH_LOG" && grep -q '^verify image.txt ' "$GH_LOG" && grep -q '^verify provenance.json ' "$GH_LOG"
 grep -q "^verify keepraw-fly@sha256:$image_digest " "$GH_LOG"
 grep -q 'compose.*up -d --wait' "$DOCKER_LOG"
 grep -q "pull ghcr.io/keepraw/keepraw-fly@sha256:$image_digest" "$DOCKER_LOG"
-grep -q 'Verified provenance: v0.2.0 files and image' "$work/out"
+grep -q 'Verified provenance: v99.0.0 files and image' "$work/out"
 
 run ok "legacy v0.1.0 stays installable (rollback) and is reported as checksum-only" --version v0.1.0
 [[ ! -s $GH_LOG ]]
@@ -121,65 +122,65 @@ refused() { # nothing was pulled or started
   ! grep -qE ' (pull|up) ' "$DOCKER_LOG"
 }
 
-sed -i 's/^runner .*/runner self-hosted/' "$work/fixture/v0.2.0/attestation.sigstore.json"
-run fail "a file attestation from a self-hosted runner is refused" --version v0.2.0; refused; restore
+sed -i 's/^runner .*/runner self-hosted/' "$work/fixture/v99.0.0/attestation.sigstore.json"
+run fail "a file attestation from a self-hosted runner is refused" --version v99.0.0; refused; restore
 
-printf 'not a bundle\n' > "$work/fixture/v0.2.0/attestation.sigstore.json"
-run fail "a corrupted file attestation bundle is refused" --version v0.2.0; refused
+printf 'not a bundle\n' > "$work/fixture/v99.0.0/attestation.sigstore.json"
+run fail "a corrupted file attestation bundle is refused" --version v99.0.0; refused
 grep -q 'Provenance verification failed' "$work/out"; restore
 
-bundle "$work/fixture/v0.2.0/attestation.sigstore.json" "$revision" \
+bundle "$work/fixture/v99.0.0/attestation.sigstore.json" "$revision" \
   https://github.com/attacker/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main attacker/Keepraw-Fly \
-  $(cd "$work/fixture/v0.2.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
-run fail "files signed by another repository's workflow are refused" --version v0.2.0; refused; restore
+  $(cd "$work/fixture/v99.0.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
+run fail "files signed by another repository's workflow are refused" --version v99.0.0; refused; restore
 
-bundle "$work/fixture/v0.2.0/attestation.sigstore.json" "$(printf '%040d' 8)" "$identity" keepraw/Keepraw-Fly \
-  $(cd "$work/fixture/v0.2.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
-run fail "a file attestation for another source commit is refused" --version v0.2.0; refused; restore
+bundle "$work/fixture/v99.0.0/attestation.sigstore.json" "$(printf '%040d' 8)" "$identity" keepraw/Keepraw-Fly \
+  $(cd "$work/fixture/v99.0.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
+run fail "a file attestation for another source commit is refused" --version v99.0.0; refused; restore
 
-printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 9 > "$work/fixture/v0.2.0/image.txt"; resum
-run fail "a swapped image digest with recomputed SHA256SUMS is refused" --version v0.2.0; refused
+printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 9 > "$work/fixture/v99.0.0/image.txt"; resum
+run fail "a swapped image digest with recomputed SHA256SUMS is refused" --version v99.0.0; refused
 grep -q 'Provenance verification failed for image.txt' "$work/out"; restore
 
-rm "$work/fixture/v0.2.0/attestation.sigstore.json"
-run fail "a release without its file attestation bundle is refused" --version v0.2.0; refused; restore
+rm "$work/fixture/v99.0.0/attestation.sigstore.json"
+run fail "a release without its file attestation bundle is refused" --version v99.0.0; refused; restore
 
 # OCI image attestation (image-attestation.sigstore.json)
-rm "$work/fixture/v0.2.0/image-attestation.sigstore.json"
-run fail "a release without the image attestation is refused" --version v0.2.0; refused
+rm "$work/fixture/v99.0.0/image-attestation.sigstore.json"
+run fail "a release without the image attestation is refused" --version v99.0.0; refused
 grep -q 'Cannot download image-attestation.sigstore.json' "$work/out"; restore
 
-printf '{"mediaType": "broken"\n' > "$work/fixture/v0.2.0/image-attestation.sigstore.json"
-run fail "a corrupted image attestation is refused" --version v0.2.0; refused
+printf '{"mediaType": "broken"\n' > "$work/fixture/v99.0.0/image-attestation.sigstore.json"
+run fail "a corrupted image attestation is refused" --version v99.0.0; refused
 grep -q 'Provenance verification failed for image' "$work/out"; restore
 
-bundle "$work/fixture/v0.2.0/image-attestation.sigstore.json" "$revision" "$identity" keepraw/Keepraw-Fly "$(printf '%064d' 4)"
-run fail "an image attestation for a different digest is refused" --version v0.2.0; refused; restore
+bundle "$work/fixture/v99.0.0/image-attestation.sigstore.json" "$revision" "$identity" keepraw/Keepraw-Fly "$(printf '%064d' 4)"
+run fail "an image attestation for a different digest is refused" --version v99.0.0; refused; restore
 
-REGISTRY_DIGEST=$(printf '%064d' 5) run fail "a registry serving a different image than the attested digest is refused" --version v0.2.0; refused
+REGISTRY_DIGEST=$(printf '%064d' 5) run fail "a registry serving a different image than the attested digest is refused" --version v99.0.0; refused
 
-bundle "$work/fixture/v0.2.0/image-attestation.sigstore.json" "$revision" \
+bundle "$work/fixture/v99.0.0/image-attestation.sigstore.json" "$revision" \
   https://github.com/keepraw/Keepraw-Fly/.github/workflows/ci.yml@refs/heads/main keepraw/Keepraw-Fly "$image_digest"
-run fail "an image built by another workflow is refused" --version v0.2.0; refused; restore
+run fail "an image built by another workflow is refused" --version v99.0.0; refused; restore
 
-bundle "$work/fixture/v0.2.0/image-attestation.sigstore.json" "$revision" \
+bundle "$work/fixture/v99.0.0/image-attestation.sigstore.json" "$revision" \
   https://github.com/fork/Keepraw-Fly/.github/workflows/release.yml@refs/heads/main fork/Keepraw-Fly "$image_digest"
-run fail "an image built by another repository is refused" --version v0.2.0; refused; restore
+run fail "an image built by another repository is refused" --version v99.0.0; refused; restore
 
-bundle "$work/fixture/v0.2.0/image-attestation.sigstore.json" "$(printf '%040d' 8)" "$identity" keepraw/Keepraw-Fly "$image_digest"
-run fail "an image whose source commit differs from the release is refused" --version v0.2.0; refused; restore
+bundle "$work/fixture/v99.0.0/image-attestation.sigstore.json" "$(printf '%040d' 8)" "$identity" keepraw/Keepraw-Fly "$image_digest"
+run fail "an image whose source commit differs from the release is refused" --version v99.0.0; refused; restore
 
-sed -i "s/\"image\": \"[^\"]*\"/\"image\": \"ghcr.io\/keepraw\/keepraw-fly@sha256:$(printf '%064d' 6)\"/" "$work/fixture/v0.2.0/provenance.json"; resum
-bundle "$work/fixture/v0.2.0/attestation.sigstore.json" "$revision" "$identity" keepraw/Keepraw-Fly \
-  $(cd "$work/fixture/v0.2.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
-run fail "provenance.json naming another image than image.txt is refused" --version v0.2.0; refused
+sed -i "s/\"image\": \"[^\"]*\"/\"image\": \"ghcr.io\/keepraw\/keepraw-fly@sha256:$(printf '%064d' 6)\"/" "$work/fixture/v99.0.0/provenance.json"; resum
+bundle "$work/fixture/v99.0.0/attestation.sigstore.json" "$revision" "$identity" keepraw/Keepraw-Fly \
+  $(cd "$work/fixture/v99.0.0" && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}')
+run fail "provenance.json naming another image than image.txt is refused" --version v99.0.0; refused
 grep -q 'names a different image' "$work/out"; restore
 
-FAKE_GH_VERSION=2.101.0 run fail "GitHub CLI older than 2.102.0 is refused" --version v0.2.0; refused
+FAKE_GH_VERSION=2.101.0 run fail "GitHub CLI older than 2.102.0 is refused" --version v99.0.0; refused
 grep -q 'too old' "$work/out"
 
-sed -i 's/"version": "0.2.0"/"version": "0.3.0"/' "$work/fixture/v0.2.0/provenance.json"; resum
-run fail "provenance metadata for another version is refused" --version v0.2.0; restore
+sed -i 's/"version": "99.0.0"/"version": "99.0.1"/' "$work/fixture/v99.0.0/provenance.json"; resum
+run fail "provenance metadata for another version is refused" --version v99.0.0; restore
 
 run fail "a floating version is refused" --version latest
 echo "PASS: installer provenance verification (2 success and 17 refusal cases; mock gh, not real Sigstore)"
