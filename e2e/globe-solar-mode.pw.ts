@@ -70,17 +70,27 @@ test("solar Fixed baseline stays stable across filtering, camera and themes", as
   ).toBeChecked();
   closeTo(await sun(page), FIXED_SUN_DIRECTION, 6);
   const host = page.locator(".globe-host");
-  const cameraBefore = await host.getAttribute("data-camera");
+  const renderedRoutes = async () =>
+    JSON.stringify(JSON.parse((await host.getAttribute("data-scene"))!).routes);
+  const routesBeforeFilter = await renderedRoutes();
 
   await page.getByRole("button", { name: "2026", exact: true }).click();
+  await expect.poll(renderedRoutes).not.toBe(routesBeforeFilter);
   await ready(page);
   closeTo(await sun(page), FIXED_SUN_DIRECTION, 6);
+  // Filtering replaces the renderer and can change its home camera. Wait for
+  // that frame, then compare the keyboard update with the filtered camera.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+  );
+  const cameraBeforeKey = await host.getAttribute("data-camera");
 
   await page.locator(".globe-webgl").focus();
   await page.keyboard.press("ArrowRight");
   await expect
     .poll(() => host.getAttribute("data-camera"))
-    .not.toBe(cameraBefore);
+    .not.toBe(cameraBeforeKey);
   closeTo(await sun(page), FIXED_SUN_DIRECTION, 6);
 
   const cameraAfterMove = await host.getAttribute("data-camera");
