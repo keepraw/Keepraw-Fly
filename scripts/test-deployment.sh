@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Production archive/container and installer transaction integration checks.
+# v99.0.0 is a synthetic attested release fixture, never a shipped version.
 set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 for script in deploy/install.sh scripts/package-release.sh scripts/publish-release.sh; do bash -n "$script"; done
@@ -81,20 +82,20 @@ printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 1 > "$work/fixture/image.txt
 (cd "$work/fixture" && sha256sum compose.yaml image.txt > SHA256SUMS)
 real_docker=$(command -v docker)
 real_curl=$(command -v curl)
-mkdir "$work/fixture/v0.2.0"
-cp compose.yaml "$work/fixture/v0.2.0/"
-printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 2 > "$work/fixture/v0.2.0/image.txt"
+mkdir "$work/fixture/v99.0.0"
+cp compose.yaml "$work/fixture/v99.0.0/"
+printf 'ghcr.io/keepraw/keepraw-fly@sha256:%064d\n' 2 > "$work/fixture/v99.0.0/image.txt"
 # Releases after v0.1.0 must carry provenance; the installer verifies it with gh.
 # A recording fake gh accepts only the official identity and the subjects listed
 # in the fixture bundle (scripts/test-installer-provenance.sh covers refusals).
 fixture_revision=$(git rev-parse HEAD)
-printf '{\n  "version": "0.2.0",\n  "revision": "%s",\n  "author": "keepraw",\n  "image": "%s"\n}\n' \
-  "$fixture_revision" "$(cat "$work/fixture/v0.2.0/image.txt")" > "$work/fixture/v0.2.0/provenance.json"
-(cd "$work/fixture/v0.2.0" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS \
+printf '{\n  "version": "99.0.0",\n  "revision": "%s",\n  "author": "keepraw",\n  "image": "%s"\n}\n' \
+  "$fixture_revision" "$(cat "$work/fixture/v99.0.0/image.txt")" > "$work/fixture/v99.0.0/provenance.json"
+(cd "$work/fixture/v99.0.0" && sha256sum compose.yaml image.txt provenance.json > SHA256SUMS \
   && sha256sum compose.yaml image.txt provenance.json | awk '{print $1}' > attestation.sigstore.json)
 # The image attestation lists the attested image digest (the fake gh resolves
 # oci://...@sha256:<digest> to that digest, as the registry would).
-printf '%064d\n' 2 > "$work/fixture/v0.2.0/image-attestation.sigstore.json"
+printf '%064d\n' 2 > "$work/fixture/v99.0.0/image-attestation.sigstore.json"
 cat > "$work/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
 set -eu
@@ -106,8 +107,8 @@ while (($#)); do
   *) shift ;;
  esac
 done
-if [[ $url == */v0.2.0/* ]]; then
-  cp "$FIXTURE/v0.2.0/$(basename "$url")" "$output"
+if [[ $url == */v99.0.0/* ]]; then
+  cp "$FIXTURE/v99.0.0/$(basename "$url")" "$output"
 else
   cp "$FIXTURE/$(basename "$url")" "$output"
 fi
@@ -163,8 +164,8 @@ bash deploy/install.sh --dir "$work/instance" --version v0.1.0 --yes
 (cd "$work/instance" && sha256sum -c .keepraw-managed)
 # A simulated future release has a different immutable reference; verify both
 # explicit upgrade selection and return to the original version/reference.
-bash deploy/install.sh --dir "$work/instance" --version v0.2.0 --yes
-grep -q '^KEEPRAW_VERSION=v0.2.0$' "$work/instance/.env"
+bash deploy/install.sh --dir "$work/instance" --version v99.0.0 --yes
+grep -q '^KEEPRAW_VERSION=v99.0.0$' "$work/instance/.env"
 grep -q '0000000000000002$' "$work/instance/.env"
 bash deploy/install.sh --dir "$work/instance" --version v0.1.0 --yes
 grep -q '^KEEPRAW_VERSION=v0.1.0$' "$work/instance/.env"

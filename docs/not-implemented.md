@@ -1,6 +1,6 @@
 # Current product boundaries
 
-The 0.1 local viewer does not currently implement:
+The local viewer does not currently implement:
 
 - a backend, accounts, authentication, cloud sync or server persistence
 - live flight status, delay prediction or notifications

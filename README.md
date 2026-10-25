@@ -24,7 +24,7 @@ To get started, choose **Create my archive**, then **Add flight**, or import an 
 - **Local first:** flight history stays in browser storage; no account and no cloud flight-history backend.
 - **Designed across devices:** responsive desktop and mobile experiences in Simplified Chinese, Traditional Chinese (Taiwan), US/UK English, Japanese, French, German, Spanish, Brazilian Portuguese and Korean.
 
-This README describes current `main`. The Demo follows successful `main` deployments; fixed releases can have fewer features. In particular, [v0.1.1](docs/releases/v0.1.1.md) does not include the later Passport/Flight Detail redesign or passport image generator. See [current product boundaries](docs/not-implemented.md) for scope limits, not a roadmap.
+This README describes current `main`. The Demo follows successful `main` deployments; fixed releases can have fewer features. [v0.2.0 — Flight Passport Journal](docs/releases/v0.2.0.md) includes the two-page passport image generator and the Passport/Flight Detail display improvements. [Earlier release notes](docs/README.md#release-legal-and-historical-records) preserve each version’s scope. See [current product boundaries](docs/not-implemented.md) for scope limits, not a roadmap.
 
 ## Data and privacy
 
@@ -66,7 +66,7 @@ Use the [Pages guide](docs/deployment.md#github-pages-no-build-required) to depl
 
 Use the [VPS guide](docs/deployment.md#vps-docker-and-automatic-https) for Docker/Compose, installer verification, HTTPS and maintenance. One Caddy container serves static files on amd64/arm64; the VPS stores no flight archives. The official publisher and image author is **keepraw**.
 
-The [v0.1.1 release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.1.1) provides the installer and prebuilt ZIP/tar.gz. Follow the guide for prerequisites and verification before installing.
+The [v0.2.0 release](https://github.com/keepraw/Keepraw-Fly/releases/tag/v0.2.0) provides the installer and prebuilt ZIP/tar.gz. Follow the guide for prerequisites and verification before installing.
 
 ## Developers: run locally
 
