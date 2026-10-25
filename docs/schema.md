@@ -196,3 +196,107 @@ require an explicit choice for possible duplicates. CSV is an import format,
 not a full archive backup: it generates new flight IDs and does not carry profile
 data, frequent-flyer memberships, baggage-carousel values or arbitrary extensions.
 Use Keepraw Fly JSON export to back up the complete portable archive.
+
+## Umetrip XLS import
+
+In **Settings → Data and backup → Umetrip XLS import**, select a genuine binary
+Excel `.xls` file, review the counts and source-row diagnostics, then confirm.
+Everything runs in the browser. Selected flights append through the existing
+CSV preflight, exact/possible duplicate review, schema/semantic validation and
+storage adapter. The active profile, memberships, existing flights and archive
+extensions are preserved. Ticket numbers do not identify flights or segments.
+
+**Compatibility evidence is one real Umetrip export**, inspected locally but
+never committed. It is a CFB/BIFF8 workbook with text dates/clocks and separate
+upcoming, completed, OPEN and invalid-ticket worksheets. It contained 33 rows:
+19 explicitly used rows passed preflight, and 14 were excluded (one unused, two
+OPEN, ten refunded, one exchanged), with no blocking errors. These counts record
+that local validation only; they are not parser assumptions or public fixtures.
+No claim is made about all historical Umetrip versions. Additional layout and
+numeric-cell support is tested using [wholly fictional workbooks](../tests/fixtures/umetrip/README.md).
+
+### Workbook and column contract
+
+Worksheets are scanned independently, in any order. Headers may move and columns
+may be reordered. Whitespace and full-width header characters are normalized;
+columns are identified only by the explicit aliases below. Missing required or
+duplicate field headers block import. A nonempty unknown worksheet or data row
+is reported rather than silently discarded. Blank rows and single-cell notes
+starting with `说明：`, `备注：` or `注：` (ASCII colons also accepted), plus the
+Umetrip export title, are skipped. Empty worksheets are allowed.
+
+| Source headers                 | Canonical use                                            |
+| ------------------------------ | -------------------------------------------------------- |
+| `日期`, `航班日期`, `出发日期` | Required `serviceDate`                                   |
+| `航班号`                       | Required `flightNumber`; existing airline-code resolver  |
+| `出发城市`, `出发机场`         | Required exact airport name or IATA → `origin.iata`      |
+| `到达城市`, `到达机场`         | Required exact airport name or IATA → `destination.iata` |
+| `出发时间`, `起飞时间`         | Required local departure clock                           |
+| `到达时间`                     | Required local arrival clock                             |
+| `客票状态`                     | Required per-row eligibility check                       |
+| `航空公司`                     | Optional original airline text, retained as provenance   |
+| `客票号`, `票号`               | Optional `ticketNumber` using existing normalization     |
+| `到达日期`                     | Optional explicit arrival date; validated if provided    |
+
+Other columns, including passenger names and source mileage, are not imported.
+There is no inferred seat, aircraft, terminal, PNR, actual time or delay.
+Airline references come from the flight-number prefix using the existing offline
+resolver; the source airline text does not override that identity.
+
+Only `已使用` is eligible, and its arrival must be in the past. `未使用`, `未出行`
+and `待出行` are excluded as unused; `OPEN`/`OPEN票` as OPEN; `已退票`/`退票` as
+refunded; `已换开`/`换开` as exchanged; and `无效`/`无效票`/`已作废`/`作废` as
+invalid. `未使用` in an `OPEN票` worksheet is classified as OPEN. Known category
+names accept an optional numeric count suffix and whitespace. A used status in
+an upcoming, OPEN or invalid category blocks import as a contradiction. Unknown
+or empty statuses block import, even on a completed worksheet. Exclusions have
+counts, reasons and worksheet/physical-row references in the preview. Missing
+dates or placeholder times on explicitly excluded tickets do not block import.
+
+The reader requires a CFB signature and the existing file-size/aggregate-record
+limits. Renamed CSV/HTML/XLSX, encrypted or damaged workbooks, formulas and Excel
+error values in mapped fields are rejected. Raw pre-CFB BIFF, arbitrary localized
+headers and other Umetrip layouts have not been verified.
+
+### Airports and time
+
+Airport matching uses bundled localized airport names, IATA codes, normalized
+punctuation and airport/international suffixes. A small separate alias layer
+handles legacy/spelling exceptions such as Qingdao Liuting and the abbreviated
+Mumbai airport name. There is no city-only, substring or fuzzy matching. Missing
+or ambiguous names block import with a worksheet/row reference; check the source
+and replace the value with a verified IATA code before retrying.
+
+Dates accept `YYYY年M月D日`, year-first dates with consistent `-`, `/` or `.`
+separators, and integer Excel serial dates in either the 1900 or 1904 system.
+Excel's fictitious 1900-02-29 is rejected. Clocks accept `H:mm`, `HH:mm`, optional
+`:00` seconds, or numeric fractional days at minute precision. Nonzero seconds,
+date/time combinations in one cell and ambiguous day/month dates are rejected.
+
+The importer reuses the editor/CSV IANA timezone resolver for both endpoints and
+the flight date, including DST. It evaluates arrival local dates from two days
+before through three days after departure; it does not add a day merely because
+the arrival clock is earlier. Broad sanity bounds are a minimum of
+`max(15 minutes, distance / 1200 km/h - 30 minutes)` and a maximum of
+`min(24 hours, distance / 400 km/h + 3 hours)`. Distances use the existing directory
+only as a coarse duration constraint, not historical physical-airport identity.
+An explicit arrival date must satisfy the same checks. No candidate, multiple
+candidates, a DST gap/overlap or an invalid timezone blocks import. These bounds
+can reject unusual short, slow or very long flights; there is no automatic
+override or assumption that the nearest date is correct.
+
+Because source clock semantics are not confirmed, clocks are saved in the
+required **scheduled** timestamp fields, never as actual times. Imported flights
+retain a versioned `keepraw-fly.umetrip` extension with source sheet/row, selected
+raw date/clock/airport/airline/flight/status values, Excel date system, `timeBasis: "unspecified"`
+and `arrivalDateInferred`. No source file, passenger columns or airport coordinates
+are stored. IATA + service date remains the interface for a future historical
+airport layer. Full JSON backups retain this provenance; the existing shareable
+export drops the extension and ticket number.
+
+SheetJS CE is loaded only after a file passes the initial size/extension/signature
+gates. The production decoder chunk is approximately 352 kB (118 kB gzip) in
+the reviewed build. It has no extra runtime dependencies. Binary decoding is
+synchronous on the browser main thread; row validation/duplicate preflight is
+cooperative and cancellable. The [security notes](security.md#import-limits)
+cover the pinned dependency, advisories, license and resource limits.

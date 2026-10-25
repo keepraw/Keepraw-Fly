@@ -768,5 +768,45 @@
       "zoomHint": "Bild anklicken oder Enter drücken zum Vergrößern. Scrollen oder wischen zum Bewegen; Esc zeigt das ganze Bild.",
       "routeCoverage": "Karte: {{shown, number}} von {{total, number}} erfassten Strecken"
     }
+  },
+  "umetripImport": {
+    "title": "Umetrip-XLS-Import",
+    "description": "Fügen Sie genutzte vergangene Flüge aus einem unterstützten 航旅纵横-Export hinzu.",
+    "openFile": "Umetrip XLS öffnen",
+    "workflow": "Die XLS-Datei wird lokal im Browser gelesen und geprüft. Nur ausdrücklich genutzte Tickets kommen infrage.",
+    "previewTitle": "Umetrip-Import prüfen",
+    "excludedRecords": "Ausgeschlossene Einträge",
+    "excludedDetails": "Ausgeschlossene Zeilen anzeigen",
+    "firstRows": "Die ersten {{count}} Zeilen werden angezeigt.",
+    "location": "{{sheet}}, Zeile {{number}}: ",
+    "timeNote": "Quellzeiten werden als planmäßige Zeiten gespeichert. Tatsächliche Zeiten und Verspätungen werden nicht abgeleitet. Ankunftsdaten werden anhand der Flughafen-Zeitzonen und großzügiger Flugdauergrenzen ermittelt. Unsichere Zeilen blockieren den Import.",
+    "fileErrors": {
+      "unsupported-xls": "Wählen Sie eine echte binäre Excel-Datei mit .xls. Umbenannte CSV-, HTML- und XLSX-Dateien werden nicht unterstützt.",
+      "invalid-xls": "Die XLS-Datei ist beschädigt, verschlüsselt oder nicht unterstützt. Es wurde nichts importiert.",
+      "missing-rows": "Die Arbeitsmappe enthält keine Flugzeilen."
+    },
+    "issues": {
+      "missing-header": "Eine erforderliche Überschrift fehlt oder das Tabellenlayout wird nicht unterstützt.",
+      "duplicate-header": "Mehrere Spalten entsprechen demselben Feld. Prüfen Sie die Überschriften.",
+      "unsupported-cell": "Eine erforderliche Zelle enthält eine Formel, einen Excel-Fehler oder einen nicht unterstützten Datentyp.",
+      "unknown-status": "Der Ticketstatus fehlt oder wird nicht unterstützt. Prüfen Sie diese Zeile.",
+      "conflicting-status": "Der Status „genutzt“ widerspricht der Blattkategorie. Prüfen Sie diese Zeile.",
+      "unknown-airline": "Der Airline-Code in der Flugnummer ist unbekannt.",
+      "unknown-airport": "Flughafenname oder IATA-Code ist unbekannt. Prüfen Sie die Quelle und verwenden Sie einen bekannten IATA-Code.",
+      "ambiguous-airport": "Der Flughafenname passt zu mehreren IATA-Codes. Bestätigen Sie den richtigen Code in der Quelle.",
+      "invalid-date": "Das Datum fehlt oder ist ungültig. Verwenden Sie ein eindeutiges Kalenderdatum oder eine Excel-Datumszelle.",
+      "invalid-duration": "Kein Ankunftsdatum passt zu den Flugdauergrenzen dieser Strecke. Prüfen Sie Datum und Ortszeiten.",
+      "ambiguous-arrival-date": "Mehrere Ankunftsdaten sind plausibel. Geben Sie ein ausdrückliches Ankunftsdatum an und prüfen Sie es.",
+      "future-used-flight": "Ein genutztes Ticket hat eine Ankunft in der Zukunft. Prüfen Sie Datum und Status.",
+      "ambiguous-time": "Diese Ortszeit tritt bei der Zeitumstellung zweimal auf. Eine manuelle Prüfung ist erforderlich."
+    },
+    "exclusions": {
+      "unused": "Nicht genutzt / bevorstehend",
+      "open": "OPEN-Ticket",
+      "refunded": "Erstattet",
+      "exchanged": "Neu ausgestellt / umgetauscht",
+      "invalid": "Ungültig / annulliert"
+    },
+    "showMore": "Weitere Zeilen anzeigen"
   }
 }

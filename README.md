@@ -19,7 +19,7 @@ To get started, choose **Create my archive**, then **Add flight**, or import an 
 - **Flight Passport:** explore lifetime or yearly totals, delay, airports, airlines, aircraft and route highlights. Save a two-page souvenir travel journal using your archive name and a browser-local display number.
 - **Flight archive and detail:** search, filter, add, edit, duplicate and review complete flight records.
 - **Route visualization:** browse recorded routes on the desktop Passport and Flight Detail maps.
-- **Portable data:** export and migrate a validated Keepraw Fly JSON archive; preview JSON, Keepraw Fly CSV and Flighty CSV imports before writing.
+- **Portable data:** export and migrate a validated Keepraw Fly JSON archive; preview JSON, Keepraw Fly CSV, Flighty CSV and Umetrip XLS imports before writing.
 - **Frequent flyer profiles:** associate programs with multiple airlines and recorded flights.
 - **Local first:** flight history stays in browser storage; no account and no cloud flight-history backend.
 - **Designed across devices:** responsive desktop and mobile experiences in Simplified Chinese, Traditional Chinese (Taiwan), US/UK English, Japanese, French, German, Spanish, Brazilian Portuguese and Korean.
@@ -47,6 +47,7 @@ In **Settings → Data and backup**, choose **Export Keepraw Fly JSON** for a co
 - **Keepraw Fly JSON:** import or export the complete portable archive for backup and migration.
 - **Keepraw Fly CSV bulk import:** map and validate documented columns before adding rows.
 - **Flighty CSV:** import supported fields from a Flighty export; this is a one-way import, not synchronization or complete Flighty-format compatibility.
+- **Umetrip XLS:** preview and append explicitly used historical flights from the supported binary Excel export. Unused, OPEN, refunded, exchanged and invalid tickets are excluded. See the [supported layout and limitations](docs/schema.md#umetrip-xls-import); compatibility has been checked against one real export only.
 
 Imports into an existing archive append flights and preserve its profile and existing records. Exact duplicates are skipped; possible duplicates require your choice, and invalid rows block import. When importing JSON without an existing archive, the source profile and document metadata are retained. See the [format and CSV columns](docs/schema.md) and [example files](examples/README.md).
 

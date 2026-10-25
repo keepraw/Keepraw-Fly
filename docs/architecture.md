@@ -3,7 +3,7 @@
 ## Boundaries
 
 ```text
-Guided flight editor / JSON import / mapped CSV import / Flighty CSV import
+Guided flight editor / JSON import / mapped CSV import / Flighty CSV import / Umetrip XLS import
   → document creation, validation and import preflight
   → BrowserStorageAdapter / IndexedDB
   → @keepraw-fly/core calculations → React viewer
@@ -58,6 +58,15 @@ workflows convert valid rows to canonical flight records and append them to the
 active archive; they never replace existing flights. CSV local times are
 resolved using the corresponding airport timezone; explicit RFC3339 offsets
 remain supported.
+
+Umetrip XLS import decodes a binary workbook locally using a lazy SheetJS chunk.
+Its separate adapter locates headers, checks ticket statuses, resolves exact
+airport names and infers arrival dates before entering the same canonical CSV
+preflight and duplicate-review boundary. It validates the canonical schema and
+semantics before preview and again before persistence. Source airport names and
+wall clocks are retained in a namespaced flight extension; IATA and service date
+remain the portable airport identity boundary. No historical airport entities or
+coordinates are written into flight records. See the [supported XLS contract](schema.md#umetrip-xls-import).
 
 Export validates again before creating a readable, indented JSON download. It
 does not include search indexes, statistics, Viewer preferences or temporary UI

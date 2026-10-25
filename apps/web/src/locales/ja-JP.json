@@ -733,5 +733,45 @@
       "zoomHint": "画像をクリック、または Enter で拡大。スクロールやスワイプで移動し、Esc で全体表示に戻ります。",
       "routeCoverage": "記録した {{total, number}} 航路のうち {{shown, number}} 航路を地図に表示"
     }
+  },
+  "umetripImport": {
+    "title": "Umetrip XLS のインポート",
+    "description": "対応する航旅纵横のエクスポートから使用済みの過去のフライトを追加します。",
+    "openFile": "Umetrip XLS を開く",
+    "workflow": "XLS はブラウザー内で読み取り、プレビューします。使用済みと明記された航空券のみが対象です。",
+    "previewTitle": "Umetrip のインポートを確認",
+    "excludedRecords": "除外した記録",
+    "excludedDetails": "除外した行を表示",
+    "firstRows": "最初の {{count}} 行を表示しています。",
+    "location": "{{sheet}}、{{number}} 行目：",
+    "timeNote": "元の時刻は予定時刻として保存し、実際の時刻や遅延は推測しません。到着日は空港のタイムゾーンと幅広い所要時間の範囲から推定します。不確かな行があるとインポートできません。",
+    "fileErrors": {
+      "unsupported-xls": "実際のバイナリ形式の Excel .xls を選択してください。名前を変更した CSV、HTML、XLSX には対応していません。",
+      "invalid-xls": "XLS が破損、暗号化、または未対応の形式です。データは追加されていません。",
+      "missing-rows": "ブックにフライトの行がありません。"
+    },
+    "issues": {
+      "missing-header": "必須の見出しがないか、シートの形式に対応していません。",
+      "duplicate-header": "複数の列が同じ項目を表しています。見出しを確認してください。",
+      "unsupported-cell": "必須セルに数式、Excel エラー、または未対応の値の型があります。",
+      "unknown-status": "航空券の状態がないか、未対応です。この行を確認してください。",
+      "conflicting-status": "使用済みの状態がシートの分類と一致しません。この行を確認してください。",
+      "unknown-airline": "便名に含まれる航空会社コードを認識できません。",
+      "unknown-airport": "空港名または IATA コードを認識できません。元のデータを確認し、既知の IATA コードを入力してください。",
+      "ambiguous-airport": "空港名が複数の IATA コードに一致します。元のファイルで正しいコードを確認してください。",
+      "invalid-date": "日付がないか無効です。明確な年月日または Excel の日付セルを使用してください。",
+      "invalid-duration": "この路線の所要時間の範囲に合う到着日がありません。日付と現地時刻を確認してください。",
+      "ambiguous-arrival-date": "到着日の候補が複数あります。明確な到着日を入力して確認してください。",
+      "future-used-flight": "使用済みの航空券の到着日が未来です。日付と状態を確認してください。",
+      "ambiguous-time": "夏時間の切り替えでこの現地時刻は2回存在します。手動での確認が必要です。"
+    },
+    "exclusions": {
+      "unused": "未使用／出発前",
+      "open": "OPEN 航空券",
+      "refunded": "払い戻し済み",
+      "exchanged": "再発券／交換済み",
+      "invalid": "無効／取消済み"
+    },
+    "showMore": "さらに行を表示"
   }
 }

@@ -800,5 +800,45 @@
       "zoomHint": "Haz clic en la imagen o pulsa Intro para ampliar. Desplázate o desliza para explorar; Esc vuelve a la vista completa.",
       "routeCoverage": "Mapa: {{shown, number}} de {{total, number}} rutas registradas"
     }
+  },
+  "umetripImport": {
+    "title": "Importación XLS de Umetrip",
+    "description": "Añade vuelos históricos utilizados desde una exportación de 航旅纵横 compatible.",
+    "openFile": "Abrir XLS de Umetrip",
+    "workflow": "El XLS se lee y previsualiza localmente en el navegador. Solo se admiten billetes marcados explícitamente como utilizados.",
+    "previewTitle": "Revisar importación de Umetrip",
+    "excludedRecords": "Registros excluidos",
+    "excludedDetails": "Ver filas excluidas",
+    "firstRows": "Se muestran las primeras {{count}} filas.",
+    "location": "{{sheet}}, fila {{number}}: ",
+    "timeNote": "Las horas de origen se guardan como programadas, sin deducir horas reales ni retrasos. Las fechas de llegada se estiman con las zonas horarias y límites amplios de duración. Las filas inciertas bloquean la importación.",
+    "fileErrors": {
+      "unsupported-xls": "Selecciona un archivo binario real Excel .xls. No se admiten CSV, HTML ni XLSX renombrados.",
+      "invalid-xls": "El XLS está dañado, cifrado o no es compatible. No se ha importado nada.",
+      "missing-rows": "No se encontraron filas de vuelos en el libro."
+    },
+    "issues": {
+      "missing-header": "Falta un encabezado obligatorio o el diseño de la hoja no es compatible.",
+      "duplicate-header": "Varias columnas corresponden al mismo campo. Revisa los encabezados.",
+      "unsupported-cell": "Una celda obligatoria contiene una fórmula, un error de Excel o un tipo no compatible.",
+      "unknown-status": "El estado del billete falta o no es compatible. Revisa esta fila.",
+      "conflicting-status": "El estado utilizado contradice la categoría de la hoja. Revisa esta fila.",
+      "unknown-airline": "El código de aerolínea del número de vuelo es desconocido.",
+      "unknown-airport": "No se reconoce el aeropuerto o su código IATA. Revisa el origen e introduce un código IATA conocido.",
+      "ambiguous-airport": "El nombre del aeropuerto coincide con varios códigos IATA. Confirma el código correcto en el archivo.",
+      "invalid-date": "La fecha falta o no es válida. Usa una fecha inequívoca o una celda de fecha de Excel.",
+      "invalid-duration": "Ninguna fecha de llegada cumple los límites de duración de la ruta. Revisa la fecha y las horas locales.",
+      "ambiguous-arrival-date": "Hay varias fechas de llegada plausibles. Indica y verifica una fecha explícita.",
+      "future-used-flight": "Un billete utilizado tiene una llegada futura. Revisa la fecha y el estado.",
+      "ambiguous-time": "Esta hora local ocurre dos veces por el cambio de horario. Es necesaria una verificación manual."
+    },
+    "exclusions": {
+      "unused": "Sin utilizar / próximo",
+      "open": "Billete OPEN",
+      "refunded": "Reembolsado",
+      "exchanged": "Reemitido / cambiado",
+      "invalid": "No válido / anulado"
+    },
+    "showMore": "Mostrar más filas"
   }
 }
