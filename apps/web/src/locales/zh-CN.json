@@ -733,5 +733,45 @@
       "zoomHint": "点击图片或按回车放大；滚动或滑动查看，按 Esc 恢复全图。",
       "routeCoverage": "地图显示 {{shown, number}} / {{total, number}} 条已记录航线"
     }
+  },
+  "umetripImport": {
+    "title": "航旅纵横 XLS",
+    "description": "从受支持的航旅纵横导出文件追加已使用的历史航班。",
+    "openFile": "打开航旅纵横 XLS",
+    "workflow": "文件在浏览器本地读取并预览，仅客票状态明确为“已使用”的记录可导入。",
+    "previewTitle": "检查航旅纵横导入",
+    "excludedRecords": "排除记录",
+    "excludedDetails": "查看排除行",
+    "firstRows": "仅显示前 {{count}} 行。",
+    "location": "工作表“{{sheet}}”第 {{number}} 行：",
+    "timeNote": "来源时间按计划时间保存，不推断实际时间或延误。到达日期结合机场时区和宽泛的飞行时长约束推导；不确定的记录会阻止导入。",
+    "fileErrors": {
+      "unsupported-xls": "请选择真正的二进制 Excel .xls 文件，不支持改名后的 CSV、HTML 或 XLSX。",
+      "invalid-xls": "XLS 工作簿已损坏、被加密或格式不受支持，未导入任何数据。",
+      "missing-rows": "工作簿中没有航班记录。"
+    },
+    "issues": {
+      "missing-header": "缺少必需表头，或工作表布局不受支持。",
+      "duplicate-header": "多个列对应同一字段，请检查表头。",
+      "unsupported-cell": "必需单元格包含公式、Excel 错误或不支持的数据类型。",
+      "unknown-status": "客票状态缺失或不受支持，请检查此行。",
+      "conflicting-status": "“已使用”状态与工作表分类冲突，请检查此行。",
+      "unknown-airline": "无法识别航班号中的航空公司代码。",
+      "unknown-airport": "无法识别机场名称或 IATA 代码，请核对来源并填写已知的 IATA 代码。",
+      "ambiguous-airport": "机场名称对应多个 IATA 代码，请在来源文件中确认正确代码。",
+      "invalid-date": "日期缺失或无效，请使用明确的年月日或 Excel 日期单元格。",
+      "invalid-duration": "没有到达日期符合该航线的宽泛时长约束，请检查日期和当地时间。",
+      "ambiguous-arrival-date": "存在多个合理的到达日期，请补充并核实明确的到达日期。",
+      "future-used-flight": "标记为“已使用”的客票将在未来到达，请检查日期和状态。",
+      "ambiguous-time": "夏令时导致此当地时间出现两次，需人工核验后才能导入。"
+    },
+    "exclusions": {
+      "unused": "未使用／待出行",
+      "open": "OPEN 票",
+      "refunded": "已退票",
+      "exchanged": "已换开",
+      "invalid": "无效／作废"
+    },
+    "showMore": "显示更多行"
   }
 }

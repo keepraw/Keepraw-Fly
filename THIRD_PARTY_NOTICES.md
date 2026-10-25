@@ -7,6 +7,17 @@ third-party ownership or grant rights beyond the original terms. See the
 [2026-10-10 license review](docs/license-review-2026-10-10.md) for source checks,
 remaining permission questions and Owner decisions.
 
+## SheetJS Community Edition (Umetrip XLS import)
+
+The browser lazily loads the official **SheetJS CE 0.20.3** distribution from
+<https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz> to decode binary Excel files
+locally. Copyright (C) 2012-present SheetJS LLC. It is licensed under
+**Apache-2.0**; the unmodified upstream license and bundled notices are retained
+in [sheetjs.txt](apps/web/public/licenses/sheetjs.txt) and shipped with the static
+site. The URL and SHA-512 are pinned in `pnpm-lock.yaml`. There are no additional
+runtime dependencies. The ESM read path is bundled separately; the XLSX-only
+mini build cannot decode the required BIFF workbooks.
+
 ## MiSans / MiSans TC webfonts
 
 Chinese UI typography uses **MiSans** (Simplified Chinese) and **MiSans TC**

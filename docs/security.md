@@ -98,10 +98,27 @@ use WebCrypto (for example PBKDF2/Argon2 + AES-GCM) as a separate, reviewed task
 
 ## Import limits
 
-JSON, CSV and Flighty CSV files are size-checked before they are read: empty
+JSON, CSV, Flighty CSV and Umetrip XLS files are size-checked before they are read: empty
 files and files above 64 MB are refused, as are imports with more than 100,000
 flights or rows. A typical archive is a few MB. The size cap also bounds every
 field and extension object. Stored archives are never subject to these limits.
+
+Umetrip also checks the binary CFB signature, rejects renamed CSV/HTML/XLSX and
+rejects formulas or Excel error cells in mapped fields. SheetJS does not execute
+formulas or macros; arbitrary passenger columns are not copied. The XLS decoder
+is loaded only on file selection, remains on the browser main thread, and does
+not change CSP or introduce a network upload. Decoding itself is synchronous;
+the subsequent row preflight uses the existing cancellable cooperative workflow.
+
+The official SheetJS CE 0.20.3 tarball is pinned by URL and SHA-512 in the lockfile,
+rather than the obsolete npm `xlsx` 0.18.5 release. The 2026-10-25 review checked
+GitHub's published `xlsx` advisories: the prototype-pollution range is below
+0.19.3 and the ReDoS range below 0.20.2; neither includes the selected version.
+Fresh full and production pnpm audits reported no known vulnerabilities. An audit
+is time-specific, not a guarantee about malformed workbooks or future advisories.
+The [Apache-2.0 license and bundled notices](../apps/web/public/licenses/sheetjs.txt)
+are shipped with the static site. Monitor upstream directly: npm and Dependabot
+do not supply updates to this URL-pinned distribution automatically.
 
 ## Offline behavior
 
