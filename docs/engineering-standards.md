@@ -56,6 +56,12 @@ decide whether to squash merge; updates are never automatically merged. Commit
 `pnpm-lock.yaml` and keep frozen installs. See [security](security.md) for exposure
 and advisory review.
 
+The [pnpm hook](../.pnpmfile.cjs) preserves the reviewed SheetJS tarball SHA-512
+when pnpm re-resolves URL dependencies during updates. Keep this pin aligned with
+`pnpm-lock.yaml`; verify the official archive before changing it. Frozen installs
+enforce the lockfile integrity. The hook does not independently verify downloads
+made during resolution, so follow dependency updates with a clean frozen install.
+
 ## Directory and module responsibilities
 
 | Location                         | Responsibility                                                                            |
