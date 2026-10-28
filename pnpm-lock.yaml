@@ -80,8 +80,8 @@ importers:
         specifier: ^17.1.6
         version: 17.1.6(i18next@26.5.8(typescript@5.9.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@5.9.3)
       soaring-symbols:
-        specifier: 0.1.0-alpha.12
-        version: 0.1.0-alpha.12
+        specifier: 0.1.0-alpha.14
+        version: 0.1.0-alpha.14
       three:
         specifier: ^0.186.1
         version: 0.186.1
@@ -1121,8 +1121,8 @@ packages:
     resolution: {integrity: sha512-vZ7rfeehZui7wQs438JXBckYLkIIdfHOXsaVEUMyS5fHo1483l1bMdo0EDSWYclY0yZKFOipDy4KHuKs6ssvdg==}
     engines: {node: '>=8.0.0'}
 
-  soaring-symbols@0.1.0-alpha.12:
-    resolution: {integrity: sha512-CDMWznk0S/ten/w7cbNr5rMiV/4ED6xnBzJ/zZQlYSGpphoDAbR+nB0xpWaqXyGZdaMg94ma01/Uz1myRjHjxQ==}
+  soaring-symbols@0.1.0-alpha.14:
+    resolution: {integrity: sha512-XiVIS+KviDWlnuF9J6FZ/1ODgxm6ZqfvUA0+2cu4lQez+1QQA9zjp09RHYu0sGjhr0Ayje5zneeWrWnCaFiyGg==}
 
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
@@ -2066,7 +2066,7 @@ snapshots:
 
   slugify@1.6.9: {}
 
-  soaring-symbols@0.1.0-alpha.12:
+  soaring-symbols@0.1.0-alpha.14:
     dependencies:
       slugify: 1.6.9
 
