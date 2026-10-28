@@ -90,7 +90,7 @@ checked-in runtime datasets. The application never queries Wikidata at runtime.
 
 Keepraw Fly bundles airline SVG icons from
 [soaring-symbols/soaring-symbols](https://github.com/soaring-symbols/soaring-symbols),
-version 0.1.0-alpha.12, as local build assets. The library is distributed under
+version 0.1.0-alpha.14, as local build assets. The library is distributed under
 the MIT License; its license text is included in
 `apps/web/src/data/LICENSE.soaring-symbols`.
 
@@ -101,7 +101,9 @@ used for airline identification, and the application falls back to the airline
 designator when no icon is available.
 
 Run `pnpm update:airline-icons` after updating the dependency to refresh the
-generated IATA/ICAO-to-asset registry.
+generated IATA/ICAO-to-asset registry. SVG imports require an exact match with
+the application's existing airline code pairs. Each IATA code has one registry
+entry, preferring a matching SVG over a retained PNG supplement.
 
 ## Airline logo PNG supplements
 
