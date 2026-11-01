@@ -15,6 +15,7 @@ import {
   arrivalIdentity,
   buildRouteSegments,
   calculatePassportStatistics,
+  candidateHasPhysicalSiteMeaning,
   candidateSitesMatchCurrentDirectory,
   createAirportHistoryLoader,
   ensureAirportHistoryCodes,
@@ -370,5 +371,163 @@ describe("candidate sites vs the current directory (no position ignored)", () =>
     expect(kmg.candidateSites.map((s) => s.name)).toEqual([
       "Kunming Changshui International Airport",
     ]);
+  });
+});
+
+describe("pure code events vs real physical-site hypotheses", () => {
+  beforeAll(async () => {
+    await ensureAirportHistoryCodes(
+      loader,
+      ["SSM", "VLO", "CDT"].map((code) => ({ code })),
+    );
+  }, 120_000);
+
+  it("falls back to the directory itself for codes with only pure code events (SSM)", () => {
+    for (const date of ["1990-06-01", "2026-06-01"]) {
+      const ssm = resolveAirportAtDate("SSM", date);
+      // Nothing verified a same-site match; the directory is the basis.
+      expect(ssm.status).toBe("current_directory_only");
+      expect(ssm.uncertainty.candidateSitesMatchCurrentDirectory).toBeNull();
+      expect(ssm.airportId).toBeNull();
+      expect(ssm.matchedAssignment).toBeNull();
+      expect(ssm.airport?.basis).toBe("current_directory");
+      // The code events stay attached with their sources and observation
+      // times, which never act as effective dates.
+      expect(ssm.candidates.length).toBeGreaterThan(0);
+      for (const candidate of ssm.candidates) {
+        expect(candidate.possibleSites).toEqual([]);
+        expect(candidate.types).toContain("iata_change");
+        expect(candidateHasPhysicalSiteMeaning(candidate)).toBe(false);
+        expect(candidate.sourceId).toBeTruthy();
+      }
+      expect(ssm.observationTimestamps.length).toBeGreaterThan(0);
+      expect(
+        ssm.observationTimestamps.every(
+          (t) => t.meaning === "directory_revision_observed",
+        ),
+      ).toBe(true);
+      expect(
+        candidateSitesMatchCurrentDirectory(
+          airportByIata.get("SSM")!,
+          ssm.candidateSites,
+          ssm.candidates,
+        ),
+      ).toBeNull();
+    }
+    const flightDate = originIdentity(
+      flight(
+        "ssm",
+        "SSM",
+        "SFO",
+        "2026-06-01",
+        "2026-06-01T10:00:00-04:00",
+        "2026-06-01T14:00:00-07:00",
+      ),
+    );
+    expect(flightDate.confirmed).toBe(true);
+    expect(flightDate.basis).toBe("current_directory");
+    expect(flightDate.assignmentEvidence).toBe("current_directory");
+    expect(flightDate.historicalAssignmentVerified).toBe(false);
+  });
+
+  it("treats a site-less relocation as a physical hypothesis that blocks the same-site match (VLO, CDT)", () => {
+    for (const code of ["VLO", "CDT"]) {
+      const result = resolveAirportAtDate(code, "2024-06-01");
+      expect(result.status).toBe("historical_candidate");
+      expect(result.uncertainty.candidateSitesMatchCurrentDirectory).toBe(
+        false,
+      );
+      const relocation = result.candidates.find(
+        (candidate) =>
+          candidate.memberClassification ===
+            "location_change_or_directory_correction" &&
+          candidate.possibleSites.length === 0,
+      )!;
+      expect(relocation.types).toContain("possible_relocation");
+      expect(candidateHasPhysicalSiteMeaning(relocation)).toBe(true);
+      // The named coordinates are preserved verbatim.
+      expect(relocation.changes.lat).toHaveLength(2);
+      expect(relocation.changes.lon).toHaveLength(2);
+    }
+  });
+
+  it("separates pure code events from relocations with missing, invalid or near coordinates", () => {
+    const can = resolveAirportAtDate("CAN", "2024-06-01");
+    const site = can.candidateSites[0]!;
+    const directory = airportByIata.get("CAN")!;
+    const pureCode = resolveAirportAtDate("SSM", "2024-06-01").candidates[0]!;
+    const relocation = resolveAirportAtDate(
+      "VLO",
+      "2024-06-01",
+    ).candidates.find(
+      (candidate) =>
+        candidate.possibleSites.length === 0 &&
+        candidate.types.includes("possible_relocation"),
+    )!;
+    const at = (lat: string | null, lon: string | null) => ({
+      ...relocation,
+      changes: {
+        ...relocation.changes,
+        lat: [lat, lat] as [string | null, string | null],
+        lon: [lon, lon] as [string | null, string | null],
+      },
+    });
+    // A pure code event proposes no position and never blocks a real match.
+    expect(
+      candidateSitesMatchCurrentDirectory(directory, [site], [pureCode]),
+    ).toBe(true);
+    // Only pure code events: nothing to verify, never a claimed match.
+    expect(
+      candidateSitesMatchCurrentDirectory(directory, [], [pureCode]),
+    ).toBeNull();
+    // A relocation without any coordinates is a missing position.
+    const { lat: _lat, lon: _lon, ...withoutCoordinates } = relocation.changes;
+    expect(
+      candidateSitesMatchCurrentDirectory(
+        directory,
+        [site],
+        [{ ...relocation, changes: withoutCoordinates }],
+      ),
+    ).toBe(false);
+    // Invalid coordinates block.
+    expect(
+      candidateSitesMatchCurrentDirectory(
+        directory,
+        [site],
+        [at("north", "east")],
+      ),
+    ).toBe(false);
+    expect(
+      candidateSitesMatchCurrentDirectory(
+        directory,
+        [site],
+        [at(String(directory.latitude), null)],
+      ),
+    ).toBe(false);
+    // Named coordinates more than 10 km away block; at the site they agree.
+    expect(
+      candidateSitesMatchCurrentDirectory(
+        directory,
+        [site],
+        [at(String(directory.latitude + 0.2), String(directory.longitude))],
+      ),
+    ).toBe(false);
+    expect(
+      candidateSitesMatchCurrentDirectory(
+        directory,
+        [site],
+        [at(String(directory.latitude), String(directory.longitude))],
+      ),
+    ).toBe(true);
+    // Upstream's relocation classification alone (no sites, no coordinates)
+    // is still a physical claim, never a code-only event.
+    expect(
+      candidateHasPhysicalSiteMeaning({
+        possibleSites: [],
+        memberClassification: "location_change_or_directory_correction",
+        types: ["iata_change"],
+        changes: { iata: ["AAA", "BBB"] },
+      }),
+    ).toBe(true);
   });
 });

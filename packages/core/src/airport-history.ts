@@ -134,6 +134,10 @@ export interface HistoricalCandidate {
     afterBlob: string | null;
     revisionObservedAt: string | null;
   }[];
+  /** Upstream change types (e.g. `iata_change`, `coordinate_revision`, `possible_relocation`). */
+  types: string[];
+  /** Upstream field changes as `[before, after]`, kept verbatim (codes, names, lat/lon). */
+  changes: Record<string, [string | null, string | null]>;
   /** Every physical-location hypothesis, never merged across candidates. */
   possibleSites: (CandidateSite & { linkedByCandidate: boolean })[];
 }
@@ -343,6 +347,7 @@ export interface TransitionMemberRow {
   lastRevisionObservedAt: string | null;
   candidateStatus: string | null;
   changes: Record<string, [string | null, string | null]>;
+  types?: string[];
   sourceRevisions: HistoricalCandidate["sourceRevisions"];
   possibleSites: RawSite[];
 }
@@ -655,6 +660,8 @@ function collectCandidates(code: string, scheme: AirportCodeScheme) {
       firstRevisionObservedAt: member.firstRevisionObservedAt,
       lastRevisionObservedAt: member.lastRevisionObservedAt,
       sourceRevisions: member.sourceRevisions,
+      types: member.types ?? [],
+      changes: member.changes,
       possibleSites: member.possibleSites.map((raw) => ({
         ...site(raw),
         linkedByCandidate: Boolean(raw.linkedByCandidate),
@@ -685,34 +692,103 @@ function validCoordinate(
   );
 }
 
+/** Change types and classifications that assert something about physical location. */
+const SPATIAL_TYPES = new Set(["possible_relocation"]);
+
+type SpatialCandidate = Pick<HistoricalCandidate, "possibleSites"> &
+  Partial<
+    Pick<HistoricalCandidate, "memberClassification" | "types" | "changes">
+  >;
+
 /**
- * Whether every candidate location hypothesis is the current directory's own
- * site. Each site (top-level and every candidate's possible sites, duplicates
- * included) must have a valid finite position, must not be an ambiguous
- * location, and must lie within {@link SAME_SITE_KILOMETERS}. One failing
- * hypothesis makes the whole answer false; nothing is filtered away first.
- * A code-change observation that names no site at all proposes no other
- * position; it stays attached to the answer as history, unchanged.
+ * Whether a candidate carries a physical-site meaning, as upstream classifies
+ * it: any possible site of its own, the `location_change_or_directory_correction`
+ * classification (relocation, site replacement or a code moving between sites),
+ * a `possible_relocation` type, or coordinates named in its changes. A pure
+ * code event (`iata_change`/`icao_change`, renames, labels, closures, and a
+ * `coordinate_revision` that upstream did not flag as a relocation and that
+ * names no position) proposes no position; it stays attached as history but
+ * is not a location hypothesis.
+ */
+export function candidateHasPhysicalSiteMeaning(
+  candidate: SpatialCandidate,
+): boolean {
+  if (candidate.possibleSites.length) return true;
+  if (
+    candidate.memberClassification === "location_change_or_directory_correction"
+  )
+    return true;
+  if ((candidate.types ?? []).some((type) => SPATIAL_TYPES.has(type)))
+    return true;
+  const changes = candidate.changes ?? {};
+  return "lat" in changes || "lon" in changes;
+}
+
+/** The before/after coordinates a site-less spatial candidate names, or null when any is missing or invalid. */
+function changedPositions(
+  changes: Record<string, [string | null, string | null]>,
+): { latitude: number; longitude: number }[] | null {
+  const lat = changes.lat ?? [null, null];
+  const lon = changes.lon ?? [null, null];
+  const positions: { latitude: number; longitude: number }[] = [];
+  for (const side of [0, 1] as const) {
+    const a = lat[side];
+    const b = lon[side];
+    if (a === null && b === null) continue;
+    const latitude = a === null ? Number.NaN : Number(a);
+    const longitude = b === null ? Number.NaN : Number(b);
+    if (!validCoordinate(latitude, longitude)) return null;
+    positions.push({ latitude, longitude });
+  }
+  return positions.length ? positions : null;
+}
+
+/**
+ * Whether every physical-location hypothesis places the code at the current
+ * directory's own site:
+ * - `true`: every hypothesis (top-level sites, every candidate's possible
+ *   sites, duplicates included, and the coordinates a site-less spatial
+ *   candidate names) has a valid finite position, is not an ambiguous
+ *   location, and lies within {@link SAME_SITE_KILOMETERS};
+ * - `false`: at least one physical hypothesis is missing, invalid, ambiguous
+ *   or farther away (a relocation or coordinate revision with no usable
+ *   position is a missing position, never ignored);
+ * - `null`: there is no physical hypothesis at all — only pure code events.
+ *   Nothing was verified; a caller may fall back to the directory itself,
+ *   never to a claimed same-site match.
  */
 export function candidateSitesMatchCurrentDirectory(
   directory: { latitude: number; longitude: number },
   candidateSites: readonly CandidateSite[],
-  candidates: readonly Pick<HistoricalCandidate, "possibleSites">[],
-): boolean {
-  if (!validCoordinate(directory.latitude, directory.longitude)) return false;
-  const hypotheses = [
+  candidates: readonly SpatialCandidate[],
+): boolean | null {
+  const positions: { latitude: number; longitude: number }[] = [];
+  for (const site of [
     ...candidateSites,
     ...candidates.flatMap((candidate) => candidate.possibleSites),
-  ];
-  if (!hypotheses.length) return false;
-  return hypotheses.every(
-    (site) =>
-      !site.ambiguousLocation &&
-      validCoordinate(site.latitude, site.longitude) &&
-      distanceKilometers(directory, {
-        latitude: site.latitude!,
-        longitude: site.longitude!,
-      }) <= SAME_SITE_KILOMETERS,
+  ]) {
+    if (
+      site.ambiguousLocation ||
+      !validCoordinate(site.latitude, site.longitude)
+    )
+      return false;
+    positions.push({ latitude: site.latitude!, longitude: site.longitude! });
+  }
+  for (const candidate of candidates) {
+    if (
+      candidate.possibleSites.length ||
+      !candidateHasPhysicalSiteMeaning(candidate)
+    )
+      continue;
+    const named = changedPositions(candidate.changes ?? {});
+    if (!named) return false;
+    positions.push(...named);
+  }
+  if (!positions.length) return null;
+  if (!validCoordinate(directory.latitude, directory.longitude)) return false;
+  return positions.every(
+    (position) =>
+      distanceKilometers(directory, position) <= SAME_SITE_KILOMETERS,
   );
 }
 
@@ -921,8 +997,9 @@ export function resolveAirportAtDate(
   const hasCandidates =
     collected.candidates.length > 0 || collected.candidateSites.length > 0;
   if (hasCandidates) {
-    // Every hypothesis must positively place the code at the directory's own
-    // site; a missing, invalid or ambiguous position is never ignored.
+    // Every physical hypothesis must positively place the code at the
+    // directory's own site; a missing, invalid or ambiguous position is never
+    // ignored. Pure code events propose no position (null).
     const consistent: boolean | null = currentDirectoryAirport
       ? candidateSitesMatchCurrentDirectory(
           currentDirectoryAirport,
@@ -930,6 +1007,22 @@ export function resolveAirportAtDate(
           collected.candidates,
         )
       : null;
+    if (currentDirectoryAirport && consistent === null) {
+      // Only pure code events: nothing places the code anywhere else, and
+      // nothing verified a same-site match either. The directory itself is
+      // the basis; the historical assignment stays unverified.
+      return {
+        ...base,
+        ...candidateFields,
+        status: "current_directory_only",
+        airport: currentDirectoryView(currentDirectoryAirport),
+        uncertainty: uncertainty({
+          reason: "no_formal_assignment",
+          candidateTimezones,
+          candidateSitesMatchCurrentDirectory: null,
+        }),
+      };
+    }
     if (currentDirectoryAirport && consistent) {
       // Every location hypothesis is the current directory's own site: the
       // directory is the explicit basis. History stays attached and visible.
