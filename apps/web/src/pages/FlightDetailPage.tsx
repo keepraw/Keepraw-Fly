@@ -12,6 +12,10 @@ import {
   aircraftFacts,
   airlineNames,
   airportByIata,
+  arrivalIdentity,
+  originIdentity,
+  plannedDestinationIdentity,
+  type FlightEndpointIdentity,
   airportCityGroupForAirport,
   airportCityGroupName,
   baggageFacts,
@@ -35,6 +39,7 @@ import {
   type FlightStopTimes,
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { PageShell } from "../components/PageShell";
 import type { Appearance } from "../storage/types";
 import type { SolarMode } from "../globe/globe-solar";
@@ -73,7 +78,14 @@ function AirportStop({
   plannedName,
   plannedTerminal,
   plannedGate,
+  history,
+  zone,
+  plannedZone,
 }: {
+  history?: { note?: string; coordinates?: string; status: string };
+  /** Flight-date historical zone; null when the airport is undetermined. */
+  zone?: string | null;
+  plannedZone?: string | null;
   kind: "departure" | "arrival";
   iata: string;
   city: string;
@@ -122,6 +134,20 @@ function AirportStop({
               {airport}
             </p>
           ) : null}
+          {history?.note ? (
+            <p
+              className="detail-airport-history"
+              data-airport-history={history.status}
+            >
+              {history.note}
+              {history.coordinates ? (
+                <span className="detail-airport-coordinates">
+                  {" · "}
+                  {history.coordinates}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
         </div>
         {terminal || gate || baggageCarousel ? (
           <dl className="detail-stop-facts">
@@ -159,11 +185,9 @@ function AirportStop({
             }
             showZone
             timeZone={
-              airportByIata.get(
-                times.primary.source === "scheduled" && plannedAirport
-                  ? plannedAirport
-                  : iata,
-              )?.timezone
+              (times.primary.source === "scheduled" && plannedAirport
+                ? plannedZone
+                : zone) ?? undefined
             }
           />
           {scheduled ? (
@@ -179,7 +203,7 @@ function AirportStop({
                   : t("flightDetail.scheduled")
               }
               showZone
-              timeZone={airportByIata.get(plannedAirport ?? iata)?.timezone}
+              timeZone={(plannedAirport ? plannedZone : zone) ?? undefined}
             />
           ) : null}
         </div>
@@ -255,13 +279,60 @@ function DetailFact({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** The flight-date physical airport's name; a historical site keeps its own. */
 function airportNameLabel(
-  airport: ReturnType<typeof airportByIata.get>,
+  identity: FlightEndpointIdentity,
   iata: string,
   locale: SupportedLocale,
 ): string | undefined {
-  if (!airport) return undefined;
+  if (identity.name) return localizedText(identity.name, locale) || iata;
+  const airport = airportByIata.get(iata);
+  if (!airport || !identity.confirmed) return undefined;
   return localizedText(airport.name, locale) || iata;
+}
+
+function formatCoordinates(point: { latitude: number; longitude: number }) {
+  const lat = `${Math.abs(point.latitude).toFixed(4)}°${point.latitude >= 0 ? "N" : "S"}`;
+  const lon = `${Math.abs(point.longitude).toFixed(4)}°${point.longitude >= 0 ? "E" : "W"}`;
+  return `${lat}, ${lon}`;
+}
+
+function airportHistory(
+  identity: FlightEndpointIdentity,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): { note?: string; coordinates?: string; status: string } {
+  if (identity.basis === "formal" && identity.differsFromCurrentDirectory)
+    return {
+      status: "historical",
+      note: t("flightDetail.airportHistory.historicalSite"),
+      coordinates: identity.point
+        ? formatCoordinates(identity.point)
+        : undefined,
+    };
+  if (identity.basis === "formal_open_horizon_current_directory")
+    return {
+      status: "uncertain-horizon",
+      note: t("flightDetail.airportHistory.openHorizon"),
+    };
+  if (!identity.confirmed) {
+    const key =
+      identity.status === "historical_candidate"
+        ? "candidate"
+        : identity.status === "uncertain"
+          ? "uncertain"
+          : identity.status === "ambiguous"
+            ? "ambiguous"
+            : identity.status === "candidate_index_unavailable"
+              ? "pending"
+              : "unknown";
+    return {
+      status: identity.status,
+      note: t(`flightDetail.airportHistory.${key}`, {
+        sites: identity.possiblePositions.length,
+      }),
+    };
+  }
+  return { status: identity.status };
 }
 
 // Match FlightRow's display rules without changing airport data or route semantics.
@@ -312,10 +383,11 @@ export function FlightDetailPage({
     return () => media.removeEventListener("change", update);
   }, []);
 
-  const origin = airportByIata.get(flight.origin.iata);
-  const actualDestination = airportByIata.get(
-    flight.divertedTo?.iata ?? flight.destination.iata,
-  );
+  // Flight-date physical airports: names, coordinates and zones by history.
+  useAirportHistoryVersion();
+  const origin = originIdentity(flight);
+  const actualDestination = arrivalIdentity(flight);
+  const plannedDestination = plannedDestinationIdentity(flight);
   const airline = resolveAirline(flight.airline);
   const airlineNamePair = airline ? airlineNames(airline, locale) : null;
   const airlineName =
@@ -422,6 +494,8 @@ export function FlightDetailPage({
                 iata={flight.origin.iata}
                 city={airportCityLabel(flight.origin.iata, locale)}
                 airport={airportNameLabel(origin, flight.origin.iata, locale)}
+                history={airportHistory(origin, t)}
+                zone={origin.timezone}
                 terminal={flight.origin.terminal}
                 gate={flight.origin.gate}
                 times={times.departure}
@@ -456,6 +530,9 @@ export function FlightDetailPage({
                   flight.divertedTo?.iata ?? flight.destination.iata,
                   locale,
                 )}
+                history={airportHistory(actualDestination, t)}
+                zone={actualDestination.timezone}
+                plannedZone={plannedDestination.timezone}
                 terminal={arrivalEndpoint.terminal}
                 gate={arrivalEndpoint.gate}
                 baggageCarousel={baggage?.carousel}
@@ -476,7 +553,7 @@ export function FlightDetailPage({
                 plannedName={
                   flight.divertedTo
                     ? airportNameLabel(
-                        airportByIata.get(flight.destination.iata),
+                        plannedDestination,
                         flight.destination.iata,
                         locale,
                       )

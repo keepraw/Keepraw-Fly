@@ -83,13 +83,19 @@ describe("Passport highlight data", () => {
       { code: "PVG", count: 1 },
       { code: "SFO", count: 1 },
     ];
-    expect(calculatePassportHighlights(flights).mostVisitedAirports).toEqual(
-      expected,
-    );
+    const codes = (ranked: { code: string; count: number }[]) =>
+      ranked.map(({ code, count }) => ({ code, count }));
     expect(
-      calculatePassportHighlights([...flights].reverse()).mostVisitedAirports,
+      codes(calculatePassportHighlights(flights).mostVisitedAirports),
     ).toEqual(expected);
-    expect(calculatePassportHighlights([flight]).mostVisitedAirports).toEqual([
+    expect(
+      codes(
+        calculatePassportHighlights([...flights].reverse()).mostVisitedAirports,
+      ),
+    ).toEqual(expected);
+    expect(
+      codes(calculatePassportHighlights([flight]).mostVisitedAirports),
+    ).toEqual([
       { code: "HKG", count: 1 },
       { code: "TAO", count: 1 },
     ]);

@@ -151,9 +151,26 @@
     "invalidAirlineCode": "Enter a 2-character IATA or 3-letter ICAO airline code.",
     "invalidServiceNumber": "Enter 1 to 4 digits with an optional letter suffix.",
     "invalidBookingClass": "Enter a single letter for the booking class.",
-    "unknownAirport": "Choose a valid airport from the offline directory.",
+    "unknownAirport": "Enter a valid three-letter airport code.",
     "invalidFlight": "Please check the flight details and try again.",
-    "deleteConfirmation": "Delete this flight from your archive?"
+    "deleteConfirmation": "Delete this flight from your archive?",
+    "airportTimezoneRequired": "{{code}} cannot be placed at this date, so its local times need an explicit time zone or UTC offset.",
+    "airportTimezones": "Time zones for unidentified airports",
+    "airportTimezonesNote": "Keepraw Fly keeps the code but cannot determine this airport on the flight date. Enter an IANA time zone (for example Asia/Shanghai) or a UTC offset (+08:00). Nothing is assumed to be UTC.",
+    "airportTimezoneFor": "Time zone at {{code}}",
+    "airportTimezoneCandidates": "Historical candidates use different zones: {{zones}}. Choose the one that applies.",
+    "airportTimezoneHint": "IANA zone or UTC offset such as +08:00.",
+    "airportHistory": {
+      "uncertain": "{{code}}: this date falls inside an uncertain boundary of the reviewed history. The airport is not confirmed.",
+      "ambiguous": "{{code}}: more than one physical airport held this code on this date.",
+      "historical_candidate": "{{code}}: no reviewed assignment. Historical records list {{sites}} possible site(s); the airport is not confirmed.",
+      "unknown_code": "{{code}}: not found in the airport directory or the historical data. The flight keeps the code.",
+      "candidate_index_unavailable": "{{code}}: historical candidates are still loading.",
+      "historicalSite": "{{code}} on this date: {{name}} (historical site)",
+      "searchGroup": "Historical airports and codes",
+      "formalOption": "Reviewed historical airport",
+      "candidateOption": "Unconfirmed historical record"
+    }
   },
   "status": {
     "scheduled": "Scheduled",
@@ -225,7 +242,17 @@
       "scheduled": "Scheduled flight time"
     },
     "actual": "Actual",
-    "plannedArrival": "Planned arrival: {{airport}}"
+    "plannedArrival": "Planned arrival: {{airport}}",
+    "airportHistory": {
+      "historicalSite": "Historical airport for this date",
+      "openHorizon": "Same site as today; the reviewed history ends before this date",
+      "candidate": "Airport not confirmed for this date ({{sites}} possible historical sites)",
+      "uncertain": "Airport not confirmed: this date is inside an uncertain historical boundary",
+      "ambiguous": "Airport not confirmed: several airports held this code",
+      "pending": "Historical airport data is loading",
+      "unknown": "Airport not identified; the code is kept as recorded",
+      "rowUnresolved": "Airport not confirmed for this date: {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "Passport period",
@@ -319,7 +346,10 @@
     "countries_one": "Country",
     "countries_other": "Countries",
     "airports_one": "Airport",
-    "airports_other": "Airports"
+    "airports_other": "Airports",
+    "unresolvedHistoricalAirports": "Airports not confirmed at their flight dates: {{airports}} (not counted above)",
+    "mapPossibleAirports": "Possible historical airport locations (unconfirmed)",
+    "mapPossibleAirport": "{{airport}} · possible location: {{name}} (unconfirmed)"
   },
   "import": {
     "checking": "Checking flights…",
@@ -399,6 +429,13 @@
       "empty-file": "This file is empty.",
       "file-too-large": "This file is larger than {{limit}}. Split it or check that it is a Keepraw Fly export.",
       "too-many-records": "This file has more than {{records, number}} flights. Split it into smaller files."
+    },
+    "airportTimezones": {
+      "title": "Time zone needed: {{codes}}",
+      "note": "These airports cannot be placed on the flight date and the file gives local times without a UTC offset. Enter an IANA time zone or a UTC offset for each code, then check again. Nothing is converted until you do.",
+      "field": "Time zone at {{code}}",
+      "candidates": "Historical candidates use: {{zones}}",
+      "apply": "Check again with these time zones"
     }
   },
   "units": {
@@ -437,7 +474,7 @@
       "incomplete-mapping": "Map every required field before importing.",
       "invalid-flight-number": "The flight number is not in the canonical Keepraw Fly format. It was not changed automatically.",
       "invalid-date": "The service date must use YYYY-MM-DD.",
-      "unknown-airport": "The origin or destination is not an exact IATA code in the offline airport directory.",
+      "unknown-airport": "The origin or destination is not a valid three-letter airport code (metropolitan city codes are not airports).",
       "same-airport": "Origin and destination must be different airports.",
       "ambiguous-time": "This local time occurs twice because of daylight saving time. Add an explicit UTC offset.",
       "nonexistent-time": "This local time does not exist because of daylight saving time.",
@@ -445,7 +482,8 @@
       "invalid-timezone": "The airport timezone is invalid or unsupported.",
       "invalid-row": "The row contains invalid data. Check its remaining fields.",
       "date-mismatch": "The service date must match the scheduled departure date.",
-      "chronology": "Arrival must be later than departure for both scheduled and actual times."
+      "chronology": "Arrival must be later than departure for both scheduled and actual times.",
+      "airport-timezone-required": "This airport cannot be placed on the flight date and a time has no UTC offset. Add an offset or enter the airport's time zone below."
     },
     "fields": {
       "flightNumber": "Flight number",

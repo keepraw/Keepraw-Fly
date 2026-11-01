@@ -152,11 +152,28 @@
     "invalidAirlineCode": "Insira um código de companhia aérea IATA de 2 caracteres ou ICAO de 3 letras.",
     "invalidServiceNumber": "Insira de 1 a 4 dígitos com um sufixo de letra opcional.",
     "invalidBookingClass": "Insira uma única letra para a classe de reserva.",
-    "unknownAirport": "Escolha um aeroporto válido no diretório offline.",
+    "unknownAirport": "Informe um código de aeroporto válido de três letras.",
     "invalidFlight": "Verifique os detalhes do voo e tente novamente.",
     "deleteConfirmation": "Excluir este voo do seu arquivo?",
     "multiAirportCount_many": "{{count, number}} aeroportos",
-    "migratedArchive_many": "{{count, number}} detalhes do formato legado foram atualizados na memória. O arquivo importado será salvo como Keepraw Fly 0.1.0."
+    "migratedArchive_many": "{{count, number}} detalhes do formato legado foram atualizados na memória. O arquivo importado será salvo como Keepraw Fly 0.1.0.",
+    "airportTimezoneRequired": "Não é possível identificar o aeroporto {{code}} nesta data; informe um fuso horário ou deslocamento UTC para os horários locais.",
+    "airportTimezones": "Fusos horários de aeroportos não identificados",
+    "airportTimezonesNote": "O Keepraw Fly mantém o código, mas não consegue determinar o aeroporto na data do voo. Informe um fuso IANA (por exemplo America/Sao_Paulo) ou um deslocamento UTC (-03:00). UTC nunca é presumido.",
+    "airportTimezoneFor": "Fuso horário em {{code}}",
+    "airportTimezoneCandidates": "Os candidatos históricos usam fusos diferentes: {{zones}}. Escolha o correto.",
+    "airportTimezoneHint": "Fuso IANA ou deslocamento UTC como +08:00.",
+    "airportHistory": {
+      "uncertain": "{{code}}: esta data está em um limite incerto do histórico revisado. O aeroporto não está confirmado.",
+      "ambiguous": "{{code}}: vários aeroportos físicos usavam este código nesta data.",
+      "historical_candidate": "{{code}}: sem atribuição revisada. Os registros históricos indicam {{sites}} locais possíveis; o aeroporto não está confirmado.",
+      "unknown_code": "{{code}}: não consta no diretório nem nos dados históricos. O voo mantém o código.",
+      "candidate_index_unavailable": "{{code}}: carregando candidatos históricos.",
+      "historicalSite": "{{code}} nesta data: {{name}} (local histórico)",
+      "searchGroup": "Aeroportos e códigos históricos",
+      "formalOption": "Aeroporto histórico revisado",
+      "candidateOption": "Registro histórico não confirmado"
+    }
   },
   "status": {
     "scheduled": "Previsto",
@@ -228,7 +245,17 @@
       "scheduled": "Duração prevista do voo"
     },
     "actual": "Real",
-    "plannedArrival": "Chegada prevista: {{airport}}"
+    "plannedArrival": "Chegada prevista: {{airport}}",
+    "airportHistory": {
+      "historicalSite": "Aeroporto histórico desta data",
+      "openHorizon": "Mesmo local de hoje; o histórico revisado termina antes desta data",
+      "candidate": "Aeroporto não confirmado nesta data ({{sites}} locais históricos possíveis)",
+      "uncertain": "Aeroporto não confirmado: a data está em um limite histórico incerto",
+      "ambiguous": "Aeroporto não confirmado: vários aeroportos usavam este código",
+      "pending": "Carregando dados históricos de aeroportos",
+      "unknown": "Aeroporto não identificado; o código é mantido como registrado",
+      "rowUnresolved": "Aeroporto não confirmado nesta data: {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "Período exibido",
@@ -337,7 +364,10 @@
     "countries_many": "Países",
     "airports_one": "Aeroporto",
     "airports_other": "Aeroportos",
-    "airports_many": "Aeroportos"
+    "airports_many": "Aeroportos",
+    "unresolvedHistoricalAirports": "Aeroportos não confirmados na data do voo: {{airports}} (não contados acima)",
+    "mapPossibleAirports": "Possíveis locais históricos de aeroportos (não confirmados)",
+    "mapPossibleAirport": "{{airport}} · local possível: {{name}} (não confirmado)"
   },
   "import": {
     "checking": "Verificando voos…",
@@ -423,6 +453,13 @@
       "empty-file": "Este arquivo está vazio.",
       "file-too-large": "Este arquivo é maior que {{limit}}. Divida-o ou verifique se é uma exportação do Keepraw Fly.",
       "too-many-records": "Este arquivo tem mais de {{records, number}} voos. Divida-o em arquivos menores."
+    },
+    "airportTimezones": {
+      "title": "Fuso horário necessário: {{codes}}",
+      "note": "Estes aeroportos não podem ser identificados na data do voo e o arquivo traz horários locais sem deslocamento UTC. Informe um fuso IANA ou deslocamento UTC para cada código e verifique novamente. Nada é convertido até lá.",
+      "field": "Fuso horário em {{code}}",
+      "candidates": "Candidatos históricos: {{zones}}",
+      "apply": "Verificar novamente com estes fusos"
     }
   },
   "units": {
@@ -461,7 +498,7 @@
       "incomplete-mapping": "Mapeie todos os campos obrigatórios antes de importar.",
       "invalid-flight-number": "O número do voo não está no formato canônico Keepraw Fly. Não foi alterado automaticamente.",
       "invalid-date": "A data do voo deve usar o formato YYYY-MM-DD.",
-      "unknown-airport": "A origem ou destino não é um código IATA exato no diretório de aeroportos off-line.",
+      "unknown-airport": "A origem ou o destino não é um código de aeroporto válido de três letras (códigos de cidade não são aeroportos).",
       "same-airport": "A origem e o destino devem ser aeroportos diferentes.",
       "ambiguous-time": "Este horário local ocorre duas vezes devido ao horário de verão. Adicione um deslocamento UTC explícito.",
       "nonexistent-time": "Este horário local não existe devido ao horário de verão.",
@@ -469,7 +506,8 @@
       "invalid-timezone": "O fuso horário do aeroporto é inválido ou não é compatível.",
       "invalid-row": "A linha contém dados inválidos. Verifique os demais campos.",
       "date-mismatch": "A data do voo deve corresponder à data de partida prevista.",
-      "chronology": "A chegada deve ser posterior à partida, tanto nos horários programados quanto nos reais."
+      "chronology": "A chegada deve ser posterior à partida, tanto nos horários programados quanto nos reais.",
+      "airport-timezone-required": "Não é possível identificar este aeroporto na data do voo e um horário não tem deslocamento UTC. Adicione o deslocamento ou informe o fuso abaixo."
     },
     "fields": {
       "flightNumber": "Número do voo",

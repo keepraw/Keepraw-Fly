@@ -11,10 +11,21 @@
     "totalRecords": "Recognised",
     "issueMessages": {
       "cancelledDivertedConflict": "A cancelled flight cannot also have a diversion airport."
+    },
+    "airportTimezones": {
+      "title": "Time zone needed: {{codes}}",
+      "note": "These airports cannot be placed on the flight date and the file gives local times without a UTC offset. Enter an IANA time zone or a UTC offset for each code, then check again. Nothing is converted until you do.",
+      "field": "Time zone at {{code}}",
+      "candidates": "Historical candidates use: {{zones}}",
+      "apply": "Check again with these time zones"
     }
   },
   "csvImport": {
-    "sampleRecords": "Recognised records"
+    "sampleRecords": "Recognised records",
+    "issues": {
+      "airport-timezone-required": "This airport cannot be placed on the flight date and a time has no UTC offset. Add an offset or enter the airport's time zone below.",
+      "unknown-airport": "The origin or destination is not a valid three-letter airport code (metropolitan city codes are not airports)."
+    }
   },
   "flightyImport": {
     "invalidFile": "This is not a recognised Flighty CSV export.",
@@ -35,9 +46,42 @@
     "detailCancelled": "This flight was cancelled. No flown route to display."
   },
   "flightDetail": {
-    "frequentFlyerProgram": "Frequent flyer programme"
+    "frequentFlyerProgram": "Frequent flyer programme",
+    "airportHistory": {
+      "historicalSite": "Historical airport for this date",
+      "openHorizon": "Same site as today; the reviewed history ends before this date",
+      "candidate": "Airport not confirmed for this date ({{sites}} possible historical sites)",
+      "uncertain": "Airport not confirmed: this date is inside an uncertain historical boundary",
+      "ambiguous": "Airport not confirmed: several airports held this code",
+      "pending": "Historical airport data is loading",
+      "unknown": "Airport not identified; the code is kept as recorded",
+      "rowUnresolved": "Airport not confirmed for this date: {{airports}}"
+    }
   },
   "flightEditor": {
-    "flightNumberHint": "Enter an IATA flight number such as ZH9911; spaces and hyphens are normalised."
+    "flightNumberHint": "Enter an IATA flight number such as ZH9911; spaces and hyphens are normalised.",
+    "unknownAirport": "Enter a valid three-letter airport code.",
+    "airportTimezoneRequired": "{{code}} cannot be placed at this date, so its local times need an explicit time zone or UTC offset.",
+    "airportTimezones": "Time zones for unidentified airports",
+    "airportTimezonesNote": "Keepraw Fly keeps the code but cannot determine this airport on the flight date. Enter an IANA time zone (for example Asia/Shanghai) or a UTC offset (+08:00). Nothing is assumed to be UTC.",
+    "airportTimezoneFor": "Time zone at {{code}}",
+    "airportTimezoneCandidates": "Historical candidates use different zones: {{zones}}. Choose the one that applies.",
+    "airportTimezoneHint": "IANA zone or UTC offset such as +08:00.",
+    "airportHistory": {
+      "uncertain": "{{code}}: this date falls inside an uncertain boundary of the reviewed history. The airport is not confirmed.",
+      "ambiguous": "{{code}}: more than one physical airport held this code on this date.",
+      "historical_candidate": "{{code}}: no reviewed assignment. Historical records list {{sites}} possible site(s); the airport is not confirmed.",
+      "unknown_code": "{{code}}: not found in the airport directory or the historical data. The flight keeps the code.",
+      "candidate_index_unavailable": "{{code}}: historical candidates are still loading.",
+      "historicalSite": "{{code}} on this date: {{name}} (historical site)",
+      "searchGroup": "Historical airports and codes",
+      "formalOption": "Reviewed historical airport",
+      "candidateOption": "Unconfirmed historical record"
+    }
+  },
+  "passport": {
+    "unresolvedHistoricalAirports": "Airports not confirmed at their flight dates: {{airports}} (not counted above)",
+    "mapPossibleAirports": "Possible historical airport locations (unconfirmed)",
+    "mapPossibleAirport": "{{airport}} · possible location: {{name}} (unconfirmed)"
   }
 }

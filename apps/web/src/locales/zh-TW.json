@@ -148,9 +148,26 @@
     "invalidAirlineCode": "請輸入 2 位 IATA 或 3 位 ICAO 航司代碼。",
     "invalidServiceNumber": "請輸入 1 至 4 位數字及可選的字母后綴。",
     "invalidBookingClass": "艙位代碼應為一個字母。",
-    "unknownAirport": "請從離線機場目錄中選擇有效機場。",
+    "unknownAirport": "請輸入有效的三字母機場代碼。",
     "invalidFlight": "請檢查航班資訊後再試一次。",
-    "deleteConfirmation": "確定從檔案中刪除這段航班嗎？"
+    "deleteConfirmation": "確定從檔案中刪除這段航班嗎？",
+    "airportTimezoneRequired": "無法確定 {{code}} 在該日期對應的機場，請為其當地時間提供明確的時區或 UTC 偏移。",
+    "airportTimezones": "未識別機場的時區",
+    "airportTimezonesNote": "Keepraw Fly 會保留該代碼，但無法確定航班日期對應的機場。請輸入 IANA 時區（例如 Asia/Taipei）或 UTC 偏移（+08:00）。不會預設按 UTC 處理。",
+    "airportTimezoneFor": "{{code}} 的時區",
+    "airportTimezoneCandidates": "歷史候選位於不同時區：{{zones}}。請選擇實際適用的時區。",
+    "airportTimezoneHint": "IANA 時區或 UTC 偏移，例如 +08:00。",
+    "airportHistory": {
+      "uncertain": "{{code}}：該日期處於已審核歷史的不確定邊界內，機場尚未確定。",
+      "ambiguous": "{{code}}：該日期有多個實體機場使用此代碼。",
+      "historical_candidate": "{{code}}：沒有正式審核的分配。歷史資料列出 {{sites}} 個可能場址，機場尚未確定。",
+      "unknown_code": "{{code}}：機場目錄和歷史資料中均未找到。航班會保留此代碼。",
+      "candidate_index_unavailable": "{{code}}：歷史候選資料正在載入。",
+      "historicalSite": "{{code}} 在該日期為：{{name}}（歷史場址）",
+      "searchGroup": "歷史機場與代碼",
+      "formalOption": "已審核的歷史機場",
+      "candidateOption": "未確認的歷史記錄"
+    }
   },
   "status": {
     "scheduled": "預定",
@@ -222,7 +239,17 @@
       "scheduled": "預定飛行時間"
     },
     "actual": "實際",
-    "plannedArrival": "預定抵達：{{airport}}"
+    "plannedArrival": "預定抵達：{{airport}}",
+    "airportHistory": {
+      "historicalSite": "該日期對應的歷史機場",
+      "openHorizon": "與目前為同一場址；已審核歷史在此日期前結束",
+      "candidate": "該日期的機場尚未確認（{{sites}} 個可能的歷史場址）",
+      "uncertain": "機場尚未確認：該日期處於歷史不確定邊界內",
+      "ambiguous": "機場尚未確認：有多個機場使用此代碼",
+      "pending": "歷史機場資料正在載入",
+      "unknown": "機場未識別；依紀錄保留代碼",
+      "rowUnresolved": "該日期的機場尚未確認：{{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "飛行護照統計期間",
@@ -298,7 +325,10 @@
     "filterAirline": "篩選搭乘 {{airline}} 的航班",
     "filterRoute": "篩選{{context}}，{{origin}} 至 {{destination}} 的航班",
     "annualArrivalDelay": "年度抵達延誤",
-    "recentDelayYears": "最近三個有記錄的年份"
+    "recentDelayYears": "最近三個有記錄的年份",
+    "unresolvedHistoricalAirports": "航班日期機場尚未確認：{{airports}} 個（未計入上方統計）",
+    "mapPossibleAirports": "可能的歷史機場位置（未確認）",
+    "mapPossibleAirport": "{{airport}} · 可能位置：{{name}}（未確認）"
   },
   "import": {
     "checking": "正在檢查航班…",
@@ -372,6 +402,13 @@
       "empty-file": "此檔案是空的。",
       "file-too-large": "此檔案超過 {{limit}}。請分割檔案，或確認它是 Keepraw Fly 匯出的檔案。",
       "too-many-records": "此檔案包含超過 {{records, number}} 筆航班。請分割為較小的檔案。"
+    },
+    "airportTimezones": {
+      "title": "需要時區：{{codes}}",
+      "note": "無法確定這些機場在航班日期的身分，且檔案中的當地時間沒有 UTC 偏移。請為每個代碼輸入 IANA 時區或 UTC 偏移後重新檢查。在此之前不會轉換時間。",
+      "field": "{{code}} 的時區",
+      "candidates": "歷史候選時區：{{zones}}",
+      "apply": "使用這些時區重新檢查"
     }
   },
   "units": {
@@ -408,7 +445,7 @@
       "incomplete-mapping": "匯入前需要為每個必填字段選擇對應列。",
       "invalid-flight-number": "航班號不符合 Keepraw Fly 的規範格式，系統沒有自動修改它。",
       "invalid-date": "航班日期必須使用 YYYY-MM-DD。",
-      "unknown-airport": "出發或抵達機場不是離線機場目錄中的精確 IATA 代碼。",
+      "unknown-airport": "出發地或目的地不是有效的三字母機場代碼（城市代碼不是機場）。",
       "same-airport": "出發機場與抵達機場必須不同。",
       "ambiguous-time": "該當地時間因夏令時回撥而存在歧義，請輸入明確的 UTC 偏移。",
       "nonexistent-time": "該當地時間因夏令時跳躍而不存在。",
@@ -416,7 +453,8 @@
       "invalid-timezone": "機場時區無效或不受支援。",
       "invalid-row": "該列包含無效資料，請檢查其他欄位。",
       "date-mismatch": "航班日期必須與預定出發日期一致。",
-      "chronology": "預定和實際抵達時間都必須晚於對應的出發時間。"
+      "chronology": "預定和實際抵達時間都必須晚於對應的出發時間。",
+      "airport-timezone-required": "無法確定該機場在航班日期的身分，且時間沒有 UTC 偏移。請新增偏移或在下方填寫機場時區。"
     },
     "fields": {
       "flightNumber": "航班號",

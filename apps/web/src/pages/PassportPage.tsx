@@ -22,11 +22,13 @@ import {
   flightDuration,
   groupFlightsByYear,
   localizedText,
+  type FlightEndpointIdentity,
   type DistanceUnit,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
 import type { Appearance } from "../storage/types";
@@ -95,19 +97,24 @@ export function PassportPage({
     update();
     return () => media.removeEventListener("change", update);
   }, []);
+  // Physical identities change when candidate shards finish loading.
+  const historyVersion = useAirportHistoryVersion();
   const years = useMemo(
     () => calculateYearStatistics(document.flights),
-    [document.flights],
+    [document.flights, historyVersion],
   );
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
     [document.flights, selectedYear, query, selection],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
-  const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
+  const stats = useMemo(
+    () => calculatePassportStatistics(flights),
+    [flights, historyVersion],
+  );
   const highlights = useMemo(
     () => calculatePassportHighlights(flights),
-    [flights],
+    [flights, historyVersion],
   );
   const delayYears = highlights.annualArrivalDelays.slice(-3);
   const maximumDelay = Math.max(
@@ -135,7 +142,10 @@ export function PassportPage({
       passportVisibleFlights(document.flights, { ...view, selection: null }),
     [document.flights, selectedYear, query],
   );
-  const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
+  const routes = useMemo(
+    () => buildRouteSegments(mapFlights),
+    [mapFlights, historyVersion],
+  );
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
   );
@@ -188,6 +198,15 @@ export function PassportPage({
   function cityName(code: string): string {
     const airport = airportByIata.get(code);
     return airport ? localizedText(airport.city, locale) : code;
+  }
+
+  /** Flight-date physical airport label: a historical site keeps its own name. */
+  function identityLabel(identity: FlightEndpointIdentity): string {
+    if (identity.differsFromCurrentDirectory && identity.name)
+      return localizedText(identity.name, locale);
+    if (identity.city) return localizedText(identity.city, locale);
+    if (identity.name) return localizedText(identity.name, locale);
+    return identity.iata;
   }
 
   function isSelected(target: PassportSelection): boolean {
@@ -568,6 +587,16 @@ export function PassportPage({
                     })
                   )}
                 </p>
+                {stats.unresolvedAirports ? (
+                  <p
+                    className="passport-network-line passport-history-coverage"
+                    data-unresolved-airports={stats.unresolvedAirports}
+                  >
+                    {t("passport.unresolvedHistoricalAirports", {
+                      airports: stats.unresolvedAirports.toLocaleString(locale),
+                    })}
+                  </p>
+                ) : null}
               </>
             )}
 
@@ -685,10 +714,9 @@ export function PassportPage({
                     <p>
                       <span>{t("passport.mostVisitedAirport")}</span>
                       <strong>
-                        {airportByIata.get(stats.mostVisitedAirport.code)
+                        {stats.mostVisitedAirport.identity.name
                           ? localizedText(
-                              airportByIata.get(stats.mostVisitedAirport.code)!
-                                .name,
+                              stats.mostVisitedAirport.identity.name,
                               locale,
                             )
                           : stats.mostVisitedAirport.code}
@@ -781,14 +809,14 @@ export function PassportPage({
                     {highlights.mostVisitedAirports.length ? (
                       <ol>
                         {highlights.mostVisitedAirports.map(
-                          ({ code, count }) => {
-                            const name = cityName(code);
+                          ({ code, count, identity, identityKey }) => {
+                            const name = identityLabel(identity);
                             const target: PassportSelection = {
                               kind: "airport",
                               code,
                             };
                             return (
-                              <li key={code}>
+                              <li key={identityKey}>
                                 <button
                                   type="button"
                                   className="passport-highlight passport-spotlight-item passport-airport-rank"

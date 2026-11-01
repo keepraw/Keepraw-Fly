@@ -12,9 +12,12 @@ import {
   type SupportedLocale,
 } from "@keepraw-fly/core";
 import { AirportCombobox } from "./AirportCombobox";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import {
+  AirportTimezoneRequiredError,
   createDefaultDraft,
+  endpointZone,
   flightFromDraft,
   flightToDraft,
   normalizeFlightNumberInput,
@@ -103,6 +106,45 @@ export function FlightEditor({
   const airlineNamePair = selectedAirline
     ? airlineNames(selectedAirline, locale)
     : null;
+  // Endpoints whose flight-date airport (and zone) cannot be determined need
+  // an explicit zone or UTC offset; Keepraw never assumes UTC.
+  useAirportHistoryVersion();
+  const zoneNeeds = (
+    [
+      [
+        "origin",
+        draft.originIata,
+        draft.serviceDate,
+        draft.originTimezone,
+        "originTimezone",
+      ],
+      [
+        "destination",
+        draft.destinationIata,
+        draft.arrivalDate,
+        draft.destinationTimezone,
+        "destinationTimezone",
+      ],
+      ...(draft.divertedToIata
+        ? [
+            [
+              "divertedTo",
+              draft.divertedToIata,
+              draft.actualArrivalDate || draft.arrivalDate,
+              draft.divertedTimezone,
+              "divertedTimezone",
+            ] as const,
+          ]
+        : []),
+    ] as const
+  ).flatMap(([role, iata, date, chosen, field]) => {
+    if (!/^[A-Z]{3}$/.test(iata)) return [];
+    const known = endpointZone(iata, date, role, undefined);
+    if (known.zone) return [];
+    return [
+      { role, iata, chosen: chosen ?? "", field, options: known.options },
+    ];
+  });
   const matchingMemberships = identity
     ? membershipsForAirline(memberships, identity.airline)
     : [];
@@ -183,21 +225,23 @@ export function FlightEditor({
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "";
       setError(
-        message === "arrival-before-departure"
-          ? t("flightEditor.arrivalBeforeDeparture")
-          : message === "actual-arrival-before-departure"
-            ? t("flightEditor.actualArrivalBeforeDeparture")
-            : message === "incomplete-actual-time"
-              ? t("flightEditor.incompleteActualTime")
-              : message === "cancelled-diverted-conflict"
-                ? t("flightEditor.invalidFlight")
-                : message === "invalid-flight-number"
-                  ? t("flightEditor.invalidFlightNumber")
-                  : message === "invalid-booking-class"
-                    ? t("flightEditor.invalidBookingClass")
-                    : message === "unknown-airport"
-                      ? t("flightEditor.unknownAirport")
-                      : t("flightEditor.invalidFlight"),
+        caught instanceof AirportTimezoneRequiredError
+          ? t("flightEditor.airportTimezoneRequired", { code: caught.iata })
+          : message === "arrival-before-departure"
+            ? t("flightEditor.arrivalBeforeDeparture")
+            : message === "actual-arrival-before-departure"
+              ? t("flightEditor.actualArrivalBeforeDeparture")
+              : message === "incomplete-actual-time"
+                ? t("flightEditor.incompleteActualTime")
+                : message === "cancelled-diverted-conflict"
+                  ? t("flightEditor.invalidFlight")
+                  : message === "invalid-flight-number"
+                    ? t("flightEditor.invalidFlightNumber")
+                    : message === "invalid-booking-class"
+                      ? t("flightEditor.invalidBookingClass")
+                      : message === "unknown-airport"
+                        ? t("flightEditor.unknownAirport")
+                        : t("flightEditor.invalidFlight"),
       );
       setBusy(false);
     }
@@ -281,6 +325,8 @@ export function FlightEditor({
               value={draft.originIata}
               onChange={(iata) => update("originIata", iata)}
               preferredCodes={preferredAirportCodes}
+              date={draft.serviceDate}
+              role="origin"
             />
             <AirportCombobox
               label={t("flightEditor.destination")}
@@ -288,6 +334,8 @@ export function FlightEditor({
               value={draft.destinationIata}
               onChange={(iata) => update("destinationIata", iata)}
               preferredCodes={preferredAirportCodes}
+              date={draft.arrivalDate}
+              role="destination"
             />
             <label>
               <span>{t("status.cancelled")}</span>
@@ -304,6 +352,8 @@ export function FlightEditor({
               onChange={(iata) => update("divertedToIata", iata)}
               required={false}
               preferredCodes={preferredAirportCodes}
+              date={draft.actualArrivalDate || draft.arrivalDate}
+              role="arrival"
             />
           </div>
 
@@ -349,6 +399,43 @@ export function FlightEditor({
             </label>
           </fieldset>
           <p className="editor-time-note">{t("flightEditor.localTimeNote")}</p>
+          {zoneNeeds.length ? (
+            <fieldset className="editor-facts-grid editor-airport-zones">
+              <legend>{t("flightEditor.airportTimezones")}</legend>
+              <p className="editor-time-note">
+                {t("flightEditor.airportTimezonesNote")}
+              </p>
+              {zoneNeeds.map((need) => (
+                <label key={need.role}>
+                  <span>
+                    {t("flightEditor.airportTimezoneFor", { code: need.iata })}
+                  </span>
+                  <input
+                    value={need.chosen}
+                    list={`${errorId}-${need.role}-zones`}
+                    placeholder="+08:00"
+                    spellCheck={false}
+                    autoComplete="off"
+                    onChange={(event) =>
+                      update(need.field, event.target.value.trim())
+                    }
+                  />
+                  <datalist id={`${errorId}-${need.role}-zones`}>
+                    {need.options.map((zone) => (
+                      <option value={zone} key={zone} />
+                    ))}
+                  </datalist>
+                  <small className="editor-field-hint">
+                    {need.options.length > 1
+                      ? t("flightEditor.airportTimezoneCandidates", {
+                          zones: need.options.join(", "),
+                        })
+                      : t("flightEditor.airportTimezoneHint")}
+                  </small>
+                </label>
+              ))}
+            </fieldset>
+          ) : null}
 
           <fieldset className="editor-facts-grid editor-travel-grid">
             <legend>{t("flightEditor.ticketAndLoyalty")}</legend>

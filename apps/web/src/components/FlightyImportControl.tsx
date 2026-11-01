@@ -13,6 +13,12 @@ import {
   preflightFlightyImportWork,
 } from "../data/flighty-import";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
+import {
+  ImportAirportTimezones,
+  pendingTimezoneCodes,
+  useImportAirportHistory,
+} from "./ImportAirportTimezones";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { useImportPreflight } from "./useImportPreflight";
 
 interface FlightyImportControlProps {
@@ -38,12 +44,20 @@ export function FlightyImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
+  const [timezoneOverrides, setTimezoneOverrides] = useState<
+    Record<string, string>
+  >({});
+  const historyVersion = useAirportHistoryVersion();
+  useImportAirportHistory(pending?.parsed.rows ?? null);
   const work = useMemo(
     () =>
       pending
-        ? () => preflightFlightyImportWork(pending.parsed, document)
+        ? () =>
+            preflightFlightyImportWork(pending.parsed, document, undefined, {
+              timezoneOverrides,
+            })
         : null,
-    [document, pending],
+    [document, pending, timezoneOverrides, historyVersion],
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 
@@ -144,6 +158,13 @@ export function FlightyImportControl({
               preflight={preflight}
               includePossibleDuplicates={includePossibleDuplicates}
               onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
+            />
+          ) : null}
+          {preflight ? (
+            <ImportAirportTimezones
+              codes={pendingTimezoneCodes(preflight.issues)}
+              value={timezoneOverrides}
+              onApply={setTimezoneOverrides}
             />
           ) : null}
           {preflight?.warnings.length ? (

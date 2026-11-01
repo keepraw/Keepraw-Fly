@@ -148,9 +148,26 @@
     "invalidAirlineCode": "2 文字の IATA または 3 文字の ICAO 航空会社コードを入力してください。",
     "invalidServiceNumber": "1～4 桁の数字を入力してください。末尾に英字を 1 文字追加できます。",
     "invalidBookingClass": "予約クラスを英字 1 文字で入力してください。",
-    "unknownAirport": "オフライン ディレクトリから有効な空港を選択してください。",
+    "unknownAirport": "有効な 3 文字の空港コードを入力してください。",
     "invalidFlight": "フライトの詳細を確認して、もう一度お試しください。",
-    "deleteConfirmation": "このフライトをアーカイブから削除しますか?"
+    "deleteConfirmation": "このフライトをアーカイブから削除しますか?",
+    "airportTimezoneRequired": "{{code}} はこの日付の空港を特定できません。現地時刻にタイムゾーンまたは UTC オフセットを指定してください。",
+    "airportTimezones": "特定できない空港のタイムゾーン",
+    "airportTimezonesNote": "Keepraw Fly はコードを保持しますが、運航日の空港を特定できません。IANA タイムゾーン（例: Asia/Tokyo）または UTC オフセット（+09:00）を入力してください。UTC とみなすことはありません。",
+    "airportTimezoneFor": "{{code}} のタイムゾーン",
+    "airportTimezoneCandidates": "歴史的候補は異なるタイムゾーンです: {{zones}}。該当するものを選択してください。",
+    "airportTimezoneHint": "IANA タイムゾーンまたは +08:00 のような UTC オフセット。",
+    "airportHistory": {
+      "uncertain": "{{code}}: この日付は審査済み履歴の不確定な境界内にあり、空港は確定していません。",
+      "ambiguous": "{{code}}: この日付には複数の物理空港がこのコードを使用していました。",
+      "historical_candidate": "{{code}}: 審査済みの割り当てはありません。歴史記録には {{sites}} か所の候補地があり、空港は確定していません。",
+      "unknown_code": "{{code}}: 空港ディレクトリにも履歴データにもありません。フライトはコードを保持します。",
+      "candidate_index_unavailable": "{{code}}: 歴史的候補を読み込み中です。",
+      "historicalSite": "この日付の {{code}}: {{name}}（歴史的所在地）",
+      "searchGroup": "歴史的な空港とコード",
+      "formalOption": "審査済みの歴史的空港",
+      "candidateOption": "未確認の歴史記録"
+    }
   },
   "status": {
     "scheduled": "予定",
@@ -222,7 +239,17 @@
       "scheduled": "予定飛行時間"
     },
     "actual": "実績",
-    "plannedArrival": "予定到着地：{{airport}}"
+    "plannedArrival": "予定到着地：{{airport}}",
+    "airportHistory": {
+      "historicalSite": "この日付の歴史的空港",
+      "openHorizon": "現在と同じ所在地。審査済み履歴はこの日付より前で終わっています",
+      "candidate": "この日付の空港は未確定（候補地 {{sites}} か所）",
+      "uncertain": "空港未確定: 日付が歴史の不確定な境界内にあります",
+      "ambiguous": "空港未確定: 複数の空港がこのコードを使用していました",
+      "pending": "歴史的空港データを読み込み中",
+      "unknown": "空港を特定できません。記録どおりコードを保持します",
+      "rowUnresolved": "この日付の空港は未確定: {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "表示期間",
@@ -298,7 +325,10 @@
     "filterAirline": "{{airline}} を利用したフライトを表示",
     "filterRoute": "{{context}}：{{origin}} から {{destination}} へのフライトを表示",
     "annualArrivalDelay": "年ごとの到着遅延",
-    "recentDelayYears": "記録のある直近 3 年"
+    "recentDelayYears": "記録のある直近 3 年",
+    "unresolvedHistoricalAirports": "運航日に確定できない空港: {{airports}}（上の集計に含みません）",
+    "mapPossibleAirports": "歴史的空港の候補位置（未確認）",
+    "mapPossibleAirport": "{{airport}} · 候補位置: {{name}}（未確認）"
   },
   "import": {
     "checking": "フライトを確認中…",
@@ -372,6 +402,13 @@
       "empty-file": "このファイルは空です。",
       "file-too-large": "このファイルは {{limit}} を超えています。分割するか、Keepraw Fly のエクスポートか確認してください。",
       "too-many-records": "このファイルには {{records, number}} 件を超えるフライトがあります。小さなファイルに分割してください。"
+    },
+    "airportTimezones": {
+      "title": "タイムゾーンが必要です: {{codes}}",
+      "note": "これらの空港は運航日に特定できず、ファイルの現地時刻に UTC オフセットがありません。コードごとに IANA タイムゾーンまたは UTC オフセットを入力し、再確認してください。それまで変換は行いません。",
+      "field": "{{code}} のタイムゾーン",
+      "candidates": "歴史的候補: {{zones}}",
+      "apply": "このタイムゾーンで再確認"
     }
   },
   "units": {
@@ -408,7 +445,7 @@
       "incomplete-mapping": "インポートする前に、すべての必須項目を列に対応付けてください。",
       "invalid-flight-number": "フライト番号は正規の Keepraw Fly 形式ではありません。自動的には変更されませんでした。",
       "invalid-date": "運航日は YYYY-MM-DD 形式で入力してください。",
-      "unknown-airport": "出発地または目的地は、オフライン空港ディレクトリ内の正確な IATA コードではありません。",
+      "unknown-airport": "出発地または到着地が有効な 3 文字の空港コードではありません（都市コードは空港ではありません）。",
       "same-airport": "出発地と目的地は異なる空港である必要があります。",
       "ambiguous-time": "夏時間の切り替えにより、この現地時刻は 2 回存在します。UTC オフセットを明示してください。",
       "nonexistent-time": "夏時間のため、この現地時間は存在しません。",
@@ -416,7 +453,8 @@
       "invalid-timezone": "空港のタイムゾーンが無効か、サポートされていません。",
       "invalid-row": "この行に無効なデータがあります。他の項目を確認してください。",
       "date-mismatch": "運航日は出発予定日と一致する必要があります。",
-      "chronology": "予定時刻と実際の時刻のいずれも、到着は出発より後である必要があります。"
+      "chronology": "予定時刻と実際の時刻のいずれも、到着は出発より後である必要があります。",
+      "airport-timezone-required": "運航日の空港を特定できず、時刻に UTC オフセットがありません。オフセットを追加するか、下で空港のタイムゾーンを入力してください。"
     },
     "fields": {
       "flightNumber": "便名",

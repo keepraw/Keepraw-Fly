@@ -148,9 +148,26 @@
     "invalidAirlineCode": "2자리 IATA 또는 3자리 ICAO 항공사 코드를 입력하세요.",
     "invalidServiceNumber": "숫자 1~4자리를 입력하세요. 끝에 영문자 1개를 추가할 수 있습니다.",
     "invalidBookingClass": "예약 클래스에 대해 단일 문자를 입력하십시오.",
-    "unknownAirport": "오프라인 디렉토리에서 유효한 공항을 선택하세요.",
+    "unknownAirport": "유효한 세 글자 공항 코드를 입력하세요.",
     "invalidFlight": "항공편 정보를 확인하신 후 다시 시도해 주세요.",
-    "deleteConfirmation": "보관함에서 이 항공편을 삭제하시겠습니까?"
+    "deleteConfirmation": "보관함에서 이 항공편을 삭제하시겠습니까?",
+    "airportTimezoneRequired": "{{code}}의 이 날짜 공항을 확인할 수 없습니다. 현지 시간에 시간대 또는 UTC 오프셋을 지정하세요.",
+    "airportTimezones": "확인되지 않은 공항의 시간대",
+    "airportTimezonesNote": "Keepraw Fly는 코드를 유지하지만 운항일의 공항을 확인할 수 없습니다. IANA 시간대(예: Asia/Seoul) 또는 UTC 오프셋(+09:00)을 입력하세요. UTC로 가정하지 않습니다.",
+    "airportTimezoneFor": "{{code}} 시간대",
+    "airportTimezoneCandidates": "역사적 후보의 시간대가 서로 다릅니다: {{zones}}. 해당하는 시간대를 선택하세요.",
+    "airportTimezoneHint": "IANA 시간대 또는 +08:00 같은 UTC 오프셋.",
+    "airportHistory": {
+      "uncertain": "{{code}}: 이 날짜는 검토된 이력의 불확실한 경계에 있어 공항이 확정되지 않았습니다.",
+      "ambiguous": "{{code}}: 이 날짜에 여러 실제 공항이 이 코드를 사용했습니다.",
+      "historical_candidate": "{{code}}: 검토된 배정이 없습니다. 역사 기록에 가능한 위치 {{sites}}곳이 있으며 공항은 확정되지 않았습니다.",
+      "unknown_code": "{{code}}: 공항 디렉터리와 역사 데이터에 모두 없습니다. 항공편은 코드를 유지합니다.",
+      "candidate_index_unavailable": "{{code}}: 역사적 후보를 불러오는 중입니다.",
+      "historicalSite": "이 날짜의 {{code}}: {{name}}(역사적 위치)",
+      "searchGroup": "역사적 공항 및 코드",
+      "formalOption": "검토된 역사적 공항",
+      "candidateOption": "확인되지 않은 역사 기록"
+    }
   },
   "status": {
     "scheduled": "예정",
@@ -222,7 +239,17 @@
       "scheduled": "예정 비행시간"
     },
     "actual": "실제",
-    "plannedArrival": "예정 도착지: {{airport}}"
+    "plannedArrival": "예정 도착지: {{airport}}",
+    "airportHistory": {
+      "historicalSite": "이 날짜의 역사적 공항",
+      "openHorizon": "현재와 같은 위치이며 검토된 이력은 이 날짜 이전에 끝납니다",
+      "candidate": "이 날짜의 공항 미확정(가능한 역사적 위치 {{sites}}곳)",
+      "uncertain": "공항 미확정: 날짜가 불확실한 역사적 경계에 있습니다",
+      "ambiguous": "공항 미확정: 여러 공항이 이 코드를 사용했습니다",
+      "pending": "역사적 공항 데이터를 불러오는 중",
+      "unknown": "공항을 확인할 수 없어 기록된 코드를 유지합니다",
+      "rowUnresolved": "이 날짜의 공항 미확정: {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "표시 기간",
@@ -298,7 +325,10 @@
     "filterAirline": "{{airline}} 이용 항공편 필터링",
     "filterRoute": "{{context}}: {{origin}} → {{destination}} 항공편 필터링",
     "annualArrivalDelay": "연도별 도착 지연",
-    "recentDelayYears": "최근 3년 기록"
+    "recentDelayYears": "최근 3년 기록",
+    "unresolvedHistoricalAirports": "운항일 기준 확정되지 않은 공항: {{airports}}(위 집계에서 제외)",
+    "mapPossibleAirports": "가능한 역사적 공항 위치(미확인)",
+    "mapPossibleAirport": "{{airport}} · 가능한 위치: {{name}}(미확인)"
   },
   "import": {
     "checking": "항공편 확인 중…",
@@ -372,6 +402,13 @@
       "empty-file": "파일이 비어 있습니다.",
       "file-too-large": "파일이 {{limit}}보다 큽니다. 파일을 나누거나 Keepraw Fly에서 내보낸 파일인지 확인하세요.",
       "too-many-records": "파일에 {{records, number}}개가 넘는 항공편이 있습니다. 더 작은 파일로 나누세요."
+    },
+    "airportTimezones": {
+      "title": "시간대 필요: {{codes}}",
+      "note": "이 공항들은 운항일에 확인할 수 없고 파일의 현지 시간에 UTC 오프셋이 없습니다. 코드마다 IANA 시간대 또는 UTC 오프셋을 입력한 뒤 다시 확인하세요. 그 전에는 변환하지 않습니다.",
+      "field": "{{code}} 시간대",
+      "candidates": "역사적 후보: {{zones}}",
+      "apply": "이 시간대로 다시 확인"
     }
   },
   "units": {
@@ -408,7 +445,7 @@
       "incomplete-mapping": "가져오기 전에 모든 필수 필드를 매핑하십시오.",
       "invalid-flight-number": "항공편 번호가 표준 Keepraw Fly 형식이 아닙니다. 자동으로 변경되지 않았습니다.",
       "invalid-date": "운항일은 YYYY-MM-DD 형식이어야 합니다.",
-      "unknown-airport": "출발지 또는 목적지가 오프라인 공항 디렉토리의 정확한 IATA 코드가 아닙니다.",
+      "unknown-airport": "출발지 또는 도착지가 유효한 세 글자 공항 코드가 아닙니다(도시 코드는 공항이 아닙니다).",
       "same-airport": "출발지와 목적지는 서로 다른 공항이어야 합니다.",
       "ambiguous-time": "서머타임 전환으로 이 현지 시각이 두 번 존재합니다. UTC 오프셋을 명시하세요.",
       "nonexistent-time": "서머타임 전환으로 존재하지 않는 현지 시각입니다.",
@@ -416,7 +453,8 @@
       "invalid-timezone": "공항 시간대가 유효하지 않거나 지원되지 않습니다.",
       "invalid-row": "이 행에 유효하지 않은 데이터가 있습니다. 나머지 항목을 확인하세요.",
       "date-mismatch": "운항일은 예정 출발일과 일치해야 합니다.",
-      "chronology": "예정 시각과 실제 시각 모두 도착이 출발보다 늦어야 합니다."
+      "chronology": "예정 시각과 실제 시각 모두 도착이 출발보다 늦어야 합니다.",
+      "airport-timezone-required": "운항일의 공항을 확인할 수 없고 시간에 UTC 오프셋이 없습니다. 오프셋을 추가하거나 아래에 공항 시간대를 입력하세요."
     },
     "fields": {
       "flightNumber": "항공편 번호",

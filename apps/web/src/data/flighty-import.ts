@@ -8,6 +8,7 @@ import {
   preflightCsvImport,
   preflightCsvImportWork,
   type CsvImportIssueCode,
+  type ImportAirportOptions,
   type ParsedCsv,
 } from "./csv-import";
 import type { FlightImportAssessment } from "./duplicate-detection";
@@ -115,9 +116,10 @@ export function preflightFlightyImport(
   parsed: ParsedCsv,
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
+  options: ImportAirportOptions = {},
 ): FlightyImportPreflight {
   return finishImportPreflight(
-    preflightFlightyImportWork(parsed, existing, idFactory),
+    preflightFlightyImportWork(parsed, existing, idFactory, options),
   );
 }
 
@@ -125,6 +127,7 @@ export function* preflightFlightyImportWork(
   parsed: ParsedCsv,
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
+  options: ImportAirportOptions = {},
 ): Generator<void, FlightyImportPreflight, void> {
   const headerIndexes = flightyHeaderIndexes(parsed.headers);
   const issues: FlightyDiagnostic[] = [];
@@ -163,12 +166,14 @@ export function* preflightFlightyImportWork(
         detectCsvMapping(mapped.headers),
         existing,
         idFactory,
+        options,
       )
     : emptyCsvPreflight();
   for (const issue of csvPreflight.issues) {
     issues.push({
       severity: "error",
       code: issue.code,
+      ...(issue.airportCode ? { value: issue.airportCode } : {}),
       lineNumber: issue.lineNumber
         ? sourceLines[issue.lineNumber - 2]
         : undefined,

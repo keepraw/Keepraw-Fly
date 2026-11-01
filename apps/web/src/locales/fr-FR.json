@@ -152,11 +152,28 @@
     "invalidAirlineCode": "Saisissez un code de compagnie aérienne à 2 caractères IATA ou ICAO à 3 lettres.",
     "invalidServiceNumber": "Saisissez 1 à 4 chiffres avec un suffixe de lettre facultatif.",
     "invalidBookingClass": "Saisissez une seule lettre pour la classe de réservation.",
-    "unknownAirport": "Choisissez un aéroport valide dans le répertoire hors ligne.",
+    "unknownAirport": "Saisissez un code d’aéroport valide à trois lettres.",
     "invalidFlight": "Veuillez vérifier les détails du vol et réessayer.",
     "deleteConfirmation": "Supprimer ce vol de vos archives ?",
     "multiAirportCount_many": "{{count, number}} aéroports",
-    "migratedArchive_many": "{{count, number}} Les détails du format hérité ont été mis à jour en mémoire. L'archive importée sera enregistrée sous le nom Keepraw Fly 0.1.0."
+    "migratedArchive_many": "{{count, number}} Les détails du format hérité ont été mis à jour en mémoire. L'archive importée sera enregistrée sous le nom Keepraw Fly 0.1.0.",
+    "airportTimezoneRequired": "Impossible d’identifier l’aéroport {{code}} à cette date ; indiquez un fuseau horaire ou un décalage UTC pour ses heures locales.",
+    "airportTimezones": "Fuseaux horaires des aéroports non identifiés",
+    "airportTimezonesNote": "Keepraw Fly conserve le code mais ne peut pas déterminer l’aéroport à la date du vol. Saisissez un fuseau IANA (par exemple Europe/Paris) ou un décalage UTC (+01:00). UTC n’est jamais supposé.",
+    "airportTimezoneFor": "Fuseau horaire à {{code}}",
+    "airportTimezoneCandidates": "Les candidats historiques utilisent des fuseaux différents : {{zones}}. Choisissez celui qui s’applique.",
+    "airportTimezoneHint": "Fuseau IANA ou décalage UTC comme +08:00.",
+    "airportHistory": {
+      "uncertain": "{{code}} : cette date se situe dans une limite incertaine de l’historique vérifié. L’aéroport n’est pas confirmé.",
+      "ambiguous": "{{code}} : plusieurs aéroports physiques utilisaient ce code à cette date.",
+      "historical_candidate": "{{code}} : aucune attribution vérifiée. Les archives indiquent {{sites}} sites possibles ; l’aéroport n’est pas confirmé.",
+      "unknown_code": "{{code}} : absent du répertoire et des données historiques. Le vol conserve le code.",
+      "candidate_index_unavailable": "{{code}} : chargement des candidats historiques.",
+      "historicalSite": "{{code}} à cette date : {{name}} (site historique)",
+      "searchGroup": "Aéroports et codes historiques",
+      "formalOption": "Aéroport historique vérifié",
+      "candidateOption": "Enregistrement historique non confirmé"
+    }
   },
   "status": {
     "scheduled": "Prévu",
@@ -228,7 +245,17 @@
       "scheduled": "Durée prévue du vol"
     },
     "actual": "Réel",
-    "plannedArrival": "Arrivée prévue : {{airport}}"
+    "plannedArrival": "Arrivée prévue : {{airport}}",
+    "airportHistory": {
+      "historicalSite": "Aéroport historique pour cette date",
+      "openHorizon": "Même site qu’aujourd’hui ; l’historique vérifié s’arrête avant cette date",
+      "candidate": "Aéroport non confirmé pour cette date ({{sites}} sites historiques possibles)",
+      "uncertain": "Aéroport non confirmé : la date est dans une limite historique incertaine",
+      "ambiguous": "Aéroport non confirmé : plusieurs aéroports utilisaient ce code",
+      "pending": "Chargement des données historiques des aéroports",
+      "unknown": "Aéroport non identifié ; le code est conservé tel qu’enregistré",
+      "rowUnresolved": "Aéroport non confirmé pour cette date : {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "Période affichée",
@@ -337,7 +364,10 @@
     "countries_many": "Pays",
     "airports_one": "Aéroport",
     "airports_other": "Aéroports",
-    "airports_many": "Aéroports"
+    "airports_many": "Aéroports",
+    "unresolvedHistoricalAirports": "Aéroports non confirmés à la date du vol : {{airports}} (non comptés ci-dessus)",
+    "mapPossibleAirports": "Emplacements historiques possibles (non confirmés)",
+    "mapPossibleAirport": "{{airport}} · emplacement possible : {{name}} (non confirmé)"
   },
   "import": {
     "checking": "Vérification des vols…",
@@ -423,6 +453,13 @@
       "empty-file": "Ce fichier est vide.",
       "file-too-large": "Ce fichier dépasse {{limit}}. Divisez-le ou vérifiez qu’il s’agit d’un export Keepraw Fly.",
       "too-many-records": "Ce fichier contient plus de {{records, number}} vols. Divisez-le en fichiers plus petits."
+    },
+    "airportTimezones": {
+      "title": "Fuseau horaire requis : {{codes}}",
+      "note": "Ces aéroports ne peuvent pas être identifiés à la date du vol et le fichier donne des heures locales sans décalage UTC. Saisissez un fuseau IANA ou un décalage UTC pour chaque code, puis vérifiez à nouveau. Rien n’est converti d’ici là.",
+      "field": "Fuseau horaire à {{code}}",
+      "candidates": "Candidats historiques : {{zones}}",
+      "apply": "Vérifier à nouveau avec ces fuseaux"
     }
   },
   "units": {
@@ -461,7 +498,7 @@
       "incomplete-mapping": "Mappez tous les champs obligatoires avant l'importation.",
       "invalid-flight-number": "Le numéro de vol n'est pas au format canonique Keepraw Fly. Cela n’a pas été modifié automatiquement.",
       "invalid-date": "La date du vol doit utiliser le format YYYY-MM-DD.",
-      "unknown-airport": "L'origine ou la destination ne correspond pas à un code IATA exact dans l'annuaire hors ligne de l'aéroport.",
+      "unknown-airport": "L’origine ou la destination n’est pas un code d’aéroport valide à trois lettres (les codes de ville ne sont pas des aéroports).",
       "same-airport": "L'origine et la destination doivent être des aéroports différents.",
       "ambiguous-time": "Cette heure locale apparaît deux fois en raison de l'heure d'été. Ajoutez un décalage UTC explicite.",
       "nonexistent-time": "Cette heure locale n'existe pas en raison de l'heure d'été.",
@@ -469,7 +506,8 @@
       "invalid-timezone": "Le fuseau horaire de l’aéroport est invalide ou non pris en charge.",
       "invalid-row": "La ligne contient des données invalides. Vérifiez les autres champs.",
       "date-mismatch": "La date du vol doit correspondre à la date de départ prévue.",
-      "chronology": "L’arrivée doit être postérieure au départ, pour les horaires prévus comme pour les horaires réels."
+      "chronology": "L’arrivée doit être postérieure au départ, pour les horaires prévus comme pour les horaires réels.",
+      "airport-timezone-required": "Cet aéroport ne peut pas être identifié à la date du vol et une heure n’a pas de décalage UTC. Ajoutez le décalage ou saisissez le fuseau ci-dessous."
     },
     "fields": {
       "flightNumber": "Numéro de vol",

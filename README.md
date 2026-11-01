@@ -79,6 +79,8 @@ Follow the [quality gates and contribution rules](docs/engineering-standards.md#
 
 ## Data format
 
+Airports are identified by flight date: historical codes resolve to the physical airport of that day from the bundled [Keepraw Airport History data](docs/airport-history.md), and a flight whose airport cannot be identified is kept with an explicit unresolved state.
+
 The portable `keepraw-fly` archive uses schema and semantic validation. See the [format and compatibility guide](docs/schema.md) and [JSON Schema](packages/schema/keepraw-fly.schema.json).
 
 ## Documentation

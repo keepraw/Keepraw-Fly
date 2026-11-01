@@ -308,3 +308,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  airport-history:
+    if: github.repository == 'keepraw/Keepraw-Fly'
+    # Rebuilds the committed two-layer airport-history package from the pinned
+    # keepraw/airport-history commit with its own bulk/worldwide.py, and
+    # requires every file to be byte-identical (SHA-256). No Actions artifact
+    # is used as a data source; the package lives in this repository.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Rebuild airport-history package from the pinned upstream commit
+        run: python3 scripts/update-airport-history.py --check

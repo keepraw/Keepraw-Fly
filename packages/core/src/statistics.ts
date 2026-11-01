@@ -1,15 +1,24 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { arrivalDelayMinutes, flightDuration } from "./calculations";
+import type { SupportedLocale } from "./reference-data";
 import {
-  arrivalDelayMinutes,
-  distanceKilometers,
-  flightDuration,
-} from "./calculations";
-import { airportByIata, type SupportedLocale } from "./reference-data";
+  arrivalIdentity,
+  flightDistanceKilometers,
+  originIdentity,
+  plannedDestinationIdentity,
+  type FlightEndpointIdentity,
+} from "./flight-airports";
 import { airlineNames, resolveAirline } from "./airline-reference";
 
 export interface RankedCode {
   code: string;
   count: number;
+}
+
+export interface RankedAirport extends RankedCode {
+  /** Stable physical identity (`airport:<apt_>` or `current:<IATA>`). */
+  identityKey: string;
+  identity: FlightEndpointIdentity;
 }
 
 export interface FlightDistanceRecord {
@@ -23,11 +32,16 @@ export interface PassportStatistics {
   durationMinutes: number;
   totalDelayMinutes: number | null;
   countries: number;
+  /** Distinct confirmed physical airports (formal airportId or explicit current-directory site). */
   airports: number;
+  /** Of `airports`, how many rest only on the current directory (no formal history). */
+  currentDirectoryAirports: number;
+  /** Distinct endpoint codes whose physical airport is not determined at the flight date. */
+  unresolvedAirports: number;
   airlines: number;
   aircraftTypes: number;
   mostFlownAirline: RankedCode | null;
-  mostVisitedAirport: RankedCode | null;
+  mostVisitedAirport: RankedAirport | null;
   longestFlight: FlightDistanceRecord | null;
   shortestFlight: FlightDistanceRecord | null;
 }
@@ -63,12 +77,9 @@ function aircraftType(flight: KeeprawFlight): string | null {
   return typeof type === "string" ? type : null;
 }
 
+/** Great-circle distance between the flight-date physical airports, or null when either is undetermined. */
 export function distanceForFlight(flight: KeeprawFlight): number | null {
-  const origin = airportByIata.get(flight.origin.iata);
-  const destination = airportByIata.get(
-    (flight.divertedTo ?? flight.destination).iata,
-  );
-  return origin && destination ? distanceKilometers(origin, destination) : null;
+  return flightDistanceKilometers(flight);
 }
 
 export function calculatePassportStatistics(
@@ -76,6 +87,8 @@ export function calculatePassportStatistics(
 ): PassportStatistics {
   const airlineCounts = new Map<string, number>();
   const airportCounts = new Map<string, number>();
+  const airportIdentities = new Map<string, FlightEndpointIdentity>();
+  const unresolved = new Set<string>();
   const countryCodes = collectVisitedCountryCodes(flights);
   const aircraftTypes = new Set<string>();
   const distances: FlightDistanceRecord[] = [];
@@ -87,8 +100,15 @@ export function calculatePassportStatistics(
     if (flight.cancelled) continue;
     const airlineCode = flight.airline.iata ?? flight.airline.icao;
     if (airlineCode) increment(airlineCounts, airlineCode);
-    increment(airportCounts, flight.origin.iata);
-    increment(airportCounts, (flight.divertedTo ?? flight.destination).iata);
+    for (const identity of [originIdentity(flight), arrivalIdentity(flight)]) {
+      if (!identity.confirmed) {
+        unresolved.add(identity.identityKey);
+        continue;
+      }
+      increment(airportCounts, identity.identityKey);
+      if (!airportIdentities.has(identity.identityKey))
+        airportIdentities.set(identity.identityKey, identity);
+    }
 
     const type = aircraftType(flight);
     if (type) aircraftTypes.add(type);
@@ -118,27 +138,44 @@ export function calculatePassportStatistics(
     totalDelayMinutes: delayCoverage ? totalDelayMinutes : null,
     countries: countryCodes.size,
     airports: airportCounts.size,
+    currentDirectoryAirports: [...airportCounts.keys()].filter((key) =>
+      key.startsWith("current:"),
+    ).length,
+    unresolvedAirports: unresolved.size,
     airlines: airlineCounts.size,
     aircraftTypes: aircraftTypes.size,
     mostFlownAirline: topCount(airlineCounts),
-    mostVisitedAirport: topCount(airportCounts),
+    mostVisitedAirport: rankedAirport(airportCounts, airportIdentities),
     shortestFlight: rankedDistances[0] ?? null,
     longestFlight: rankedDistances.at(-1) ?? null,
   };
 }
 
+function rankedAirport(
+  counts: Map<string, number>,
+  identities: Map<string, FlightEndpointIdentity>,
+): RankedAirport | null {
+  const top = topCount(counts);
+  if (!top) return null;
+  const identity = identities.get(top.code)!;
+  return {
+    code: identity.iata,
+    count: top.count,
+    identityKey: top.code,
+    identity,
+  };
+}
+
+/** Countries of confirmed flight-date airports only; unresolved codes add none. */
 export function collectVisitedCountryCodes(
   flights: KeeprawFlight[],
 ): Set<string> {
   const countryCodes = new Set<string>();
   for (const flight of flights) {
     if (flight.cancelled) continue;
-    for (const iata of [
-      flight.origin.iata,
-      (flight.divertedTo ?? flight.destination).iata,
-    ]) {
-      const country = airportByIata.get(iata)?.country;
-      if (country) countryCodes.add(country);
+    for (const identity of [originIdentity(flight), arrivalIdentity(flight)]) {
+      if (identity.confirmed && identity.country)
+        countryCodes.add(identity.country);
     }
   }
   return countryCodes;
@@ -163,11 +200,13 @@ export function calculateYearStatistics(
         durationMinutes: stats.durationMinutes,
         airlines: stats.airlines,
         airports: stats.airports,
+        // Routes join physical identities, so HKG-1997 and HKG-1999 differ.
         routes: new Set(
           yearFlights
             .filter((flight) => !flight.cancelled)
             .map(
-              (flight) => `${flight.origin.iata}-${flight.destination.iata}`,
+              (flight) =>
+                `${originIdentity(flight).identityKey}>${plannedDestinationIdentity(flight).identityKey}`,
             ),
         ).size,
       };

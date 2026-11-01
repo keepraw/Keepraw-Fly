@@ -1,4 +1,4 @@
-import { airportByIata, resolveAirline } from "@keepraw-fly/core";
+import { resolveAirline, resolveEndpointIdentity } from "@keepraw-fly/core";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import {
@@ -6,6 +6,7 @@ import {
   detectCsvMapping,
   preflightCsvImportWork,
   type CsvImportPreflight,
+  type ImportAirportOptions,
 } from "./csv-import";
 import {
   assessFlightImportsWork,
@@ -53,10 +54,34 @@ export function preflightUmetripImport(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
   now: number = Date.now(),
+  options: ImportAirportOptions = {},
 ): UmetripImportPreflight {
   return finishImportPreflight(
-    preflightUmetripImportWork(parsed, existing, idFactory, now),
+    preflightUmetripImportWork(parsed, existing, idFactory, now, options),
   );
+}
+
+class UmetripTimezoneRequired extends Error {
+  constructor(readonly iata: string) {
+    super("airport-timezone-required");
+  }
+}
+
+/** Flight-date historical airport for time inference; never a guessed zone. */
+function umetripEndpoint(
+  iata: string,
+  localDate: string,
+  role: "origin" | "destination",
+  overrides: Readonly<Record<string, string>>,
+) {
+  const identity = resolveEndpointIdentity(iata, localDate, role);
+  const timezone = identity.timezone ?? overrides[iata];
+  if (!timezone) throw new UmetripTimezoneRequired(iata);
+  return {
+    timezone,
+    latitude: identity.point?.latitude ?? Number.NaN,
+    longitude: identity.point?.longitude ?? Number.NaN,
+  };
 }
 
 export function* preflightUmetripImportWork(
@@ -64,7 +89,9 @@ export function* preflightUmetripImportWork(
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
   now: number = Date.now(),
+  options: ImportAirportOptions = {},
 ): Generator<void, UmetripImportPreflight, void> {
+  const overrides = options.timezoneOverrides ?? {};
   assertRecordCount(parsed.records.length);
   const issues = [...parsed.issues];
   const exclusions: UmetripExclusion[] = [];
@@ -87,12 +114,18 @@ export function* preflightUmetripImportWork(
         if (!identity) throw new Error("invalid-flight-number");
         const airline = resolveAirline(identity.airline);
         if (!airline) throw new Error("unknown-airline");
-        const origin = resolveAirport(String(value("origin") ?? ""));
-        const destination = resolveAirport(String(value("destination") ?? ""));
+        const serviceDate = umetripDate(value("serviceDate"), record.date1904);
+        const origin = resolveAirport(
+          String(value("origin") ?? ""),
+          serviceDate,
+        );
+        const destination = resolveAirport(
+          String(value("destination") ?? ""),
+          serviceDate,
+        );
         if ("code" in origin) throw new Error(origin.code);
         if ("code" in destination) throw new Error(destination.code);
         if (origin.iata === destination.iata) throw new Error("same-airport");
-        const serviceDate = umetripDate(value("serviceDate"), record.date1904);
         const times = inferUmetripTimes({
           serviceDate,
           departureTime: umetripClock(value("departureTime")),
@@ -102,8 +135,20 @@ export function* preflightUmetripImportWork(
                 arrivalDate: umetripDate(value("arrivalDate"), record.date1904),
               }
             : {}),
-          origin: airportByIata.get(origin.iata)!,
-          destination: airportByIata.get(destination.iata)!,
+          origin: umetripEndpoint(
+            origin.iata,
+            serviceDate,
+            "origin",
+            overrides,
+          ),
+          // The arrival date is not known yet; the destination's zone at the
+          // service date is a starting point that the CSV conversion re-checks.
+          destination: umetripEndpoint(
+            destination.iata,
+            serviceDate,
+            "destination",
+            overrides,
+          ),
         });
         if (Date.parse(times.arrival) > now)
           throw new Error("future-used-flight");
@@ -125,7 +170,13 @@ export function* preflightUmetripImportWork(
         sources.push(record);
       }
     } catch (error) {
-      issues.push({ ...sourceOf(record), code: issueCode(error) });
+      issues.push({
+        ...sourceOf(record),
+        code: issueCode(error),
+        ...(error instanceof UmetripTimezoneRequired
+          ? { airportCode: error.iata }
+          : {}),
+      });
     }
     yield;
   }
@@ -135,6 +186,7 @@ export function* preflightUmetripImportWork(
     detectCsvMapping(headers),
     existing,
     idFactory,
+    options,
   );
   const failedLines = new Set(
     csvPreflight.issues.map((issue) => issue.lineNumber),
@@ -144,7 +196,12 @@ export function* preflightUmetripImportWork(
   );
   for (const issue of csvPreflight.issues) {
     const source = sources[(issue.lineNumber ?? 2) - 2];
-    if (source) issues.push({ ...sourceOf(source), code: issue.code });
+    if (source)
+      issues.push({
+        ...sourceOf(source),
+        code: issue.code,
+        ...(issue.airportCode ? { airportCode: issue.airportCode } : {}),
+      });
   }
   csvPreflight.flights.forEach((flight, index) => {
     const source = validSources[index]!;

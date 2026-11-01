@@ -6,7 +6,7 @@ export function FlightTime({
   showSource = false,
   sourceLabel,
   showZone = false,
-  timeZone = "UTC",
+  timeZone,
   className,
 }: {
   value: DisplayTime;
@@ -38,13 +38,7 @@ export function FlightTime({
       </time>
       {showZone ? (
         <span className="time-zone">
-          {new Intl.DateTimeFormat("en", {
-            timeZone,
-            timeZoneName: "shortOffset",
-          })
-            .formatToParts(new Date(value.timestamp))
-            .find((part) => part.type === "timeZoneName")
-            ?.value.replace("GMT", "UTC")}
+          {zoneLabel(value.timestamp, timeZone)}
         </span>
       ) : null}
     </span>
@@ -66,5 +60,27 @@ export function FlightDeviation({
         count: Math.abs(minutes),
       })}
     </span>
+  );
+}
+
+/**
+ * The UTC offset to show beside a time. Without a determined airport zone, the
+ * offset written in the stored RFC 3339 timestamp is shown, never UTC.
+ */
+function zoneLabel(timestamp: string, timeZone: string | undefined): string {
+  const written = /(Z|[+-]\d{2}:\d{2})$/.exec(timestamp)?.[1];
+  const fixed =
+    timeZone && /^[+-]\d{2}:\d{2}$/.test(timeZone) ? timeZone : undefined;
+  if (!timeZone || fixed) {
+    const offset = fixed ?? written;
+    if (!offset || offset === "Z" || offset === "+00:00") return "UTC";
+    const [, sign, hours, minutes] = /^([+-])(\d{2}):(\d{2})$/.exec(offset)!;
+    return `UTC${sign}${Number(hours)}${minutes === "00" ? "" : `:${minutes}`}`;
+  }
+  return (
+    new Intl.DateTimeFormat("en", { timeZone, timeZoneName: "shortOffset" })
+      .formatToParts(new Date(timestamp))
+      .find((part) => part.type === "timeZoneName")
+      ?.value.replace("GMT", "UTC") ?? "UTC"
   );
 }

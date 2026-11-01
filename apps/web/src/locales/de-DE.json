@@ -151,9 +151,26 @@
     "invalidAirlineCode": "Geben Sie einen zweistelligen IATA- oder dreibuchstabigen ICAO-Airline-Code ein.",
     "invalidServiceNumber": "Geben Sie 1 bis 4 Ziffern mit optionalem Buchstabensuffix ein.",
     "invalidBookingClass": "Geben Sie einen einzelnen Buchstaben für die Buchungsklasse ein.",
-    "unknownAirport": "Wählen Sie einen gültigen Flughafen aus dem Offline-Verzeichnis.",
+    "unknownAirport": "Geben Sie einen gültigen dreistelligen Flughafencode ein.",
     "invalidFlight": "Bitte überprüfen Sie die Flugdaten und versuchen Sie es erneut.",
-    "deleteConfirmation": "Diesen Flug aus Ihrem Archiv löschen?"
+    "deleteConfirmation": "Diesen Flug aus Ihrem Archiv löschen?",
+    "airportTimezoneRequired": "{{code}} lässt sich für dieses Datum keinem Flughafen zuordnen. Geben Sie für die Ortszeiten eine Zeitzone oder einen UTC-Versatz an.",
+    "airportTimezones": "Zeitzonen nicht identifizierter Flughäfen",
+    "airportTimezonesNote": "Keepraw Fly behält den Code, kann den Flughafen am Flugdatum aber nicht bestimmen. Geben Sie eine IANA-Zeitzone (z. B. Europe/Berlin) oder einen UTC-Versatz (+01:00) ein. UTC wird nie angenommen.",
+    "airportTimezoneFor": "Zeitzone in {{code}}",
+    "airportTimezoneCandidates": "Historische Kandidaten liegen in verschiedenen Zeitzonen: {{zones}}. Wählen Sie die zutreffende.",
+    "airportTimezoneHint": "IANA-Zeitzone oder UTC-Versatz wie +08:00.",
+    "airportHistory": {
+      "uncertain": "{{code}}: Dieses Datum liegt in einer unsicheren Grenze der geprüften Historie. Der Flughafen ist nicht bestätigt.",
+      "ambiguous": "{{code}}: An diesem Datum nutzten mehrere physische Flughäfen diesen Code.",
+      "historical_candidate": "{{code}}: Keine geprüfte Zuordnung. Historische Daten nennen {{sites}} mögliche Standorte; der Flughafen ist nicht bestätigt.",
+      "unknown_code": "{{code}}: Weder im Flughafenverzeichnis noch in den historischen Daten. Der Flug behält den Code.",
+      "candidate_index_unavailable": "{{code}}: Historische Kandidaten werden noch geladen.",
+      "historicalSite": "{{code}} an diesem Datum: {{name}} (historischer Standort)",
+      "searchGroup": "Historische Flughäfen und Codes",
+      "formalOption": "Geprüfter historischer Flughafen",
+      "candidateOption": "Unbestätigter historischer Eintrag"
+    }
   },
   "status": {
     "scheduled": "Geplant",
@@ -225,7 +242,17 @@
       "scheduled": "Geplante Flugdauer"
     },
     "actual": "Tatsächlich",
-    "plannedArrival": "Geplante Ankunft: {{airport}}"
+    "plannedArrival": "Geplante Ankunft: {{airport}}",
+    "airportHistory": {
+      "historicalSite": "Historischer Flughafen für dieses Datum",
+      "openHorizon": "Gleicher Standort wie heute; die geprüfte Historie endet vor diesem Datum",
+      "candidate": "Flughafen für dieses Datum nicht bestätigt ({{sites}} mögliche historische Standorte)",
+      "uncertain": "Flughafen nicht bestätigt: Das Datum liegt in einer unsicheren historischen Grenze",
+      "ambiguous": "Flughafen nicht bestätigt: Mehrere Flughäfen nutzten diesen Code",
+      "pending": "Historische Flughafendaten werden geladen",
+      "unknown": "Flughafen nicht identifiziert; der Code bleibt wie erfasst",
+      "rowUnresolved": "Flughafen für dieses Datum nicht bestätigt: {{airports}}"
+    }
   },
   "passport": {
     "periodLabel": "Zeitraum",
@@ -319,7 +346,10 @@
     "countries_one": "Land",
     "countries_other": "Länder",
     "airports_one": "Flughafen",
-    "airports_other": "Flughäfen"
+    "airports_other": "Flughäfen",
+    "unresolvedHistoricalAirports": "Am Flugdatum nicht bestätigte Flughäfen: {{airports}} (oben nicht gezählt)",
+    "mapPossibleAirports": "Mögliche historische Flughafenstandorte (unbestätigt)",
+    "mapPossibleAirport": "{{airport}} · möglicher Standort: {{name}} (unbestätigt)"
   },
   "import": {
     "checking": "Flüge werden geprüft…",
@@ -399,6 +429,13 @@
       "empty-file": "Diese Datei ist leer.",
       "file-too-large": "Diese Datei ist größer als {{limit}}. Teilen Sie sie auf oder prüfen Sie, ob es ein Keepraw-Fly-Export ist.",
       "too-many-records": "Diese Datei enthält mehr als {{records, number}} Flüge. Teilen Sie sie in kleinere Dateien auf."
+    },
+    "airportTimezones": {
+      "title": "Zeitzone erforderlich: {{codes}}",
+      "note": "Diese Flughäfen lassen sich am Flugdatum nicht bestimmen, und die Datei enthält Ortszeiten ohne UTC-Versatz. Geben Sie je Code eine IANA-Zeitzone oder einen UTC-Versatz ein und prüfen Sie erneut. Bis dahin wird nichts umgerechnet.",
+      "field": "Zeitzone in {{code}}",
+      "candidates": "Historische Kandidaten: {{zones}}",
+      "apply": "Mit diesen Zeitzonen erneut prüfen"
     }
   },
   "units": {
@@ -437,7 +474,7 @@
       "incomplete-mapping": "Ordnen Sie alle erforderlichen Felder vor dem Import zu.",
       "invalid-flight-number": "Die Flugnummer hat nicht das kanonische Format Keepraw Fly. Es wurde nicht automatisch geändert.",
       "invalid-date": "Das Flugdatum muss das Format YYYY-MM-DD verwenden.",
-      "unknown-airport": "Der Abflug- oder Zielort ist kein exakter IATA-Code im Offline-Flughafenverzeichnis.",
+      "unknown-airport": "Abflug- oder Zielort ist kein gültiger dreistelliger Flughafencode (Stadtcodes sind keine Flughäfen).",
       "same-airport": "Abflug- und Zielort müssen unterschiedliche Flughäfen sein.",
       "ambiguous-time": "Diese Ortszeit tritt aufgrund der Sommerzeit zweimal auf. Fügen Sie einen expliziten UTC-Offset hinzu.",
       "nonexistent-time": "Diese Ortszeit existiert aufgrund der Sommerzeit nicht.",
@@ -445,7 +482,8 @@
       "invalid-timezone": "Die Zeitzone des Flughafens ist ungültig oder wird nicht unterstützt.",
       "invalid-row": "Die Zeile enthält ungültige Daten. Prüfen Sie die übrigen Felder.",
       "date-mismatch": "Das Flugdatum muss mit dem geplanten Abflugdatum übereinstimmen.",
-      "chronology": "Die Ankunft muss nach dem Abflug liegen, sowohl bei geplanten als auch bei tatsächlichen Zeiten."
+      "chronology": "Die Ankunft muss nach dem Abflug liegen, sowohl bei geplanten als auch bei tatsächlichen Zeiten.",
+      "airport-timezone-required": "Dieser Flughafen lässt sich am Flugdatum nicht bestimmen, und eine Zeit hat keinen UTC-Versatz. Ergänzen Sie den Versatz oder geben Sie unten die Zeitzone ein."
     },
     "fields": {
       "flightNumber": "Flugnummer",
