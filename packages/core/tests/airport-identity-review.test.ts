@@ -489,6 +489,27 @@ describe("pure code events vs real physical-site hypotheses", () => {
         [{ ...relocation, changes: withoutCoordinates }],
       ),
     ).toBe(false);
+    // Either relocation endpoint is a physical hypothesis: a wholly missing
+    // endpoint must not be discarded just because the other one is valid.
+    for (const side of [0, 1] as const) {
+      const lat: [string | null, string | null] = [
+        String(directory.latitude),
+        String(directory.latitude),
+      ];
+      const lon: [string | null, string | null] = [
+        String(directory.longitude),
+        String(directory.longitude),
+      ];
+      lat[side] = null;
+      lon[side] = null;
+      expect(
+        candidateSitesMatchCurrentDirectory(
+          directory,
+          [site],
+          [{ ...relocation, changes: { ...relocation.changes, lat, lon } }],
+        ),
+      ).toBe(false);
+    }
     // Invalid coordinates block.
     expect(
       candidateSitesMatchCurrentDirectory(
@@ -504,6 +525,15 @@ describe("pure code events vs real physical-site hypotheses", () => {
         [at(String(directory.latitude), null)],
       ),
     ).toBe(false);
+    // Number("") is zero, but an empty/blank source coordinate is not 0°.
+    for (const blank of ["", " "])
+      expect(
+        candidateSitesMatchCurrentDirectory(
+          { latitude: 0, longitude: 0 },
+          [],
+          [at(blank, blank)],
+        ),
+      ).toBe(false);
     // Named coordinates more than 10 km away block; at the site they agree.
     expect(
       candidateSitesMatchCurrentDirectory(

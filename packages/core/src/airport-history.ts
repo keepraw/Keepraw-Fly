@@ -734,9 +734,15 @@ function changedPositions(
   for (const side of [0, 1] as const) {
     const a = lat[side];
     const b = lon[side];
-    if (a === null && b === null) continue;
-    const latitude = a === null ? Number.NaN : Number(a);
-    const longitude = b === null ? Number.NaN : Number(b);
+    if (
+      typeof a !== "string" ||
+      a.trim() === "" ||
+      typeof b !== "string" ||
+      b.trim() === ""
+    )
+      return null;
+    const latitude = Number(a);
+    const longitude = Number(b);
     if (!validCoordinate(latitude, longitude)) return null;
     positions.push({ latitude, longitude });
   }
