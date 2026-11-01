@@ -254,7 +254,14 @@
       "ambiguous": "Aéroport non confirmé : plusieurs aéroports utilisaient ce code",
       "pending": "Chargement des données historiques des aéroports",
       "unknown": "Aéroport non identifié ; le code est conservé tel qu’enregistré",
-      "rowUnresolved": "Aéroport non confirmé pour cette date : {{airports}}"
+      "rowUnresolved": "Aéroport non confirmé pour cette date : {{airports}}",
+      "evidence": {
+        "historically_verified": "Vérifié historiquement pour cette date de vol",
+        "formal_uncertain": "Attribution historique non vérifiée : la date se situe dans une période révisée incertaine",
+        "current_directory": "D’après l’annuaire actuel des aéroports ; la validité du code à cette date n’est pas vérifiée",
+        "historical_candidate": "Candidat historique ; identité de l’aéroport non résolue",
+        "unknown": "Aéroport inconnu ; le code est conservé tel quel"
+      }
     }
   },
   "passport": {
@@ -367,7 +374,11 @@
     "airports_many": "Aéroports",
     "unresolvedHistoricalAirports": "Aéroports non confirmés à la date du vol : {{airports}} (non comptés ci-dessus)",
     "mapPossibleAirports": "Emplacements historiques possibles (non confirmés)",
-    "mapPossibleAirport": "{{airport}} · emplacement possible : {{name}} (non confirmé)"
+    "mapPossibleAirport": "{{airport}} · emplacement possible : {{name}} (non confirmé)",
+    "mapAirportVerified": "Historique vérifié",
+    "mapAirportCurrentDirectory": "Annuaire actuel",
+    "airportEvidenceCoverage": "Aéroports vérifiés historiquement : {{verified}} · annuaire actuel uniquement (code non vérifié pour la date) : {{directory}}",
+    "airportEvidenceUncertain": "période historique incertaine : {{count}}"
   },
   "import": {
     "checking": "Vérification des vols…",

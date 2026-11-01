@@ -156,3 +156,37 @@
     font-size: calc(0.6875 * var(--passport-rem, 1rem));
   }
 }
+
+/* Flight-date code basis: a formally verified historical assignment is
+   underlined, an unresolved or uncertain one dashed. Codes that rest only on
+   today's airport directory stay plain; every code carries its basis in a
+   title. Decoration only, so row geometry never changes. */
+.flight-row
+  .flight-route
+  .flight-route-codes
+  .airport-code-display[data-assignment-evidence="historically_verified"],
+.flight-row
+  .flight-route
+  .flight-route-codes
+  .airport-code-display[data-assignment-evidence="formal_uncertain"],
+.flight-row
+  .flight-route
+  .flight-route-codes
+  .airport-code-display[data-assignment-evidence="historical_candidate"],
+.flight-row
+  .flight-route
+  .flight-route-codes
+  .airport-code-display[data-assignment-evidence="unknown"] {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.flight-row
+  .flight-route
+  .flight-route-codes
+  .airport-code-display:not(
+    [data-assignment-evidence="historically_verified"]
+  ) {
+  text-decoration-style: dashed;
+}

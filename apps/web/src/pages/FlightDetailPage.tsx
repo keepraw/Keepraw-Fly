@@ -15,6 +15,7 @@ import {
   arrivalIdentity,
   originIdentity,
   plannedDestinationIdentity,
+  type AssignmentEvidence,
   type FlightEndpointIdentity,
   airportCityGroupForAirport,
   airportCityGroupName,
@@ -82,7 +83,13 @@ function AirportStop({
   zone,
   plannedZone,
 }: {
-  history?: { note?: string; coordinates?: string; status: string };
+  history?: {
+    note?: string;
+    coordinates?: string;
+    status: string;
+    evidence: AssignmentEvidence;
+    evidenceText: string;
+  };
   /** Flight-date historical zone; null when the airport is undetermined. */
   zone?: string | null;
   plannedZone?: string | null;
@@ -132,6 +139,14 @@ function AirportStop({
               }
             >
               {airport}
+            </p>
+          ) : null}
+          {history ? (
+            <p
+              className="detail-airport-evidence"
+              data-assignment-evidence={history.evidence}
+            >
+              {history.evidenceText}
             </p>
           ) : null}
           {history?.note ? (
@@ -298,6 +313,27 @@ function formatCoordinates(point: { latitude: number; longitude: number }) {
 }
 
 function airportHistory(
+  identity: FlightEndpointIdentity,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): {
+  note?: string;
+  coordinates?: string;
+  status: string;
+  evidence: AssignmentEvidence;
+  evidenceText: string;
+} {
+  // What the code assignment rests on is always stated: a usable position
+  // from today's directory is never presented as a verified historical fact.
+  return {
+    ...airportHistoryNote(identity, t),
+    evidence: identity.assignmentEvidence,
+    evidenceText: t(
+      `flightDetail.airportHistory.evidence.${identity.assignmentEvidence}`,
+    ),
+  };
+}
+
+function airportHistoryNote(
   identity: FlightEndpointIdentity,
   t: (key: string, options?: Record<string, unknown>) => string,
 ): { note?: string; coordinates?: string; status: string } {

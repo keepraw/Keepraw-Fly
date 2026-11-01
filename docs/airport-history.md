@@ -25,7 +25,7 @@ GitHub or an API at run time, and no GitHub Actions artifact is a data source.
 | `transitions/code-reuse-leads.jsonl.gz`                            | candidates | The 493 geographically distinct code-reuse leads                                                                                                                                                                                                         |
 | `licenses/`                                                        | licence    | Upstream CC0 data dedication, airportsdata MIT notice and upstream third-party notices                                                                                                                                                                   |
 | `manifest.json`                                                    | —          | Upstream commit, counts, sharding rule and, per file, SHA-256 (bytes and content), size, record count, layer and schema version                                                                                                                          |
-| `source-lock.json`                                                 | —          | Upstream commit and tree, builder hash, transient SQLite hash and metrics, and the SHA-256 of every raw upstream input                                                                                                                                   |
+| `source-lock.json`                                                 | —          | Upstream commit and tree, builder hash, SQLite format version and upstream metrics, and the SHA-256 of every raw upstream input                                                                                                                          |
 
 `<h>` is the first hex digit of `sha256("SCHEME:CODE")` (or of the group or
 reference ID). Files are canonical JSON lines in stable order, gzip level 9
@@ -38,17 +38,29 @@ is never committed or bundled.
 
 ### Updating
 
-```sh
-python3 scripts/update-airport-history.py --commit <new upstream commit>
-pnpm test
-```
+The pin is the `UPSTREAM_COMMIT` constant in
+`scripts/update-airport-history.py`. Every default run uses it, including CI's
+`--check`. Passing `--commit` builds from another commit but does **not** move
+that pin, so an update changes the constant and the package together:
 
-The script fetches that upstream commit, runs the upstream full-corpus builder
-`bulk/worldwide.py build` unchanged (it verifies every pinned input hash),
-exports the package and fails if any count differs from upstream. Review the
-diff and open a normal pull request. CI's `airport-history` job runs
-`python3 scripts/update-airport-history.py --check`, which rebuilds the package
-from the pinned commit and requires every file to match byte for byte.
+1. Set `UPSTREAM_COMMIT` to the new upstream commit.
+2. Regenerate and verify the package:
+
+   ```sh
+   python3 scripts/update-airport-history.py
+   python3 scripts/update-airport-history.py --check
+   pnpm test
+   ```
+
+3. Commit the constant and the regenerated `packages/core/data/airport-history/`
+   (including `manifest.json` and `source-lock.json`) in the same pull request.
+
+The script fetches the pinned upstream commit, runs the upstream full-corpus
+builder `bulk/worldwide.py build` unchanged (it verifies every pinned input
+hash), exports the package and fails if any count differs from upstream. CI's
+`airport-history` job runs `--check`, which rebuilds from `UPSTREAM_COMMIT` and
+requires every committed file to match byte for byte; a package generated with
+`--commit` alone therefore fails CI until the constant names the same commit.
 
 ## Resolution
 

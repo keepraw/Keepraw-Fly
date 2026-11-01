@@ -100,12 +100,15 @@ export function FlightRow({
   const originCity = cityName(flight.origin.iata, origin);
   const destinationCity = cityName(flight.destination.iata, destination);
   // Undetermined flight-date airports are flagged, never silently relabelled.
-  const unresolved = [
-    originIdentity(flight),
-    plannedDestinationIdentity(flight),
-  ]
+  const originEndpoint = originIdentity(flight);
+  const destinationEndpoint = plannedDestinationIdentity(flight);
+  const unresolved = [originEndpoint, destinationEndpoint]
     .filter((identity) => !identity.confirmed)
     .map((identity) => identity.iata);
+  // Each code states its basis: verified history, today's directory only,
+  // or unresolved. A directory match is never shown as verified history.
+  const evidenceTitle = (identity: typeof originEndpoint) =>
+    `${identity.iata}: ${t(`flightDetail.airportHistory.evidence.${identity.assignmentEvidence}`)}`;
 
   return (
     <div
@@ -114,6 +117,7 @@ export function FlightRow({
       data-unresolved-airports={
         unresolved.length ? unresolved.join(" ") : undefined
       }
+      data-assignment-evidence={`${originEndpoint.assignmentEvidence} ${destinationEndpoint.assignmentEvidence}`}
       title={
         unresolved.length
           ? t("flightDetail.airportHistory.rowUnresolved", {
@@ -178,9 +182,19 @@ export function FlightRow({
             </div>
             <div className="flight-row-meta">
               <div className="flight-route-codes">
-                <AirportCode code={flight.origin.iata} size="compact" />
+                <AirportCode
+                  code={flight.origin.iata}
+                  size="compact"
+                  evidence={originEndpoint.assignmentEvidence}
+                  title={evidenceTitle(originEndpoint)}
+                />
                 <span aria-hidden="true">→</span>
-                <AirportCode code={flight.destination.iata} size="compact" />
+                <AirportCode
+                  code={flight.destination.iata}
+                  size="compact"
+                  evidence={destinationEndpoint.assignmentEvidence}
+                  title={evidenceTitle(destinationEndpoint)}
+                />
               </div>
               <div className="flight-time-column">
                 <span className="flight-times">

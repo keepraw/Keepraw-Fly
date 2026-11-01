@@ -251,7 +251,14 @@
       "ambiguous": "Airport not confirmed: several airports held this code",
       "pending": "Historical airport data is loading",
       "unknown": "Airport not identified; the code is kept as recorded",
-      "rowUnresolved": "Airport not confirmed for this date: {{airports}}"
+      "rowUnresolved": "Airport not confirmed for this date: {{airports}}",
+      "evidence": {
+        "historically_verified": "Historically verified for this flight date",
+        "formal_uncertain": "Historical assignment not verified: this date is in an uncertain reviewed range",
+        "current_directory": "Based on the current airport directory; the code's validity on this date is not verified",
+        "historical_candidate": "Historical candidate; airport identity unresolved",
+        "unknown": "Unknown airport; the code is kept as recorded"
+      }
     }
   },
   "passport": {
@@ -349,7 +356,11 @@
     "airports_other": "Airports",
     "unresolvedHistoricalAirports": "Airports not confirmed at their flight dates: {{airports}} (not counted above)",
     "mapPossibleAirports": "Possible historical airport locations (unconfirmed)",
-    "mapPossibleAirport": "{{airport}} · possible location: {{name}} (unconfirmed)"
+    "mapPossibleAirport": "{{airport}} · possible location: {{name}} (unconfirmed)",
+    "mapAirportVerified": "Verified history",
+    "mapAirportCurrentDirectory": "Current directory",
+    "airportEvidenceCoverage": "Airports historically verified: {{verified}} · current directory only (code not verified for the date): {{directory}}",
+    "airportEvidenceUncertain": "uncertain historical range: {{count}}"
   },
   "import": {
     "checking": "Checking flights…",

@@ -18,7 +18,11 @@ Usage:
   python3 scripts/update-airport-history.py                # rebuild in place
   python3 scripts/update-airport-history.py --check        # rebuild + compare
   python3 scripts/update-airport-history.py --upstream DIR # reuse a checkout
-  python3 scripts/update-airport-history.py --commit SHA   # move the pin
+  python3 scripts/update-airport-history.py --commit SHA   # build another commit
+
+The pin is UPSTREAM_COMMIT below; the default run and CI's --check use it.
+``--commit`` does not change it: to move the pin, edit UPSTREAM_COMMIT and
+commit it together with the regenerated package (see docs/airport-history.md).
 """
 from __future__ import annotations
 

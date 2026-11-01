@@ -1,4 +1,8 @@
-import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
+import {
+  routePointIdentityKey,
+  type RoutePoint,
+  type RouteSegment,
+} from "@keepraw-fly/core";
 
 export type Vec3 = readonly [number, number, number];
 export const dot = (a: Vec3, b: Vec3) =>
@@ -78,6 +82,7 @@ export function routeArc(route: RouteSegment, steps = 96): Vec3[] {
   });
 }
 
+/** Code pair label of a route (display, pickers and scene evidence). */
 export const routeKey = (route: RouteSegment) =>
   `${route.origin.iata}-${route.destination.iata}`;
 
@@ -88,7 +93,13 @@ export function physicalGlobeRoutes(routes: RouteSegment[]) {
     (a, b) =>
       routeKey(a).localeCompare(routeKey(b)) || a.flightCount - b.flightCount,
   )) {
-    const key = [route.origin.iata, route.destination.iata].sort().join("-");
+    // Pair by physical identity: two sites that shared a code are two strokes.
+    const key = [
+      routePointIdentityKey(route.origin),
+      routePointIdentityKey(route.destination),
+    ]
+      .sort()
+      .join("|");
     const directions = pairs.get(key) ?? [];
     directions.push(route);
     pairs.set(key, directions);
@@ -104,8 +115,9 @@ export function globeAirports(routes: RouteSegment[]) {
   const points = new Map<string, RoutePoint & { flightCount: number }>();
   for (const route of routes)
     for (const point of [route.origin, route.destination]) {
-      const current = points.get(point.iata);
-      points.set(point.iata, {
+      const key = routePointIdentityKey(point);
+      const current = points.get(key);
+      points.set(key, {
         ...point,
         flightCount: (current?.flightCount ?? 0) + route.flightCount,
       });

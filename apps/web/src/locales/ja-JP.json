@@ -248,7 +248,14 @@
       "ambiguous": "空港未確定: 複数の空港がこのコードを使用していました",
       "pending": "歴史的空港データを読み込み中",
       "unknown": "空港を特定できません。記録どおりコードを保持します",
-      "rowUnresolved": "この日付の空港は未確定: {{airports}}"
+      "rowUnresolved": "この日付の空港は未確定: {{airports}}",
+      "evidence": {
+        "historically_verified": "この運航日について履歴で確認済み",
+        "formal_uncertain": "履歴上の割り当ては未確認：この日付は不確実な確認範囲内です",
+        "current_directory": "現在の空港ディレクトリに基づく表示。この日付でのコードの有効性は未確認",
+        "historical_candidate": "履歴上の候補。空港は未確定",
+        "unknown": "不明な空港。コードは記録どおり保持されます"
+      }
     }
   },
   "passport": {
@@ -328,7 +335,11 @@
     "recentDelayYears": "記録のある直近 3 年",
     "unresolvedHistoricalAirports": "運航日に確定できない空港: {{airports}}（上の集計に含みません）",
     "mapPossibleAirports": "歴史的空港の候補位置（未確認）",
-    "mapPossibleAirport": "{{airport}} · 候補位置: {{name}}（未確認）"
+    "mapPossibleAirport": "{{airport}} · 候補位置: {{name}}（未確認）",
+    "mapAirportVerified": "履歴で確認済み",
+    "mapAirportCurrentDirectory": "現在のディレクトリ",
+    "airportEvidenceCoverage": "履歴で確認済みの空港：{{verified}} ・ 現在のディレクトリのみ（日付時点のコードは未確認）：{{directory}}",
+    "airportEvidenceUncertain": "不確実な履歴範囲：{{count}}"
   },
   "import": {
     "checking": "フライトを確認中…",

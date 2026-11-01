@@ -10,7 +10,9 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   airlineDisplayName,
+  airportTargetMatches,
   arrivalDelayMinutes,
+  arrivalIdentity,
   airportByIata,
   buildRouteSegments,
   calculatePassportHighlights,
@@ -20,8 +22,11 @@ import {
   formatDistance,
   formatDuration,
   flightDuration,
+  flightRouteIdentityKey,
+  flightRouteTarget,
   groupFlightsByYear,
   localizedText,
+  originIdentity,
   type FlightEndpointIdentity,
   type DistanceUnit,
   type SupportedLocale,
@@ -34,7 +39,9 @@ import { StatisticValue } from "../typography/StatisticValue";
 import type { Appearance } from "../storage/types";
 import type { SolarMode } from "../globe/globe-solar";
 import {
+  matchesSelection,
   passportVisibleFlights,
+  sameSelection,
   type PassportSelection,
   type PassportViewState,
 } from "../data/passport-exploration";
@@ -103,9 +110,11 @@ export function PassportPage({
     () => calculateYearStatistics(document.flights),
     [document.flights, historyVersion],
   );
+  // Selection matches flight-date physical identities, which change when
+  // candidate shards finish loading.
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, selectedYear, query, selection],
+    [document.flights, selectedYear, query, selection, historyVersion],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
   const stats = useMemo(
@@ -160,13 +169,9 @@ export function PassportPage({
       : "passport.distanceKilometers";
   const selectedFlight = flights.find((flight) => flight.id === view.flightId);
   const highlightedFlight = selectedFlight ?? hoveredFlight;
+  // The hovered/focused flight's physical route, never its code pair.
   const highlightedRoute = highlightedFlight
-    ? {
-        origin: highlightedFlight.origin.iata,
-        destination: (
-          highlightedFlight.divertedTo ?? highlightedFlight.destination
-        ).iata,
-      }
+    ? flightRouteIdentityKey(highlightedFlight)
     : undefined;
 
   function selectFlight(flight: KeeprawFlight, scroll = false) {
@@ -195,9 +200,15 @@ export function PassportPage({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  function cityName(code: string): string {
-    const airport = airportByIata.get(code);
-    return airport ? localizedText(airport.city, locale) : code;
+  /** A flight-date identity of the selected airport, from the visible network. */
+  function selectedAirportIdentity(target: {
+    code: string;
+    identityKey?: string;
+  }): FlightEndpointIdentity | undefined {
+    for (const flight of mapFlights)
+      for (const identity of [originIdentity(flight), arrivalIdentity(flight)])
+        if (airportTargetMatches(target, identity)) return identity;
+    return undefined;
   }
 
   /** Flight-date physical airport label: a historical site keeps its own name. */
@@ -210,27 +221,48 @@ export function PassportPage({
   }
 
   function isSelected(target: PassportSelection): boolean {
-    if (!selection || selection.kind !== target.kind) return false;
-    if (target.kind === "route")
-      return (
-        selection.kind === "route" &&
-        selection.origin === target.origin &&
-        selection.destination === target.destination
-      );
-    return selection.kind !== "route" && selection.code === target.code;
+    return sameSelection(selection, target);
   }
+
+  // Airports split by what their flight-date code rests on. A current-
+  // directory match places the site but does not verify the historical code.
+  const airportEvidenceText = stats.airports
+    ? t("passport.airportEvidenceCoverage", {
+        verified: stats.historicallyVerifiedAirports.toLocaleString(locale),
+        directory: stats.currentDirectoryAirports.toLocaleString(locale),
+      }) +
+      (stats.formalUncertainAirports
+        ? ` · ${t("passport.airportEvidenceUncertain", {
+            count: stats.formalUncertainAirports,
+          })}`
+        : "")
+    : "";
+  const airportEvidenceData = {
+    "data-verified-airports": stats.historicallyVerifiedAirports,
+    "data-current-directory-airports": stats.currentDirectoryAirports,
+    "data-formal-uncertain-airports": stats.formalUncertainAirports,
+  };
+  // Mobile: its own line in the network summary.
+  const airportEvidence = airportEvidenceText ? (
+    <p
+      className="passport-network-line passport-airport-evidence"
+      {...airportEvidenceData}
+    >
+      {airportEvidenceText}
+    </p>
+  ) : null;
 
   function toggleHighlight(target: PassportSelection) {
     setSelection(isSelected(target) ? null : target);
   }
 
   function routeHighlight(flight: typeof longest, context: string) {
+    // Flight-date physical endpoints: a historical site keeps its own name.
+    const endpoints = flight
+      ? { origin: originIdentity(flight), arrival: arrivalIdentity(flight) }
+      : undefined;
     const target: PassportSelection | undefined = flight
-      ? {
-          kind: "route",
-          origin: flight.origin.iata,
-          destination: (flight.divertedTo ?? flight.destination).iata,
-        }
+      ? flightRouteTarget(flight)
       : undefined;
     const distance = flight ? distanceForFlight(flight) : null;
     const content = (
@@ -239,14 +271,14 @@ export function PassportPage({
         <span className="passport-longest-route">
           <span className="passport-longest-endpoint">
             <strong>{target?.origin ?? "—"}</strong>
-            <span>{target ? cityName(target.origin) : "—"}</span>
+            <span>{endpoints ? identityLabel(endpoints.origin) : "—"}</span>
           </span>
           <span className="passport-longest-arrow" aria-hidden="true">
             →
           </span>
           <span className="passport-longest-endpoint">
             <strong>{target?.destination ?? "—"}</strong>
-            <span>{target ? cityName(target.destination) : "—"}</span>
+            <span>{endpoints ? identityLabel(endpoints.arrival) : "—"}</span>
           </span>
         </span>
         <span className="passport-longest-facts">
@@ -315,6 +347,10 @@ export function PassportPage({
 
   function explorationTitle(current: PassportSelection): string {
     if (current.kind === "airport") {
+      // The selected physical site's flight-date name, not today's directory row.
+      const identity = selectedAirportIdentity(current);
+      if (identity?.name)
+        return `${current.code} · ${localizedText(identity.name, locale)}`;
       const airport = airportByIata.get(current.code);
       return airport
         ? `${current.code} · ${localizedText(airport.name, locale)}`
@@ -386,6 +422,16 @@ export function PassportPage({
                   {t("passport.worldTitle")}
                 </span>
               ) : null}
+              {isDesktop && airportEvidenceText ? (
+                // Desktop: one line beside the scope, so the map keeps its height.
+                <span
+                  className="passport-airport-evidence"
+                  title={airportEvidenceText}
+                  {...airportEvidenceData}
+                >
+                  {airportEvidenceText}
+                </span>
+              ) : null}
               <span>
                 {t(
                   selectedYear === "lifetime"
@@ -416,22 +462,12 @@ export function PassportPage({
                       ? selection
                       : null
                   }
-                  highlightedRoute={
-                    highlightedRoute
-                      ? `${highlightedRoute.origin}-${highlightedRoute.destination}`
-                      : undefined
-                  }
+                  highlightedRoute={highlightedRoute}
                   onClear={() => setSelection(null)}
                   onSelect={(target) => {
                     // Globe uses the same scoped exploration as Archive/Highlights.
                     const matching = mapFlights.find((flight) =>
-                      target.kind === "airport"
-                        ? flight.origin.iata === target.code ||
-                          (flight.divertedTo ?? flight.destination).iata ===
-                            target.code
-                        : flight.origin.iata === target.origin &&
-                          (flight.divertedTo ?? flight.destination).iata ===
-                            target.destination,
+                      matchesSelection(flight, target),
                     );
                     if (matching) {
                       onViewChange({
@@ -620,6 +656,7 @@ export function PassportPage({
                     })}
                   </p>
                 ) : null}
+                {airportEvidence}
               </>
             )}
 
@@ -837,6 +874,7 @@ export function PassportPage({
                             const target: PassportSelection = {
                               kind: "airport",
                               code,
+                              identityKey,
                             };
                             return (
                               <li key={identityKey}>

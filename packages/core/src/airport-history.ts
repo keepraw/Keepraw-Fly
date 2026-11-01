@@ -671,7 +671,52 @@ function collectCandidates(code: string, scheme: AirportCodeScheme) {
   };
 }
 
-function sitesWithCoordinates(
+function validCoordinate(
+  latitude: number | null | undefined,
+  longitude: number | null | undefined,
+): boolean {
+  return (
+    typeof latitude === "number" &&
+    typeof longitude === "number" &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180
+  );
+}
+
+/**
+ * Whether every candidate location hypothesis is the current directory's own
+ * site. Each site (top-level and every candidate's possible sites, duplicates
+ * included) must have a valid finite position, must not be an ambiguous
+ * location, and must lie within {@link SAME_SITE_KILOMETERS}. One failing
+ * hypothesis makes the whole answer false; nothing is filtered away first.
+ * A code-change observation that names no site at all proposes no other
+ * position; it stays attached to the answer as history, unchanged.
+ */
+export function candidateSitesMatchCurrentDirectory(
+  directory: { latitude: number; longitude: number },
+  candidateSites: readonly CandidateSite[],
+  candidates: readonly Pick<HistoricalCandidate, "possibleSites">[],
+): boolean {
+  if (!validCoordinate(directory.latitude, directory.longitude)) return false;
+  const hypotheses = [
+    ...candidateSites,
+    ...candidates.flatMap((candidate) => candidate.possibleSites),
+  ];
+  if (!hypotheses.length) return false;
+  return hypotheses.every(
+    (site) =>
+      !site.ambiguousLocation &&
+      validCoordinate(site.latitude, site.longitude) &&
+      distanceKilometers(directory, {
+        latitude: site.latitude!,
+        longitude: site.longitude!,
+      }) <= SAME_SITE_KILOMETERS,
+  );
+}
+
+function distinctCandidateSites(
   candidateSites: CandidateSite[],
   candidates: HistoricalCandidate[],
 ): CandidateSite[] {
@@ -815,7 +860,7 @@ export function resolveAirportAtDate(
       }
     : {};
   const allSites = collected
-    ? sitesWithCoordinates(collected.candidateSites, collected.candidates)
+    ? distinctCandidateSites(collected.candidateSites, collected.candidates)
     : [];
   const candidateTimezones = [
     ...new Set(
@@ -876,21 +921,15 @@ export function resolveAirportAtDate(
   const hasCandidates =
     collected.candidates.length > 0 || collected.candidateSites.length > 0;
   if (hasCandidates) {
-    let consistent: boolean | null = null;
-    if (currentDirectoryAirport) {
-      const located = allSites.filter(
-        (s) => s.latitude !== null && s.longitude !== null,
-      );
-      consistent =
-        located.length > 0 &&
-        located.every(
-          (s) =>
-            distanceKilometers(currentDirectoryAirport, {
-              latitude: s.latitude!,
-              longitude: s.longitude!,
-            }) <= SAME_SITE_KILOMETERS,
-        );
-    }
+    // Every hypothesis must positively place the code at the directory's own
+    // site; a missing, invalid or ambiguous position is never ignored.
+    const consistent: boolean | null = currentDirectoryAirport
+      ? candidateSitesMatchCurrentDirectory(
+          currentDirectoryAirport,
+          collected.candidateSites,
+          collected.candidates,
+        )
+      : null;
     if (currentDirectoryAirport && consistent) {
       // Every location hypothesis is the current directory's own site: the
       // directory is the explicit basis. History stays attached and visible.

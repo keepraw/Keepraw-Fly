@@ -45,6 +45,25 @@ export type EndpointIdentityBasis =
   | "current_directory_pending_candidates"
   | "unresolved";
 
+/**
+ * What the flight-date code assignment rests on, separate from whether a
+ * physical position is usable (`confirmed`):
+ * - `historically_verified`: the formal layer resolved the code to exactly one
+ *   airport on this date (conservative date rules).
+ * - `formal_uncertain`: formal assignments exist but the date is in an
+ *   uncertain boundary or past the review horizon; never a historical fact.
+ * - `current_directory`: only today's airport directory places the code; the
+ *   code's validity on the historical date is not verified.
+ * - `historical_candidate`: candidate leads only; the identity is unresolved.
+ * - `unknown`: no layer knows the code.
+ */
+export type AssignmentEvidence =
+  | "historically_verified"
+  | "formal_uncertain"
+  | "current_directory"
+  | "historical_candidate"
+  | "unknown";
+
 export interface PossibleAirportPosition {
   siteId: string;
   name: string | null;
@@ -61,9 +80,16 @@ export interface FlightEndpointIdentity {
   resolution: AirportHistoryResolution | null;
   /** Stable statistic key; confirmed airports never share a key with another physical site. */
   identityKey: string;
-  /** True only when a formal airport or an explicit current-directory site determines it. */
+  /**
+   * True when a physical position is usable: a formal airport or an explicit
+   * current-directory site. Usability is not historical verification; see
+   * `historicalAssignmentVerified`.
+   */
   confirmed: boolean;
   basis: EndpointIdentityBasis;
+  /** True only for a formal assignment resolved on this flight date. */
+  historicalAssignmentVerified: boolean;
+  assignmentEvidence: AssignmentEvidence;
   airportId: string | null;
   point: { latitude: number; longitude: number } | null;
   possiblePositions: PossibleAirportPosition[];
@@ -200,10 +226,50 @@ export function resolveEndpointIdentity(
   const key = cacheKey(iata, localDate, role, storedZone);
   const cached = cache.get(key);
   if (cached) return cached;
-  const identity = computeIdentity(iata, localDate, role, storedZone);
+  const identity = withAssignmentEvidence(
+    computeIdentity(iata, localDate, role, storedZone),
+  );
   if (cache.size > 4096) cache.clear();
   cache.set(key, identity);
   return identity;
+}
+
+type BaseIdentity = Omit<
+  FlightEndpointIdentity,
+  "historicalAssignmentVerified" | "assignmentEvidence"
+>;
+
+export function assignmentEvidenceFor(identity: {
+  status: AirportHistoryStatus;
+  basis: EndpointIdentityBasis;
+}): AssignmentEvidence {
+  if (identity.basis === "formal" && identity.status === "resolved")
+    return "historically_verified";
+  if (
+    identity.basis === "formal_open_horizon_current_directory" ||
+    identity.status === "uncertain" ||
+    identity.status === "ambiguous"
+  )
+    return "formal_uncertain";
+  if (
+    identity.basis === "current_directory" ||
+    identity.basis === "current_directory_pending_candidates"
+  )
+    return "current_directory";
+  if (identity.status === "historical_candidate") return "historical_candidate";
+  return "unknown";
+}
+
+function withAssignmentEvidence(
+  identity: BaseIdentity,
+): FlightEndpointIdentity {
+  const assignmentEvidence = assignmentEvidenceFor(identity);
+  return {
+    ...identity,
+    assignmentEvidence,
+    historicalAssignmentVerified:
+      assignmentEvidence === "historically_verified",
+  };
 }
 
 function computeIdentity(
@@ -211,12 +277,12 @@ function computeIdentity(
   localDate: string | null,
   role: EndpointRole,
   storedZone: string | null,
-): FlightEndpointIdentity {
+): BaseIdentity {
   const directory = airportByIata.get(iata) ?? null;
   const unresolved = (
     resolution: AirportHistoryResolution | null,
     status: AirportHistoryStatus,
-  ): FlightEndpointIdentity => {
+  ): BaseIdentity => {
     const positions: PossibleAirportPosition[] = [];
     if (resolution) {
       for (const id of resolution.uncertainty.possibleAirportIds) {
@@ -316,7 +382,7 @@ function computeIdentity(
   const formalView = (
     airportId: string,
     basis: EndpointIdentityBasis,
-  ): FlightEndpointIdentity => {
+  ): BaseIdentity => {
     const airport = formalAirports.get(airportId)!;
     const sameAsDirectory = directory ? near(directory, airport) : false;
     // The formal identity (airportId) is authoritative. When the current

@@ -248,7 +248,14 @@
       "ambiguous": "机场尚未确认：有多个机场使用此代码",
       "pending": "历史机场数据正在加载",
       "unknown": "机场未识别；按记录保留代码",
-      "rowUnresolved": "该日期的机场尚未确认：{{airports}}"
+      "rowUnresolved": "该日期的机场尚未确认：{{airports}}",
+      "evidence": {
+        "historically_verified": "已按航班日期经历史核实",
+        "formal_uncertain": "历史分配未核实：该日期处于不确定的已审核区间",
+        "current_directory": "依据当前机场目录；该代码在此日期的有效性未经核实",
+        "historical_candidate": "历史候选；机场身份未确定",
+        "unknown": "未知机场；代码按原记录保留"
+      }
     }
   },
   "passport": {
@@ -328,7 +335,11 @@
     "recentDelayYears": "最近三个有记录的年份",
     "unresolvedHistoricalAirports": "航班日期机场尚未确认：{{airports}} 个（未计入上方统计）",
     "mapPossibleAirports": "可能的历史机场位置（未确认）",
-    "mapPossibleAirport": "{{airport}} · 可能位置：{{name}}（未确认）"
+    "mapPossibleAirport": "{{airport}} · 可能位置：{{name}}（未确认）",
+    "mapAirportVerified": "历史已核实",
+    "mapAirportCurrentDirectory": "当前目录",
+    "airportEvidenceCoverage": "经历史核实的机场：{{verified}} · 仅依据当前目录（该日期的代码未核实）：{{directory}}",
+    "airportEvidenceUncertain": "处于不确定历史区间：{{count}}"
   },
   "import": {
     "checking": "正在检查航班…",
