@@ -488,8 +488,10 @@
   /* Airport evidence: verified history vs today's directory only. One
      truncating line beside the scope; the full text stays in its title. */
   .passport-scope .passport-airport-evidence {
+    /* Zero basis and width: it never widens the column, it only fills it. */
+    width: 0;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     overflow: hidden;
     color: var(--muted);
     text-align: right;

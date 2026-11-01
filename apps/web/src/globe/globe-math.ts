@@ -1,8 +1,9 @@
-import {
-  routePointIdentityKey,
-  type RoutePoint,
-  type RouteSegment,
-} from "@keepraw-fly/core";
+import type { RoutePoint, RouteSegment } from "@keepraw-fly/core";
+
+// Physical identity of a route end (same rule as core's routePointIdentityKey).
+// Kept local and type-only on core: browser tests import this module in Node.
+const routePointIdentityKey = (point: RoutePoint) =>
+  point.identityKey ?? point.iata;
 
 export type Vec3 = readonly [number, number, number];
 export const dot = (a: Vec3, b: Vec3) =>
