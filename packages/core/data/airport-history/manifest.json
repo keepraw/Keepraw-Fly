@@ -460,12 +460,12 @@
       "sha256": "0df2b2a537cd5ea97ae8155254740354949dc7192f950e23c7979de508a7b61d"
     },
     "source-lock.json": {
-      "bytes": 17759,
-      "contentSha256": "728a35ac08d03c9a39ea2365ceff443174ec967e17395bbe27723d5ea5ae4532",
+      "bytes": 17750,
+      "contentSha256": "25ab307c327dcdc27404eddeb075900e9d0a786707aa1f55594d381760bcaa37",
       "layer": "lock",
       "records": 141,
       "schemaVersion": "1.0.0",
-      "sha256": "728a35ac08d03c9a39ea2365ceff443174ec967e17395bbe27723d5ea5ae4532"
+      "sha256": "25ab307c327dcdc27404eddeb075900e9d0a786707aa1f55594d381760bcaa37"
     },
     "transitions/code-reuse-leads.jsonl.gz": {
       "bytes": 32266,

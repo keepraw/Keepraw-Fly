@@ -12,6 +12,7 @@ import airportRows from "../data/airports.iata.json";
 import manifest from "../data/airport-history/manifest.json";
 import formal from "../data/airport-history/formal/airports.json";
 import {
+  airportByIata,
   airportHistoryShard,
   arrivalIdentity,
   buildRouteSegments,
@@ -67,9 +68,22 @@ beforeAll(async () => {
   resetAirportHistoryCandidates();
   await ensureAirportHistoryCodes(
     loader,
-    ["TAO", "IST", "ISL", "HKG", "KTI", "ABN", "AUS", "QQQ", "PEK", "SFO"].map(
-      (code) => ({ code }),
-    ),
+    [
+      "TAO",
+      "IST",
+      "ISL",
+      "HKG",
+      "KTI",
+      "ABN",
+      "AUS",
+      "QQQ",
+      "PEK",
+      "SFO",
+      "ADD",
+      "JNB",
+      "CTU",
+      "KMG",
+    ].map((code) => ({ code })),
   );
   await ensureAirportHistoryCodes(loader, [{ code: "VHHH", scheme: "ICAO" }]);
   await ensureAirportHistorySearchIndex(loader);
@@ -325,6 +339,79 @@ describe("statistics, routes and distance use physical identities", () => {
     expect(arrivalIdentity(after).name?.en).toBe(
       "Hong Kong International Airport",
     );
+  });
+});
+
+describe("current-directory agreement and disagreement (real data)", () => {
+  it("keeps the formal identity but the directory's own point for the identical site", () => {
+    const identity = originIdentity(
+      flight(
+        "HKG",
+        "SFO",
+        "2025-06-01",
+        "2025-06-01T10:00:00+08:00",
+        "2025-06-01T23:00:00+08:00",
+      ),
+    );
+    const formalSite = resolveAirportAtDate("HKG", "2025-06-01").airport!;
+    const directory = airportByIata.get("HKG")!;
+    expect(identity.identityKey).toBe(`airport:${formalSite.airportId}`);
+    expect(identity.basis).toBe("formal");
+    expect(identity.point).toEqual({
+      latitude: directory.latitude,
+      longitude: directory.longitude,
+    });
+    // Kai Tak is a distinct site: it keeps its own formal coordinates.
+    const kaiTak = resolveAirportAtDate("HKG", "1997-06-01").airport!;
+    expect(
+      originIdentity(
+        flight(
+          "HKG",
+          "SFO",
+          "1997-06-01",
+          "1997-06-01T10:00:00+08:00",
+          "1997-06-01T23:00:00+08:00",
+        ),
+      ).point,
+    ).toEqual({ latitude: kaiTak.latitude, longitude: kaiTak.longitude });
+  });
+
+  it("uses a candidate zone only when every candidate and the directory agree (JNB)", () => {
+    const et809 = flight(
+      "ADD",
+      "JNB",
+      "2026-09-12",
+      "2026-09-12T10:20:00+08:00",
+      "2026-09-12T13:05:00+08:00",
+    );
+    const arrival = arrivalIdentity(et809);
+    // One reference row places JNB ~220 km away: the site stays unconfirmed...
+    expect(arrival.status).toBe("historical_candidate");
+    expect(arrival.confirmed).toBe(false);
+    expect(arrival.point).toBeNull();
+    expect(distanceForFlight(et809)).toBeNull();
+    // ...but every hypothesis shares the directory's zone, so local time is known.
+    expect(arrival.timezoneOptions).toEqual(["Africa/Johannesburg"]);
+    expect(arrival.timezone).toBe("Africa/Johannesburg");
+    expect(arrival.localDate).toBe("2026-09-12");
+  });
+
+  it("never draws a stale directory site the reference layer contradicts (KMG)", () => {
+    const kunming = flight(
+      "CTU",
+      "KMG",
+      "2026-09-22",
+      "2026-09-22T10:00:00+08:00",
+      "2026-09-22T11:30:00+08:00",
+    );
+    const arrival = arrivalIdentity(kunming);
+    expect(arrival.status).toBe("historical_candidate");
+    expect(arrival.confirmed).toBe(false);
+    expect(arrival.timezone).toBeNull();
+    expect(buildRouteSegments([kunming])).toHaveLength(0);
+    expect(
+      buildUncertainAirportMarkers([kunming]).map((m) => m.name),
+    ).toContain("Kunming Changshui International Airport");
   });
 });
 

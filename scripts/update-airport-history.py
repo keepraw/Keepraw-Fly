@@ -476,10 +476,9 @@ def build_package(upstream: Path, commit: str, workdir: Path) -> tuple[Package, 
         "formalDataVersion": curated["dataVersion"], "formalSchemaVersion": curated["schemaVersion"],
         "builder": {"command": "python3 bulk/worldwide.py build", "sha256": sha256_file(builder),
                     "sqliteFormatVersion": metadata["formatVersion"],
-                    "sqliteSha256": build_report["databaseSha256"], "sqliteBytes": database.stat().st_size,
                     "metrics": build_report["metrics"]},
         "inputs": lock_inputs,
-        "note": "The SQLite database is a transient build product and is never committed or bundled.",
+        "note": "The SQLite database is a transient build product and is never committed or bundled. Its bytes depend on the local SQLite build, so only its format version and upstream metrics are locked here.",
     }
     package.add_raw("source-lock.json", (json.dumps(source_lock, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode(),
                     "lock", PACKAGE_SCHEMA_VERSION, len(lock_inputs))

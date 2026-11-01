@@ -12,9 +12,7 @@
       "referenceRecords": 86950
     },
     "sha256": "3f9b4022447d0a542047c2b318d933c1f57c233dda402dd6ae7bc4f4aeb06a4e",
-    "sqliteBytes": 156422144,
-    "sqliteFormatVersion": "1.0.0",
-    "sqliteSha256": "19928cfa31563cbd6e5e6b690f87995b3b10e11b7bc504039cef8b5bb61fbcc9"
+    "sqliteFormatVersion": "1.0.0"
   },
   "commit": "19b7b1decfe2b43916fd4607b049ebb79293ae77",
   "formalDataVersion": "0.10.0",
@@ -162,7 +160,7 @@
     "upstream/research/discovery/generated/manifest.json": "b588949a16ada7ae787f0a40286288d3f2fccbcce1e4fe62d6113c71792659d7",
     "upstream/scripts/reference/common.py": "abaa48d37d4087b9bd4223e1ecf659fcc323addce570cee1d5348cbfac78ac46"
   },
-  "note": "The SQLite database is a transient build product and is never committed or bundled.",
+  "note": "The SQLite database is a transient build product and is never committed or bundled. Its bytes depend on the local SQLite build, so only its format version and upstream metrics are locked here.",
   "repository": "https://github.com/keepraw/airport-history",
   "tree": "6b161372b6af9d5ab303201e089207310cac0c76"
 }

@@ -97,14 +97,39 @@ export function isFixedOffset(value: string): boolean {
   return OFFSET.test(value);
 }
 
+const validZones = new Map<string, boolean>();
+
 export function isTimezoneOrOffset(value: string): boolean {
   if (isFixedOffset(value)) return true;
+  const known = validZones.get(value);
+  if (known !== undefined) return known;
+  let valid: boolean;
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: value });
-    return true;
+    valid = true;
   } catch {
-    return false;
+    valid = false;
   }
+  if (validZones.size > 512) validZones.clear();
+  validZones.set(value, valid);
+  return valid;
+}
+
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function dateFormatter(zone: string): Intl.DateTimeFormat {
+  let formatter = dateFormatters.get(zone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: zone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    if (dateFormatters.size > 256) dateFormatters.clear();
+    dateFormatters.set(zone, formatter);
+  }
+  return formatter;
 }
 
 /** Calendar date of an instant in an IANA zone or fixed `±HH:MM` offset. */
@@ -118,12 +143,7 @@ export function localDateInZone(iso: string, zone: string): string | null {
     return new Date(instant + minutes * 60_000).toISOString().slice(0, 10);
   }
   try {
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: zone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).formatToParts(instant);
+    const parts = dateFormatter(zone).formatToParts(instant);
     const value = (type: string) =>
       parts.find((part) => part.type === type)?.value;
     return `${value("year")}-${value("month")}-${value("day")}`;
@@ -144,6 +164,9 @@ function near(
 ): boolean {
   return distanceKilometers(a, b) <= kilometers;
 }
+
+/** Two reference points this close describe one physical airport site. */
+const IDENTICAL_SITE_KILOMETERS = 3;
 
 const cache = new Map<string, FlightEndpointIdentity>();
 
@@ -242,11 +265,29 @@ function computeIdentity(
         .map((id) => formalAirports.get(id)?.timezone)
         .filter(Boolean),
     );
+    // A zone is usable when every possibility agrees: all formal candidates
+    // (uncertain), or the current directory and every candidate site that
+    // carries a zone (historical_candidate). Several zones are never picked.
+    // A site without a zone is an unknown zone, never a vacuous agreement.
+    const hypothesisSites = resolution
+      ? [
+          ...resolution.candidateSites,
+          ...resolution.candidates.flatMap((c) => c.possibleSites),
+        ]
+      : [];
+    const agreeingDirectoryZone =
+      status === "historical_candidate" &&
+      directory &&
+      hypothesisSites.length > 0 &&
+      hypothesisSites.every((site) => site.timezone === directory.timezone) &&
+      zones.every((zone) => zone === directory.timezone)
+        ? directory.timezone
+        : null;
     const timezone =
       storedZone ??
       (status === "uncertain" && formalZones.size === 1
         ? [...formalZones][0]!
-        : null);
+        : agreeingDirectoryZone);
     return {
       role,
       iata,
@@ -278,6 +319,19 @@ function computeIdentity(
   ): FlightEndpointIdentity => {
     const airport = formalAirports.get(airportId)!;
     const sameAsDirectory = directory ? near(directory, airport) : false;
+    // The formal identity (airportId) is authoritative. When the current
+    // directory row is the very same physical site (every same-site pair in
+    // the formal layer is within 1.7 km; distinct historical sites are 20 km+
+    // apart), its established reference point is kept so continuing airports
+    // do not shift by survey noise; a distinct historical site always uses
+    // its own formal coordinates.
+    const identicalSite = directory
+      ? near(directory, airport, IDENTICAL_SITE_KILOMETERS)
+      : false;
+    const sitePoint =
+      identicalSite && directory
+        ? { latitude: directory.latitude, longitude: directory.longitude }
+        : { latitude: airport.latitude, longitude: airport.longitude };
     const sameCity = directory ? near(directory, airport, 150) : false;
     return {
       role,
@@ -289,7 +343,7 @@ function computeIdentity(
       confirmed: true,
       basis,
       airportId,
-      point: { latitude: airport.latitude, longitude: airport.longitude },
+      point: sitePoint,
       possiblePositions: [],
       timezone: airport.timezone,
       timezoneOptions: [airport.timezone],
@@ -325,7 +379,7 @@ function computeIdentity(
       if (!directory) return unresolved(resolution, resolution.status);
       // Never let a code's current site stand in for a different formal site.
       const formalCollision = [...formalAirports.values()].find((airport) =>
-        near(directory, airport, 3),
+        near(directory, airport, IDENTICAL_SITE_KILOMETERS),
       );
       const names = directoryNames(directory);
       return {

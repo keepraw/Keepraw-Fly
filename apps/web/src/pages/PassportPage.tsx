@@ -483,12 +483,35 @@ export function PassportPage({
                   ["airports", stats.airports.toLocaleString(locale)],
                   ["airlines", stats.airlines.toLocaleString(locale)],
                   ["countries", stats.countries.toLocaleString(locale)],
-                ].map(([label, value]) => (
-                  <p className="passport-core-stat" key={label}>
-                    <StatisticValue value={value ?? ""} />
-                    <span>{t(`passport.${label}`)}</span>
-                  </p>
-                ))}
+                ].map(([label, value]) => {
+                  // Airports counts confirmed physical airports only; codes not
+                  // confirmed at their flight dates are reported beside it.
+                  const coverage =
+                    label === "airports" && stats.unresolvedAirports
+                      ? t("passport.unresolvedHistoricalAirports", {
+                          airports:
+                            stats.unresolvedAirports.toLocaleString(locale),
+                        })
+                      : undefined;
+                  return (
+                    <p
+                      className={
+                        coverage
+                          ? "passport-core-stat passport-history-coverage"
+                          : "passport-core-stat"
+                      }
+                      key={label}
+                      data-unresolved-airports={
+                        coverage ? stats.unresolvedAirports : undefined
+                      }
+                      title={coverage}
+                      aria-description={coverage}
+                    >
+                      <StatisticValue value={value ?? ""} />
+                      <span>{t(`passport.${label}`)}</span>
+                    </p>
+                  );
+                })}
               </section>
             ) : (
               <>

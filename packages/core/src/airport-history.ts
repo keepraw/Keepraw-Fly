@@ -393,8 +393,15 @@ const failedShards = new Set<string>();
 let candidateVersion = 0;
 const listeners = new Set<() => void>();
 
+const shardCache = new Map<string, string>();
+
 export function airportHistoryShard(key: string): string {
-  return sha256Hex(key)[0]!;
+  let shard = shardCache.get(key);
+  if (shard === undefined) {
+    shard = sha256Hex(key)[0]!;
+    shardCache.set(key, shard);
+  }
+  return shard;
 }
 
 export function observationShardPath(

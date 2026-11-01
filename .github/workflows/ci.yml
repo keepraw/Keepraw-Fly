@@ -266,7 +266,7 @@ jobs:
   # Preserve the existing required-check name as a gate over every validation job.
   # always() makes failed/cancelled/skipped dependencies fail this gate explicitly.
   verify:
-    needs: [checks, chromium, cross-browser, csp]
+    needs: [checks, chromium, cross-browser, csp, airport-history]
     if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -277,8 +277,9 @@ jobs:
           CHROMIUM_RESULT: ${{ needs.chromium.result }}
           CROSS_BROWSER_RESULT: ${{ needs.cross-browser.result }}
           CSP_RESULT: ${{ needs.csp.result }}
+          AIRPORT_HISTORY_RESULT: ${{ needs.airport-history.result }}
         run: |
-          for result in "$CHECKS_RESULT" "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT"; do
+          for result in "$CHECKS_RESULT" "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT" "$AIRPORT_HISTORY_RESULT"; do
             if [ "$result" != success ]; then
               echo "Validation did not succeed: $result"
               exit 1
@@ -289,7 +290,7 @@ jobs:
     # Publish only the validated main commit from this CI run. Pull requests,
     # failed, cancelled, or skipped validation jobs must never deploy.
     if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
-    needs: [verify, checks, chromium, cross-browser, csp]
+    needs: [verify, checks, chromium, cross-browser, csp, airport-history]
     runs-on: ubuntu-latest
 
     permissions:
