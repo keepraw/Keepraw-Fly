@@ -37,6 +37,8 @@ export interface UmetripSource {
 }
 export interface UmetripDiagnostic extends UmetripSource {
   code: string;
+  /** For `airport-timezone-required`: the IATA code waiting for a zone. */
+  airportCode?: string;
 }
 export interface UmetripRecord extends UmetripSource {
   values: Partial<Record<UmetripField, UmetripCellValue>>;

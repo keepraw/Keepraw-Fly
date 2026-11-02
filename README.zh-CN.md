@@ -79,6 +79,8 @@
 
 ## 数据格式
 
+机场按航班日期识别：历史代码会根据内置的 [Keepraw Airport History 数据](docs/airport-history.md) 解析为当天的实际物理机场；无法识别机场的航班会被保留，并明确标记为未解析。
+
 可迁移的 `keepraw-fly` 档案执行结构与语义校验。参见[格式与兼容性指南](docs/schema.md)和[JSON Schema](packages/schema/keepraw-fly.schema.json)。
 
 ## 文档

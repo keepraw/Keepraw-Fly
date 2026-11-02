@@ -16,6 +16,12 @@ import {
   type ParsedCsv,
 } from "../data/csv-import";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
+import {
+  ImportAirportTimezones,
+  pendingTimezoneCodes,
+  useImportAirportHistory,
+} from "./ImportAirportTimezones";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { useImportPreflight } from "./useImportPreflight";
 
 interface CsvImportControlProps {
@@ -61,13 +67,24 @@ export function CsvImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
+  const [timezoneOverrides, setTimezoneOverrides] = useState<
+    Record<string, string>
+  >({});
+  const historyVersion = useAirportHistoryVersion();
+  useImportAirportHistory(pending?.parsed.rows ?? null);
   const work = useMemo(
     () =>
       pending
         ? () =>
-            preflightCsvImportWork(pending.parsed, pending.mapping, document)
+            preflightCsvImportWork(
+              pending.parsed,
+              pending.mapping,
+              document,
+              undefined,
+              { timezoneOverrides },
+            )
         : null,
-    [document, pending],
+    [document, pending, timezoneOverrides, historyVersion],
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 
@@ -213,6 +230,13 @@ export function CsvImportControl({
               preflight={preflight}
               includePossibleDuplicates={includePossibleDuplicates}
               onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
+            />
+          ) : null}
+          {preflight ? (
+            <ImportAirportTimezones
+              codes={pendingTimezoneCodes(preflight.issues)}
+              value={timezoneOverrides}
+              onApply={setTimezoneOverrides}
             />
           ) : null}
           {preflight?.assessments.length ? (

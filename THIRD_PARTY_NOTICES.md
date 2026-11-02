@@ -72,6 +72,19 @@ its upstream `mwgg/Airports` acknowledgement, is included in
 Run `pnpm update:airports` to refresh the generated airport data from a pinned
 upstream revision.
 
+## Keepraw Airport History
+
+`packages/core/data/airport-history/` is generated from
+[keepraw/airport-history](https://github.com/keepraw/airport-history) at commit
+`19b7b1decfe2b43916fd4607b049ebb79293ae77` (see `source-lock.json`). The
+project-authored database selection, arrangement, IDs and factual annotations
+are dedicated under CC0 1.0. The worldwide reference layer it contains derives
+from the pinned OurAirports CSV (public domain), factual timezone attributes
+from airportsdata (MIT) and airport-codes data (ODC-PDDL-1.0). The upstream
+dedication, airportsdata notice and upstream third-party notices are included
+in `packages/core/data/airport-history/licenses/`. Directory observations are
+not verified historical facts.
+
 ## Wikidata airline and airport localization references
 
 Keepraw Fly bundles an offline airline code/name reference and a Chinese airport

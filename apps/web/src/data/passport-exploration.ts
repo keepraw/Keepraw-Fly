@@ -1,10 +1,23 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { searchFlights, sortFlightsNewestFirst } from "@keepraw-fly/core";
+import {
+  flightMatchesAirportTarget,
+  flightMatchesRouteTarget,
+  searchFlights,
+  sortFlightsNewestFirst,
+  type AirportSelectionTarget,
+  type RouteSelectionTarget,
+} from "@keepraw-fly/core";
 
+/**
+ * Airports and routes are selected by flight-date physical identity
+ * (`identityKey`), so two airports that shared one IATA code stay apart. The
+ * codes remain for display; a transient selection without identity keys
+ * (older state) still matches by code.
+ */
 export type PassportSelection =
-  | { kind: "airport"; code: string }
+  | AirportSelectionTarget
   | { kind: "airline"; code: string }
-  | { kind: "route"; origin: string; destination: string };
+  | RouteSelectionTarget;
 
 export interface PassportViewState {
   year: number | "lifetime";
@@ -70,20 +83,35 @@ export function airlineCode(flight: KeeprawFlight): string {
   return flight.airline.iata ?? flight.airline.icao ?? "";
 }
 
-function matchesSelection(
+export function matchesSelection(
   flight: KeeprawFlight,
   selection: PassportSelection,
 ): boolean {
-  if (selection.kind === "airport") {
-    return (
-      flight.origin.iata === selection.code ||
-      (flight.divertedTo ?? flight.destination).iata === selection.code
-    );
-  }
+  if (selection.kind === "airport")
+    return flightMatchesAirportTarget(flight, selection);
   if (selection.kind === "airline")
     return airlineCode(flight) === selection.code;
-  return (
-    flight.origin.iata === selection.origin &&
-    (flight.divertedTo ?? flight.destination).iata === selection.destination
-  );
+  return flightMatchesRouteTarget(flight, selection);
+}
+
+/** Same target: by physical identity when both carry one, else by code. */
+export function sameSelection(
+  a: PassportSelection | null,
+  b: PassportSelection,
+): boolean {
+  if (!a || a.kind !== b.kind) return false;
+  if (a.kind === "airline" && b.kind === "airline") return a.code === b.code;
+  if (a.kind === "airport" && b.kind === "airport")
+    return a.identityKey && b.identityKey
+      ? a.identityKey === b.identityKey
+      : a.code === b.code;
+  if (a.kind === "route" && b.kind === "route")
+    return a.originIdentityKey &&
+      a.destinationIdentityKey &&
+      b.originIdentityKey &&
+      b.destinationIdentityKey
+      ? a.originIdentityKey === b.originIdentityKey &&
+          a.destinationIdentityKey === b.destinationIdentityKey
+      : a.origin === b.origin && a.destination === b.destination;
+  return false;
 }

@@ -13,6 +13,8 @@
     "build": "pnpm -r build",
     "preview": "pnpm --filter @keepraw-fly/web preview",
     "update:airports": "node scripts/update-airports.mjs",
+    "update:airport-history": "python3 scripts/update-airport-history.py",
+    "check:airport-history": "python3 scripts/update-airport-history.py --check",
     "update:airlines": "node scripts/update-airlines.mjs",
     "update:airline-icons": "node scripts/generate-airline-icons.mjs",
     "update:airport-locales": "node scripts/update-airport-locales.mjs",

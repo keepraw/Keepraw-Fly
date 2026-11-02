@@ -14,18 +14,60 @@ export function formatServiceDate(
   }).format(new Date(`${serviceDate}T00:00:00Z`));
 }
 
+/**
+ * Formats an instant at an airport. `timezone` is the flight-date historical
+ * zone (IANA or `±HH:MM`); `null` means the airport is not determined, so the
+ * wall time written in the RFC 3339 offset is shown instead of guessing UTC.
+ */
 export function formatTimeAtAirport(
   isoDateTime: string,
   airportIata: string,
   locale: SupportedLocale,
   timeFormat: TimeFormat,
+  timezone?: string | null,
 ): string {
-  return new Intl.DateTimeFormat(locale, {
+  const zone =
+    timezone === undefined
+      ? (airportByIata.get(airportIata)?.timezone ?? null)
+      : timezone;
+  const options: Intl.DateTimeFormatOptions = {
     hour: "2-digit",
     minute: "2-digit",
     hour12: timeFormat === "12-hour",
-    timeZone: airportByIata.get(airportIata)?.timezone ?? "UTC",
-  }).format(new Date(isoDateTime));
+  };
+  const fixed = zone ? /^([+-])(\d{2}):(\d{2})$/.exec(zone) : null;
+  if (zone && !fixed) {
+    try {
+      return new Intl.DateTimeFormat(locale, {
+        ...options,
+        timeZone: zone,
+      }).format(new Date(isoDateTime));
+    } catch {
+      // Fall through to the written offset for an invalid zone.
+    }
+  }
+  const instant = Date.parse(isoDateTime);
+  let wall: number;
+  if (fixed) {
+    const minutes =
+      (fixed[1] === "-" ? -1 : 1) * (Number(fixed[2]) * 60 + Number(fixed[3]));
+    wall = instant + minutes * 60_000;
+  } else {
+    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(isoDateTime);
+    wall = match
+      ? Date.UTC(
+          Number(match[1]),
+          Number(match[2]) - 1,
+          Number(match[3]),
+          Number(match[4]),
+          Number(match[5]),
+        )
+      : instant;
+  }
+  return new Intl.DateTimeFormat(locale, {
+    ...options,
+    timeZone: "UTC",
+  }).format(new Date(wall));
 }
 
 export function formatDistance(

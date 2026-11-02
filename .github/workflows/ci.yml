@@ -266,7 +266,7 @@ jobs:
   # Preserve the existing required-check name as a gate over every validation job.
   # always() makes failed/cancelled/skipped dependencies fail this gate explicitly.
   verify:
-    needs: [checks, chromium, cross-browser, csp]
+    needs: [checks, chromium, cross-browser, csp, airport-history]
     if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -277,8 +277,9 @@ jobs:
           CHROMIUM_RESULT: ${{ needs.chromium.result }}
           CROSS_BROWSER_RESULT: ${{ needs.cross-browser.result }}
           CSP_RESULT: ${{ needs.csp.result }}
+          AIRPORT_HISTORY_RESULT: ${{ needs.airport-history.result }}
         run: |
-          for result in "$CHECKS_RESULT" "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT"; do
+          for result in "$CHECKS_RESULT" "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT" "$AIRPORT_HISTORY_RESULT"; do
             if [ "$result" != success ]; then
               echo "Validation did not succeed: $result"
               exit 1
@@ -289,7 +290,7 @@ jobs:
     # Publish only the validated main commit from this CI run. Pull requests,
     # failed, cancelled, or skipped validation jobs must never deploy.
     if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
-    needs: [verify, checks, chromium, cross-browser, csp]
+    needs: [verify, checks, chromium, cross-browser, csp, airport-history]
     runs-on: ubuntu-latest
 
     permissions:
@@ -308,3 +309,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  airport-history:
+    if: github.repository == 'keepraw/Keepraw-Fly'
+    # Rebuilds the committed two-layer airport-history package from the pinned
+    # keepraw/airport-history commit with its own bulk/worldwide.py, and
+    # requires every file to be byte-identical (SHA-256). No Actions artifact
+    # is used as a data source; the package lives in this repository.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Rebuild airport-history package from the pinned upstream commit
+        run: python3 scripts/update-airport-history.py --check

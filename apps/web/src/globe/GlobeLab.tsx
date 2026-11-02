@@ -2,10 +2,20 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
+  airportSelectionTarget,
+  airportTargetMatches,
   buildRouteSegments,
+  flightMatchesRouteTarget,
+  flightRouteIdentityKey,
+  flightRouteTarget,
   localizedText,
   airportByIata,
+  routeIdentityKey,
+  routePointIdentityKey,
+  routeSelectionTarget,
+  routeTargetMatches,
 } from "@keepraw-fly/core";
+import { airportPickerValues, routePickerValues } from "../data/map-selection";
 import type { ViewerSettings } from "../storage/types";
 import {
   initialPassportView,
@@ -67,11 +77,21 @@ export default function GlobeLab({
     [document.flights],
   );
   const select = (s: GlobeSelection) => setSelection(s);
-  const routeSelection = (flight: KeeprawFlight): GlobeSelection => ({
-    kind: "route",
-    origin: flight.origin.iata,
-    destination: (flight.divertedTo ?? flight.destination).iata,
-  });
+  const routeSelection = (flight: KeeprawFlight): GlobeSelection =>
+    flightRouteTarget(flight);
+  const routeValues = useMemo(() => routePickerValues(routes), [routes]);
+  const airportValues = useMemo(
+    () => airportPickerValues(airports),
+    [airports],
+  );
+  const selectedRouteSegment =
+    selection?.kind === "route"
+      ? routes.find((route) => routeTargetMatches(selection, route))
+      : undefined;
+  const selectedAirportPoint =
+    selection?.kind === "airport"
+      ? airports.find((airport) => airportTargetMatches(selection, airport))
+      : undefined;
   return (
     <div className="globe-lab" data-theme={theme}>
       <header className="globe-lab-header">
@@ -159,9 +179,7 @@ export default function GlobeLab({
                   presentation="passport"
                   selected={
                     selection?.kind === "route" &&
-                    selection.origin === flight.origin.iata &&
-                    selection.destination ===
-                      (flight.divertedTo ?? flight.destination).iata
+                    flightMatchesRouteTarget(flight, selection)
                   }
                   onOpen={() => select(routeSelection(flight))}
                   onHoverChange={setHovered}
@@ -187,9 +205,7 @@ export default function GlobeLab({
               solarMode={solarMode}
               selection={selection}
               highlightedRoute={
-                hovered
-                  ? `${hovered.origin.iata}-${(hovered.divertedTo ?? hovered.destination).iata}`
-                  : undefined
+                hovered ? flightRouteIdentityKey(hovered) : undefined
               }
               onSelect={select}
             />
@@ -199,29 +215,25 @@ export default function GlobeLab({
                 <select
                   aria-label={t("globe.route")}
                   value={
-                    selection?.kind === "route"
-                      ? `${selection.origin}-${selection.destination}`
+                    selectedRouteSegment
+                      ? (routeValues.get(
+                          routeIdentityKey(selectedRouteSegment),
+                        ) ?? "")
                       : ""
                   }
                   onChange={(e) => {
                     const route = routes.find(
                       (r) =>
-                        `${r.origin.iata}-${r.destination.iata}` ===
-                        e.target.value,
+                        routeValues.get(routeIdentityKey(r)) === e.target.value,
                     );
-                    if (route)
-                      select({
-                        kind: "route",
-                        origin: route.origin.iata,
-                        destination: route.destination.iata,
-                      });
+                    if (route) select(routeSelectionTarget(route));
                   }}
                 >
                   <option value="">{t("globe.chooseRoute")}</option>
                   {routes.map((r) => (
                     <option
-                      key={`${r.origin.iata}-${r.destination.iata}`}
-                      value={`${r.origin.iata}-${r.destination.iata}`}
+                      key={routeIdentityKey(r)}
+                      value={routeValues.get(routeIdentityKey(r))}
                     >
                       {r.origin.iata} → {r.destination.iata} · {r.flightCount}
                     </option>
@@ -232,20 +244,35 @@ export default function GlobeLab({
                 {t("globe.airport")}
                 <select
                   aria-label={t("globe.airport")}
-                  value={selection?.kind === "airport" ? selection.code : ""}
+                  value={
+                    selectedAirportPoint
+                      ? (airportValues.get(
+                          routePointIdentityKey(selectedAirportPoint),
+                        ) ?? "")
+                      : ""
+                  }
                   onChange={(e) => {
-                    if (e.target.value)
-                      select({ kind: "airport", code: e.target.value });
+                    const airport = airports.find(
+                      (a) =>
+                        airportValues.get(routePointIdentityKey(a)) ===
+                        e.target.value,
+                    );
+                    if (airport) select(airportSelectionTarget(airport));
                   }}
                 >
                   <option value="">{t("globe.chooseAirport")}</option>
                   {airports.map((a) => (
-                    <option key={a.iata} value={a.iata}>
+                    <option
+                      key={routePointIdentityKey(a)}
+                      value={airportValues.get(routePointIdentityKey(a))}
+                    >
                       {a.iata} ·{" "}
-                      {localizedText(
-                        airportByIata.get(a.iata)!.city,
-                        settings.language,
-                      )}{" "}
+                      {airportByIata.get(a.iata)
+                        ? localizedText(
+                            airportByIata.get(a.iata)!.city,
+                            settings.language,
+                          )
+                        : a.iata}{" "}
                       · {a.flightCount}
                     </option>
                   ))}

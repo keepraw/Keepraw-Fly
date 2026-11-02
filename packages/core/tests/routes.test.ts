@@ -43,6 +43,7 @@ describe("actual route data", () => {
       airportByIata.set("SFO", { ...original, latitude: 0, longitude: 0 });
       expect(buildRouteSegments([flight])[0]?.origin).toEqual({
         iata: "SFO",
+        identityKey: "current:SFO",
         latitude: 0,
         longitude: 0,
       });
