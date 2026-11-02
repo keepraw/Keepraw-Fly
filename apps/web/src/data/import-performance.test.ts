@@ -78,6 +78,7 @@ describe("import performance regressions", () => {
         row, // Exact duplicate within the file.
         row.replace("01:30:59-04:00", "01:45:59-04:00"), // Possible duplicate.
         row.replace("01:30:59-04:00", "01:30"), // Ambiguous time.
+        // An unknown but well-formed code with explicit offsets is kept.
         row.replace("UA123", "UA124").replace(",JFK,", ",XXX,"),
         row.replace("UA123", "UA125"),
       ].join("\n"),
@@ -89,14 +90,15 @@ describe("import performance regressions", () => {
     );
     expect(result).toEqual(reference);
     expect(result).toMatchObject({
-      newRecords: 2,
+      newRecords: 3,
       exactDuplicateRecords: 1,
       possibleDuplicateRecords: 1,
-      issues: [
-        { code: "ambiguous-time", lineNumber: 5 },
-        { code: "unknown-airport", lineNumber: 6 },
-      ],
+      issues: [{ code: "ambiguous-time", lineNumber: 5 }],
     });
+    expect(result.issues).toHaveLength(1);
+    expect(result.flights.some((flight) => flight.origin.iata === "XXX")).toBe(
+      true,
+    );
     expect(result.flights[0]).toMatchObject({
       scheduledDeparture: "2026-11-01T01:30:00-04:00",
       actualDeparture: "2026-11-01T01:30:00-05:00",

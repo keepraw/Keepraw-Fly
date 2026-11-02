@@ -14,3 +14,6 @@ export * from "./statistics";
 export * from "./passport-highlights";
 export * from "./time-display";
 export * from "./travel-extensions";
+export * from "./airport-history";
+export * from "./flight-airports";
+export * from "./sha256";

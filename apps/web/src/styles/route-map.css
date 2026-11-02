@@ -340,3 +340,16 @@
     opacity var(--duration-standard) var(--ease-standard),
     stroke-width var(--duration-standard) var(--ease-standard);
 }
+
+/* Possible (unconfirmed) historical sites: hollow, dashed, never a route end. */
+.map-possible-airports {
+  pointer-events: none;
+}
+
+.map-possible-airports .map-possible-airport-ring {
+  fill: transparent;
+  stroke: var(--color-map-airport);
+  stroke-dasharray: 1.2 1.2;
+  stroke-width: 0.8;
+  opacity: 0.75;
+}

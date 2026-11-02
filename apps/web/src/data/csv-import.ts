@@ -3,10 +3,14 @@ import {
   KEEPRAW_FLY_FORMAT,
   KEEPRAW_FLY_FORMAT_VERSION,
 } from "@keepraw-fly/schema";
-import { airportByIata } from "@keepraw-fly/core";
+import { isFixedOffset } from "@keepraw-fly/core";
 import {
+  AirportTimezoneRequiredError,
   airportTimeFormatter,
+  endpointZone,
   flightFromDraft,
+  isAirportCodeFormat,
+  type EndpointZoneRole,
   localPartsAtAirport,
   zonedDateTimeToIso,
   type FlightDraft,
@@ -95,11 +99,19 @@ export type CsvImportIssueCode =
   | "invalid-timezone"
   | "invalid-row"
   | "date-mismatch"
-  | "chronology";
+  | "chronology"
+  | "airport-timezone-required";
+
+/** Zones the user confirmed for airports Keepraw cannot place, by IATA code. */
+export interface ImportAirportOptions {
+  timezoneOverrides?: Readonly<Record<string, string>>;
+}
 
 export interface CsvImportIssue {
   code: CsvImportIssueCode;
   lineNumber?: number;
+  /** For `airport-timezone-required`: the endpoint code waiting for a zone. */
+  airportCode?: string;
 }
 
 export interface CsvImportPreflight extends ImportPreflightCounts {
@@ -323,9 +335,10 @@ export function preflightCsvImport(
   mapping: CsvColumnMapping,
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
+  options: ImportAirportOptions = {},
 ): CsvImportPreflight {
   return finishImportPreflight(
-    preflightCsvImportWork(parsed, mapping, existing, idFactory),
+    preflightCsvImportWork(parsed, mapping, existing, idFactory, options),
   );
 }
 
@@ -334,6 +347,7 @@ export function* preflightCsvImportWork(
   mapping: CsvColumnMapping,
   existing: KeeprawFlyDocument | null,
   idFactory: () => string = () => crypto.randomUUID(),
+  options: ImportAirportOptions = {},
 ): Generator<void, CsvImportPreflight, void> {
   if (requiredCsvFlightFields.some((field) => mapping[field] === null)) {
     return {
@@ -356,7 +370,9 @@ export function* preflightCsvImportWork(
   for (const [index, row] of parsed.rows.entries()) {
     const lineNumber = index + 2;
     try {
-      flights.push(flightFromCsvRow(row, mapping, lineNumber, idFactory));
+      flights.push(
+        flightFromCsvRow(row, mapping, lineNumber, idFactory, options),
+      );
     } catch (error) {
       issues.push(csvIssueFromError(error, lineNumber));
     }
@@ -384,6 +400,7 @@ function flightFromCsvRow(
   mapping: CsvColumnMapping,
   lineNumber: number,
   idFactory: () => string,
+  options: ImportAirportOptions,
 ): KeeprawFlight {
   const value = (field: CsvFlightField) => (row[mapping[field]!] ?? "").trim();
   const flightNumber = value("flightNumber");
@@ -402,51 +419,74 @@ function flightFromCsvRow(
 
   if (!isCalendarDate(serviceDate))
     throw new Error(`line-${lineNumber}:invalid-date`);
-  if (!airportByIata.has(originIata) || !airportByIata.has(destinationIata)) {
+  // Well-formed codes are kept even when no layer knows them (the flight is
+  // never dropped); their zone comes from the flight-date historical airport,
+  // the user's explicit override, or the timestamp's own UTC offset.
+  if (!isAirportCodeFormat(originIata) || !isAirportCodeFormat(destinationIata))
     throw new Error(`line-${lineNumber}:unknown-airport`);
-  }
   if (originIata === destinationIata)
     throw new Error(`line-${lineNumber}:same-airport`);
-  const origin = airportByIata.get(originIata)!;
-  const destination = airportByIata.get(destinationIata)!;
+  const overrides = options.timezoneOverrides ?? {};
+  const zoneOf = (iata: string, date: string, role: EndpointZoneRole) =>
+    endpointZone(iata, date, role, overrides[iata]).zone;
+  const writtenDate = (raw: string) =>
+    /^\d{4}-\d{2}-\d{2}/.test(raw) ? raw.slice(0, 10) : "";
+  const originZone = zoneOf(originIata, serviceDate, "origin");
+  const destinationZone = zoneOf(
+    destinationIata,
+    writtenDate(scheduledArrival),
+    "destination",
+  );
   const departureIso = parseImportTime(
     scheduledDeparture,
-    origin.timezone,
+    originZone,
     lineNumber,
+    originIata,
   );
   const arrivalIso = parseImportTime(
     scheduledArrival,
-    destination.timezone,
+    destinationZone,
     lineNumber,
+    destinationIata,
   );
-  const departure = localPartsAtAirport(departureIso, origin.timezone);
+  const partsIn = (iso: string, zone: string | null) =>
+    zone
+      ? localPartsAtAirport(iso, zone)
+      : { date: iso.slice(0, 10), time: iso.slice(11, 16) };
+  const departure = partsIn(departureIso, originZone);
   if (departure.date !== serviceDate)
     throw new Error(`line-${lineNumber}:date-mismatch`);
-  const arrival = localPartsAtAirport(arrivalIso, destination.timezone);
+  const arrival = partsIn(arrivalIso, destinationZone);
   const actual = (
     field: "actualDeparture" | "actualArrival",
-    timezone: string,
+    timezone: string | null,
+    iata: string,
   ) => {
     const raw = value(field);
     if (!raw) return undefined;
-    return parseImportTime(raw, timezone, lineNumber);
+    return parseImportTime(raw, timezone, lineNumber, iata);
   };
-  const actualDeparture = actual("actualDeparture", origin.timezone);
+  const actualDeparture = actual("actualDeparture", originZone, originIata);
   const divertedToIata = value("divertedToIata");
-  const divertedTo = divertedToIata
-    ? airportByIata.get(divertedToIata)
-    : undefined;
-  if (divertedToIata && !divertedTo)
+  if (divertedToIata && !isAirportCodeFormat(divertedToIata))
     throw new Error(`line-${lineNumber}:unknown-airport`);
+  const arrivalZone = divertedToIata
+    ? zoneOf(
+        divertedToIata,
+        writtenDate(value("actualArrival") || scheduledArrival),
+        "divertedTo",
+      )
+    : destinationZone;
   const actualArrival = actual(
     "actualArrival",
-    (divertedTo ?? destination).timezone,
+    arrivalZone,
+    divertedToIata || destinationIata,
   );
   const actualDepartureParts = actualDeparture
-    ? localPartsAtAirport(actualDeparture, origin.timezone)
+    ? partsIn(actualDeparture, originZone)
     : { date: "", time: "" };
   const actualArrivalParts = actualArrival
-    ? localPartsAtAirport(actualArrival, (divertedTo ?? destination).timezone)
+    ? partsIn(actualArrival, arrivalZone)
     : { date: "", time: "" };
   const draft: FlightDraft = {
     flightNumber,
@@ -475,7 +515,10 @@ function flightFromCsvRow(
     frequentFlyerMembershipId: "",
     frequentFlyerTierAtFlight: "",
     cancelled: /^(true|1|yes)$/i.test(value("cancelled")),
-    divertedToIata: divertedTo?.iata ?? "",
+    divertedToIata,
+    originTimezone: overrides[originIata] ?? "",
+    destinationTimezone: overrides[destinationIata] ?? "",
+    divertedTimezone: divertedToIata ? (overrides[divertedToIata] ?? "") : "",
   };
   // Let the canonical validator report cancelled/diverted conflicts after import preview.
   const flight = flightFromDraft({ ...draft, cancelled: false }, undefined, {
@@ -495,6 +538,20 @@ function csvIssueFromError(
 ): CsvImportIssue {
   const message = error instanceof Error ? error.message : "";
   const match = /^line-(\d+):(.+)$/.exec(message);
+  const timezoneMatch =
+    /^line-(\d+):airport-timezone-required:([A-Z]{3})$/.exec(message);
+  if (timezoneMatch)
+    return {
+      code: "airport-timezone-required",
+      lineNumber: Number(timezoneMatch[1]),
+      airportCode: timezoneMatch[2]!,
+    };
+  if (error instanceof AirportTimezoneRequiredError)
+    return {
+      code: "airport-timezone-required",
+      lineNumber: fallbackLineNumber,
+      airportCode: error.iata,
+    };
   const rawCode = match?.[2] ?? message;
   const editorCodes: Record<string, CsvImportIssueCode> = {
     "invalid-local-time": "invalid-time",
@@ -534,6 +591,7 @@ function isCsvIssueCode(value: string): value is CsvImportIssueCode {
     "invalid-row",
     "date-mismatch",
     "chronology",
+    "airport-timezone-required",
   ].includes(value);
 }
 
@@ -546,8 +604,9 @@ function normalizeHeader(value: string): string {
 
 function parseImportTime(
   value: string,
-  timezone: string,
+  timezone: string | null,
   lineNumber: number,
+  iata = "",
 ): string {
   const match =
     /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}(?::\d{2})?)(Z|[+-]\d{2}:\d{2})?$/.exec(
@@ -560,19 +619,37 @@ function parseImportTime(
     throw new Error(`line-${lineNumber}:invalid-time`);
   if (offset && !Number.isFinite(Date.parse(value)))
     throw new Error(`line-${lineNumber}:invalid-time`);
+  if (timezone === null) {
+    // Undetermined airport: an explicit offset is kept as written; a bare wall
+    // clock is never guessed into UTC. The row waits for a user zone.
+    if (offset) return minuteIsoAtOffset(value);
+    throw new Error(`line-${lineNumber}:airport-timezone-required:${iata}`);
+  }
   try {
     // Validate the airport's IANA zone independently of the timestamp format.
-    airportTimeFormatter(timezone);
+    if (!isFixedOffset(timezone)) airportTimeFormatter(timezone);
   } catch {
     throw new Error(`line-${lineNumber}:invalid-timezone`);
   }
-  if (offset) return minuteIsoAtAirport(value, timezone);
+  if (offset)
+    return isFixedOffset(timezone)
+      ? minuteIsoAtOffset(value)
+      : minuteIsoAtAirport(value, timezone);
   try {
     return zonedDateTimeToIso(date!, time!.slice(0, 5), timezone);
   } catch (error) {
     const issue = csvIssueFromError(error, lineNumber);
     throw new Error(formatCsvIssue(issue));
   }
+}
+
+/** Keeps the written offset; truncates seconds per the import convention. */
+function minuteIsoAtOffset(value: string): string {
+  const match =
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::\d{2})?(Z|[+-]\d{2}:\d{2})$/.exec(
+      value,
+    )!;
+  return `${match[1]}:00${match[2] === "Z" ? "+00:00" : match[2]}`;
 }
 
 function minuteIsoAtAirport(value: string, timezone: string): string {

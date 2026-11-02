@@ -1,4 +1,12 @@
-import { airportByIata, airports } from "@keepraw-fly/core";
+import {
+  airportByIata,
+  airportHistorySearchRows,
+  airports,
+  assignmentDateRelation,
+  formalAirports,
+  formalAssignments,
+  formalHistoricalNames,
+} from "@keepraw-fly/core";
 
 // Name aliases identify an IATA code, never a dated physical airport entity.
 // Most names come from the bundled directory/locales. Keep only documented
@@ -11,6 +19,13 @@ const aliases: Readonly<Record<string, string>> = {
 export type UmetripAirportResolution =
   { iata: string } | { code: "unknown-airport" | "ambiguous-airport" };
 
+/**
+ * Resolves an Umetrip airport cell (a code or a name) to an IATA code at the
+ * flight date. Names come from the current directory, the formal historical
+ * layer (a historical site's name yields the code it held on that date) and,
+ * when loaded, worldwide candidate sites. A well-formed code is kept even when
+ * no layer knows it, so the flight is not lost.
+ */
 export function createUmetripAirportResolver() {
   const names = new Map<string, Set<string>>();
   const add = (name: string, iata: string) => {
@@ -28,12 +43,51 @@ export function createUmetripAirportResolver() {
   for (const [name, iata] of Object.entries(aliases)) {
     if (airportByIata.has(iata)) add(name, iata);
   }
-  return (raw: string): UmetripAirportResolution => {
+  // Historical names are date-scoped: only codes whose formal interval can
+  // include the service date are offered.
+  const formalNames = new Map<string, string[]>();
+  for (const airport of formalAirports.values()) {
+    const labels = [
+      airport.name,
+      ...formalHistoricalNames
+        .filter((row) => row.airportId === airport.airportId)
+        .map((row) => row.name),
+    ];
+    for (const label of labels) {
+      const key = normalizeAirportName(label);
+      formalNames.set(key, [
+        ...(formalNames.get(key) ?? []),
+        airport.airportId,
+      ]);
+    }
+  }
+  const candidateNames = new Map<string, Set<string>>();
+  for (const row of airportHistorySearchRows() ?? []) {
+    if (row.scheme !== "IATA") continue;
+    const key = normalizeAirportName(row.name);
+    const codes = candidateNames.get(key) ?? new Set<string>();
+    codes.add(row.code);
+    candidateNames.set(key, codes);
+  }
+  return (raw: string, serviceDate?: string): UmetripAirportResolution => {
     const code = raw.trim().toUpperCase();
-    if (/^[A-Z]{3}$/.test(code) && airportByIata.has(code))
-      return { iata: code };
-    const matches = names.get(normalizeAirportName(raw));
-    if (!matches?.size) return { code: "unknown-airport" };
+    if (/^[A-Z]{3}$/.test(code)) return { iata: code };
+    const key = normalizeAirportName(raw);
+    const matches = new Set(names.get(key) ?? []);
+    for (const airportId of formalNames.get(key) ?? []) {
+      for (const row of formalAssignments) {
+        if (row.scheme !== "IATA" || row.airportId !== airportId) continue;
+        if (
+          !serviceDate ||
+          assignmentDateRelation(serviceDate, row) !== "excluded"
+        )
+          matches.add(row.code);
+      }
+    }
+    if (!matches.size)
+      for (const candidate of candidateNames.get(key) ?? [])
+        matches.add(candidate);
+    if (!matches.size) return { code: "unknown-airport" };
     if (matches.size !== 1) return { code: "ambiguous-airport" };
     return { iata: [...matches][0]! };
   };

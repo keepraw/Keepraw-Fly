@@ -62,8 +62,9 @@ export function inferUmetripTimes(input: {
   departureTime: string;
   arrivalTime: string;
   arrivalDate?: string;
-  origin: AirportReference;
-  destination: AirportReference;
+  /** Coordinates may be unknown (NaN) for an undetermined historical airport. */
+  origin: Pick<AirportReference, "timezone" | "latitude" | "longitude">;
+  destination: Pick<AirportReference, "timezone" | "latitude" | "longitude">;
 }): { departure: string; arrival: string } {
   const { serviceDate, departureTime, arrivalTime, origin, destination } =
     input;
@@ -81,10 +82,21 @@ export function inferUmetripTimes(input: {
   const start = Date.parse(departure);
   // Broad scheduled block-time sanity bounds, not a route schedule or a claim
   // about historical airport locations. Coordinates are never saved to flights.
-  const distance = distanceKilometers(origin, destination);
-  if (!Number.isFinite(distance)) throw new Error("invalid-duration");
-  const minimum = Math.max(15, (distance / 1200) * 60 - 30);
-  const maximum = Math.min(24 * 60, (distance / 400) * 60 + 180);
+  // Without two confirmed sites (unknown historical airport) only the
+  // broadest bounds apply; candidate coordinates are never used here.
+  const located = [origin, destination].every(
+    (point) =>
+      Number.isFinite(point.latitude) && Number.isFinite(point.longitude),
+  );
+  const distance = located
+    ? distanceKilometers(origin, destination)
+    : Number.NaN;
+  if (located && !Number.isFinite(distance))
+    throw new Error("invalid-duration");
+  const minimum = located ? Math.max(15, (distance / 1200) * 60 - 30) : 15;
+  const maximum = located
+    ? Math.min(24 * 60, (distance / 400) * 60 + 180)
+    : 24 * 60;
 
   // Observe destination offsets throughout the possible UTC arrival window.
   // This prunes unrelated dates before DST resolution, while retaining both

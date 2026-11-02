@@ -151,6 +151,7 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     "CHROMIUM_RESULT",
     "CROSS_BROWSER_RESULT",
     "CSP_RESULT",
+    "AIRPORT_HISTORY_RESULT",
   ];
   const success = Object.fromEntries(keys.map((key) => [key, "success"]));
   const run = (env) =>
@@ -163,7 +164,10 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
         1,
         `${key}: ${result}`,
       );
-  assert.match(gate, /needs: \[checks, chromium, cross-browser, csp\]/);
+  assert.match(
+    gate,
+    /needs: \[checks, chromium, cross-browser, csp, airport-history\]/,
+  );
   assert.ok(
     gate.includes(
       "if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}",
@@ -176,7 +180,9 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     ),
   );
   assert.ok(
-    deploy.includes("needs: [verify, checks, chromium, cross-browser, csp]"),
+    deploy.includes(
+      "needs: [verify, checks, chromium, cross-browser, csp, airport-history]",
+    ),
   );
   assert.match(deploy, /uses: actions\/deploy-pages@[0-9a-f]{40} # v5\./);
   assert.match(

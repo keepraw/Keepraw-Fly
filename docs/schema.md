@@ -134,6 +134,14 @@ nullable string facts.
 Aircraft `type` and `registration` are stored in `keepraw-fly.aircraft`, not as
 top-level flight properties. Seat and cabin facts belong to `keepraw-fly.seat`.
 
+Airport codes are kept as recorded even when no directory or historical layer
+knows them; the physical airport is resolved by flight date (see
+[historical airport identity](airport-history.md)). When the user confirms a
+time zone for an airport Keepraw Fly cannot place, it is stored as an IANA zone
+or `±HH:MM` offset in `keepraw-fly.airport-timezones` (`origin`, `destination`,
+`divertedTo`) so later edits read the same wall times. The format version is
+unchanged and older archives remain valid.
+
 `bookingClass` stores the airline's single-letter booking class independently
 from the broader cabin class. `baggageCarousel` is a nullable string because
 real carousel identifiers may be alphanumeric. It does not indicate whether

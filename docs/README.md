@@ -44,6 +44,7 @@ the browser; it does not add server backup or cloud synchronization.
 | Local setup, contribution rules, commit identity and quality gates / 本地开发、贡献、提交身份与质量门禁 | [Engineering standards / 工程规范](engineering-standards.md)                                                   |
 | Packages, storage, imports, statistics and localization / 包、存储、导入、统计与本地化                  | [Architecture / 架构](architecture.md)                                                                         |
 | Portable archive, compatibility and CSV contracts / 档案格式、兼容性与 CSV 契约                         | [Schema / 数据规范](schema.md)                                                                                 |
+| Historical airport identity and data package / 历史机场身份与数据包                                     | [Airport history / 历史机场](airport-history.md)                                                               |
 | UI, typography, themes, tokens and interaction / 界面、字体、主题与交互                                 | [Design system / 视觉系统（双语）](design-system.md)                                                           |
 | Test layers, fixtures, captures and CI / 测试分层、输入、截图与 CI                                      | [Testing / 测试](testing.md)                                                                                   |
 | CSP, privacy, dependencies and release provenance / 安全、隐私、依赖与发行来源                          | [Security / 安全模型](security.md)                                                                             |

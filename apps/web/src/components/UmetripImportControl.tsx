@@ -4,6 +4,15 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { importLimitValues } from "../data/import-limits";
 import { readUmetripFile, type ParsedUmetrip } from "../data/umetrip-xls";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
+import {
+  ImportAirportTimezones,
+  pendingTimezoneCodes,
+} from "./ImportAirportTimezones";
+import {
+  loadAirportHistoryCodes,
+  loadAirportHistorySearchIndex,
+  useAirportHistoryVersion,
+} from "../data/airport-history";
 import { useImportPreflight } from "./useImportPreflight";
 
 export function UmetripImportControl({
@@ -33,13 +42,37 @@ export function UmetripImportControl({
     },
     [],
   );
+  const [timezoneOverrides, setTimezoneOverrides] = useState<
+    Record<string, string>
+  >({});
+  const historyVersion = useAirportHistoryVersion();
+  useEffect(() => {
+    if (!pending) return;
+    // Codes and historical/candidate names in the workbook resolve by date.
+    const codes = new Set<string>();
+    for (const record of pending.parsed.records)
+      for (const cell of [record.values.origin, record.values.destination])
+        if (
+          typeof cell === "string" &&
+          /^[A-Z]{3}$/.test(cell.trim().toUpperCase())
+        )
+          codes.add(cell.trim().toUpperCase());
+    void loadAirportHistoryCodes([...codes]);
+    void loadAirportHistorySearchIndex();
+  }, [pending]);
   const work = useMemo(
     () =>
       pending
         ? () =>
-            pending.adapter.preflightUmetripImportWork(pending.parsed, document)
+            pending.adapter.preflightUmetripImportWork(
+              pending.parsed,
+              document,
+              undefined,
+              undefined,
+              { timezoneOverrides },
+            )
         : null,
-    [pending, document],
+    [pending, document, timezoneOverrides, historyVersion],
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 
@@ -158,6 +191,11 @@ export function UmetripImportControl({
                 preflight={preflight}
                 includePossibleDuplicates={includePossibleDuplicates}
                 onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
+              />
+              <ImportAirportTimezones
+                codes={pendingTimezoneCodes(preflight.issues)}
+                value={timezoneOverrides}
+                onApply={setTimezoneOverrides}
               />
               <p>
                 {t("umetripImport.excludedRecords")}:{" "}

@@ -7,9 +7,19 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  airportByIata,
+  arrivalIdentity,
+  buildUncertainAirportMarkers,
   distanceKilometers,
   localizedText,
+  airportSelectionTarget,
+  airportTargetMatches,
+  originIdentity,
+  routeIdentityKey,
+  routeSelectionTarget,
+  routeTargetMatches,
+  type AirportSelectionTarget,
+  type FlightEndpointIdentity,
+  type RouteSelectionTarget,
   type SupportedLocale,
   type RoutePoint,
   type RouteSegment,
@@ -27,20 +37,28 @@ import { airportLabelPositions } from "../data/map-labels";
 import { routeVisuals } from "../data/map-route-visuals";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
+import { useAirportHistoryVersion } from "../data/airport-history";
 
 interface PassportRouteMapProps {
   routes: RouteSegment[];
   flights: KeeprawFlight[];
-  selectedAirport?: string;
-  selectedRoute?: { origin: string; destination: string };
-  highlightedRoute?: { origin: string; destination: string };
-  onSelectAirport: (code: string) => void;
-  onSelectRoute: (origin: string, destination: string) => void;
+  /** Selected airport by flight-date physical identity (code for display). */
+  selectedAirport?: Omit<AirportSelectionTarget, "kind">;
+  /** Selected directed route between two physical identities. */
+  selectedRoute?: Omit<RouteSelectionTarget, "kind">;
+  /** `routeIdentityKey` of the hovered or focused flight's route. */
+  highlightedRoute?: string;
+  onSelectAirport: (target: AirportSelectionTarget) => void;
+  onSelectRoute: (target: RouteSelectionTarget) => void;
 }
 
 interface AirportMapPoint extends RoutePoint {
+  identityKey: string;
   name: string;
   city: string;
+  /** Formal flight-date assignment, or current-directory evidence only. */
+  basis: FlightEndpointIdentity["basis"];
+  historicalAssignmentVerified: boolean;
   flightCount: number;
   firstYear: string;
   lastYear: string;
@@ -67,10 +85,20 @@ export function PassportRouteMap({
   const { t, i18n } = useTranslation();
   const locale = normalizeLanguage(i18n.resolvedLanguage);
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
-  const countryVisits = useMemo(() => collectCountryVisits(flights), [flights]);
+  const historyVersion = useAirportHistoryVersion();
+  const countryVisits = useMemo(
+    () => collectCountryVisits(flights),
+    [flights, historyVersion],
+  );
   const airports = useMemo(
     () => collectAirports(flights, locale),
-    [flights, locale],
+    [flights, locale, historyVersion],
+  );
+  // Undetermined endpoints are never drawn as airports or route ends; their
+  // possible sites appear only as clearly marked, non-interactive hints.
+  const possibleAirports = useMemo(
+    () => buildUncertainAirportMarkers(flights),
+    [flights, historyVersion],
   );
   const centerLongitude = useMemo(
     () => regionalCenterLongitude(airports),
@@ -80,7 +108,10 @@ export function PassportRouteMap({
     () => passportMapCamera(routes, airports),
     [airports, routes],
   );
-  const routeYears = useMemo(() => collectRouteYears(flights), [flights]);
+  const routeYears = useMemo(
+    () => collectRouteYears(flights),
+    [flights, historyVersion],
+  );
   const regionNames = useMemo(
     () => new Intl.DisplayNames([locale], { type: "region" }),
     [locale],
@@ -90,10 +121,10 @@ export function PassportRouteMap({
       [...routes]
         .sort((a, b) => a.flightCount - b.flightCount)
         .map((route, index) => {
-          const key = `route:${route.origin.iata}-${route.destination.iata}`;
-          const years = routeYears.get(
-            `${route.origin.iata}-${route.destination.iata}`,
-          );
+          // Physical identities keep two sites that shared a code apart.
+          const identity = routeIdentityKey(route);
+          const key = `route:${identity}`;
+          const years = routeYears.get(identity);
           const midpoint = greatCircleMidpoint(
             route.origin,
             route.destination,
@@ -113,6 +144,7 @@ export function PassportRouteMap({
           return {
             ...route,
             key,
+            identity,
             label,
             path: greatCirclePath(
               route.origin,
@@ -143,7 +175,7 @@ export function PassportRouteMap({
   const airportItems = useMemo(
     () =>
       airports.map((airport, index) => {
-        const key = `airport:${airport.iata}`;
+        const key = `airport:${airport.identityKey}`;
         const point = projectPoint(airport, centerLongitude);
         const label = t("passport.mapAirportData", {
           airport: airport.iata,
@@ -164,7 +196,16 @@ export function PassportRouteMap({
             y: point.y,
             title: compactAirportName(airport.name),
             detail: `${airport.iata} · ${t("passport.visitFrequency", { count: airport.flightCount })}`,
-            meta: airport.city,
+            meta: [
+              airport.city,
+              t(
+                airport.historicalAssignmentVerified
+                  ? "passport.mapAirportVerified"
+                  : "passport.mapAirportCurrentDirectory",
+              ),
+            ]
+              .filter(Boolean)
+              .join(" · "),
           } satisfies MapTooltipData,
           style: { "--map-item-index": index } as CSSProperties,
         };
@@ -182,10 +223,17 @@ export function PassportRouteMap({
     [airportItems, routeItems],
   );
   const selectedTooltipKey = selectedAirport
-    ? `airport:${selectedAirport}`
+    ? airportItems.find((airport) =>
+        airportTargetMatches(selectedAirport, airport),
+      )?.key
     : selectedRoute
-      ? `route:${selectedRoute.origin}-${selectedRoute.destination}`
+      ? routeItems.find((route) => routeTargetMatches(selectedRoute, route))
+          ?.key
       : undefined;
+  const isSelectedRoute = (route: (typeof routeItems)[number]) =>
+    Boolean(selectedRoute && routeTargetMatches(selectedRoute, route));
+  const isHighlightedRoute = (route: (typeof routeItems)[number]) =>
+    highlightedRoute === route.identity;
   const tooltip = tooltipItems.get(
     activeTooltipKey ?? selectedTooltipKey ?? "",
   );
@@ -194,12 +242,7 @@ export function PassportRouteMap({
     0,
   );
   const emphasis = (route: (typeof routeItems)[number]) =>
-    Number(
-      (highlightedRoute?.origin === route.origin.iata &&
-        highlightedRoute.destination === route.destination.iata) ||
-        (selectedRoute?.origin === route.origin.iata &&
-          selectedRoute.destination === route.destination.iata),
-    );
+    Number(isHighlightedRoute(route) || isSelectedRoute(route));
   // Opposite-direction routes share a great-circle path. Draw the active route
   // last so its selection color cannot be covered by the return flight.
   const displayedRoutes = [...routeItems].sort(
@@ -224,17 +267,27 @@ export function PassportRouteMap({
         }}
       >
         {(camera, height, pixelScale) => {
+          // Physical identities whose markers and labels must stay visible.
           const required = new Set(
-            [
-              highlightedRoute?.origin,
-              highlightedRoute?.destination,
-              selectedRoute?.origin,
-              selectedRoute?.destination,
-              selectedAirport,
-            ].filter((code): code is string => Boolean(code)),
+            airportItems
+              .filter(
+                (airport) =>
+                  (selectedAirport &&
+                    airportTargetMatches(selectedAirport, airport)) ||
+                  routeItems.some(
+                    (route) =>
+                      (isSelectedRoute(route) || isHighlightedRoute(route)) &&
+                      (route.origin.identityKey === airport.identityKey ||
+                        route.destination.identityKey === airport.identityKey),
+                  ),
+              )
+              .map((airport) => airport.identityKey),
           );
           const labelPositions = airportLabelPositions(
-            airportItems,
+            airportItems.map((airport) => ({
+              ...airport,
+              key: airport.identityKey,
+            })),
             camera,
             height,
             required,
@@ -267,12 +320,8 @@ export function PassportRouteMap({
                 }
               >
                 {displayedRoutes.map((route) => {
-                  const selected =
-                    selectedRoute?.origin === route.origin.iata &&
-                    selectedRoute.destination === route.destination.iata;
-                  const highlighted =
-                    highlightedRoute?.origin === route.origin.iata &&
-                    highlightedRoute.destination === route.destination.iata;
+                  const selected = isSelectedRoute(route);
+                  const highlighted = isHighlightedRoute(route);
                   return (
                     <g
                       key={route.key}
@@ -292,15 +341,11 @@ export function PassportRouteMap({
                       onPointerLeave={() => setActiveTooltipKey(undefined)}
                       onFocus={() => setActiveTooltipKey(route.key)}
                       onBlur={() => setActiveTooltipKey(undefined)}
-                      onClick={() =>
-                        onSelectRoute(route.origin.iata, route.destination.iata)
-                      }
+                      data-route-identity={route.identity}
+                      onClick={() => onSelectRoute(routeSelectionTarget(route))}
                       onKeyDown={(event) =>
                         activateMapItem(event, () =>
-                          onSelectRoute(
-                            route.origin.iata,
-                            route.destination.iata,
-                          ),
+                          onSelectRoute(routeSelectionTarget(route)),
                         )
                       }
                     >
@@ -318,11 +363,17 @@ export function PassportRouteMap({
               </g>
               <g className="map-airports">
                 {airportItems.map((airport) => {
-                  const selected = required.has(airport.iata);
-                  const label = labelPositions.get(airport.iata);
+                  const selected = required.has(airport.identityKey);
+                  const label = labelPositions.get(airport.identityKey);
                   return (
                     <g
-                      key={airport.iata}
+                      key={airport.key}
+                      data-airport-identity={airport.identityKey}
+                      data-airport-basis={
+                        airport.historicalAssignmentVerified
+                          ? "historical"
+                          : "current-directory"
+                      }
                       className={
                         selected ? "map-airport is-selected" : "map-airport"
                       }
@@ -335,10 +386,12 @@ export function PassportRouteMap({
                       onPointerLeave={() => setActiveTooltipKey(undefined)}
                       onFocus={() => setActiveTooltipKey(airport.key)}
                       onBlur={() => setActiveTooltipKey(undefined)}
-                      onClick={() => onSelectAirport(airport.iata)}
+                      onClick={() =>
+                        onSelectAirport(airportSelectionTarget(airport))
+                      }
                       onKeyDown={(event) =>
                         activateMapItem(event, () =>
-                          onSelectAirport(airport.iata),
+                          onSelectAirport(airportSelectionTarget(airport)),
                         )
                       }
                     >
@@ -369,6 +422,37 @@ export function PassportRouteMap({
                   );
                 })}
               </g>
+              {possibleAirports.length ? (
+                <g
+                  className="map-possible-airports"
+                  aria-label={t("passport.mapPossibleAirports")}
+                >
+                  {possibleAirports.map((marker) => {
+                    const point = projectPoint(marker, centerLongitude);
+                    const label = t("passport.mapPossibleAirport", {
+                      airport: marker.iata,
+                      name: marker.name ?? marker.iata,
+                    });
+                    return (
+                      <g
+                        key={`${marker.iata}|${marker.siteId}`}
+                        className="map-possible-airport"
+                        data-possible-airport={marker.iata}
+                        data-source={marker.source}
+                        transform={`translate(${point.x} ${point.y})`}
+                      >
+                        <g transform={`scale(${pixelScale / camera.zoom})`}>
+                          <circle
+                            className="map-possible-airport-ring"
+                            r="3.4"
+                          />
+                          <title>{label}</title>
+                        </g>
+                      </g>
+                    );
+                  })}
+                </g>
+              ) : null}
               {tooltip ? (
                 <MapTooltip
                   tooltip={tooltip}
@@ -464,24 +548,26 @@ function collectAirports(
   for (const flight of flights) {
     if (flight.cancelled) continue;
     const year = flight.serviceDate.slice(0, 4);
-    for (const iata of [
-      flight.origin.iata,
-      (flight.divertedTo ?? flight.destination).iata,
-    ]) {
-      const reference = airportByIata.get(iata);
-      if (!reference) continue;
-      const existing = points.get(iata);
+    for (const identity of [originIdentity(flight), arrivalIdentity(flight)]) {
+      // Only formal or explicit current-directory sites are drawn as airports.
+      if (!identity.confirmed || !identity.point) continue;
+      const existing = points.get(identity.identityKey);
       if (existing) {
         existing.flightCount += 1;
         if (year < existing.firstYear) existing.firstYear = year;
         if (year > existing.lastYear) existing.lastYear = year;
       } else {
-        points.set(iata, {
-          iata,
-          latitude: reference.latitude,
-          longitude: reference.longitude,
-          name: localizedText(reference.name, locale),
-          city: localizedText(reference.city, locale),
+        points.set(identity.identityKey, {
+          iata: identity.iata,
+          identityKey: identity.identityKey,
+          latitude: identity.point.latitude,
+          longitude: identity.point.longitude,
+          name: identity.name
+            ? localizedText(identity.name, locale)
+            : identity.iata,
+          city: identity.city ? localizedText(identity.city, locale) : "",
+          basis: identity.basis,
+          historicalAssignmentVerified: identity.historicalAssignmentVerified,
           flightCount: 1,
           firstYear: year,
           lastYear: year,
@@ -496,12 +582,9 @@ function collectCountryVisits(flights: KeeprawFlight[]) {
   const visits = new Map<string, number>();
   for (const flight of flights) {
     if (flight.cancelled) continue;
-    for (const iata of [
-      flight.origin.iata,
-      (flight.divertedTo ?? flight.destination).iata,
-    ]) {
-      const country = airportByIata.get(iata)?.country;
-      if (country) visits.set(country, (visits.get(country) ?? 0) + 1);
+    for (const identity of [originIdentity(flight), arrivalIdentity(flight)]) {
+      if (identity.confirmed && identity.country)
+        visits.set(identity.country, (visits.get(identity.country) ?? 0) + 1);
     }
   }
   return visits;
@@ -511,9 +594,13 @@ function collectRouteYears(flights: KeeprawFlight[]) {
   const years = new Map<string, { firstYear: string; lastYear: string }>();
   for (const flight of flights) {
     if (flight.cancelled) continue;
+    // Group by the flight-date physical route, never by its code pair.
     updateYearRange(
       years,
-      `${flight.origin.iata}-${(flight.divertedTo ?? flight.destination).iata}`,
+      routeIdentityKey({
+        origin: originIdentity(flight),
+        destination: arrivalIdentity(flight),
+      }),
       flight.serviceDate.slice(0, 4),
     );
   }

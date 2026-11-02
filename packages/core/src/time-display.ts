@@ -2,6 +2,11 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { arrivalDelayMinutes, departureDelayMinutes } from "./calculations";
 import { formatTimeAtAirport, type TimeFormat } from "./formatting";
 import type { SupportedLocale } from "./reference-data";
+import {
+  arrivalIdentity,
+  originIdentity,
+  plannedDestinationIdentity,
+} from "./flight-airports";
 
 export interface DisplayTime {
   timestamp: string;
@@ -46,16 +51,32 @@ export function flightTimeDisplay(
   const departureTimestamp =
     flight.actualDeparture ?? flight.scheduledDeparture;
   const arrivalTimestamp = flight.actualArrival ?? flight.scheduledArrival;
+  // Flight-date historical zones; null shows the written offset wall time.
+  const zones = new Map<string, string | null>([
+    [`o:${flight.origin.iata}`, originIdentity(flight).timezone],
+    [
+      `d:${flight.destination.iata}`,
+      plannedDestinationIdentity(flight).timezone,
+    ],
+  ]);
+  if (flight.divertedTo)
+    zones.set(`a:${flight.divertedTo.iata}`, arrivalIdentity(flight).timezone);
   const time = (
     timestamp: string,
-    iata: string,
+    endpoint: string,
     source: DisplayTime["source"],
     dayOffset = 0,
   ): DisplayTime => ({
     timestamp,
     source,
     dayOffset,
-    time: formatTimeAtAirport(timestamp, iata, locale, timeFormat),
+    time: formatTimeAtAirport(
+      timestamp,
+      endpoint.slice(2),
+      locale,
+      timeFormat,
+      zones.get(endpoint) ?? null,
+    ),
   });
   const differs = (actual: string | undefined, scheduled: string) =>
     actual !== undefined && Date.parse(actual) !== Date.parse(scheduled);
@@ -68,10 +89,14 @@ export function flightTimeDisplay(
     arrivalTimestamp,
   );
   const scheduled = {
-    departure: time(flight.scheduledDeparture, flight.origin.iata, "scheduled"),
+    departure: time(
+      flight.scheduledDeparture,
+      `o:${flight.origin.iata}`,
+      "scheduled",
+    ),
     arrival: time(
       flight.scheduledArrival,
-      flight.destination.iata,
+      `d:${flight.destination.iata}`,
       "scheduled",
       scheduledArrivalOffset,
     ),
@@ -81,7 +106,7 @@ export function flightTimeDisplay(
     departure: {
       primary: time(
         departureTimestamp,
-        flight.origin.iata,
+        `o:${flight.origin.iata}`,
         flight.actualDeparture ? "actual" : "scheduled",
       ),
       scheduled: differs(flight.actualDeparture, flight.scheduledDeparture)
@@ -93,8 +118,8 @@ export function flightTimeDisplay(
       primary: time(
         arrivalTimestamp,
         flight.actualArrival && flight.divertedTo
-          ? flight.divertedTo.iata
-          : flight.destination.iata,
+          ? `a:${flight.divertedTo.iata}`
+          : `d:${flight.destination.iata}`,
         flight.actualArrival ? "actual" : "scheduled",
         primaryArrivalOffset,
       ),

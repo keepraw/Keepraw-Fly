@@ -53,8 +53,12 @@ test("shows all twelve offline routes with visible frequency encoding in both th
     ["SZX", "TAO"],
     ["SHA", "PEK"],
     ["PEK", "CTU"],
-    ["CTU", "KMG"],
-    ["KMG", "BKK"],
+    // KMG left this layout fixture: the bundled directory still places it at
+    // the closed Wujiaba airport, which the worldwide reference layer
+    // contradicts, so it is now an unconfirmed endpoint (covered in
+    // airport-history.pw.ts). These twelve routes are all confirmed sites.
+    ["CTU", "CAN"],
+    ["CAN", "BKK"],
     ["BKK", "SIN"],
     ["SIN", "HKG"],
     ["HKG", "BOM"],

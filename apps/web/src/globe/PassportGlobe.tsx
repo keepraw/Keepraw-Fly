@@ -1,6 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { RouteSegment } from "@keepraw-fly/core";
+import {
+  airportSelectionTarget,
+  airportTargetMatches,
+  arrivalIdentity,
+  localizedText,
+  originIdentity,
+  routeIdentityKey,
+  routeKeyFromCodes,
+  routePointIdentityKey,
+  routeSelectionTarget,
+  routeTargetMatches,
+  type LocalizedText,
+  type RoutePoint,
+  type RouteSegment,
+} from "@keepraw-fly/core";
+import { normalizeLanguage } from "../locales/registry";
+import { airportPickerValues, routePickerValues } from "../data/map-selection";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import type { Appearance } from "../storage/types";
 import { GlobeMap } from "./GlobeMap";
@@ -33,7 +49,22 @@ export function PassportGlobe({
   onSelect,
   onClear,
 }: PassportGlobeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // Flight-date names of each physical site, for codes two sites shared.
+  const siteNames = useMemo(() => {
+    const names = new Map<string, LocalizedText>();
+    for (const flight of flights)
+      for (const identity of [originIdentity(flight), arrivalIdentity(flight)])
+        if (identity.name && !names.has(identity.identityKey))
+          names.set(identity.identityKey, identity.name);
+    return names;
+  }, [flights]);
+  const siteName = (point: RoutePoint) => {
+    const name = point.identityKey && siteNames.get(point.identityKey);
+    return name
+      ? localizedText(name, normalizeLanguage(i18n.resolvedLanguage))
+      : point.iata;
+  };
   const [systemDark, setSystemDark] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -49,10 +80,26 @@ export function PassportGlobe({
   const theme =
     appearance === "system" ? (systemDark ? "dark" : "light") : appearance;
   const airports = useMemo(() => globeAirports(routes), [routes]);
-  const selectedRoute =
+  // Picker values are codes unless two physical sites share them.
+  const routeValues = useMemo(() => routePickerValues(routes), [routes]);
+  const airportValues = useMemo(
+    () => airportPickerValues(airports),
+    [airports],
+  );
+  const selectedRouteSegment =
     selection?.kind === "route"
-      ? `${selection.origin}-${selection.destination}`
-      : "";
+      ? routes.find((route) => routeTargetMatches(selection, route))
+      : undefined;
+  const selectedRoute = selectedRouteSegment
+    ? (routeValues.get(routeIdentityKey(selectedRouteSegment)) ?? "")
+    : "";
+  const selectedAirportPoint =
+    selection?.kind === "airport"
+      ? airports.find((airport) => airportTargetMatches(selection, airport))
+      : undefined;
+  const selectedAirport = selectedAirportPoint
+    ? (airportValues.get(routePointIdentityKey(selectedAirportPoint)) ?? "")
+    : "";
 
   return (
     <div className="passport-globe-frame" data-theme={theme}>
@@ -81,26 +128,25 @@ export function PassportGlobe({
               onChange={(event) => {
                 const route = routes.find(
                   (item) =>
-                    `${item.origin.iata}-${item.destination.iata}` ===
+                    routeValues.get(routeIdentityKey(item)) ===
                     event.target.value,
                 );
-                if (route)
-                  onSelect({
-                    kind: "route",
-                    origin: route.origin.iata,
-                    destination: route.destination.iata,
-                  });
+                if (route) onSelect(routeSelectionTarget(route));
                 else onClear();
               }}
             >
               <option value="">{t("globe.chooseRoute")}</option>
               {routes.map((route) => (
                 <option
-                  key={`${route.origin.iata}-${route.destination.iata}`}
-                  value={`${route.origin.iata}-${route.destination.iata}`}
+                  key={routeIdentityKey(route)}
+                  value={routeValues.get(routeIdentityKey(route))}
                 >
-                  {route.origin.iata} → {route.destination.iata} ·{" "}
-                  {route.flightCount}
+                  {route.origin.iata} → {route.destination.iata}
+                  {routeValues.get(routeIdentityKey(route)) !==
+                  routeKeyFromCodes(route)
+                    ? ` (${siteName(route.origin)} → ${siteName(route.destination)})`
+                    : ""}{" "}
+                  · {route.flightCount}
                 </option>
               ))}
             </select>
@@ -109,17 +155,29 @@ export function PassportGlobe({
             <span>{t("globe.airport")}</span>
             <select
               aria-label={t("globe.chooseAirport")}
-              value={selection?.kind === "airport" ? selection.code : ""}
-              onChange={(event) =>
-                event.target.value
-                  ? onSelect({ kind: "airport", code: event.target.value })
-                  : onClear()
-              }
+              value={selectedAirport}
+              onChange={(event) => {
+                const airport = airports.find(
+                  (item) =>
+                    airportValues.get(routePointIdentityKey(item)) ===
+                    event.target.value,
+                );
+                if (airport) onSelect(airportSelectionTarget(airport));
+                else onClear();
+              }}
             >
               <option value="">{t("globe.chooseAirport")}</option>
               {airports.map((airport) => (
-                <option key={airport.iata} value={airport.iata}>
-                  {airport.iata} · {airport.flightCount}
+                <option
+                  key={routePointIdentityKey(airport)}
+                  value={airportValues.get(routePointIdentityKey(airport))}
+                >
+                  {airport.iata}
+                  {airportValues.get(routePointIdentityKey(airport)) !==
+                  airport.iata
+                    ? ` · ${siteName(airport)}`
+                    : ""}{" "}
+                  · {airport.flightCount}
                 </option>
               ))}
             </select>

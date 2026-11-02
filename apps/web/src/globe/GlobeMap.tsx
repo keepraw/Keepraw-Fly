@@ -39,6 +39,7 @@ export function GlobeMap({
   lighting: GlobeLighting;
   solarMode: SolarMode;
   selection: GlobeSelection | null;
+  /** Directed physical route key (`routeIdentityKey`) of the hovered flight. */
   highlightedRoute?: string;
   onSelect: (selection: GlobeSelection) => void;
 }) {
@@ -235,23 +236,14 @@ export function GlobeMap({
               routes={routes}
               flights={flights}
               selectedAirport={
-                selection?.kind === "airport" ? selection.code : undefined
+                selection?.kind === "airport" ? selection : undefined
               }
               selectedRoute={
                 selection?.kind === "route" ? selection : undefined
               }
-              highlightedRoute={
-                highlightedRoute
-                  ? {
-                      origin: highlightedRoute.split("-")[0]!,
-                      destination: highlightedRoute.split("-")[1]!,
-                    }
-                  : undefined
-              }
-              onSelectAirport={(code) => onSelect({ kind: "airport", code })}
-              onSelectRoute={(origin, destination) =>
-                onSelect({ kind: "route", origin, destination })
-              }
+              highlightedRoute={highlightedRoute}
+              onSelectAirport={onSelect}
+              onSelectRoute={onSelect}
             />
           )}
         </div>

@@ -10,7 +10,9 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   airlineDisplayName,
+  airportTargetMatches,
   arrivalDelayMinutes,
+  arrivalIdentity,
   airportByIata,
   buildRouteSegments,
   calculatePassportHighlights,
@@ -20,19 +22,26 @@ import {
   formatDistance,
   formatDuration,
   flightDuration,
+  flightRouteIdentityKey,
+  flightRouteTarget,
   groupFlightsByYear,
   localizedText,
+  originIdentity,
+  type FlightEndpointIdentity,
   type DistanceUnit,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
+import { useAirportHistoryVersion } from "../data/airport-history";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
 import type { Appearance } from "../storage/types";
 import type { SolarMode } from "../globe/globe-solar";
 import {
+  matchesSelection,
   passportVisibleFlights,
+  sameSelection,
   type PassportSelection,
   type PassportViewState,
 } from "../data/passport-exploration";
@@ -95,19 +104,26 @@ export function PassportPage({
     update();
     return () => media.removeEventListener("change", update);
   }, []);
+  // Physical identities change when candidate shards finish loading.
+  const historyVersion = useAirportHistoryVersion();
   const years = useMemo(
     () => calculateYearStatistics(document.flights),
-    [document.flights],
+    [document.flights, historyVersion],
   );
+  // Selection matches flight-date physical identities, which change when
+  // candidate shards finish loading.
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, selectedYear, query, selection],
+    [document.flights, selectedYear, query, selection, historyVersion],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
-  const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
+  const stats = useMemo(
+    () => calculatePassportStatistics(flights),
+    [flights, historyVersion],
+  );
   const highlights = useMemo(
     () => calculatePassportHighlights(flights),
-    [flights],
+    [flights, historyVersion],
   );
   const delayYears = highlights.annualArrivalDelays.slice(-3);
   const maximumDelay = Math.max(
@@ -135,7 +151,10 @@ export function PassportPage({
       passportVisibleFlights(document.flights, { ...view, selection: null }),
     [document.flights, selectedYear, query],
   );
-  const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
+  const routes = useMemo(
+    () => buildRouteSegments(mapFlights),
+    [mapFlights, historyVersion],
+  );
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
   );
@@ -150,13 +169,9 @@ export function PassportPage({
       : "passport.distanceKilometers";
   const selectedFlight = flights.find((flight) => flight.id === view.flightId);
   const highlightedFlight = selectedFlight ?? hoveredFlight;
+  // The hovered/focused flight's physical route, never its code pair.
   const highlightedRoute = highlightedFlight
-    ? {
-        origin: highlightedFlight.origin.iata,
-        destination: (
-          highlightedFlight.divertedTo ?? highlightedFlight.destination
-        ).iata,
-      }
+    ? flightRouteIdentityKey(highlightedFlight)
     : undefined;
 
   function selectFlight(flight: KeeprawFlight, scroll = false) {
@@ -185,33 +200,69 @@ export function PassportPage({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  function cityName(code: string): string {
-    const airport = airportByIata.get(code);
-    return airport ? localizedText(airport.city, locale) : code;
+  /** A flight-date identity of the selected airport, from the visible network. */
+  function selectedAirportIdentity(target: {
+    code: string;
+    identityKey?: string;
+  }): FlightEndpointIdentity | undefined {
+    for (const flight of mapFlights)
+      for (const identity of [originIdentity(flight), arrivalIdentity(flight)])
+        if (airportTargetMatches(target, identity)) return identity;
+    return undefined;
+  }
+
+  /** Flight-date physical airport label: a historical site keeps its own name. */
+  function identityLabel(identity: FlightEndpointIdentity): string {
+    if (identity.differsFromCurrentDirectory && identity.name)
+      return localizedText(identity.name, locale);
+    if (identity.city) return localizedText(identity.city, locale);
+    if (identity.name) return localizedText(identity.name, locale);
+    return identity.iata;
   }
 
   function isSelected(target: PassportSelection): boolean {
-    if (!selection || selection.kind !== target.kind) return false;
-    if (target.kind === "route")
-      return (
-        selection.kind === "route" &&
-        selection.origin === target.origin &&
-        selection.destination === target.destination
-      );
-    return selection.kind !== "route" && selection.code === target.code;
+    return sameSelection(selection, target);
   }
+
+  // Airports split by what their flight-date code rests on. A current-
+  // directory match places the site but does not verify the historical code.
+  const airportEvidenceText = stats.airports
+    ? t("passport.airportEvidenceCoverage", {
+        verified: stats.historicallyVerifiedAirports.toLocaleString(locale),
+        directory: stats.currentDirectoryAirports.toLocaleString(locale),
+      }) +
+      (stats.formalUncertainAirports
+        ? ` · ${t("passport.airportEvidenceUncertain", {
+            count: stats.formalUncertainAirports,
+          })}`
+        : "")
+    : "";
+  const airportEvidenceData = {
+    "data-verified-airports": stats.historicallyVerifiedAirports,
+    "data-current-directory-airports": stats.currentDirectoryAirports,
+    "data-formal-uncertain-airports": stats.formalUncertainAirports,
+  };
+  // Mobile: its own line in the network summary.
+  const airportEvidence = airportEvidenceText ? (
+    <p
+      className="passport-network-line passport-airport-evidence"
+      {...airportEvidenceData}
+    >
+      {airportEvidenceText}
+    </p>
+  ) : null;
 
   function toggleHighlight(target: PassportSelection) {
     setSelection(isSelected(target) ? null : target);
   }
 
   function routeHighlight(flight: typeof longest, context: string) {
+    // Flight-date physical endpoints: a historical site keeps its own name.
+    const endpoints = flight
+      ? { origin: originIdentity(flight), arrival: arrivalIdentity(flight) }
+      : undefined;
     const target: PassportSelection | undefined = flight
-      ? {
-          kind: "route",
-          origin: flight.origin.iata,
-          destination: (flight.divertedTo ?? flight.destination).iata,
-        }
+      ? flightRouteTarget(flight)
       : undefined;
     const distance = flight ? distanceForFlight(flight) : null;
     const content = (
@@ -220,14 +271,14 @@ export function PassportPage({
         <span className="passport-longest-route">
           <span className="passport-longest-endpoint">
             <strong>{target?.origin ?? "—"}</strong>
-            <span>{target ? cityName(target.origin) : "—"}</span>
+            <span>{endpoints ? identityLabel(endpoints.origin) : "—"}</span>
           </span>
           <span className="passport-longest-arrow" aria-hidden="true">
             →
           </span>
           <span className="passport-longest-endpoint">
             <strong>{target?.destination ?? "—"}</strong>
-            <span>{target ? cityName(target.destination) : "—"}</span>
+            <span>{endpoints ? identityLabel(endpoints.arrival) : "—"}</span>
           </span>
         </span>
         <span className="passport-longest-facts">
@@ -296,6 +347,10 @@ export function PassportPage({
 
   function explorationTitle(current: PassportSelection): string {
     if (current.kind === "airport") {
+      // The selected physical site's flight-date name, not today's directory row.
+      const identity = selectedAirportIdentity(current);
+      if (identity?.name)
+        return `${current.code} · ${localizedText(identity.name, locale)}`;
       const airport = airportByIata.get(current.code);
       return airport
         ? `${current.code} · ${localizedText(airport.name, locale)}`
@@ -367,6 +422,16 @@ export function PassportPage({
                   {t("passport.worldTitle")}
                 </span>
               ) : null}
+              {isDesktop && airportEvidenceText ? (
+                // Desktop: one line beside the scope, so the map keeps its height.
+                <span
+                  className="passport-airport-evidence"
+                  title={airportEvidenceText}
+                  {...airportEvidenceData}
+                >
+                  {airportEvidenceText}
+                </span>
+              ) : null}
               <span>
                 {t(
                   selectedYear === "lifetime"
@@ -397,22 +462,12 @@ export function PassportPage({
                       ? selection
                       : null
                   }
-                  highlightedRoute={
-                    highlightedRoute
-                      ? `${highlightedRoute.origin}-${highlightedRoute.destination}`
-                      : undefined
-                  }
+                  highlightedRoute={highlightedRoute}
                   onClear={() => setSelection(null)}
                   onSelect={(target) => {
                     // Globe uses the same scoped exploration as Archive/Highlights.
                     const matching = mapFlights.find((flight) =>
-                      target.kind === "airport"
-                        ? flight.origin.iata === target.code ||
-                          (flight.divertedTo ?? flight.destination).iata ===
-                            target.code
-                        : flight.origin.iata === target.origin &&
-                          (flight.divertedTo ?? flight.destination).iata ===
-                            target.destination,
+                      matchesSelection(flight, target),
                     );
                     if (matching) {
                       onViewChange({
@@ -464,12 +519,35 @@ export function PassportPage({
                   ["airports", stats.airports.toLocaleString(locale)],
                   ["airlines", stats.airlines.toLocaleString(locale)],
                   ["countries", stats.countries.toLocaleString(locale)],
-                ].map(([label, value]) => (
-                  <p className="passport-core-stat" key={label}>
-                    <StatisticValue value={value ?? ""} />
-                    <span>{t(`passport.${label}`)}</span>
-                  </p>
-                ))}
+                ].map(([label, value]) => {
+                  // Airports counts confirmed physical airports only; codes not
+                  // confirmed at their flight dates are reported beside it.
+                  const coverage =
+                    label === "airports" && stats.unresolvedAirports
+                      ? t("passport.unresolvedHistoricalAirports", {
+                          airports:
+                            stats.unresolvedAirports.toLocaleString(locale),
+                        })
+                      : undefined;
+                  return (
+                    <p
+                      className={
+                        coverage
+                          ? "passport-core-stat passport-history-coverage"
+                          : "passport-core-stat"
+                      }
+                      key={label}
+                      data-unresolved-airports={
+                        coverage ? stats.unresolvedAirports : undefined
+                      }
+                      title={coverage}
+                      aria-description={coverage}
+                    >
+                      <StatisticValue value={value ?? ""} />
+                      <span>{t(`passport.${label}`)}</span>
+                    </p>
+                  );
+                })}
               </section>
             ) : (
               <>
@@ -568,6 +646,17 @@ export function PassportPage({
                     })
                   )}
                 </p>
+                {stats.unresolvedAirports ? (
+                  <p
+                    className="passport-network-line passport-history-coverage"
+                    data-unresolved-airports={stats.unresolvedAirports}
+                  >
+                    {t("passport.unresolvedHistoricalAirports", {
+                      airports: stats.unresolvedAirports.toLocaleString(locale),
+                    })}
+                  </p>
+                ) : null}
+                {airportEvidence}
               </>
             )}
 
@@ -685,10 +774,9 @@ export function PassportPage({
                     <p>
                       <span>{t("passport.mostVisitedAirport")}</span>
                       <strong>
-                        {airportByIata.get(stats.mostVisitedAirport.code)
+                        {stats.mostVisitedAirport.identity.name
                           ? localizedText(
-                              airportByIata.get(stats.mostVisitedAirport.code)!
-                                .name,
+                              stats.mostVisitedAirport.identity.name,
                               locale,
                             )
                           : stats.mostVisitedAirport.code}
@@ -781,14 +869,15 @@ export function PassportPage({
                     {highlights.mostVisitedAirports.length ? (
                       <ol>
                         {highlights.mostVisitedAirports.map(
-                          ({ code, count }) => {
-                            const name = cityName(code);
+                          ({ code, count, identity, identityKey }) => {
+                            const name = identityLabel(identity);
                             const target: PassportSelection = {
                               kind: "airport",
                               code,
+                              identityKey,
                             };
                             return (
-                              <li key={code}>
+                              <li key={identityKey}>
                                 <button
                                   type="button"
                                   className="passport-highlight passport-spotlight-item passport-airport-rank"

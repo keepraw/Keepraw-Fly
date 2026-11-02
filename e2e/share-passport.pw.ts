@@ -412,7 +412,11 @@ test("opened book uses actual archive totals and stays local @cross-browser", as
       "571474",
       "91",
       "768",
-      "20",
+      // 19 confirmed physical airports, the same set the map draws
+      // (data-map-airports above). The fixture's QQX flight is kept and
+      // counted among the 91 flights, but an unknown code is not a
+      // determined physical airport, so the passport no longer counts it.
+      "19",
       "8",
       "12",
       "50",

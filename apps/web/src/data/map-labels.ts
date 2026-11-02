@@ -3,6 +3,8 @@ import type { MapCamera, ProjectedPoint } from "./map-camera";
 
 interface LabelPoint {
   iata: string;
+  /** Distinct label identity (physical airport); defaults to the code. */
+  key?: string;
   point: ProjectedPoint;
   flightCount: number;
 }
@@ -22,9 +24,10 @@ export function airportLabelPositions(
   const placed: { left: number; top: number; right: number; bottom: number }[] =
     [];
   const labels = new Map<string, LabelPosition>();
+  const id = (point: LabelPoint) => point.key ?? point.iata;
   const ordered = [...points].sort(
     (a, b) =>
-      Number(required.has(b.iata)) - Number(required.has(a.iata)) ||
+      Number(required.has(id(b))) - Number(required.has(id(a))) ||
       b.flightCount - a.flightCount ||
       a.iata.localeCompare(b.iata),
   );
@@ -66,9 +69,9 @@ export function airportLabelPositions(
       )
       .sort((a, b) => a.overlaps - b.overlaps);
     const best = choices[0];
-    if (!best || (best.overlaps > 0 && !required.has(point.iata))) continue;
+    if (!best || (best.overlaps > 0 && !required.has(id(point)))) continue;
     placed.push(best.box);
-    labels.set(point.iata, best.position);
+    labels.set(id(point), best.position);
   }
   return labels;
 }

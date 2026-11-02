@@ -30,11 +30,23 @@ describe("Umetrip exact airport names", () => {
     "虹桥附近",
     "上海虹桥（PVG）",
     "未知机场",
-    "ZZZ",
     "",
   ])("does not guess from cities or substrings: %s", (raw) => {
     expect(createUmetripAirportResolver()(raw)).toEqual({
       code: "unknown-airport",
+    });
+  });
+  it("keeps a well-formed IATA code even when no layer knows it", () => {
+    expect(createUmetripAirportResolver()("ZZZ")).toEqual({ iata: "ZZZ" });
+    expect(createUmetripAirportResolver()(" qqq ")).toEqual({ iata: "QQQ" });
+  });
+  it("resolves historical formal names only at dates their code can apply", () => {
+    const resolve = createUmetripAirportResolver();
+    expect(
+      resolve("Hong Kong International Airport Kai Tak", "1997-01-01"),
+    ).toEqual({ iata: "HKG" });
+    expect(resolve("İstanbul Atatürk Airport", "2018-01-01")).toEqual({
+      iata: "IST",
     });
   });
   it("reports a collision rather than picking the first matching name", () => {

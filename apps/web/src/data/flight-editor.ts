@@ -10,9 +10,15 @@ import {
   KEEPRAW_FLY_FORMAT_VERSION,
 } from "@keepraw-fly/schema";
 import {
+  AIRPORT_TIMEZONE_EXTENSION,
   aircraftFacts,
   airportByIata,
+  airportCityGroupByCode,
   baggageFacts,
+  isFixedOffset,
+  isTimezoneOrOffset,
+  resolveEndpointIdentity,
+  storedEndpointTimezone,
   normalizeTicketNumber,
   resolveAirline,
   seatFacts,
@@ -48,6 +54,83 @@ export interface FlightDraft {
   frequentFlyerTierAtFlight: string;
   cancelled?: boolean;
   divertedToIata?: string;
+  /**
+   * IANA zone or `±HH:MM` offset the user confirmed for an endpoint whose
+   * flight-date airport (and therefore zone) Keepraw cannot determine.
+   */
+  originTimezone?: string;
+  destinationTimezone?: string;
+  divertedTimezone?: string;
+}
+
+export type EndpointZoneRole = "origin" | "destination" | "divertedTo";
+
+/** Thrown when a well-formed but undetermined airport has only a wall time. */
+export class AirportTimezoneRequiredError extends Error {
+  constructor(
+    readonly role: EndpointZoneRole,
+    readonly iata: string,
+    readonly options: string[],
+  ) {
+    super("airport-timezone-required");
+  }
+}
+
+/**
+ * A three-letter code that may name an airport. Metropolitan city codes (TYO,
+ * LON) are known not to be airports and stay rejected; any other well-formed
+ * code is kept even when no directory or history layer knows it.
+ */
+export function isAirportCodeFormat(value: string): boolean {
+  if (!/^[A-Z]{3}$/.test(value)) return false;
+  return airportByIata.has(value) || !airportCityGroupByCode.has(value);
+}
+
+/**
+ * The zone to read an endpoint's wall time in: the flight-date historical
+ * airport's zone when it is determined, else the user's explicit choice.
+ * Never defaults to UTC and never picks one of several candidate zones.
+ */
+export function endpointZone(
+  iata: string,
+  localDate: string,
+  role: EndpointZoneRole,
+  chosen: string | undefined,
+): { zone: string | null; userChosen: boolean; options: string[] } {
+  const identity = resolveEndpointIdentity(
+    iata,
+    localDate || null,
+    role === "origin"
+      ? "origin"
+      : role === "destination"
+        ? "destination"
+        : "arrival",
+  );
+  if (identity.timezone)
+    return {
+      zone: identity.timezone,
+      userChosen: false,
+      options: identity.timezoneOptions,
+    };
+  const explicit = chosen?.trim();
+  if (explicit && isTimezoneOrOffset(explicit))
+    return {
+      zone: explicit,
+      userChosen: true,
+      options: identity.timezoneOptions,
+    };
+  return { zone: null, userChosen: false, options: identity.timezoneOptions };
+}
+
+/** `+08:00` from an RFC 3339 timestamp (Z becomes `+00:00`). */
+export function writtenOffset(iso: string): string | null {
+  const match = /(Z|[+-]\d{2}:\d{2})$/.exec(iso);
+  if (!match) return null;
+  return match[1] === "Z" ? "+00:00" : match[1]!;
+}
+
+function writtenLocalParts(iso: string) {
+  return { date: iso.slice(0, 10), time: iso.slice(11, 16) };
 }
 
 export function createEmptyDocument(): KeeprawFlyDocument {
@@ -100,26 +183,50 @@ export function flightToDraft(
     memberships?: readonly FrequentFlyerMembership[];
   } = {},
 ): FlightDraft {
-  const originTimezone =
-    airportByIata.get(flight.origin.iata)?.timezone ?? "UTC";
-  const destinationTimezone =
-    airportByIata.get(flight.destination.iata)?.timezone ?? "UTC";
-  const actualArrivalTimezone =
-    airportByIata.get(flight.divertedTo?.iata ?? flight.destination.iata)
-      ?.timezone ?? "UTC";
-  const departure = localPartsAtAirport(
+  // Read each stored instant in its flight-date historical zone. An endpoint
+  // Keepraw cannot place keeps the wall time and offset written in the record.
+  const zoneFor = (
+    iata: string,
+    iso: string,
+    role: EndpointZoneRole,
+  ): { zone: string | null; chosen: string } => {
+    const stored = storedEndpointTimezone(flight, role);
+    const known = endpointZone(
+      iata,
+      role === "origin" ? flight.serviceDate : iso.slice(0, 10),
+      role,
+      undefined,
+    ).zone;
+    if (known) return { zone: known, chosen: "" };
+    if (stored) return { zone: stored, chosen: stored };
+    return { zone: null, chosen: writtenOffset(iso) ?? "" };
+  };
+  const at = (iso: string, zone: string | null) =>
+    zone ? localPartsAtAirport(iso, zone) : writtenLocalParts(iso);
+  const originZone = zoneFor(
+    flight.origin.iata,
     flight.scheduledDeparture,
-    originTimezone,
+    "origin",
   );
-  const arrival = localPartsAtAirport(
+  const destinationZone = zoneFor(
+    flight.destination.iata,
     flight.scheduledArrival,
-    destinationTimezone,
+    "destination",
   );
+  const divertedZone = flight.divertedTo
+    ? zoneFor(
+        flight.divertedTo.iata,
+        flight.actualArrival ?? flight.scheduledArrival,
+        "divertedTo",
+      )
+    : null;
+  const departure = at(flight.scheduledDeparture, originZone.zone);
+  const arrival = at(flight.scheduledArrival, destinationZone.zone);
   const actualDeparture = flight.actualDeparture
-    ? localPartsAtAirport(flight.actualDeparture, originTimezone)
+    ? at(flight.actualDeparture, originZone.zone)
     : null;
   const actualArrival = flight.actualArrival
-    ? localPartsAtAirport(flight.actualArrival, actualArrivalTimezone)
+    ? at(flight.actualArrival, (divertedZone ?? destinationZone).zone)
     : null;
   const aircraft = aircraftFacts(flight);
   const seat = seatFacts(flight);
@@ -162,6 +269,9 @@ export function flightToDraft(
       : (reference?.tierAtFlight ?? ""),
     cancelled: Boolean(flight.cancelled),
     divertedToIata: flight.divertedTo?.iata ?? "",
+    originTimezone: originZone.chosen,
+    destinationTimezone: destinationZone.chosen,
+    divertedTimezone: divertedZone?.chosen ?? "",
   };
 }
 
@@ -211,43 +321,84 @@ export function flightFromDraft(
     | "actualArrival"
   >,
 ): KeeprawFlight {
-  const origin = airportByIata.get(draft.originIata);
-  const destination = airportByIata.get(draft.destinationIata);
-  if (!origin || !destination) throw new Error("unknown-airport");
-  if (draft.cancelled && draft.divertedToIata)
+  // A well-formed IATA code is kept even when no directory or history layer
+  // knows it: the flight is never dropped for an unknown airport name.
+  const originIata = draft.originIata.trim().toUpperCase();
+  const destinationIata = draft.destinationIata.trim().toUpperCase();
+  const divertedToIata = (draft.divertedToIata ?? "").trim().toUpperCase();
+  if (!isAirportCodeFormat(originIata) || !isAirportCodeFormat(destinationIata))
+    throw new Error("unknown-airport");
+  if (divertedToIata && !isAirportCodeFormat(divertedToIata))
+    throw new Error("unknown-airport");
+  if (draft.cancelled && divertedToIata)
     throw new Error("cancelled-diverted-conflict");
   const identity = splitFlightNumberInput(draft.flightNumber);
   if (!identity) throw new Error("invalid-flight-number");
+  const originZone = endpointZone(
+    originIata,
+    draft.serviceDate,
+    "origin",
+    draft.originTimezone,
+  );
+  const destinationZone = endpointZone(
+    destinationIata,
+    draft.arrivalDate,
+    "destination",
+    draft.destinationTimezone,
+  );
+  const divertedZone = divertedToIata
+    ? endpointZone(
+        divertedToIata,
+        draft.actualArrivalDate || draft.arrivalDate,
+        "divertedTo",
+        draft.divertedTimezone,
+      )
+    : null;
+  const requireZone = (
+    zone: ReturnType<typeof endpointZone>,
+    role: EndpointZoneRole,
+    iata: string,
+  ): string => {
+    if (zone.zone) return zone.zone;
+    throw new AirportTimezoneRequiredError(role, iata, zone.options);
+  };
   const scheduledDeparture =
     resolvedTimes?.scheduledDeparture ??
-    zonedDateTimeToIso(draft.serviceDate, draft.departureTime, origin.timezone);
+    zonedDateTimeToIso(
+      draft.serviceDate,
+      draft.departureTime,
+      requireZone(originZone, "origin", originIata),
+    );
   const scheduledArrival =
     resolvedTimes?.scheduledArrival ??
     zonedDateTimeToIso(
       draft.arrivalDate,
       draft.arrivalTime,
-      destination.timezone,
+      requireZone(destinationZone, "destination", destinationIata),
     );
   if (Date.parse(scheduledArrival) <= Date.parse(scheduledDeparture))
     throw new Error("arrival-before-departure");
   const actualDeparture = resolvedTimes
     ? resolvedTimes.actualDeparture
-    : optionalZonedDateTime(
-        draft.actualDepartureDate,
-        draft.actualDepartureTime,
-        origin.timezone,
-      );
-  const divertedTo = draft.divertedToIata
-    ? airportByIata.get(draft.divertedToIata)
-    : undefined;
-  if (draft.divertedToIata && !divertedTo) throw new Error("unknown-airport");
+    : draft.actualDepartureDate || draft.actualDepartureTime
+      ? optionalZonedDateTime(
+          draft.actualDepartureDate,
+          draft.actualDepartureTime,
+          requireZone(originZone, "origin", originIata),
+        )
+      : undefined;
+  const divertedTo = divertedToIata ? { iata: divertedToIata } : undefined;
   const actualArrival = resolvedTimes
     ? resolvedTimes.actualArrival
-    : optionalZonedDateTime(
-        draft.actualArrivalDate,
-        draft.actualArrivalTime,
-        (divertedTo ?? destination).timezone,
-      );
+    : draft.actualArrivalDate || draft.actualArrivalTime
+      ? optionalZonedDateTime(
+          draft.actualArrivalDate,
+          draft.actualArrivalTime,
+          divertedZone
+            ? requireZone(divertedZone, "divertedTo", divertedToIata)
+            : requireZone(destinationZone, "destination", destinationIata),
+        )
+      : undefined;
   if (
     actualDeparture &&
     actualArrival &&
@@ -261,6 +412,11 @@ export function flightFromDraft(
     existing?.extensions,
     draft,
     bookingClass,
+    {
+      origin: originZone.userChosen ? originZone.zone : null,
+      destination: destinationZone.userChosen ? destinationZone.zone : null,
+      divertedTo: divertedZone?.userChosen ? divertedZone.zone : null,
+    },
   );
   const nextFlight: KeeprawFlight = {
     ...existing,
@@ -270,13 +426,13 @@ export function flightFromDraft(
     airline: airlineReference(existing?.airline, identity),
     origin: endpointWithOptionalFacts(
       existing?.origin,
-      draft.originIata,
+      originIata,
       draft.originTerminal,
       draft.originGate,
     ),
     destination: endpointWithOptionalFacts(
       existing?.destination,
-      draft.destinationIata,
+      destinationIata,
       draft.destinationTerminal,
       draft.destinationGate,
     ),
@@ -359,8 +515,15 @@ function updateKnownExtensions(
   existing: ExtensionMap | undefined,
   draft: FlightDraft,
   bookingClass: string,
+  zones: Record<EndpointZoneRole, string | null>,
 ): ExtensionMap | undefined {
   const extensions: ExtensionMap = structuredClone(existing ?? {});
+  // User-confirmed zones for undetermined airports survive later edits.
+  updateExtensionObject(extensions, AIRPORT_TIMEZONE_EXTENSION, {
+    origin: zones.origin ?? undefined,
+    destination: zones.destination ?? undefined,
+    divertedTo: zones.divertedTo ?? undefined,
+  });
   updateExtensionObject(extensions, "keepraw-fly.aircraft", {
     type: draft.aircraftType.trim(),
     registration: draft.aircraftRegistration.trim(),
@@ -403,6 +566,7 @@ export function zonedDateTimeToIso(
   const [hour, minute] = time.split(":").map(Number);
   if ([year, month, day, hour, minute].some((part) => !Number.isFinite(part)))
     throw new Error("invalid-local-time");
+  if (isFixedOffset(timezone)) return `${date}T${time}:00${timezone}`;
   const wallTime = Date.UTC(year!, month! - 1, day!, hour!, minute!);
   const candidates: number[] = [];
   for (let offset = -14 * 60; offset <= 14 * 60; offset += 15) {

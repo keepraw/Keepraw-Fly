@@ -3,7 +3,16 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
-import type { RouteSegment } from "@keepraw-fly/core";
+import {
+  airportSelectionTarget,
+  airportTargetMatches,
+  routeIdentityKey,
+  routeSelectionTarget,
+  routeTargetMatches,
+  type AirportSelectionTarget,
+  type RouteSegment,
+  type RouteSelectionTarget,
+} from "@keepraw-fly/core";
 import {
   defaultGlobeView,
   globeAirports,
@@ -33,9 +42,8 @@ import { FIXED_SUN_DIRECTION } from "./globe-solar";
 import { detailGlobeView } from "./detail-globe-view";
 
 export type GlobeTheme = "light" | "dark";
-export type GlobeSelection =
-  | { kind: "airport"; code: string }
-  | { kind: "route"; origin: string; destination: string };
+/** Physical-identity selection shared with Passport (codes are display only). */
+export type GlobeSelection = AirportSelectionTarget | RouteSelectionTarget;
 export interface GlobeMetrics {
   firstFrameMs: number;
   textureReadyMs?: number;
@@ -317,7 +325,7 @@ function initializeGlobe(
       callbacks.airportLabel(point.iata, point.flightCount),
     );
     label.addEventListener("click", () =>
-      callbacks.select({ kind: "airport", code: point.iata }),
+      callbacks.select(airportSelectionTarget(point)),
     );
     labels.append(label);
     return { point, marker, label };
@@ -409,14 +417,14 @@ function initializeGlobe(
     moving = null;
   }
   const isSelectedRoute = (r: RouteSegment) =>
-    selected?.kind === "route" &&
-    selected.origin === r.origin.iata &&
-    selected.destination === r.destination.iata;
+    selected?.kind === "route" && routeTargetMatches(selected, r);
   function paintStyles() {
     const dark = uniforms.dark.value === 1;
     for (const item of routeLines) {
       const active = item.directions.some(isSelectedRoute),
-        hovered = item.directions.some((r) => highlight === routeKey(r));
+        hovered = item.directions.some(
+          (r) => highlight === routeIdentityKey(r),
+        );
       item.selectedUniform.value = active ? 1 : 0;
       item.line.material.color.set(
         active
@@ -461,9 +469,22 @@ function initializeGlobe(
     for (const item of markers) {
       const active =
         selected?.kind === "airport"
-          ? selected.code === item.point.iata
+          ? airportTargetMatches(selected, item.point)
           : selected?.kind === "route" &&
-            [selected.origin, selected.destination].includes(item.point.iata);
+            (airportTargetMatches(
+              {
+                code: selected.origin,
+                identityKey: selected.originIdentityKey,
+              },
+              item.point,
+            ) ||
+              airportTargetMatches(
+                {
+                  code: selected.destination,
+                  identityKey: selected.destinationIdentityKey,
+                },
+                item.point,
+              ));
       item.marker.material.color.set(
         active ? (dark ? 0xffa293 : 0xd95349) : dark ? 0xc0e3ff : 0xb4ddf7,
       );
@@ -560,6 +581,7 @@ function initializeGlobe(
       routes: routeLines.flatMap((item) =>
         item.directions.map((route) => ({
           key: routeKey(route),
+          identityKey: routeIdentityKey(route),
           origin: route.origin,
           destination: route.destination,
           count: route.flightCount,
@@ -763,7 +785,7 @@ function initializeGlobe(
         p = project(v);
       if (visibleFrom(v, cam) && Math.hypot(p.x - x, p.y - y) < 12 * unit)
         return {
-          selection: { kind: "airport", code: item.point.iata },
+          selection: airportSelectionTarget(item.point),
           text: callbacks.airportLabel(item.point.iata, item.point.flightCount),
         };
     }
@@ -791,17 +813,13 @@ function initializeGlobe(
           best = distance;
           const route = item.directions.find(isSelectedRoute) ?? item.route;
           hit = {
-            selection: {
-              kind: "route",
-              origin: route.origin.iata,
-              destination: route.destination.iata,
-            },
+            selection: routeSelectionTarget(route),
             text: callbacks.routeLabel(
               route.origin.iata,
               route.destination.iata,
               route.flightCount,
             ),
-            key: routeKey(route),
+            key: routeIdentityKey(route),
           };
         }
       }
@@ -928,11 +946,7 @@ function initializeGlobe(
       selected = selection;
       paintStyles();
       if (selection?.kind === "route") {
-        const route = routes.find(
-          (r) =>
-            r.origin.iata === selection.origin &&
-            r.destination.iata === selection.destination,
-        );
+        const route = routes.find((r) => routeTargetMatches(selection, r));
         if (route)
           flyTo(
             viewMode === "detail"
@@ -940,7 +954,9 @@ function initializeGlobe(
               : selectedRouteView(route, { width, height }),
           );
       } else if (selection?.kind === "airport") {
-        const airport = airports.find((a) => a.iata === selection.code);
+        const airport = airports.find((a) =>
+          airportTargetMatches(selection, a),
+        );
         if (airport)
           flyTo({
             direction: spherePoint(airport),
