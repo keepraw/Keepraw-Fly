@@ -378,7 +378,7 @@ describe("pure code events vs real physical-site hypotheses", () => {
   beforeAll(async () => {
     await ensureAirportHistoryCodes(
       loader,
-      ["SSM", "VLO", "CDT"].map((code) => ({ code })),
+      ["SSM", "PNM", "VLO", "CDT"].map((code) => ({ code })),
     );
   }, 120_000);
 
@@ -428,6 +428,88 @@ describe("pure code events vs real physical-site hypotheses", () => {
     expect(flightDate.basis).toBe("current_directory");
     expect(flightDate.assignmentEvidence).toBe("current_directory");
     expect(flightDate.historicalAssignmentVerified).toBe(false);
+  });
+
+  it("keeps PNM's real code-only observation as an unverified directory fallback on either side of its observation date", () => {
+    const observedAt = "2025-09-08T22:07:54+08:00";
+    for (const date of ["2025-09-07", "2025-09-08", "2025-09-09"]) {
+      const pnm = resolveAirportAtDate("PNM", date);
+      expect(pnm.status).toBe("current_directory_only");
+      expect(pnm.airportId).toBeNull();
+      expect(pnm.matchedAssignment).toBeNull();
+      expect(pnm.formalMatches).toEqual([]);
+      expect(pnm.airport).toMatchObject({
+        name: "Nuevo Mundo Airport",
+        latitude: -11.5415,
+        longitude: -73.1422,
+        basis: "current_directory",
+      });
+      expect(pnm.currentDirectoryAirport).toEqual(airportByIata.get("PNM"));
+      // There is no physical-site hypothesis, not a missing-coordinate site
+      // and not a successful same-site verification.
+      expect(pnm.candidateSites).toEqual([]);
+      expect(pnm.uncertainty.candidateSitesMatchCurrentDirectory).toBeNull();
+      expect(
+        candidateSitesMatchCurrentDirectory(
+          airportByIata.get("PNM")!,
+          pnm.candidateSites,
+          pnm.candidates,
+        ),
+      ).toBeNull();
+      expect(pnm.candidates).toHaveLength(1);
+      const candidate = pnm.candidates[0]!;
+      expect(candidate).toMatchObject({
+        candidateId: "cand_fbfc167e360946e75ae0209e",
+        sourceId: "airportsdata",
+        sourceEntityId: "SPNM",
+        memberClassification: "code_change_observation",
+        firstRevisionObservedAt: observedAt,
+        lastRevisionObservedAt: observedAt,
+      });
+      expect(candidate.types).toEqual(["iata_change"]);
+      expect(candidate.changes).toEqual({ iata: ["", "PNM"] });
+      expect(candidate.possibleSites).toEqual([]);
+      expect(candidateHasPhysicalSiteMeaning(candidate)).toBe(false);
+      expect(candidate.sourceRevisions).toEqual([
+        {
+          action: "M",
+          commit: "5ffd924c79b17695505d153e53e559b9b51f4e59",
+          beforeBlob: "5b7844f8a6929c27125d705178e04e44947e379e",
+          afterBlob: "611adb16f213730ab6b11ac742cde519e96d8f04",
+          revisionObservedAt: observedAt,
+        },
+      ]);
+      expect(pnm.candidateSources).toEqual(["airportsdata"]);
+      expect(pnm.observationTimestamps.length).toBeGreaterThan(0);
+      expect(
+        pnm.observationTimestamps.every(
+          (timestamp) =>
+            timestamp.sourceId === "airportsdata" &&
+            timestamp.revisionObservedAt === observedAt &&
+            timestamp.meaning === "directory_revision_observed",
+        ),
+      ).toBe(true);
+      // Crossing the observation date never creates a verified allocation.
+      expect(
+        originIdentity(
+          flight(
+            `pnm-${date}`,
+            "PNM",
+            "SFO",
+            date,
+            `${date}T10:00:00-05:00`,
+            `${date}T18:00:00-07:00`,
+          ),
+        ),
+      ).toMatchObject({
+        status: "current_directory_only",
+        confirmed: true,
+        identityKey: "current:PNM",
+        basis: "current_directory",
+        assignmentEvidence: "current_directory",
+        historicalAssignmentVerified: false,
+      });
+    }
   });
 
   it("treats a site-less relocation as a physical hypothesis that blocks the same-site match (VLO, CDT)", () => {
