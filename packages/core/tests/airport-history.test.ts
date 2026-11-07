@@ -1,6 +1,6 @@
 /**
  * Real-data tests: every assertion runs against the committed airport-history
- * package generated from keepraw/airport-history 19b7b1de (no mocks).
+ * package generated from keepraw/airport-history 7d21ff67 (no mocks).
  */
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -418,9 +418,9 @@ describe("current-directory agreement and disagreement (real data)", () => {
 describe("package integrity", () => {
   it("matches the upstream counts", () => {
     expect(manifest.counts).toMatchObject({
-      formalAirports: 37,
+      formalAirports: 43,
       formalAssignments: 52,
-      formalSources: 101,
+      formalSources: 106,
       referenceRecords: 86950,
       eventGroups: 88330,
       selectedCandidates: 117356,
