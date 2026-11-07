@@ -3,12 +3,12 @@
     "codeChangeObservations": 68012,
     "eventGroups": 88330,
     "exportedFlightCodeObservations": 64351,
-    "formalAirports": 37,
+    "formalAirports": 43,
     "formalAssignments": 52,
     "formalNames": 3,
-    "formalSources": 101,
+    "formalSources": 106,
     "geographicallyDistinctCodeLeads": 493,
-    "materializedSites": 87715,
+    "materializedSites": 87721,
     "referenceCodeObservations": 233567,
     "referenceCodeObservationsByScheme": {
       "GPS": 45065,
@@ -32,16 +32,16 @@
     "selectedCandidates": 117356,
     "transitionCodeObservations": 56333
   },
-  "dataVersion": "0.10.0+19b7b1decfe2",
+  "dataVersion": "0.11.0+7d21ff6762e1",
   "derivedObservations": "GPS/LOCAL/IDENT reference observations are the records layer's identifiers x location hypotheses; the builder re-derives them and requires the upstream count.",
   "files": {
     "formal/airports.json": {
-      "bytes": 190972,
-      "contentSha256": "2268bdd3426e0d459b7b46d1214b165e3ab90f3526d4f2528f60238f4ee94b13",
+      "bytes": 205274,
+      "contentSha256": "151d63469f96833b4be54f942940a39df24f485c81e18998053d1dc72f93f778",
       "layer": "formal",
-      "records": 37,
+      "records": 43,
       "schemaVersion": "3.0.0",
-      "sha256": "2268bdd3426e0d459b7b46d1214b165e3ab90f3526d4f2528f60238f4ee94b13"
+      "sha256": "151d63469f96833b4be54f942940a39df24f485c81e18998053d1dc72f93f778"
     },
     "licenses/LICENSE-DATA.CC0-1.0.txt": {
       "bytes": 7048,
@@ -60,12 +60,12 @@
       "sha256": "1ab6bf365e1f6a1883ab6a2f797e761b221081b52a33273d86c157fd562106be"
     },
     "licenses/THIRD_PARTY_NOTICES.upstream.txt": {
-      "bytes": 12044,
-      "contentSha256": "210fc02d7bc66d5c985084d886a2191436aba0d04619d12066b2bc1af4861bbb",
+      "bytes": 12822,
+      "contentSha256": "303f60af7d81a7f7e88b3b0f05987253d3b8dac54f1ce8dca9a7140b25a96776",
       "layer": "license",
       "records": 1,
       "schemaVersion": "1.0.0",
-      "sha256": "210fc02d7bc66d5c985084d886a2191436aba0d04619d12066b2bc1af4861bbb"
+      "sha256": "303f60af7d81a7f7e88b3b0f05987253d3b8dac54f1ce8dca9a7140b25a96776"
     },
     "observations/iata.0.jsonl.gz": {
       "bytes": 140036,
@@ -461,11 +461,11 @@
     },
     "source-lock.json": {
       "bytes": 17750,
-      "contentSha256": "25ab307c327dcdc27404eddeb075900e9d0a786707aa1f55594d381760bcaa37",
+      "contentSha256": "a8531ebd530a033690876705a58f62911434febd53662f0103eb4d6ca0be1bb5",
       "layer": "lock",
       "records": 141,
       "schemaVersion": "1.0.0",
-      "sha256": "25ab307c327dcdc27404eddeb075900e9d0a786707aa1f55594d381760bcaa37"
+      "sha256": "a8531ebd530a033690876705a58f62911434febd53662f0103eb4d6ca0be1bb5"
     },
     "transitions/code-reuse-leads.jsonl.gz": {
       "bytes": 32266,
@@ -879,8 +879,8 @@
     "transitionGroups": "transitions/groups.<sha256(eventGroupId)[0]>.jsonl.gz"
   },
   "upstream": {
-    "commit": "19b7b1decfe2b43916fd4607b049ebb79293ae77",
-    "formalDataVersion": "0.10.0",
+    "commit": "7d21ff6762e1569faa1be19c8203e577420cd1f2",
+    "formalDataVersion": "0.11.0",
     "formalSchemaVersion": "3.0.0",
     "repository": "https://github.com/keepraw/airport-history"
   }
