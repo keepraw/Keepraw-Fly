@@ -1,6 +1,6 @@
 /**
  * Application integration against the committed real airport-history package
- * (keepraw/airport-history 19b7b1de). No mocked airport data.
+ * (keepraw/airport-history bb104645). No mocked airport data.
  */
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";

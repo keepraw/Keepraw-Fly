@@ -1,7 +1,7 @@
 /**
  * Physical identity in selection, assignment evidence and candidate/directory
  * consistency — all against the committed airport-history package generated
- * from keepraw/airport-history 19b7b1de (no mocked airport identities).
+ * from keepraw/airport-history bb104645 (no mocked airport identities).
  */
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
