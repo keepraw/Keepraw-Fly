@@ -1,6 +1,6 @@
 /**
  * Real-data tests: every assertion runs against the committed airport-history
- * package generated from keepraw/airport-history 7d21ff67 (no mocks).
+ * package generated from keepraw/airport-history bb104645 (no mocks).
  */
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -90,6 +90,27 @@ beforeAll(async () => {
 }, 120_000);
 
 describe("formal historical resolution (pinned upstream data)", () => {
+  it.each(["VANM", "VEAY", "VOSH"])(
+    "%s resolves only inside the 0.12.0 certain window",
+    (code) => {
+      for (const date of ["2026-06-12", "2026-07-08"]) {
+        const result = resolveAirportAtDate(code, date, "ICAO");
+        expect(result.status, date).toBe("resolved");
+        expect(result.matchedAssignment?.code).toBe(code);
+      }
+      for (const date of [
+        "2015-01-01",
+        "2026-06-11",
+        "2026-07-09",
+        "2026-11-09",
+      ]) {
+        expect(resolveAirportAtDate(code, date, "ICAO").status, date).toBe(
+          "uncertain",
+        );
+      }
+    },
+  );
+
   it.each([
     ["TAO", "2018-06-01", "Qingdao Liuting International Airport"],
     ["TAO", "2022-06-01", "Qingdao Jiaodong International Airport"],
@@ -417,10 +438,24 @@ describe("current-directory agreement and disagreement (real data)", () => {
 
 describe("package integrity", () => {
   it("matches the upstream counts", () => {
+    expect(manifest.upstream).toMatchObject({
+      commit: "bb1046455e949c6c0bf3a18769464cb232bec19e",
+      formalDataVersion: "0.12.0",
+      formalSchemaVersion: "3.0.0",
+    });
+    expect(formal.dataVersion).toBe("0.12.0");
+    expect(formal.schemaVersion).toBe("3.0.0");
+    expect(
+      formal.assignments.filter((row) => row.scheme === "IATA"),
+    ).toHaveLength(28);
+    expect(
+      formal.assignments.filter((row) => row.scheme === "ICAO"),
+    ).toHaveLength(27);
     expect(manifest.counts).toMatchObject({
-      formalAirports: 43,
-      formalAssignments: 52,
-      formalSources: 106,
+      formalAirports: 46,
+      formalAssignments: 55,
+      formalSources: 112,
+      formalNames: 3,
       referenceRecords: 86950,
       eventGroups: 88330,
       selectedCandidates: 117356,
