@@ -231,12 +231,15 @@ export function SettingsPage({
             ))}
           </nav>
           <div className="settings-category-content" ref={categoryContentRef}>
+            {/* Direct names preserve the headings' localized region names while
+                avoiding Firefox 159's crash when style/layout queries follow
+                a role lookup through aria-labelledby (Playwright 1.65.0). */}
             <div className="settings-sections">
               <section
                 className="settings-section"
                 id="settings-category-general"
                 data-active={activeCategory === "general"}
-                aria-labelledby="settings-display"
+                aria-label={t("settings.general")}
               >
                 <h2 className="settings-section-title" id="settings-display">
                   {t("settings.general")}
@@ -363,7 +366,6 @@ export function SettingsPage({
                       className="settings-row-control"
                       value={settings.solarMode}
                       title={t("settings.solarModeHint")}
-                      aria-labelledby="settings-solar-label"
                       aria-describedby="settings-solar-hint"
                       onChange={(event) =>
                         updateSetting(
@@ -385,7 +387,7 @@ export function SettingsPage({
                 className="settings-section"
                 id="settings-category-profile"
                 data-active={activeCategory === "profile"}
-                aria-labelledby="settings-profile"
+                aria-label={t("settings.profile")}
               >
                 <h2 className="settings-section-title" id="settings-profile">
                   {t("settings.profile")}
@@ -485,7 +487,7 @@ export function SettingsPage({
                 className="settings-section"
                 id="settings-category-memberships"
                 data-active={activeCategory === "memberships"}
-                aria-labelledby="settings-loyalty"
+                aria-label={t("settings.frequentFlyerProfiles")}
               >
                 <h2 className="settings-section-title" id="settings-loyalty">
                   {t("settings.frequentFlyerProfiles")}
@@ -688,7 +690,7 @@ export function SettingsPage({
                 className="settings-section"
                 id="settings-category-data"
                 data-active={activeCategory === "data"}
-                aria-labelledby="settings-data"
+                aria-label={t("settings.dataAndBackup")}
               >
                 <h2 className="settings-section-title" id="settings-data">
                   {t("settings.dataAndBackup")}
@@ -696,7 +698,7 @@ export function SettingsPage({
                 <div className="settings-panel settings-data-panel settings-operations">
                   <section
                     className="settings-backup-summary settings-operation"
-                    aria-labelledby="settings-export-title"
+                    aria-label={t("settings.exportTitle")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -755,7 +757,7 @@ export function SettingsPage({
                   <section
                     className="settings-import-row settings-operation"
                     id="settings-import"
-                    aria-labelledby="settings-json-title"
+                    aria-label={t("settings.importTitle")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -775,7 +777,7 @@ export function SettingsPage({
                   </section>
                   <section
                     className="settings-import-row settings-operation"
-                    aria-labelledby="settings-csv-title"
+                    aria-label={t("settings.csvImportTitle")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -791,7 +793,7 @@ export function SettingsPage({
                   </section>
                   <section
                     className="settings-import-row settings-operation"
-                    aria-labelledby="settings-flighty-title"
+                    aria-label={t("settings.flightyImportTitle")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -809,7 +811,7 @@ export function SettingsPage({
                   </section>
                   <section
                     className="settings-import-row settings-operation"
-                    aria-labelledby="settings-umetrip-title"
+                    aria-label={t("umetripImport.title")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -827,7 +829,7 @@ export function SettingsPage({
                   </section>
                   <section
                     className="settings-operation settings-operation--storage"
-                    aria-labelledby="settings-storage-title"
+                    aria-label={t("settings.storageProtectionTitle")}
                   >
                     <div className="settings-operation-copy">
                       <h3
@@ -885,7 +887,7 @@ export function SettingsPage({
                 className="settings-section"
                 id="settings-category-advanced"
                 data-active={activeCategory === "advanced"}
-                aria-labelledby="settings-advanced"
+                aria-label={t("settings.advanced")}
               >
                 <h2 className="settings-section-title" id="settings-advanced">
                   {t("settings.advanced")}
@@ -931,7 +933,7 @@ export function SettingsPage({
                 className="settings-section settings-danger-zone"
                 id="settings-category-danger"
                 data-active={activeCategory === "danger"}
-                aria-labelledby="settings-danger"
+                aria-label={t("settings.dangerZone")}
               >
                 <h2 className="settings-section-title" id="settings-danger">
                   {t("settings.dangerZone")}
