@@ -22,54 +22,9 @@ type Observed = {
   selectsRemoved: number;
 };
 
-// WebKit 27.2 styles a native <select>'s UA shadow slot at creation, even
-// if the select is never attached. Its queued event then targets document,
-// without any observable select removal. A test-only report-sample policy
-// identifies that exact internal declaration; the enforced production meta
-// policy remains unchanged. Pair reports one-to-one, capped by the observed
-// native selects, so even an extra pair with the same sample still fails.
-const isQuirkShape = (violation: Violation) =>
-  violation.directive === "style-src-attr" &&
-  violation.blocked === "inline" &&
-  violation.sample === "";
-export function webkitSelectQuirks(observed: Observed) {
-  const remaining = new Set(observed.violations);
-  let pairs = 0;
-  if (observed.blockedStyles.length === 0) {
-    for (const violation of observed.violations) {
-      if (
-        violation.disposition !== "enforce" ||
-        !isQuirkShape(violation) ||
-        violation.targetStyled ||
-        !["SELECT", "#document"].includes(violation.target)
-      )
-        continue;
-      const sample = [...remaining].find(
-        (report) =>
-          report.disposition === "report" &&
-          report.directive === violation.directive &&
-          report.blocked === violation.blocked &&
-          report.target === violation.target &&
-          !report.targetStyled &&
-          report.sample === "text-overflow:inherit",
-      );
-      if (sample && pairs < observed.selectsCreated) {
-        remaining.delete(sample);
-        remaining.delete(violation);
-        pairs++;
-      }
-    }
-  }
-  return {
-    real: [...remaining],
-    quirks: observed.violations.filter(
-      (violation) => !remaining.has(violation),
-    ),
-  };
-}
-const webkitSelectConsole =
-  /^(?:\[Report Only\] )?Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive/;
-
+// Playwright 1.65.0's WebKit no longer emits native <select> style
+// violations. Keep every event and console error, including detached nodes
+// whose genuine style declarations match the former UA shadow-slot sample.
 export async function watchViolations(page: Page, browserName: string) {
   if (browserName === "webkit") {
     // style-src (rather than style-src-attr) makes WebKit include samples.
@@ -122,7 +77,7 @@ export async function watchViolations(page: Page, browserName: string) {
     // Chromium) a style attribute CSP refused keeps its text but exposes no
     // declarations (CSSOM writes, which CSP allows, keep the two in sync).
     // Firefox keeps the declarations without applying them, so there this
-    // detector stays silent; it only gates WebKit's sampled exemption.
+    // detector stays silent; violation events still detect refused styles.
     const refused = (element: Element) => {
       const text = element.getAttribute("style");
       return (
@@ -207,20 +162,15 @@ export async function watchViolations(page: Page, browserName: string) {
         selectsRemoved: state.__selectsRemoved,
       } satisfies Observed;
     });
-  const real = (observed: Observed) =>
-    browserName === "webkit"
-      ? webkitSelectQuirks(observed).real
-      : observed.violations;
   return {
     readAll,
     violations: async () => {
       const observed = await readAll();
       expect(observed.blockedStyles).toEqual([]);
-      return real(observed);
+      return observed.violations;
     },
-    // Async on purpose: console messages can land after an earlier
-    // violations() snapshot, so the quirk events are re-read here and every
-    // exempted console line must be matched by an exempt-shaped event.
+    // Console messages can land after an earlier violations() snapshot.
+    // Re-read both detectors; no native-control events or errors are exempt.
     cspConsoleErrors: async () => {
       const csp = consoleErrors.filter((text) =>
         /Content.Security.Policy|CSP|style-src|script-src|connect-src/i.test(
@@ -229,13 +179,8 @@ export async function watchViolations(page: Page, browserName: string) {
       );
       const observed = await readAll();
       expect(observed.blockedStyles).toEqual([]);
-      expect(real(observed)).toEqual([]);
-      if (browserName !== "webkit") return csp;
-      const quirks = csp.filter((text) => webkitSelectConsole.test(text));
-      expect(quirks.length).toBeLessThanOrEqual(
-        webkitSelectQuirks(observed).quirks.length,
-      );
-      return csp.filter((text) => !webkitSelectConsole.test(text));
+      expect(observed.violations).toEqual([]);
+      return csp;
     },
     consoleErrors,
   };
