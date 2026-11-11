@@ -183,9 +183,10 @@ test("the Chinese XLS preview remains usable on a narrow screen and in dark mode
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await page.locator("#settings-appearance").selectOption("dark");
   await openSettingsCategory(page, "Data and backup");
-  const section = page.locator(
-    'section[aria-labelledby="settings-umetrip-title"]',
-  );
+  const section = page.getByRole("region", {
+    name: "航旅纵横 XLS",
+    exact: true,
+  });
   await section
     .locator('input[type="file"]')
     .setInputFiles(fixture("standard"));
@@ -199,7 +200,7 @@ test("the Chinese XLS preview remains usable on a narrow screen and in dark mode
       .evaluate((element) => element.scrollWidth <= element.clientWidth),
   ).toBe(true);
   const audit = await new AxeBuilder({ page })
-    .include('section[aria-labelledby="settings-umetrip-title"]')
+    .include('section[aria-label="航旅纵横 XLS"]')
     .analyze();
   expect(audit.violations).toEqual([]);
   await section.screenshot({ path: "artifacts/umetrip-mobile-dark.png" });
