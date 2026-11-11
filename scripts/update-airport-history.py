@@ -41,7 +41,7 @@ from collections import defaultdict
 from pathlib import Path
 
 REPOSITORY = "https://github.com/keepraw/airport-history"
-UPSTREAM_COMMIT = "19b7b1decfe2b43916fd4607b049ebb79293ae77"
+UPSTREAM_COMMIT = "bb1046455e949c6c0bf3a18769464cb232bec19e"
 PACKAGE_SCHEMA_VERSION = "1.0.0"
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "packages/core/data/airport-history"

@@ -2,20 +2,20 @@
   "builder": {
     "command": "python3 bulk/worldwide.py build",
     "metrics": {
-      "formalAirports": 37,
-      "formalCodeAssignments": 52,
+      "formalAirports": 46,
+      "formalCodeAssignments": 55,
       "indexedEventGroups": 88330,
       "indexedLeadMembers": 117356,
       "indexedTransitionCodeObservations": 56333,
-      "materializedSites": 87715,
+      "materializedSites": 87724,
       "referenceCodeObservations": 233567,
       "referenceRecords": 86950
     },
     "sha256": "3f9b4022447d0a542047c2b318d933c1f57c233dda402dd6ae7bc4f4aeb06a4e",
     "sqliteFormatVersion": "1.0.0"
   },
-  "commit": "19b7b1decfe2b43916fd4607b049ebb79293ae77",
-  "formalDataVersion": "0.10.0",
+  "commit": "bb1046455e949c6c0bf3a18769464cb232bec19e",
+  "formalDataVersion": "0.12.0",
   "formalSchemaVersion": "3.0.0",
   "inputs": {
     "discovery/airport-codes-initial.candidates.0.jsonl.gz": "14e3f907ed29b2885a350f79ab59e24805a39a3b139f3cbf8c02e9011f4738be",
@@ -148,9 +148,9 @@
     "reference/records.f.jsonl.gz": "1645b2df761f58ec10c9907efea2eed55f7cd5eff3012dba0e7eb79f8ce54395",
     "triage/groups.jsonl.gz": "8445391e7846efacb39ace5ba82131b1cc5759bf8e8cdaa0ff85767f363dd8c2",
     "upstream/LICENSE-DATA": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
-    "upstream/THIRD_PARTY_NOTICES.md": "210fc02d7bc66d5c985084d886a2191436aba0d04619d12066b2bc1af4861bbb",
+    "upstream/THIRD_PARTY_NOTICES.md": "8df118b8101ebd57d66f2ecbc8965025330457c46f95e8017972d4da3bdb01bf",
     "upstream/bulk/worldwide.py": "3f9b4022447d0a542047c2b318d933c1f57c233dda402dd6ae7bc4f4aeb06a4e",
-    "upstream/data/airports.json": "2268bdd3426e0d459b7b46d1214b165e3ab90f3526d4f2528f60238f4ee94b13",
+    "upstream/data/airports.json": "4573fb7e6fac8e02c8e3f57443599385dffada17b250a29f1a18964f6d6d8cc9",
     "upstream/reference/LICENSE-airportsdata": "1ab6bf365e1f6a1883ab6a2f797e761b221081b52a33273d86c157fd562106be",
     "upstream/reference/generated/manifest.json": "12b2ba970065b12c793b4d64f8ae25658c703e4d054c24ee6f623d73bf7744f6",
     "upstream/reference/generated/metrics.json": "469d3414e830c1e3f0f22cbeb9d18945dc404e3744705632e6b24bda49ae35da",
@@ -162,5 +162,5 @@
   },
   "note": "The SQLite database is a transient build product and is never committed or bundled. Its bytes depend on the local SQLite build, so only its format version and upstream metrics are locked here.",
   "repository": "https://github.com/keepraw/airport-history",
-  "tree": "6b161372b6af9d5ab303201e089207310cac0c76"
+  "tree": "a1266dff5ab8b4dbb80f0c60bc7379c2a472ea0c"
 }
