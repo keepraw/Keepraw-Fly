@@ -722,9 +722,9 @@ export function PassportPage({
 
                 <section
                   className="passport-mobile-panel passport-delay-panel"
-                  aria-labelledby="passport-delay-title"
+                  aria-label={t("passport.totalDelay")}
                 >
-                  <h2 id="passport-delay-title">{t("passport.totalDelay")}</h2>
+                  <h2>{t("passport.totalDelay")}</h2>
                   <div
                     className="passport-delay-main"
                     title={t("passport.delayBasedOnArrivals")}
@@ -751,11 +751,9 @@ export function PassportPage({
 
                 <section
                   className="passport-mobile-panel passport-network-panel"
-                  aria-labelledby="passport-network-title"
+                  aria-label={t("passport.networkPanelTitle")}
                 >
-                  <h2 id="passport-network-title">
-                    {t("passport.networkPanelTitle")}
-                  </h2>
+                  <h2>{t("passport.networkPanelTitle")}</h2>
                   <div className="passport-network-facts">
                     <div>
                       <strong>{stats.countries.toLocaleString(locale)}</strong>
