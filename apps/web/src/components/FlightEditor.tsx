@@ -137,7 +137,12 @@ export function FlightEditor({
     ] as const
   ).flatMap(([role, iata, date, chosen, field]) => {
     if (!/^[A-Z]{3}$/.test(iata)) return [];
-    const airportId = role === "origin" ? draft.originAirportId : role === "destination" ? draft.destinationAirportId : draft.divertedAirportId;
+    const airportId =
+      role === "origin"
+        ? draft.originAirportId
+        : role === "destination"
+          ? draft.destinationAirportId
+          : draft.divertedAirportId;
     const known = endpointZone(iata, date, role, undefined, airportId);
     if (known.zone) return [];
     return [
@@ -210,7 +215,10 @@ export function FlightEditor({
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (draft.originIata === draft.destinationIata && draft.originAirportId === draft.destinationAirportId) {
+    if (
+      draft.originIata === draft.destinationIata &&
+      draft.originAirportId === draft.destinationAirportId
+    ) {
       setError(t("flightEditor.sameAirport"));
       return;
     }
@@ -323,7 +331,13 @@ export function FlightEditor({
               locale={locale}
               value={draft.originIata}
               airportId={draft.originAirportId}
-              onChange={(iata, airportId) => setDraft((current) => ({ ...current, originIata: iata, originAirportId: airportId }))}
+              onChange={(iata, airportId) =>
+                setDraft((current) => ({
+                  ...current,
+                  originIata: iata,
+                  originAirportId: airportId,
+                }))
+              }
               preferredCodes={preferredAirportCodes}
               date={draft.serviceDate}
               role="origin"
@@ -333,7 +347,13 @@ export function FlightEditor({
               locale={locale}
               value={draft.destinationIata}
               airportId={draft.destinationAirportId}
-              onChange={(iata, airportId) => setDraft((current) => ({ ...current, destinationIata: iata, destinationAirportId: airportId }))}
+              onChange={(iata, airportId) =>
+                setDraft((current) => ({
+                  ...current,
+                  destinationIata: iata,
+                  destinationAirportId: airportId,
+                }))
+              }
               preferredCodes={preferredAirportCodes}
               date={draft.arrivalDate}
               role="destination"
@@ -351,7 +371,13 @@ export function FlightEditor({
               locale={locale}
               value={draft.divertedToIata ?? ""}
               airportId={draft.divertedAirportId}
-              onChange={(iata, airportId) => setDraft((current) => ({ ...current, divertedToIata: iata, divertedAirportId: airportId }))}
+              onChange={(iata, airportId) =>
+                setDraft((current) => ({
+                  ...current,
+                  divertedToIata: iata,
+                  divertedAirportId: airportId,
+                }))
+              }
               required={false}
               preferredCodes={preferredAirportCodes}
               date={draft.actualArrivalDate || draft.arrivalDate}

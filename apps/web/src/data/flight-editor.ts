@@ -108,7 +108,7 @@ export function endpointZone(
       ? "origin"
       : role === "destination"
         ? "destination"
-         : "arrival",
+        : "arrival",
     null,
     airportId,
   );
@@ -336,9 +336,21 @@ export function flightFromDraft(
   const originIata = draft.originIata.trim().toUpperCase();
   const destinationIata = draft.destinationIata.trim().toUpperCase();
   const divertedToIata = (draft.divertedToIata ?? "").trim().toUpperCase();
-  const originAirportId = draft.originAirportId ?? (existing?.origin.iata === originIata ? existing.origin.airportId : undefined);
-  const destinationAirportId = draft.destinationAirportId ?? (existing?.destination.iata === destinationIata ? existing.destination.airportId : undefined);
-  const divertedAirportId = draft.divertedAirportId ?? (existing?.divertedTo?.iata === divertedToIata ? existing.divertedTo.airportId : undefined);
+  const originAirportId =
+    draft.originAirportId ??
+    (existing?.origin.iata === originIata
+      ? existing.origin.airportId
+      : undefined);
+  const destinationAirportId =
+    draft.destinationAirportId ??
+    (existing?.destination.iata === destinationIata
+      ? existing.destination.airportId
+      : undefined);
+  const divertedAirportId =
+    draft.divertedAirportId ??
+    (existing?.divertedTo?.iata === divertedToIata
+      ? existing.divertedTo.airportId
+      : undefined);
   if (!isAirportCodeFormat(originIata) || !isAirportCodeFormat(destinationIata))
     throw new Error("unknown-airport");
   if (divertedToIata && !isAirportCodeFormat(divertedToIata))

@@ -26,7 +26,9 @@ export async function serializeKeeprawFly(
     );
   }
   const hasIdentity = validation.data.flights.some((flight) =>
-    [flight.origin, flight.destination, flight.divertedTo].some((endpoint) => endpoint?.airportId),
+    [flight.origin, flight.destination, flight.divertedTo].some(
+      (endpoint) => endpoint?.airportId,
+    ),
   );
   return `${JSON.stringify({ ...validation.data, formatVersion: hasIdentity ? KEEPRAW_FLY_FORMAT_VERSION : validation.data.formatVersion }, null, 2)}\n`;
 }

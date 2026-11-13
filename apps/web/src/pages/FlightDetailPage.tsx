@@ -326,12 +326,19 @@ function airportHistory(
 }
 
 // Match FlightRow's display rules without changing airport data or route semantics.
-function airportCityLabel(identity: FlightEndpointIdentity, locale: SupportedLocale): string {
+function airportCityLabel(
+  identity: FlightEndpointIdentity,
+  locale: SupportedLocale,
+): string {
   const iata = identity.iata;
   const airport = airportByIata.get(iata);
   if (!identity.airportId || identity.airportId !== airport?.airportId) {
     return identity.city
-      ? formatCityDisplayName(localizedText(identity.city, locale), identity.country ?? "", locale)
+      ? formatCityDisplayName(
+          localizedText(identity.city, locale),
+          identity.country ?? "",
+          locale,
+        )
       : iata;
   }
   const cityGroup = airportCityGroupForAirport(iata);
@@ -516,10 +523,7 @@ export function FlightDetailPage({
               <AirportStop
                 kind="arrival"
                 iata={flight.divertedTo?.iata ?? flight.destination.iata}
-                city={airportCityLabel(
-                  actualDestination,
-                  locale,
-                )}
+                city={airportCityLabel(actualDestination, locale)}
                 airport={airportNameLabel(
                   actualDestination,
                   flight.divertedTo?.iata ?? flight.destination.iata,

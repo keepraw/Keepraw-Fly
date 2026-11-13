@@ -100,11 +100,18 @@ export function FlightRow({
   // Undetermined flight-date airports are flagged, never silently relabelled.
   const originEndpoint = originIdentity(flight);
   const destinationEndpoint = plannedDestinationIdentity(flight);
-  const endpointCity = (identity: typeof originEndpoint, directory: typeof origin) =>
+  const endpointCity = (
+    identity: typeof originEndpoint,
+    directory: typeof origin,
+  ) =>
     identity.airportId && identity.airportId === directory?.airportId
       ? cityName(identity.iata, directory)
       : identity.city
-        ? formatCityDisplayName(localizedText(identity.city, locale), identity.country ?? "", locale)
+        ? formatCityDisplayName(
+            localizedText(identity.city, locale),
+            identity.country ?? "",
+            locale,
+          )
         : identity.iata;
   const originCity = endpointCity(originEndpoint, origin);
   const destinationCity = endpointCity(destinationEndpoint, destination);
@@ -186,13 +193,21 @@ export function FlightRow({
                 <AirportCode
                   code={flight.origin.iata}
                   size="compact"
-                  title={originEndpoint.name ? localizedText(originEndpoint.name, locale) : flight.origin.iata}
+                  title={
+                    originEndpoint.name
+                      ? localizedText(originEndpoint.name, locale)
+                      : flight.origin.iata
+                  }
                 />
                 <span aria-hidden="true">→</span>
                 <AirportCode
                   code={flight.destination.iata}
                   size="compact"
-                  title={destinationEndpoint.name ? localizedText(destinationEndpoint.name, locale) : flight.destination.iata}
+                  title={
+                    destinationEndpoint.name
+                      ? localizedText(destinationEndpoint.name, locale)
+                      : flight.destination.iata
+                  }
                 />
               </div>
               <div className="flight-time-column">

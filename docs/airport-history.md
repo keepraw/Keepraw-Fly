@@ -14,10 +14,10 @@ date lookup could therefore lose the selected physical airport.
 
 The runtime now has two data sources:
 
-| Data | Identity and purpose |
-| --- | --- |
-| Airport Directory | `airportById` contains permanent physical entities. `airportByIata` is a current lookup index into those entities. |
-| Airport Code Assignment | Reviewed upstream assignments refer to directory IDs, with their original sources and conservative date bounds. |
+| Data                    | Identity and purpose                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Airport Directory       | `airportById` contains permanent physical entities. `airportByIata` is a current lookup index into those entities. |
+| Airport Code Assignment | Reviewed upstream assignments refer to directory IDs, with their original sources and conservative date bounds.    |
 
 The existing compact airport rows retain their first seven fields and append
 `airportId`, ICAO, optional status, historical names and search aliases.

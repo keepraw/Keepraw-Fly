@@ -252,9 +252,7 @@ describe("CSV / Flighty imports keep unknown-airport flights", () => {
     expect(originIdentity(document.flights[0]!).name?.en).toBe(
       "Hong Kong International Airport Kai Tak",
     );
-    expect(originIdentity(document.flights[1]!).status).toBe(
-      "unknown_code",
-    );
+    expect(originIdentity(document.flights[1]!).status).toBe("unknown_code");
     expect(validateKeeprawFly(document).valid).toBe(true);
   });
 });

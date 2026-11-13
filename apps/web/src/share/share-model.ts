@@ -149,7 +149,10 @@ function mergeRoutes(segments: RouteSegment[], labels: boolean) {
     { segment: RouteSegment; flights: number; key: string }
   >();
   for (const segment of segments) {
-    const codes = [segment.origin.identityKey ?? segment.origin.iata, segment.destination.identityKey ?? segment.destination.iata].sort();
+    const codes = [
+      segment.origin.identityKey ?? segment.origin.iata,
+      segment.destination.identityKey ?? segment.destination.iata,
+    ].sort();
     const key = codes.join("-");
     const current = pairs.get(key);
     if (current) current.flights += segment.flightCount;

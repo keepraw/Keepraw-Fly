@@ -59,7 +59,10 @@ for (const [name, sources] of [
   ["img-src", ["'self'", "data:", "blob:"]],
   ["default-src", ["'none'"]],
   ["script-src", ["'self'"]],
-  ["connect-src", ["'self'", "https://raw.githubusercontent.com/keepraw/airport-history/"]],
+  [
+    "connect-src",
+    ["'self'", "https://raw.githubusercontent.com/keepraw/airport-history/"],
+  ],
   ["worker-src", ["'none'"]],
 ]) {
   assert.deepEqual(directives.get(name), sources, `${name}: allowed sources`);

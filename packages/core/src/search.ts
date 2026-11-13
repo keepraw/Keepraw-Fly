@@ -13,7 +13,9 @@ function identitySearchText(identity: FlightEndpointIdentity): string {
   return [
     ...Object.values(identity.name ?? {}),
     ...Object.values(identity.city ?? {}),
-    ...(identity.airportId ? airportById.get(identity.airportId)?.historicalNames ?? [] : []),
+    ...(identity.airportId
+      ? (airportById.get(identity.airportId)?.historicalNames ?? [])
+      : []),
   ].join(" ");
 }
 

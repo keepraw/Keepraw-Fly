@@ -508,12 +508,16 @@ export function installAirportDirectory(
     historicalNames,
     searchAliases,
   ] of rows) {
-    const localization = status === "closed" || status === "unknown" ? undefined : airportLocales.get(iata);
+    const localization =
+      status === "closed" || status === "unknown"
+        ? undefined
+        : airportLocales.get(iata);
     const airport: AirportReference = {
       iata,
       airportId: airportId ?? permanentIds.get(iata)!,
       icao,
-      currentIata: status === "unknown" || status === "closed" ? undefined : iata,
+      currentIata:
+        status === "unknown" || status === "closed" ? undefined : iata,
       status: (status ?? "operating") as AirportReference["status"],
       historicalNames: historicalNames ?? [],
       searchAliases: searchAliases ?? [iata, ...(icao ? [icao] : [])],
@@ -542,7 +546,9 @@ export function installAirportDirectory(
     airportByIata.set(airport.iata, {
       ...airportByIata.get(airport.iata),
       ...airport,
-      airportId: airportByIata.get(airport.iata)?.airportId ?? permanentIds.get(airport.iata)!,
+      airportId:
+        airportByIata.get(airport.iata)?.airportId ??
+        permanentIds.get(airport.iata)!,
       currentIata: airport.iata,
       status: "operating",
     });
@@ -569,11 +575,14 @@ export function installAirportDirectory(
   }
   // Explicit physical-entity crosswalk, not a dated code assignment.
   for (const raw of formalData.airports) {
-    const metadata = (formalDirectory as Record<string, string[]>)[raw.airportId];
+    const metadata = (formalDirectory as Record<string, string[]>)[
+      raw.airportId
+    ];
     if (!metadata) continue;
     const [iata, alias, city, country, status, zone] = metadata;
     const current = iata ? airportByIata.get(iata) : undefined;
-    const sameEntity = current?.airportId === raw.airportId ? current : undefined;
+    const sameEntity =
+      current?.airportId === raw.airportId ? current : undefined;
     const airport: AirportReference = {
       airportId: raw.airportId,
       iata: iata || alias!,
@@ -589,8 +598,18 @@ export function installAirportDirectory(
       longitude: raw.coordinates.value!.longitude,
       timezone: raw.timezone.value ?? sameEntity?.timezone ?? zone!,
       status: status as "operating" | "closed",
-      historicalNames: [raw.name.value!, ...formalData.names.filter((name) => name.airportId === raw.airportId).map((name) => name.name)],
-      searchAliases: [alias!, ...formalData.assignments.filter((assignment) => assignment.airportId === raw.airportId).map((assignment) => assignment.code)],
+      historicalNames: [
+        raw.name.value!,
+        ...formalData.names
+          .filter((name) => name.airportId === raw.airportId)
+          .map((name) => name.name),
+      ],
+      searchAliases: [
+        alias!,
+        ...formalData.assignments
+          .filter((assignment) => assignment.airportId === raw.airportId)
+          .map((assignment) => assignment.code),
+      ],
     };
     airportById.set(raw.airportId, airport);
     if (sameEntity && iata) airportByIata.set(iata, airport);

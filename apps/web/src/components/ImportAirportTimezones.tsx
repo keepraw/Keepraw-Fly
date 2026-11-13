@@ -49,7 +49,11 @@ export function ImportAirportTimezones({
       <p>{t("import.airportTimezones.note")}</p>
       <ul>
         {codes.map((code) => {
-          const options = resolveEndpointIdentity(code, "2000-01-01", "origin").timezoneOptions;
+          const options = resolveEndpointIdentity(
+            code,
+            "2000-01-01",
+            "origin",
+          ).timezoneOptions;
           return (
             <li key={code}>
               <label>

@@ -13,7 +13,7 @@ of the application version.
 ```json
 {
   "format": "keepraw-fly",
-    "formatVersion": "0.2.0",
+  "formatVersion": "0.2.0",
   "profile": {},
   "flights": []
 }

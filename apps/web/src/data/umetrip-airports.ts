@@ -47,7 +47,9 @@ export function createUmetripAirportResolver() {
   const formalNames = new Map<string, string[]>();
   for (const airport of airportById.values()) {
     const labels = [
-      ...Object.values(airport.name).filter((name): name is string => Boolean(name)),
+      ...Object.values(airport.name).filter((name): name is string =>
+        Boolean(name),
+      ),
       ...formalHistoricalNames
         .filter((row) => row.airportId === airport.airportId)
         .map((row) => row.name),

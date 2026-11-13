@@ -115,10 +115,7 @@ export function PassportPage({
     [document.flights, selectedYear, query, selection],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
-  const stats = useMemo(
-    () => calculatePassportStatistics(flights),
-    [flights],
-  );
+  const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
   const highlights = useMemo(
     () => calculatePassportHighlights(flights),
     [flights],
@@ -149,10 +146,7 @@ export function PassportPage({
       passportVisibleFlights(document.flights, { ...view, selection: null }),
     [document.flights, selectedYear, query],
   );
-  const routes = useMemo(
-    () => buildRouteSegments(mapFlights),
-    [mapFlights],
-  );
+  const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
   );

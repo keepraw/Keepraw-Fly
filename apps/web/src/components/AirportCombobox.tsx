@@ -65,8 +65,12 @@ export function AirportCombobox({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const reviewRequest = useRef(0);
-  const [research, setResearch] = useState<import("../data/airport-history").AirportResearchResult[]>([]);
-  const [researchState, setResearchState] = useState<"idle" | "loading" | "ready" | "failed">("idle");
+  const [research, setResearch] = useState<
+    import("../data/airport-history").AirportResearchResult[]
+  >([]);
+  const [researchState, setResearchState] = useState<
+    "idle" | "loading" | "ready" | "failed"
+  >("idle");
   useEffect(() => {
     reviewRequest.current++;
     setResearch([]);
@@ -104,7 +108,10 @@ export function AirportCombobox({
     [query, date],
   );
   const identity = useMemo(
-    () => (value ? resolveEndpointIdentity(value, date || null, role, null, airportId) : null),
+    () =>
+      value
+        ? resolveEndpointIdentity(value, date || null, role, null, airportId)
+        : null,
     [value, date, role, airportId],
   );
 
@@ -159,7 +166,8 @@ export function AirportCombobox({
         }}
         onChange={(event) => updateQuery(event.target.value)}
         onBlur={(event) => {
-          if (event.currentTarget.parentElement?.contains(event.relatedTarget)) return;
+          if (event.currentTarget.parentElement?.contains(event.relatedTarget))
+            return;
           const code = keepableCode(query);
           if (code && code !== value) onChange(code);
           else if (!query.trim()) onChange("");
@@ -180,8 +188,15 @@ export function AirportCombobox({
             chooseAirport(results[activeIndex]);
           } else if (event.key === "Enter" && open && historical[0]) {
             event.preventDefault();
-            chooseCode(historicalCode(historical[0], date)!, historical[0].airportId);
-          } else if (event.key === "Enter" && keepableCode(query) && query !== value) {
+            chooseCode(
+              historicalCode(historical[0], date)!,
+              historical[0].airportId,
+            );
+          } else if (
+            event.key === "Enter" &&
+            keepableCode(query) &&
+            query !== value
+          ) {
             event.preventDefault();
             onChange(keepableCode(query)!);
             setOpen(false);
@@ -191,25 +206,49 @@ export function AirportCombobox({
         }}
       />
       <small className="editor-field-hint">
-        {identity?.name ? (
-          `${value} · ${localizedText(identity.name, locale)}${identity.city ? ` · ${localizedText(identity.city, locale)}` : ""}`
-        ) : preferredCodes.length ? (
-          t("flightEditor.airportRecentHint")
-        ) : (
-          t("flightEditor.airportSearchHint")
-        )}
+        {identity?.name
+          ? `${value} · ${localizedText(identity.name, locale)}${identity.city ? ` · ${localizedText(identity.city, locale)}` : ""}`
+          : preferredCodes.length
+            ? t("flightEditor.airportRecentHint")
+            : t("flightEditor.airportSearchHint")}
       </small>
       {value ? (
         <details>
           <summary>{t("flightEditor.airportHistory.searchGroup")}</summary>
-          <button type="button" disabled={researchState === "loading"} onClick={() => void reviewHistory()}>
-            {t("flightEditor.airportHistory.review", { defaultValue: "Look up historical airports" })}
+          <button
+            type="button"
+            disabled={researchState === "loading"}
+            onClick={() => void reviewHistory()}
+          >
+            {t("flightEditor.airportHistory.review", {
+              defaultValue: "Look up historical airports",
+            })}
           </button>
-          {researchState === "failed" ? <p role="status">{t("flightEditor.airportHistory.reviewFailed", { defaultValue: "Lookup unavailable. You can still select an airport above and save your flight." })}</p> : null}
-          {researchState === "ready" && !research.length ? <p>{t("flightEditor.noAirportResults")}</p> : null}
+          {researchState === "failed" ? (
+            <p role="status">
+              {t("flightEditor.airportHistory.reviewFailed", {
+                defaultValue:
+                  "Lookup unavailable. You can still select an airport above and save your flight.",
+              })}
+            </p>
+          ) : null}
+          {researchState === "ready" && !research.length ? (
+            <p>{t("flightEditor.noAirportResults")}</p>
+          ) : null}
           {research.map((entry) => (
             <div key={entry.referenceId}>
-              {entry.airportId ? <button type="button" onClick={() => chooseCode(value, entry.airportId!)}>{entry.name} · {entry.country}</button> : <span>{entry.name} · {entry.country}</span>}
+              {entry.airportId ? (
+                <button
+                  type="button"
+                  onClick={() => chooseCode(value, entry.airportId!)}
+                >
+                  {entry.name} · {entry.country}
+                </button>
+              ) : (
+                <span>
+                  {entry.name} · {entry.country}
+                </span>
+              )}
             </div>
           ))}
         </details>
@@ -231,9 +270,7 @@ export function AirportCombobox({
                 onClick={() => chooseCode(code, result.airportId)}
               >
                 <strong>{code}</strong>
-                <span>
-                  {result.name}
-                </span>
+                <span>{result.name}</span>
               </button>
             );
           })}

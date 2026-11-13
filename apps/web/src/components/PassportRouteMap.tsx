@@ -84,10 +84,7 @@ export function PassportRouteMap({
   const { t, i18n } = useTranslation();
   const locale = normalizeLanguage(i18n.resolvedLanguage);
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
-  const countryVisits = useMemo(
-    () => collectCountryVisits(flights),
-    [flights],
-  );
+  const countryVisits = useMemo(() => collectCountryVisits(flights), [flights]);
   const airports = useMemo(
     () => collectAirports(flights, locale),
     [flights, locale],
@@ -106,10 +103,7 @@ export function PassportRouteMap({
     () => passportMapCamera(routes, airports),
     [airports, routes],
   );
-  const routeYears = useMemo(
-    () => collectRouteYears(flights),
-    [flights],
-  );
+  const routeYears = useMemo(() => collectRouteYears(flights), [flights]);
   const regionNames = useMemo(
     () => new Intl.DisplayNames([locale], { type: "region" }),
     [locale],
