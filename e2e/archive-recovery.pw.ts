@@ -953,7 +953,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
         .poll(async () => (await readRecord(page))?.document)
         .toEqual({
           format: "keepraw-fly",
-          formatVersion: "0.1.0",
+          formatVersion: "0.2.0",
           profile: {},
           flights: [],
         });
@@ -972,6 +972,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
       ).toBeGreaterThan(0);
     } else if (action === "import") {
       const archive = generatedArchive();
+      expect(archive.formatVersion).toBe("0.1.0");
       await page.locator('input[type="file"]').setInputFiles({
         name: "synthetic.keepraw-fly.json",
         mimeType: "application/json",
@@ -986,6 +987,11 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
       await expect
         .poll(async () => (await readRecord(page))?.document)
         .toEqual(archive);
+      const saved = (await readRecord(page))?.document as KeeprawFlyDocument;
+      for (const flight of saved.flights) {
+        expect(flight.origin).not.toHaveProperty("airportId");
+        expect(flight.destination).not.toHaveProperty("airportId");
+      }
     } else {
       await page.locator('.site-navigation a[href="#settings"]').click();
       await openSettingsCategory(page, "Data and backup");
@@ -1013,7 +1019,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
         .poll(async () => (await readRecord(page))?.document)
         .toMatchObject({
           format: "keepraw-fly",
-          formatVersion: "0.1.0",
+          formatVersion: "0.2.0",
           profile: {},
           flights: [
             {

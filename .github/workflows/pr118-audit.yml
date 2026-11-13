@@ -1,0 +1,58 @@
+name: PR 118 coordinate audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [refactor/persist-airport-identities]
+    paths: [.github/workflows/pr118-audit.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        revision:
+          - d6ee3a06960fc0a28964680599c0301ab3ebfc5d
+          - 0e2039e94a8405ef35588ae0992ce626f399b57d
+          - refactor/persist-airport-identities
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: harness
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ matrix.revision }}
+          path: subject
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115
+        with:
+          version: 10.14.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile
+        working-directory: subject
+      - name: Record endpoint identities and distances
+        working-directory: subject
+        run: |
+          cp ../harness/scripts/pr118-coordinate-audit.ts packages/core/tests/pr118-coordinate-audit.test.ts
+          AUDIT_OUTPUT="$GITHUB_WORKSPACE/subject/coordinates.json" pnpm --filter @keepraw-fly/core exec vitest run tests/pr118-coordinate-audit.test.ts
+      - name: Install remote Chromium
+        working-directory: subject
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Record night scene and pixels without changing assertions
+        working-directory: subject
+        run: |
+          cp ../harness/e2e/globe-night-response.pw.ts e2e/globe-night-response.pw.ts
+          pnpm exec playwright test e2e/globe-night-response.pw.ts --project=chromium --retries=0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: audit-${{ strategy.job-index }}
+          path: |
+            subject/coordinates.json
+            subject/test-results/
+            subject/playwright-report/
