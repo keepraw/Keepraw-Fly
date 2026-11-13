@@ -158,15 +158,9 @@
     "airportTimezoneCandidates": "歴史的候補は異なるタイムゾーンです: {{zones}}。該当するものを選択してください。",
     "airportTimezoneHint": "IANA タイムゾーンまたは +08:00 のような UTC オフセット。",
     "airportHistory": {
-      "uncertain": "{{code}}: この日付は審査済み履歴の不確定な境界内にあり、空港は確定していません。",
-      "ambiguous": "{{code}}: この日付には複数の物理空港がこのコードを使用していました。",
-      "historical_candidate": "{{code}}: 審査済みの割り当てはありません。歴史記録には {{sites}} か所の候補地があり、空港は確定していません。",
-      "unknown_code": "{{code}}: 空港ディレクトリにも履歴データにもありません。フライトはコードを保持します。",
-      "candidate_index_unavailable": "{{code}}: 歴史的候補を読み込み中です。",
-      "historicalSite": "この日付の {{code}}: {{name}}（歴史的所在地）",
       "searchGroup": "歴史的な空港とコード",
-      "formalOption": "審査済みの歴史的空港",
-      "candidateOption": "未確認の歴史記録"
+      "review": "過去の空港を検索",
+      "reviewFailed": "現在検索できません。上の欄で空港を選択し、フライトを保存できます。"
     }
   },
   "status": {
@@ -242,20 +236,8 @@
     "plannedArrival": "予定到着地：{{airport}}",
     "airportHistory": {
       "historicalSite": "この日付の歴史的空港",
-      "openHorizon": "現在と同じ所在地。審査済み履歴はこの日付より前で終わっています",
-      "candidate": "この日付の空港は未確定（候補地 {{sites}} か所）",
-      "uncertain": "空港未確定: 日付が歴史の不確定な境界内にあります",
-      "ambiguous": "空港未確定: 複数の空港がこのコードを使用していました",
-      "pending": "歴史的空港データを読み込み中",
       "unknown": "空港を特定できません。記録どおりコードを保持します",
-      "rowUnresolved": "この日付の空港は未確定: {{airports}}",
-      "evidence": {
-        "historically_verified": "この運航日について履歴で確認済み",
-        "formal_uncertain": "履歴上の割り当ては未確認：この日付は不確実な確認範囲内です",
-        "current_directory": "現在の空港ディレクトリに基づく表示。この日付でのコードの有効性は未確認",
-        "historical_candidate": "履歴上の候補。空港は未確定",
-        "unknown": "不明な空港。コードは記録どおり保持されます"
-      }
+      "rowUnresolved": "この日付の空港は未確定: {{airports}}"
     }
   },
   "passport": {
@@ -335,11 +317,7 @@
     "recentDelayYears": "記録のある直近 3 年",
     "unresolvedHistoricalAirports": "運航日に確定できない空港: {{airports}}（上の集計に含みません）",
     "mapPossibleAirports": "歴史的空港の候補位置（未確認）",
-    "mapPossibleAirport": "{{airport}} · 候補位置: {{name}}（未確認）",
-    "mapAirportVerified": "履歴で確認済み",
-    "mapAirportCurrentDirectory": "現在のディレクトリ",
-    "airportEvidenceCoverage": "履歴で確認済みの空港：{{verified}} ・ 現在のディレクトリのみ（日付時点のコードは未確認）：{{directory}}",
-    "airportEvidenceUncertain": "不確実な履歴範囲：{{count}}"
+    "mapPossibleAirport": "{{airport}} · 候補位置: {{name}}（未確認）"
   },
   "import": {
     "checking": "フライトを確認中…",

@@ -6,5 +6,15 @@
   "license": "MIT",
   "generatedAt": "2026-09-02T01:03:39.583Z",
   "airportCount": 7884,
-  "cityGroupCount": 40
+  "cityGroupCount": 40,
+  "directoryCorrections": [
+    {
+      "airportId": "apt_eb58849d-cf41-42bd-b34c-92edb109a027",
+      "retainedPredecessorAirportId": "apt_fe704710-e11d-4a56-926b-111a58db9edf",
+      "source": "https://github.com/davidmegginson/ourairports-data/blob/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv",
+      "sourceEntityId": "27214",
+      "gitBlob": "fdcf59f3383d63ad14afbd8d7fd8b2ca954845ca",
+      "note": "Current reference entity only. No historical code dates admitted; original Wujiaba row retained. Asia/Shanghai is a geographical IANA mapping."
+    }
+  ]
 }

@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -6,6 +6,18 @@ const repository = "mborsetti/airportsdata";
 const apiUrl = `https://api.github.com/repos/${repository}/commits/main`;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDirectory = path.join(root, "packages", "core", "data");
+// Identity changes require an explicit reviewed mapping. Never regenerate existing IDs.
+const previousRows = JSON.parse(await readFile(path.join(outputDirectory, "airports.iata.json"), "utf8"));
+const previous = new Map(
+  previousRows
+    .filter((row) => row[9] !== "closed" && row[9] !== "unknown")
+    .map((row) => [row[0], row]),
+);
+const previousSource = JSON.parse(
+  await readFile(path.join(outputDirectory, "airports.source.json"), "utf8"),
+);
+const mappingPath = process.argv.find((arg) => arg.startsWith("--identities="))?.slice("--identities=".length);
+const reviewedIds = mappingPath ? JSON.parse(await readFile(mappingPath, "utf8")) : {};
 
 const headers = {
   Accept: "application/vnd.github+json",
@@ -60,6 +72,11 @@ for (const row of rows) {
   )
     continue;
 
+  const old = previous.get(iata);
+  const changedSite = !old || old[1] !== value(row, "name").trim() || old[4] !== latitude || old[5] !== longitude;
+  const airportId = reviewedIds[iata] ?? (changedSite ? undefined : old?.[7]);
+  if (!airportId) throw new Error(`Review the physical identity of ${iata} and supply --identities=FILE with its permanent airportId before updating.`);
+  const priorEntity = previousRows.find((entry) => entry[7] === airportId);
   airportsByIata.set(iata, [
     iata,
     value(row, "name").trim() || iata,
@@ -68,10 +85,17 @@ for (const row of rows) {
     latitude,
     longitude,
     timezone,
+    airportId,
+    value(row, "icao").trim(),
+    "operating",
+    [...new Set([...(priorEntity?.[10] ?? []), ...(priorEntity && priorEntity[1] !== value(row, "name").trim() ? [priorEntity[1]] : [])])],
+    [...new Set([iata, value(row, "icao").trim(), ...(priorEntity?.[11] ?? []), ...(priorEntity ? [priorEntity[0], priorEntity[8]] : [])].filter(Boolean))],
   ]);
 }
 
-const airports = [...airportsByIata.values()].sort((left, right) =>
+// Retain removed entities. A missing directory row does not prove physical closure.
+const retained = previousRows.filter((row) => ![...airportsByIata.values()].some((next) => next[7] === row[7]));
+const airports = [...airportsByIata.values(), ...retained.map((row) => [...row.slice(0, 9), row[9] === "closed" ? "closed" : "unknown", ...row.slice(10)])].sort((left, right) =>
   left[0].localeCompare(right[0]),
 );
 const cityGroupRows = parseCsv(await cityGroupsResponse.text());
@@ -109,6 +133,11 @@ const cityGroups = [...cityGroupsByCode.values()]
 await mkdir(outputDirectory, { recursive: true });
 await Promise.all([
   writeFile(
+    path.join(outputDirectory, "airport-bootstrap-ids.json"),
+    `${JSON.stringify(Object.fromEntries(Object.keys(JSON.parse(await readFile(path.join(outputDirectory, "airport-bootstrap-ids.json"), "utf8"))).map((iata) => [iata, airportsByIata.get(iata)?.[7] ?? previous.get(iata)?.[7]])), null, 2)}\n`,
+    "utf8",
+  ),
+  writeFile(
     path.join(outputDirectory, "airports.iata.json"),
     `${JSON.stringify(airports)}\n`,
     "utf8",
@@ -127,6 +156,7 @@ await Promise.all([
     path.join(outputDirectory, "airports.source.json"),
     `${JSON.stringify(
       {
+        ...previousSource,
         source: `https://github.com/${repository}`,
         revision,
         csv: csvUrl,

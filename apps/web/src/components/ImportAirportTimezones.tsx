@@ -1,7 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { isTimezoneOrOffset, resolveAirportAtDate } from "@keepraw-fly/core";
-import { loadAirportHistoryCodes } from "../data/airport-history";
+import { isTimezoneOrOffset, resolveEndpointIdentity } from "@keepraw-fly/core";
 
 /** IATA codes of import rows waiting for a zone, in first-seen order. */
 export function pendingTimezoneCodes(
@@ -14,21 +13,6 @@ export function pendingTimezoneCodes(
       if (code) codes.add(code);
     }
   return [...codes];
-}
-
-/** Loads candidate shards for every IATA-shaped cell, so imports use history. */
-export function useImportAirportHistory(
-  cells: readonly (readonly unknown[])[] | null,
-) {
-  useEffect(() => {
-    if (!cells) return;
-    const codes = new Set<string>();
-    for (const row of cells)
-      for (const cell of row)
-        if (typeof cell === "string" && /^[A-Z]{3}$/.test(cell.trim()))
-          codes.add(cell.trim());
-    void loadAirportHistoryCodes([...codes]);
-  }, [cells]);
 }
 
 /**
@@ -65,8 +49,7 @@ export function ImportAirportTimezones({
       <p>{t("import.airportTimezones.note")}</p>
       <ul>
         {codes.map((code) => {
-          const options = resolveAirportAtDate(code, "2000-01-01").uncertainty
-            .candidateTimezones;
+          const options = resolveEndpointIdentity(code, "2000-01-01", "origin").timezoneOptions;
           return (
             <li key={code}>
               <label>

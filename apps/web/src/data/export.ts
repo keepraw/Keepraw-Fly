@@ -1,4 +1,5 @@
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import { KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
 import { redactSensitiveData } from "./redacted-export";
 
 export type ExportKind = "backup" | "shareable";
@@ -24,7 +25,10 @@ export async function serializeKeeprawFly(
         : "The current archive failed validation and cannot be exported.",
     );
   }
-  return `${JSON.stringify(validation.data, null, 2)}\n`;
+  const hasIdentity = validation.data.flights.some((flight) =>
+    [flight.origin, flight.destination, flight.divertedTo].some((endpoint) => endpoint?.airportId),
+  );
+  return `${JSON.stringify({ ...validation.data, formatVersion: hasIdentity ? KEEPRAW_FLY_FORMAT_VERSION : validation.data.formatVersion }, null, 2)}\n`;
 }
 
 export async function downloadKeeprawFly(

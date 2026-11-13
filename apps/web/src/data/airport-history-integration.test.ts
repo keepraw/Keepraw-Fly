@@ -2,8 +2,6 @@
  * Application integration against the committed real airport-history package
  * (keepraw/airport-history bb104645). No mocked airport data.
  */
-import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { utils, write } from "xlsx";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
@@ -13,9 +11,7 @@ import {
   arrivalIdentity,
   buildRouteSegments,
   calculatePassportStatistics,
-  createAirportHistoryLoader,
   distanceForFlight,
-  ensureAirportHistoryCodes,
   installAirportDirectory,
   originIdentity,
   type CompactAirportRow,
@@ -37,20 +33,9 @@ import {
 import { preflightUmetripImport } from "./umetrip-import";
 import { parseUmetripXls } from "./umetrip-xls";
 
-const root = fileURLToPath(
-  new URL("../../../../packages/core/data/airport-history/", import.meta.url),
-);
-const loader = createAirportHistoryLoader((path) => readFile(root + path));
-
-beforeAll(async () => {
+beforeAll(() => {
   installAirportDirectory(airportRows as CompactAirportRow[]);
-  await ensureAirportHistoryCodes(
-    loader,
-    ["HKG", "IST", "SFO", "PEK", "CAN", "ABN", "QQQ", "XQX", "AUS", "LAX"].map(
-      (code) => ({ code }),
-    ),
-  );
-}, 120_000);
+});
 
 function draft(overrides: Partial<FlightDraft>): FlightDraft {
   return {
@@ -268,7 +253,7 @@ describe("CSV / Flighty imports keep unknown-airport flights", () => {
       "Hong Kong International Airport Kai Tak",
     );
     expect(originIdentity(document.flights[1]!).status).toBe(
-      "historical_candidate",
+      "unknown_code",
     );
     expect(validateKeeprawFly(document).valid).toBe(true);
   });
@@ -368,7 +353,7 @@ describe("statistics, map and distance across imports", () => {
       ),
       flight(
         "c",
-        "AUS",
+        "XQX",
         "LAX",
         "1995-06-01",
         "1995-06-01T10:00:00-05:00",
@@ -377,7 +362,7 @@ describe("statistics, map and distance across imports", () => {
     ];
     const stats = calculatePassportStatistics(flights);
     expect(stats.airports).toBe(4); // Kai Tak, Chek Lap Kok, SFO, LAX
-    expect(stats.unresolvedAirports).toBe(1); // AUS: Mueller vs Bergstrom
+    expect(stats.unresolvedAirports).toBe(1); // An unknown code stays unresolved.
     expect(buildRouteSegments(flights)).toHaveLength(2);
     expect(distanceForFlight(flights[2]!)).toBeNull();
     expect(arrivalIdentity(flights[2]!).confirmed).toBe(true);

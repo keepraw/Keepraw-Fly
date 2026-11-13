@@ -37,7 +37,6 @@ import { airportLabelPositions } from "../data/map-labels";
 import { routeVisuals } from "../data/map-route-visuals";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
-import { useAirportHistoryVersion } from "../data/airport-history";
 
 interface PassportRouteMapProps {
   routes: RouteSegment[];
@@ -85,20 +84,19 @@ export function PassportRouteMap({
   const { t, i18n } = useTranslation();
   const locale = normalizeLanguage(i18n.resolvedLanguage);
   const [activeTooltipKey, setActiveTooltipKey] = useState<string>();
-  const historyVersion = useAirportHistoryVersion();
   const countryVisits = useMemo(
     () => collectCountryVisits(flights),
-    [flights, historyVersion],
+    [flights],
   );
   const airports = useMemo(
     () => collectAirports(flights, locale),
-    [flights, locale, historyVersion],
+    [flights, locale],
   );
   // Undetermined endpoints are never drawn as airports or route ends; their
   // possible sites appear only as clearly marked, non-interactive hints.
   const possibleAirports = useMemo(
     () => buildUncertainAirportMarkers(flights),
-    [flights, historyVersion],
+    [flights],
   );
   const centerLongitude = useMemo(
     () => regionalCenterLongitude(airports),
@@ -110,7 +108,7 @@ export function PassportRouteMap({
   );
   const routeYears = useMemo(
     () => collectRouteYears(flights),
-    [flights, historyVersion],
+    [flights],
   );
   const regionNames = useMemo(
     () => new Intl.DisplayNames([locale], { type: "region" }),
@@ -196,16 +194,7 @@ export function PassportRouteMap({
             y: point.y,
             title: compactAirportName(airport.name),
             detail: `${airport.iata} · ${t("passport.visitFrequency", { count: airport.flightCount })}`,
-            meta: [
-              airport.city,
-              t(
-                airport.historicalAssignmentVerified
-                  ? "passport.mapAirportVerified"
-                  : "passport.mapAirportCurrentDirectory",
-              ),
-            ]
-              .filter(Boolean)
-              .join(" · "),
+            meta: airport.city,
           } satisfies MapTooltipData,
           style: { "--map-item-index": index } as CSSProperties,
         };

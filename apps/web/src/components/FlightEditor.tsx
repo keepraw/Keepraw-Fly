@@ -12,7 +12,6 @@ import {
   type SupportedLocale,
 } from "@keepraw-fly/core";
 import { AirportCombobox } from "./AirportCombobox";
-import { useAirportHistoryVersion } from "../data/airport-history";
 import { ConfirmationDialog } from "./ConfirmationDialog";
 import {
   AirportTimezoneRequiredError,
@@ -108,7 +107,6 @@ export function FlightEditor({
     : null;
   // Endpoints whose flight-date airport (and zone) cannot be determined need
   // an explicit zone or UTC offset; Keepraw never assumes UTC.
-  useAirportHistoryVersion();
   const zoneNeeds = (
     [
       [
@@ -139,7 +137,8 @@ export function FlightEditor({
     ] as const
   ).flatMap(([role, iata, date, chosen, field]) => {
     if (!/^[A-Z]{3}$/.test(iata)) return [];
-    const known = endpointZone(iata, date, role, undefined);
+    const airportId = role === "origin" ? draft.originAirportId : role === "destination" ? draft.destinationAirportId : draft.divertedAirportId;
+    const known = endpointZone(iata, date, role, undefined, airportId);
     if (known.zone) return [];
     return [
       { role, iata, chosen: chosen ?? "", field, options: known.options },
@@ -211,7 +210,7 @@ export function FlightEditor({
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (draft.originIata === draft.destinationIata) {
+    if (draft.originIata === draft.destinationIata && draft.originAirportId === draft.destinationAirportId) {
       setError(t("flightEditor.sameAirport"));
       return;
     }
@@ -323,7 +322,8 @@ export function FlightEditor({
               label={t("flightEditor.origin")}
               locale={locale}
               value={draft.originIata}
-              onChange={(iata) => update("originIata", iata)}
+              airportId={draft.originAirportId}
+              onChange={(iata, airportId) => setDraft((current) => ({ ...current, originIata: iata, originAirportId: airportId }))}
               preferredCodes={preferredAirportCodes}
               date={draft.serviceDate}
               role="origin"
@@ -332,7 +332,8 @@ export function FlightEditor({
               label={t("flightEditor.destination")}
               locale={locale}
               value={draft.destinationIata}
-              onChange={(iata) => update("destinationIata", iata)}
+              airportId={draft.destinationAirportId}
+              onChange={(iata, airportId) => setDraft((current) => ({ ...current, destinationIata: iata, destinationAirportId: airportId }))}
               preferredCodes={preferredAirportCodes}
               date={draft.arrivalDate}
               role="destination"
@@ -349,7 +350,8 @@ export function FlightEditor({
               label={t("status.diverted")}
               locale={locale}
               value={draft.divertedToIata ?? ""}
-              onChange={(iata) => update("divertedToIata", iata)}
+              airportId={draft.divertedAirportId}
+              onChange={(iata, airportId) => setDraft((current) => ({ ...current, divertedToIata: iata, divertedAirportId: airportId }))}
               required={false}
               preferredCodes={preferredAirportCodes}
               date={draft.actualArrivalDate || draft.arrivalDate}

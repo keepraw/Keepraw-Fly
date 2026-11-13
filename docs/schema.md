@@ -1,4 +1,4 @@
-# Keepraw Fly JSON Format 0.1
+# Keepraw Fly JSON Format 0.2
 
 Keepraw Fly JSON is Keepraw Fly's canonical portable archive format. JSON
 export is a complete backup of the archive's profile, flights, memberships and
@@ -13,7 +13,7 @@ of the application version.
 ```json
 {
   "format": "keepraw-fly",
-  "formatVersion": "0.1.0",
+    "formatVersion": "0.2.0",
   "profile": {},
   "flights": []
 }
@@ -21,8 +21,9 @@ of the application version.
 
 Every core flight has a stable `id`, flight number, service date, airline,
 origin/destination IATA codes and scheduled departure/arrival timestamps. The
-`origin` and `destination` endpoints share the same optional `terminal` and
-`gate` fields.
+`origin`, `destination` and `divertedTo` endpoints share the optional
+`airportId`, `terminal` and `gate` fields. `airportId` records a user-confirmed
+physical identity and never replaces the original `iata`.
 Actual timestamps are optional. Datetimes follow ISO 8601/RFC 3339 and include
 an explicit UTC offset or `Z`. Optional flight facts include `cancelled: true` and
 `divertedTo`, which preserves the planned `destination` while recording the
@@ -37,10 +38,16 @@ cannot be both cancelled and diverted.
 
 ## Compatibility and migration
 
-`keepraw-fly` with version `0.1.0` is the canonical representation. Import and
+`keepraw-fly` with version `0.2.0` is the current representation. Import and
 browser-storage boundaries also recognize the former `rawfly` format identifier
-and the early `0.1` version shorthand. They are copied and upgraded in memory,
-validated against the current schema, and saved/exported as canonical 0.1.0.
+and the early `0.1` version shorthand, as well as `0.1.0`. They are copied and
+validated against the current schema. Records without IDs keep their codes and
+are not automatically persisted as user confirmations. Archives containing
+airport IDs are upgraded to `0.2.0`; older ID-free archives may retain `0.1.0`.
+The old strict endpoint schema rejects `airportId`, so new backups are not
+advertised as readable by old applications. Unrecognized permanent IDs remain
+in the archive; the viewer may display an unresolved airport without discarding
+the flight or replacing its code or ID.
 Only explicitly supported legacy representations may be migrated. Unsupported
 future versions are rejected before migration; readers must not guess at their
 structure or reinterpret them as the current format. Migration never guesses at
@@ -135,12 +142,11 @@ Aircraft `type` and `registration` are stored in `keepraw-fly.aircraft`, not as
 top-level flight properties. Seat and cabin facts belong to `keepraw-fly.seat`.
 
 Airport codes are kept as recorded even when no directory or historical layer
-knows them; the physical airport is resolved by flight date (see
+knows them; a saved physical identity takes precedence over date lookup (see
 [historical airport identity](airport-history.md)). When the user confirms a
 time zone for an airport Keepraw Fly cannot place, it is stored as an IANA zone
 or `±HH:MM` offset in `keepraw-fly.airport-timezones` (`origin`, `destination`,
-`divertedTo`) so later edits read the same wall times. The format version is
-unchanged and older archives remain valid.
+`divertedTo`) so later edits read the same wall times. Older archives remain valid.
 
 `bookingClass` stores the airline's single-letter booking class independently
 from the broader cabin class. `baggageCarousel` is a nullable string because

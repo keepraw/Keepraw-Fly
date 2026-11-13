@@ -1,5 +1,5 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { airportByIata } from "./reference-data";
+import { airportById } from "./reference-data";
 import { airlineSearchText } from "./airline-reference";
 import { normalizeSearchValue } from "./normalization";
 import {
@@ -13,6 +13,7 @@ function identitySearchText(identity: FlightEndpointIdentity): string {
   return [
     ...Object.values(identity.name ?? {}),
     ...Object.values(identity.city ?? {}),
+    ...(identity.airportId ? airportById.get(identity.airportId)?.historicalNames ?? [] : []),
   ].join(" ");
 }
 
@@ -28,16 +29,6 @@ function extensionSearchText(flight: KeeprawFlight): string {
     .join(" ");
 }
 
-function airportSearchText(iata: string): string {
-  const airport = airportByIata.get(iata);
-  if (!airport) return iata;
-  return [
-    iata,
-    ...Object.values(airport.name),
-    ...Object.values(airport.city),
-  ].join(" ");
-}
-
 export function flightSearchText(flight: KeeprawFlight): string {
   const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
   return normalizeSearchValue(
@@ -48,9 +39,9 @@ export function flightSearchText(flight: KeeprawFlight): string {
       flight.serviceDate,
       flight.serviceDate.slice(0, 4),
       airlineSearchText(flight.airline),
-      airportSearchText(flight.origin.iata),
-      airportSearchText(flight.destination.iata),
-      flight.divertedTo ? airportSearchText(flight.divertedTo.iata) : "",
+      flight.origin.iata,
+      flight.destination.iata,
+      flight.divertedTo?.iata ?? "",
       identitySearchText(originIdentity(flight)),
       identitySearchText(plannedDestinationIdentity(flight)),
       flight.divertedTo ? identitySearchText(arrivalIdentity(flight)) : "",

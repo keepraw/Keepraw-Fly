@@ -33,7 +33,6 @@ import {
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { FlightRow } from "../components/FlightRow";
-import { useAirportHistoryVersion } from "../data/airport-history";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
 import type { Appearance } from "../storage/types";
@@ -105,25 +104,24 @@ export function PassportPage({
     return () => media.removeEventListener("change", update);
   }, []);
   // Physical identities change when candidate shards finish loading.
-  const historyVersion = useAirportHistoryVersion();
   const years = useMemo(
     () => calculateYearStatistics(document.flights),
-    [document.flights, historyVersion],
+    [document.flights],
   );
   // Selection matches flight-date physical identities, which change when
   // candidate shards finish loading.
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, selectedYear, query, selection, historyVersion],
+    [document.flights, selectedYear, query, selection],
   );
   const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
   const stats = useMemo(
     () => calculatePassportStatistics(flights),
-    [flights, historyVersion],
+    [flights],
   );
   const highlights = useMemo(
     () => calculatePassportHighlights(flights),
-    [flights, historyVersion],
+    [flights],
   );
   const delayYears = highlights.annualArrivalDelays.slice(-3);
   const maximumDelay = Math.max(
@@ -153,7 +151,7 @@ export function PassportPage({
   );
   const routes = useMemo(
     () => buildRouteSegments(mapFlights),
-    [mapFlights, historyVersion],
+    [mapFlights],
   );
   const longest = flights.find(
     (flight) => flight.id === stats.longestFlight?.flightId,
@@ -223,34 +221,6 @@ export function PassportPage({
   function isSelected(target: PassportSelection): boolean {
     return sameSelection(selection, target);
   }
-
-  // Airports split by what their flight-date code rests on. A current-
-  // directory match places the site but does not verify the historical code.
-  const airportEvidenceText = stats.airports
-    ? t("passport.airportEvidenceCoverage", {
-        verified: stats.historicallyVerifiedAirports.toLocaleString(locale),
-        directory: stats.currentDirectoryAirports.toLocaleString(locale),
-      }) +
-      (stats.formalUncertainAirports
-        ? ` · ${t("passport.airportEvidenceUncertain", {
-            count: stats.formalUncertainAirports,
-          })}`
-        : "")
-    : "";
-  const airportEvidenceData = {
-    "data-verified-airports": stats.historicallyVerifiedAirports,
-    "data-current-directory-airports": stats.currentDirectoryAirports,
-    "data-formal-uncertain-airports": stats.formalUncertainAirports,
-  };
-  // Mobile: its own line in the network summary.
-  const airportEvidence = airportEvidenceText ? (
-    <p
-      className="passport-network-line passport-airport-evidence"
-      {...airportEvidenceData}
-    >
-      {airportEvidenceText}
-    </p>
-  ) : null;
 
   function toggleHighlight(target: PassportSelection) {
     setSelection(isSelected(target) ? null : target);
@@ -420,16 +390,6 @@ export function PassportPage({
               {isDesktop ? (
                 <span className="passport-map-title">
                   {t("passport.worldTitle")}
-                </span>
-              ) : null}
-              {isDesktop && airportEvidenceText ? (
-                // Desktop: one line beside the scope, so the map keeps its height.
-                <span
-                  className="passport-airport-evidence"
-                  title={airportEvidenceText}
-                  {...airportEvidenceData}
-                >
-                  {airportEvidenceText}
                 </span>
               ) : null}
               <span>
@@ -656,7 +616,6 @@ export function PassportPage({
                     })}
                   </p>
                 ) : null}
-                {airportEvidence}
               </>
             )}
 

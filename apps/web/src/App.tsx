@@ -25,10 +25,6 @@ import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly, type ExportKind } from "./data/export";
 import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
-import {
-  loadAirportHistoryFor,
-  useAirportHistoryVersion,
-} from "./data/airport-history";
 import { browserStorage } from "./storage/browser";
 import type { ArchiveKind, ArchiveLoadResult } from "./storage/adapter";
 import {
@@ -165,13 +161,6 @@ export function App() {
     () => passportVisibleFlights(document?.flights ?? [], passportView),
     [document?.flights, passportView],
   );
-  // Worldwide candidate shards for the archive's codes load in the background;
-  // formal history resolves immediately. Installing a shard re-renders.
-  useAirportHistoryVersion();
-  const archiveFlights = (document ?? demoDocument).flights;
-  useEffect(() => {
-    void loadAirportHistoryFor(archiveFlights);
-  }, [archiveFlights]);
   const flightIndex = visibleFlights.findIndex(
     (flight) => flight.id === selectedFlightId,
   );
