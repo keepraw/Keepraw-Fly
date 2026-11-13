@@ -24,7 +24,10 @@ export const documentDirectives = [
   ["img-src", ["'self'", "data:", "blob:"]],
   // Same-origin JSON reference data and locale resources only; this blocks
   // fetch/XHR/WebSocket/beacon exfiltration of archive data to other hosts.
-  ["connect-src", ["'self'"]],
+  [
+    "connect-src",
+    ["'self'", "https://raw.githubusercontent.com/keepraw/airport-history/"],
+  ],
   ["manifest-src", ["'self'"]],
   ["worker-src", ["'none'"]],
   ["frame-src", ["'none'"]],

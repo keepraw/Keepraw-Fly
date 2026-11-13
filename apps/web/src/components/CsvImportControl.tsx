@@ -19,9 +19,7 @@ import { ImportPreflightSummary } from "./ImportPreflightSummary";
 import {
   ImportAirportTimezones,
   pendingTimezoneCodes,
-  useImportAirportHistory,
 } from "./ImportAirportTimezones";
-import { useAirportHistoryVersion } from "../data/airport-history";
 import { useImportPreflight } from "./useImportPreflight";
 
 interface CsvImportControlProps {
@@ -70,8 +68,6 @@ export function CsvImportControl({
   const [timezoneOverrides, setTimezoneOverrides] = useState<
     Record<string, string>
   >({});
-  const historyVersion = useAirportHistoryVersion();
-  useImportAirportHistory(pending?.parsed.rows ?? null);
   const work = useMemo(
     () =>
       pending
@@ -84,7 +80,7 @@ export function CsvImportControl({
               { timezoneOverrides },
             )
         : null,
-    [document, pending, timezoneOverrides, historyVersion],
+    [document, pending, timezoneOverrides],
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 

@@ -164,15 +164,9 @@
     "airportTimezoneCandidates": "Los candidatos históricos usan zonas distintas: {{zones}}. Elige la que corresponda.",
     "airportTimezoneHint": "Zona IANA o desfase UTC como +08:00.",
     "airportHistory": {
-      "uncertain": "{{code}}: esta fecha cae en un límite incierto del historial revisado. El aeropuerto no está confirmado.",
-      "ambiguous": "{{code}}: varios aeropuertos físicos usaban este código en esta fecha.",
-      "historical_candidate": "{{code}}: sin asignación revisada. Los registros históricos indican {{sites}} ubicaciones posibles; el aeropuerto no está confirmado.",
-      "unknown_code": "{{code}}: no figura en el directorio ni en los datos históricos. El vuelo conserva el código.",
-      "candidate_index_unavailable": "{{code}}: los candidatos históricos aún se están cargando.",
-      "historicalSite": "{{code}} en esta fecha: {{name}} (ubicación histórica)",
       "searchGroup": "Aeropuertos y códigos históricos",
-      "formalOption": "Aeropuerto histórico revisado",
-      "candidateOption": "Registro histórico sin confirmar"
+      "review": "Buscar aeropuertos históricos",
+      "reviewFailed": "Consulta no disponible. Puede seleccionar un aeropuerto arriba y guardar el vuelo."
     }
   },
   "status": {
@@ -248,20 +242,8 @@
     "plannedArrival": "Llegada prevista: {{airport}}",
     "airportHistory": {
       "historicalSite": "Aeropuerto histórico de esta fecha",
-      "openHorizon": "Misma ubicación que hoy; el historial revisado termina antes de esta fecha",
-      "candidate": "Aeropuerto sin confirmar para esta fecha ({{sites}} ubicaciones históricas posibles)",
-      "uncertain": "Aeropuerto sin confirmar: la fecha está en un límite histórico incierto",
-      "ambiguous": "Aeropuerto sin confirmar: varios aeropuertos usaban este código",
-      "pending": "Cargando datos históricos de aeropuertos",
       "unknown": "Aeropuerto no identificado; se conserva el código registrado",
-      "rowUnresolved": "Aeropuerto sin confirmar para esta fecha: {{airports}}",
-      "evidence": {
-        "historically_verified": "Verificado históricamente para esta fecha de vuelo",
-        "formal_uncertain": "Asignación histórica no verificada: la fecha está en un intervalo revisado incierto",
-        "current_directory": "Según el directorio actual de aeropuertos; la validez del código en esta fecha no está verificada",
-        "historical_candidate": "Candidato histórico; identidad del aeropuerto sin resolver",
-        "unknown": "Aeropuerto desconocido; el código se conserva tal como se registró"
-      }
+      "rowUnresolved": "Aeropuerto sin confirmar para esta fecha: {{airports}}"
     }
   },
   "passport": {
@@ -374,11 +356,7 @@
     "airports_many": "Aeropuertos",
     "unresolvedHistoricalAirports": "Aeropuertos sin confirmar en la fecha del vuelo: {{airports}} (no contados arriba)",
     "mapPossibleAirports": "Posibles ubicaciones históricas de aeropuertos (sin confirmar)",
-    "mapPossibleAirport": "{{airport}} · ubicación posible: {{name}} (sin confirmar)",
-    "mapAirportVerified": "Historia verificada",
-    "mapAirportCurrentDirectory": "Directorio actual",
-    "airportEvidenceCoverage": "Aeropuertos verificados históricamente: {{verified}} · solo directorio actual (código no verificado para la fecha): {{directory}}",
-    "airportEvidenceUncertain": "intervalo histórico incierto: {{count}}"
+    "mapPossibleAirport": "{{airport}} · ubicación posible: {{name}} (sin confirmar)"
   },
   "import": {
     "checking": "Comprobando vuelos…",

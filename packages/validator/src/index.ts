@@ -19,7 +19,10 @@ export interface ValidationIssue {
 }
 
 export type KeeprawFlyMigration =
-  "rawfly-brand" | "version-0.1" | "flight-metadata-v2";
+  | "rawfly-brand"
+  | "version-0.1"
+  | "flight-metadata-v2"
+  | "airport-identities-v2";
 
 export type ValidationResult =
   | {
@@ -260,6 +263,7 @@ function supportedArchive(source: Record<string, unknown>): boolean {
   return (
     (source.format === KEEPRAW_FLY_FORMAT || source.format === "rawfly") &&
     (source.formatVersion === KEEPRAW_FLY_FORMAT_VERSION ||
+      source.formatVersion === "0.1.0" ||
       source.formatVersion === "0.1")
   );
 }
@@ -295,11 +299,27 @@ export function migrateKeeprawFly(input: unknown): {
     migrations.push("rawfly-brand");
   }
   if (data.formatVersion === "0.1") {
-    data.formatVersion = KEEPRAW_FLY_FORMAT_VERSION;
+    data.formatVersion = "0.1.0";
     migrations.push("version-0.1");
   }
 
   if (migrateFlightMetadata(data)) migrations.push("flight-metadata-v2");
+  if (
+    data.formatVersion === "0.1.0" &&
+    Array.isArray(data.flights) &&
+    data.flights.some((item) => {
+      const flight = objectValue(item);
+      return (
+        flight &&
+        ["origin", "destination", "divertedTo"].some(
+          (role) => typeof objectValue(flight[role])?.airportId === "string",
+        )
+      );
+    })
+  ) {
+    data.formatVersion = KEEPRAW_FLY_FORMAT_VERSION;
+    migrations.push("airport-identities-v2");
+  }
 
   return { data, migrations };
 }

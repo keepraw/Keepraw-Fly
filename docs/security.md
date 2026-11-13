@@ -8,21 +8,21 @@ code that is delivered to it.
 
 The single policy source is [`apps/web/security-policy.mjs`](../apps/web/security-policy.mjs).
 
-| Directive                                            | Value                             | Why                                                         |
-| ---------------------------------------------------- | --------------------------------- | ----------------------------------------------------------- |
-| `default-src`                                        | `'none'`                          | Everything not listed is refused.                           |
-| `script-src`                                         | `'self'`                          | No inline script, no `eval`; the theme bootstrap is a file. |
-| `style-src`                                          | `'self' https://cdn.jsdelivr.net` | App CSS plus the SRI-pinned MiSans stylesheets.             |
-| `font-src`                                           | `'self' https://cdn.jsdelivr.net` | MiSans WOFF2 subsets.                                       |
-| `img-src`                                            | `'self' data: blob:`              | `data:` map relief; `blob:` local Flight Passport previews. |
-| `connect-src`                                        | `'self'`                          | Reference data and locales only; blocks fetch/beacon exfil. |
-| `manifest-src`                                       | `'self'`                          | Web app manifest.                                           |
-| `worker-src`, `frame-src`, `media-src`, `object-src` | `'none'`                          | Not used.                                                   |
-| `base-uri`, `form-action`                            | `'none'`                          | No base rewriting, no form posts.                           |
-| `frame-ancestors` (header only)                      | `'none'`                          | Clickjacking protection.                                    |
+| Directive                                            | Value                                                               | Why                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `default-src`                                        | `'none'`                                                            | Everything not listed is refused.                              |
+| `script-src`                                         | `'self'`                                                            | No inline script, no `eval`; the theme bootstrap is a file.    |
+| `style-src`                                          | `'self' https://cdn.jsdelivr.net`                                   | App CSS plus the SRI-pinned MiSans stylesheets.                |
+| `font-src`                                           | `'self' https://cdn.jsdelivr.net`                                   | MiSans WOFF2 subsets.                                          |
+| `img-src`                                            | `'self' data: blob:`                                                | `data:` map relief; `blob:` local Flight Passport previews.    |
+| `connect-src`                                        | `'self' https://raw.githubusercontent.com/keepraw/airport-history/` | Local assets and explicit, pinned historical research lookups. |
+| `manifest-src`                                       | `'self'`                                                            | Web app manifest.                                              |
+| `worker-src`, `frame-src`, `media-src`, `object-src` | `'none'`                                                            | Not used.                                                      |
+| `base-uri`, `form-action`                            | `'none'`                                                            | No base rewriting, no form posts.                              |
+| `frame-ancestors` (header only)                      | `'none'`                                                            | Clickjacking protection.                                       |
 
 There is no `'unsafe-inline'` or `'unsafe-eval'`. Schema validation is
-precompiled (`pnpm --filter @keepraw-fly/validator generate`) because runtime
+precompiled during dependency installation (`pnpm --filter @keepraw-fly/validator generate`) because runtime
 Ajv compilation uses `Function()`. React `style` props use the CSSOM, which
 `style-src` does not restrict, so no inline-style allowance is needed.
 

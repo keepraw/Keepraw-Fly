@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   airportByIata,
@@ -14,11 +14,6 @@ import {
   type HistoricalAirportSearchResult,
   type SupportedLocale,
 } from "@keepraw-fly/core";
-import {
-  loadAirportHistoryCodes,
-  loadAirportHistorySearchIndex,
-  useAirportHistoryVersion,
-} from "../data/airport-history";
 
 /** A well-formed code that is not a metropolitan city code may be kept as is. */
 function keepableCode(value: string): string | null {
@@ -32,20 +27,19 @@ function historicalCode(
   result: HistoricalAirportSearchResult,
   date: string | undefined,
 ): string | null {
-  if (result.kind === "candidate")
-    return result.scheme === "IATA" ? result.code : null;
   const iata = result.assignments.filter((row) => row.scheme === "IATA");
   const atDate = date
     ? iata.find((row) => assignmentDateRelation(date, row) !== "excluded")
     : undefined;
-  return (atDate ?? iata[0])?.code ?? null;
+  return (atDate ?? iata[0])?.code ?? result.searchCode;
 }
 
 interface AirportComboboxProps {
   label: string;
   locale: SupportedLocale;
   value: string;
-  onChange: (iata: string) => void;
+  airportId?: string;
+  onChange: (iata: string, airportId?: string) => void;
   required?: boolean;
   preferredCodes?: readonly string[];
   /** Local date the airport is used on, for historical identification. */
@@ -57,19 +51,44 @@ export function AirportCombobox({
   label,
   locale,
   value,
+  airportId,
   onChange,
   required = true,
   preferredCodes = [],
   date,
   role = "origin",
 }: AirportComboboxProps) {
-  const historyVersion = useAirportHistoryVersion();
   const { t } = useTranslation();
   const inputId = useId();
   const listId = useId();
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const reviewRequest = useRef(0);
+  const [research, setResearch] = useState<
+    import("../data/airport-history").AirportResearchResult[]
+  >([]);
+  const [researchState, setResearchState] = useState<
+    "idle" | "loading" | "ready" | "failed"
+  >("idle");
+  useEffect(() => {
+    reviewRequest.current++;
+    setResearch([]);
+    setResearchState("idle");
+  }, [value]);
+  async function reviewHistory() {
+    const request = ++reviewRequest.current;
+    setResearchState("loading");
+    try {
+      const { researchAirportCode } = await import("../data/airport-history");
+      const matches = await researchAirportCode(value);
+      if (request !== reviewRequest.current) return;
+      setResearch(matches);
+      setResearchState("ready");
+    } catch {
+      if (request === reviewRequest.current) setResearchState("failed");
+    }
+  }
   const results = useMemo(
     () =>
       query.trim()
@@ -86,43 +105,40 @@ export function AirportCombobox({
             Boolean(historicalCode(result, date)),
           )
         : [],
-    [query, date, historyVersion],
+    [query, date],
   );
   const identity = useMemo(
-    () => (value ? resolveEndpointIdentity(value, date || null, role) : null),
-    [value, date, role, historyVersion],
+    () =>
+      value
+        ? resolveEndpointIdentity(value, date || null, role, null, airportId)
+        : null,
+    [value, date, role, airportId],
   );
-  useEffect(() => {
-    if (value) void loadAirportHistoryCodes([value]);
-  }, [value]);
-  const selectedAirport = airportByIata.get(value);
-  const selectedCityGroup = selectedAirport
-    ? airportCityGroupForAirport(selectedAirport.iata)
-    : undefined;
 
   useEffect(() => {
-    if (value) setQuery(value);
+    setQuery(value);
   }, [value]);
 
   useEffect(() => setActiveIndex(0), [query, locale]);
 
   function chooseAirport(airport: AirportReference) {
-    setQuery(airport.iata);
-    onChange(airport.iata);
+    const code = value || keepableCode(query) || airport.iata;
+    setQuery(code);
+    onChange(code, airport.airportId);
     setOpen(false);
   }
 
-  function chooseCode(code: string) {
-    setQuery(code);
-    onChange(code);
+  function chooseCode(code: string, id: string) {
+    const original = value || keepableCode(query) || code;
+    setQuery(original);
+    onChange(original, id);
     setOpen(false);
   }
 
   function updateQuery(nextQuery: string) {
     setQuery(nextQuery);
-    // An exact directory code, or any well-formed code no directory knows: the
-    // flight keeps the code and its historical identity is resolved by date.
-    onChange(keepableCode(nextQuery) ?? "");
+    // Searching a name must not change the recorded code, even while the user
+    // passes through a three-letter prefix. Commit typed codes on blur.
     setOpen(true);
   }
 
@@ -147,10 +163,16 @@ export function AirportCombobox({
         placeholder={t("flightEditor.airportSearchPlaceholder")}
         onFocus={() => {
           setOpen(true);
-          void loadAirportHistorySearchIndex();
         }}
         onChange={(event) => updateQuery(event.target.value)}
-        onBlur={() => setOpen(false)}
+        onBlur={(event) => {
+          if (event.currentTarget.parentElement?.contains(event.relatedTarget))
+            return;
+          const code = keepableCode(query);
+          if (code && code !== value) onChange(code);
+          else if (!query.trim()) onChange("");
+          setOpen(false);
+        }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" && results.length) {
             event.preventDefault();
@@ -164,40 +186,73 @@ export function AirportCombobox({
           } else if (event.key === "Enter" && open && results[activeIndex]) {
             event.preventDefault();
             chooseAirport(results[activeIndex]);
+          } else if (event.key === "Enter" && open && historical[0]) {
+            event.preventDefault();
+            chooseCode(
+              historicalCode(historical[0], date)!,
+              historical[0].airportId,
+            );
+          } else if (
+            event.key === "Enter" &&
+            keepableCode(query) &&
+            query !== value
+          ) {
+            event.preventDefault();
+            onChange(keepableCode(query)!);
+            setOpen(false);
           } else if (event.key === "Escape") {
             setOpen(false);
           }
         }}
       />
       <small className="editor-field-hint">
-        {identity && value && date && !identity.confirmed ? (
-          <span
-            className="airport-history-hint"
-            data-airport-history={identity.status}
-          >
-            {t(`flightEditor.airportHistory.${identity.status}`, {
-              code: value,
-              sites: identity.possiblePositions.length,
-            })}
-          </span>
-        ) : identity?.differsFromCurrentDirectory && identity.name ? (
-          <span
-            className="airport-history-hint"
-            data-airport-history="historical"
-          >
-            {t("flightEditor.airportHistory.historicalSite", {
-              code: value,
-              name: localizedText(identity.name, locale),
-            })}
-          </span>
-        ) : selectedAirport ? (
-          `${selectedAirport.iata} · ${localizedText(selectedAirport.name, locale)} · ${selectedCityGroup ? airportCityGroupName(selectedCityGroup, locale) : localizedText(selectedAirport.city, locale)}`
-        ) : preferredCodes.length ? (
-          t("flightEditor.airportRecentHint")
-        ) : (
-          t("flightEditor.airportSearchHint")
-        )}
+        {identity?.name
+          ? `${value} · ${localizedText(identity.name, locale)}${identity.city ? ` · ${localizedText(identity.city, locale)}` : ""}`
+          : preferredCodes.length
+            ? t("flightEditor.airportRecentHint")
+            : t("flightEditor.airportSearchHint")}
       </small>
+      {value ? (
+        <details>
+          <summary>{t("flightEditor.airportHistory.searchGroup")}</summary>
+          <button
+            type="button"
+            disabled={researchState === "loading"}
+            onClick={() => void reviewHistory()}
+          >
+            {t("flightEditor.airportHistory.review", {
+              defaultValue: "Look up historical airports",
+            })}
+          </button>
+          {researchState === "failed" ? (
+            <p role="status">
+              {t("flightEditor.airportHistory.reviewFailed", {
+                defaultValue:
+                  "Lookup unavailable. You can still select an airport above and save your flight.",
+              })}
+            </p>
+          ) : null}
+          {researchState === "ready" && !research.length ? (
+            <p>{t("flightEditor.noAirportResults")}</p>
+          ) : null}
+          {research.map((entry) => (
+            <div key={entry.referenceId}>
+              {entry.airportId ? (
+                <button
+                  type="button"
+                  onClick={() => chooseCode(value, entry.airportId!)}
+                >
+                  {entry.name} · {entry.country}
+                </button>
+              ) : (
+                <span>
+                  {entry.name} · {entry.country}
+                </span>
+              )}
+            </div>
+          ))}
+        </details>
+      ) : null}
       {open && historical.length ? (
         <div
           className="airport-options airport-history-options"
@@ -208,29 +263,14 @@ export function AirportCombobox({
             const code = historicalCode(result, date)!;
             return (
               <button
-                key={
-                  result.kind === "formal"
-                    ? result.airportId
-                    : `${result.code}|${result.siteId}`
-                }
+                key={result.airportId}
                 type="button"
                 data-history-kind={result.kind}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  chooseCode(code);
-                }}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => chooseCode(code, result.airportId)}
               >
                 <strong>{code}</strong>
-                <span>
-                  {result.kind === "formal" ? result.matchedName : result.name}
-                </span>
-                <small>
-                  {t(
-                    result.kind === "formal"
-                      ? "flightEditor.airportHistory.formalOption"
-                      : "flightEditor.airportHistory.candidateOption",
-                  )}
-                </small>
+                <span>{result.name}</span>
               </button>
             );
           })}
@@ -251,10 +291,8 @@ export function AirportCombobox({
                   type="button"
                   role="option"
                   aria-selected={index === activeIndex}
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    chooseAirport(airport);
-                  }}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => chooseAirport(airport)}
                 >
                   <strong>{airport.iata}</strong>
                   <span>{localizedText(airport.name, locale)}</span>

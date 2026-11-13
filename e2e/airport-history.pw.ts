@@ -3,33 +3,20 @@ import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 
-test.beforeEach(async ({ page }) => disablePassportWebGL(page));
-
-// Real committed airport-history data: HKG was Kai Tak in 1997 and Chek Lap
-// Kok in 2005; AUS has two unconfirmed historical sites; QQQ is unknown.
-// KMG: the bundled directory still places it at the closed Wujiaba airport
-// while the worldwide reference layer places it at Changshui (23 km away), so
-// it is a historical candidate and never a confirmed route endpoint.
-function flight(
-  id: string,
-  origin: string,
-  destination: string,
-  serviceDate: string,
-  scheduledDeparture: string,
-  scheduledArrival: string,
-): KeeprawFlight {
+const kaiTak = "apt_86460159-a072-4a18-afcc-ab376cda7047";
+const chekLapKok = "apt_8d89722f-007c-4eb4-aaa0-ec1c61007a09";
+function flight(id: string, year: string): KeeprawFlight {
   return {
     id,
-    flightNumber: `CX${id.length + 100}`,
-    serviceDate,
+    flightNumber: "CX100",
     airline: { iata: "CX" },
-    origin: { iata: origin },
-    destination: { iata: destination },
-    scheduledDeparture,
-    scheduledArrival,
+    serviceDate: `${year}-06-01`,
+    origin: { iata: "HKG" },
+    destination: { iata: "SFO" },
+    scheduledDeparture: `${year}-06-01T10:00:00+08:00`,
+    scheduledArrival: `${year}-06-01T08:00:00-07:00`,
   };
 }
-
 async function importFlights(page: Page, flights: KeeprawFlight[]) {
   const archive = JSON.parse(
     await readFile(
@@ -39,240 +26,101 @@ async function importFlights(page: Page, flights: KeeprawFlight[]) {
   );
   archive.flights = flights;
   await page.goto("/");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "airport-history.keepraw-fly.json",
-    mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(archive)),
-  });
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({
+      name: "airports.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(archive)),
+    });
   await page.getByRole("button", { name: "Import this archive" }).click();
   await expect(page.locator(".flight-row")).toHaveCount(flights.length);
 }
-
-test("resolves airports by flight date and keeps unresolved flights", async ({
-  page,
-}) => {
+test.beforeEach(async ({ page }) => {
+  await disablePassportWebGL(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
-  await importFlights(page, [
-    flight(
-      "kai-tak",
-      "HKG",
-      "SFO",
-      "1997-06-01",
-      "1997-06-01T10:00:00+08:00",
-      "1997-06-01T08:00:00-07:00",
-    ),
-    flight(
-      "chek-lap-kok",
-      "HKG",
-      "SFO",
-      "2005-06-01",
-      "2005-06-01T10:00:00+08:00",
-      "2005-06-01T08:00:00-07:00",
-    ),
-    flight(
-      "austin",
-      "AUS",
-      "LAX",
-      "1995-06-01",
-      "1995-06-01T10:00:00-05:00",
-      "1995-06-01T11:30:00-07:00",
-    ),
-    flight(
-      "kunming",
-      "CTU",
-      "KMG",
-      "2026-09-22",
-      "2026-09-22T10:00:00+08:00",
-      "2026-09-22T11:30:00+08:00",
-    ),
-    flight(
-      "unknown",
-      "QQQ",
-      "SFO",
-      "2010-06-01",
-      "2010-06-01T08:00:00+05:45",
-      "2010-06-01T18:00:00-07:00",
-    ),
-  ]);
-
-  // Kai Tak and Chek Lap Kok are separate physical airports and routes.
+});
+test("old backups resolve formal history without candidate requests", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("raw.githubusercontent.com"))
+      requests.push(request.url());
+  });
+  await importFlights(page, [flight("old", "1997"), flight("new", "2005")]);
   await expect(page.locator(".map-route-line")).toHaveCount(2);
+  const oldMarker = page.locator(`[data-airport-identity="airport:${kaiTak}"]`);
+  await expect(oldMarker).toHaveCount(1);
   await expect(
-    page.locator('[data-airport-identity^="airport:apt_"]'),
-  ).toHaveCount(2);
-  // AUS and KMG candidates are drawn only as possible locations, never as routes.
-  await expect(
-    page.locator('[data-possible-airport="AUS"]').first(),
-  ).toBeAttached();
-  await expect(
-    page.locator('[data-possible-airport="KMG"]').first(),
-  ).toBeAttached();
-  await expect(
-    page.locator('.flight-record[data-unresolved-airports~="KMG"]'),
+    page.locator(`[data-airport-identity="airport:${chekLapKok}"]`),
   ).toHaveCount(1);
-  // Desktop: the Airports figure counts confirmed sites only and carries the
-  // unconfirmed codes (AUS, KMG, QQQ) beside it.
-  const coverage = page.locator(".passport-history-coverage").first();
-  await expect(coverage).toHaveAttribute("data-unresolved-airports", "3");
-  await expect(coverage).toHaveAttribute(
-    "title",
-    "Airports not confirmed at their flight dates: 3 (not counted above)",
+  await oldMarker.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".flight-record")).toHaveCount(1);
+  await expect(page.locator(".flight-record")).toHaveAttribute(
+    "data-flight-id",
+    "old",
   );
-  // The unknown code is kept as recorded.
-  await expect(
-    page.locator('.flight-record[data-unresolved-airports~="QQQ"]'),
-  ).toHaveCount(1);
-
-  await page
-    .locator('.flight-record[data-flight-id="kai-tak"] .flight-row')
+  expect(requests).toEqual([]);
+});
+test("manual selection survives save, reload and a date edit", async ({
+  page,
+}) => {
+  await importFlights(page, [flight("manual", "2005")]);
+  await page.locator(".flight-row").click();
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const editor = page.getByRole("dialog", { name: "Edit flight", exact: true });
+  await editor.getByRole("combobox").first().fill("Kai Tak");
+  await editor
+    .locator('[data-history-kind="formal"]')
+    .filter({ hasText: "Kai Tak" })
+    .click();
+  await editor
+    .getByRole("button", { name: "Save flight", exact: true })
     .click();
   await expect(page.locator(".route-origin-airport")).toHaveText(
     "Hong Kong International Airport Kai Tak",
   );
-  await expect(
-    page.locator('[data-airport-history="historical"]'),
-  ).toContainText("22.3203°N, 114.1981°E");
+  await page.reload();
+  await page.locator(".flight-row").click();
+  await expect(page.locator(".route-origin-airport")).toHaveText(
+    "Hong Kong International Airport Kai Tak",
+  );
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const dates = page.getByRole("dialog").locator('input[type="date"]');
+  await dates.nth(0).fill("2006-06-01");
+  await dates.nth(1).fill("2006-06-01");
+  await page.getByRole("button", { name: "Save flight", exact: true }).click();
+  await expect(page.locator(".route-origin-airport")).toHaveText(
+    "Hong Kong International Airport Kai Tak",
+  );
+  await expect(page.locator(".detail-stop--departure")).toContainText("HKG");
+  await expect(page.locator(".detail-airport-evidence")).toHaveCount(0);
 });
-
-async function formalAirportId(name: string): Promise<string> {
-  const formal = JSON.parse(
-    await readFile(
-      new URL(
-        "../packages/core/data/airport-history/formal/airports.json",
-        import.meta.url,
-      ),
-      "utf8",
-    ),
-  ) as { airports: { airportId: string; name: { value: string } }[] };
-  return formal.airports.find((airport) => airport.name.value === name)!
-    .airportId;
-}
-
-test("Passport map selects Kai Tak and Chek Lap Kok as separate airports", async ({
+test("failed explicit research lookup does not change a saved flight", async ({
   page,
 }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.setViewportSize({ width: 1440, height: 900 });
-  const kaiTak = `airport:${await formalAirportId("Hong Kong International Airport Kai Tak")}`;
-  const chekLapKok = `airport:${await formalAirportId("Hong Kong International Airport")}`;
-  await importFlights(page, [
-    flight(
-      "kai-tak-out",
-      "HKG",
-      "SFO",
-      "1997-06-01",
-      "1997-06-01T10:00:00+08:00",
-      "1997-06-01T23:00:00+08:00",
-    ),
-    flight(
-      "chek-lap-kok-out",
-      "HKG",
-      "SFO",
-      "1999-06-01",
-      "1999-06-01T10:00:00+08:00",
-      "1999-06-01T23:00:00+08:00",
-    ),
-    // The shared code as a destination: another route context.
-    flight(
-      "kai-tak-in",
-      "LAX",
-      "HKG",
-      "1997-07-01",
-      "1997-07-01T09:00:00-07:00",
-      "1997-07-02T16:00:00+08:00",
-    ),
-    flight(
-      "chek-lap-kok-in",
-      "LAX",
-      "HKG",
-      "1999-07-01",
-      "1999-07-01T09:00:00-07:00",
-      "1999-07-02T16:00:00+08:00",
-    ),
-  ]);
-  const records = page.locator(".flight-record");
-  const ids = async () =>
-    (
-      await records.evaluateAll((rows) =>
-        rows.map((row) => (row as HTMLElement).dataset.flightId),
-      )
-    ).sort();
-  // Four physical routes: same code pairs, different HKG sites.
-  await expect(page.locator(".map-route-line")).toHaveCount(4);
-  const kaiTakMarker = page.locator(`[data-airport-identity="${kaiTak}"]`);
-  const chekLapKokMarker = page.locator(
-    `[data-airport-identity="${chekLapKok}"]`,
+  await page.route("https://raw.githubusercontent.com/**", (route) =>
+    route.abort(),
   );
-  await expect(kaiTakMarker).toHaveCount(1);
-  await expect(chekLapKokMarker).toHaveCount(1);
-  await expect(kaiTakMarker).toHaveAttribute(
-    "data-airport-basis",
-    "historical",
-  );
-  await expect(
-    page.locator('[data-airport-identity="current:SFO"]'),
-  ).toHaveAttribute("data-airport-basis", "current-directory");
-
-  // Kai Tak marker: only the 1997 flights.
-  await kaiTakMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(records).toHaveCount(2);
-  expect(await ids()).toEqual(["kai-tak-in", "kai-tak-out"]);
-  await expect(kaiTakMarker).toHaveAttribute("aria-pressed", "true");
-  await expect(chekLapKokMarker).toHaveAttribute("aria-pressed", "false");
-
-  // Chek Lap Kok marker: only the 1999 flights.
-  await chekLapKokMarker.focus();
-  await page.keyboard.press("Enter");
-  await expect(records).toHaveCount(2);
-  expect(await ids()).toEqual(["chek-lap-kok-in", "chek-lap-kok-out"]);
-  await expect(kaiTakMarker).toHaveAttribute("aria-pressed", "false");
-
-  // Route selection keeps the two HKG→SFO routes apart.
-  const kaiTakRoute = page.locator(
-    `.map-route[data-route-identity="${kaiTak}>current:SFO"]`,
-  );
-  const chekLapKokRoute = page.locator(
-    `.map-route[data-route-identity="${chekLapKok}>current:SFO"]`,
-  );
-  await kaiTakRoute.focus();
-  await page.keyboard.press("Enter");
-  await expect(records).toHaveCount(1);
-  expect(await ids()).toEqual(["kai-tak-out"]);
-  await expect(kaiTakRoute).toHaveClass(/is-selected/);
-  await expect(chekLapKokRoute).not.toHaveClass(/is-selected/);
-
-  // Highlighting a flight lights its own physical route only.
-  await page.locator(".passport-exploration-close").click();
-  await expect(records).toHaveCount(4);
-  await page
-    .locator('.flight-record[data-flight-id="chek-lap-kok-out"] .flight-row')
-    .hover();
-  await expect(chekLapKokRoute).toHaveClass(/is-highlighted/);
-  await expect(kaiTakRoute).not.toHaveClass(/is-highlighted/);
-
-  // Passport shows verified history apart from current-directory airports.
-  const evidence = page.locator(".passport-airport-evidence").first();
-  await expect(evidence).toHaveAttribute("data-verified-airports", "2");
-  await expect(evidence).toHaveAttribute(
-    "data-current-directory-airports",
-    "2",
-  );
-  await expect(evidence).toContainText("historically verified: 2");
-  await expect(evidence).toContainText("current directory only");
-
-  // Flight Detail states the basis of each code.
-  await page
-    .locator('.flight-record[data-flight-id="kai-tak-out"] .flight-row')
+  const record = flight("confirmed", "2005");
+  record.origin.airportId = kaiTak;
+  await importFlights(page, [record]);
+  await page.locator(".flight-row").click();
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.locator(".airport-combobox details summary").first().click();
+  await editor
+    .getByRole("button", { name: "Look up historical airports" })
+    .first()
     .click();
-  await expect(
-    page.locator(".detail-stop--departure [data-assignment-evidence]"),
-  ).toHaveAttribute("data-assignment-evidence", "historically_verified");
-  await expect(
-    page.locator(".detail-stop--arrival [data-assignment-evidence]"),
-  ).toHaveAttribute("data-assignment-evidence", "current_directory");
-  await expect(page.locator(".detail-stop--arrival")).toContainText(
-    "validity on this date is not verified",
+  await expect(editor.getByRole("status")).toContainText("Lookup unavailable");
+  await editor
+    .getByRole("button", { name: "Save flight", exact: true })
+    .click();
+  await expect(page.locator(".route-origin-airport")).toHaveText(
+    "Hong Kong International Airport Kai Tak",
   );
 });
