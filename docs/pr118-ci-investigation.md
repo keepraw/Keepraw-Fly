@@ -109,3 +109,18 @@ test therefore read the previous twelve-route network instead of `SZX-TAO`.
 Readiness now follows a completed textured frame and its current scene metadata.
 The exact one-route expectation and old-canvas disconnection assertion remain
 unchanged, as does CI's rejection of flaky results.
+
+## WebKit font preparation
+
+The next push run passed the globe regression but rejected a Korean passport
+font fallback. Its trace records HTTP 200 for both Korean stylesheets and every
+requested subset, all well below the 15-second test deadline. Only the Korean
+sans family was missing from the returned families; serif was loaded. The PR
+run on the same revision passed.
+
+Font preparation previously interleaved CSSOM face replacement in each regional
+stylesheet with subset loading from the other sheets. Preparation now waits for
+all required sheets to finish registration before loading subsets, and awaits
+each returned FontFace's loaded promise before freezing the families. This
+removes that registration/loading race while preserving the existing timeout,
+fallback behavior, exact preview/PNG comparison and webfont assertions.

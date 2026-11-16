@@ -229,43 +229,50 @@ export async function preparePosterFonts(
   let timer: ReturnType<typeof setTimeout> | undefined;
   const loaded = new Set<string>();
   if (!options.disableWebfont) {
+    const cjkSources = sources.cjk.filter((source) =>
+      locales.includes(source.locale as CjkLocale),
+    );
+    // Finish CSSOM face replacement before starting any subset loads. WebKit
+    // can invalidate in-flight faces when another regional sheet is rewritten.
+    const stylesheets = Promise.all(
+      cjkSources.map((source) => cjkStylesheet(owner, source)),
+    );
     const work = [
       ...roles.map(async (role) => {
         if ((await loadLatin(owner, role)) && !expired) loaded.add(role);
       }),
-      ...sources.cjk
-        .filter((source) => locales.includes(source.locale as CjkLocale))
-        .map(async (source) => {
-          const key = `${source.locale}-${source.role}`;
-          try {
-            if (!(await cjkStylesheet(owner, source))) return;
-            // Latin is served locally. Request only CJK subsets for this role.
-            const roleSample =
-              source.role === "serif" && options.copy
-                ? options.copy.title + options.copy.holder.name
-                : sample;
-            const glyphs = [...roleSample]
-              .filter((char) => /[^\u0000-\u024f]/u.test(char))
-              .join("");
-            const faces = await owner.fonts.load(
-              `${source.weight} 32px "KRF ${key}"`,
-              glyphs,
-            );
-            if (
-              faces.length &&
-              faces.every((face) => face.status === "loaded") &&
-              !expired
-            )
-              loaded.add(key);
-          } catch {
-            // A failed subset needs fresh FontFace rules on a later retry.
-            const link = owner.querySelector<HTMLLinkElement>(
-              `link[data-passport-font="${key}"]`,
-            );
-            if (link) link.dataset.fontStatus = "unavailable";
-            /* The explicit regional system stack remains usable. */
-          }
-        }),
+      ...cjkSources.map(async (source, index) => {
+        const key = `${source.locale}-${source.role}`;
+        try {
+          if (!(await stylesheets)[index]) return;
+          // Latin is served locally. Request only CJK subsets for this role.
+          const roleSample =
+            source.role === "serif" && options.copy
+              ? options.copy.title + options.copy.holder.name
+              : sample;
+          const glyphs = [...roleSample]
+            .filter((char) => /[^\u0000-\u024f]/u.test(char))
+            .join("");
+          const faces = await owner.fonts.load(
+            `${source.weight} 32px "KRF ${key}"`,
+            glyphs,
+          );
+          await Promise.all(faces.map((face) => face.loaded));
+          if (
+            faces.length &&
+            faces.every((face) => face.status === "loaded") &&
+            !expired
+          )
+            loaded.add(key);
+        } catch {
+          // A failed subset needs fresh FontFace rules on a later retry.
+          const link = owner.querySelector<HTMLLinkElement>(
+            `link[data-passport-font="${key}"]`,
+          );
+          if (link) link.dataset.fontStatus = "unavailable";
+          /* The explicit regional system stack remains usable. */
+        }
+      }),
     ];
     await Promise.race([
       Promise.all(work),
