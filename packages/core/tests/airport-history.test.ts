@@ -109,7 +109,9 @@ describe("persisted physical identities", () => {
     try {
       installAirportDirectory(changed);
       expect(airportById.get(chekLapKok)?.latitude).toBe(current[4]);
-      expect(resolveEndpointIdentity("HKG", "2020-01-01", "origin").point).toEqual({
+      expect(
+        resolveEndpointIdentity("HKG", "2020-01-01", "origin").point,
+      ).toEqual({
         latitude: current[4],
         longitude: current[5],
       });

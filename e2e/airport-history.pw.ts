@@ -26,13 +26,11 @@ async function importFlights(page: Page, flights: KeeprawFlight[]) {
   );
   archive.flights = flights;
   await page.goto("/");
-  await page
-    .locator('input[type="file"]')
-    .setInputFiles({
-      name: "airports.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(archive)),
-    });
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "airports.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
   await page.getByRole("button", { name: "Import this archive" }).click();
   await expect(page.locator(".flight-row")).toHaveCount(flights.length);
 }
