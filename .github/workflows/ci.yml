@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, refactor/persist-airport-identities]
   pull_request:
 
 env:
@@ -313,10 +313,8 @@ jobs:
 
   airport-history:
     if: github.repository == 'keepraw/Keepraw-Fly'
-    # Rebuilds the committed two-layer airport-history package from the pinned
-    # keepraw/airport-history commit with its own bulk/worldwide.py, and
-    # requires every file to be byte-identical (SHA-256). No Actions artifact
-    # is used as a data source; the package lives in this repository.
+    # Only the reviewed dataset belongs to Fly. Compare its bytes with the pin;
+    # worldwide research remains in the independent airport-history repository.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -324,5 +322,5 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Rebuild airport-history package from the pinned upstream commit
+      - name: Verify reviewed airport data against the pinned upstream commit
         run: python3 scripts/update-airport-history.py --check

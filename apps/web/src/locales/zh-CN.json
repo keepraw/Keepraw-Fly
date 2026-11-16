@@ -158,15 +158,9 @@
     "airportTimezoneCandidates": "历史候选位于不同时区：{{zones}}。请选择实际适用的时区。",
     "airportTimezoneHint": "IANA 时区或 UTC 偏移，例如 +08:00。",
     "airportHistory": {
-      "uncertain": "{{code}}：该日期处于已审核历史的不确定边界内，机场尚未确定。",
-      "ambiguous": "{{code}}：该日期有多个物理机场使用此代码。",
-      "historical_candidate": "{{code}}：没有正式审核的分配。历史资料列出 {{sites}} 个可能场址，机场尚未确定。",
-      "unknown_code": "{{code}}：机场目录和历史数据中均未找到。航班会保留此代码。",
-      "candidate_index_unavailable": "{{code}}：历史候选数据正在加载。",
-      "historicalSite": "{{code}} 在该日期为：{{name}}（历史场址）",
       "searchGroup": "历史机场与代码",
-      "formalOption": "已审核的历史机场",
-      "candidateOption": "未确认的历史记录"
+      "review": "查找历史机场",
+      "reviewFailed": "暂时无法查询。仍可在上方选择机场并保存航班。"
     }
   },
   "status": {
@@ -242,20 +236,8 @@
     "plannedArrival": "计划到达：{{airport}}",
     "airportHistory": {
       "historicalSite": "该日期对应的历史机场",
-      "openHorizon": "与当前为同一场址；已审核历史在此日期前结束",
-      "candidate": "该日期的机场尚未确认（{{sites}} 个可能的历史场址）",
-      "uncertain": "机场尚未确认：该日期处于历史不确定边界内",
-      "ambiguous": "机场尚未确认：有多个机场使用此代码",
-      "pending": "历史机场数据正在加载",
       "unknown": "机场未识别；按记录保留代码",
-      "rowUnresolved": "该日期的机场尚未确认：{{airports}}",
-      "evidence": {
-        "historically_verified": "已按航班日期经历史核实",
-        "formal_uncertain": "历史分配未核实：该日期处于不确定的已审核区间",
-        "current_directory": "依据当前机场目录；该代码在此日期的有效性未经核实",
-        "historical_candidate": "历史候选；机场身份未确定",
-        "unknown": "未知机场；代码按原记录保留"
-      }
+      "rowUnresolved": "该日期的机场尚未确认：{{airports}}"
     }
   },
   "passport": {
@@ -335,11 +317,7 @@
     "recentDelayYears": "最近三个有记录的年份",
     "unresolvedHistoricalAirports": "航班日期机场尚未确认：{{airports}} 个（未计入上方统计）",
     "mapPossibleAirports": "可能的历史机场位置（未确认）",
-    "mapPossibleAirport": "{{airport}} · 可能位置：{{name}}（未确认）",
-    "mapAirportVerified": "历史已核实",
-    "mapAirportCurrentDirectory": "当前目录",
-    "airportEvidenceCoverage": "经历史核实的机场：{{verified}} · 仅依据当前目录（该日期的代码未核实）：{{directory}}",
-    "airportEvidenceUncertain": "处于不确定历史区间：{{count}}"
+    "mapPossibleAirport": "{{airport}} · 可能位置：{{name}}（未确认）"
   },
   "import": {
     "checking": "正在检查航班…",

@@ -4,7 +4,7 @@ import { nightPixels } from "../scripts/lib/globe-night-pixels.mjs";
 
 test("registered city detail and route hierarchy survive appearance grading while remote backgrounds stay dark", async ({
   page,
-}) => {
+}, testInfo) => {
   test.setTimeout(60000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -17,6 +17,10 @@ test("registered city detail and route hierarchy survive appearance grading whil
   );
   const baseline = evidence.pixels["before-dark"];
   const scene = JSON.parse((await host.getAttribute("data-scene"))!);
+  await testInfo.attach("night-scene.json", {
+    body: JSON.stringify(scene, null, 2),
+    contentType: "application/json",
+  });
   const readScene = () => host.getAttribute("data-scene");
   const original = await readScene();
   const earth = page.getByRole("checkbox", { name: "Earth only", exact: true });
@@ -35,6 +39,12 @@ test("registered city detail and route hierarchy survive appearance grading whil
     await cities.check();
     await earth.uncheck();
     const routes = await png();
+    for (const [label, image] of Object.entries({ on, off, routes })) {
+      await testInfo.attach(`${theme}-${label}.png`, {
+        body: Buffer.from(image, "base64"),
+        contentType: "image/png",
+      });
+    }
     expect(await readScene()).toBe(original);
     const output = await page.evaluate(nightPixels, {
       on,
@@ -42,6 +52,10 @@ test("registered city detail and route hierarchy survive appearance grading whil
       routes,
       scene,
       regions: evidence.regions,
+    });
+    await testInfo.attach(`${theme}-pixels.json`, {
+      body: JSON.stringify(output, null, 2),
+      contentType: "application/json",
     });
     expect(output.global.nearWhite).toBe(0);
     for (const id of [

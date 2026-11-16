@@ -15,7 +15,6 @@ import {
   arrivalIdentity,
   originIdentity,
   plannedDestinationIdentity,
-  type AssignmentEvidence,
   type FlightEndpointIdentity,
   airportCityGroupForAirport,
   airportCityGroupName,
@@ -40,7 +39,6 @@ import {
   type FlightStopTimes,
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
-import { useAirportHistoryVersion } from "../data/airport-history";
 import { PageShell } from "../components/PageShell";
 import type { Appearance } from "../storage/types";
 import type { SolarMode } from "../globe/globe-solar";
@@ -87,8 +85,6 @@ function AirportStop({
     note?: string;
     coordinates?: string;
     status: string;
-    evidence: AssignmentEvidence;
-    evidenceText: string;
   };
   /** Flight-date historical zone; null when the airport is undetermined. */
   zone?: string | null;
@@ -139,14 +135,6 @@ function AirportStop({
               }
             >
               {airport}
-            </p>
-          ) : null}
-          {history ? (
-            <p
-              className="detail-airport-evidence"
-              data-assignment-evidence={history.evidence}
-            >
-              {history.evidenceText}
             </p>
           ) : null}
           {history?.note ? (
@@ -319,25 +307,8 @@ function airportHistory(
   note?: string;
   coordinates?: string;
   status: string;
-  evidence: AssignmentEvidence;
-  evidenceText: string;
 } {
-  // What the code assignment rests on is always stated: a usable position
-  // from today's directory is never presented as a verified historical fact.
-  return {
-    ...airportHistoryNote(identity, t),
-    evidence: identity.assignmentEvidence,
-    evidenceText: t(
-      `flightDetail.airportHistory.evidence.${identity.assignmentEvidence}`,
-    ),
-  };
-}
-
-function airportHistoryNote(
-  identity: FlightEndpointIdentity,
-  t: (key: string, options?: Record<string, unknown>) => string,
-): { note?: string; coordinates?: string; status: string } {
-  if (identity.basis === "formal" && identity.differsFromCurrentDirectory)
+  if (identity.confirmed && identity.differsFromCurrentDirectory)
     return {
       status: "historical",
       note: t("flightDetail.airportHistory.historicalSite"),
@@ -345,35 +316,31 @@ function airportHistoryNote(
         ? formatCoordinates(identity.point)
         : undefined,
     };
-  if (identity.basis === "formal_open_horizon_current_directory")
-    return {
-      status: "uncertain-horizon",
-      note: t("flightDetail.airportHistory.openHorizon"),
-    };
   if (!identity.confirmed) {
-    const key =
-      identity.status === "historical_candidate"
-        ? "candidate"
-        : identity.status === "uncertain"
-          ? "uncertain"
-          : identity.status === "ambiguous"
-            ? "ambiguous"
-            : identity.status === "candidate_index_unavailable"
-              ? "pending"
-              : "unknown";
     return {
       status: identity.status,
-      note: t(`flightDetail.airportHistory.${key}`, {
-        sites: identity.possiblePositions.length,
-      }),
+      note: t("flightDetail.airportHistory.unknown"),
     };
   }
   return { status: identity.status };
 }
 
 // Match FlightRow's display rules without changing airport data or route semantics.
-function airportCityLabel(iata: string, locale: SupportedLocale): string {
+function airportCityLabel(
+  identity: FlightEndpointIdentity,
+  locale: SupportedLocale,
+): string {
+  const iata = identity.iata;
   const airport = airportByIata.get(iata);
+  if (!identity.airportId || identity.airportId !== airport?.airportId) {
+    return identity.city
+      ? formatCityDisplayName(
+          localizedText(identity.city, locale),
+          identity.country ?? "",
+          locale,
+        )
+      : iata;
+  }
   const cityGroup = airportCityGroupForAirport(iata);
   const name = cityGroup
     ? airportCityGroupName(cityGroup, locale)
@@ -420,7 +387,6 @@ export function FlightDetailPage({
   }, []);
 
   // Flight-date physical airports: names, coordinates and zones by history.
-  useAirportHistoryVersion();
   const origin = originIdentity(flight);
   const actualDestination = arrivalIdentity(flight);
   const plannedDestination = plannedDestinationIdentity(flight);
@@ -480,9 +446,9 @@ export function FlightDetailPage({
             <header className="detail-heading">
               <div className="detail-heading-identity">
                 <h1 id="flight-detail-title">
-                  {airportCityLabel(flight.origin.iata, locale)}{" "}
+                  {airportCityLabel(origin, locale)}{" "}
                   <span>{t("flightDetail.to")}</span>{" "}
-                  {airportCityLabel(flight.destination.iata, locale)}
+                  {airportCityLabel(plannedDestination, locale)}
                 </h1>
                 <div className="detail-heading-eyebrow">
                   <strong>{flight.flightNumber}</strong>
@@ -528,7 +494,7 @@ export function FlightDetailPage({
               <AirportStop
                 kind="departure"
                 iata={flight.origin.iata}
-                city={airportCityLabel(flight.origin.iata, locale)}
+                city={airportCityLabel(origin, locale)}
                 airport={airportNameLabel(origin, flight.origin.iata, locale)}
                 history={airportHistory(origin, t)}
                 zone={origin.timezone}
@@ -557,10 +523,7 @@ export function FlightDetailPage({
               <AirportStop
                 kind="arrival"
                 iata={flight.divertedTo?.iata ?? flight.destination.iata}
-                city={airportCityLabel(
-                  flight.divertedTo?.iata ?? flight.destination.iata,
-                  locale,
-                )}
+                city={airportCityLabel(actualDestination, locale)}
                 airport={airportNameLabel(
                   actualDestination,
                   flight.divertedTo?.iata ?? flight.destination.iata,
@@ -583,7 +546,7 @@ export function FlightDetailPage({
                 }
                 plannedCity={
                   flight.divertedTo
-                    ? airportCityLabel(flight.destination.iata, locale)
+                    ? airportCityLabel(plannedDestination, locale)
                     : undefined
                 }
                 plannedName={

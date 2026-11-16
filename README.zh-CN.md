@@ -79,7 +79,7 @@
 
 ## 数据格式
 
-机场按航班日期识别：历史代码会根据内置的 [Keepraw Airport History 数据](docs/airport-history.md) 解析为当天的实际物理机场；无法识别机场的航班会被保留，并明确标记为未解析。
+手动选择的机场会以永久物理身份与原始 IATA 代码一起保存；没有已保存身份时，使用[正式历史代码分配](docs/airport-history.md)解析已知的代码和日期。无法确认的机场可手动选择，全球研究数据只在主动查询历史机场时按需加载。
 
 可迁移的 `keepraw-fly` 档案执行结构与语义校验。参见[格式与兼容性指南](docs/schema.md)和[JSON Schema](packages/schema/keepraw-fly.schema.json)。
 

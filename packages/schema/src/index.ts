@@ -1,5 +1,5 @@
 export const KEEPRAW_FLY_FORMAT = "keepraw-fly" as const;
-export const KEEPRAW_FLY_FORMAT_VERSION = "0.1.0" as const;
+export const KEEPRAW_FLY_FORMAT_VERSION = "0.2.0" as const;
 
 export type PrimaryName = "native" | "romanized";
 
@@ -20,6 +20,8 @@ export interface AirlineReference {
 
 export interface AirportEndpoint {
   iata: string;
+  /** User-confirmed physical identity; the original IATA code remains unchanged. */
+  airportId?: string;
   terminal?: string;
   gate?: string;
 }
@@ -69,7 +71,7 @@ export interface KeeprawFlight {
 
 export interface KeeprawFlyDocument {
   format: typeof KEEPRAW_FLY_FORMAT;
-  formatVersion: typeof KEEPRAW_FLY_FORMAT_VERSION;
+  formatVersion: typeof KEEPRAW_FLY_FORMAT_VERSION | "0.1.0";
   profile: KeeprawProfile;
   flights: KeeprawFlight[];
   frequentFlyerMemberships?: FrequentFlyerMembership[];

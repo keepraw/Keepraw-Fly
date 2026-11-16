@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://keepraw.com/schema/keepraw-fly-0.1.schema.json",
-  "title": "Keepraw Fly 0.1",
+  "$id": "https://keepraw.com/schema/keepraw-fly-0.2.schema.json",
+  "title": "Keepraw Fly 0.2 (with 0.1 import compatibility)",
   "description": "Portable, locale-neutral flight-history data.",
   "type": "object",
   "required": ["format", "formatVersion", "profile", "flights"],
   "properties": {
     "format": { "const": "keepraw-fly" },
-    "formatVersion": { "const": "0.1.0" },
+    "formatVersion": { "enum": ["0.1.0", "0.2.0"] },
     "profile": { "$ref": "#/$defs/profile" },
     "flights": {
       "type": "array",
@@ -74,6 +74,7 @@
       "type": "object",
       "required": ["iata"],
       "properties": {
+        "airportId": { "type": "string", "minLength": 1 },
         "iata": {
           "type": "string",
           "pattern": "^[A-Z]{3}$"

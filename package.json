@@ -9,6 +9,7 @@
     "node": "^24.0.0"
   },
   "scripts": {
+    "postinstall": "pnpm --filter @keepraw-fly/validator generate",
     "dev": "pnpm --filter @keepraw-fly/web dev",
     "build": "pnpm -r build",
     "preview": "pnpm --filter @keepraw-fly/web preview",

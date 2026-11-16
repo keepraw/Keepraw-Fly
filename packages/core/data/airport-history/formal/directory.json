@@ -1,0 +1,370 @@
+{
+  "apt_f470ecb5-c6dc-4516-a233-37302da2115b": [
+    "",
+    "TAO",
+    "Qingdao",
+    "CN",
+    "closed",
+    "Asia/Shanghai"
+  ],
+  "apt_6729d2b2-4b79-48c8-9c42-0d4eeba121b8": [
+    "TAO",
+    "TAO",
+    "Qingdao",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_d8f290d3-11cc-4441-af6d-f4dd52d3b8dc": [
+    "ISL",
+    "IST",
+    "Istanbul",
+    "TR",
+    "operating",
+    "Europe/Istanbul"
+  ],
+  "apt_92a92544-1808-487a-85e0-0fa995e1de82": [
+    "IST",
+    "IST",
+    "Istanbul",
+    "TR",
+    "operating",
+    "Europe/Istanbul"
+  ],
+  "apt_86460159-a072-4a18-afcc-ab376cda7047": [
+    "",
+    "HKG",
+    "Hong Kong",
+    "HK",
+    "closed",
+    "Asia/Hong_Kong"
+  ],
+  "apt_8d89722f-007c-4eb4-aaa0-ec1c61007a09": [
+    "HKG",
+    "HKG",
+    "Hong Kong",
+    "HK",
+    "operating",
+    "Asia/Hong_Kong"
+  ],
+  "apt_ce3d25d8-99db-48ae-b824-33cea4de0919": [
+    "",
+    "DEN",
+    "Denver",
+    "US",
+    "closed",
+    "America/Denver"
+  ],
+  "apt_67f7542e-c336-4ba7-b23a-beaf1b4c1e38": [
+    "DEN",
+    "DEN",
+    "Denver",
+    "US",
+    "operating",
+    "America/Denver"
+  ],
+  "apt_d28173b7-5c8b-4012-8eed-18f96c13a0ce": [
+    "",
+    "ISB",
+    "Islamabad",
+    "PK",
+    "operating",
+    "Asia/Karachi"
+  ],
+  "apt_896e8191-7c0b-4a94-bc14-9dcd7e35feac": [
+    "ISB",
+    "ISB",
+    "Islamabad",
+    "PK",
+    "operating",
+    "Asia/Karachi"
+  ],
+  "apt_f642eef8-1864-43c4-8944-47aaa7ac35ce": [
+    "BER",
+    "SXF",
+    "Berlin",
+    "DE",
+    "operating",
+    "Europe/Berlin"
+  ],
+  "apt_99f19660-7609-49c5-b221-ed4a37046566": [
+    "NQZ",
+    "TSE",
+    "Astana",
+    "KZ",
+    "operating",
+    "Asia/Almaty"
+  ],
+  "apt_7a7e34d3-dbfa-4cce-ad24-818709177bfd": [
+    "RMO",
+    "KIV",
+    "Chisinau",
+    "MD",
+    "operating",
+    "Europe/Chisinau"
+  ],
+  "apt_0fd3915b-6dd8-4391-a840-9992db9683cf": [
+    "",
+    "ROV",
+    "Rostov-on-Don",
+    "RU",
+    "closed",
+    "Europe/Moscow"
+  ],
+  "apt_4c75d2ab-29db-4593-8b78-6104b8bdb720": [
+    "ROV",
+    "ROV",
+    "Rostov-on-Don",
+    "RU",
+    "operating",
+    "Europe/Moscow"
+  ],
+  "apt_7923bd7d-2855-4d5f-b979-63a5380cd3da": [
+    "",
+    "YNT",
+    "Yantai",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_0f0ebbe2-ce55-4b70-8d22-c760fe94777e": [
+    "YNT",
+    "YNT",
+    "Yantai",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_dafb3e33-c7ed-431a-b8e8-22eecf543107": [
+    "PNH",
+    "PNH",
+    "Phnom Penh",
+    "KH",
+    "closed",
+    "Asia/Phnom_Penh"
+  ],
+  "apt_b97de260-274b-4cfd-b56e-5f035c6a7768": [
+    "KTI",
+    "KTI",
+    "Phnom Penh",
+    "KH",
+    "operating",
+    "Asia/Phnom_Penh"
+  ],
+  "apt_7b4e284f-4573-4de6-bdc1-75805dec20d4": [
+    "DKR",
+    "DKR",
+    "Dakar",
+    "SN",
+    "operating",
+    "Africa/Dakar"
+  ],
+  "apt_ced7c7a9-5d08-4d0f-84d7-e0d432a78096": [
+    "DSS",
+    "DSS",
+    "Dakar",
+    "SN",
+    "operating",
+    "Africa/Dakar"
+  ],
+  "apt_80ab4c35-b89f-40af-a368-bc71b3716d5a": [
+    "AAP",
+    "AAP",
+    "Samarinda",
+    "ID",
+    "operating",
+    "Asia/Makassar"
+  ],
+  "apt_967383b9-116c-4c3b-a8fb-c67515a3eb83": [
+    "",
+    "SRI",
+    "Samarinda",
+    "ID",
+    "closed",
+    "Asia/Makassar"
+  ],
+  "apt_d3a329f9-73d0-43f5-90c2-0ba0a0a2e5be": [
+    "",
+    "PFN",
+    "Panama City",
+    "US",
+    "closed",
+    "America/Chicago"
+  ],
+  "apt_74a05fd5-53fa-40f8-a3a6-de8cfd7d5e99": [
+    "ECP",
+    "ECP",
+    "Panama City",
+    "US",
+    "operating",
+    "America/Chicago"
+  ],
+  "apt_ba1f9f8c-1849-4092-9e91-d641bddb6bc6": [
+    "",
+    "ISN",
+    "Williston",
+    "US",
+    "closed",
+    "America/Chicago"
+  ],
+  "apt_661b72ea-f84d-4cec-ae34-fddd5e579b3d": [
+    "XWA",
+    "XWA",
+    "Williston",
+    "US",
+    "operating",
+    "America/Chicago"
+  ],
+  "apt_9e24d5d7-5e1a-4489-b936-2737c438921e": [
+    "SDW",
+    "SDW",
+    "Sindhudurg",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_66034969-b902-4ede-8011-cc87a23070b7": [
+    "GBI",
+    "GBI",
+    "Kalaburagi",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_0342f79b-a035-43b6-88bf-52b9a5e9622f": [
+    "KBK",
+    "KBK",
+    "Kushinagar",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_162c7dfd-e70b-48c7-bbe5-282ede0a5cc9": [
+    "PYG",
+    "PYG",
+    "Pakyong",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_5d260013-75b3-4ec4-8915-7c5ff2a47fc3": [
+    "KJB",
+    "KJB",
+    "Kurnool",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_f50aecf6-9778-4db7-9027-0e751ffab63a": [
+    "RMU",
+    "RMU",
+    "Murcia",
+    "ES",
+    "operating",
+    "Europe/Madrid"
+  ],
+  "apt_a456f7d0-80f7-48b2-81b0-0d762d5d4b12": [
+    "MJV",
+    "MJV",
+    "Murcia",
+    "ES",
+    "operating",
+    "Europe/Madrid"
+  ],
+  "apt_9acf6a6b-6e22-48c6-881c-d602429a9268": [
+    "HGI",
+    "HGI",
+    "Itanagar",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_58a2554f-6a9b-4ad7-bc2c-2550ad21b962": [
+    "CNN",
+    "CNN",
+    "Kannur",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_fa1bf7a7-a97d-4676-9c9a-7871eda47767": [
+    "SAG",
+    "SAG",
+    "Shirdi",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_6f1a6ff3-98db-4e58-95fc-cc78bd5aa836": [
+    "",
+    "LYG",
+    "Lianyungang",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_64b5eaa6-a984-4816-86d9-d8eb71c91451": [
+    "LYG",
+    "LYG",
+    "Lianyungang",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_56b57bca-08d5-4b5e-944e-1e9cce968a0a": [
+    "",
+    "LZO",
+    "Luzhou",
+    "CN",
+    "closed",
+    "Asia/Shanghai"
+  ],
+  "apt_f11bdf7d-d81d-46fc-a94f-8c8c42d4e245": [
+    "LZO",
+    "LZO",
+    "Luzhou",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_bbf9f2c1-fc01-4ed7-a4aa-74e6ed8ca45f": [
+    "",
+    "YBP",
+    "Yibin",
+    "CN",
+    "closed",
+    "Asia/Shanghai"
+  ],
+  "apt_8354da99-7d18-4329-bf7b-4ed042a4ad72": [
+    "YBP",
+    "YBP",
+    "Yibin",
+    "CN",
+    "operating",
+    "Asia/Shanghai"
+  ],
+  "apt_5e325674-a832-4106-807e-7e1e1ef951fe": [
+    "NMI",
+    "NMI",
+    "Mumbai",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_96e253c6-48ee-4ca3-b9a1-c34b49df0a68": [
+    "AYJ",
+    "AYJ",
+    "Ayodhya",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ],
+  "apt_1130a628-5e21-4e68-b3e0-178487751f67": [
+    "RQY",
+    "RQY",
+    "Shivamogga",
+    "IN",
+    "operating",
+    "Asia/Kolkata"
+  ]
+}

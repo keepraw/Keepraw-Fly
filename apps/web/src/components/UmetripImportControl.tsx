@@ -8,11 +8,6 @@ import {
   ImportAirportTimezones,
   pendingTimezoneCodes,
 } from "./ImportAirportTimezones";
-import {
-  loadAirportHistoryCodes,
-  loadAirportHistorySearchIndex,
-  useAirportHistoryVersion,
-} from "../data/airport-history";
 import { useImportPreflight } from "./useImportPreflight";
 
 export function UmetripImportControl({
@@ -45,21 +40,6 @@ export function UmetripImportControl({
   const [timezoneOverrides, setTimezoneOverrides] = useState<
     Record<string, string>
   >({});
-  const historyVersion = useAirportHistoryVersion();
-  useEffect(() => {
-    if (!pending) return;
-    // Codes and historical/candidate names in the workbook resolve by date.
-    const codes = new Set<string>();
-    for (const record of pending.parsed.records)
-      for (const cell of [record.values.origin, record.values.destination])
-        if (
-          typeof cell === "string" &&
-          /^[A-Z]{3}$/.test(cell.trim().toUpperCase())
-        )
-          codes.add(cell.trim().toUpperCase());
-    void loadAirportHistoryCodes([...codes]);
-    void loadAirportHistorySearchIndex();
-  }, [pending]);
   const work = useMemo(
     () =>
       pending
@@ -72,7 +52,7 @@ export function UmetripImportControl({
               { timezoneOverrides },
             )
         : null,
-    [pending, document, timezoneOverrides, historyVersion],
+    [pending, document, timezoneOverrides],
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 

@@ -190,7 +190,11 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     /uses: actions\/upload-pages-artifact@[0-9a-f]{40} # v\d+(\.\d+){0,2}/,
   );
   assert.ok(workflow.includes("path: apps/web/dist"));
-  assert.ok(workflow.includes("  push:\n    branches: [main]"));
+  assert.ok(
+    workflow.includes(
+      "  push:\n    branches: [main, refactor/persist-airport-identities]",
+    ),
+  );
   assert.ok(workflow.includes("group: ci-${{ github.ref }}"));
   assert.equal(existsSync(".github/workflows/pages.yml"), false);
   for (const job of ["checks", "chromium", "cross-browser", "csp"]) {

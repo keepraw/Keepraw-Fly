@@ -605,6 +605,9 @@ function initializeGlobe(
     if (!metrics.firstFrameMs) metrics.firstFrameMs = performance.now() - start;
     if (metrics.textureReadyMs && !metrics.texturedFrameMs)
       metrics.texturedFrameMs = performance.now() - start;
+    // Readiness includes a rendered frame and scene metadata for this instance.
+    // Cached textures can load before its first RAF after a route rebuild.
+    if (loadedTextures === 2) host.dataset.ready = "true";
     if (moving) invalidate();
   }
   function invalidate() {
@@ -710,7 +713,6 @@ function initializeGlobe(
   const textureReady = () => {
     if (++loadedTextures !== 2) return;
     metrics.textureReadyMs = performance.now() - start;
-    host.dataset.ready = "true";
     invalidate();
   };
   const emptyEarth = uniforms.earth.value;

@@ -31,6 +31,9 @@ export interface FlightDraft {
   serviceDate: string;
   originIata: string;
   destinationIata: string;
+  originAirportId?: string;
+  destinationAirportId?: string;
+  divertedAirportId?: string;
   departureTime: string;
   arrivalDate: string;
   arrivalTime: string;
@@ -96,6 +99,7 @@ export function endpointZone(
   localDate: string,
   role: EndpointZoneRole,
   chosen: string | undefined,
+  airportId?: string,
 ): { zone: string | null; userChosen: boolean; options: string[] } {
   const identity = resolveEndpointIdentity(
     iata,
@@ -105,6 +109,8 @@ export function endpointZone(
       : role === "destination"
         ? "destination"
         : "arrival",
+    null,
+    airportId,
   );
   if (identity.timezone)
     return {
@@ -196,6 +202,7 @@ export function flightToDraft(
       role === "origin" ? flight.serviceDate : iso.slice(0, 10),
       role,
       undefined,
+      flight[role]?.airportId,
     ).zone;
     if (known) return { zone: known, chosen: "" };
     if (stored) return { zone: stored, chosen: stored };
@@ -242,6 +249,9 @@ export function flightToDraft(
     serviceDate: flight.serviceDate,
     originIata: flight.origin.iata,
     destinationIata: flight.destination.iata,
+    originAirportId: flight.origin.airportId,
+    destinationAirportId: flight.destination.airportId,
+    divertedAirportId: flight.divertedTo?.airportId,
     departureTime: departure.time,
     arrivalDate: arrival.date,
     arrivalTime: arrival.time,
@@ -326,6 +336,21 @@ export function flightFromDraft(
   const originIata = draft.originIata.trim().toUpperCase();
   const destinationIata = draft.destinationIata.trim().toUpperCase();
   const divertedToIata = (draft.divertedToIata ?? "").trim().toUpperCase();
+  const originAirportId =
+    draft.originAirportId ??
+    (existing?.origin.iata === originIata
+      ? existing.origin.airportId
+      : undefined);
+  const destinationAirportId =
+    draft.destinationAirportId ??
+    (existing?.destination.iata === destinationIata
+      ? existing.destination.airportId
+      : undefined);
+  const divertedAirportId =
+    draft.divertedAirportId ??
+    (existing?.divertedTo?.iata === divertedToIata
+      ? existing.divertedTo.airportId
+      : undefined);
   if (!isAirportCodeFormat(originIata) || !isAirportCodeFormat(destinationIata))
     throw new Error("unknown-airport");
   if (divertedToIata && !isAirportCodeFormat(divertedToIata))
@@ -339,12 +364,14 @@ export function flightFromDraft(
     draft.serviceDate,
     "origin",
     draft.originTimezone,
+    originAirportId,
   );
   const destinationZone = endpointZone(
     destinationIata,
     draft.arrivalDate,
     "destination",
     draft.destinationTimezone,
+    destinationAirportId,
   );
   const divertedZone = divertedToIata
     ? endpointZone(
@@ -352,6 +379,7 @@ export function flightFromDraft(
         draft.actualArrivalDate || draft.arrivalDate,
         "divertedTo",
         draft.divertedTimezone,
+        divertedAirportId,
       )
     : null;
   const requireZone = (
@@ -429,19 +457,24 @@ export function flightFromDraft(
       originIata,
       draft.originTerminal,
       draft.originGate,
+      originAirportId,
     ),
     destination: endpointWithOptionalFacts(
       existing?.destination,
       destinationIata,
       draft.destinationTerminal,
       draft.destinationGate,
+      destinationAirportId,
     ),
     ...(divertedTo
       ? {
-          divertedTo:
-            existing?.divertedTo?.iata === divertedTo.iata
-              ? { ...existing.divertedTo }
-              : { iata: divertedTo.iata },
+          divertedTo: {
+            ...(existing?.divertedTo?.iata === divertedTo.iata
+              ? existing.divertedTo
+              : {}),
+            iata: divertedTo.iata,
+            airportId: divertedAirportId,
+          },
         }
       : {}),
     ...(draft.cancelled ? { cancelled: true } : {}),
@@ -500,12 +533,14 @@ function endpointWithOptionalFacts(
   iata: string,
   terminal: string,
   gate: string,
+  airportId?: string,
 ): AirportEndpoint {
   const sameAirport = existing?.iata === iata ? existing : { iata };
   const { terminal: _terminal, gate: _gate, ...preserved } = sameAirport;
   return {
     ...preserved,
     iata,
+    airportId,
     ...(terminal.trim() ? { terminal: terminal.trim() } : {}),
     ...(gate.trim() ? { gate: gate.trim() } : {}),
   };
