@@ -48,6 +48,9 @@ describe("Umetrip exact airport names", () => {
     expect(resolve("İstanbul Atatürk Airport", "2018-01-01")).toEqual({
       iata: "IST",
     });
+    expect(resolve("İstanbul Atatürk Airport", "2024-01-01")).toEqual({
+      iata: "ISL",
+    });
   });
   it("reports a collision rather than picking the first matching name", () => {
     const synthetic = {

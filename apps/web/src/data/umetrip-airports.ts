@@ -21,8 +21,8 @@ export type UmetripAirportResolution =
 /**
  * Resolves an Umetrip airport cell (a code or a name) to an IATA code at the
  * flight date. Names come from the current directory, the formal historical
- * layer (a historical site's name yields the code it held on that date) and,
- * when loaded, worldwide candidate sites. A well-formed code is kept even when
+ * layer (a historical site's name yields the code it held on that date).
+ * A well-formed code is kept even when
  * no layer knows it, so the flight is not lost.
  */
 export function createUmetripAirportResolver() {
@@ -50,6 +50,7 @@ export function createUmetripAirportResolver() {
       ...Object.values(airport.name).filter((name): name is string =>
         Boolean(name),
       ),
+      ...(airport.historicalNames ?? []),
       ...formalHistoricalNames
         .filter((row) => row.airportId === airport.airportId)
         .map((row) => row.name),

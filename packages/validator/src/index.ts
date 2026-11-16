@@ -81,7 +81,7 @@ function humanMessage(error: ErrorObject): string {
   }
 
   if (error.keyword === "additionalProperties") {
-    return "This field is not part of the Keepraw Fly 0.1 core schema.";
+    return "This field is not part of the Keepraw Fly core schema.";
   }
 
   return error.message ? `Expected value ${error.message}.` : "Invalid value.";

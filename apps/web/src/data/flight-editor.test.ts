@@ -40,7 +40,7 @@ describe("flight editor data", () => {
   it("creates a valid empty Keepraw Fly archive", () => {
     expect(createEmptyDocument()).toEqual({
       format: "keepraw-fly",
-      formatVersion: "0.1.0",
+      formatVersion: "0.2.0",
       profile: {},
       flights: [],
     });
