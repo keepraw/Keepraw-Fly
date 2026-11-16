@@ -25,11 +25,16 @@ unknown IDs, physical aggregation, historical boundaries, selective research
 loading and lookup failures. Compatibility cases compare precompiled and
 runtime validation and exercise the former strict endpoint schema.
 
-Validation status: not run locally, as requested. Dependencies were not
-downloaded locally. Remote CI, including formatting, type checks, tests, build
-and browser coverage, is required before merge. Formatting cleanup remains
-outstanding; this change is a draft until remote checks pass. GitHub CLI
-authentication was unavailable during preparation.
+Validation runs in GitHub Actions; dependencies and application validation were
+not run locally. Remote Prettier, type checks and workspace unit tests have
+passed. The complete push and PR CI runs remain the merge gates.
+
+The [CI investigation](pr118-ci-investigation.md) documents the reference-point
+regression and remote before/after artifacts. Canonical entity coordinates
+restore every fixture flight's original distance (571473.8186966669 km total)
+and all six night-scene PNGs exactly, with no visual baseline or accuracy
+assertion changes. New archive tests expect 0.2.0 while legacy 0.1.0 imports
+preserve all facts and acquire no artificial airport confirmations.
 
 The reviewed allocation dataset is unchanged and is not worldwide historical
 coverage. Directory entries without reviewed allocations may still require
