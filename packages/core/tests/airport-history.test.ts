@@ -99,6 +99,30 @@ describe("reviewed code assignments", () => {
 });
 
 describe("persisted physical identities", () => {
+  it("keeps directory updates for a formal entity when its current code changes", () => {
+    const changed = airportRows.map((row) => [...row]) as CompactAirportRow[];
+    const current = changed.find((row) => row[7] === chekLapKok)!;
+    current[0] = "XHK";
+    current[1] = "Renamed physical airport";
+    current[4] += 0.001;
+    current[10] = ["Earlier directory name"];
+    current[11] = ["HKG", "XHK"];
+    try {
+      installAirportDirectory(changed);
+      expect(airportById.get(chekLapKok)).toMatchObject({
+        currentIata: "XHK",
+        name: { en: current[1] },
+        latitude: current[4],
+        historicalNames: expect.arrayContaining(["Earlier directory name"]),
+        searchAliases: expect.arrayContaining(["HKG", "XHK"]),
+      });
+      expect(airportByIata.has("HKG")).toBe(false);
+      expect(airportByIata.get("XHK")?.airportId).toBe(chekLapKok);
+      expect(resolveEndpointIdentity("HKG", "2020-01-01", "origin", null, chekLapKok).point?.latitude).toBe(current[4]);
+    } finally {
+      installAirportDirectory(airportRows as CompactAirportRow[]);
+    }
+  });
   it("keeps canonical reference points when the same entity has a different survey point", () => {
     expect(airportById.get(chekLapKok)).toMatchObject({
       latitude: 22.308,

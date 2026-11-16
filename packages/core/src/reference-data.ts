@@ -580,13 +580,12 @@ export function installAirportDirectory(
     ];
     if (!metadata) continue;
     const [iata, alias, city, country, status, zone] = metadata;
-    const current = iata ? airportByIata.get(iata) : undefined;
-    const sameEntity =
-      current?.airportId === raw.airportId ? current : undefined;
+    const sameEntity = airportById.get(raw.airportId);
+    const currentIata = sameEntity ? sameEntity.currentIata : iata || undefined;
     const airport: AirportReference = {
       airportId: raw.airportId,
-      iata: iata || alias!,
-      currentIata: iata || undefined,
+      iata: sameEntity?.iata ?? (iata || alias!),
+      currentIata,
       icao: sameEntity?.icao,
       name: sameEntity?.name ?? { en: raw.name.value! },
       city: sameEntity?.city ?? { en: city! },
@@ -597,14 +596,16 @@ export function installAirportDirectory(
       latitude: sameEntity?.latitude ?? raw.coordinates.value!.latitude,
       longitude: sameEntity?.longitude ?? raw.coordinates.value!.longitude,
       timezone: raw.timezone.value ?? sameEntity?.timezone ?? zone!,
-      status: status as "operating" | "closed",
+      status: sameEntity?.status ?? (status as "operating" | "closed"),
       historicalNames: [
+        ...(sameEntity?.historicalNames ?? []),
         raw.name.value!,
         ...formalData.names
           .filter((name) => name.airportId === raw.airportId)
           .map((name) => name.name),
       ],
       searchAliases: [
+        ...(sameEntity?.searchAliases ?? []),
         alias!,
         ...formalData.assignments
           .filter((assignment) => assignment.airportId === raw.airportId)
@@ -612,7 +613,8 @@ export function installAirportDirectory(
       ],
     };
     airportById.set(raw.airportId, airport);
-    if (sameEntity && iata) airportByIata.set(iata, airport);
+    if (currentIata && airportByIata.get(currentIata)?.airportId === raw.airportId)
+      airportByIata.set(currentIata, airport);
   }
   airports.splice(
     0,

@@ -87,3 +87,15 @@ issues: the empty-archive unit expectation still said 0.1.0, and Umetrip name
 lookup did not include the physical directory's historical names after the
 refactor. The latter now includes those names and tests both pre-change IST and
 post-change ISL for the same Atatürk entity.
+
+The directory merge now finds an existing formal entity by permanent ID even
+after its current code changes. It retains the updated reference point, names,
+aliases and status instead of letting the old crosswalk restore a stale code.
+A regression exercises a synthetic HKG-to-XHK directory rename while a saved
+HKG endpoint keeps its confirmed entity.
+
+Full CI also exposed a workflow-source test still expecting pushes only on
+`main`. Its exact branch-list assertion now includes this review branch, matching
+the existing push workflow. All dependency-result checks and the main-only
+deployment assertion remain intact. Temporary audit tooling was removed after
+capturing its evidence.
