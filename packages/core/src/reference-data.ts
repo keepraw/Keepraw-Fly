@@ -613,7 +613,10 @@ export function installAirportDirectory(
       ],
     };
     airportById.set(raw.airportId, airport);
-    if (currentIata && airportByIata.get(currentIata)?.airportId === raw.airportId)
+    if (
+      currentIata &&
+      airportByIata.get(currentIata)?.airportId === raw.airportId
+    )
       airportByIata.set(currentIata, airport);
   }
   airports.splice(

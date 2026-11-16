@@ -118,7 +118,10 @@ describe("persisted physical identities", () => {
       });
       expect(airportByIata.has("HKG")).toBe(false);
       expect(airportByIata.get("XHK")?.airportId).toBe(chekLapKok);
-      expect(resolveEndpointIdentity("HKG", "2020-01-01", "origin", null, chekLapKok).point?.latitude).toBe(current[4]);
+      expect(
+        resolveEndpointIdentity("HKG", "2020-01-01", "origin", null, chekLapKok)
+          .point?.latitude,
+      ).toBe(current[4]);
     } finally {
       installAirportDirectory(airportRows as CompactAirportRow[]);
     }
