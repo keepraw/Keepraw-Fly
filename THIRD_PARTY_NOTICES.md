@@ -76,9 +76,12 @@ upstream revision.
 
 `packages/core/data/airport-history/` is generated from
 [keepraw/airport-history](https://github.com/keepraw/airport-history) at commit
-`19b7b1decfe2b43916fd4607b049ebb79293ae77` (see `source-lock.json`). The
+`bb1046455e949c6c0bf3a18769464cb232bec19e` (pinned with SHA-256 in
+`scripts/update-airport-history.py`). Fly includes only the reviewed formal
+dataset; worldwide research stays upstream and is read in selected shards only
+when the user requests a historical lookup. The
 project-authored database selection, arrangement, IDs and factual annotations
-are dedicated under CC0 1.0. The worldwide reference layer it contains derives
+are dedicated under CC0 1.0. The upstream worldwide reference layer derives
 from the pinned OurAirports CSV (public domain), factual timezone attributes
 from airportsdata (MIT) and airport-codes data (ODC-PDDL-1.0). The upstream
 dedication, airportsdata notice and upstream third-party notices are included

@@ -149,7 +149,10 @@ function mergeRoutes(segments: RouteSegment[], labels: boolean) {
     { segment: RouteSegment; flights: number; key: string }
   >();
   for (const segment of segments) {
-    const codes = [segment.origin.iata, segment.destination.iata].sort();
+    const codes = [
+      segment.origin.identityKey ?? segment.origin.iata,
+      segment.destination.identityKey ?? segment.destination.iata,
+    ].sort();
     const key = codes.join("-");
     const current = pairs.get(key);
     if (current) current.flights += segment.flightCount;
@@ -164,12 +167,14 @@ function mergeRoutes(segments: RouteSegment[], labels: boolean) {
     }));
   const airportMap = new Map<
     string,
-    { latitude: number; longitude: number; flights: number }
+    { code: string; latitude: number; longitude: number; flights: number }
   >();
   for (const segment of segments)
     for (const end of [segment.origin, segment.destination]) {
-      const current = airportMap.get(end.iata);
-      airportMap.set(end.iata, {
+      const key = end.identityKey ?? end.iata;
+      const current = airportMap.get(key);
+      airportMap.set(key, {
+        code: end.iata,
         latitude: end.latitude,
         longitude: end.longitude,
         flights: (current?.flights ?? 0) + segment.flightCount,
@@ -180,13 +185,13 @@ function mergeRoutes(segments: RouteSegment[], labels: boolean) {
       ([codeA, a], [codeB, b]) =>
         b.flights - a.flights || codeA.localeCompare(codeB),
     )
-    .map(([code, value]): ShareAirport => {
+    .map(([, value]): ShareAirport => {
       const airport: ShareAirport = {
         latitude: value.latitude,
         longitude: value.longitude,
         flights: value.flights,
       };
-      if (labels) airport.code = code;
+      if (labels) airport.code = value.code;
       return airport;
     });
   return { routes, airports };

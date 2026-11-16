@@ -20,6 +20,28 @@ function runtimeValidator() {
 }
 
 describe("precompiled schema validator", () => {
+  it("accepts independent endpoint IDs while the former strict endpoint rejects them", () => {
+    const endpoint = keeprawFlySchema.$defs.airportEndpoint;
+    const { airportId: _airportId, ...legacyProperties } = endpoint.properties;
+    const ajv = new Ajv2020({ allErrors: true, strict: true });
+    const legacy = ajv.compile({ ...endpoint, properties: legacyProperties });
+    expect(legacy({ iata: "HKG" })).toBe(true);
+    expect(legacy({ iata: "HKG", airportId: "apt_unavailable" })).toBe(false);
+
+    const document = {
+      ...demoDocument,
+      formatVersion: "0.2.0",
+      flights: demoDocument.flights.map((flight) => ({
+        ...flight,
+        origin: { ...flight.origin, airportId: "apt_origin" },
+        destination: { ...flight.destination, airportId: "apt_destination" },
+        divertedTo: { iata: "HKG", airportId: "apt_unavailable" },
+      })),
+    };
+    expect(precompiled(document)).toBe(true);
+    expect(runtimeValidator()(document)).toBe(true);
+  });
+
   it("is regenerated from the current schema", () => {
     expect(readFileSync(generatedPath, "utf8")).toBe(
       (generateSchemaValidatorSource as () => string)(),
@@ -35,6 +57,14 @@ describe("precompiled schema validator", () => {
     const runtime = runtimeValidator();
     const inputs: unknown[] = [
       demoDocument,
+      ...["apt_unavailable", "", 42, null].map((airportId) => ({
+        ...demoDocument,
+        formatVersion: "0.2.0",
+        flights: demoDocument.flights.map((flight) => ({
+          ...flight,
+          origin: { ...flight.origin, airportId },
+        })),
+      })),
       {},
       { ...demoDocument, flights: [{ id: "" }] },
       {

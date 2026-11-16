@@ -34,15 +34,6 @@ export interface PassportStatistics {
   countries: number;
   /** Distinct confirmed physical airports (formal airportId or explicit current-directory site). */
   airports: number;
-  /** Of `airports`, how many a formal assignment verifies on a flight date. */
-  historicallyVerifiedAirports: number;
-  /**
-   * Of `airports`, how many rest only on today's airport directory: the code's
-   * validity on the flight date is not verified.
-   */
-  currentDirectoryAirports: number;
-  /** Of `airports`, formal sites seen only in uncertain formal date ranges. */
-  formalUncertainAirports: number;
   /** Distinct endpoint codes whose physical airport is not determined at the flight date. */
   unresolvedAirports: number;
   airlines: number;
@@ -96,8 +87,6 @@ export function calculatePassportStatistics(
   const airportCounts = new Map<string, number>();
   const airportIdentities = new Map<string, FlightEndpointIdentity>();
   const unresolved = new Set<string>();
-  const verifiedKeys = new Set<string>();
-  const currentDirectoryKeys = new Set<string>();
   const countryCodes = collectVisitedCountryCodes(flights);
   const aircraftTypes = new Set<string>();
   const distances: FlightDistanceRecord[] = [];
@@ -115,10 +104,6 @@ export function calculatePassportStatistics(
         continue;
       }
       increment(airportCounts, identity.identityKey);
-      if (identity.historicalAssignmentVerified)
-        verifiedKeys.add(identity.identityKey);
-      else if (identity.assignmentEvidence === "current_directory")
-        currentDirectoryKeys.add(identity.identityKey);
       if (!airportIdentities.has(identity.identityKey))
         airportIdentities.set(identity.identityKey, identity);
     }
@@ -151,15 +136,6 @@ export function calculatePassportStatistics(
     totalDelayMinutes: delayCoverage ? totalDelayMinutes : null,
     countries: countryCodes.size,
     airports: airportCounts.size,
-    // A site verified on any of its flight dates counts as verified once.
-    historicallyVerifiedAirports: verifiedKeys.size,
-    currentDirectoryAirports: [...currentDirectoryKeys].filter(
-      (key) => !verifiedKeys.has(key),
-    ).length,
-    formalUncertainAirports:
-      airportCounts.size -
-      verifiedKeys.size -
-      [...currentDirectoryKeys].filter((key) => !verifiedKeys.has(key)).length,
     unresolvedAirports: unresolved.size,
     airlines: airlineCounts.size,
     aircraftTypes: aircraftTypes.size,

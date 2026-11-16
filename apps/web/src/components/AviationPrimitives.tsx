@@ -132,14 +132,11 @@ export function AirportCode({
   className,
   code,
   size = "compact",
-  evidence,
   title,
 }: {
   className?: string;
   code: string;
   size?: "compact" | "display";
-  /** What the flight-date code assignment rests on (see AssignmentEvidence). */
-  evidence?: string;
   title?: string;
 }) {
   return (
@@ -151,7 +148,6 @@ export function AirportCode({
       ]
         .filter(Boolean)
         .join(" ")}
-      data-assignment-evidence={evidence}
       title={title}
     >
       {code}
