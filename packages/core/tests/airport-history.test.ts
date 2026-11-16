@@ -62,9 +62,10 @@ describe("reviewed code assignments", () => {
     expect(resolveAirportAtDate("HKG", "2024-02-30").airportId).toBeNull();
   });
   it("preserves one entity through a rename and code change", () => {
-    expect(resolveAirportAtDate("TSE", "2018-01-01").airportId).toBe(
+    expect(resolveAirportAtDate("TSE", "2020-05-01").airportId).toBe(
       resolveAirportAtDate("NQZ", "2024-01-01").airportId,
     );
+    expect(resolveAirportAtDate("TSE", "2018-01-01").status).toBe("uncertain");
     expect(searchHistoricalAirports("Kai Tak")[0]?.airportId).toBe(kaiTak);
     expect(airportById.get(kaiTak)?.status).toBe("closed");
   });
