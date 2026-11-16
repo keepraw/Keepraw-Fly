@@ -98,6 +98,25 @@ describe("reviewed code assignments", () => {
 });
 
 describe("persisted physical identities", () => {
+  it("keeps canonical reference points when the same entity has a different survey point", () => {
+    expect(airportById.get(chekLapKok)).toMatchObject({
+      latitude: 22.308,
+      longitude: 113.9185,
+    });
+    const changed = airportRows.map((row) => [...row]) as CompactAirportRow[];
+    const current = changed.find((row) => row[7] === chekLapKok)!;
+    current[4] += 0.001;
+    try {
+      installAirportDirectory(changed);
+      expect(airportById.get(chekLapKok)?.latitude).toBe(current[4]);
+      expect(resolveEndpointIdentity("HKG", "2020-01-01", "origin").point).toEqual({
+        latitude: current[4],
+        longitude: current[5],
+      });
+    } finally {
+      installAirportDirectory(airportRows as CompactAirportRow[]);
+    }
+  });
   it("uses the reviewed new-site coordinates even when the directory carried the old site", () => {
     const lyg = airportById.get("apt_64b5eaa6-a984-4816-86d9-d8eb71c91451")!;
     const lzo = airportById.get("apt_f11bdf7d-d81d-46fc-a94f-8c8c42d4e245")!;

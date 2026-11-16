@@ -34,3 +34,8 @@ jobs:
             git commit -m "Format airport identity refactor with project Prettier"
             git push origin HEAD:refactor/persist-airport-identities
           fi
+      - name: Expose type errors after formatting
+        run: pnpm typecheck
+      - name: Run workspace unit tests
+        if: success() || failure()
+        run: pnpm -r test

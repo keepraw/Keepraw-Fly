@@ -29,9 +29,12 @@ The 46 upstream physical entities retain their original `apt_…` IDs. The small
 `formal/directory.json` crosswalk supplies current lookup codes, search aliases,
 city, country, reference status and geographical IANA-zone fallbacks. Its fields
 are directory metadata, **not historical allocation evidence**. Formal entities
-always use their own reference coordinates: current directory coordinates for
-LYG and LZO still described predecessor sites, and the NMI reference point also
-needed correction. A current name or alias does not prove a dated assignment.
+use canonical entity reference coordinates: existing reference points are kept
+for explicitly identified continuing sites, and formal coordinates supply sites
+missing from the directory. LYG and LZO directory coordinates described
+predecessor sites, and the NMI reference point also needed correction; these
+corrections are stored in the directory with provenance in `airports.source.json`.
+A current name or alias does not prove a dated assignment.
 
 KMG's original Wujiaba entity is retained, with a separate permanent entity for
 Changshui from the existing pinned OurAirports snapshot row 27214. The source

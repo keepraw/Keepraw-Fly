@@ -592,10 +592,10 @@ export function installAirportDirectory(
       city: sameEntity?.city ?? { en: city! },
       country: country!,
       countryName: countryName(country!),
-      // Some current directory rows still carry a predecessor's coordinates
-      // (LYG, LZO). A reviewed entity always uses its own reference point.
-      latitude: raw.coordinates.value!.latitude,
-      longitude: raw.coordinates.value!.longitude,
+      // The explicit ID crosswalk establishes identity. Keep the entity's
+      // canonical directory reference point; formal data supplies missing sites.
+      latitude: sameEntity?.latitude ?? raw.coordinates.value!.latitude,
+      longitude: sameEntity?.longitude ?? raw.coordinates.value!.longitude,
       timezone: raw.timezone.value ?? sameEntity?.timezone ?? zone!,
       status: status as "operating" | "closed",
       historicalNames: [
