@@ -72,7 +72,7 @@ the 2018 query to remain uncertain. No historical date was invented. TAO's
 established English directory name is retained with the raw upstream spelling
 as a historical search alias.
 
-Final full-CI results will be recorded after both push and PR runs complete.
+Full-CI run links and final outcomes are recorded in PR #118.
 
 The [second remote audit](https://github.com/keepraw/Keepraw-Fly/actions/runs/43796711615)
 confirms that the fixed branch restores every fixture flight's original distance
@@ -99,3 +99,13 @@ Full CI also exposed a workflow-source test still expecting pushes only on
 the existing push workflow. All dependency-result checks and the main-only
 deployment assertion remain intact. Temporary audit tooling was removed after
 capturing its evidence.
+
+## WebKit scene readiness
+
+PR CI at `65557f8` passed, but push CI rejected a flaky Passport year-filter
+test. Both textures could finish loading and set `data-ready` before the new
+renderer's first animation frame updated `data-scene` on the reused host. The
+test therefore read the previous twelve-route network instead of `SZX-TAO`.
+Readiness now follows a completed textured frame and its current scene metadata.
+The exact one-route expectation and old-canvas disconnection assertion remain
+unchanged, as does CI's rejection of flaky results.
