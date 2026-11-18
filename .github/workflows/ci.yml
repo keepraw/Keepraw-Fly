@@ -157,7 +157,7 @@ jobs:
     # Official runtime includes the matching browsers, fonts and system libraries.
     # Digest pinning avoids mutable tags and per-runner apt/download stalls.
     container:
-      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
       options: --user 1001
     # Leave room for Firefox journeys, reports, artifact upload and cleanup.
     timeout-minutes: 25
@@ -219,7 +219,7 @@ jobs:
     # Official runtime includes the matching browsers, fonts and system libraries.
     # Digest pinning avoids mutable tags and per-runner apt/download stalls.
     container:
-      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d
+      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
       options: --user 1001
     timeout-minutes: 15
     strategy:
