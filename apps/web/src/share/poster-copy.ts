@@ -1,3 +1,4 @@
+import type { Namespace, TFunction } from "i18next";
 import {
   formatDuration,
   type DistanceUnit,
@@ -81,10 +82,9 @@ export interface PosterCopy {
   mrz: [string, string];
 }
 
-export type PosterTranslate = (
-  key: string,
-  options?: Record<string, unknown>,
-) => string;
+export type PosterTranslate =
+  | TFunction<Namespace>
+  | ((key: string, options?: Record<string, unknown>) => string);
 
 /** The product name is a brand and is never translated. */
 export const POSTER_BRAND = "Keepraw Fly";
