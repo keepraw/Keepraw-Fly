@@ -70,6 +70,7 @@ export function loadTranslation(language: string): Promise<object> {
 // modules) must use the same loader, not require the App's preload helper.
 export const localeBackend: BackendModule = {
   type: "backend",
+  callbackApi: true,
   init() {},
   read(language, _namespace, callback) {
     void loadTranslation(language).then(

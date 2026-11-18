@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { Namespace, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
@@ -302,7 +303,7 @@ function formatCoordinates(point: { latitude: number; longitude: number }) {
 
 function airportHistory(
   identity: FlightEndpointIdentity,
-  t: (key: string, options?: Record<string, unknown>) => string,
+  t: TFunction<Namespace>,
 ): {
   note?: string;
   coordinates?: string;
