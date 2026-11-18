@@ -160,7 +160,14 @@ describe("souvenir MRZ data sources", () => {
   const model = buildPosterModel([]);
   const identity = { number: "ABC123456" };
   const copy = (name?: Parameters<typeof buildPosterCopy>[5]) =>
-    buildPosterCopy(model, (key) => key, "zh-CN", "kilometers", identity, name);
+    buildPosterCopy(
+      model,
+      (key: string) => key,
+      "zh-CN",
+      "kilometers",
+      identity,
+      name,
+    );
 
   it("uses Settings names, prefers existing romanization for MRZ and updates when settings change", () => {
     const settings = {

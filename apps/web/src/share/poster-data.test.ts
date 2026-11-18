@@ -94,7 +94,7 @@ const archive: KeeprawFlight[] = [
 ];
 
 // formatParams only carries the ungrouped number style; keep keys readable.
-const t: PosterTranslate = (key, options) => {
+const t: PosterTranslate = (key: string, options?: Record<string, unknown>) => {
   if (!options) return key;
   const { formatParams, ...values } = options;
   if (formatParams)
@@ -428,7 +428,7 @@ describe("poster copy, layout and palettes", () => {
     );
     const copy = buildPosterCopy(
       buildPosterModel(many),
-      instance.t.bind(instance) as PosterTranslate,
+      instance.t,
       "en-US",
       "kilometers",
       { number: "123ABC456" },
