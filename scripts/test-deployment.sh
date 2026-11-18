@@ -6,16 +6,55 @@ cd "$(dirname "$0")/.."
 for script in deploy/install.sh scripts/package-release.sh scripts/publish-release.sh; do bash -n "$script"; done
 work=$(mktemp -d)
 project="keepraw-fly-test-$$"
+test_compose() {
+  docker compose -p "$project" --env-file "$work/test.env" -f compose.yaml "$@"
+}
 cleanup() {
+  local status=$? web_id container state
+  if (( status != 0 )) && [[ -f $work/test.env ]]; then
+    web_id=$(test_compose ps --all --quiet web) || true
+    for container in "$web_id" "$project-subpath"; do
+      [[ -n $container ]] || continue
+      if state=$(docker inspect --type container --format 'Caddy {{.Name}} state={{.State.Status}} health={{json .State.Health}}' "$container" 2>/dev/null); then
+        printf '%s\n' "$state" >&2
+        docker logs --tail 100 "$container" >&2 || true
+      fi
+    done
+  fi
   docker rm -f "$project-subpath" >/dev/null 2>&1 || true
   docker rm -f "$project-port-conflict" >/dev/null 2>&1 || true
-  docker compose -p "$project" --env-file "$work/test.env" -f compose.yaml down -v >/dev/null 2>&1 || true
+  test_compose down -v >/dev/null 2>&1 || true
   if [[ -f $work/instance/compose.yaml ]]; then
     docker compose -p keepraw-fly --project-directory "$work/instance" -f "$work/instance/compose.yaml" down -v >/dev/null 2>&1 || true
   fi
   rm -rf "$work"
 }
 trap cleanup EXIT
+
+# The Compose health check only probes HTTP inside Caddy. Wait for each
+# published HTTPS endpoint with that container's own CA and an exact HTTP 200.
+wait_for_https() {
+  local container=$1 ca_cert=$2 url=$3
+  local attempt result
+  # At most 59 seconds: 10 attempts with up to 3 seconds for CA copy and
+  # 2 seconds for HTTPS, plus one second between attempts.
+  for attempt in {1..10}; do
+    if result=$(timeout --kill-after=1s 2s docker cp "$container:/data/caddy/pki/authorities/local/root.crt" "$ca_cert" 2>&1); then
+      if result=$(curl --disable --noproxy '*' --fail --silent --show-error --max-time 2 \
+        --cacert "$ca_cert" --output /dev/null --write-out 'HTTP %{http_code}' "$url" 2>&1); then
+        if [[ $result == 'HTTP 200' ]]; then return 0; fi
+        result="expected HTTP 200, got $result"
+      fi
+    else
+      result="local CA copy failed (exit $?): $result"
+    fi
+    printf 'HTTPS probe for %s (attempt %s/10) failed: %s\n' "$url" "$attempt" "$result" >&2
+    if (( attempt < 10 )); then sleep 1; fi
+  done
+  printf 'Timed out waiting for verified HTTPS at %s\n' "$url" >&2
+  return 1
+}
+
 mkdir "$work/zip" "$work/tar" "$work/container" "$work/fixture" "$work/bin"
 (cd artifacts/release && sha256sum -c SHA256SUMS)
 tag=$(bash scripts/release-version.sh)
@@ -30,34 +69,31 @@ SITE_ADDRESS=https://localhost
 HTTP_PORT=18080
 HTTPS_PORT=18443
 ENV
-docker compose -p "$project" --env-file "$work/test.env" -f compose.yaml up -d --wait --wait-timeout 90
-id=$(docker compose -p "$project" --env-file "$work/test.env" -f compose.yaml ps -q web)
+test_compose up -d --wait --wait-timeout 90
+id=$(test_compose ps -q web)
 docker exec "$id" sh -c '! command -v node && ! command -v pnpm && test -f /srv/index.html'
 docker cp "$id:/srv/." "$work/container/"
 diff -r "$work/tar" "$work/container"
 # Caddy's localhost internal CA exercises real TLS without claiming public ACME.
-docker cp "$id:/data/caddy/pki/authorities/local/root.crt" "$work/root.crt"
-HTTPS_PROXY= HTTP_PROXY= ALL_PROXY= curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 \
-  --cacert "$work/root.crt" https://localhost:18443/release.json > "$work/served.json"
+root_url=https://localhost:18443
+wait_for_https "$id" "$work/root.crt" "$root_url/release.json"
+curl --disable --noproxy '*' -fsS --cacert "$work/root.crt" "$root_url/release.json" > "$work/served.json"
 cmp "$work/served.json" "$work/tar/release.json"
 mkdir -p "$work/subpath/Keepraw-Fly"
 cp -a "$work/tar/." "$work/subpath/Keepraw-Fly/"
 docker run -d --name "$project-subpath" -e SITE_ADDRESS=https://localhost \
   -p 127.0.0.1:18444:443 -v "$work/subpath:/srv:ro" keepraw-fly:deployment-test >/dev/null
-for attempt in {1..20}; do
-  if docker cp "$project-subpath:/data/caddy/pki/authorities/local/root.crt" "$work/subpath-root.crt" 2>/dev/null; then break; fi
-  sleep 1
-done
-HTTPS_PROXY= HTTP_PROXY= ALL_PROXY= curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 \
-  --cacert "$work/subpath-root.crt" https://localhost:18444/Keepraw-Fly/release.json > "$work/served-subpath.json"
+subpath_url=https://localhost:18444/Keepraw-Fly
+wait_for_https "$project-subpath" "$work/subpath-root.crt" "$subpath_url/release.json"
+curl --disable --noproxy '*' -fsS --cacert "$work/subpath-root.crt" "$subpath_url/release.json" > "$work/served-subpath.json"
 cmp "$work/served-subpath.json" "$work/tar/release.json"
 # Security headers and cache rules from the real image's Caddy, root and subpath.
 policy=$(node --input-type=module -e 'const m = await import(process.argv[1]); console.log(m.headerPolicy)' "$PWD/apps/web/security-policy.mjs")
 asset=$(cd "$work/tar/assets" && ls index-*.js | head -n1)
 check_headers() { # cacert base-url
-  local headers
-  for path in / "assets/$asset"; do
-    headers=$(HTTPS_PROXY='' HTTP_PROXY='' ALL_PROXY='' curl -fsS -D - -o /dev/null --cacert "$1" "$2$path" | tr -d '\r')
+  local headers path
+  for path in / "/assets/$asset"; do
+    headers=$(curl --disable --noproxy '*' -fsS -D - -o /dev/null --cacert "$1" "$2$path" | tr -d '\r')
     grep -qixF "content-security-policy: $policy" <<< "$headers"
     grep -qix 'strict-transport-security: max-age=31536000' <<< "$headers"
     grep -qix 'x-frame-options: DENY' <<< "$headers"
@@ -68,13 +104,13 @@ check_headers() { # cacert base-url
     else grep -qix 'cache-control: public, max-age=31536000, immutable' <<< "$headers"; fi
   done
 }
-check_headers "$work/root.crt" https://localhost:18443/
-check_headers "$work/subpath-root.crt" https://localhost:18444/Keepraw-Fly/
+check_headers "$work/root.crt" "$root_url"
+check_headers "$work/subpath-root.crt" "$subpath_url"
 if [[ ${KEEPRAW_BROWSER_SMOKE:-0} == 1 ]]; then
-  node scripts/smoke-release.mjs https://localhost:18443/ https://localhost:18444/Keepraw-Fly/
+  node scripts/smoke-release.mjs "$root_url/" "$subpath_url/"
 fi
 docker rm -f "$project-subpath" >/dev/null
-docker compose -p "$project" --env-file "$work/test.env" -f compose.yaml down -v
+test_compose down -v
 # Exercise installer file transactions using real containers; only registry/download
 # transport is replaced with a known local fixture before the public release exists.
 cp compose.yaml "$work/fixture/"
