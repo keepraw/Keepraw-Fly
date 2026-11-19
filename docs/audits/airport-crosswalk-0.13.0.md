@@ -1,7 +1,10 @@
 # Airport crosswalk audit for 0.13.0
 
 Review of the existing Fly-to-Airport History physical identities. The companion CSV records
-the selected mappings, direct ID matches, unmatched Fly IDs and alternative candidates.
+the selected mappings, direct ID matches, unmatched Fly IDs and alternative candidates
+at baseline `5bc027a139b8204f81c112168da92ac2fcc8c5c1`. For the four reviewed links,
+the CSV `manual_review` field gives the final decision. Fields such as `mapped`
+and `committed_formal_ids` record the baseline.
 [Complete CSV](airport-crosswalk-0.13.0.csv)
 
 | Audit result                                                               | Count |
@@ -19,6 +22,112 @@ the selected mappings, direct ID matches, unmatched Fly IDs and alternative cand
 | Committed links without matching code or name                              |     0 |
 | Committed links with differing normalized names                            | 1,189 |
 | Committed links needing manual review                                      |    74 |
+
+## Follow-up decisions
+
+Four links are **B. Different physical airports**. The four `legacyIds` associations
+were removed, leaving 5,889 links. Both IDs in each pair still resolve to their
+original physical positions. Existing flight endpoint IDs continue to take
+precedence over date-based lookup. The other 70 review flags remain as recorded.
+
+The published 0.13.0 claims for all four IATA and ICAO pairs use continuity
+inference. Their certain intervals are `[2000-01-01, 2026-11-19)` on the
+Airport History IDs shown below. Fly applies the reviewed operating-site
+handoffs to those specific claims while retaining the published outer bounds.
+Where the operating-site handoff is bounded by two dates, the intervening days
+remain uncertain. The pinned upstream dataset remains byte-for-byte intact.
+
+### PQM — Palenque International Airport
+
+- **B. Crosswalk removed. Identities split.** The Fly ID
+  `apt_0705905f-5933-4e0c-8928-082674ee1b31` represents the former facility.
+  It retains the source name and city `Palenque International Airport`, country
+  MX, zone `America/Mexico_City`, former codes PQM / MMPQ and position
+  `17.5334, -91.9845`. Its original Fly status defaulted to operating. Its
+  reviewed status is closed. The replacement is Airport History ID
+  `apt_ee3b4101-0ecd-4f9e-a574-4e2477735b67`, Palenque International Airport at
+  `17.533153, -92.015484`, the current PQM / MMPQ site. The two reference
+  points are **3.285 km** apart. In the pinned snapshot, row `322590`
+  (`MX-0395`, closed) is `17.533596, -91.984442`, 0.023 km from the Fly point.
+  Row `4744` (`MMPQ`, small airport) is the replacement.
+- SCT reports the old airport closed to all operations and the new airport
+  started operations on **2014-03-13**. SENEAM supplement S 44/16 identifies
+  the closed MMPQ at 17°32′00″N, 091°59′00″W and cancels its 2009 chart. The
+  2016 international designation publishes the new point near 17°31′59″N,
+  092°00′56″W and confirms March 2014 operations. The operator publishes
+  PQM / MMPQ for the new facility. The first administrative allocation dates
+  remain unverified. [SCT yearbook](https://micrs.sct.gob.mx/images/DireccionesGrales/DGP/PDF/DEC-PDF/Anuario_2018.pdf) · [Archived SENEAM supplement](https://www.edgardos.com.mx/eAIP/other_documents/pdfs/000/000/175/original/Boletin_de_Suplementos_2016.pdf) · [Diario Oficial designation](https://www.gob.mx/cms/uploads/attachment/file/810337/palenque-16-12-2016-16032023.pdf) · [Airport operator](https://www.gob.mx/grupomundomaya/es/articulos/aeropuerto-internacional-de-palenque) · [IMT 2008 historical PQM listing](https://imt.mx/archivos/Publicaciones/Manual/mn2008.pdf)
+
+### MKM — Mukah Airport
+
+- **B. Crosswalk removed. Identities split.** Fly ID
+  `apt_79e98365-bb8e-4d43-b91c-34f42e4ed6b5` represents the old Mukah
+  STOLport. It retains Mukah Airport, city Mukah, MY, zone `Asia/Kuching`,
+  former codes MKM / WBGK and `2.90639, 112.08`. Its original Fly status
+  defaulted to operating. Its reviewed status is closed. The replacement
+  Mukah Airport, Airport History ID `apt_261f97ee-84c4-4c97-a77a-24dd7db7fedf`,
+  is `2.881944, 112.043333`, **4.896 km** away. Snapshot row `31918`
+  (`MY-0009`, closed) is `2.907082, 112.077756`, 0.261 km from the Fly
+  point. Row `350992` (`WBGK`, medium airport) is the replacement.
+- Malaysia's Ministry of Transport documents construction at a new site
+  beginning **2017-08-11** to replace the STOLport and operation from
+  **2021-06-17**. The old AIP AD 4.1 records WBGK at 02°54′25″N,
+  112°04′30″E. CAAM NOTAM D0578/21 makes new WBGK operation effective
+  June 17, and the current eAIP lists the replacement runway near
+  02°52′55″N, 112°02′36″E. Sarawak publishes MKM / WBGK for that
+  replacement. The exact time the old site stopped handling traffic and
+  the initial MKM allocation remain unverified. [Ministry announcement](https://www.mot.gov.my/en/Announcement/PRESS%20RELEASE%20YBM%20-%20NEW%20AIRPORT%20FOR%20MUKAH%20SARAWAK%20FROM%2017%20JUNE%202021%20-%2016062021.pdf) · [Historical AIP AD 4.1](https://aip.caam.gov.my/aip%20pdf/AD/AD4/Index%20To%20Aerodromes.pdf) · [CAAM NOTAM summary](https://www.caam.gov.my/wp-content/uploads/2021/12/JUL-NOTAM-Summary-Comb.pdf) · [CAAM eAIP WBGK](https://aip.caam.gov.my/aip/eAIP/2026-02-19-AIRAC/html/eAIP/WM-AD-2.WBGK-en-MS.html) · [Sarawak Ministry of Transport](https://mot.sarawak.gov.my/web/subpage/webpage_view/116)
+
+### DSE — Kombolcha Airport
+
+- **B. Crosswalk removed. Identities split.** Fly ID
+  `apt_85ce2ba2-27bc-4d41-bbcc-1d934641c784` is the former Combolcha Airport.
+  It retains the name Combolcha Airport, city Dessie, ET, zone
+  `Africa/Addis_Ababa`, historical DSE / HADC and `11.0825, 39.7114`.
+  Its original Fly status defaulted to operating. Its reviewed directory
+  status is unknown because the formal closure record is unavailable.
+  Airport History ID `apt_18516e40-15cd-4374-a4fb-9e71ff0e3706` is the
+  replacement Kombolcha Airport at `11.10975, 39.725911`, **3.419 km**
+  away. Snapshot row `30949` (`ET-0010`, tagged closed) is
+  `11.0825, 39.711399`, less than 0.001 km from the Fly point. Row
+  `507651` (`HADC`, small airport) is the replacement.
+- Ethiopia AIP AD 1.3-3, dated **2014-06-26**, lists the older HADC airstrip
+  near 11°05′N, 039°43′E with serviceability unknown. AD 2-HADC-1,
+  dated **2015-06-25**, describes the new paved north-south runway and
+  an aerodrome reference at 11°06′05″N, 039°43′38″E. The government's
+  March 2015 diagnostic reports the new airport in operation. Ethiopian
+  Airlines records the 2014 start of its services, announced for September 10.
+  The Ethiopian Meteorology Institute pairs DSE with HADC, and the US
+  archival DOT code list records DSE for Dessie before the move. The closure
+  day and exact code transfer day remain unverified. Fly keeps
+  **2014-06-27 through 2015-06-24** uncertain for both codes. [Archived Ethiopia AIP](https://pdfcoffee.com/aip-ethiopia-2-pdf-free.html) · [Government diagnostic](https://mui.gov.et/wp-content/uploads/2024/09/study.pdf) · [Ethiopian Airlines history](https://ethiopiancorporatecms.azurewebsites.net/AboutEthiopian/History/1) · [Contemporary service announcement coverage](https://www.ch-aviation.com/news/30856-ethiopian-to-expand-domestic-network-this-month) · [Ethiopian Meteorology Institute](https://www.ethiomet.gov.et/documents/5/1640597436.pdf) · [US National Archives code list](https://s3.amazonaws.com/NARAprodstorage/lz/electronic-records/rg-570/ODSurveys/632_9-12CL.pdf)
+
+### BTI — Barter Island LRRS Airport
+
+- **B. Crosswalk removed. Identities split.** Fly's ID
+  `apt_e0a09678-0e50-49b5-bcf2-56bc499ede2d` already represents the
+  **inland replacement**. It retains Barter Island Airport, city Barter
+  Island, US, zone `America/Anchorage`, BTI / PABA and
+  `70.113111, -143.653611`. Its original Fly status defaulted to
+  operating and it remains the operating site. The published Airport History
+  ID `apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc`, Barter Island Long
+  Range Radar Station Airport at `70.134003, -143.582001`, represents
+  the **former coastal runway**, **3.567 km** from the Fly point. Snapshot
+  row `5337` has that former point and retains stale operating metadata
+  and BTI / PABA. Row `340806` (`US-3040`, Kaktovik South Airstrip,
+  small airport) is `70.11308, -143.655033`, 0.054 km from the Fly point.
+  It identifies the inland runway area and supplies corroborating location
+  evidence. The former runway is closed in Fly.
+- The FAA documents the relocation and adopts the inland reference
+  70°06′47″N, 143°39′13″W, effective **2017-04-27**. The USAF plan
+  documents the opening of the inland civil airport in **2016**, the
+  retirement of the coastal runway and the demolition of its hangar
+  in **2017**. The FAA's Location Identifiers lists BTI / PABA, and its
+  2014 airport plan listed the proposed replacement separately as +08O.
+  The precise day of the civil handover and code transition remains unverified.
+  Fly keeps **2016-01-01 through 2017-04-27** uncertain and uses the inland
+  Fly ID from **2017-04-28**, the first full local day after the rule took effect.
+  [FAA final rule](https://www.federalregister.gov/documents/2017/03/06/2017-04181/amendment-of-class-e-airspace-barter-island-ak) · [FAA Location Identifiers](https://www.faa.gov/air_traffic/publications/atpubs/lid/L_G1.htm) · [FAA 2015–2019 NPIAS, appendix A](https://www.faa.gov/sites/faa.gov/files/airports/planning_capacity/npias/current/npias-2015-2019-report-appendix-a.pdf) · [USAF plan, sections H.1.1 and H.3.2](https://naccesu.uri.edu/wp/wp-content/uploads/2019/04/Ref-A_2020-PRE-FINAL-USAF-PRSC-Remote-Sites-INRMP-_Appendix.pdf) · [Alaska DNR project fact sheet](https://dnr.alaska.gov/projects/astar/binders/Kaktovik.pdf)
 
 ## Method
 
@@ -150,10 +259,10 @@ Filter the CSV by `record_type`, `qualified_formal_candidate_count` or
 - Fly directory SHA-256 `655a5ed1d2241373163c133bb49fb0790a88b00c03bb85a2f57beeefcacd1818`.
 - OurAirports snapshot `d97df1673cc5ba61a09b17ab5936091a669a04ca` and SHA-256 `27c6500d0a742edece15c5aaf960e08c01df0d4356c5c86255897b5d3749ad3b`. [Snapshot](https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv)
 
-Run the audit with the verified snapshot to regenerate both files.
+Run the evidence scan at the baseline commit to reproduce the original candidate
+rows. Use a separate output directory to retain the decisions recorded here.
 
 ```sh
 python3 scripts/update-airport-history.py --fetch-ourairports /tmp/ourairports.csv
-python3 scripts/audit-airport-crosswalk.py --ourairports /tmp/ourairports.csv
-pnpm exec prettier --write docs/audits/airport-crosswalk-*.md
+python3 scripts/audit-airport-crosswalk.py --ourairports /tmp/ourairports.csv --output-dir /tmp/airport-crosswalk-baseline
 ```

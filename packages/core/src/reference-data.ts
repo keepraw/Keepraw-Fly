@@ -558,13 +558,17 @@ export function localizedAirportName(
 
 function storeFlyReference(airport: AirportReference): void {
   const { iata, status } = airport;
-  if (
-    status === "operating" &&
-    iata &&
-    /^[A-Z]{3}$/.test(iata) &&
-    !formalAssignmentsForCode(iata).length
-  )
-    airport.currentIata = iata;
+  if (status === "operating") {
+    const assigned = latestFormalCodesByAirportId.get(airport.airportId)
+      ?.IATA[0];
+    if (assigned) airport.currentIata = assigned;
+    else if (
+      iata &&
+      /^[A-Z]{3}$/.test(iata) &&
+      !formalAssignmentsForCode(iata).length
+    )
+      airport.currentIata = iata;
+  }
   airportById.set(airport.airportId, airport);
 }
 

@@ -52,17 +52,19 @@ describe("formal data and Fly directory", () => {
     );
     expect(formalIds.size).toBe(formal.airports.length);
     expect(formalHistoricalNames).toHaveLength(formal.names.length);
-    expect(formalSources.size).toBe(formal.sources.length);
+    for (const source of formal.sources)
+      expect(formalSources.get(source.sourceId)).toEqual(source);
     if (manifest.dataVersion === "0.13.0") {
       expect(formalIds.size).toBe(6510);
       expect(
-        formalAssignments.filter((row) => row.scheme === "IATA"),
+        formal.assignments.filter((row) => row.scheme === "IATA"),
       ).toHaveLength(6370);
       expect(
-        formalAssignments.filter((row) => row.scheme === "ICAO"),
+        formal.assignments.filter((row) => row.scheme === "ICAO"),
       ).toHaveLength(6214);
       expect(formalHistoricalNames).toHaveLength(3);
-      expect(formalSources.size).toBe(214);
+      expect(formal.sources).toHaveLength(214);
+      expect(formalAssignments).toHaveLength(formal.assignments.length + 8);
     }
     expect(
       formal.airports.every(({ airportId }) => airportById.has(airportId)),

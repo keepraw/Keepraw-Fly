@@ -1,5 +1,6 @@
 import formalPackage from "../data/airport-history/formal/airports.json";
 import manifest from "../data/airport-history/formal/manifest.json";
+import reviewedTransfers from "../data/airport-history/reviewed-transfers.json";
 
 export type AirportCodeScheme = "IATA" | "ICAO";
 export interface UncertainDateBound {
@@ -33,10 +34,51 @@ export const formalAirportIdByOurAirportsId = new Map(
 );
 
 export const airportHistoryDataVersion = formalPackage.dataVersion;
-export const formalAssignments: FormalAssignment[] =
-  formalPackage.assignments as FormalAssignment[];
+const transfersByAssignment = new Map(
+  reviewedTransfers.transfers.flatMap((transfer) =>
+    transfer.supersedes.map((id) => [id, transfer] as const),
+  ),
+);
+
+// Apply the operating-site evidence to the identified continuity claims. The
+// published dataset stays intact and more specific upstream claims pass through.
+export const formalAssignments: FormalAssignment[] = (
+  formalPackage.assignments as FormalAssignment[]
+).flatMap((assignment) => {
+  const transfer = transfersByAssignment.get(assignment.assignmentId);
+  if (
+    !transfer ||
+    assignment.evidenceType !== "continuity_inference" ||
+    assignment.airportId !== transfer.publishedAirportId
+  )
+    return [assignment];
+  const evidence = {
+    ...assignment,
+    evidenceType: "reviewed_operating_site_transfer",
+    sourceIds: transfer.sourceIds,
+    verifiedOn: reviewedTransfers.reviewedOn,
+    note: "Fly physical-site review. Dates bound operating-site evidence, with the published outer coverage retained.",
+  };
+  return [
+    {
+      ...evidence,
+      assignmentId: `${assignment.assignmentId}-former-site`,
+      airportId: transfer.formerAirportId,
+      validTo: transfer.handover,
+    },
+    {
+      ...evidence,
+      assignmentId: `${assignment.assignmentId}-replacement-site`,
+      airportId: transfer.replacementAirportId,
+      validFrom: transfer.handover,
+    },
+  ];
+});
 export const formalSources = new Map(
-  formalPackage.sources.map((source) => [source.sourceId, source]),
+  [...formalPackage.sources, ...reviewedTransfers.sources].map((source) => [
+    source.sourceId,
+    source,
+  ]),
 );
 export const formalHistoricalNames = formalPackage.names;
 const assignmentsByCode = new Map<string, FormalAssignment[]>();

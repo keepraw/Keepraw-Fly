@@ -12,6 +12,9 @@ from pathlib import Path
 SOURCE_PATH = Path(__file__).resolve().parents[1] / "packages/core/data/airports.source.json"
 OURAIRPORTS = json.loads(SOURCE_PATH.read_bytes())["formalDirectory"]
 OURAIRPORTS_SHA256 = OURAIRPORTS["sha256"]
+TRANSFER_SOURCES = json.loads(
+    (SOURCE_PATH.parent / "airport-history/reviewed-transfers.json").read_bytes()
+)["sources"]
 IATA = re.compile(r"[A-Z]{3}")
 ICAO = re.compile(r"[A-Z]{4}")
 OPERATING_TYPES = {
@@ -82,7 +85,9 @@ def directory_rows(dataset, previous, fly_rows, ourairports, previous_airports=(
         row["airportId"]: row["timezone"]["value"] for row in previous_airports
     }
     verified_sources = {
-        row["sourceId"] for row in dataset["sources"] if row["verificationStatus"] == "verified"
+        row["sourceId"]
+        for row in [*dataset["sources"], *TRANSFER_SOURCES]
+        if row["verificationStatus"] == "verified"
     }
     status_reviews = {
         airport_id: review["status"]

@@ -191,6 +191,20 @@ class FormalUpdateTest(unittest.TestCase):
                 directory = airport_history_directory.directory_rows(after, self.directory, [], reference)
                 self.assertEqual(directory[SITE]["status"], status)
 
+    def test_refresh_does_not_reopen_the_former_barter_island_runway(self):
+        former_barter = "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc"
+        after = dataset("0.14.0")
+        after["airports"][0].update(
+            airportId=former_barter, externalIds={"ourAirports": "5337"},
+        )
+        previous = {
+            former_barter: {"city": "Barter Island", "country": "US", "status": "closed"},
+        }
+        directory = airport_history_directory.directory_rows(
+            after, previous, [], {"5337": {"type": "medium_airport"}},
+        )
+        self.assertEqual(directory[former_barter], previous[former_barter])
+
     def save_existing_reference(self):
         self.directory[SITE] = {
             "city": "Fly City", "country": "US", "status": "operating",

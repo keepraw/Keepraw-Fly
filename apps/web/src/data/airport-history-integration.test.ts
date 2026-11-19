@@ -4,16 +4,22 @@
  */
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { utils, write } from "xlsx";
-import { validateKeeprawFly } from "@keepraw-fly/validator";
+import {
+  parseKeeprawFlyJson,
+  validateKeeprawFly,
+} from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
   AIRPORT_TIMEZONE_EXTENSION,
+  airportById,
   arrivalIdentity,
   buildRouteSegments,
   calculatePassportStatistics,
   distanceForFlight,
+  flightMatchesAirportTarget,
   installAirportDirectory,
   originIdentity,
+  resolveAirportAtDate,
   type CompactAirportRow,
 } from "@keepraw-fly/core";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
@@ -24,7 +30,12 @@ import {
   flightToDraft,
   type FlightDraft,
 } from "./flight-editor";
-import { detectCsvMapping, parseCsv, preflightCsvImport } from "./csv-import";
+import {
+  buildDocumentFromCsvPreflight,
+  detectCsvMapping,
+  parseCsv,
+  preflightCsvImport,
+} from "./csv-import";
 import {
   buildDocumentFromFlightyPreflight,
   parseFlightyCsv,
@@ -32,6 +43,7 @@ import {
 } from "./flighty-import";
 import { preflightUmetripImport } from "./umetrip-import";
 import { parseUmetripXls } from "./umetrip-xls";
+import { buildPosterModel } from "../share/poster-data";
 
 beforeAll(() => {
   installAirportDirectory(airportRows as CompactAirportRow[]);
@@ -188,6 +200,82 @@ describe("Flight Editor keeps flights with unknown airports", () => {
 
 const csvHeaders =
   "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival";
+
+describe("reviewed physical airport splits in imported archives", () => {
+  it.each([
+    ["PQM", "2024-02-01"],
+    ["MKM", "2024-02-01"],
+    ["DSE", "2024-02-01"],
+    ["BTI", "2015-02-01"],
+  ])("keeps saved %s IDs separate from dated CSV imports", (iata, date) => {
+    const savedId = (airportRows as CompactAirportRow[]).find(
+      (row) => row[0] === iata,
+    )![7]!;
+    const datedId = resolveAirportAtDate(iata, date).airportId!;
+    expect(datedId).toBeTruthy();
+    expect(datedId).not.toBe(savedId);
+    const saved = flight(
+      "saved",
+      iata,
+      "SFO",
+      date,
+      `${date}T08:00:00+00:00`,
+      `${date}T18:00:00-08:00`,
+    );
+    saved.origin.airportId = savedId;
+    const backup = parseKeeprawFlyJson(
+      JSON.stringify({
+        format: "keepraw-fly",
+        formatVersion: "0.2.0",
+        profile: {},
+        flights: [saved],
+      }),
+    );
+    if (!backup.valid) throw new Error("The saved backup must import");
+    const parsed = parseCsv(
+      `${csvHeaders}\nCX101,${date},${iata},SFO,${date}T10:00+00:00,${date}T18:40-08:00`,
+    );
+    const preflight = preflightCsvImport(
+      parsed,
+      detectCsvMapping(parsed.headers),
+      backup.data,
+      () => "csv",
+    );
+    expect(preflight.issues).toEqual([]);
+    const { flights } = buildDocumentFromCsvPreflight(preflight, backup.data);
+    expect(flights[0]?.origin.airportId).toBe(savedId);
+    expect(flights.map((row) => originIdentity(row).airportId)).toEqual([
+      savedId,
+      datedId,
+    ]);
+    expect(
+      flights
+        .filter((row) =>
+          flightMatchesAirportTarget(row, {
+            code: iata,
+            identityKey: `airport:${datedId}`,
+          }),
+        )
+        .map((row) => row.id),
+    ).toEqual([preflight.flights[0]?.id]);
+    expect(calculatePassportStatistics(flights).airports).toBe(3);
+    const segments = buildRouteSegments(flights);
+    expect(segments.map((route) => route.origin.identityKey)).toEqual([
+      `airport:${savedId}`,
+      `airport:${datedId}`,
+    ]);
+    const poster = buildPosterModel(flights);
+    expect(poster.routeCount).toBe(2);
+    expect(poster.map.routes).toHaveLength(2);
+    for (const id of [savedId, datedId]) {
+      const site = airportById.get(id)!;
+      expect(poster.map.routes.map((route) => route.from)).toContainEqual({
+        latitude: site.latitude,
+        longitude: site.longitude,
+      });
+    }
+  });
+});
 
 describe("CSV / Flighty imports keep unknown-airport flights", () => {
   it("imports an unknown airport whose times carry explicit UTC offsets", () => {

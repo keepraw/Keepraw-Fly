@@ -3,6 +3,7 @@
 import csv
 import importlib.util
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -116,14 +117,41 @@ class AuditTest(unittest.TestCase):
         report_path = audit.ROOT / "docs/audits/airport-crosswalk-0.13.0.csv"
         with report_path.open(encoding="utf-8") as source:
             rows = list(csv.DictReader(source))
-        mapped = [
-            (row["legacy_id"], row["formal_airport_id"])
-            for row in rows if row["record_type"] == "mapped"
-        ]
+        mapped_rows = [row for row in rows if row["record_type"] == "mapped"]
+        split_prefix = "B. Different physical airports. Crosswalk removed. Identities split."
+        splits = [row for row in mapped_rows if row["manual_review"].startswith(split_prefix)]
+        self.assertEqual({row["old_iata"] for row in splits}, {"PQM", "MKM", "DSE", "BTI"})
+        self.assertEqual(len(splits), 4)
+        mapped = [(row["legacy_id"], row["formal_airport_id"]) for row in mapped_rows]
+        removed = {(row["legacy_id"], row["formal_airport_id"]) for row in splits}
         self.assertEqual(len(mapped), 5893)
-        self.assertEqual(set(mapped), expected)
+        self.assertEqual(set(mapped) - removed, expected)
         self.assertEqual({row["legacy_id"] for row in rows}, {row[7] for row in fly_rows})
         self.assertEqual(sum(row["record_type"] == "unmatched" for row in rows), 1962)
+
+        review_data = json.loads((formal.parent / "reviewed-transfers.json").read_bytes())
+        transfers = {item["publishedAirportId"]: item for item in review_data["transfers"]}
+        self.assertEqual(set(transfers), {row["formal_airport_id"] for row in splits})
+        markdown = report_path.with_suffix(".md").read_text()
+        for row in splits:
+            with self.subTest(code=row["old_iata"]):
+                _, section = markdown.split(f'### {row["old_iata"]} — ', 1)
+                section = section.split("\n##", 1)[0]
+                transfer = transfers[row["formal_airport_id"]]
+                self.assertEqual(
+                    {transfer["formerAirportId"], transfer["replacementAirportId"]},
+                    {row["legacy_id"], row["formal_airport_id"]},
+                )
+                for value in (
+                    "B. Crosswalk removed. Identities split.",
+                    row["legacy_id"], row["formal_airport_id"], row["distance_km"],
+                    f'{row["old_latitude"]}, {row["old_longitude"]}',
+                    f'{row["formal_latitude"]}, {row["formal_longitude"]}',
+                    *re.findall(r"https://\S+", row["manual_review"]),
+                ):
+                    self.assertIn(value, section)
+                for bound in (transfer["handover"]["earliest"], transfer["handover"]["latest"]):
+                    self.assertIn(bound, section)
 
 
 if __name__ == "__main__":
