@@ -4,7 +4,7 @@ import {
   KEEPRAW_FLY_FORMAT_VERSION,
   type KeeprawFlyDocument,
 } from "@keepraw-fly/schema";
-import { canonicalAirlineCode } from "@keepraw-fly/core";
+import { canonicalAirlineCode } from "@keepraw-fly/core/airline-reference";
 // Precompiled at development time (pnpm --filter @keepraw-fly/validator
 // generate): runtime Ajv compilation needs Function(), which the app's
 // Content Security Policy deliberately forbids.

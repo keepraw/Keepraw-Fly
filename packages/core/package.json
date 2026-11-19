@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./demo": "./data/demo.keepraw-fly.json",
-    "./airport-directory": "./data/airports.iata.json"
+    "./airport-directory": "./data/airports.iata.json",
+    "./airline-reference": "./src/airline-reference.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

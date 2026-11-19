@@ -123,8 +123,10 @@ It downloads and verifies the OurAirports revision and SHA-256 recorded under
 Each import refreshes locality and status by the formal site's external ID.
 New, verified locality takes precedence in the directory. Missing fields use
 known locality and timezone references when available. Current status remains
-unknown when the snapshot provides no status evidence. Use a separate manual
-review to assign a new crosswalk link.
+unknown when the snapshot provides no status evidence. Reviewed corrections to
+known status discrepancies apply to the specific snapshot and reference verified
+sources in the formal dataset. Use a separate manual review to assign a new
+crosswalk link.
 
 A matching publication exits before writing files. A different hash for the
 same version, incompatible schema, missing identity or assignment, changed

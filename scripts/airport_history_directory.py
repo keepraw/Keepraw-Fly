@@ -81,6 +81,15 @@ def directory_rows(dataset, previous, fly_rows, ourairports, previous_airports=(
     previous_zones = {
         row["airportId"]: row["timezone"]["value"] for row in previous_airports
     }
+    verified_sources = {
+        row["sourceId"] for row in dataset["sources"] if row["verificationStatus"] == "verified"
+    }
+    status_reviews = {
+        airport_id: review["status"]
+        for airport_id, review in OURAIRPORTS.get("statusReviews", {}).items()
+        if review["snapshotRevision"] == OURAIRPORTS["revision"]
+        and review["sourceIds"] and verified_sources.issuperset(review["sourceIds"])
+    }
 
     directory = {}
     for airport in dataset["airports"]:
@@ -111,7 +120,9 @@ def directory_rows(dataset, previous, fly_rows, ourairports, previous_airports=(
             old_value = (row.get(key) or "").strip()
             row[key] = value or (old_value if old_value != "ZZ" else "") or fallback
         airport_type = reference.get("type")
-        if airport_type == "closed":
+        if airport_id in status_reviews:
+            row["status"] = status_reviews[airport_id]
+        elif airport_type == "closed":
             row["status"] = "closed"
         elif airport_type in OPERATING_TYPES:
             row["status"] = "operating"

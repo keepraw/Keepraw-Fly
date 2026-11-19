@@ -179,6 +179,18 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertIn("New airports missing city, country, status or timezone: 0", report.read_text())
         self.assertIn("Existing airports with unverified current status: 0", report.read_text())
 
+    def test_keeps_reviewed_closure_for_its_snapshot_revision(self):
+        after = dataset("0.14.0")
+        review = {SITE: {"snapshotRevision": "a" * 40, "status": "closed", "sourceIds": ["source"]}}
+        reference = {"1": {"type": "medium_airport"}}
+        for revision, status in (("a" * 40, "closed"), ("b" * 40, "operating")):
+            with (
+                self.subTest(revision=revision),
+                patch.dict(airport_history_directory.OURAIRPORTS, revision=revision, statusReviews=review),
+            ):
+                directory = airport_history_directory.directory_rows(after, self.directory, [], reference)
+                self.assertEqual(directory[SITE]["status"], status)
+
     def save_existing_reference(self):
         self.directory[SITE] = {
             "city": "Fly City", "country": "US", "status": "operating",
