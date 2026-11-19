@@ -50,7 +50,11 @@ def publish(report, command=run):
     ))
     if open_prs:
         pr = open_prs[0]
-        command("gh", "pr", "edit", str(pr["number"]), "--title", title, "--body-file", str(report))
+        command(
+            "gh", "api", "--method", "PATCH", f"repos/{{owner}}/{{repo}}/pulls/{pr['number']}",
+            "--raw-field", f"title={title}", "--field", f"body=@{report}",
+            "--jq", ".html_url",
+        )
         return pr["url"]
     return command(
         "gh", "pr", "create", "--base", "main", "--head", branch,

@@ -178,8 +178,34 @@ class UpdatePullRequestTest(unittest.TestCase):
         with patch.object(Path, "read_bytes", return_value=encoded(pin)):
             url = publisher.publish(Path("report.md"), command)
         self.assertEqual(url, "https://example.test/pull/17")
-        self.assertIn(("gh", "pr", "edit", "17", "--title", "Update Airport History data to v0.14.0", "--body-file", "report.md"), calls)
+        self.assertIn((
+            "gh", "api", "--method", "PATCH", "repos/{owner}/{repo}/pulls/17",
+            "--raw-field", "title=Update Airport History data to v0.14.0",
+            "--field", "body=@report.md", "--jq", ".html_url",
+        ), calls)
         self.assertFalse(any((args[0] == "git" and "push" in args) or args[:3] == ("gh", "pr", "create") for args in calls))
+
+    def test_new_publication_pushes_a_branch_and_creates_a_pull_request(self):
+        pin = publication(dataset("0.14.0"))
+        calls = []
+
+        def command(*args):
+            calls.append(args)
+            if args[:3] == ("gh", "pr", "list"):
+                return "[]"
+            if args[:3] == ("gh", "pr", "create"):
+                return "https://example.test/pull/18"
+            return ""
+
+        with patch.object(Path, "read_bytes", return_value=encoded(pin)):
+            url = publisher.publish(Path("report.md"), command)
+        self.assertEqual(url, "https://example.test/pull/18")
+        self.assertIn(("git", "switch", "-c", "automation/airport-history-v0.14.0"), calls)
+        self.assertTrue(any(
+            args[0] == "git" and "push" in args
+            and args[-1] == "HEAD:refs/heads/automation/airport-history-v0.14.0"
+            for args in calls
+        ))
 
 
 if __name__ == "__main__":
