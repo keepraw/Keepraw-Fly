@@ -7,6 +7,33 @@
   "generatedAt": "2026-09-02T01:03:39.583Z",
   "airportCount": 7884,
   "cityGroupCount": 40,
+  "formalDirectory": {
+    "source": "https://github.com/davidmegginson/ourairports-data",
+    "revision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
+    "csv": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv",
+    "sha256": "27c6500d0a742edece15c5aaf960e08c01df0d4356c5c86255897b5d3749ad3b",
+    "license": "LicenseRef-Public-Domain",
+    "statusReviews": {
+      "apt_dafb3e33-c7ed-431a-b8e8-22eecf543107": {
+        "snapshotRevision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
+        "status": "closed",
+        "sourceIds": [
+          "pnh-sia-2025",
+          "kti-vna-2025"
+        ],
+        "note": "The snapshot still classifies the former Phnom Penh International Airport as a large airport. Reviewed evidence documents the transfer of scheduled civil operations to Techo."
+      },
+      "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc": {
+        "snapshotRevision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
+        "status": "closed",
+        "sourceIds": [
+          "fly-bti-faa-2017-04181",
+          "fly-bti-usaf-2019"
+        ],
+        "note": "OurAirports 5337 retains the decommissioned coastal runway coordinates. FAA and USAF document the inland replacement and the retirement of the coastal airport."
+      }
+    }
+  },
   "directoryCorrections": [
     {
       "airportId": "apt_eb58849d-cf41-42bd-b34c-92edb109a027",

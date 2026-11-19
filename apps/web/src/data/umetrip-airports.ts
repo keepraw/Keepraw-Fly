@@ -3,15 +3,13 @@ import {
   airports,
   assignmentDateRelation,
   airportById,
-  formalAssignments,
-  formalHistoricalNames,
+  assignmentsByAirportId,
 } from "@keepraw-fly/core";
 
 // Name aliases identify an IATA code, never a dated physical airport entity.
 // Most names come from the bundled directory/locales. Keep only documented
 // spelling or legacy-name exceptions here; do not add city-only guesses.
 const aliases: Readonly<Record<string, string>> = {
-  青岛流亭: "TAO",
   孟买贾特拉帕蒂希瓦吉: "BOM",
 };
 
@@ -36,7 +34,14 @@ export function createUmetripAirportResolver() {
   };
   for (const airport of airports) {
     for (const name of Object.values(airport.name)) {
-      if (name) add(name, airport.iata);
+      if (
+        name &&
+        !assignmentsByAirportId
+          .get(airport.airportId)
+          ?.some((row) => row.scheme === "IATA")
+      ) {
+        add(name, airport.iata);
+      }
     }
   }
   for (const [name, iata] of Object.entries(aliases)) {
@@ -44,33 +49,35 @@ export function createUmetripAirportResolver() {
   }
   // Historical names are date-scoped: only codes whose formal interval can
   // include the service date are offered.
-  const formalNames = new Map<string, string[]>();
-  for (const airport of airportById.values()) {
+  const formalNames = new Map<string, Set<string>>();
+  for (const [id, airport] of airportById) {
+    if (airport.airportId !== id || !assignmentsByAirportId.has(id)) continue;
     const labels = [
       ...Object.values(airport.name).filter((name): name is string =>
         Boolean(name),
       ),
       ...(airport.historicalNames ?? []),
-      ...formalHistoricalNames
-        .filter((row) => row.airportId === airport.airportId)
-        .map((row) => row.name),
+      ...(id === "apt_f470ecb5-c6dc-4516-a233-37302da2115b"
+        ? ["青岛流亭"]
+        : []),
     ];
     for (const label of labels) {
       const key = normalizeAirportName(label);
-      formalNames.set(key, [
-        ...(formalNames.get(key) ?? []),
-        airport.airportId!,
-      ]);
+      if (!key) continue;
+      const ids = formalNames.get(key) ?? new Set<string>();
+      ids.add(id);
+      formalNames.set(key, ids);
     }
   }
   return (raw: string, serviceDate?: string): UmetripAirportResolution => {
     const code = raw.trim().toUpperCase();
     if (/^[A-Z]{3}$/.test(code)) return { iata: code };
     const key = normalizeAirportName(raw);
+    if (!key) return { code: "unknown-airport" };
     const matches = new Set(names.get(key) ?? []);
     for (const airportId of formalNames.get(key) ?? []) {
-      for (const row of formalAssignments) {
-        if (row.scheme !== "IATA" || row.airportId !== airportId) continue;
+      for (const row of assignmentsByAirportId.get(airportId) ?? []) {
+        if (row.scheme !== "IATA") continue;
         if (
           !serviceDate ||
           assignmentDateRelation(serviceDate, row) !== "excluded"

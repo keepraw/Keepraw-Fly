@@ -143,19 +143,9 @@ need an online fetch, while cache clearing, eviction or denial removes stored
 translations. Successful resources also remain in memory for the page lifetime.
 Any cleanup design must consider older open tabs before deleting valid resources.
 
-### Reference-data anomalies
+### Airport names
 
-UI translation completeness does not certify reference-data geography. The
-current `packages/core/data/airport-locales.json` still contains the following
-city-label issues, independently of display suffix shortening:
-
-| IATA | Recorded issue and next action                                                                                                                                                                                                         |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| OKS  | `冈山市` / `岡山市` refers to Okayama, Japan, while the airport directory identifies Garden County/King Rhiley Field in Oshkosh, Nebraska. Verify a correction against [FAA airport information](https://www.airnav.com/airport/koks). |
-| NFO  | `宜野湾市` / `宜野灣市` refers to Ginowan, Japan, while the airport directory locates Mata'aho Airport in Angaha, Tonga. Verify a correction against [OurAirports](https://ourairports.com/airports/NFTO/changes.html).                |
-| GDN  | `三联市` / `三聯市` describes the wider region; verify the intended passenger-facing city label against geographic sources.                                                                                                            |
-| YMM  | `伍德布法罗地区自治市` / `伍德布法羅地區自治市` uses a municipality name; verify the intended passenger-facing city label against geographic sources.                                                                                  |
-
-Correct these through a separate source-backed data change and dedicated tests.
-Do not silently alter persisted airport identity or treat shortened display text
-as a geographic repair.
+[Airport display names](airport-history.md#localized-names-and-search) use their
+own reference records keyed by permanent airport ID. City labels have separate
+geographic provenance. The GDN label describes the wider Tricity region and
+YMM uses a municipality label.

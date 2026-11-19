@@ -147,11 +147,16 @@ export function resolveEndpointIdentity(
     },
   );
   const zones = [
-    ...new Set(possible.map((entity) => entity.timezone).filter(Boolean)),
+    ...new Set(
+      possible
+        .map((entity) => entity.timezone)
+        .filter((zone): zone is string => Boolean(zone)),
+    ),
   ];
   const timezone =
     airport?.timezone || storedZone || (zones.length === 1 ? zones[0]! : null);
   const id = airportId ?? airport?.airportId ?? null;
+  const physicalId = airport?.airportId ?? id;
   return {
     role,
     iata,
@@ -159,7 +164,7 @@ export function resolveEndpointIdentity(
     status,
     resolution,
     basis,
-    identityKey: id ? `airport:${id}` : `unresolved:${iata}`,
+    identityKey: physicalId ? `airport:${physicalId}` : `unresolved:${iata}`,
     confirmed: Boolean(airport),
     airportId: id,
     historicalAssignmentVerified: basis === "formal",

@@ -62,6 +62,12 @@ when pnpm re-resolves URL dependencies during updates. Keep this pin aligned wit
 enforce the lockfile integrity. The hook does not independently verify downloads
 made during resolution, so follow dependency updates with a clean frozen install.
 
+## Airport reference data
+
+Follow the [airport data and publication guide](airport-history.md) when
+updating the formal pin, physical-site crosswalk or localized display labels.
+Use permanent IDs when adding airport name surfaces and regression fixtures.
+
 ## Directory and module responsibilities
 
 | Location                         | Responsibility                                                                            |

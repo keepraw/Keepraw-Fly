@@ -1,5 +1,5 @@
 /** Explicit manual research only. This module is dynamically imported by the review button. */
-import formal from "../../../../packages/core/data/airport-history/formal/airports.json";
+import { formalAirportIdByOurAirportsId } from "@keepraw-fly/core";
 
 export const researchRevision = "bb1046455e949c6c0bf3a18769464cb232bec19e";
 const base = `https://raw.githubusercontent.com/keepraw/airport-history/${researchRevision}/reference/generated/`;
@@ -107,16 +107,13 @@ export async function researchAirportCode(
   for (const shard of shards) {
     for (const row of await rows(`records.${shard}.jsonl.gz`)) {
       if (!row.referenceId || !ids.has(row.referenceId)) continue;
-      const airport = row.sourceEntityId
-        ? formal.airports.find(
-            (entity) => entity.externalIds?.ourAirports === row.sourceEntityId,
-          )
-        : undefined;
       matches.push({
         referenceId: row.referenceId,
         name: row.name ?? code,
         country: row.country ?? "",
-        airportId: airport?.airportId,
+        airportId: row.sourceEntityId
+          ? formalAirportIdByOurAirportsId.get(row.sourceEntityId)
+          : undefined,
       });
     }
   }

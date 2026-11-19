@@ -100,9 +100,10 @@ test("browser language priority and Chinese script resolution @cross-browser", a
   ).toBeVisible();
 });
 
-test("legacy en migrates; locale changes preserve archive facts, loyalty and other preferences @cross-browser", async ({
-  page,
-}, testInfo) => {
+async function verifyLocalePersistence(
+  page: Page,
+  languages: readonly (typeof supportedLanguages)[number][],
+) {
   await seed(page, "en");
   await expect(page.locator("#settings-language")).toHaveValue("en-US");
   const before = await stored(page);
@@ -112,12 +113,6 @@ test("legacy en migrates; locale changes preserve archive facts, loyalty and oth
       .locator("option")
       .evaluateAll((options) => options.map((option) => option.value)),
   ).toEqual(supportedLanguages);
-  // Extend Chromium's business coverage; keep the existing bounded four-locale
-  // native storage smoke in the other engines rather than repeating the matrix.
-  const languages =
-    testInfo.project.name === "chromium"
-      ? supportedLanguages
-      : ["en-GB", "zh-CN", "zh-TW", "en-US"];
   for (const language of languages) {
     await localeSelect.selectOption(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -131,7 +126,7 @@ test("legacy en migrates; locale changes preserve archive facts, loyalty and oth
     await expect
       .poll(async () => (await stored(page)).settings.language)
       .toBe(language);
-    await page.reload();
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(localeSelect).toHaveValue(language);
     await expect(page.locator("#settings-distance")).toHaveValue("kilometers");
     await expect(page.locator("#settings-time-format")).toHaveValue("12-hour");
@@ -139,7 +134,30 @@ test("legacy en migrates; locale changes preserve archive facts, loyalty and oth
     expect(after.archive).toEqual(before.archive);
     expect(after.settings).toEqual({ ...before.settings, language });
   }
+}
+
+const smokeLanguages = ["en-GB", "zh-CN", "zh-TW", "en-US"] as const;
+test("legacy en migrates; locale changes preserve archive facts, loyalty and other preferences @cross-browser", async ({
+  page,
+}) => {
+  await verifyLocalePersistence(page, smokeLanguages);
 });
+
+// A locale launch includes loading the offline airport data. Run the
+// remaining reloads in bounded groups so every case keeps the test deadline.
+const remainingLanguages = supportedLanguages.filter(
+  (language) => !smokeLanguages.some((smoke) => smoke === language),
+);
+for (const languages of [
+  remainingLanguages.slice(0, 3),
+  remainingLanguages.slice(3),
+]) {
+  test(`locale changes preserve archive facts and preferences for ${languages.join(", ")}`, async ({
+    page,
+  }) => {
+    await verifyLocalePersistence(page, languages);
+  });
+}
 
 test("unsupported saved language uses English without downloading Chinese fonts", async ({
   page,

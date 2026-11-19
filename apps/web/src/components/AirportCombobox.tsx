@@ -7,6 +7,7 @@ import {
   airportCityGroupName,
   assignmentDateRelation,
   localizedText,
+  localizedAirportName,
   resolveEndpointIdentity,
   searchAirports,
   searchHistoricalAirports,
@@ -31,7 +32,7 @@ function historicalCode(
   const atDate = date
     ? iata.find((row) => assignmentDateRelation(date, row) !== "excluded")
     : undefined;
-  return (atDate ?? iata[0])?.code ?? result.searchCode;
+  return (atDate ?? iata[0])?.code ?? result.searchCode ?? null;
 }
 
 interface AirportComboboxProps {
@@ -92,20 +93,22 @@ export function AirportCombobox({
   const results = useMemo(
     () =>
       query.trim()
-        ? searchAirports(query, locale)
+        ? searchAirports(query, locale, 8, (airport) =>
+            Boolean(airport.currentIata || !airport.iata),
+          )
         : preferredCodes
             .map((code) => airportByIata.get(code))
-            .filter((airport): airport is AirportReference => Boolean(airport)),
+            .filter((airport) => airport !== undefined),
     [query, locale, preferredCodes],
   );
   const historical = useMemo(
     () =>
       query.trim()
-        ? searchHistoricalAirports(query, 5).filter((result) =>
+        ? searchHistoricalAirports(query, 8, locale, date).filter((result) =>
             Boolean(historicalCode(result, date)),
           )
         : [],
-    [query, date],
+    [query, date, locale],
   );
   const identity = useMemo(
     () =>
@@ -121,8 +124,16 @@ export function AirportCombobox({
 
   useEffect(() => setActiveIndex(0), [query, locale]);
 
+  const selectedName = localizedAirportName(identity?.airportId, locale, date);
+
   function chooseAirport(airport: AirportReference) {
-    const code = value || keepableCode(query) || airport.iata;
+    const typedCode = keepableCode(query);
+    const code =
+      typedCode &&
+      (typedCode === airport.iata || airport.searchAliases?.includes(typedCode))
+        ? typedCode
+        : (airport.currentIata ?? airport.iata);
+    if (!code) return;
     setQuery(code);
     onChange(code, airport.airportId);
     setOpen(false);
@@ -154,7 +165,7 @@ export function AirportCombobox({
         aria-expanded={open && Boolean(results.length)}
         aria-activedescendant={
           open && results[activeIndex]
-            ? `${listId}-${results[activeIndex].iata}`
+            ? `${listId}-${results[activeIndex].airportId}`
             : undefined
         }
         autoComplete="off"
@@ -183,7 +194,11 @@ export function AirportCombobox({
           } else if (event.key === "ArrowUp" && results.length) {
             event.preventDefault();
             setActiveIndex((current) => Math.max(current - 1, 0));
-          } else if (event.key === "Enter" && open && results[activeIndex]) {
+          } else if (
+            event.key === "Enter" &&
+            open &&
+            results[activeIndex]?.iata
+          ) {
             event.preventDefault();
             chooseAirport(results[activeIndex]);
           } else if (event.key === "Enter" && open && historical[0]) {
@@ -206,8 +221,8 @@ export function AirportCombobox({
         }}
       />
       <small className="editor-field-hint">
-        {identity?.name
-          ? `${value} · ${localizedText(identity.name, locale)}${identity.city ? ` · ${localizedText(identity.city, locale)}` : ""}`
+        {selectedName
+          ? `${value} · ${selectedName}${identity?.city ? ` · ${localizedText(identity.city, locale)}` : ""}`
           : preferredCodes.length
             ? t("flightEditor.airportRecentHint")
             : t("flightEditor.airportSearchHint")}
@@ -242,11 +257,15 @@ export function AirportCombobox({
                   type="button"
                   onClick={() => chooseCode(value, entry.airportId!)}
                 >
-                  {entry.name} · {entry.country}
+                  {localizedAirportName(entry.airportId, locale, date) ??
+                    entry.name}{" "}
+                  · {entry.country}
                 </button>
               ) : (
                 <span>
-                  {entry.name} · {entry.country}
+                  {localizedAirportName(entry.airportId, locale, date) ??
+                    entry.name}{" "}
+                  · {entry.country}
                 </span>
               )}
             </div>
@@ -280,22 +299,27 @@ export function AirportCombobox({
         <div className="airport-options" id={listId} role="listbox">
           {results.length ? (
             results.map((airport, index) => {
-              const cityGroup = airportCityGroupForAirport(airport.iata);
+              const cityGroup = airport.currentIata
+                ? airportCityGroupForAirport(airport.currentIata)
+                : undefined;
               const cityName = cityGroup
                 ? airportCityGroupName(cityGroup, locale)
                 : localizedText(airport.city, locale);
               return (
                 <button
-                  id={`${listId}-${airport.iata}`}
-                  key={airport.iata}
+                  id={`${listId}-${airport.airportId}`}
+                  key={airport.airportId}
                   type="button"
                   role="option"
+                  disabled={!airport.iata}
                   aria-selected={index === activeIndex}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => chooseAirport(airport)}
                 >
-                  <strong>{airport.iata}</strong>
-                  <span>{localizedText(airport.name, locale)}</span>
+                  <strong>{airport.iata ?? airport.icao}</strong>
+                  <span>
+                    {localizedAirportName(airport.airportId, locale, date)}
+                  </span>
                   <small>
                     {cityName}
                     {cityGroup

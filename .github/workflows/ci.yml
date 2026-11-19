@@ -60,6 +60,9 @@ jobs:
       - name: Check CSS token references
         run: pnpm check:css-tokens
 
+      - name: Measure airport reference data
+        run: node scripts/benchmark-airport-reference.mjs
+
       - name: Type-check workspace
         run: pnpm typecheck
 
@@ -323,4 +326,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Verify reviewed airport data against the pinned upstream commit
-        run: python3 scripts/update-airport-history.py --check
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --check --verify-upstream
+
+      - name: Verify the directory audit and simulate formal publication updates
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_airport_*.py'

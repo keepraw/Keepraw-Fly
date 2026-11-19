@@ -30,6 +30,7 @@ import {
   formatTicketNumber,
   frequentFlyerSnapshot,
   localizedText,
+  localizedAirportName,
   resolveAirline,
   seatFacts,
   ticketFacts,
@@ -283,18 +284,6 @@ function DetailFact({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** The flight-date physical airport's name; a historical site keeps its own. */
-function airportNameLabel(
-  identity: FlightEndpointIdentity,
-  iata: string,
-  locale: SupportedLocale,
-): string | undefined {
-  if (identity.name) return localizedText(identity.name, locale) || iata;
-  const airport = airportByIata.get(iata);
-  if (!airport || !identity.confirmed) return undefined;
-  return localizedText(airport.name, locale) || iata;
-}
-
 function formatCoordinates(point: { latitude: number; longitude: number }) {
   const lat = `${Math.abs(point.latitude).toFixed(4)}°${point.latitude >= 0 ? "N" : "S"}`;
   const lon = `${Math.abs(point.longitude).toFixed(4)}°${point.longitude >= 0 ? "E" : "W"}`;
@@ -333,7 +322,7 @@ function airportCityLabel(
 ): string {
   const iata = identity.iata;
   const airport = airportByIata.get(iata);
-  if (!identity.airportId || identity.airportId !== airport?.airportId) {
+  if (!identity.confirmed || identity.differsFromCurrentDirectory) {
     return identity.city
       ? formatCityDisplayName(
           localizedText(identity.city, locale),
@@ -496,7 +485,11 @@ export function FlightDetailPage({
                 kind="departure"
                 iata={flight.origin.iata}
                 city={airportCityLabel(origin, locale)}
-                airport={airportNameLabel(origin, flight.origin.iata, locale)}
+                airport={localizedAirportName(
+                  origin.airportId,
+                  locale,
+                  origin.localDate,
+                )}
                 history={airportHistory(origin, t)}
                 zone={origin.timezone}
                 terminal={flight.origin.terminal}
@@ -525,10 +518,10 @@ export function FlightDetailPage({
                 kind="arrival"
                 iata={flight.divertedTo?.iata ?? flight.destination.iata}
                 city={airportCityLabel(actualDestination, locale)}
-                airport={airportNameLabel(
-                  actualDestination,
-                  flight.divertedTo?.iata ?? flight.destination.iata,
+                airport={localizedAirportName(
+                  actualDestination.airportId,
                   locale,
+                  actualDestination.localDate,
                 )}
                 history={airportHistory(actualDestination, t)}
                 zone={actualDestination.timezone}
@@ -552,10 +545,10 @@ export function FlightDetailPage({
                 }
                 plannedName={
                   flight.divertedTo
-                    ? airportNameLabel(
-                        plannedDestination,
-                        flight.destination.iata,
+                    ? localizedAirportName(
+                        plannedDestination.airportId,
                         locale,
+                        plannedDestination.localDate,
                       )
                     : undefined
                 }

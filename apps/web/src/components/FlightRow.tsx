@@ -11,6 +11,7 @@ import {
   formatCityDisplayName,
   formatServiceDate,
   localizedText,
+  localizedAirportName,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
@@ -104,7 +105,7 @@ export function FlightRow({
     identity: typeof originEndpoint,
     directory: typeof origin,
   ) =>
-    identity.airportId && identity.airportId === directory?.airportId
+    identity.confirmed && !identity.differsFromCurrentDirectory
       ? cityName(identity.iata, directory)
       : identity.city
         ? formatCityDisplayName(
@@ -194,9 +195,11 @@ export function FlightRow({
                   code={flight.origin.iata}
                   size="compact"
                   title={
-                    originEndpoint.name
-                      ? localizedText(originEndpoint.name, locale)
-                      : flight.origin.iata
+                    localizedAirportName(
+                      originEndpoint.airportId,
+                      locale,
+                      originEndpoint.localDate,
+                    ) ?? flight.origin.iata
                   }
                 />
                 <span aria-hidden="true">→</span>
@@ -204,9 +207,11 @@ export function FlightRow({
                   code={flight.destination.iata}
                   size="compact"
                   title={
-                    destinationEndpoint.name
-                      ? localizedText(destinationEndpoint.name, locale)
-                      : flight.destination.iata
+                    localizedAirportName(
+                      destinationEndpoint.airportId,
+                      locale,
+                      destinationEndpoint.localDate,
+                    ) ?? flight.destination.iata
                   }
                 />
               </div>
