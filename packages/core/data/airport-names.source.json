@@ -15,7 +15,7 @@
   },
   "reviewed-tao": {
     "kind": "display_translation",
-    "source": "https://github.com/keepraw/airport-history/pull/39",
+    "source": "https://github.com/keepraw/airport-history-archive/pull/39",
     "retrievedOn": "2026-11-19",
     "status": "editorial",
     "reviewStatus": "reviewed"
@@ -42,7 +42,7 @@
   },
   "historical-site-display": {
     "kind": "display_translation",
-    "source": "https://github.com/keepraw/airport-history/blob/2c39e2f040d65dd32142ffcbb4ca62b5c459abf0/data/airports.json",
+    "source": "https://github.com/keepraw/airport-history-archive/blob/2c39e2f040d65dd32142ffcbb4ca62b5c459abf0/data/airports.json",
     "retrievedOn": "2026-11-19",
     "status": "editorial",
     "reviewStatus": "reviewed_against_physical_identity"

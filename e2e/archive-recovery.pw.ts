@@ -87,6 +87,15 @@ async function controlInitialReads(
   await controlArchiveReads(page, { fail, hold, settingsFail });
 }
 
+async function reloadWithHeldReads(page: Page) {
+  await page.reload();
+  // The fault fixture imports the app dynamically after navigation. Wait for
+  // the archive loading screen before polling the storage read counters.
+  await page
+    .getByRole("main", { name: "Loading Keepraw Fly", exact: true })
+    .waitFor();
+}
+
 async function attemptBlockedWrites(page: Page, candidate: KeeprawFlyDocument) {
   expect(
     await page.evaluate(
@@ -800,7 +809,7 @@ for (const settingsFail of [false, true]) {
     const archive = generatedArchive();
     const record = await writeRecord(page, archive);
     await controlInitialReads(page, { hold: true, settingsFail });
-    await page.reload();
+    await reloadWithHeldReads(page);
     await expect
       .poll(() => page.evaluate(() => window.archiveReadTest?.calls ?? 0))
       .toBeGreaterThan(0);
@@ -1079,7 +1088,7 @@ test("ignores a stale initialization success after the active read failed", asyn
   const archive = generatedArchive();
   const record = await writeRecord(page, archive);
   await controlInitialReads(page, { hold: true });
-  await page.reload();
+  await reloadWithHeldReads(page);
   // StrictMode cancels the first effect and starts a second read.
   await expect
     .poll(() => page.evaluate(() => window.archiveReadTest?.calls))

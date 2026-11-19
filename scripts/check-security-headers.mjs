@@ -61,7 +61,10 @@ for (const [name, sources] of [
   ["script-src", ["'self'"]],
   [
     "connect-src",
-    ["'self'", "https://raw.githubusercontent.com/keepraw/airport-history/"],
+    [
+      "'self'",
+      "https://raw.githubusercontent.com/keepraw/airport-history-archive/",
+    ],
   ],
   ["worker-src", ["'none'"]],
 ]) {

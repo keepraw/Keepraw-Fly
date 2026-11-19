@@ -2,7 +2,7 @@
 import { formalAirportIdByOurAirportsId } from "@keepraw-fly/core";
 
 export const researchRevision = "bb1046455e949c6c0bf3a18769464cb232bec19e";
-const base = `https://raw.githubusercontent.com/keepraw/airport-history/${researchRevision}/reference/generated/`;
+const base = `https://raw.githubusercontent.com/keepraw/airport-history-archive/${researchRevision}/reference/generated/`;
 // SHA-256 from the upstream reference/generated/manifest.json at researchRevision.
 const hashes: Record<string, string> = {
   "index.IATA.jsonl.gz":
