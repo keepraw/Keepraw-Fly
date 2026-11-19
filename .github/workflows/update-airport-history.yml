@@ -35,7 +35,7 @@ jobs:
         run: |
           report="$RUNNER_TEMP/airport-history-update.md"
           log="$RUNNER_TEMP/airport-history-update.log"
-          if ! PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --ourairports "$RUNNER_TEMP/ourairports.csv" --report "$report" > "$log" 2>&1; then
+          if ! PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --same-schema --ourairports "$RUNNER_TEMP/ourairports.csv" --report "$report" > "$log" 2>&1; then
             cat "$log"
             if [ -s "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"

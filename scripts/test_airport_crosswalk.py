@@ -30,9 +30,6 @@ def assignment(id_, code, start, end):
         "airportId": id_,
         "code": code,
         "scheme": "IATA",
-        "verificationStatus": "verified",
-        "verifiedOn": start,
-        "sourceIds": ["source"],
         "validFrom": {"earliest": start, "latest": start},
         "validTo": {"earliest": end, "latest": end},
     }
@@ -44,9 +41,9 @@ def fly(id_, name, code, latitude, country="GB"):
 
 def inspect(airports, assignments, directory, rows):
     dataset = {
+        "schemaVersion": "4.0.0",
         "airports": airports,
         "assignments": assignments,
-        "sources": [{"sourceId": "source", "verificationStatus": "verified"}],
     }
     return audit.audit_rows(dataset, directory, rows, {}, HORIZON)
 
@@ -105,8 +102,8 @@ class AuditTest(unittest.TestCase):
     def test_0130_report_covers_every_committed_alias_and_fly_id(self):
         formal = audit.DATA / "airport-history/formal"
         manifest = json.loads((formal / "manifest.json").read_bytes())
-        if manifest["dataVersion"] != "0.13.0":
-            self.skipTest("The committed report records the 0.13.0 crosswalk")
+        if manifest["dataVersion"] not in {"0.13.0", "0.14.0"}:
+            self.skipTest("The committed report records the crosswalk retained through 0.14.0")
         directory = json.loads((formal / "directory.json").read_bytes())
         fly_rows = json.loads((audit.DATA / "airports.iata.json").read_bytes())
         expected = {

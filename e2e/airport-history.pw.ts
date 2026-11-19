@@ -110,11 +110,10 @@ test("TAO keeps the flight-date site when changing airport-name languages", asyn
     ["ja-JP", "青島流亭国際空港", "青島膠東国際空港"],
     ["ko-KR", "칭다오 류팅 국제공항", "칭다오 자오둥 국제공항"],
   ]) {
-    await page.evaluate(async (locale) => {
-      const i18nPath = "/src/i18n.ts";
-      const { changeUiLanguage } = await import(/* @vite-ignore */ i18nPath);
-      await changeUiLanguage(locale);
-    }, language);
+    await page.goto("/#settings");
+    await page.locator("#settings-language").selectOption(language);
+    await expect(page.locator("html")).toHaveAttribute("lang", language);
+    await page.goto("/");
     await expect(
       page.locator(`[data-flight-id="liuting"] [title="${oldLabel}"]`),
     ).toHaveCount(1);

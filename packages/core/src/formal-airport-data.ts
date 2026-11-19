@@ -13,68 +13,188 @@ export interface FormalAssignment {
   airportId: string;
   scheme: AirportCodeScheme;
   code: string;
-  evidenceType: string;
-  verificationStatus: string;
-  verifiedOn?: string;
-  sourceIds: string[];
   validFrom: UncertainDateBound;
   validTo: UncertainDateBound;
   note?: string;
 }
 export type AssignmentDateRelation = "certain" | "possible" | "excluded";
 
+interface FormalName {
+  nameId: string;
+  airportId: string;
+  name: string;
+  language: string;
+  kind: "official" | "alias" | "translation";
+  validFrom: UncertainDateBound;
+  validTo: UncertainDateBound;
+  note?: string;
+}
+type EligibleAssignment = FormalAssignment & { canResolve: boolean };
+type EligibleName = FormalName & { canResolve: boolean };
+
+interface LegacyClaim {
+  verificationStatus: string;
+  verifiedOn?: string | null;
+  sourceIds: string[];
+}
+interface LegacySource {
+  sourceId: string;
+  verificationStatus: string;
+}
+type Schema3 = {
+  schemaVersion: "3.0.0";
+  assignments: (FormalAssignment & LegacyClaim & { evidenceType: string })[];
+  names: (FormalName & LegacyClaim)[];
+  sources: LegacySource[];
+};
+type Schema4 = {
+  schemaVersion: "4.0.0";
+  assignments: FormalAssignment[];
+  names: FormalName[];
+};
+
 export const airportHistoryQueryHorizon = manifest.queryHorizon;
 export const formalAirports = formalPackage.airports;
 export const airportHistoryDataVersion = formalPackage.dataVersion;
+
+type LocalTransfer = (typeof reviewedTransfers.transfers)[number];
 const transfersByAssignment = new Map(
   reviewedTransfers.transfers.flatMap((transfer) =>
     transfer.supersedes.map((id) => [id, transfer] as const),
   ),
 );
 
-// Apply the operating-site evidence to the identified continuity claims. The
-// published dataset stays intact and more specific upstream claims pass through.
-export const formalAssignments: FormalAssignment[] = (
-  formalPackage.assignments as FormalAssignment[]
-).flatMap((assignment) => {
+function localTransfer(
+  assignment: FormalAssignment,
+): LocalTransfer | undefined {
   const transfer = transfersByAssignment.get(assignment.assignmentId);
-  if (
-    !transfer ||
-    assignment.evidenceType !== "continuity_inference" ||
-    assignment.airportId !== transfer.publishedAirportId
-  )
-    return [assignment];
-  const evidence = {
-    ...assignment,
-    evidenceType: "reviewed_operating_site_transfer",
-    sourceIds: transfer.sourceIds,
-    verifiedOn: reviewedTransfers.reviewedOn,
-    note: "Fly physical-site review. Dates bound operating-site evidence, with the published outer coverage retained.",
+  return transfer?.publishedAirportId === assignment.airportId
+    ? transfer
+    : undefined;
+}
+
+function sameBoundary(a: UncertainDateBound, b: UncertainDateBound): boolean {
+  return (
+    a.earliest === b.earliest &&
+    a.latest === b.latest &&
+    a.precision === b.precision
+  );
+}
+
+function adaptAssignment(
+  {
+    assignmentId,
+    airportId,
+    scheme,
+    code,
+    validFrom,
+    validTo,
+    note,
+  }: FormalAssignment,
+  canResolve: boolean,
+  transfer?: LocalTransfer,
+): EligibleAssignment[] {
+  const assignment = {
+    assignmentId,
+    airportId,
+    scheme,
+    code,
+    validFrom,
+    validTo,
+    note,
+    canResolve,
   };
+  if (!transfer) return [assignment];
+  const transferNote =
+    "Fly physical-site handover with the upstream outer date bounds.";
   return [
     {
-      ...evidence,
-      assignmentId: `${assignment.assignmentId}-former-site`,
+      ...assignment,
+      assignmentId: `${assignmentId}-former-site`,
       airportId: transfer.formerAirportId,
       validTo: transfer.handover,
+      note: transferNote,
     },
     {
-      ...evidence,
-      assignmentId: `${assignment.assignmentId}-replacement-site`,
+      ...assignment,
+      assignmentId: `${assignmentId}-replacement-site`,
       airportId: transfer.replacementAirportId,
       validFrom: transfer.handover,
+      note: transferNote,
     },
   ];
-});
-export const formalSources = new Map(
-  [...formalPackage.sources, ...reviewedTransfers.sources].map((source) => [
-    source.sourceId,
-    source,
-  ]),
-);
-export const formalHistoricalNames = formalPackage.names;
-const assignmentsByCode = new Map<string, FormalAssignment[]>();
-export const assignmentsByAirportId = new Map<string, FormalAssignment[]>();
+}
+
+function adaptPublication(dataset: Schema3 | Schema4): {
+  assignments: EligibleAssignment[];
+  names: EligibleName[];
+} {
+  // Schema 3 used source eligibility in addition to dates. Compute it at
+  // ingestion so the resolver can consume the same representation for both schemas.
+  const { schemaVersion } = dataset;
+  switch (schemaVersion) {
+    case "3.0.0": {
+      const verifiedSources = new Set(
+        dataset.sources
+          .filter((source) => source.verificationStatus === "verified")
+          .map((source) => source.sourceId),
+      );
+      const canResolve = (row: LegacyClaim) =>
+        row.verificationStatus === "verified" &&
+        Boolean(row.verifiedOn) &&
+        row.sourceIds.length > 0 &&
+        row.sourceIds.every((id) => verifiedSources.has(id));
+      return {
+        assignments: dataset.assignments.flatMap((row) => {
+          const transfer =
+            row.evidenceType === "continuity_inference"
+              ? localTransfer(row)
+              : undefined;
+          return transfer
+            ? adaptAssignment(
+                row,
+                row.verificationStatus === "verified",
+                transfer,
+              )
+            : adaptAssignment(row, canResolve(row));
+        }),
+        names: dataset.names.map(
+          ({ verificationStatus, verifiedOn, sourceIds, ...row }) => ({
+            ...row,
+            canResolve: canResolve({
+              verificationStatus,
+              verifiedOn,
+              sourceIds,
+            }),
+          }),
+        ),
+      };
+    }
+    case "4.0.0": {
+      const original = reviewedTransfers.originalInterval;
+      return {
+        assignments: dataset.assignments.flatMap((row) => {
+          // Apply each correction only to the original upstream interval.
+          const transfer =
+            sameBoundary(row.validFrom, original.validFrom) &&
+            sameBoundary(row.validTo, original.validTo)
+              ? localTransfer(row)
+              : undefined;
+          return adaptAssignment(row, true, transfer);
+        }),
+        names: dataset.names.map((row) => ({ ...row, canResolve: true })),
+      };
+    }
+    default:
+      throw new Error(`Unsupported Airport History schema: ${schemaVersion}`);
+  }
+}
+
+export const { assignments: formalAssignments, names: formalHistoricalNames } =
+  adaptPublication(formalPackage as Schema3 | Schema4);
+
+const assignmentsByCode = new Map<string, EligibleAssignment[]>();
+export const assignmentsByAirportId = new Map<string, EligibleAssignment[]>();
 export const historicalNamesByAirportId = new Map<
   string,
   (typeof formalHistoricalNames)[number][]
@@ -116,27 +236,11 @@ export function assignmentDateRelation(
     ? "certain"
     : "possible";
 }
-export function isReviewedAirportClaim(
-  row: Pick<
-    FormalAssignment,
-    "verificationStatus" | "verifiedOn" | "sourceIds"
-  >,
-): boolean {
-  return (
-    row.verificationStatus === "verified" &&
-    Boolean(row.verifiedOn) &&
-    row.sourceIds.length > 0 &&
-    row.sourceIds.every(
-      (id) => formalSources.get(id)?.verificationStatus === "verified",
-    )
-  );
-}
-
 const through = new Date(`${airportHistoryQueryHorizon.toExclusive}T00:00:00Z`);
 through.setUTCDate(through.getUTCDate() - 1);
 const lastFormalDay = through.toISOString().slice(0, 10);
 
-/** Publish a current code only when the formal evidence identifies one site. */
+/** Publish a current code only when the dated assignments identify one site. */
 export const latestFormalCodesByAirportId = new Map<
   string,
   Record<AirportCodeScheme, string[]>
@@ -151,8 +255,7 @@ for (const rows of assignmentsByCode.values()) {
   if (
     !certain ||
     possible.some(
-      (row) =>
-        row.airportId !== certain.airportId || !isReviewedAirportClaim(row),
+      (row) => row.airportId !== certain.airportId || !row.canResolve,
     )
   )
     continue;

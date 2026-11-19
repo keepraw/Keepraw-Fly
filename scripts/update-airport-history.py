@@ -12,8 +12,9 @@ from tempfile import TemporaryDirectory
 from urllib.request import Request, urlopen
 
 from airport_history_directory import (
-    ICAO, IATA, OURAIRPORTS, compact_object, directory_rows, distance_km,
-    parse_ourairports, read_ourairports, validate_directory, verify_ourairports,
+    ICAO, IATA, OURAIRPORTS, SUPPORTED_SCHEMAS, claim_can_resolve, compact_object,
+    directory_rows, distance_km, legacy_sources, parse_ourairports, read_ourairports,
+    validate_directory, verify_ourairports,
 )
 
 DATA = Path(__file__).resolve().parents[1] / "packages/core/data"
@@ -59,7 +60,7 @@ def day(text):
 
 def validate_manifest(manifest):
     version(manifest["dataVersion"])
-    if manifest["schemaVersion"] != "3.0.0":
+    if manifest["schemaVersion"] not in SUPPORTED_SCHEMAS:
         raise ValueError(f"Unsupported schema {manifest['schemaVersion']}; implement and test compatibility before importing")
     if not re.fullmatch(r"[0-9a-f]{40}", manifest["commit"]):
         raise ValueError("The upstream manifest must name an immutable commit")
@@ -101,15 +102,6 @@ def validate_bounds(row):
         raise ValueError(f"Empty possible interval in {row}")
 
 
-def reviewed(row, sources):
-    return (
-        row["verificationStatus"] == "verified"
-        and bool(row.get("verifiedOn"))
-        and bool(row["sourceIds"])
-        and all(sources[source]["verificationStatus"] == "verified" for source in row["sourceIds"])
-    )
-
-
 def validate_dataset(data, manifest):
     if sha(data) != digest(manifest):
         raise ValueError("Formal dataset failed SHA-256 verification")
@@ -118,22 +110,27 @@ def validate_dataset(data, manifest):
         if dataset[field] != manifest[field]:
             raise ValueError(f"Manifest and dataset disagree on {field}")
     airports = indexed(dataset["airports"], "airportId")
-    sources = indexed(dataset["sources"], "sourceId")
+    sources = legacy_sources(dataset)
     assignments = indexed(dataset["assignments"], "assignmentId")
     names = indexed(dataset["names"], "nameId")
-    if not airports or not assignments or not sources:
-        raise ValueError("Formal airport, assignment and source tables are required")
+    if not airports or not assignments:
+        raise ValueError("Formal airport and assignment tables are required")
+    if sources is not None and not sources:
+        raise ValueError("Schema 3.0.0 requires a source table")
     if any(not AIRPORT_ID.fullmatch(airport_id) for airport_id in airports):
         raise ValueError("Invalid permanent airportId")
     claims = [*assignments.values(), *names.values()]
     for row in claims:
-        if row["airportId"] not in airports or any(key not in sources for key in row["sourceIds"]):
-            raise ValueError("Formal claim references a missing airport or source")
+        if row["airportId"] not in airports:
+            raise ValueError("Formal claim references a missing airport")
+        if sources is not None and any(key not in sources for key in row["sourceIds"]):
+            raise ValueError("Schema 3.0.0 claim references a missing source")
         validate_bounds(row)
     for row in airports.values():
-        for field in ("name", "coordinates", "timezone"):
-            if any(key not in sources for key in row[field]["sourceIds"]):
-                raise ValueError(f"Airport {field} references a missing source")
+        if sources is not None:
+            for field in ("name", "coordinates", "timezone"):
+                if any(key not in sources for key in row[field]["sourceIds"]):
+                    raise ValueError(f"Schema 3.0.0 airport {field} references a missing source")
         point = row["coordinates"]["value"]
         if not point or not (-90 <= point["latitude"] <= 90 and -180 <= point["longitude"] <= 180):
             raise ValueError(f"Fly needs a valid reference point for {row['airportId']}")
@@ -145,7 +142,7 @@ def validate_dataset(data, manifest):
         ranges = sorted(
             (row["validFrom"]["latest"], row["validTo"]["earliest"], row["airportId"])
             for row in rows
-            if reviewed(row, sources) and row["validFrom"]["latest"] and row["validTo"]["earliest"]
+            if claim_can_resolve(row, sources) and row["validFrom"]["latest"] and row["validTo"]["earliest"]
         )
         for index, (start, end, airport_id) in enumerate(ranges):
             for next_start, next_end, next_id in ranges[index + 1:]:
@@ -179,10 +176,20 @@ def detect_breaking_changes(before, after):
     return changes
 
 
+def directory_inputs(dataset):
+    return {
+        row["airportId"]: (
+            row.get("externalIds", {}),
+            *(row[field]["value"] for field in ("name", "coordinates", "timezone")),
+        )
+        for row in dataset["airports"]
+    }
+
+
 def coverage(dataset, horizon):
     """Count resolved code/date pairs by interval boundaries, without daily snapshots."""
     start, end = horizon["fromInclusive"], horizon["toExclusive"]
-    sources = indexed(dataset["sources"], "sourceId")
+    sources = legacy_sources(dataset)
     counts = {"IATA": 0, "ICAO": 0}
     for (scheme, _), rows in code_groups(dataset).items():
         bounds = sorted({start, end} | {
@@ -198,7 +205,7 @@ def coverage(dataset, horizon):
             ]
             if (
                 len({row["airportId"] for row in possible}) == 1
-                and all(reviewed(row, sources) for row in possible)
+                and all(claim_can_resolve(row, sources) for row in possible)
                 and any(
                     row["validFrom"]["latest"] and row["validTo"]["earliest"]
                     and row["validFrom"]["latest"] <= left < row["validTo"]["earliest"]
@@ -257,9 +264,6 @@ def report(before, after, old, new, directory, labels, breaking):
         key for key in old_assignments.keys() & assignments.keys()
         if any(old_assignments[key][field] != assignments[key][field] for field in ("validFrom", "validTo"))
     )
-    sources = indexed(after["sources"], "sourceId")
-    old_sources = indexed(before["sources"], "sourceId")
-    source_changes = sorted(key for key in sources.keys() | old_sources.keys() if sources.get(key) != old_sources.get(key))
     old_coverage = coverage(before, old["queryHorizon"])
     new_coverage = coverage(after, new["queryHorizon"])
     locale_coverage = coverage_by_locale(airports, labels)
@@ -278,6 +282,7 @@ def report(before, after, old, new, directory, labels, breaking):
         "| | Current | Incoming |",
         "| --- | --- | --- |",
         f"| Version | {old['dataVersion']} | {new['dataVersion']} |",
+        f"| Schema | {old['schemaVersion']} | {new['schemaVersion']} |",
         f"| Commit | `{old['commit']}` | `{new['commit']}` |",
         f"| SHA-256 | `{digest(old)}` | `{digest(new)}` |",
         "",
@@ -290,7 +295,6 @@ def report(before, after, old, new, directory, labels, breaking):
         f"- ICAO assignments added: {sum(assignments[key]['scheme'] == 'ICAO' for key in added_codes):,}",
         f"- Assignments removed: {len(removed_codes):,}",
         f"- Historical intervals changed: {len(changed_intervals):,}",
-        f"- Source records changed, added or removed: {len(source_changes):,}",
         f"- Fly IDs linked to verified sites: {sum(len(row.get('legacyIds', [])) for row in directory.values()):,}",
         "",
         "## Directory metadata",
@@ -323,7 +327,7 @@ def report(before, after, old, new, directory, labels, breaking):
     for title, items in (
         ("Added airport IDs", added_ids), ("Removed airport IDs", removed_ids),
         ("Added assignment IDs", sorted(added_codes)), ("Removed assignment IDs", sorted(removed_codes)),
-        ("Changed assignment intervals", changed_intervals), ("Changed source IDs", source_changes),
+        ("Changed assignment intervals", changed_intervals),
     ):
         if items:
             preview = ", ".join(f"`{item}`" for item in items[:30])
@@ -361,6 +365,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate the vendored commit and directory")
     parser.add_argument("--verify-upstream", action="store_true", help="Compare pinned bytes to the immutable upstream commit")
+    parser.add_argument("--same-schema", action="store_true", help="Leave schema transitions to a manual update PR")
     parser.add_argument("--manifest", type=Path, help="Use an explicitly supplied publication manifest")
     parser.add_argument("--ourairports", type=Path, help="Use the pinned OurAirports CSV for directory metadata")
     parser.add_argument("--fetch-ourairports", type=Path, help="Download and verify the pinned OurAirports CSV")
@@ -375,7 +380,8 @@ def main():
         old = validate_manifest(json.loads(PIN.read_bytes()))
         old_data = TARGET.read_bytes()
         before = validate_dataset(old_data, old)
-        previous = json.loads(DIRECTORY.read_bytes())
+        directory_bytes = DIRECTORY.read_bytes()
+        previous = json.loads(directory_bytes)
         fly = json.loads((DATA / "airports.iata.json").read_bytes())
         if args.check:
             validate_directory(before, previous, fly)
@@ -387,15 +393,21 @@ def main():
         if not version_change(old, new):
             print(f"No new formal Airport History version (pinned v{old['dataVersion']}).")
             return
+        if args.same_schema and new["schemaVersion"] != old["schemaVersion"]:
+            print(f"Schema {new['schemaVersion']} is available for a manual update PR.")
+            return
         raw = fetch(f"{UPSTREAM}/{new['commit']}/{DATASET}")
         after = validate_dataset(raw, new)
         breaking = detect_breaking_changes(before, after)
-        reference = (
-            read_ourairports(args.ourairports)
-            if args.ourairports
-            else parse_ourairports(fetch(OURAIRPORTS["csv"]))
-        )
-        directory = directory_rows(after, previous, fly, reference, before["airports"])
+        directory = previous
+        if old["schemaVersion"] == new["schemaVersion"] or directory_inputs(before) != directory_inputs(after):
+            reference = (
+                read_ourairports(args.ourairports)
+                if args.ourairports
+                else parse_ourairports(fetch(OURAIRPORTS["csv"]))
+            )
+            directory = directory_rows(after, previous, fly, reference, before["airports"])
+            directory_bytes = compact_object(directory)
         validate_directory(after, directory, fly)
         labels = labels_for_update(json.loads(NAMES.read_bytes()) if NAMES.exists() else {}, directory, after)
         summary = report(before, after, old, new, directory, labels, breaking)
@@ -405,7 +417,7 @@ def main():
             raise ValueError("Manual review required:\n" + "\n".join(breaking))
         write_files([
             (TARGET, raw),
-            (DIRECTORY, compact_object(directory)),
+            (DIRECTORY, directory_bytes),
             (NAMES, compact_object(labels)),
             (PIN, (json.dumps(new, indent=2) + "\n").encode()),
         ])

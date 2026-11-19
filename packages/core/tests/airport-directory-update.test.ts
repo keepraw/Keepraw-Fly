@@ -41,10 +41,6 @@ function assignment(
     airportId,
     scheme,
     code,
-    evidenceType: "fixture",
-    verificationStatus: "verified",
-    verifiedOn: from,
-    sourceIds: ["reviewed"],
     validFrom: { earliest: from, latest: from, precision: "exact" },
     validTo: { earliest: to, latest: to, precision: "exact" },
   };
@@ -63,6 +59,7 @@ async function install(
   }));
   vi.doMock("../data/airport-history/formal/airports.json", () => ({
     default: {
+      schemaVersion: "4.0.0",
       dataVersion,
       airports: [site, closed].map((airportId) => ({
         airportId,
@@ -73,7 +70,6 @@ async function install(
       })),
       assignments,
       names: [],
-      sources: [{ sourceId: "reviewed", verificationStatus: "verified" }],
     },
   }));
   vi.doMock("../data/airport-history/formal/directory.json", () => ({

@@ -12,15 +12,36 @@ from pathlib import Path
 SOURCE_PATH = Path(__file__).resolve().parents[1] / "packages/core/data/airports.source.json"
 OURAIRPORTS = json.loads(SOURCE_PATH.read_bytes())["formalDirectory"]
 OURAIRPORTS_SHA256 = OURAIRPORTS["sha256"]
-TRANSFER_SOURCES = json.loads(
-    (SOURCE_PATH.parent / "airport-history/reviewed-transfers.json").read_bytes()
-)["sources"]
+SUPPORTED_SCHEMAS = {"3.0.0", "4.0.0"}
 IATA = re.compile(r"[A-Z]{3}")
 ICAO = re.compile(r"[A-Z]{4}")
 OPERATING_TYPES = {
     "small_airport", "medium_airport", "large_airport",
     "heliport", "seaplane_base", "balloonport",
 }
+
+
+def legacy_sources(dataset):
+    schema = dataset["schemaVersion"]
+    if schema == "4.0.0":
+        return None
+    if schema != "3.0.0":
+        raise ValueError(f"Unsupported Airport History schema: {schema}")
+    sources = {row["sourceId"]: row for row in dataset["sources"]}
+    if len(sources) != len(dataset["sources"]):
+        raise ValueError("Duplicate sourceId in formal data")
+    return sources
+
+
+def claim_can_resolve(row, sources):
+    if sources is None:
+        return True
+    return (
+        row["verificationStatus"] == "verified"
+        and bool(row.get("verifiedOn"))
+        and bool(row["sourceIds"])
+        and all(sources.get(id_, {}).get("verificationStatus") == "verified" for id_ in row["sourceIds"])
+    )
 
 
 def verify_ourairports(data):
@@ -84,16 +105,10 @@ def directory_rows(dataset, previous, fly_rows, ourairports, previous_airports=(
     previous_zones = {
         row["airportId"]: row["timezone"]["value"] for row in previous_airports
     }
-    verified_sources = {
-        row["sourceId"]
-        for row in [*dataset["sources"], *TRANSFER_SOURCES]
-        if row["verificationStatus"] == "verified"
-    }
-    status_reviews = {
-        airport_id: review["status"]
-        for airport_id, review in OURAIRPORTS.get("statusReviews", {}).items()
-        if review["snapshotRevision"] == OURAIRPORTS["revision"]
-        and review["sourceIds"] and verified_sources.issuperset(review["sourceIds"])
+    status_overrides = {
+        airport_id: override["status"]
+        for airport_id, override in OURAIRPORTS.get("statusOverrides", {}).items()
+        if override["snapshotRevision"] == OURAIRPORTS["revision"]
     }
 
     directory = {}
@@ -125,8 +140,8 @@ def directory_rows(dataset, previous, fly_rows, ourairports, previous_airports=(
             old_value = (row.get(key) or "").strip()
             row[key] = value or (old_value if old_value != "ZZ" else "") or fallback
         airport_type = reference.get("type")
-        if airport_id in status_reviews:
-            row["status"] = status_reviews[airport_id]
+        if airport_id in status_overrides:
+            row["status"] = status_overrides[airport_id]
         elif airport_type == "closed":
             row["status"] = "closed"
         elif airport_type in OPERATING_TYPES:

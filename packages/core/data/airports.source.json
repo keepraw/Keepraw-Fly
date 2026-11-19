@@ -13,23 +13,15 @@
     "csv": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv",
     "sha256": "27c6500d0a742edece15c5aaf960e08c01df0d4356c5c86255897b5d3749ad3b",
     "license": "LicenseRef-Public-Domain",
-    "statusReviews": {
+    "statusOverrides": {
       "apt_dafb3e33-c7ed-431a-b8e8-22eecf543107": {
         "snapshotRevision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
         "status": "closed",
-        "sourceIds": [
-          "pnh-sia-2025",
-          "kti-vna-2025"
-        ],
         "note": "The snapshot still classifies the former Phnom Penh International Airport as a large airport. Reviewed evidence documents the transfer of scheduled civil operations to Techo."
       },
       "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc": {
         "snapshotRevision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
         "status": "closed",
-        "sourceIds": [
-          "fly-bti-faa-2017-04181",
-          "fly-bti-usaf-2019"
-        ],
         "note": "OurAirports 5337 retains the decommissioned coastal runway coordinates. FAA and USAF document the inland replacement and the retirement of the coastal airport."
       }
     }
@@ -88,7 +80,7 @@
       "apt_64b5eaa6-a984-4816-86d9-d8eb71c91451",
       "apt_f11bdf7d-d81d-46fc-a94f-8c8c42d4e245"
     ],
-    "correctionSource": "https://github.com/keepraw/airport-history-archive/blob/bb1046455e949c6c0bf3a18769464cb232bec19e/data/airports.json",
+    "correctionSource": "https://github.com/keepraw/airport-history/blob/dfa884dbd8d14e4ba1b03a092ce0155eb737169c/data/airports.json",
     "correctionReason": "LYG and LZO directory reference points described predecessor sites; NMI directory reference point was not the reviewed site."
   }
 }

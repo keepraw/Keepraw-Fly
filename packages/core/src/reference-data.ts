@@ -7,7 +7,6 @@ import {
   formalAirports,
   formalAssignmentsForCode,
   historicalNamesByAirportId,
-  isReviewedAirportClaim,
   latestFormalCodesByAirportId,
 } from "./formal-airport-data";
 
@@ -546,7 +545,7 @@ export function localizedAirportName(
       const [row] = possible;
       if (
         row &&
-        isReviewedAirportClaim(row) &&
+        row.canResolve &&
         assignmentDateRelation(date, row) === "certain"
       ) {
         return row.name;

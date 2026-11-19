@@ -53,6 +53,19 @@ def dataset(version="0.13.0"):
     })
 
 
+def schema_four(data):
+    data = copy.deepcopy(data)
+    data["schemaVersion"] = "4.0.0"
+    del data["sources"]
+    for row in data["airports"]:
+        for field in ("name", "coordinates", "timezone"):
+            del row[field]["sourceIds"]
+    for row in [*data["assignments"], *data["names"]]:
+        for field in ("sourceIds", "verificationStatus", "verifiedOn"):
+            row.pop(field, None)
+    return data
+
+
 def encoded(value):
     return (json.dumps(value) + "\n").encode()
 
@@ -102,13 +115,13 @@ class FormalUpdateTest(unittest.TestCase):
         self.snapshot.write_bytes(data)
         self.snapshot_sha = updater.sha(data)
 
-    def simulate(self, incoming, pin=None, download=None):
+    def simulate(self, incoming, pin=None, download=None, extra_args=()):
         pin = pin or publication(incoming)
         report = self.data / "report.md"
         with (
             patch.object(updater, "fetch", side_effect=[encoded(pin), download or encoded(incoming)]) as fetch,
             patch.object(airport_history_directory, "OURAIRPORTS_SHA256", self.snapshot_sha),
-            patch("sys.argv", ["update", "--ourairports", str(self.snapshot), "--report", str(report)]),
+            patch("sys.argv", ["update", "--ourairports", str(self.snapshot), "--report", str(report), *extra_args]),
         ):
             updater.main()
         return fetch, report
@@ -134,7 +147,7 @@ class FormalUpdateTest(unittest.TestCase):
         )
 
     def test_new_version_is_verified_and_adds_fallback_name_record(self):
-        after = add_site(dataset("0.14.0"))
+        after = schema_four(add_site(dataset("0.14.0")))
         fetch, report = self.simulate(after)
         self.assertEqual(fetch.call_args.args[0], f"{updater.UPSTREAM}/{'b' * 40}/{updater.DATASET}")
         self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(after))
@@ -142,6 +155,13 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertEqual(json.loads(self.paths["NAMES"].read_bytes())[NEW_SITE], {})
         self.assertIn("ja-JP | 1 / 2 | 1", report.read_text())
         self.assertIn("IATA assignments added: 1", report.read_text())
+
+    def test_schema_only_update_preserves_the_directory_bytes(self):
+        original = self.paths["DIRECTORY"].read_bytes()
+        after = schema_four(dataset("0.14.0"))
+        self.simulate(after)
+        self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(after))
+        self.assertEqual(self.paths["DIRECTORY"].read_bytes(), original)
 
     def assert_rejected(self, after, **kwargs):
         with self.assertRaises(SystemExit) as error:
@@ -192,14 +212,14 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertIn("New airports missing city, country, status or timezone: 0", report.read_text())
         self.assertIn("Existing airports with unverified current status: 0", report.read_text())
 
-    def test_keeps_reviewed_closure_for_its_snapshot_revision(self):
+    def test_keeps_local_closure_override_for_its_snapshot_revision(self):
         after = dataset("0.14.0")
-        review = {SITE: {"snapshotRevision": "a" * 40, "status": "closed", "sourceIds": ["source"]}}
+        override = {SITE: {"snapshotRevision": "a" * 40, "status": "closed"}}
         reference = {"1": {"type": "medium_airport"}}
         for revision, status in (("a" * 40, "closed"), ("b" * 40, "operating")):
             with (
                 self.subTest(revision=revision),
-                patch.dict(airport_history_directory.OURAIRPORTS, revision=revision, statusReviews=review),
+                patch.dict(airport_history_directory.OURAIRPORTS, revision=revision, statusOverrides=override),
             ):
                 directory = airport_history_directory.directory_rows(after, self.directory, [], reference)
                 self.assertEqual(directory[SITE]["status"], status)
@@ -248,7 +268,20 @@ class FormalUpdateTest(unittest.TestCase):
             self.assertIn(line, report.read_text())
 
     def test_unsupported_schema(self):
-        self.assert_rejected({**dataset("0.14.0"), "schemaVersion": "4.0.0"})
+        self.assert_rejected({**dataset("0.14.0"), "schemaVersion": "5.0.0"})
+
+    def test_automatic_update_leaves_schema_transition_for_manual_pr(self):
+        after = schema_four(dataset("0.14.0"))
+        fetch, report = self.simulate(after, extra_args=("--same-schema",))
+        fetch.assert_called_once_with(updater.PUBLICATION, 16_384)
+        self.assertFalse(report.exists())
+        self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(self.before))
+
+    def test_coverage_preserves_schema_three_eligibility_and_uses_schema_four_dates(self):
+        after = dataset("0.14.0")
+        after["sources"][0]["verificationStatus"] = "pending"
+        self.assertEqual(updater.coverage(after, HORIZON)["IATA"], 0)
+        self.assertGreater(updater.coverage(schema_four(after), HORIZON)["IATA"], 0)
 
     def test_removed_site_and_assignments(self):
         after = add_site(dataset("0.14.0"))
@@ -266,7 +299,9 @@ class FormalUpdateTest(unittest.TestCase):
     def test_overlapping_certain_assignments(self):
         after = add_site(dataset("0.14.0"))
         after["assignments"][1]["code"] = "AAA"
-        self.assert_rejected(after)
+        for data in after, schema_four(after):
+            with self.subTest(schema=data["schemaVersion"]):
+                self.assert_rejected(data)
 
     def test_rejects_a_move_of_an_existing_airport(self):
         after = dataset("0.14.0")
