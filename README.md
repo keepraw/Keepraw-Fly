@@ -79,7 +79,7 @@ Follow the [quality gates and contribution rules](docs/engineering-standards.md#
 
 ## Data format
 
-Airport selections are saved as permanent physical identities alongside the original IATA codes. Without a saved selection, [reviewed historical assignments](docs/airport-history.md) resolve known code/date pairs; unresolved airports can be selected manually. Worldwide research data is loaded only for an explicit historical lookup.
+Airport selections are saved as permanent physical identities alongside the original IATA codes. Without a saved selection, Fly resolves known code and date pairs using reviewed historical assignments. You can select unresolved airports manually from the bundled directory. [Airport history](docs/airport-history.md)
 
 The portable `keepraw-fly` archive uses schema and semantic validation. See the [format and compatibility guide](docs/schema.md) and [JSON Schema](packages/schema/keepraw-fly.schema.json).
 

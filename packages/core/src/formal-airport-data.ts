@@ -25,14 +25,6 @@ export type AssignmentDateRelation = "certain" | "possible" | "excluded";
 
 export const airportHistoryQueryHorizon = manifest.queryHorizon;
 export const formalAirports = formalPackage.airports;
-export const formalAirportIdByOurAirportsId = new Map(
-  formalAirports.flatMap((row) =>
-    row.externalIds.ourAirports
-      ? [[row.externalIds.ourAirports, row.airportId] as const]
-      : [],
-  ),
-);
-
 export const airportHistoryDataVersion = formalPackage.dataVersion;
 const transfersByAssignment = new Map(
   reviewedTransfers.transfers.flatMap((transfer) =>

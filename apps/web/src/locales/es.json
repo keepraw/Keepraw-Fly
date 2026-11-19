@@ -164,9 +164,7 @@
     "airportTimezoneCandidates": "Los candidatos históricos usan zonas distintas: {{zones}}. Elige la que corresponda.",
     "airportTimezoneHint": "Zona IANA o desfase UTC como +08:00.",
     "airportHistory": {
-      "searchGroup": "Aeropuertos y códigos históricos",
-      "review": "Buscar aeropuertos históricos",
-      "reviewFailed": "Consulta no disponible. Puede seleccionar un aeropuerto arriba y guardar el vuelo."
+      "searchGroup": "Aeropuertos y códigos históricos"
     }
   },
   "status": {

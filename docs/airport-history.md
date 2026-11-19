@@ -97,8 +97,8 @@ Coverage varies by locale and site. The fallback leaves the ID intact.
 The search index includes IATA, ICAO, every stored name, historical labels
 and aliases. It is rebuilt once per installed directory and narrows each query
 to indexed candidates. Assignment and name lookups use indexes by code and ID.
-The packaged assets support normal archive and airport lookup without upstream
-requests.
+The flight editor searches these bundled assets. When you save a flight, Fly
+stores the selected site’s permanent ID alongside the recorded code.
 
 Maintain the existing localization records with `pnpm update:airport-locales`.
 Add `--wikidata` to acquire missing labels for uniquely matched sites, using the
@@ -151,13 +151,3 @@ pull requests. GitHub may ask a maintainer to approve the PR's CI run for
 token-created PRs. The updater validates the candidate before opening the PR.
 For initial setup, merge the upstream production manifest PR before the
 first scheduled check.
-
-## Manual research
-
-The explicit historical lookup button loads a separate research client.
-It fetches the pinned IATA index and the shards needed for the requested code
-from the archive and verifies their SHA-256 digests. [Archived research manifest](https://github.com/keepraw/airport-history-archive/blob/bb1046455e949c6c0bf3a18769464cb232bec19e/reference/generated/manifest.json)
-
-Research rows can be selected only when an external OurAirports ID links to a
-formal physical site. Research lookup failures leave normal airport resolution
-and saved flights available.
