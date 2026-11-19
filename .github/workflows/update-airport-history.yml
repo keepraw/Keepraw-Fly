@@ -27,12 +27,15 @@ jobs:
           ref: main
           persist-credentials: false
 
+      - name: Download and verify the pinned OurAirports snapshot
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --fetch-ourairports "$RUNNER_TEMP/ourairports.csv"
+
       - name: Check the formal publication
         id: data
         run: |
           report="$RUNNER_TEMP/airport-history-update.md"
           log="$RUNNER_TEMP/airport-history-update.log"
-          if ! PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --report "$report" > "$log" 2>&1; then
+          if ! PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --ourairports "$RUNNER_TEMP/ourairports.csv" --report "$report" > "$log" 2>&1; then
             cat "$log"
             if [ -s "$report" ]; then
               cat "$report" >> "$GITHUB_STEP_SUMMARY"

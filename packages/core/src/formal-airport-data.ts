@@ -97,3 +97,39 @@ export function isReviewedAirportClaim(
     )
   );
 }
+
+const through = new Date(`${airportHistoryQueryHorizon.toExclusive}T00:00:00Z`);
+through.setUTCDate(through.getUTCDate() - 1);
+const lastFormalDay = through.toISOString().slice(0, 10);
+
+/** Publish a current code only when the formal evidence identifies one site. */
+export const latestFormalCodesByAirportId = new Map<
+  string,
+  Record<AirportCodeScheme, string[]>
+>();
+for (const rows of assignmentsByCode.values()) {
+  const possible = rows.filter(
+    (row) => assignmentDateRelation(lastFormalDay, row) !== "excluded",
+  );
+  const certain = possible.find(
+    (row) => assignmentDateRelation(lastFormalDay, row) === "certain",
+  );
+  if (
+    !certain ||
+    possible.some(
+      (row) =>
+        row.airportId !== certain.airportId || !isReviewedAirportClaim(row),
+    )
+  )
+    continue;
+  const codes = latestFormalCodesByAirportId.get(certain.airportId) ?? {
+    IATA: [],
+    ICAO: [],
+  };
+  codes[certain.scheme].push(certain.code);
+  latestFormalCodesByAirportId.set(certain.airportId, codes);
+}
+for (const codes of latestFormalCodesByAirportId.values()) {
+  codes.IATA.sort();
+  codes.ICAO.sort();
+}

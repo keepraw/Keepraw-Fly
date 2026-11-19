@@ -178,7 +178,9 @@ export function searchHistoricalAirports(
       airport.status !== "operating" ||
       Boolean(airport.historicalNames?.length) ||
       (assignmentsByAirportId.get(airport.airportId) ?? []).some(
-        (row) => row.scheme === "IATA" && row.code !== airport.currentIata,
+        (row) =>
+          row.code !==
+          (row.scheme === "IATA" ? airport.currentIata : airport.icao),
       ),
   ).map((airport) => ({
     kind: "formal",

@@ -5,6 +5,7 @@ import manifest from "../data/airport-history/formal/manifest.json";
 import {
   airportById,
   airportByIata,
+  airportIdsBySearchCode,
   airportHistoryDataVersion,
   airportHistoryQueryHorizon,
   formalAssignments,
@@ -15,6 +16,7 @@ import {
   resolveAirportAtDate,
   resolveEndpointIdentity,
   searchAirports,
+  searchHistoricalAirports,
   type CompactAirportRow,
 } from "../src";
 
@@ -97,6 +99,34 @@ describe("formal data and Fly directory", () => {
       searchAirports(airport.icao!, "fr-FR").map((row) => row.airportId),
     ).toContain(airport.airportId);
   });
+
+  it.each([
+    ["PBI", "DJT", "apt_eb176a20-e0e3-438d-a330-a7b81185232d"],
+    ["FRU", "BSZ", "apt_82a9b73d-530e-4f4a-9456-7f53c88246bc"],
+  ])("indexes %s as history and %s as current", (oldCode, newCode, id) => {
+    expect(airportById.get(id)?.currentIata).toBe(newCode);
+    expect(airportByIata.get(newCode)).toMatchObject({
+      airportId: id,
+      currentIata: newCode,
+    });
+    expect(airportByIata.has(oldCode)).toBe(false);
+    expect(airportIdsBySearchCode.get(oldCode)).toContain(id);
+    expect(
+      searchHistoricalAirports(oldCode).map((row) => row.airportId),
+    ).toContain(id);
+    expect(resolveAirportAtDate(oldCode, "2024-06-15").airportId).toBe(id);
+  });
+
+  it("keeps the closed PNH airport searchable without registering it as current", () => {
+    const closed = resolveAirportAtDate("PNH", "2024-06-15").airport!;
+    expect(closed.status).toBe("closed");
+    expect(closed.currentIata).toBeUndefined();
+    expect(airportByIata.has("PNH")).toBe(false);
+    expect(airportIdsBySearchCode.get("PNH")).toContain(closed.airportId);
+    expect(
+      searchHistoricalAirports("PNH").map((row) => row.airportId),
+    ).toContain(closed.airportId);
+  });
 });
 
 describe("airport names by physical identity", () => {
@@ -152,12 +182,35 @@ describe("airport names by physical identity", () => {
     },
   );
 
-  it("selects verified date-effective official names and falls back on the uncertain boundary", () => {
+  it.each([
+    ["2016-01-01", "Международный аэропорт Астана"],
+    ["2018-01-01", "Международный аэропорт Нурсултан Назарбаев"],
+  ])(
+    "uses the requested language for Astana on %s and indexes the original",
+    (date, official) => {
+      const astana = resolveAirportAtDate("NQZ", "2024-01-01").airportId;
+      expect(localizedAirportName(astana, "ru", date)).toBe(official);
+      expect(localizedAirportName(astana, "ru-RU", date)).toBe(official);
+      expect(localizedAirportName(astana, "en", date)).toBe(
+        "Nursultan Nazarbayev International Airport",
+      );
+      expect(localizedAirportName(astana, "zh-CN", date)).toBe(
+        "努尔苏丹·纳扎尔巴耶夫国际机场",
+      );
+      expect(localizedAirportName(astana, "ja-JP", date)).toBe(
+        "アスタナ国際空港",
+      );
+      expect(localizedAirportName(astana, "it-IT", date)).toBe(
+        "Nursultan Nazarbayev International Airport",
+      );
+      expect(
+        searchHistoricalAirports(official).map((row) => row.airportId),
+      ).toContain(astana);
+    },
+  );
+
+  it("falls back on the uncertain boundary between Astana's official names", () => {
     const astana = resolveAirportAtDate("NQZ", "2024-01-01").airportId;
-    const old = localizedAirportName(astana, "ru", "2016-01-01");
-    const recent = localizedAirportName(astana, "ru", "2018-01-01");
-    expect(old).toBe("Международный аэропорт Астана");
-    expect(recent).toBe("Международный аэропорт Нурсултан Назарбаев");
     expect(localizedAirportName(astana, "ru", "2017-06-21")).toBe(
       localizedAirportName(astana, "en"),
     );

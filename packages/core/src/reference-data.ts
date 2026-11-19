@@ -2,12 +2,13 @@ import airportNameRows from "../data/airport-names.json";
 import bootstrapIds from "../data/airport-bootstrap-ids.json";
 import formalDirectory from "../data/airport-history/formal/directory.json";
 import {
-  airportHistoryQueryHorizon,
   assignmentDateRelation,
   assignmentsByAirportId,
   formalAirports,
+  formalAssignmentsForCode,
   historicalNamesByAirportId,
   isReviewedAirportClaim,
+  latestFormalCodesByAirportId,
 } from "./formal-airport-data";
 
 /** BCP 47 locale accepted by Intl; independent of the released UI languages. */
@@ -59,11 +60,12 @@ interface AirportNameRecord {
 }
 interface FormalDirectoryRow {
   city: string;
+  citySource?: "ourAirports";
   country: string;
+  countrySource?: "ourAirports";
   status: NonNullable<AirportReference["status"]>;
   legacyIds?: string[];
   iata?: string;
-  currentIata?: string;
   timezone?: string;
 }
 
@@ -532,10 +534,12 @@ export function localizedAirportName(
   const airport = airportById.get(airportId);
   if (!airport) return undefined;
   if (date) {
+    const language = locale.split("-")[0]?.toLowerCase();
     const names = historicalNamesByAirportId.get(airport.airportId);
     const possible = names?.filter(
       (row) =>
         row.kind === "official" &&
+        row.language.split("-")[0]?.toLowerCase() === language &&
         assignmentDateRelation(date, row) !== "excluded",
     );
     if (possible?.length === 1) {
@@ -552,9 +556,17 @@ export function localizedAirportName(
   return localizedText(airport.name, locale);
 }
 
-const through = new Date(`${airportHistoryQueryHorizon.toExclusive}T00:00:00Z`);
-through.setUTCDate(through.getUTCDate() - 1);
-const lastFormalDay = through.toISOString().slice(0, 10);
+function storeFlyReference(airport: AirportReference): void {
+  const { iata, status } = airport;
+  if (
+    status === "operating" &&
+    iata &&
+    /^[A-Z]{3}$/.test(iata) &&
+    !formalAssignmentsForCode(iata).length
+  )
+    airport.currentIata = iata;
+  airportById.set(airport.airportId, airport);
+}
 
 /** Install static reference rows while preserving the existing exported indexes. */
 export function installAirportDirectory(
@@ -595,27 +607,20 @@ export function installAirportDirectory(
       historicalNames: historicalNames ?? [],
       searchAliases: searchAliases ?? [],
     };
-    if (status !== "closed" && status !== "unknown") {
-      airport.currentIata = iata;
-      airportByIata.set(iata, { ...airport, iata, currentIata: iata });
-    }
-    airportById.set(id, airport);
+    storeFlyReference(airport);
   }
 
   if (!rows.length) {
     for (const row of curatedAirports) {
       const id = permanentIds.get(row.iata);
       if (!id) continue;
-      const airport: CurrentAirportReference = {
+      storeFlyReference({
         ...row,
         airportId: id,
-        currentIata: row.iata,
         status: "operating",
         name: { ...row.name, ...namesForAirport(id, row.name.en) },
         city: { ...row.city, ...airportNames[id]?.cities },
-      };
-      airportByIata.set(row.iata, airport);
-      airportById.set(id, airport);
+      });
     }
   }
 
@@ -625,30 +630,37 @@ export function installAirportDirectory(
       .map((id) => airportById.get(id))
       .filter((entry) => entry !== undefined);
     const assignments = assignmentsByAirportId.get(raw.airportId) ?? [];
-    const atHorizonEnd = assignments.filter(
-      (row) =>
-        assignmentDateRelation(lastFormalDay, row) === "certain" &&
-        isReviewedAirportClaim(row),
-    );
-    const formalIata = atHorizonEnd.find((row) => row.scheme === "IATA")?.code;
-    const sameEntity =
-      entries.find((entry) => entry.currentIata === formalIata) ?? entries[0];
-    const status =
-      metadata.status === "closed"
-        ? "closed"
-        : (sameEntity?.status ?? metadata.status);
-    const newSiteIata =
-      status === "closed" ? undefined : (formalIata ?? metadata.currentIata);
-    const currentIata = sameEntity ? sameEntity.currentIata : newSiteIata;
+    const sameEntity = entries[0];
+    const status = metadata.status;
+    const codes =
+      status === "closed"
+        ? undefined
+        : latestFormalCodesByAirportId.get(raw.airportId);
+    const currentIata = codes?.IATA[0];
     const iata =
-      sameEntity?.iata ??
       currentIata ??
+      sameEntity?.iata ??
       metadata.iata ??
       assignments.find((row) => row.scheme === "IATA")?.code;
+    const legacyIcao = sameEntity?.icao;
     const icao =
-      sameEntity?.icao ||
-      atHorizonEnd.find((row) => row.scheme === "ICAO")?.code;
+      codes?.ICAO[0] ??
+      (status !== "closed" &&
+      legacyIcao &&
+      !formalAssignmentsForCode(legacyIcao, "ICAO").length
+        ? legacyIcao
+        : undefined);
     const canonicalName = sameEntity?.name.en ?? raw.name.value!;
+    const city =
+      metadata.citySource && metadata.city !== sameEntity?.city.en
+        ? { en: metadata.city }
+        : (sameEntity?.city ?? {
+            en: metadata.city,
+            ...airportNames[raw.airportId]?.cities,
+          });
+    const country = metadata.countrySource
+      ? metadata.country
+      : (sameEntity?.country ?? metadata.country);
     const airport: AirportReference = {
       airportId: raw.airportId,
       iata,
@@ -659,16 +671,16 @@ export function installAirportDirectory(
         ...sameEntity?.name,
         ...namesForAirport(raw.airportId, canonicalName),
       },
-      city: sameEntity?.city ?? {
-        en: metadata.city,
-        ...airportNames[raw.airportId]?.cities,
-      },
-      country: sameEntity?.country ?? metadata.country,
-      countryName: sameEntity?.countryName ?? countryName(metadata.country),
+      city,
+      country,
+      countryName:
+        country === sameEntity?.country
+          ? sameEntity.countryName
+          : countryName(country),
       latitude: sameEntity?.latitude ?? raw.coordinates.value!.latitude,
       longitude: sameEntity?.longitude ?? raw.coordinates.value!.longitude,
       timezone:
-        raw.timezone.value ?? sameEntity?.timezone ?? metadata.timezone ?? null,
+        raw.timezone.value ?? metadata.timezone ?? sameEntity?.timezone ?? null,
       historicalNames: [
         ...new Set([
           ...entries.flatMap((row) => row.historicalNames ?? []),
@@ -697,28 +709,17 @@ export function installAirportDirectory(
     airportById.set(raw.airportId, airport);
     for (const legacyId of metadata.legacyIds ?? [])
       airportById.set(legacyId, airport);
-    for (const entry of entries) {
-      const code = entry.currentIata;
-      if (code && airportByIata.get(code)?.airportId === entry.airportId) {
-        airportByIata.set(code, { ...airport, iata: code, currentIata: code });
-      }
-    }
-    if (currentIata && !airportByIata.has(currentIata)) {
-      airportByIata.set(currentIata, {
-        ...airport,
-        iata: currentIata,
-        currentIata,
-      });
-    }
   }
 
-  airports.splice(
-    0,
-    airports.length,
-    ...[...airportByIata.values()].sort((a, b) => a.iata.localeCompare(b.iata)),
-  );
   for (const [id, airport] of airportById) {
     if (airport.airportId !== id) continue;
+    if (airport.currentIata) {
+      const currentCodes = latestFormalCodesByAirportId.get(id)?.IATA ?? [
+        airport.currentIata,
+      ];
+      for (const code of currentCodes)
+        airportByIata.set(code, { ...airport, iata: code, currentIata: code });
+    }
     for (const code of [
       airport.iata,
       airport.icao,
@@ -730,6 +731,11 @@ export function installAirportDirectory(
       else airportIdsBySearchCode.set(code, new Set([airport.airportId]));
     }
   }
+  airports.splice(
+    0,
+    airports.length,
+    ...[...airportByIata.values()].sort((a, b) => a.iata.localeCompare(b.iata)),
+  );
   directoryVersion += 1;
 }
 

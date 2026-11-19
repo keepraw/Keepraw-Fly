@@ -328,5 +328,5 @@ jobs:
       - name: Verify reviewed airport data against the pinned upstream commit
         run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --check --verify-upstream
 
-      - name: Simulate formal publication updates
-        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_airport_history_update.py'
+      - name: Verify the directory audit and simulate formal publication updates
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_airport_*.py'

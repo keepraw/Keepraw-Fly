@@ -97,7 +97,7 @@ describe("reviewed code assignments", () => {
 });
 
 describe("persisted physical identities", () => {
-  it("keeps directory updates for a formal entity when its current code changes", () => {
+  it("keeps Fly metadata and search aliases when a Fly code conflicts with the formal current code", () => {
     const changed = airportRows.map((row) => [...row]) as CompactAirportRow[];
     const current = changed.find((row) => row[7] === chekLapKok)!;
     current[0] = "XHK";
@@ -108,14 +108,14 @@ describe("persisted physical identities", () => {
     try {
       installAirportDirectory(changed);
       expect(airportById.get(chekLapKok)).toMatchObject({
-        currentIata: "XHK",
+        currentIata: "HKG",
         name: { en: current[1] },
         latitude: current[4],
         historicalNames: expect.arrayContaining(["Earlier directory name"]),
         searchAliases: expect.arrayContaining(["HKG", "XHK"]),
       });
-      expect(airportByIata.has("HKG")).toBe(false);
-      expect(airportByIata.get("XHK")?.airportId).toBe(chekLapKok);
+      expect(airportByIata.get("HKG")?.airportId).toBe(chekLapKok);
+      expect(airportByIata.has("XHK")).toBe(false);
       expect(
         resolveEndpointIdentity("HKG", "2020-01-01", "origin", null, chekLapKok)
           .point?.latitude,

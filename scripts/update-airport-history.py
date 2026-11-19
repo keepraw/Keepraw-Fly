@@ -12,8 +12,8 @@ from tempfile import TemporaryDirectory
 from urllib.request import Request, urlopen
 
 from airport_history_directory import (
-    ICAO, IATA, compact_object, directory_rows, distance_km, read_ourairports,
-    validate_directory,
+    ICAO, IATA, OURAIRPORTS, compact_object, directory_rows, distance_km,
+    parse_ourairports, read_ourairports, validate_directory, verify_ourairports,
 )
 
 DATA = Path(__file__).resolve().parents[1] / "packages/core/data"
@@ -264,6 +264,14 @@ def report(before, after, old, new, directory, labels, breaking):
     new_coverage = coverage(after, new["queryHorizon"])
     locale_coverage = coverage_by_locale(airports, labels)
     added_coverage = coverage_by_locale(added_ids, labels)
+    missing_city = {id_ for id_, row in directory.items() if not row["city"].strip()}
+    missing_country = {id_ for id_, row in directory.items() if row["country"] == "ZZ"}
+    unknown_status = {id_ for id_, row in directory.items() if row["status"] == "unknown"}
+    missing_timezone = {
+        id_ for id_, airport in airports.items()
+        if not (airport["timezone"]["value"] or directory[id_].get("timezone"))
+    }
+    incomplete = missing_city | missing_country | unknown_status | missing_timezone
     sections = [
         "## Publication",
         "",
@@ -284,6 +292,15 @@ def report(before, after, old, new, directory, labels, breaking):
         f"- Historical intervals changed: {len(changed_intervals):,}",
         f"- Source records changed, added or removed: {len(source_changes):,}",
         f"- Fly IDs linked to verified sites: {sum(len(row.get('legacyIds', [])) for row in directory.values()):,}",
+        "",
+        "## Directory metadata",
+        "",
+        f"- OurAirports snapshot: `{OURAIRPORTS['revision']}`",
+        f"- Missing city: {len(missing_city):,}",
+        f"- Country ZZ: {len(missing_country):,}",
+        f"- Unknown status: {len(unknown_status):,}",
+        f"- New airports missing city, country, status or timezone: {len(incomplete.intersection(added_ids)):,}",
+        f"- Existing airports with unverified current status: {len(unknown_status.intersection(old_airports)):,}",
         "",
         "## Resolved code/date coverage",
         "",
@@ -346,9 +363,15 @@ def main():
     parser.add_argument("--verify-upstream", action="store_true", help="Compare pinned bytes to the immutable upstream commit")
     parser.add_argument("--manifest", type=Path, help="Use an explicitly supplied publication manifest")
     parser.add_argument("--ourairports", type=Path, help="Use the pinned OurAirports CSV for directory metadata")
+    parser.add_argument("--fetch-ourairports", type=Path, help="Download and verify the pinned OurAirports CSV")
     parser.add_argument("--report", type=Path, help="Write the update report as Markdown")
     args = parser.parse_args()
     try:
+        if args.fetch_ourairports:
+            data = verify_ourairports(fetch(OURAIRPORTS["csv"]))
+            args.fetch_ourairports.write_bytes(data)
+            print(f"Verified OurAirports CSV at {OURAIRPORTS['revision']}")
+            return
         old = validate_manifest(json.loads(PIN.read_bytes()))
         old_data = TARGET.read_bytes()
         before = validate_dataset(old_data, old)
@@ -367,8 +390,12 @@ def main():
         raw = fetch(f"{UPSTREAM}/{new['commit']}/{DATASET}")
         after = validate_dataset(raw, new)
         breaking = detect_breaking_changes(before, after)
-        reference = read_ourairports(args.ourairports) if args.ourairports else {}
-        directory = directory_rows(after, previous, fly, reference)
+        reference = (
+            read_ourairports(args.ourairports)
+            if args.ourairports
+            else parse_ourairports(fetch(OURAIRPORTS["csv"]))
+        )
+        directory = directory_rows(after, previous, fly, reference, before["airports"])
         validate_directory(after, directory, fly)
         labels = labels_for_update(json.loads(NAMES.read_bytes()) if NAMES.exists() else {}, directory, after)
         summary = report(before, after, old, new, directory, labels, breaking)

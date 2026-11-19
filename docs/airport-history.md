@@ -28,9 +28,19 @@ supplies locality and status and records physical-site crosswalks under
 near-identical reference coordinates. The pinned [OurAirports CSV](https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv)
 supplies locality and status by external ID. The same-site reference point
 from Fly is retained. Distinct sites with a shared code stay independently
-searchable. Basel and Mulhouse retain both directory designators and one
-physical identity. A site without an IATA assignment can appear by name or
-ICAO in search.
+searchable. The Basel and Mulhouse Fly IDs point to one physical identity,
+with BSL in the current lookup and MLH in the search aliases. A site without
+an IATA assignment can appear by name or ICAO in search.
+
+The current index uses unique, reviewed assignments that are certain on the
+last day before `queryHorizon.toExclusive`. Closed formal sites have no
+current code. Fly-only current codes apply where the formal dataset has no
+IATA assignment for that code. Past IATA and ICAO codes stay in historical
+search. PBI and FRU are searchable as former codes for DJT and BSZ.
+
+The [0.13.0 crosswalk audit](audits/airport-crosswalk-0.13.0.md) records all
+5,893 links, direct ID matches, unlinked Fly IDs and alternative candidates.
+It identifies evidence that needs manual review of physical identity.
 
 Each original ID still resolves through `airportById`. Routes and statistics
 group a Fly alias and its upstream ID as the same site. Closed sites and
@@ -72,9 +82,11 @@ Huaguoshan labels are stored on their respective sites. Traditional Chinese
 conversion fills gaps. Official date-effective labels retain their original
 language, source and independent interval in the formal dataset.
 
-The name API chooses an unambiguous verified dated name when available.
-For other dates it tries the exact locale, then the base language and the
-canonical English reference. The English base serves en-US and en-GB.
+The name API chooses an unambiguous verified dated name in the requested
+language when available. The fallback uses the exact locale, then the base
+language and the canonical English reference. Astana's dated Russian names
+remain available in Russian and in historical search. The English base serves
+en-US and en-GB.
 Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German,
 Spanish and Brazilian Portuguese have display-name records where sourced.
 Coverage varies by locale and site. The fallback leaves the ID intact.
@@ -97,14 +109,23 @@ is missing.
 [Update Airport History](../.github/workflows/update-airport-history.yml)
 checks the upstream production manifest daily at 02:17 UTC (10:17 in China).
 To check immediately, run the workflow from the **Actions** tab on `main`.
-For a local preview use:
+The equivalent local commands use the verified snapshot.
 
 ```sh
-python3 scripts/update-airport-history.py --report /tmp/airport-history-update.md
+python3 scripts/update-airport-history.py --fetch-ourairports /tmp/ourairports.csv
+python3 scripts/update-airport-history.py --ourairports /tmp/ourairports.csv --report /tmp/airport-history-update.md
 python3 scripts/update-airport-history.py --check --verify-upstream
 ```
 
 The workflow consumes the manifest and formal dataset for its immutable commit.
+It downloads and verifies the OurAirports revision and SHA-256 recorded under
+`formalDirectory` in [airports.source.json](../packages/core/data/airports.source.json).
+Each import refreshes locality and status by the formal site's external ID.
+New, verified locality takes precedence in the directory. Missing fields use
+known locality and timezone references when available. Current status remains
+unknown when the snapshot provides no status evidence. Use a separate manual
+review to assign a new crosswalk link.
+
 A matching publication exits before writing files. A different hash for the
 same version, incompatible schema, missing identity or assignment, changed
 external identity, material movement or conflicting certain intervals
@@ -113,9 +134,11 @@ requires review. Inspect the workflow summary for the diagnostic.
 A new compatible publication updates the pin and reference data, checks the
 hash, validates the directory, runs the workspace checks and proposes an
 English PR. The PR reports old and new versions and hashes, claim and source
-changes, resolved code/date coverage and the gaps by locale. An existing
-version PR receives the refreshed report. The maintainer reviews and merges
-the PR through the normal CI gate.
+changes, resolved code/date coverage, gaps by locale and counts for missing
+city, country, status and incomplete metadata on new sites. It also counts
+existing sites whose status could not be verified. An existing version PR
+receives the refreshed report. The maintainer reviews and merges the PR
+through the normal CI gate.
 
 GitHub's repository Actions setting must allow the workflow token to create
 pull requests. GitHub may ask a maintainer to approve the PR's CI run for

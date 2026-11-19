@@ -7,6 +7,13 @@
   "generatedAt": "2026-09-02T01:03:39.583Z",
   "airportCount": 7884,
   "cityGroupCount": 40,
+  "formalDirectory": {
+    "source": "https://github.com/davidmegginson/ourairports-data",
+    "revision": "d97df1673cc5ba61a09b17ab5936091a669a04ca",
+    "csv": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv",
+    "sha256": "27c6500d0a742edece15c5aaf960e08c01df0d4356c5c86255897b5d3749ad3b",
+    "license": "LicenseRef-Public-Domain"
+  },
   "directoryCorrections": [
     {
       "airportId": "apt_eb58849d-cf41-42bd-b34c-92edb109a027",
