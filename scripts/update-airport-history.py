@@ -12,8 +12,9 @@ from tempfile import TemporaryDirectory
 from urllib.request import Request, urlopen
 
 from airport_history_directory import (
-    ICAO, IATA, OURAIRPORTS, compact_object, directory_rows, distance_km,
-    parse_ourairports, read_ourairports, validate_directory, verify_ourairports,
+    ICAO, IATA, OURAIRPORTS, SUPPORTED_SCHEMAS, claim_can_resolve, compact_object,
+    directory_rows, distance_km, legacy_sources, parse_ourairports, read_ourairports,
+    validate_directory, verify_ourairports,
 )
 
 DATA = Path(__file__).resolve().parents[1] / "packages/core/data"
@@ -24,7 +25,6 @@ DIRECTORY = FORMAL / "directory.json"
 NAMES = DATA / "airport-names.json"
 UPSTREAM = "https://raw.githubusercontent.com/keepraw/airport-history"
 DATASET = "data/airports.json"
-SUPPORTED_SCHEMAS = {"3.0.0", "4.0.0"}
 PUBLICATION = f"{UPSTREAM}/main/data/production-manifest.json"
 LOCALES = {"en-US": "en", "en-GB": "en", "zh-CN": "zh-CN", "zh-TW": "zh-TW",
            "ja-JP": "ja", "ko-KR": "ko", "fr-FR": "fr", "de-DE": "de",
@@ -100,23 +100,6 @@ def validate_bounds(row):
     start, end = row["validFrom"]["earliest"], row["validTo"]["latest"]
     if start and end and start >= end:
         raise ValueError(f"Empty possible interval in {row}")
-
-
-def legacy_sources(dataset):
-    if dataset["schemaVersion"] == "3.0.0":
-        return indexed(dataset["sources"], "sourceId")
-    return None
-
-
-def claim_can_resolve(row, sources):
-    if sources is None:
-        return True
-    return (
-        row["verificationStatus"] == "verified"
-        and bool(row.get("verifiedOn"))
-        and bool(row["sourceIds"])
-        and all(sources[source]["verificationStatus"] == "verified" for source in row["sourceIds"])
-    )
 
 
 def validate_dataset(data, manifest):

@@ -12,8 +12,8 @@ from itertools import combinations
 from pathlib import Path
 
 from airport_history_directory import (
-    ICAO, IATA, OURAIRPORTS, distance_km, folded_name, read_ourairports,
-    same_site_candidates,
+    ICAO, IATA, OURAIRPORTS, claim_can_resolve, distance_km, folded_name,
+    legacy_sources, read_ourairports, same_site_candidates,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,7 +27,7 @@ def formal_codes(dataset, horizon):
     for row in dataset["assignments"]:
         all_codes[row["airportId"]][row["scheme"]].add(row["code"])
         by_code[row["scheme"], row["code"]].append(row)
-    sources = {row["sourceId"]: row for row in dataset["sources"]}
+    sources = legacy_sources(dataset)
     last_day = (date.fromisoformat(horizon["toExclusive"]) - timedelta(days=1)).isoformat()
     current = defaultdict(lambda: {"IATA": set(), "ICAO": set()})
     for (scheme, code), rows in by_code.items():
@@ -38,14 +38,7 @@ def formal_codes(dataset, horizon):
         ]
         if len({row["airportId"] for row in possible}) != 1:
             continue
-        if not all(
-            row["verificationStatus"] == "verified" and row.get("verifiedOn")
-            and row["sourceIds"] and all(
-                sources.get(source_id, {}).get("verificationStatus") == "verified"
-                for source_id in row["sourceIds"]
-            )
-            for row in possible
-        ):
+        if not all(claim_can_resolve(row, sources) for row in possible):
             continue
         if any(
             row["validFrom"]["latest"] and row["validTo"]["earliest"]
