@@ -55,13 +55,12 @@ describe("explicit manual research", () => {
     expect(results[0]?.airportId).toBe(
       "apt_86460159-a072-4a18-afcc-ab376cda7047",
     );
-    expect(fetcher.mock.calls.map(([url]) => url.split("/").at(-1))).toEqual([
-      "index.IATA.jsonl.gz",
-      "records.0.jsonl.gz",
+    expect(researchRevision).toBe("bb1046455e949c6c0bf3a18769464cb232bec19e");
+    const base = `https://raw.githubusercontent.com/keepraw/airport-history-archive/${researchRevision}/reference/generated/`;
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+      `${base}index.IATA.jsonl.gz`,
+      `${base}records.0.jsonl.gz`,
     ]);
-    expect(
-      fetcher.mock.calls.every(([url]) => url.includes(researchRevision)),
-    ).toBe(true);
     expect(digest).toHaveBeenCalledTimes(2);
     await researchAirportCode("HKG");
     expect(fetcher).toHaveBeenCalledTimes(2);

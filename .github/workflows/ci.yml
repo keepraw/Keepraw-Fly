@@ -317,7 +317,7 @@ jobs:
   airport-history:
     if: github.repository == 'keepraw/Keepraw-Fly'
     # Only the reviewed dataset belongs to Fly. Compare its bytes with the pin;
-    # worldwide research remains in the independent airport-history repository.
+    # manual research uses the separate airport-history-archive repository.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 

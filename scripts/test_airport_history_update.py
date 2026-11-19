@@ -116,9 +116,22 @@ class FormalUpdateTest(unittest.TestCase):
     def test_no_new_formal_version_leaves_files_untouched(self):
         before = self.paths["TARGET"].stat().st_mtime_ns
         fetch, report = self.simulate(self.before)
-        fetch.assert_called_once_with(updater.PUBLICATION, 16_384)
+        fetch.assert_called_once_with(
+            "https://raw.githubusercontent.com/keepraw/airport-history/main/data/production-manifest.json",
+            16_384,
+        )
         self.assertFalse(report.exists())
         self.assertEqual(self.paths["TARGET"].stat().st_mtime_ns, before)
+
+    def test_verifies_bytes_against_the_active_repository_at_the_pinned_commit(self):
+        with (
+            patch.object(updater, "fetch", return_value=encoded(self.before)) as fetch,
+            patch("sys.argv", ["update", "--check", "--verify-upstream"]),
+        ):
+            updater.main()
+        fetch.assert_called_once_with(
+            f"https://raw.githubusercontent.com/keepraw/airport-history/{self.old_pin['commit']}/data/airports.json"
+        )
 
     def test_new_version_is_verified_and_adds_fallback_name_record(self):
         after = add_site(dataset("0.14.0"))

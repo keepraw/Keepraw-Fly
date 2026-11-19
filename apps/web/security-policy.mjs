@@ -26,7 +26,10 @@ export const documentDirectives = [
   // fetch/XHR/WebSocket/beacon exfiltration of archive data to other hosts.
   [
     "connect-src",
-    ["'self'", "https://raw.githubusercontent.com/keepraw/airport-history/"],
+    [
+      "'self'",
+      "https://raw.githubusercontent.com/keepraw/airport-history-archive/",
+    ],
   ],
   ["manifest-src", ["'self'"]],
   ["worker-src", ["'none'"]],

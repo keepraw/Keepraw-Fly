@@ -19,7 +19,10 @@ The formal JSON is vendored byte for byte. Version 0.13.0 integrates 6,510
 physical sites, 6,370 IATA assignments, 6,214 ICAO assignments, 214 sources
 and three name intervals. The supported bulk history starts on 2000-01-01
 and runs through 2026-11-18. A few reviewed intervals reach earlier dates,
-including Kai Tak.
+including Kai Tak. [Production repository](https://github.com/keepraw/airport-history)
+
+The formal snapshot records the original URL for the owner continuity policy.
+The policy discussion is available in the archive. [Airport History PR #39](https://github.com/keepraw/airport-history-archive/pull/39)
 
 All 7,885 preexisting Fly rows remain in `airports.iata.json`. The
 [formal directory](../packages/core/data/airport-history/formal/directory.json)
@@ -107,7 +110,8 @@ is missing.
 ## Formal updates
 
 [Update Airport History](../.github/workflows/update-airport-history.yml)
-checks the upstream production manifest daily at 02:17 UTC (10:17 in China).
+checks the upstream production manifest daily at 02:17 UTC (10:17 in China). [Publication manifest](https://raw.githubusercontent.com/keepraw/airport-history/main/data/production-manifest.json)
+
 To check immediately, run the workflow from the **Actions** tab on `main`.
 The equivalent local commands use the verified snapshot.
 
@@ -150,8 +154,10 @@ first scheduled check.
 
 ## Manual research
 
-The explicit historical lookup button loads a separate, pinned research client.
-It fetches the IATA index and the shards needed for the requested code and
-verifies their SHA-256 digests. Research rows can be selected only when an
-external OurAirports ID links to a formal physical site. Research lookup
-failures leave normal airport resolution and saved flights available.
+The explicit historical lookup button loads a separate research client.
+It fetches the pinned IATA index and the shards needed for the requested code
+from the archive and verifies their SHA-256 digests. [Archived research manifest](https://github.com/keepraw/airport-history-archive/blob/bb1046455e949c6c0bf3a18769464cb232bec19e/reference/generated/manifest.json)
+
+Research rows can be selected only when an external OurAirports ID links to a
+formal physical site. Research lookup failures leave normal airport resolution
+and saved flights available.
