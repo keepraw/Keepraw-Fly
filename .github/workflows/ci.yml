@@ -60,6 +60,9 @@ jobs:
       - name: Check CSS token references
         run: pnpm check:css-tokens
 
+      - name: Measure airport reference data
+        run: node scripts/benchmark-airport-reference.mjs
+
       - name: Type-check workspace
         run: pnpm typecheck
 

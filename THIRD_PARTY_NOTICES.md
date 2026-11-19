@@ -74,12 +74,11 @@ upstream revision.
 
 ## Keepraw Airport History
 
-`packages/core/data/airport-history/` is generated from
-[keepraw/airport-history](https://github.com/keepraw/airport-history) at commit
-`bb1046455e949c6c0bf3a18769464cb232bec19e` (pinned with SHA-256 in
-`scripts/update-airport-history.py`). Fly includes only the reviewed formal
-dataset; worldwide research stays upstream and is read in selected shards only
-when the user requests a historical lookup. The
+Fly includes the reviewed formal dataset from
+[keepraw/airport-history](https://github.com/keepraw/airport-history). Its
+[manifest](packages/core/data/airport-history/formal/manifest.json) records the
+immutable source commit and SHA-256. The explicit research lookup uses selected
+shards at its own pinned revision. The
 project-authored database selection, arrangement, IDs and factual annotations
 are dedicated under CC0 1.0. The upstream worldwide reference layer derives
 from the pinned OurAirports CSV (public domain), factual timezone attributes
@@ -90,11 +89,12 @@ not verified historical facts.
 
 ## Wikidata airline and airport localization references
 
-Keepraw Fly bundles an offline airline code/name reference and a Chinese airport
-name and city labels generated from [Wikidata](https://www.wikidata.org/). Airport labels are linked to physical sites and retain item-level or legacy source provenance. Wikidata
-structured data is available under the Creative Commons CC0 1.0 dedication.
-Snapshot metadata is recorded in `packages/core/data/airlines.source.json` and
-`packages/core/data/airport-locales.source.json`.
+Keepraw Fly bundles offline airline references and multilingual airport and city
+labels from [Wikidata](https://www.wikidata.org/). Wikidata structured data is
+available under the Creative Commons CC0 1.0 dedication. The airline sources are
+documented in `packages/core/data/airlines.source.json`. Airport display labels
+retain physical site and source provenance in `packages/core/data/airport-names.json`
+and `packages/core/data/airport-names.source.json`.
 `airline-overrides.json` contains a small maintained correction layer for
 current high-use carriers where Wikidata reuses a designator for a subsidiary,
 historic operator or branded service; it is applied after the generated data.
