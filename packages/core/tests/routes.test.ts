@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { airportByIata, buildRouteSegments } from "../src/index";
+import { airportById, airportByIata, buildRouteSegments } from "../src/index";
 
 const flight: KeeprawFlight = {
   id: "route",
@@ -33,14 +33,18 @@ describe("actual route data", () => {
         [91, 0],
         [0, -181],
       ]) {
-        airportByIata.set("SFO", {
+        airportById.set(original.airportId, {
           ...original,
           latitude: latitude!,
           longitude: longitude!,
         });
         expect(buildRouteSegments([flight])).toEqual([]);
       }
-      airportByIata.set("SFO", { ...original, latitude: 0, longitude: 0 });
+      airportById.set(original.airportId, {
+        ...original,
+        latitude: 0,
+        longitude: 0,
+      });
       expect(buildRouteSegments([flight])[0]?.origin).toEqual({
         iata: "SFO",
         identityKey: `airport:${original.airportId}`,
@@ -48,7 +52,7 @@ describe("actual route data", () => {
         longitude: 0,
       });
     } finally {
-      airportByIata.set("SFO", original);
+      airportById.set(original.airportId, original);
     }
   });
 });

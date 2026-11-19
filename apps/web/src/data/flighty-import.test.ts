@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
+  airportById,
   airportByIata,
   installAirportDirectory,
   type CompactAirportRow,
@@ -106,7 +107,10 @@ describe("Flighty CSV import", () => {
 
   it("reports airport timezone errors in Flighty actual arrival", () => {
     const airport = airportByIata.get("ORD")!;
-    airportByIata.set("ORD", { ...airport, timezone: "Invalid/Timezone" });
+    airportById.set(airport.airportId, {
+      ...airport,
+      timezone: "Invalid/Timezone",
+    });
     try {
       const parsed = parseFlightyCsv(
         `${timeHeaders}\n2026-11-01,UAL,123,JFK,LAX,2026-11-01T00:30,2026-11-01T04:30,,2026-11-01T04:00-06:00,ORD`,
@@ -120,7 +124,7 @@ describe("Flighty CSV import", () => {
         "invalid-timezone",
       );
     } finally {
-      airportByIata.set("ORD", airport);
+      airportById.set(airport.airportId, airport);
     }
   });
 

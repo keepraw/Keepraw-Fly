@@ -91,7 +91,7 @@ not verified historical facts.
 ## Wikidata airline and airport localization references
 
 Keepraw Fly bundles an offline airline code/name reference and a Chinese airport
-name/city overlay generated from [Wikidata](https://www.wikidata.org/). Wikidata
+name and city labels generated from [Wikidata](https://www.wikidata.org/). Airport labels are linked to physical sites and retain item-level or legacy source provenance. Wikidata
 structured data is available under the Creative Commons CC0 1.0 dedication.
 Snapshot metadata is recorded in `packages/core/data/airlines.source.json` and
 `packages/core/data/airport-locales.source.json`.

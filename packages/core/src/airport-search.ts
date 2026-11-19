@@ -1,8 +1,8 @@
 import { normalizeSearchValue } from "./normalization";
 import {
+  airportById,
   airportByIata,
   airportDirectoryVersion,
-  airports,
   localizedText,
   type AirportReference,
   type SupportedLocale,
@@ -15,6 +15,7 @@ import {
 interface AirportSearchEntry {
   airport: AirportReference;
   code: string;
+  aliases: string[];
   cities: string[];
   names: string[];
   cityGroupAliases: string[];
@@ -22,48 +23,70 @@ interface AirportSearchEntry {
 }
 
 let indexedDirectoryVersion = -1;
-let searchIndex: AirportSearchEntry[] = [];
+const searchIndex = new Map<string, AirportSearchEntry[]>();
+
+function normalizeNames(values: (string | undefined)[]): string[] {
+  return [
+    ...new Set(
+      values
+        .filter((value): value is string => Boolean(value))
+        .map(normalizeSearchValue),
+    ),
+  ];
+}
 
 function ensureSearchIndex(): void {
   if (indexedDirectoryVersion === airportDirectoryVersion()) return;
-  searchIndex = airports.map((airport) => {
-    const cities = [
-      ...new Set(
-        Object.values(airport.city).map((value) =>
-          normalizeSearchValue(value ?? ""),
-        ),
-      ),
-    ];
-    const names = [
-      ...new Set(
-        Object.values(airport.name).map((value) =>
-          normalizeSearchValue(value ?? ""),
-        ),
-      ),
-    ];
-    const cityGroup = airportCityGroupForAirport(airport.iata);
-    const cityGroupAliases = cityGroup
-      ? [cityGroup.code, ...Object.values(cityGroup.name)].map((value) =>
-          normalizeSearchValue(value ?? ""),
-        )
+  searchIndex.clear();
+  for (const [id, airport] of airportById) {
+    if (airport.airportId !== id) continue;
+    const cities = normalizeNames(Object.values(airport.city));
+    const names = normalizeNames([
+      ...Object.values(airport.name),
+      ...(airport.historicalNames ?? []),
+    ]);
+    const group = airport.currentIata
+      ? airportCityGroupForAirport(airport.currentIata)
+      : undefined;
+    const cityGroupAliases = group
+      ? normalizeNames([group.code, ...Object.values(group.name)])
       : [];
-    return {
+    const aliases = normalizeNames([
+      airport.icao,
+      ...(airport.searchAliases ?? []),
+    ]);
+    const code = normalizeSearchValue(
+      airport.currentIata ?? airport.iata ?? "",
+    );
+    const text = [
+      code,
+      ...aliases,
+      ...cities,
+      ...names,
+      ...cityGroupAliases,
+      ...normalizeNames(Object.values(airport.countryName)),
+    ].join(" ");
+    const entry = {
       airport,
-      code: normalizeSearchValue(airport.iata),
+      code,
+      aliases,
       cities,
       names,
       cityGroupAliases,
-      text: normalizeSearchValue(
-        [
-          airport.iata,
-          ...Object.values(airport.city),
-          ...Object.values(airport.name),
-          ...Object.values(airport.countryName),
-          ...cityGroupAliases,
-        ].join(" "),
-      ),
+      text,
     };
-  });
+    const prefixes = new Set<string>();
+    for (let offset = 0; offset < text.length; offset++) {
+      prefixes.add(text[offset]!);
+      if (offset + 1 < text.length)
+        prefixes.add(text.slice(offset, offset + 2));
+    }
+    for (const prefix of prefixes) {
+      const matches = searchIndex.get(prefix);
+      if (matches) matches.push(entry);
+      else searchIndex.set(prefix, [entry]);
+    }
+  }
   indexedDirectoryVersion = airportDirectoryVersion();
 }
 
@@ -71,15 +94,16 @@ export function searchAirports(
   query: string,
   locale: SupportedLocale,
   limit = 8,
+  include?: (airport: AirportReference) => boolean,
 ): AirportReference[] {
   const normalizedQuery = normalizeSearchValue(query.trim());
   if (!normalizedQuery || limit <= 0) return [];
-  ensureSearchIndex();
   const exactCityGroup = airportCityGroupByCode.get(query.trim().toUpperCase());
   if (exactCityGroup) {
     return exactCityGroup.airportCodes
       .map((iata) => airportByIata.get(iata))
-      .filter((airport): airport is AirportReference => Boolean(airport))
+      .filter((airport) => airport !== undefined)
+      .filter((airport) => !include || include(airport))
       .sort((left, right) => {
         if (left.iata === exactCityGroup.code) return -1;
         if (right.iata === exactCityGroup.code) return 1;
@@ -87,33 +111,46 @@ export function searchAirports(
       })
       .slice(0, limit);
   }
+  ensureSearchIndex();
   const terms = normalizedQuery.split(/\s+/).filter(Boolean);
-
-  return searchIndex
-    .filter((entry) => terms.every((term) => entry.text.includes(term)))
-    .sort((left, right) => {
-      const scoreDifference =
-        scoreAirport(left, normalizedQuery) -
-        scoreAirport(right, normalizedQuery);
-      if (scoreDifference) return scoreDifference;
-      const cityDifference = localizedText(
-        left.airport.city,
-        locale,
-      ).localeCompare(localizedText(right.airport.city, locale), locale);
-      return (
-        cityDifference || left.airport.iata.localeCompare(right.airport.iata)
-      );
-    })
+  const candidates = terms
+    .map((term) => searchIndex.get(term.slice(0, 2)) ?? [])
+    .reduce((a, b) => (a.length <= b.length ? a : b));
+  const compareCity = new Intl.Collator(locale).compare;
+  return candidates
+    .filter(
+      (entry) =>
+        terms.every((term) => entry.text.includes(term)) &&
+        (!include || include(entry.airport)),
+    )
+    .map((entry) => ({ entry, score: scoreAirport(entry, normalizedQuery) }))
+    .sort(
+      (left, right) =>
+        left.score - right.score ||
+        compareCity(
+          localizedText(left.entry.airport.city, locale),
+          localizedText(right.entry.airport.city, locale),
+        ) ||
+        left.entry.code.localeCompare(right.entry.code) ||
+        left.entry.airport.airportId.localeCompare(
+          right.entry.airport.airportId,
+        ),
+    )
     .slice(0, limit)
-    .map((entry) => entry.airport);
+    .map(({ entry }) => entry.airport);
 }
 
 function scoreAirport(entry: AirportSearchEntry, query: string): number {
-  if (entry.code === query) return 0;
-  if (entry.code.startsWith(query)) return 1;
-  if (entry.cityGroupAliases.some((alias) => alias === query)) return 2;
-  if (entry.cities.some((city) => city === query)) return 3;
-  if (entry.cities.some((city) => city.startsWith(query))) return 4;
-  if (entry.names.some((name) => name.startsWith(query))) return 5;
-  return 6;
+  if (entry.code === query && entry.airport.currentIata) return 0;
+  if (entry.code === query || entry.aliases.includes(query)) return 1;
+  if (
+    entry.code.startsWith(query) ||
+    entry.aliases.some((alias) => alias.startsWith(query))
+  )
+    return 2;
+  if (entry.cityGroupAliases.includes(query)) return 3;
+  if (entry.cities.includes(query)) return 4;
+  if (entry.cities.some((city) => city.startsWith(query))) return 5;
+  if (entry.names.some((name) => name.startsWith(query))) return 6;
+  return 7;
 }

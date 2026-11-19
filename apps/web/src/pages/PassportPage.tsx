@@ -13,7 +13,6 @@ import {
   airportTargetMatches,
   arrivalDelayMinutes,
   arrivalIdentity,
-  airportByIata,
   buildRouteSegments,
   calculatePassportHighlights,
   calculatePassportStatistics,
@@ -26,6 +25,7 @@ import {
   flightRouteTarget,
   groupFlightsByYear,
   localizedText,
+  localizedAirportName,
   originIdentity,
   type FlightEndpointIdentity,
   type DistanceUnit,
@@ -205,11 +205,15 @@ export function PassportPage({
 
   /** Flight-date physical airport label: a historical site keeps its own name. */
   function identityLabel(identity: FlightEndpointIdentity): string {
-    if (identity.differsFromCurrentDirectory && identity.name)
-      return localizedText(identity.name, locale);
-    if (identity.city) return localizedText(identity.city, locale);
-    if (identity.name) return localizedText(identity.name, locale);
-    return identity.iata;
+    const name = localizedAirportName(
+      identity.airportId,
+      locale,
+      identity.localDate,
+    );
+    if (identity.differsFromCurrentDirectory && name) return name;
+    if (identity.city)
+      return localizedText(identity.city, locale) || name || identity.iata;
+    return name ?? identity.iata;
   }
 
   function isSelected(target: PassportSelection): boolean {
@@ -313,12 +317,12 @@ export function PassportPage({
     if (current.kind === "airport") {
       // The selected physical site's flight-date name, not today's directory row.
       const identity = selectedAirportIdentity(current);
-      if (identity?.name)
-        return `${current.code} · ${localizedText(identity.name, locale)}`;
-      const airport = airportByIata.get(current.code);
-      return airport
-        ? `${current.code} · ${localizedText(airport.name, locale)}`
-        : current.code;
+      const name = localizedAirportName(
+        identity?.airportId,
+        locale,
+        identity?.localDate,
+      );
+      return name ? `${current.code} · ${name}` : current.code;
     }
     if (current.kind === "airline")
       return `${airlineDisplayName(current.code, locale)} · ${current.code}`;
@@ -725,12 +729,11 @@ export function PassportPage({
                     <p>
                       <span>{t("passport.mostVisitedAirport")}</span>
                       <strong>
-                        {stats.mostVisitedAirport.identity.name
-                          ? localizedText(
-                              stats.mostVisitedAirport.identity.name,
-                              locale,
-                            )
-                          : stats.mostVisitedAirport.code}
+                        {localizedAirportName(
+                          stats.mostVisitedAirport.identity.airportId,
+                          locale,
+                          stats.mostVisitedAirport.identity.localDate,
+                        ) ?? stats.mostVisitedAirport.code}
                       </strong>
                     </p>
                   ) : null}

@@ -1,38 +1,50 @@
 /** Reviewed assignments only. Research candidates never participate in resolution. */
-import formalPackage from "../data/airport-history/formal/airports.json";
 import {
   airportById,
   airportByIata,
   airportIdsBySearchCode,
+  localizedAirportName,
   type AirportReference,
+  type SupportedLocale,
 } from "./reference-data";
+import {
+  airportHistoryDataVersion,
+  airportHistoryQueryHorizon,
+  assignmentDateRelation,
+  assignmentsByAirportId,
+  formalAssignmentsForCode,
+  isReviewedAirportClaim,
+  type AirportCodeScheme,
+  type AssignmentDateRelation,
+  type FormalAssignment,
+} from "./formal-airport-data";
+import { searchAirports } from "./airport-search";
+import { normalizeSearchValue } from "./normalization";
 
-export type AirportCodeScheme = "IATA" | "ICAO";
+export {
+  airportHistoryDataVersion,
+  airportHistoryQueryHorizon,
+  assignmentDateRelation,
+  assignmentsByAirportId,
+  formalAirportIdByOurAirportsId,
+  formalAssignments,
+  formalAssignmentsForCode,
+  formalHistoricalNames,
+  formalSources,
+} from "./formal-airport-data";
+export type {
+  AirportCodeScheme,
+  AssignmentDateRelation,
+  FormalAssignment,
+  UncertainDateBound,
+} from "./formal-airport-data";
+
 export type AirportHistoryStatus =
   | "resolved"
   | "uncertain"
   | "ambiguous"
   | "current_directory_only"
   | "unknown_code";
-export interface UncertainDateBound {
-  earliest: string | null;
-  latest: string | null;
-  precision: string;
-}
-export interface FormalAssignment {
-  assignmentId: string;
-  airportId: string;
-  scheme: AirportCodeScheme;
-  code: string;
-  evidenceType: string;
-  verificationStatus: string;
-  verifiedOn?: string;
-  sourceIds: string[];
-  validFrom: UncertainDateBound;
-  validTo: UncertainDateBound;
-  note?: string;
-}
-export type AssignmentDateRelation = "certain" | "possible" | "excluded";
 export interface AssignmentMatch {
   assignment: FormalAssignment;
   relation: AssignmentDateRelation;
@@ -49,51 +61,6 @@ export interface AirportHistoryResolution {
   currentDirectoryAirport: AirportReference | null;
   uncertainty: { possibleAirportIds: string[] };
   dataVersion: string;
-}
-export const airportHistoryDataVersion = formalPackage.dataVersion;
-export const formalAssignments =
-  formalPackage.assignments as FormalAssignment[];
-export const formalSources = new Map(
-  formalPackage.sources.map((source) => [source.sourceId, source]),
-);
-export const formalHistoricalNames = formalPackage.names;
-const assignmentsByCode = new Map<string, FormalAssignment[]>();
-for (const row of formalAssignments) {
-  const key = `${row.scheme}:${row.code}`;
-  assignmentsByCode.set(key, [...(assignmentsByCode.get(key) ?? []), row]);
-}
-export function formalAssignmentsForCode(
-  code: string,
-  scheme: AirportCodeScheme = "IATA",
-) {
-  return assignmentsByCode.get(`${scheme}:${code.trim().toUpperCase()}`) ?? [];
-}
-/** Certain [latest-start, earliest-end); null bounds never invent dates. */
-export function assignmentDateRelation(
-  day: string,
-  row: FormalAssignment,
-): AssignmentDateRelation {
-  if (
-    (row.validFrom.earliest !== null && day < row.validFrom.earliest) ||
-    (row.validTo.latest !== null && day >= row.validTo.latest)
-  )
-    return "excluded";
-  return row.validFrom.latest !== null &&
-    day >= row.validFrom.latest &&
-    row.validTo.earliest !== null &&
-    day < row.validTo.earliest
-    ? "certain"
-    : "possible";
-}
-function reviewed(row: FormalAssignment): boolean {
-  return (
-    row.verificationStatus === "verified" &&
-    Boolean(row.verifiedOn) &&
-    row.sourceIds.length > 0 &&
-    row.sourceIds.every(
-      (id) => formalSources.get(id)?.verificationStatus === "verified",
-    )
-  );
 }
 export function isValidAirportCode(
   code: string,
@@ -141,17 +108,30 @@ export function resolveAirportAtDate(
   const ids = [...new Set(matches.map((match) => match.assignment.airportId))];
   result.uncertainty.possibleAirportIds = ids;
   const certain = matches.filter(
-    (match) => match.relation === "certain" && reviewed(match.assignment),
+    (match) =>
+      match.relation === "certain" && isReviewedAirportClaim(match.assignment),
   );
   if (
     ids.length === 1 &&
     certain.length > 0 &&
-    matches.every((match) => reviewed(match.assignment))
+    matches.every((match) => isReviewedAirportClaim(match.assignment))
   ) {
     result.airportId = ids[0]!;
     result.airport = airportById.get(ids[0]!) ?? null;
     result.matchedAssignment = certain[0]!.assignment;
     result.status = result.airport ? "resolved" : "unknown_code";
+  } else if (
+    directory &&
+    (date < airportHistoryQueryHorizon.fromInclusive ||
+      date >= airportHistoryQueryHorizon.toExclusive) &&
+    assignments.length > 0 &&
+    assignments.every((row) => row.airportId === directory.airportId) &&
+    ids.length === 1
+  ) {
+    // Preserve the directory fallback for a single site beyond the evidence
+    // horizon, including flights in older backups.
+    result.status = "current_directory_only";
+    result.airport = directory;
   } else if (assignments.length) {
     // Known historical reuse cannot fall back to today's site outside reviewed coverage.
     result.status =
@@ -178,53 +158,48 @@ export interface HistoricalAirportSearchResult {
   matchedName: string;
   latitude: number;
   longitude: number;
-  timezone: string;
+  timezone: string | null;
   assignments: FormalAssignment[];
-  searchCode: string;
+  searchCode?: string;
 }
-/** Aliases help select an entity; they never prove a historical allocation. */
+
+/** Aliases help select an entity; they do not prove a historical allocation. */
 export function searchHistoricalAirports(
   query: string,
   limit = 8,
+  locale: SupportedLocale = "en",
+  date?: string,
 ): HistoricalAirportSearchResult[] {
-  const fold = (text: string) =>
-    text
-      .normalize("NFKD")
-      .replace(/\p{M}+/gu, "")
-      .toLowerCase();
-  const term = fold(query.trim());
-  if (!term || limit <= 0) return [];
-  return [...airportById.values()]
-    .flatMap((airport) => {
-      if (
-        !airport.historicalNames?.length &&
-        airport.status !== "closed" &&
-        airport.status !== "unknown"
-      )
-        return [];
-      const names = [
+  return searchAirports(
+    query,
+    locale,
+    limit,
+    (airport) =>
+      airport.status !== "operating" ||
+      Boolean(airport.historicalNames?.length) ||
+      (assignmentsByAirportId.get(airport.airportId) ?? []).some(
+        (row) => row.scheme === "IATA" && row.code !== airport.currentIata,
+      ),
+  ).map((airport) => ({
+    kind: "formal",
+    airportId: airport.airportId,
+    name:
+      localizedAirportName(airport.airportId, locale, date) ?? airport.name.en,
+    matchedName:
+      [
         airport.name.en,
+        ...Object.values(airport.name),
         ...(airport.historicalNames ?? []),
         ...(airport.searchAliases ?? []),
-      ];
-      const match = names.find((name) => fold(name).includes(term));
-      return match
-        ? [
-            {
-              kind: "formal" as const,
-              airportId: airport.airportId,
-              name: airport.name.en,
-              matchedName: match,
-              latitude: airport.latitude,
-              longitude: airport.longitude,
-              timezone: airport.timezone,
-              searchCode: airport.iata,
-              assignments: formalAssignments.filter(
-                (row) => row.airportId === airport.airportId,
-              ),
-            },
-          ]
-        : [];
-    })
-    .slice(0, limit);
+      ].find(
+        (label) =>
+          label &&
+          normalizeSearchValue(label).includes(normalizeSearchValue(query)),
+      ) ?? query,
+    latitude: airport.latitude,
+    longitude: airport.longitude,
+    timezone: airport.timezone,
+    searchCode: airport.iata,
+    assignments: assignmentsByAirportId.get(airport.airportId) ?? [],
+  }));
 }

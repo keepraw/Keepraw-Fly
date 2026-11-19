@@ -1,6 +1,6 @@
 /**
  * Application integration against the committed real airport-history package
- * (keepraw/airport-history bb104645). No mocked airport data.
+ * (keepraw/airport-history 2c39e2f0). No mocked airport data.
  */
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { utils, write } from "xlsx";

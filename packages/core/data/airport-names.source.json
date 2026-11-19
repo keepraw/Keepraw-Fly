@@ -1,0 +1,50 @@
+{
+  "legacy-zh-CN": {
+    "kind": "display_translation",
+    "source": "https://github.com/keepraw/Keepraw-Fly/blob/fd4e191e5b37fe2318071fb3fdf1088d976f4b87/packages/core/data/airport-locales.json",
+    "retrievedOn": "2026-09-19",
+    "status": "wikidata_label",
+    "reviewStatus": "inherited"
+  },
+  "legacy-zh-TW": {
+    "kind": "display_translation",
+    "source": "https://github.com/keepraw/Keepraw-Fly/blob/fd4e191e5b37fe2318071fb3fdf1088d976f4b87/packages/core/data/airport-locales.source.json",
+    "retrievedOn": "2026-09-21",
+    "status": "opencc_or_curated",
+    "reviewStatus": "inherited"
+  },
+  "reviewed-tao": {
+    "kind": "display_translation",
+    "source": "https://github.com/keepraw/airport-history/pull/39",
+    "retrievedOn": "2026-11-19",
+    "status": "editorial",
+    "reviewStatus": "reviewed"
+  },
+  "wikidata:YYYY-MM-DD:QID": {
+    "kind": "display_translation",
+    "source": "https://www.wikidata.org/wiki/{QID}",
+    "retrievedOn": "YYYY-MM-DD",
+    "status": "wikidata_label",
+    "reviewStatus": "matched_by_code_and_coordinates",
+    "license": "CC0-1.0"
+  },
+  "opencc:SOURCE": {
+    "kind": "display_translation",
+    "source": "SOURCE",
+    "status": "machine_translated",
+    "reviewStatus": "unreviewed"
+  },
+  "fallback": {
+    "kind": "canonical_reference",
+    "source": "airport-history/formal/airports.json or airports.iata.json",
+    "status": "fallback",
+    "reviewStatus": "reference"
+  },
+  "historical-site-display": {
+    "kind": "display_translation",
+    "source": "https://github.com/keepraw/airport-history/blob/2c39e2f040d65dd32142ffcbb4ca62b5c459abf0/data/airports.json",
+    "retrievedOn": "2026-11-19",
+    "status": "editorial",
+    "reviewStatus": "reviewed_against_physical_identity"
+  }
+}

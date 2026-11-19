@@ -4,14 +4,14 @@ import {
   airportSelectionTarget,
   airportTargetMatches,
   arrivalIdentity,
-  localizedText,
+  localizedAirportName,
   originIdentity,
   routeIdentityKey,
   routeKeyFromCodes,
   routePointIdentityKey,
   routeSelectionTarget,
   routeTargetMatches,
-  type LocalizedText,
+  type FlightEndpointIdentity,
   type RoutePoint,
   type RouteSegment,
 } from "@keepraw-fly/core";
@@ -50,20 +50,23 @@ export function PassportGlobe({
   onClear,
 }: PassportGlobeProps) {
   const { t, i18n } = useTranslation();
-  // Flight-date names of each physical site, for codes two sites shared.
-  const siteNames = useMemo(() => {
-    const names = new Map<string, LocalizedText>();
+  const siteIdentities = useMemo(() => {
+    const sites = new Map<string, FlightEndpointIdentity>();
     for (const flight of flights)
       for (const identity of [originIdentity(flight), arrivalIdentity(flight)])
-        if (identity.name && !names.has(identity.identityKey))
-          names.set(identity.identityKey, identity.name);
-    return names;
+        if (identity.confirmed && !sites.has(identity.identityKey))
+          sites.set(identity.identityKey, identity);
+    return sites;
   }, [flights]);
+  const locale = normalizeLanguage(i18n.resolvedLanguage);
   const siteName = (point: RoutePoint) => {
-    const name = point.identityKey && siteNames.get(point.identityKey);
-    return name
-      ? localizedText(name, normalizeLanguage(i18n.resolvedLanguage))
-      : point.iata;
+    const identity = point.identityKey
+      ? siteIdentities.get(point.identityKey)
+      : undefined;
+    return (
+      localizedAirportName(identity?.airportId, locale, identity?.localDate) ??
+      point.iata
+    );
   };
   const [systemDark, setSystemDark] = useState(
     () =>

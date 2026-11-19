@@ -56,6 +56,7 @@ describe("Umetrip exact airport names", () => {
     const synthetic = {
       ...airports[0]!,
       iata: "ZZZ",
+      airportId: "apt_11111111-1111-4111-8111-111111111111",
       name: { en: "北京首都机场" },
     };
     airports.push(synthetic);

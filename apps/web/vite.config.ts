@@ -28,10 +28,17 @@ function contentSecurityPolicy(): Plugin {
 
 export default defineConfig({
   base: "./",
+  json: { stringify: "auto" },
   plugins: [react(), contentSecurityPolicy()],
   build: {
     rollupOptions: {
       output: {
+        manualChunks(id) {
+          if (id.includes("/core/data/airport-history/formal/"))
+            return "airport-history-data";
+          if (id.endsWith("/core/data/airport-names.json"))
+            return "airport-names";
+        },
         // Rollup names the shared lazy Three.js/Globe chunk after a CSS
         // import ("globe-lab"), although the dev-only GlobeLab experiment is
         // not in production builds. Name it after the renderer it contains.

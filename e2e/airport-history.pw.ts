@@ -122,3 +122,39 @@ test("failed explicit research lookup does not change a saved flight", async ({
     "Hong Kong International Airport Kai Tak",
   );
 });
+
+test("TAO keeps the flight-date site when changing airport-name languages", async ({
+  page,
+}) => {
+  const old = flight("liuting", "2020");
+  const recent = flight("jiaodong", "2024");
+  old.origin.iata = "TAO";
+  recent.origin.iata = "TAO";
+  await importFlights(page, [old, recent]);
+  for (const [language, oldLabel, recentLabel] of [
+    ["ja-JP", "青島流亭国際空港", "青島膠東国際空港"],
+    ["ko-KR", "칭다오 류팅 국제공항", "칭다오 자오둥 국제공항"],
+  ]) {
+    await page.evaluate(async (locale) => {
+      const i18nPath = "/src/i18n.ts";
+      const { changeUiLanguage } = await import(/* @vite-ignore */ i18nPath);
+      await changeUiLanguage(locale);
+    }, language);
+    await expect(
+      page.locator(`[data-flight-id="liuting"] [title="${oldLabel}"]`),
+    ).toHaveCount(1);
+    await expect(
+      page.locator(`[data-flight-id="jiaodong"] [title="${recentLabel}"]`),
+    ).toHaveCount(1);
+    await expect(
+      page.locator(
+        '[data-airport-identity="airport:apt_f470ecb5-c6dc-4516-a233-37302da2115b"]',
+      ),
+    ).toHaveCount(1);
+    await expect(
+      page.locator(
+        '[data-airport-identity="airport:apt_6729d2b2-4b79-48c8-9c42-0d4eeba121b8"]',
+      ),
+    ).toHaveCount(1);
+  }
+});
