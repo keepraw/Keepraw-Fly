@@ -19,8 +19,7 @@ apps/web/src/data/world-map.source.json
 packages/core/data/airports.iata.json
 packages/core/data/airports.source.json
 packages/core/data/airport-city-groups.json
-packages/core/data/airport-locales.json
-packages/core/data/airport-locales.source.json
+packages/core/data/airport-names.json
 packages/core/data/airlines.json
 packages/core/data/airlines.source.json
 assets/

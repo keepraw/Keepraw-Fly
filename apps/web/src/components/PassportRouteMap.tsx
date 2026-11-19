@@ -11,6 +11,7 @@ import {
   buildUncertainAirportMarkers,
   distanceKilometers,
   localizedText,
+  localizedAirportName,
   airportSelectionTarget,
   airportTargetMatches,
   originIdentity,
@@ -545,9 +546,12 @@ function collectAirports(
           identityKey: identity.identityKey,
           latitude: identity.point.latitude,
           longitude: identity.point.longitude,
-          name: identity.name
-            ? localizedText(identity.name, locale)
-            : identity.iata,
+          name:
+            localizedAirportName(
+              identity.airportId,
+              locale,
+              identity.localDate,
+            ) ?? identity.iata,
           city: identity.city ? localizedText(identity.city, locale) : "",
           basis: identity.basis,
           historicalAssignmentVerified: identity.historicalAssignmentVerified,

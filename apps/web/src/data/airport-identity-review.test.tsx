@@ -198,7 +198,7 @@ describe("airport presentation", () => {
     expect(plain).not.toContain("historically_verified");
   });
 
-  it("still lets a user enter and save normal current-directory airports", () => {
+  it("saves an ordinary airport using its formal continuity evidence", () => {
     vi.stubGlobal("crypto", { ...crypto, randomUUID: () => "u-current" });
     const saved = flightFromDraft({
       ...createDefaultDraft("2026-06-01"),
@@ -216,7 +216,7 @@ describe("airport presentation", () => {
     expect(saved.scheduledDeparture).toBe("2026-06-01T13:00:00+08:00");
     const origin = originIdentity(saved);
     expect(origin.confirmed).toBe(true);
-    expect(origin.assignmentEvidence).toBe("current_directory");
-    expect(origin.historicalAssignmentVerified).toBe(false);
+    expect(origin.assignmentEvidence).toBe("historically_verified");
+    expect(origin.historicalAssignmentVerified).toBe(true);
   });
 });

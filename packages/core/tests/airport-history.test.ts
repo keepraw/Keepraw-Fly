@@ -14,6 +14,7 @@ import {
   calculatePassportStatistics,
   searchHistoricalAirports,
   formalAssignments,
+  formalAssignmentsForCode,
   formalSources,
   assignmentDateRelation,
   type CompactAirportRow,
@@ -65,7 +66,7 @@ describe("reviewed code assignments", () => {
     expect(resolveAirportAtDate("TSE", "2020-05-01").airportId).toBe(
       resolveAirportAtDate("NQZ", "2024-01-01").airportId,
     );
-    expect(resolveAirportAtDate("TSE", "2018-01-01").status).toBe("uncertain");
+    expect(resolveAirportAtDate("TSE", "2018-01-01").status).toBe("resolved");
     expect(searchHistoricalAirports("Kai Tak")[0]?.airportId).toBe(kaiTak);
     expect(airportById.get(kaiTak)?.status).toBe("closed");
   });
@@ -77,29 +78,26 @@ describe("reviewed code assignments", () => {
       for (const id of assignment.sourceIds)
         expect(formalSources.has(id)).toBe(true);
     }
-    for (const a of formalAssignments)
-      for (const b of formalAssignments) {
-        if (
-          a.airportId === b.airportId ||
-          a.code !== b.code ||
-          a.scheme !== b.scheme
-        )
-          continue;
+    for (const a of formalAssignments) {
+      for (const b of formalAssignmentsForCode(a.code, a.scheme)) {
+        if (a.airportId === b.airportId) continue;
         const start = [a.validFrom.latest, b.validFrom.latest]
           .filter((day): day is string => day !== null)
           .sort()
           .at(-1);
-        if (start)
+        if (start) {
           expect(
             assignmentDateRelation(start, a) === "certain" &&
               assignmentDateRelation(start, b) === "certain",
           ).toBe(false);
+        }
       }
+    }
   });
 });
 
 describe("persisted physical identities", () => {
-  it("keeps directory updates for a formal entity when its current code changes", () => {
+  it("keeps Fly metadata and search aliases when a Fly code conflicts with the formal current code", () => {
     const changed = airportRows.map((row) => [...row]) as CompactAirportRow[];
     const current = changed.find((row) => row[7] === chekLapKok)!;
     current[0] = "XHK";
@@ -110,14 +108,14 @@ describe("persisted physical identities", () => {
     try {
       installAirportDirectory(changed);
       expect(airportById.get(chekLapKok)).toMatchObject({
-        currentIata: "XHK",
+        currentIata: "HKG",
         name: { en: current[1] },
         latitude: current[4],
         historicalNames: expect.arrayContaining(["Earlier directory name"]),
         searchAliases: expect.arrayContaining(["HKG", "XHK"]),
       });
-      expect(airportByIata.has("HKG")).toBe(false);
-      expect(airportByIata.get("XHK")?.airportId).toBe(chekLapKok);
+      expect(airportByIata.get("HKG")?.airportId).toBe(chekLapKok);
+      expect(airportByIata.has("XHK")).toBe(false);
       expect(
         resolveEndpointIdentity("HKG", "2020-01-01", "origin", null, chekLapKok)
           .point?.latitude,
@@ -153,8 +151,8 @@ describe("persisted physical identities", () => {
     expect(lyg.latitude).toBe(34.41406);
     expect(lzo.latitude).toBe(29.030357);
     expect(
-      resolveEndpointIdentity("LYG", "2010-01-01", "origin").point,
-    ).toBeNull();
+      resolveEndpointIdentity("LYG", "2010-01-01", "origin").airportId,
+    ).toBe("apt_6f1a6ff3-98db-4e58-95fc-cc78bd5aa836");
     expect(searchHistoricalAirports("Baitabu")[0]?.airportId).toBe(
       "apt_6f1a6ff3-98db-4e58-95fc-cc78bd5aa836",
     );

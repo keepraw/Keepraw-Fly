@@ -1,4 +1,5 @@
 import { geoInterpolate } from "d3-geo";
+import { arrivalIdentity, originIdentity } from "@keepraw-fly/core";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   buildShareRenderModel,
@@ -57,7 +58,7 @@ export interface PosterMap {
 
 export interface PosterDataModel {
   version: 3;
-  /** Recorded airport pairs, including unplottable ones; directions merged. */
+  /** Recorded physical airport pairs, including unplottable ones. Merges both directions. */
   routeCount: number;
   recordPeriod: { first: string; last: string } | null;
   yearRange: { first: number; last: number } | null;
@@ -166,7 +167,10 @@ export function buildPosterModel(
       flights
         .filter((flight) => !flight.cancelled)
         .map((flight) =>
-          [flight.origin.iata, (flight.divertedTo ?? flight.destination).iata]
+          [
+            originIdentity(flight).identityKey,
+            arrivalIdentity(flight).identityKey,
+          ]
             .sort()
             .join("–"),
         ),

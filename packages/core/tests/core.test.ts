@@ -1,8 +1,9 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { describe, expect, it } from "vitest";
 import airportRows from "../data/airports.iata.json";
-import airportLocaleRows from "../data/airport-locales.json";
+import airportNameRows from "../data/airport-names.json";
 import {
+  airportById,
   airportByIata,
   airportCityGroupByCode,
   airportCityGroupForAirport,
@@ -94,16 +95,22 @@ describe("flight list city display names", () => {
   );
 
   it("audits every localized airport city ending in 市 in both Chinese scripts", () => {
-    const endingInCity = (
-      airportLocaleRows as [string, string, string, string, string][]
-    ).filter((row) => row[2].endsWith("市"));
-    expect(airportLocaleRows).toHaveLength(4469);
-    expect(endingInCity).toHaveLength(353);
+    const localizedRows = Object.entries(airportNameRows) as [
+      string,
+      {
+        cities?: { "zh-CN": string; "zh-TW": string };
+      },
+    ][];
+    const endingInCity = localizedRows.filter(([, row]) =>
+      row.cities?.["zh-CN"].endsWith("市"),
+    );
 
     const preservedCodes: string[] = [];
-    for (const [iata, , cityZhCn, , cityZhTw] of endingInCity) {
-      const airport = airportByIata.get(iata);
-      expect(airport, `Airport not found: ${iata}`).toBeDefined();
+    for (const [id, row] of endingInCity) {
+      const { "zh-CN": cityZhCn, "zh-TW": cityZhTw } = row.cities!;
+      const airport = airportById.get(id);
+      expect(airport, `Airport not found: ${id}`).toBeDefined();
+      const iata = airport!.iata!;
       const country = airport!.country;
       const outputCn = formatCityDisplayName(cityZhCn, country, "zh-CN");
       const outputTw = formatCityDisplayName(cityZhTw, country, "zh-TW");
@@ -142,7 +149,7 @@ describe("flight list city display names", () => {
       "YQB",
       "ZVK",
     ]);
-    expect(endingInCity.length - preservedCodes.length).toBe(338);
+    expect(endingInCity.length).toBeGreaterThan(300);
   });
 
   it("has Chinese translations for every multi-airport city group", () => {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
+  airportById,
   airportByIata,
   installAirportDirectory,
   type CompactAirportRow,
@@ -161,7 +162,10 @@ describe("CSV flight import", () => {
     "reports invalid airport timezones with offset '%s'",
     (offset) => {
       const airport = airportByIata.get("PVG")!;
-      airportByIata.set("PVG", { ...airport, timezone: "Invalid/Timezone" });
+      airportById.set(airport.airportId, {
+        ...airport,
+        timezone: "Invalid/Timezone",
+      });
       try {
         const parsed = parseCsv(
           csv.replace("2026-09-02T13:00:00+08:00", `2026-09-02T13:00${offset}`),
@@ -174,7 +178,7 @@ describe("CSV flight import", () => {
           "line-2:invalid-timezone",
         );
       } finally {
-        airportByIata.set("PVG", airport);
+        airportById.set(airport.airportId, airport);
       }
     },
   );

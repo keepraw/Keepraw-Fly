@@ -1,0 +1,81 @@
+name: Update Airport History
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: airport-history-publication
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'keepraw/Keepraw-Fly' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Download and verify the pinned OurAirports snapshot
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --fetch-ourairports "$RUNNER_TEMP/ourairports.csv"
+
+      - name: Check the formal publication
+        id: data
+        run: |
+          report="$RUNNER_TEMP/airport-history-update.md"
+          log="$RUNNER_TEMP/airport-history-update.log"
+          if ! PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --ourairports "$RUNNER_TEMP/ourairports.csv" --report "$report" > "$log" 2>&1; then
+            cat "$log"
+            if [ -s "$report" ]; then
+              cat "$report" >> "$GITHUB_STEP_SUMMARY"
+            else
+              cat "$log" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            exit 1
+          fi
+          cat "$log"
+          if [ -s "$report" ]; then
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install pnpm
+        if: steps.data.outputs.changed == 'true'
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 10.14.0
+
+      - name: Set up Node.js
+        if: steps.data.outputs.changed == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Validate the candidate update
+        if: steps.data.outputs.changed == 'true'
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/update-airport-history.py --check
+          pnpm install --frozen-lockfile
+          pnpm typecheck
+          pnpm test
+          pnpm build
+          git diff --check
+          printf '\n## Compatibility\n\n- Pin, directory, workspace type checks, tests and production build passed.\n' >> "$RUNNER_TEMP/airport-history-update.md"
+
+      - name: Open or update the review PR
+        if: steps.data.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/propose-airport-history-update.py "$RUNNER_TEMP/airport-history-update.md"

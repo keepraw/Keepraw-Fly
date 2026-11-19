@@ -1,0 +1,14 @@
+{
+  "dataVersion": "0.13.0",
+  "schemaVersion": "3.0.0",
+  "commit": "2c39e2f040d65dd32142ffcbb4ca62b5c459abf0",
+  "queryHorizon": {
+    "fromInclusive": "2000-01-01",
+    "toExclusive": "2026-11-19"
+  },
+  "files": {
+    "data/airports.json": {
+      "sha256": "a834b0153bd897b1f2cc5aaf1300ec5037f4ed43a596848543d84adfb5f99c34"
+    }
+  }
+}

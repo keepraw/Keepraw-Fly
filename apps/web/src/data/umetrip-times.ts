@@ -68,17 +68,16 @@ export function inferUmetripTimes(input: {
 }): { departure: string; arrival: string } {
   const { serviceDate, departureTime, arrivalTime, origin, destination } =
     input;
+  const originZone = origin.timezone;
+  const destinationZone = destination.timezone;
+  if (!originZone || !destinationZone) throw new Error("invalid-timezone");
   try {
-    airportTimeFormatter(origin.timezone);
-    airportTimeFormatter(destination.timezone);
+    airportTimeFormatter(originZone);
+    airportTimeFormatter(destinationZone);
   } catch {
     throw new Error("invalid-timezone");
   }
-  const departure = zonedDateTimeToIso(
-    serviceDate,
-    departureTime,
-    origin.timezone,
-  );
+  const departure = zonedDateTimeToIso(serviceDate, departureTime, originZone);
   const start = Date.parse(departure);
   // Broad scheduled block-time sanity bounds, not a route schedule or a claim
   // about historical airport locations. Coordinates are never saved to flights.
@@ -106,7 +105,7 @@ export function inferUmetripTimes(input: {
     const instant = Math.floor((start + minute * 60_000) / 60_000) * 60_000;
     const parts = localPartsAtAirport(
       new Date(instant).toISOString(),
-      destination.timezone,
+      destinationZone,
     );
     offsets.add(Date.parse(`${parts.date}T${parts.time}:00Z`) - instant);
     if (minute === maximum) break;
@@ -120,11 +119,7 @@ export function inferUmetripTimes(input: {
       return duration >= minimum && duration <= maximum;
     });
     if (plausible) {
-      const arrival = zonedDateTimeToIso(
-        date,
-        arrivalTime,
-        destination.timezone,
-      );
+      const arrival = zonedDateTimeToIso(date, arrivalTime, destinationZone);
       const duration = (Date.parse(arrival) - start) / 60_000;
       if (duration >= minimum && duration <= maximum) arrivals.push(arrival);
     }
