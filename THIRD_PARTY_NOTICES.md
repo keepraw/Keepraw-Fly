@@ -77,8 +77,6 @@ upstream revision.
 Fly includes the reviewed formal dataset from Keepraw Airport History. The
 vendored manifest records the immutable source commit and SHA-256. [Production repository](https://github.com/keepraw/airport-history) · [Vendored manifest](packages/core/data/airport-history/formal/manifest.json)
 
-Fly's source metadata links to earlier snapshots in the archive. [Airport History archive](https://github.com/keepraw/airport-history-archive)
-
 The project-authored database selection, arrangement, IDs and factual annotations
 are dedicated under CC0 1.0. The upstream worldwide reference layer derives
 from the pinned OurAirports CSV (public domain), factual timezone attributes

@@ -1,139 +1,72 @@
 {
-  "reviewedOn": "2026-11-19",
-  "sources": [
-    {
-      "sourceId": "fly-pqm-sct-2018",
-      "title": "Mexico SCT statistical yearbook 2018, civil aviation",
-      "url": "https://micrs.sct.gob.mx/images/DireccionesGrales/DGP/PDF/DEC-PDF/Anuario_2018.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
+  "originalInterval": {
+    "validFrom": {
+      "earliest": null,
+      "latest": "2000-01-01",
+      "precision": "unknown"
     },
-    {
-      "sourceId": "fly-pqm-aip-s44-16",
-      "title": "Mexico DGAC/SENEAM AIP supplement S 44/16, archived copy",
-      "url": "https://www.edgardos.com.mx/eAIP/other_documents/pdfs/000/000/175/original/Boletin_de_Suplementos_2016.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-pqm-dof-2016",
-      "title": "Mexico Diario Oficial, Palenque international designation and aerodrome coordinates",
-      "url": "https://www.gob.mx/cms/uploads/attachment/file/810337/palenque-16-12-2016-16032023.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-mkm-mot-2021",
-      "title": "Malaysia Ministry of Transport announcement of Mukah STOLport replacement",
-      "url": "https://www.mot.gov.my/en/Announcement/PRESS%20RELEASE%20YBM%20-%20NEW%20AIRPORT%20FOR%20MUKAH%20SARAWAK%20FROM%2017%20JUNE%202021%20-%2016062021.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-mkm-caam-d0578-21",
-      "title": "CAAM NOTAM D0578/21, new WBGK operations effective 17 June 2021",
-      "url": "https://www.caam.gov.my/wp-content/uploads/2021/12/JUL-NOTAM-Summary-Comb.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-mkm-caam-ad-4",
-      "title": "Malaysia AIP AD 4.1-6, previous Mukah WBGK reference point",
-      "url": "https://aip.caam.gov.my/aip%20pdf/AD/AD4/Index%20To%20Aerodromes.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-dse-ecaa-aip",
-      "title": "Ethiopia AIP AD 1.3-3 (26 June 2014) and AD 2-HADC-1 (25 June 2015), archived copy",
-      "url": "https://pdfcoffee.com/aip-ethiopia-2-pdf-free.html",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-dse-city-diagnostic-2015",
-      "title": "Ethiopia Ministry of Urban and Infrastructure diagnostic report, March 2015",
-      "url": "https://mui.gov.et/wp-content/uploads/2024/09/study.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-dse-ethiomet-annex-vi",
-      "title": "Ethiopian Meteorology Institute aerodrome list, HADC and DSE",
-      "url": "https://www.ethiomet.gov.et/documents/5/1640597436.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-bti-faa-2017-04181",
-      "title": "FAA final rule 82 FR 12503, Barter Island airport relocation",
-      "url": "https://www.federalregister.gov/documents/2017/03/06/2017-04181/amendment-of-class-e-airspace-barter-island-ak",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-bti-faa-location-identifiers",
-      "title": "FAA Location Identifiers, BTI and PABA",
-      "url": "https://www.faa.gov/air_traffic/publications/atpubs/lid/L_G1.htm",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
-    },
-    {
-      "sourceId": "fly-bti-usaf-2019",
-      "title": "USAF 611 CES natural resources plan, sections H.1.1 and H.3.2",
-      "url": "https://naccesu.uri.edu/wp/wp-content/uploads/2019/04/Ref-A_2020-PRE-FINAL-USAF-PRSC-Remote-Sites-INRMP-_Appendix.pdf",
-      "sourceType": "primary",
-      "verificationStatus": "verified"
+    "validTo": {
+      "earliest": "2026-11-19",
+      "latest": null,
+      "precision": "unknown"
     }
-  ],
+  },
   "transfers": [
     {
       "publishedAirportId": "apt_ee3b4101-0ecd-4f9e-a574-4e2477735b67",
       "formerAirportId": "apt_0705905f-5933-4e0c-8928-082674ee1b31",
       "replacementAirportId": "apt_ee3b4101-0ecd-4f9e-a574-4e2477735b67",
-      "supersedes": ["continuity-iata-pqm-4744", "continuity-icao-mmpq-4744"],
+      "supersedes": [
+        "continuity-iata-pqm-4744",
+        "continuity-icao-mmpq-4744"
+      ],
       "handover": {
         "earliest": "2014-03-13",
         "latest": "2014-03-13",
         "precision": "exact"
-      },
-      "sourceIds": ["fly-pqm-sct-2018", "fly-pqm-aip-s44-16", "fly-pqm-dof-2016"]
+      }
     },
     {
       "publishedAirportId": "apt_261f97ee-84c4-4c97-a77a-24dd7db7fedf",
       "formerAirportId": "apt_79e98365-bb8e-4d43-b91c-34f42e4ed6b5",
       "replacementAirportId": "apt_261f97ee-84c4-4c97-a77a-24dd7db7fedf",
-      "supersedes": ["continuity-iata-mkm-350992", "continuity-icao-wbgk-350992"],
+      "supersedes": [
+        "continuity-iata-mkm-350992",
+        "continuity-icao-wbgk-350992"
+      ],
       "handover": {
         "earliest": "2021-06-17",
         "latest": "2021-06-17",
         "precision": "exact"
-      },
-      "sourceIds": ["fly-mkm-mot-2021", "fly-mkm-caam-d0578-21", "fly-mkm-caam-ad-4"]
+      }
     },
     {
       "publishedAirportId": "apt_18516e40-15cd-4374-a4fb-9e71ff0e3706",
       "formerAirportId": "apt_85ce2ba2-27bc-4d41-bbcc-1d934641c784",
       "replacementAirportId": "apt_18516e40-15cd-4374-a4fb-9e71ff0e3706",
-      "supersedes": ["continuity-iata-dse-507651", "continuity-icao-hadc-507651"],
+      "supersedes": [
+        "continuity-iata-dse-507651",
+        "continuity-icao-hadc-507651"
+      ],
       "handover": {
         "earliest": "2014-06-27",
         "latest": "2015-06-25",
         "precision": "unknown"
-      },
-      "sourceIds": ["fly-dse-ecaa-aip", "fly-dse-city-diagnostic-2015", "fly-dse-ethiomet-annex-vi"]
+      }
     },
     {
       "publishedAirportId": "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc",
       "formerAirportId": "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc",
       "replacementAirportId": "apt_e0a09678-0e50-49b5-bcf2-56bc499ede2d",
-      "supersedes": ["continuity-iata-bti-5337", "continuity-icao-paba-5337"],
+      "supersedes": [
+        "continuity-iata-bti-5337",
+        "continuity-icao-paba-5337"
+      ],
       "handover": {
         "earliest": "2016-01-01",
         "latest": "2017-04-28",
         "precision": "unknown"
-      },
-      "sourceIds": ["fly-bti-faa-2017-04181", "fly-bti-faa-location-identifiers", "fly-bti-usaf-2019"]
+      }
     }
   ]
 }

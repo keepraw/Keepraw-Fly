@@ -4,12 +4,12 @@ Fly joins airport data by permanent `airportId`. Flight records keep the
 original IATA code and any user-confirmed ID on each endpoint. The historical
 resolver uses the endpoint's local civil date to resolve a code assignment.
 
-| Layer                              | Purpose                                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------------------- |
-| Airport History                    | Physical sites, dated IATA and ICAO assignments, official name intervals and evidence |
-| Fly directory                      | Locations, geographical timezones, current lookup codes and locality metadata         |
-| Airport display names              | Localized labels and search terms keyed by physical site                              |
-| [UI localization](i18n-locales.md) | Interface text and display formatting                                                 |
+| Layer                              | Purpose                                                                       |
+| ---------------------------------- | ----------------------------------------------------------------------------- |
+| Airport History                    | Physical sites, dated IATA and ICAO assignments, official name intervals      |
+| Fly directory                      | Locations, geographical timezones, current lookup codes and locality metadata |
+| Airport display names              | Localized labels and search terms keyed by physical site                      |
+| [UI localization](i18n-locales.md) | Interface text and display formatting                                         |
 
 ## Formal data and directory
 
@@ -21,8 +21,9 @@ and three name intervals. The supported bulk history starts on 2000-01-01
 and runs through 2026-11-18. A few reviewed intervals reach earlier dates,
 including Kai Tak. [Production repository](https://github.com/keepraw/airport-history)
 
-The formal snapshot records the original URL for the owner continuity policy.
-The policy discussion is available in the archive. [Airport History PR #39](https://github.com/keepraw/airport-history-archive/pull/39)
+The importer supports schemas 3.0.0 and 4.0.0. Fly interprets the eligibility
+metadata in the current Schema 3.0.0 snapshot at load time. Schema 4.0.0
+uses the published intervals directly.
 
 All 7,885 preexisting Fly rows remain in `airports.iata.json`. The
 [formal directory](../packages/core/data/airport-history/formal/directory.json)
@@ -35,7 +36,7 @@ searchable. The Basel and Mulhouse Fly IDs point to one physical identity,
 with BSL in the current lookup and MLH in the search aliases. A site without
 an IATA assignment can appear by name or ICAO in search.
 
-The current index uses unique, reviewed assignments that are certain on the
+The current index uses unique assignments that are certain on the
 last day before `queryHorizon.toExclusive`. Closed formal sites have no
 current code. Fly-only current codes apply where the formal dataset has no
 IATA assignment for that code. Past IATA and ICAO codes stay in historical
@@ -51,9 +52,9 @@ historical predecessors retain independent IDs and names.
 
 ## Flight resolution and archives
 
-Fly checks a stored endpoint ID first, then a unique, reviewed dated
+Fly checks a stored endpoint ID first, then a unique dated
 assignment. An unavailable stored ID remains available for later resolution.
-A directory reference can supply a point or zone when the formal evidence
+A directory reference can supply a point or zone when the assignment history
 allows a single site, including an ordinary directory airport outside the
 formal horizon. Competing possible assignments require a confirmation.
 
@@ -83,9 +84,9 @@ Reviewed legacy Chinese wording is inherited. The known OKS and NFO labels
 that described different sites were withdrawn, and LYG's Baitabu and
 Huaguoshan labels are stored on their respective sites. Traditional Chinese
 conversion fills gaps. Official date-effective labels retain their original
-language, source and independent interval in the formal dataset.
+language and independent interval in the formal dataset.
 
-The name API chooses an unambiguous verified dated name in the requested
+The name API chooses an unambiguous dated official name in the requested
 language when available. The fallback uses the exact locale, then the base
 language and the canonical English reference. Astana's dated Russian names
 remain available in Russian and in historical search. The English base serves
@@ -124,22 +125,24 @@ python3 scripts/update-airport-history.py --check --verify-upstream
 The workflow consumes the manifest and formal dataset for its immutable commit.
 It downloads and verifies the OurAirports revision and SHA-256 recorded under
 `formalDirectory` in [airports.source.json](../packages/core/data/airports.source.json).
-Each import refreshes locality and status by the formal site's external ID.
+The importer preserves the existing directory during a schema transition if
+the physical-site inputs are identical. Other data updates refresh locality
+and status by the formal site's external ID.
 New, verified locality takes precedence in the directory. Missing fields use
 known locality and timezone references when available. Current status remains
-unknown when the snapshot provides no status evidence. Reviewed corrections to
-known status discrepancies apply to the specific snapshot and reference verified
-sources in the formal dataset. Use a separate manual review to assign a new
-crosswalk link.
+unknown when the snapshot provides no status evidence. Local corrections to known status discrepancies are keyed by physical ID
+and reference snapshot. Use a separate manual review to assign a new
+crosswalk link. Fly also preserves both physical sites for the Palenque,
+Mukah, Combolcha, and Barter Island transfers. [Transfer details](audits/airport-crosswalk-0.13.0.md)
 
 A matching publication exits before writing files. A different hash for the
 same version, incompatible schema, missing identity or assignment, changed
 external identity, material movement or conflicting certain intervals
 requires review. Inspect the workflow summary for the diagnostic.
 
-A new compatible publication updates the pin and reference data, checks the
+A new publication in the pinned schema updates the pin and reference data, checks the
 hash, validates the directory, runs the workspace checks and proposes an
-English PR. The PR reports old and new versions and hashes, claim and source
+English PR. The PR reports old and new versions and hashes, assignment and interval
 changes, resolved code/date coverage, gaps by locale and counts for missing
 city, country, status and incomplete metadata on new sites. It also counts
 existing sites whose status could not be verified. An existing version PR
@@ -149,5 +152,5 @@ through the normal CI gate.
 GitHub's repository Actions setting must allow the workflow token to create
 pull requests. GitHub may ask a maintainer to approve the PR's CI run for
 token-created PRs. The updater validates the candidate before opening the PR.
-For initial setup, merge the upstream production manifest PR before the
-first scheduled check.
+The first Schema 4.0.0 data import is a manual PR based on the published
+upstream manifest. This keeps the cutover in review order.

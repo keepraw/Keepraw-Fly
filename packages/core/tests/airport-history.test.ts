@@ -15,7 +15,6 @@ import {
   searchHistoricalAirports,
   formalAssignments,
   formalAssignmentsForCode,
-  formalSources,
   assignmentDateRelation,
   type CompactAirportRow,
 } from "../src";
@@ -70,14 +69,9 @@ describe("reviewed code assignments", () => {
     expect(searchHistoricalAirports("Kai Tak")[0]?.airportId).toBe(kaiTak);
     expect(airportById.get(kaiTak)?.status).toBe("closed");
   });
-  it("keeps every formal identity and traceable evidence", () => {
+  it("keeps every formal identity and validates distinct-site overlaps", () => {
     for (const airport of formal.airports)
       expect(airportById.has(airport.airportId)).toBe(true);
-    for (const assignment of formalAssignments) {
-      expect(assignment.sourceIds.length).toBeGreaterThan(0);
-      for (const id of assignment.sourceIds)
-        expect(formalSources.has(id)).toBe(true);
-    }
     for (const a of formalAssignments) {
       for (const b of formalAssignmentsForCode(a.code, a.scheme)) {
         if (a.airportId === b.airportId) continue;
