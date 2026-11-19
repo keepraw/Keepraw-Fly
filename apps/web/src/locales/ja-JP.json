@@ -158,9 +158,7 @@
     "airportTimezoneCandidates": "歴史的候補は異なるタイムゾーンです: {{zones}}。該当するものを選択してください。",
     "airportTimezoneHint": "IANA タイムゾーンまたは +08:00 のような UTC オフセット。",
     "airportHistory": {
-      "searchGroup": "歴史的な空港とコード",
-      "review": "過去の空港を検索",
-      "reviewFailed": "現在検索できません。上の欄で空港を選択し、フライトを保存できます。"
+      "searchGroup": "歴史的な空港とコード"
     }
   },
   "status": {

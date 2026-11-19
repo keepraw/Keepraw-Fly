@@ -103,13 +103,10 @@ export function PassportPage({
     update();
     return () => media.removeEventListener("change", update);
   }, []);
-  // Physical identities change when candidate shards finish loading.
   const years = useMemo(
     () => calculateYearStatistics(document.flights),
     [document.flights],
   );
-  // Selection matches flight-date physical identities, which change when
-  // candidate shards finish loading.
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
     [document.flights, selectedYear, query, selection],

@@ -1,4 +1,4 @@
-/** Reviewed assignments only. Research candidates never participate in resolution. */
+/** Airport resolution uses reviewed assignments and the packaged directory. */
 import {
   airportById,
   airportByIata,
@@ -26,7 +26,6 @@ export {
   airportHistoryQueryHorizon,
   assignmentDateRelation,
   assignmentsByAirportId,
-  formalAirportIdByOurAirportsId,
   formalAssignments,
   formalAssignmentsForCode,
   formalHistoricalNames,

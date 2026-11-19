@@ -161,9 +161,7 @@
     "airportTimezoneCandidates": "Historische Kandidaten liegen in verschiedenen Zeitzonen: {{zones}}. Wählen Sie die zutreffende.",
     "airportTimezoneHint": "IANA-Zeitzone oder UTC-Versatz wie +08:00.",
     "airportHistory": {
-      "searchGroup": "Historische Flughäfen und Codes",
-      "review": "Historische Flughäfen suchen",
-      "reviewFailed": "Suche nicht verfügbar. Sie können oben weiterhin einen Flughafen auswählen und den Flug speichern."
+      "searchGroup": "Historische Flughäfen und Codes"
     }
   },
   "status": {

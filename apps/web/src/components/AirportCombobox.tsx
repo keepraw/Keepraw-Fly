@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   airportByIata,
@@ -65,31 +65,6 @@ export function AirportCombobox({
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const reviewRequest = useRef(0);
-  const [research, setResearch] = useState<
-    import("../data/airport-history").AirportResearchResult[]
-  >([]);
-  const [researchState, setResearchState] = useState<
-    "idle" | "loading" | "ready" | "failed"
-  >("idle");
-  useEffect(() => {
-    reviewRequest.current++;
-    setResearch([]);
-    setResearchState("idle");
-  }, [value]);
-  async function reviewHistory() {
-    const request = ++reviewRequest.current;
-    setResearchState("loading");
-    try {
-      const { researchAirportCode } = await import("../data/airport-history");
-      const matches = await researchAirportCode(value);
-      if (request !== reviewRequest.current) return;
-      setResearch(matches);
-      setResearchState("ready");
-    } catch {
-      if (request === reviewRequest.current) setResearchState("failed");
-    }
-  }
   const results = useMemo(
     () =>
       query.trim()
@@ -227,51 +202,6 @@ export function AirportCombobox({
             ? t("flightEditor.airportRecentHint")
             : t("flightEditor.airportSearchHint")}
       </small>
-      {value ? (
-        <details>
-          <summary>{t("flightEditor.airportHistory.searchGroup")}</summary>
-          <button
-            type="button"
-            disabled={researchState === "loading"}
-            onClick={() => void reviewHistory()}
-          >
-            {t("flightEditor.airportHistory.review", {
-              defaultValue: "Look up historical airports",
-            })}
-          </button>
-          {researchState === "failed" ? (
-            <p role="status">
-              {t("flightEditor.airportHistory.reviewFailed", {
-                defaultValue:
-                  "Lookup unavailable. You can still select an airport above and save your flight.",
-              })}
-            </p>
-          ) : null}
-          {researchState === "ready" && !research.length ? (
-            <p>{t("flightEditor.noAirportResults")}</p>
-          ) : null}
-          {research.map((entry) => (
-            <div key={entry.referenceId}>
-              {entry.airportId ? (
-                <button
-                  type="button"
-                  onClick={() => chooseCode(value, entry.airportId!)}
-                >
-                  {localizedAirportName(entry.airportId, locale, date) ??
-                    entry.name}{" "}
-                  · {entry.country}
-                </button>
-              ) : (
-                <span>
-                  {localizedAirportName(entry.airportId, locale, date) ??
-                    entry.name}{" "}
-                  · {entry.country}
-                </span>
-              )}
-            </div>
-          ))}
-        </details>
-      ) : null}
       {open && historical.length ? (
         <div
           className="airport-options airport-history-options"

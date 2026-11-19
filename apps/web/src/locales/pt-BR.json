@@ -164,9 +164,7 @@
     "airportTimezoneCandidates": "Os candidatos históricos usam fusos diferentes: {{zones}}. Escolha o correto.",
     "airportTimezoneHint": "Fuso IANA ou deslocamento UTC como +08:00.",
     "airportHistory": {
-      "searchGroup": "Aeroportos e códigos históricos",
-      "review": "Buscar aeroportos históricos",
-      "reviewFailed": "Consulta indisponível. Você ainda pode selecionar um aeroporto acima e salvar o voo."
+      "searchGroup": "Aeroportos e códigos históricos"
     }
   },
   "status": {

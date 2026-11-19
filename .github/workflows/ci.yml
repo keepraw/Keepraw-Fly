@@ -316,8 +316,7 @@ jobs:
 
   airport-history:
     if: github.repository == 'keepraw/Keepraw-Fly'
-    # Only the reviewed dataset belongs to Fly. Compare its bytes with the pin;
-    # manual research uses the separate airport-history-archive repository.
+    # Verify the vendored formal dataset against its immutable upstream pin.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 

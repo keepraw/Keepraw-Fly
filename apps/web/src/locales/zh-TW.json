@@ -158,9 +158,7 @@
     "airportTimezoneCandidates": "歷史候選位於不同時區：{{zones}}。請選擇實際適用的時區。",
     "airportTimezoneHint": "IANA 時區或 UTC 偏移，例如 +08:00。",
     "airportHistory": {
-      "searchGroup": "歷史機場與代碼",
-      "review": "查找歷史機場",
-      "reviewFailed": "暫時無法查詢。仍可在上方選擇機場並儲存航班。"
+      "searchGroup": "歷史機場與代碼"
     }
   },
   "status": {

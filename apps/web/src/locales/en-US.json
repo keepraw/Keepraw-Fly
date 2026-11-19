@@ -161,9 +161,7 @@
     "airportTimezoneCandidates": "Historical candidates use different zones: {{zones}}. Choose the one that applies.",
     "airportTimezoneHint": "IANA zone or UTC offset such as +08:00.",
     "airportHistory": {
-      "searchGroup": "Historical airports and codes",
-      "review": "Look up historical airports",
-      "reviewFailed": "Lookup unavailable. You can still select an airport above and save your flight."
+      "searchGroup": "Historical airports and codes"
     }
   },
   "status": {
