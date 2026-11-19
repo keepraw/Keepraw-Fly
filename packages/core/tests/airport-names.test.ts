@@ -10,7 +10,6 @@ import {
   airportHistoryQueryHorizon,
   formalAssignments,
   formalHistoricalNames,
-  formalSources,
   installAirportDirectory,
   localizedAirportName,
   resolveAirportAtDate,
@@ -43,7 +42,7 @@ const taoLabels = [
 ] as const;
 
 describe("formal data and Fly directory", () => {
-  it("installs all the Airport History 0.13.0 identities, names and claims", () => {
+  it("installs all published airport identities, names and assignments", () => {
     expect(airportHistoryDataVersion).toBe(manifest.dataVersion);
     expect(formal.schemaVersion).toBe(manifest.schemaVersion);
     expect(airportHistoryQueryHorizon).toEqual(manifest.queryHorizon);
@@ -52,9 +51,7 @@ describe("formal data and Fly directory", () => {
     );
     expect(formalIds.size).toBe(formal.airports.length);
     expect(formalHistoricalNames).toHaveLength(formal.names.length);
-    for (const source of formal.sources)
-      expect(formalSources.get(source.sourceId)).toEqual(source);
-    if (manifest.dataVersion === "0.13.0") {
+    if (["0.13.0", "0.14.0"].includes(manifest.dataVersion)) {
       expect(formalIds.size).toBe(6510);
       expect(
         formal.assignments.filter((row) => row.scheme === "IATA"),
@@ -63,7 +60,6 @@ describe("formal data and Fly directory", () => {
         formal.assignments.filter((row) => row.scheme === "ICAO"),
       ).toHaveLength(6214);
       expect(formalHistoricalNames).toHaveLength(3);
-      expect(formal.sources).toHaveLength(214);
       expect(formalAssignments).toHaveLength(formal.assignments.length + 8);
     }
     expect(

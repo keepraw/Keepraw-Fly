@@ -1,4 +1,4 @@
-/** Airport resolution uses reviewed assignments and the packaged directory. */
+/** Airport resolution uses dated assignments and the packaged directory. */
 import {
   airportById,
   airportByIata,
@@ -13,7 +13,6 @@ import {
   assignmentDateRelation,
   assignmentsByAirportId,
   formalAssignmentsForCode,
-  isReviewedAirportClaim,
   type AirportCodeScheme,
   type AssignmentDateRelation,
   type FormalAssignment,
@@ -29,7 +28,6 @@ export {
   formalAssignments,
   formalAssignmentsForCode,
   formalHistoricalNames,
-  formalSources,
 } from "./formal-airport-data";
 export type {
   AirportCodeScheme,
@@ -107,13 +105,12 @@ export function resolveAirportAtDate(
   const ids = [...new Set(matches.map((match) => match.assignment.airportId))];
   result.uncertainty.possibleAirportIds = ids;
   const certain = matches.filter(
-    (match) =>
-      match.relation === "certain" && isReviewedAirportClaim(match.assignment),
+    (match) => match.relation === "certain" && match.assignment.canResolve,
   );
   if (
     ids.length === 1 &&
     certain.length > 0 &&
-    matches.every((match) => isReviewedAirportClaim(match.assignment))
+    matches.every((match) => match.assignment.canResolve)
   ) {
     result.airportId = ids[0]!;
     result.airport = airportById.get(ids[0]!) ?? null;
