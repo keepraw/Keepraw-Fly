@@ -125,7 +125,9 @@ python3 scripts/update-airport-history.py --check --verify-upstream
 The workflow consumes the manifest and formal dataset for its immutable commit.
 It downloads and verifies the OurAirports revision and SHA-256 recorded under
 `formalDirectory` in [airports.source.json](../packages/core/data/airports.source.json).
-Each import refreshes locality and status by the formal site's external ID.
+The importer preserves the existing directory during a schema transition if
+the physical-site inputs are identical. Other data updates refresh locality
+and status by the formal site's external ID.
 New, verified locality takes precedence in the directory. Missing fields use
 known locality and timezone references when available. Current status remains
 unknown when the snapshot provides no status evidence. Local corrections to known status discrepancies are keyed by physical ID

@@ -156,6 +156,13 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertIn("ja-JP | 1 / 2 | 1", report.read_text())
         self.assertIn("IATA assignments added: 1", report.read_text())
 
+    def test_schema_only_update_preserves_the_directory_bytes(self):
+        original = self.paths["DIRECTORY"].read_bytes()
+        after = schema_four(dataset("0.14.0"))
+        self.simulate(after)
+        self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(after))
+        self.assertEqual(self.paths["DIRECTORY"].read_bytes(), original)
+
     def assert_rejected(self, after, **kwargs):
         with self.assertRaises(SystemExit) as error:
             self.simulate(after, **kwargs)

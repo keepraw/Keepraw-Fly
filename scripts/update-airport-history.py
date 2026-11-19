@@ -193,6 +193,16 @@ def detect_breaking_changes(before, after):
     return changes
 
 
+def directory_inputs(dataset):
+    return {
+        row["airportId"]: (
+            row.get("externalIds", {}),
+            *(row[field]["value"] for field in ("name", "coordinates", "timezone")),
+        )
+        for row in dataset["airports"]
+    }
+
+
 def coverage(dataset, horizon):
     """Count resolved code/date pairs by interval boundaries, without daily snapshots."""
     start, end = horizon["fromInclusive"], horizon["toExclusive"]
@@ -387,7 +397,8 @@ def main():
         old = validate_manifest(json.loads(PIN.read_bytes()))
         old_data = TARGET.read_bytes()
         before = validate_dataset(old_data, old)
-        previous = json.loads(DIRECTORY.read_bytes())
+        directory_bytes = DIRECTORY.read_bytes()
+        previous = json.loads(directory_bytes)
         fly = json.loads((DATA / "airports.iata.json").read_bytes())
         if args.check:
             validate_directory(before, previous, fly)
@@ -405,12 +416,15 @@ def main():
         raw = fetch(f"{UPSTREAM}/{new['commit']}/{DATASET}")
         after = validate_dataset(raw, new)
         breaking = detect_breaking_changes(before, after)
-        reference = (
-            read_ourairports(args.ourairports)
-            if args.ourairports
-            else parse_ourairports(fetch(OURAIRPORTS["csv"]))
-        )
-        directory = directory_rows(after, previous, fly, reference, before["airports"])
+        directory = previous
+        if old["schemaVersion"] == new["schemaVersion"] or directory_inputs(before) != directory_inputs(after):
+            reference = (
+                read_ourairports(args.ourairports)
+                if args.ourairports
+                else parse_ourairports(fetch(OURAIRPORTS["csv"]))
+            )
+            directory = directory_rows(after, previous, fly, reference, before["airports"])
+            directory_bytes = compact_object(directory)
         validate_directory(after, directory, fly)
         labels = labels_for_update(json.loads(NAMES.read_bytes()) if NAMES.exists() else {}, directory, after)
         summary = report(before, after, old, new, directory, labels, breaking)
@@ -420,7 +434,7 @@ def main():
             raise ValueError("Manual review required:\n" + "\n".join(breaking))
         write_files([
             (TARGET, raw),
-            (DIRECTORY, compact_object(directory)),
+            (DIRECTORY, directory_bytes),
             (NAMES, compact_object(labels)),
             (PIN, (json.dumps(new, indent=2) + "\n").encode()),
         ])
