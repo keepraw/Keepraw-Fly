@@ -1,5 +1,8 @@
 # Persist physical airport identities and isolate historical research
 
+This document records the original implementation in PR #118. The manual
+research lookup described here has since been retired. [PR #118](https://github.com/keepraw/Keepraw-Fly/pull/118) · [Current airport history guide](airport-history.md)
+
 Selecting a historical airport previously saved only its IATA code, allowing
 later date edits or reference updates to replace the chosen physical airport.
 This change stores an optional permanent airport ID independently on origin,

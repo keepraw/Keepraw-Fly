@@ -97,31 +97,6 @@ test("manual selection survives save, reload and a date edit", async ({
   await expect(page.locator(".detail-stop--departure")).toContainText("HKG");
   await expect(page.locator(".detail-airport-evidence")).toHaveCount(0);
 });
-test("failed explicit research lookup does not change a saved flight", async ({
-  page,
-}) => {
-  await page.route("https://raw.githubusercontent.com/**", (route) =>
-    route.abort(),
-  );
-  const record = flight("confirmed", "2005");
-  record.origin.airportId = kaiTak;
-  await importFlights(page, [record]);
-  await page.locator(".flight-row").click();
-  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
-  const editor = page.getByRole("dialog");
-  await editor.locator(".airport-combobox details summary").first().click();
-  await editor
-    .getByRole("button", { name: "Look up historical airports" })
-    .first()
-    .click();
-  await expect(editor.getByRole("status")).toContainText("Lookup unavailable");
-  await editor
-    .getByRole("button", { name: "Save flight", exact: true })
-    .click();
-  await expect(page.locator(".route-origin-airport")).toHaveText(
-    "Hong Kong International Airport Kai Tak",
-  );
-});
 
 test("TAO keeps the flight-date site when changing airport-name languages", async ({
   page,

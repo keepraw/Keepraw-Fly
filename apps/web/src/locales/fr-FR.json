@@ -164,9 +164,7 @@
     "airportTimezoneCandidates": "Les candidats historiques utilisent des fuseaux différents : {{zones}}. Choisissez celui qui s’applique.",
     "airportTimezoneHint": "Fuseau IANA ou décalage UTC comme +08:00.",
     "airportHistory": {
-      "searchGroup": "Aéroports et codes historiques",
-      "review": "Rechercher des aéroports historiques",
-      "reviewFailed": "Recherche indisponible. Vous pouvez toujours sélectionner un aéroport ci-dessus et enregistrer le vol."
+      "searchGroup": "Aéroports et codes historiques"
     }
   },
   "status": {
