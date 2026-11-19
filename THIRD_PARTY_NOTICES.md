@@ -78,8 +78,9 @@ Fly includes the reviewed formal dataset from
 [keepraw/airport-history](https://github.com/keepraw/airport-history). Its
 [manifest](packages/core/data/airport-history/formal/manifest.json) records the
 immutable source commit and SHA-256. The explicit research lookup uses selected
-shards at its own pinned revision. The
-project-authored database selection, arrangement, IDs and factual annotations
+shards at a pinned revision of the legacy repository. [Research archive](https://github.com/keepraw/airport-history-archive)
+
+The project-authored database selection, arrangement, IDs and factual annotations
 are dedicated under CC0 1.0. The upstream worldwide reference layer derives
 from the pinned OurAirports CSV (public domain), factual timezone attributes
 from airportsdata (MIT) and airport-codes data (ODC-PDDL-1.0). The upstream

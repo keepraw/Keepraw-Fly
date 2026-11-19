@@ -2,6 +2,11 @@ import { expect, test, type Page } from "@playwright/test";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 import { openSettingsCategory } from "./helpers/settings";
 import { readFileSync } from "node:fs";
+import {
+  supportedLanguages,
+  type Language,
+} from "../apps/web/src/locales/registry";
+
 const archive = JSON.parse(
   readFileSync(
     new URL("../examples/basic.keepraw-fly.json", import.meta.url),
@@ -35,7 +40,6 @@ const translations = Object.fromEntries(
     ),
   ]),
 );
-import { supportedLanguages } from "../apps/web/src/locales/registry";
 
 test.beforeEach(async ({ page }) => {
   await disablePassportWebGL(page);
@@ -46,8 +50,16 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function seed(page: Page, language: string) {
-  await page.goto("/");
-  await expect(page.locator('input[type="file"]')).toBeAttached();
+  // Give the storage adapter a same-origin document before the app's first boot.
+  // The fixture has no app scripts, so there is no competing hydration read.
+  const fixtureUrl = "/i18n-storage-fixture";
+  await page.route(
+    fixtureUrl,
+    (route) =>
+      route.fulfill({ contentType: "text/html", body: "<!doctype html>" }),
+    { times: 1 },
+  );
+  await page.goto(fixtureUrl);
   await page.evaluate(
     async ({ archive, language }) => {
       const modulePath = "/src/storage/browser.ts";
@@ -66,8 +78,7 @@ async function seed(page: Page, language: string) {
     },
     { archive, language },
   );
-  await page.goto("/#settings");
-  await page.reload();
+  await page.goto("/#settings", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".settings-page")).toBeVisible();
 }
 
@@ -102,12 +113,15 @@ test("browser language priority and Chinese script resolution @cross-browser", a
 
 async function verifyLocalePersistence(
   page: Page,
-  languages: readonly (typeof supportedLanguages)[number][],
+  languages: readonly Language[],
+  seedLanguage: Language | "en" = "en",
 ) {
-  await seed(page, "en");
-  await expect(page.locator("#settings-language")).toHaveValue("en-US");
-  const before = await stored(page);
+  await seed(page, seedLanguage);
   const localeSelect = page.locator("#settings-language");
+  const initialLanguage = seedLanguage === "en" ? "en-US" : seedLanguage;
+  await expect(localeSelect).toHaveValue(initialLanguage);
+  await expect(page.locator("html")).toHaveAttribute("lang", initialLanguage);
+  const before = await stored(page);
   expect(
     await localeSelect
       .locator("option")
@@ -127,7 +141,10 @@ async function verifyLocalePersistence(
       .poll(async () => (await stored(page)).settings.language)
       .toBe(language);
     await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/#settings$/);
+    await expect(page.locator(".settings-page")).toBeVisible();
     await expect(localeSelect).toHaveValue(language);
+    await expect(page.locator("html")).toHaveAttribute("lang", language);
     await expect(page.locator("#settings-distance")).toHaveValue("kilometers");
     await expect(page.locator("#settings-time-format")).toHaveValue("12-hour");
     const after = await stored(page);
@@ -136,17 +153,30 @@ async function verifyLocalePersistence(
   }
 }
 
-const smokeLanguages = ["en-GB", "zh-CN", "zh-TW", "en-US"] as const;
-test("legacy en migrates; locale changes preserve archive facts, loyalty and other preferences @cross-browser", async ({
-  page,
-}) => {
-  await verifyLocalePersistence(page, smokeLanguages);
-});
+// Run each transition with its original starting locale. Every reload has to
+// prepare the offline directory again, even though IndexedDB already has data.
+const smokeTransitions = [
+  ["en", "en-GB"],
+  ["en-GB", "zh-CN"],
+  ["zh-CN", "zh-TW"],
+  ["zh-TW", "en-US"],
+] as const;
+const persistenceBehavior =
+  "locale changes preserve archive facts, loyalty and other preferences";
+for (const [from, to] of smokeTransitions) {
+  const title =
+    from === "en"
+      ? `legacy en migrates; ${persistenceBehavior}`
+      : `${persistenceBehavior} from ${from} to ${to}`;
+  test(`${title} @cross-browser`, async ({ page }) => {
+    await verifyLocalePersistence(page, [to], from);
+  });
+}
 
 // A locale launch includes loading the offline airport data. Run the
 // remaining reloads in bounded groups so every case keeps the test deadline.
 const remainingLanguages = supportedLanguages.filter(
-  (language) => !smokeLanguages.some((smoke) => smoke === language),
+  (language) => !smokeTransitions.some(([, target]) => target === language),
 );
 for (const languages of [
   remainingLanguages.slice(0, 3),
