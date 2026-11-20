@@ -51,6 +51,15 @@ function ids(prefix: string): () => string {
 }
 
 describe("Flighty CSV import", () => {
+  it("retains a specific ICAO identity across the CSV conversion when its IATA is shared", () => {
+    const parsed = parseFlightyCsv(
+      "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)\n2024-02-12,BOX,123,FRA,LEJ,2024-02-12T10:00,2024-02-12T11:30",
+    );
+    const preview = preflightFlightyImport(parsed, null);
+    expect(
+      buildDocumentFromFlightyPreflight(preview, null).flights[0]?.airline,
+    ).toEqual({ iata: "3S", icao: "BOX" });
+  });
   const timeHeaders =
     "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled),Gate Departure (Actual),Gate Arrival (Actual),Diverted To";
 

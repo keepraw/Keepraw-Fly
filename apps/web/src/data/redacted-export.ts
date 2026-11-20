@@ -120,6 +120,7 @@ function shareableExtensions(
 function redactFlight(
   flight: KeeprawFlight,
   summary: RedactionSummary,
+  memberIds: ReadonlyMap<string, string>,
 ): KeeprawFlight {
   const {
     ticketNumber,
@@ -134,13 +135,16 @@ function redactFlight(
   if (legacyTicket && typeof legacyTicket === "object")
     summary.ticketNumbers += 1;
   const next: KeeprawFlight = structuredClone(facts);
-  if (frequentFlyer)
+  if (frequentFlyer) {
+    const membershipId = memberIds.get(frequentFlyer.membershipId);
+    if (!membershipId) throw new Error("Invalid frequent-flyer reference");
     next.frequentFlyer = {
-      membershipId: frequentFlyer.membershipId,
+      membershipId,
       ...(frequentFlyer.tierAtFlight !== undefined
         ? { tierAtFlight: frequentFlyer.tierAtFlight }
         : {}),
     };
+  }
   const kept = shareableExtensions(extensions, summary);
   if (kept) next.extensions = kept;
   return next;
@@ -161,15 +165,20 @@ export function redactSensitiveData(document: KeeprawFlyDocument): {
   };
   // Legacy archives keep memberships in a document extension; normalize first
   // so programs and flight links survive while their numbers do not.
+  const memberIds = new Map<string, string>();
   const memberships = frequentFlyerMemberships(document).map((membership) => {
     if (membership.memberNumber) summary.memberNumbers += 1;
-    return { ...structuredClone(membership), memberNumber: "" };
+    const id = crypto.randomUUID();
+    memberIds.set(membership.id, id);
+    return { ...structuredClone(membership), id, memberNumber: "" };
   });
   const redacted: KeeprawFlyDocument = {
     format: document.format,
     formatVersion: document.formatVersion,
     profile: {},
-    flights: document.flights.map((flight) => redactFlight(flight, summary)),
+    flights: document.flights.map((flight) =>
+      redactFlight(flight, summary, memberIds),
+    ),
   };
   if (memberships.length) redacted.frequentFlyerMemberships = memberships;
   // No document-level extension is defined as shareable.

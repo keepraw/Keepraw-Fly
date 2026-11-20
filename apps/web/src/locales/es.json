@@ -405,6 +405,7 @@
     "moreIssues_other": "Hay {{count, number}} problemas más que no se muestran.",
     "resolveIssues": "Resolver problemas para importar",
     "issueMessages": {
+      "conflictingFlightId": "Un vuelo guardado tiene el mismo identificador pero datos distintos. Resuelve el conflicto antes de importar. No se ha modificado ningún vuelo.",
       "parse": "Este JSON no es válido. Comprueba que el archivo esté completo e inténtelo de nuevo.",
       "required": "Falta un campo obligatorio.",
       "additionalProperties": "Este campo está fuera del formato principal Keepraw Fly. Conserva datos personalizados dentro de un objeto de extensiones con espacio de nombres.",

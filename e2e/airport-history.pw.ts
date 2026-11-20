@@ -98,6 +98,72 @@ test("manual selection survives save, reload and a date edit", async ({
   await expect(page.locator(".detail-airport-evidence")).toHaveCount(0);
 });
 
+test("replacing SFO with historical Kai Tak persists the HKG code and site after reload", async ({
+  page,
+}) => {
+  const original = flight("replace", "2005");
+  original.origin = { iata: "SFO" };
+  original.destination = { iata: "LAX" };
+  original.scheduledDeparture = "2005-06-01T08:00:00-07:00";
+  original.scheduledArrival = "2005-06-02T12:00:00-07:00";
+  await importFlights(page, [original]);
+  await page.locator(".flight-row").click();
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByRole("combobox").first().fill("Kai Tak");
+  await editor
+    .locator('[data-history-kind="formal"]')
+    .filter({ hasText: "Kai Tak" })
+    .click();
+  await expect(editor.getByRole("combobox").first()).toHaveValue("HKG");
+  await editor.getByRole("button", { name: "Save flight" }).click();
+  await expect(page.locator(".route-origin-airport")).toContainText("Kai Tak");
+  await page.reload();
+  await expect(
+    page.locator(`[data-airport-identity="airport:${kaiTak}"]`),
+  ).toHaveCount(1);
+  await page.locator(".flight-row").click();
+  await expect(page.locator(".detail-stop--departure")).toContainText("HKG");
+  await expect(page.locator(".route-origin-airport")).toContainText("Kai Tak");
+});
+
+for (const [priorSite, expected] of [
+  ["apt_d8f290d3-11cc-4441-af6d-f4dd52d3b8dc", "IST"], // confirm Atatürk's recorded alias
+  ["apt_92a92544-1808-487a-85e0-0fa995e1de82", "ISL"], // replace the other site
+] as const) {
+  test(`selecting Atatürk from a saved IST site commits ${expected}`, async ({
+    page,
+  }) => {
+    const original = flight("confirm-site", "2024");
+    original.origin = { iata: "IST", airportId: priorSite };
+    original.scheduledDeparture = "2024-06-01T10:00:00+03:00";
+    original.scheduledArrival = "2024-06-01T13:00:00-07:00";
+    await importFlights(page, [original]);
+    await page.locator(".flight-row").click();
+    await page
+      .getByRole("button", { name: "Edit flight", exact: true })
+      .click();
+    const editor = page.getByRole("dialog");
+    await editor.getByRole("combobox").first().fill("Atatürk");
+    await editor
+      .getByRole("option", { name: /ISL Ataturk International Airport/ })
+      .click();
+    await expect(editor.getByRole("combobox").first()).toHaveValue(expected);
+    await editor.getByRole("button", { name: "Save flight" }).click();
+    await expect(page.locator(".route-origin-airport")).toContainText(
+      "Ataturk International Airport",
+    );
+    await page.reload();
+    await page.locator(".flight-row").click();
+    await expect(page.locator(".detail-stop--departure")).toContainText(
+      expected,
+    );
+    await expect(page.locator(".route-origin-airport")).toContainText(
+      "Ataturk International Airport",
+    );
+  });
+}
+
 test("TAO keeps the flight-date site when changing airport-name languages", async ({
   page,
 }) => {

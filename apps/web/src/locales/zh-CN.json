@@ -360,6 +360,7 @@
     "moreIssues": "另有 {{count, number}} 个问题未显示。",
     "resolveIssues": "解决问题后导入",
     "issueMessages": {
+      "conflictingFlightId": "已保存的航班使用相同 ID，但记录内容不同。请先解决冲突再追加；现有航班未更改。",
       "parse": "这不是有效的 JSON。请检查文件是否完整后重试。",
       "required": "缺少必填字段。",
       "additionalProperties": "该字段不属于 Keepraw Fly 核心格式；自定义数据应保存在带命名空间的 extensions 对象中。",

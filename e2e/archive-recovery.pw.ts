@@ -248,6 +248,120 @@ async function failNextStorageOperation(
   }, method);
 }
 
+for (const mode of ["welcome", "recovery"] as const) {
+  test(`lossless native ${mode} restore persists similar flights and all memberships`, async ({
+    page,
+  }) => {
+    const archive = generatedArchive();
+    archive.formatVersion = "0.2.0";
+    archive.frequentFlyerMemberships = ["used", "unused"].map((id) => ({
+      id,
+      programId: "custom",
+      memberNumber: `account-${id}`,
+      associatedAirlines: [],
+    }));
+    const source = archive.flights[0]!;
+    archive.flights = [
+      "apt_85ce2ba2-27bc-4d41-bbcc-1d934641c784",
+      "apt_18516e40-15cd-4374-a4fb-9e71ff0e3706",
+      "apt_18516e40-15cd-4374-a4fb-9e71ff0e3706",
+    ].map((airportId, index) => ({
+      ...source,
+      id: `distinct-${index}`,
+      origin: { iata: "DSE", airportId },
+      frequentFlyer: { membershipId: "used" },
+    }));
+    if (mode === "recovery") {
+      await seedArchive(page, invalidArchive);
+      await expectRecovery(page);
+    } else await page.goto("/");
+    await page.locator('input[type="file"][accept*=".json"]').setInputFiles({
+      name: "native.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(archive)),
+    });
+    await page
+      .getByRole("button", { name: "Import this archive", exact: true })
+      .click();
+    if (mode === "recovery") {
+      expect((await readRecord(page))?.document).toEqual(invalidArchive);
+      await page
+        .getByRole("button", { name: "Replace local archive", exact: true })
+        .click();
+    }
+    await expect
+      .poll(async () => (await readRecord(page))?.document)
+      .toEqual(archive);
+    await page.reload();
+    await expect(page.locator(".flight-row")).toHaveCount(3);
+    expect((await readRecord(page))?.document).toEqual(archive);
+
+    if (mode === "welcome") {
+      await page.goto("/#settings");
+      await openSettingsCategory(page, "Data and backup");
+      const conflicting = {
+        ...source,
+        id: archive.flights[0]!.id,
+        bookingReference: "revised",
+      };
+      await page.locator('input[type="file"][accept*=".json"]').setInputFiles({
+        name: "revision.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(
+          JSON.stringify({
+            ...archive,
+            flights: [conflicting, { ...source, id: "fresh" }],
+          }),
+        ),
+      });
+      await expect(
+        page.getByText(/A saved flight has this ID but different facts/),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Resolve issues to import" }),
+      ).toBeDisabled();
+      expect((await readRecord(page))?.document).toEqual(archive);
+    }
+  });
+}
+
+test("gate-only edit persists a complete 3S/BOX identity and original HND timestamps", async ({
+  page,
+}) => {
+  const archive = generatedArchive();
+  const flight = {
+    ...archive.flights[0]!,
+    flightNumber: "3S123",
+    airline: { iata: "3S", icao: "BOX" },
+    serviceDate: "2025-01-01",
+    origin: { iata: "HND" },
+    destination: { iata: "HNL" },
+    scheduledDeparture: "2025-01-01T16:00:00Z",
+    scheduledArrival: "2025-01-01T13:30:00-10:00",
+  };
+  archive.flights = [flight];
+  await seedArchive(page, archive);
+  await page.locator(".flight-row").click();
+  await page.getByRole("button", { name: "Edit flight", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await expect(editor).toContainText("AeroLogic");
+  await editor.locator(".editor-optional > summary").click();
+  await editor.getByLabel("Origin gate", { exact: true }).fill("G4");
+  await editor.getByRole("button", { name: "Save flight" }).click();
+  await expect(editor).toHaveCount(0);
+  const saved = async () =>
+    ((await readRecord(page))?.document as KeeprawFlyDocument).flights[0];
+  await expect
+    .poll(saved)
+    .toMatchObject({ ...flight, origin: { iata: "HND", gate: "G4" } });
+  await page.reload();
+  await page.locator(".flight-row").click();
+  expect(await saved()).toMatchObject({
+    ...flight,
+    origin: { iata: "HND", gate: "G4" },
+  });
+});
+
 test("keeps empty storage on the welcome page and opens a valid local archive normally", async ({
   page,
 }) => {

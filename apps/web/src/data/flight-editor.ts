@@ -246,7 +246,7 @@ export function flightToDraft(
 
   return {
     flightNumber: normalizeFlightNumberInput(flight.flightNumber),
-    serviceDate: flight.serviceDate,
+    serviceDate: departure.date,
     originIata: flight.origin.iata,
     destinationIata: flight.destination.iata,
     originAirportId: flight.origin.airportId,
@@ -390,8 +390,32 @@ export function flightFromDraft(
     if (zone.zone) return zone.zone;
     throw new AirportTimezoneRequiredError(role, iata, zone.options);
   };
+  // Compare the editable wall-clock fields with the same projection used to
+  // open the form. Reuse the original wire value when they did not change:
+  // minutes alone cannot encode seconds, an explicit offset, or a DST fold.
+  const original =
+    existing && !resolvedTimes ? flightToDraft(existing) : undefined;
+  const sameOrigin =
+    original &&
+    originIata === original.originIata &&
+    draft.originTimezone === original.originTimezone;
+  const sameDestination =
+    original &&
+    destinationIata === original.destinationIata &&
+    draft.destinationTimezone === original.destinationTimezone;
+  const sameArrival =
+    divertedToIata || original?.divertedToIata
+      ? original &&
+        divertedToIata === original.divertedToIata &&
+        draft.divertedTimezone === original.divertedTimezone
+      : sameDestination;
   const scheduledDeparture =
     resolvedTimes?.scheduledDeparture ??
+    (sameOrigin &&
+    draft.serviceDate === original.serviceDate &&
+    draft.departureTime === original.departureTime
+      ? existing?.scheduledDeparture
+      : undefined) ??
     zonedDateTimeToIso(
       draft.serviceDate,
       draft.departureTime,
@@ -399,6 +423,11 @@ export function flightFromDraft(
     );
   const scheduledArrival =
     resolvedTimes?.scheduledArrival ??
+    (sameDestination &&
+    draft.arrivalDate === original.arrivalDate &&
+    draft.arrivalTime === original.arrivalTime
+      ? existing?.scheduledArrival
+      : undefined) ??
     zonedDateTimeToIso(
       draft.arrivalDate,
       draft.arrivalTime,
@@ -408,25 +437,34 @@ export function flightFromDraft(
     throw new Error("arrival-before-departure");
   const actualDeparture = resolvedTimes
     ? resolvedTimes.actualDeparture
-    : draft.actualDepartureDate || draft.actualDepartureTime
-      ? optionalZonedDateTime(
-          draft.actualDepartureDate,
-          draft.actualDepartureTime,
-          requireZone(originZone, "origin", originIata),
-        )
-      : undefined;
+    : sameOrigin &&
+        draft.actualDepartureDate === original.actualDepartureDate &&
+        draft.actualDepartureTime === original.actualDepartureTime
+      ? existing?.actualDeparture
+      : draft.actualDepartureDate || draft.actualDepartureTime
+        ? optionalZonedDateTime(
+            draft.actualDepartureDate,
+            draft.actualDepartureTime,
+            requireZone(originZone, "origin", originIata),
+          )
+        : undefined;
   const divertedTo = divertedToIata ? { iata: divertedToIata } : undefined;
   const actualArrival = resolvedTimes
     ? resolvedTimes.actualArrival
-    : draft.actualArrivalDate || draft.actualArrivalTime
-      ? optionalZonedDateTime(
-          draft.actualArrivalDate,
-          draft.actualArrivalTime,
-          divertedZone
-            ? requireZone(divertedZone, "divertedTo", divertedToIata)
-            : requireZone(destinationZone, "destination", destinationIata),
-        )
-      : undefined;
+    : sameArrival &&
+        original &&
+        draft.actualArrivalDate === original.actualArrivalDate &&
+        draft.actualArrivalTime === original.actualArrivalTime
+      ? existing?.actualArrival
+      : draft.actualArrivalDate || draft.actualArrivalTime
+        ? optionalZonedDateTime(
+            draft.actualArrivalDate,
+            draft.actualArrivalTime,
+            divertedZone
+              ? requireZone(divertedZone, "divertedTo", divertedToIata)
+              : requireZone(destinationZone, "destination", destinationIata),
+          )
+        : undefined;
   if (
     actualDeparture &&
     actualArrival &&
@@ -450,8 +488,16 @@ export function flightFromDraft(
     ...existing,
     id: existing?.id ?? `flight-${crypto.randomUUID()}`,
     flightNumber: identity.canonical,
-    serviceDate: draft.serviceDate,
-    airline: airlineReference(existing?.airline, identity),
+    serviceDate:
+      existing && scheduledDeparture === existing.scheduledDeparture
+        ? existing.serviceDate
+        : draft.serviceDate,
+    airline:
+      existing &&
+      splitFlightNumberInput(existing.flightNumber)?.airlineCode ===
+        identity.airlineCode
+        ? { ...existing.airline }
+        : airlineReference(existing?.airline, identity),
     origin: endpointWithOptionalFacts(
       existing?.origin,
       originIata,

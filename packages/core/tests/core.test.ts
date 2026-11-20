@@ -461,6 +461,17 @@ describe("offline airport directory", () => {
 });
 
 describe("airline and travel references", () => {
+  it("resolves recorded 3S pairs without guessing from the reused code alone", () => {
+    expect(resolveAirline({ iata: "3S", icao: "BOX" })?.nameEn).toBe(
+      "AeroLogic",
+    );
+    expect(resolveAirline({ iata: "3S", icao: "GUY" })?.nameEn).toBe(
+      "Air Guyane Express",
+    );
+    expect(resolveAirline({ iata: "3S", icao: "UAL" })).toBeUndefined();
+    expect(resolveAirline({ iata: "3S" })).toBeUndefined();
+    expect(resolveAirline("3S")).toBeUndefined();
+  });
   it.each([
     ["ZH", "CSZ", "深圳航空", "Shenzhen Airlines"],
     ["3U", "CSC", "四川航空", "Sichuan Airlines"],

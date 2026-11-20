@@ -61,7 +61,17 @@ parent=$(dirname "$directory")
 [[ -d $parent && -w $parent ]] || die "Need write permission to $parent; create it first or run with the appropriate privileges"
 exec 9<"$parent"
 flock -n 9 || die "Another installer is running in $parent"
-compose() { docker compose --project-name keepraw-fly --project-directory "$directory" -f "$directory/compose.yaml" "$@"; }
+managed_compose() (
+  local root=$1; shift
+  # Shell variables otherwise take precedence even with an explicit --env-file.
+  unset KEEPRAW_IMAGE SITE_ADDRESS BIND_ADDRESS HTTP_PORT HTTPS_PORT
+  docker compose --project-name keepraw-fly --project-directory "$root" --env-file "$root/.env" -f "$root/compose.yaml" "$@"
+)
+compose() { managed_compose "$directory" "$@"; }
+check_image() {
+  local resolved
+  resolved=$(managed_compose "$1" config --images) && [[ $resolved == "$2" ]]
+}
 get_env() { sed -n "s/^$1=//p" "$directory/.env"; }
 if [[ -d $directory ]]; then
   [[ -f $directory/.keepraw-managed ]] || die "Existing directory is not installer-managed; choose an empty path"
@@ -115,8 +125,9 @@ cleanup() {
   if [[ $applying == true && $result != 0 ]]; then
     echo "Installation failed. Restoring previous configuration." >&2
     if [[ $existed == true ]]; then
-      cp "$backup/compose.yaml" "$backup/.env" "$backup/.keepraw-managed" "$directory/"
-      compose up -d --wait --wait-timeout 90 || echo "Recovery failed; inspect $backup and 'docker compose logs'." >&2
+      { cp "$backup/compose.yaml" "$backup/.env" "$backup/.keepraw-managed" "$directory/" &&
+        check_image "$directory" "$(sed -n 's/^KEEPRAW_IMAGE=//p' "$backup/.env")" &&
+        compose up -d --wait --wait-timeout 90; } || echo "Recovery failed; inspect $backup and 'docker compose logs'." >&2
     else
       # Preflight established that this is a new project with no prior resources.
       compose down --volumes || true
@@ -196,7 +207,7 @@ BIND_ADDRESS=$bind
 HTTP_PORT=$http_port
 HTTPS_PORT=$https_port
 ENV
-docker compose --project-name keepraw-fly --env-file "$stage/.env" -f "$stage/compose.yaml" config -q
+check_image "$stage" "$image" || die "Compose does not resolve to the verified release image"
 cat <<INFO
 Keepraw-Fly $version ($image)
 Will write: $directory/compose.yaml, .env, .keepraw-managed
@@ -222,6 +233,7 @@ applying=true
 cp "$stage/compose.yaml" "$stage/.env" "$directory/"
 (cd "$directory" && sha256sum compose.yaml .env > .keepraw-managed)
 chmod 0644 "$directory/compose.yaml" "$directory/.keepraw-managed"
+check_image "$directory" "$image" || die "Installed Compose configuration differs from the verified release image"
 compose up -d --wait --wait-timeout 90
 applying=false
 if [[ $mode == domain ]]; then
