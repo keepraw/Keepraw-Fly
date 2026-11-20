@@ -164,7 +164,9 @@ if [[ ${1:-} == compose ]]; then
     touch "$FAIL_UP_ONCE"
     exit 42
   fi
-  export KEEPRAW_IMAGE=keepraw-fly:deployment-test
+  # Resolve the managed config against its synthetic digest. Substitute the
+  # local fixture image only at the test transport boundary for actual starts.
+  if [[ " $* " == *' up '* ]]; then export KEEPRAW_IMAGE=keepraw-fly:deployment-test; fi
 fi
 exec "$REAL_DOCKER" "$@"
 MOCK

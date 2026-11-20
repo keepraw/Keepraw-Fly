@@ -159,7 +159,7 @@ export function* preflightUmetripImportWork(
         )
           throw new Error("invalid-row");
         rows.push([
-          `${airline.iata || airline.icao}${identity.serviceNumber}`,
+          `${resolveAirline(airline.iata)?.icao === airline.icao ? airline.iata : airline.icao}${identity.serviceNumber}`,
           serviceDate,
           origin.iata,
           destination.iata,

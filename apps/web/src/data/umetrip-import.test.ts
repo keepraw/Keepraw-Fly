@@ -85,6 +85,13 @@ function preflight(
 }
 
 describe("Umetrip BIFF8 XLS adapter", () => {
+  it("keeps the provided ICAO carrier when converting a shared IATA designator", async () => {
+    const result = preflight(
+      await parsed(workbook([["History A", [headers, row({ 2: "BOX1031" })]]])),
+    );
+    expect(result.canImport).toBe(true);
+    expect(result.flights[0]?.airline).toEqual({ iata: "3S", icao: "BOX" });
+  });
   it("reads an independently generated fictional BIFF8 fixture", async () => {
     const bytes = readFileSync(
       new URL(

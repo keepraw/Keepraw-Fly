@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import {
   existsSync,
@@ -214,6 +215,120 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     2,
   );
   assert.doesNotMatch(fork, /pnpm|setup-node|pull_request:|push:/);
+});
+
+test("Fork Pages refuses an incomplete modern publication before extracting it", () => {
+  const workflow = readFileSync(".github/workflows/fork-pages.yml", "utf8");
+  // Exercise the actual shell gate with already checksum-verified inputs.
+  // No extraction, signing or deployment is performed.
+  const legacy = workflow.match(/^\s*(legacy_unattested=.*)$/m)[1];
+  const gate = workflow
+    .split("sha256sum -c selected.sha256\n")[1]
+    .split("          tar -xzf")[0];
+  const dir = mkdtempSync(join(tmpdir(), "keepraw-fork-gate-"));
+  try {
+    const run = (version) =>
+      spawnSync("bash", ["-ec", `${legacy}\n${gate}\necho extract`], {
+        cwd: dir,
+        env: { ...process.env, VERSION: version },
+        encoding: "utf8",
+      });
+    for (const missing of ["attestation.sigstore.json", "provenance.json"]) {
+      const other =
+        missing === "provenance.json"
+          ? "attestation.sigstore.json"
+          : "provenance.json";
+      writeFileSync(join(dir, other), "fixture");
+      const result = run("v99.0.0");
+      assert.equal(result.status, 1);
+      assert.match(result.stdout, /Required release provenance is missing/);
+      assert.doesNotMatch(result.stdout, /extract/);
+      rmSync(join(dir, other));
+    }
+    assert.equal(run("v0.1.0").stdout.trim(), "extract");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("Fork Pages strictly validates the provenance checksum in the release manifest", async (t) => {
+  const workflow = readFileSync(".github/workflows/fork-pages.yml", "utf8");
+  // Run the workflow's pre-verification block, stopping before it reads the
+  // revision or calls the attestation verifier. Only the gh version is mocked.
+  const gate = workflow
+    .split("sha256sum -c selected.sha256\n")[1]
+    .split("            revision=$(jq")[0];
+  const version = "v99.0.0";
+  const dir = mkdtempSync(join(tmpdir(), "keepraw-fork-checksum-"));
+  try {
+    const body = '{"fixture":true}';
+    writeFileSync(join(dir, "provenance.json"), body);
+    writeFileSync(join(dir, "attestation.sigstore.json"), "fixture");
+    const hash = createHash("sha256").update(body).digest("hex");
+    const record = `${hash}  ./provenance.json`;
+    // SHA256SUMS is shared by all release attachments, even ones Pages does not download.
+    const archive = `${"0".repeat(64)}  ./keepraw-fly-${version}.tar.gz`;
+    for (const [label, lines, valid] of [
+      [
+        "one provenance record among official attachments",
+        [archive, record, `${hash}  ./compose.yaml`, ""],
+        true,
+      ],
+      ["plain filename", [archive, `${hash}  provenance.json`], true],
+      [
+        "valid plus malformed provenance record",
+        [archive, record, "invalid  provenance.json"],
+        false,
+      ],
+      [
+        "two valid records for the same normalized name",
+        [archive, record, `${hash}  provenance.json`],
+        false,
+      ],
+      ["short digest", [archive, `${hash.slice(1)}  provenance.json`], false],
+      [
+        "non-hex digest",
+        [archive, `z${hash.slice(1)}  provenance.json`],
+        false,
+      ],
+      [
+        "unexpected filename alongside valid record",
+        [archive, record, `${hash}  other.json`],
+        false,
+      ],
+      ["extra field", [archive, `${record} unexpected`], false],
+      ["unrelated malformed line", [archive, record, "extra line"], false],
+      ["missing provenance record", [archive], false],
+      [
+        "well-formed but incorrect digest",
+        [archive, `${"0".repeat(64)}  provenance.json`],
+        false,
+      ],
+    ]) {
+      await t.test(label, () => {
+        writeFileSync(join(dir, "SHA256SUMS"), lines.join("\n") + "\n");
+        const result = spawnSync(
+          "bash",
+          [
+            "-euc",
+            `set -o pipefail\nlegacy_unattested=' v0.1.0 '\ngh() { [[ $1 == --version ]] && echo 'gh version 2.102.0'; }\n${gate}\nfi`,
+          ],
+          {
+            cwd: dir,
+            env: { ...process.env, VERSION: version },
+            encoding: "utf8",
+          },
+        );
+        assert.equal(
+          result.status,
+          valid ? 0 : 1,
+          result.stderr + result.stdout,
+        );
+      });
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("every workflow action is pinned to a full commit SHA with a version comment", () => {

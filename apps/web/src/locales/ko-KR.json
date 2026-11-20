@@ -360,6 +360,7 @@
     "moreIssues_other": "표시되지 않은 문제가 {{count, number}}건 더 있습니다.",
     "resolveIssues": "문제를 해결한 후 가져오기",
     "issueMessages": {
+      "conflictingFlightId": "저장된 항공편과 ID가 같지만 내용이 다릅니다. 충돌을 해결한 뒤 추가하세요. 기존 항공편은 변경되지 않았습니다.",
       "parse": "유효한 JSON이 아닙니다. 파일이 완전한지 확인하고 다시 시도하십시오.",
       "required": "필수 필드가 누락되었습니다.",
       "additionalProperties": "이 필드는 Keepraw Fly 핵심 형식을 벗어났습니다. 네임스페이스 확장 개체 내에 사용자 정의 데이터를 보존합니다.",
