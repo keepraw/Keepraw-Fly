@@ -95,17 +95,17 @@ it("refreshes both indexes for a subsequent upstream code migration", async () =
     assignment("AAA", "IATA", "2000-01-01", transition),
     assignment("KAAA", "ICAO", "2000-01-01", transition),
   ];
-  const previous = await install("0.13.0", transition, oldAssignments);
+  const previous = await install("0.14.0", transition, oldAssignments);
   expect(previous.airportByIata.get("AAA")?.airportId).toBe(site);
   expect(previous.airportByIata.has("BBB")).toBe(false);
-  const updated = await install("0.14.0", newEnd, [
+  const updated = await install("0.15.0", newEnd, [
     ...oldAssignments,
     assignment("BBB", "IATA", transition, newEnd),
     assignment("KBBB", "ICAO", transition, newEnd),
     assignment("CCC", "IATA", "2000-01-01", newEnd, closed),
   ]);
 
-  expect(updated.airportHistoryDataVersion).toBe("0.14.0");
+  expect(updated.airportHistoryDataVersion).toBe("0.15.0");
   expect(updated.airportByIata.get("BBB")).toMatchObject({
     airportId: site,
     currentIata: "BBB",

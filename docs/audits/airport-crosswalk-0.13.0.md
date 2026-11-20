@@ -254,7 +254,7 @@ Filter the CSV by `record_type`, `qualified_formal_candidate_count` or
 
 ## Inputs
 
-- Formal dataset SHA-256 `a834b0153bd897b1f2cc5aaf1300ec5037f4ed43a596848543d84adfb5f99c34`. [Immutable 0.13.0 data](https://github.com/keepraw/airport-history/blob/dfa884dbd8d14e4ba1b03a092ce0155eb737169c/data/airports.json)
+- Formal dataset SHA-256 `a834b0153bd897b1f2cc5aaf1300ec5037f4ed43a596848543d84adfb5f99c34`. [Immutable 0.13.0 data](https://github.com/keepraw/Keepraw-Fly/blob/1ec962ccb11c741d0036152b9efdcc44d6aca204/packages/core/data/airport-history/formal/airports.json)
 - Formal directory SHA-256 `e16b8ec5a4d3d3d745d4ba4dda2cd97476fae7138ac3e80d9d4c452753efbc21`.
 - Fly directory SHA-256 `655a5ed1d2241373163c133bb49fb0790a88b00c03bb85a2f57beeefcacd1818`.
 - OurAirports snapshot `d97df1673cc5ba61a09b17ab5936091a669a04ca` and SHA-256 `27c6500d0a742edece15c5aaf960e08c01df0d4356c5c86255897b5d3749ad3b`. [Snapshot](https://raw.githubusercontent.com/davidmegginson/ourairports-data/d97df1673cc5ba61a09b17ab5936091a669a04ca/airports.csv)

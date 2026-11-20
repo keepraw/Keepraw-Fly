@@ -15,7 +15,7 @@
   },
   "reviewed-tao": {
     "kind": "display_translation",
-    "source": "https://github.com/keepraw/airport-history/blob/dfa884dbd8d14e4ba1b03a092ce0155eb737169c/data/airports.json",
+    "source": "https://github.com/keepraw/Keepraw-Fly/blob/1ec962ccb11c741d0036152b9efdcc44d6aca204/packages/core/data/airport-history/formal/airports.json",
     "retrievedOn": "2026-11-19",
     "status": "editorial",
     "reviewStatus": "reviewed"
@@ -42,7 +42,7 @@
   },
   "historical-site-display": {
     "kind": "display_translation",
-    "source": "https://github.com/keepraw/airport-history/blob/dfa884dbd8d14e4ba1b03a092ce0155eb737169c/data/airports.json",
+    "source": "https://github.com/keepraw/Keepraw-Fly/blob/1ec962ccb11c741d0036152b9efdcc44d6aca204/packages/core/data/airport-history/formal/airports.json",
     "retrievedOn": "2026-11-19",
     "status": "editorial",
     "reviewStatus": "reviewed_against_physical_identity"

@@ -12,8 +12,8 @@ from itertools import combinations
 from pathlib import Path
 
 from airport_history_directory import (
-    ICAO, IATA, OURAIRPORTS, claim_can_resolve, distance_km, folded_name,
-    legacy_sources, read_ourairports, same_site_candidates,
+    ICAO, IATA, OURAIRPORTS, SCHEMA_VERSION, distance_km, folded_name,
+    read_ourairports, same_site_candidates,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,12 +22,13 @@ COORDINATE_THRESHOLD_KM = 0.4
 
 
 def formal_codes(dataset, horizon):
+    if dataset["schemaVersion"] != SCHEMA_VERSION:
+        raise ValueError(f"Unsupported Airport History schema: {dataset['schemaVersion']}")
     all_codes = defaultdict(lambda: {"IATA": set(), "ICAO": set()})
     by_code = defaultdict(list)
     for row in dataset["assignments"]:
         all_codes[row["airportId"]][row["scheme"]].add(row["code"])
         by_code[row["scheme"], row["code"]].append(row)
-    sources = legacy_sources(dataset)
     last_day = (date.fromisoformat(horizon["toExclusive"]) - timedelta(days=1)).isoformat()
     current = defaultdict(lambda: {"IATA": set(), "ICAO": set()})
     for (scheme, code), rows in by_code.items():
@@ -37,8 +38,6 @@ def formal_codes(dataset, horizon):
             and (not row["validTo"]["latest"] or last_day < row["validTo"]["latest"])
         ]
         if len({row["airportId"] for row in possible}) != 1:
-            continue
-        if not all(claim_can_resolve(row, sources) for row in possible):
             continue
         if any(
             row["validFrom"]["latest"] and row["validTo"]["earliest"]
