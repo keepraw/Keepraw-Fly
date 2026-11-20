@@ -190,7 +190,9 @@ for (const theme of ["light", "dark"] as const) {
     await expect(
       page.locator(".airline-options [aria-selected=true]"),
     ).toBeVisible();
-    await airlines.press("Enter");
+    await membership
+      .getByRole("option", { name: /^UA\s+United Airlines\s+UAL\b/ })
+      .click();
     await expect(
       membership.locator('.airline-chip[data-airline-code="UA"]'),
     ).toBeVisible();
@@ -331,6 +333,32 @@ for (const theme of ["light", "dark"] as const) {
     );
   });
 }
+
+test("United search selects the explicit UA / UAL airline result @cross-browser", async ({
+  page,
+}) => {
+  await importArchive(page);
+  await page.goto("/#settings");
+  await openSettingsCategory(page, "Frequent flyer profiles");
+  await page
+    .getByRole("button", { name: "Add frequent flyer program" })
+    .click();
+  const membership = page.locator(".settings-membership").last();
+  await membership.getByLabel("Program name").fill("Selection test");
+  await membership.getByLabel("Member number").fill("KF-UA");
+  const airlines = membership.getByRole("combobox", {
+    name: "Associated airlines",
+  });
+  await airlines.fill("United");
+  const options = membership.getByRole("option");
+  await expect.poll(() => options.count()).toBeGreaterThan(1);
+  await membership
+    .getByRole("option", { name: /^UA\s+United Airlines\s+UAL\b/ })
+    .click();
+  await expect(
+    membership.locator('.airline-chip[data-airline-code="UA"]'),
+  ).toBeVisible();
+});
 
 test("Settings Portal follows live System; unrelated editor confirmations retain default colors @cross-browser", async ({
   page,

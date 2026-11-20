@@ -11,6 +11,68 @@ import {
 } from "./import-preview";
 
 describe("import preview", () => {
+  it("restores all native IDs; append distinguishes a different site, a probable match and a conflicting revision", () => {
+    const first = {
+      ...documentWithFlights.flights[0]!,
+      origin: {
+        iata: "HKG",
+        airportId: "apt_86460159-a072-4a18-afcc-ab376cda7047",
+      },
+    };
+    const differentSite = {
+      ...first,
+      id: "other",
+      origin: {
+        iata: "HKG",
+        airportId: "apt_8d89722f-007c-4eb4-aaa0-ec1c61007a09",
+      },
+    };
+    const similar = { ...first, id: "similar" };
+    const archive: KeeprawFlyDocument = {
+      ...documentWithFlights,
+      formatVersion: "0.2.0",
+      flights: [first, differentSite, similar],
+    };
+    const existing = { ...archive, flights: [first] };
+    const preview = (
+      source: KeeprawFlyDocument,
+      base: KeeprawFlyDocument | null,
+    ) => {
+      const text = JSON.stringify(source);
+      return preflightJsonImport(text, parseKeeprawFlyJson(text), base);
+    };
+    expect(buildDocumentFromJsonImport(preview(archive, null), null)).toEqual(
+      archive,
+    );
+    const append = preview(archive, existing);
+    expect(append.assessments.map((a) => a.disposition)).toEqual([
+      "exact",
+      "new",
+      "possible",
+    ]);
+    expect(buildDocumentFromJsonImport(append, existing, true).flights).toEqual(
+      archive.flights,
+    );
+    const conflict = preview(
+      {
+        ...archive,
+        flights: [
+          { ...first, origin: { ...first.origin, gate: "A9" } },
+          differentSite,
+        ],
+      },
+      existing,
+    );
+    expect(conflict).toMatchObject({
+      canImport: false,
+      problemRecords: 1,
+      issues: [{ keyword: "conflictingFlightId", flightIndex: 0 }],
+    });
+    expect(() =>
+      buildDocumentFromJsonImport(conflict, existing, true),
+    ).toThrow();
+    expect(existing.flights).toEqual([first]);
+  });
   it("summarizes the owner, flight count and service-date range", () => {
     expect(summarizeImport(documentWithFlights)).toEqual({
       flightCount: 2,
@@ -142,6 +204,12 @@ describe("import preview", () => {
       membershipId: "ff-1-imported",
       tierAtFlight: "silver",
     });
+    const conflicting = preflightJsonImport(text, parseKeeprawFlyJson(text), {
+      ...existing,
+      flights: imported.flights,
+    });
+    expect(conflicting.canImport).toBe(false);
+    expect(conflicting.issues[0]?.keyword).toBe("conflictingFlightId");
   });
 
   it("reports an empty or malformed file as a blocking file issue", () => {

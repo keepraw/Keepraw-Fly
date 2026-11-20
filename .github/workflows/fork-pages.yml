@@ -54,12 +54,34 @@ jobs:
           awk -v file="keepraw-fly-$VERSION.tar.gz" '$2 == file || $2 == "./" file {print}' SHA256SUMS > selected.sha256
           [[ $(wc -l < selected.sha256) == 1 ]]
           sha256sum -c selected.sha256
-          if [[ -f attestation.sigstore.json ]]; then
+          if [[ $legacy_unattested != *" $VERSION "* ]]; then
+            # gh release download can succeed when only some patterns matched.
+            [[ -s provenance.json && -s attestation.sigstore.json ]] || { echo '::error::Required release provenance is missing'; exit 1; }
             # gh < 2.102.0 matched signer identities by prefix (GHSA-wjmr-j3rp-mh2g).
             gh_version=$(gh --version | sed -n 's/^gh version \([0-9][0-9.]*\).*/\1/p' | head -n1)
             [[ $(printf '2.102.0\n%s\n' "$gh_version" | sort -V | head -n1) == 2.102.0 ]] \
               || { echo "::error::gh $gh_version cannot verify provenance safely (need >= 2.102.0)"; exit 1; }
-            awk '$2 == "provenance.json" || $2 == "./provenance.json" {print}' SHA256SUMS | sha256sum -c
+            # SHA256SUMS also lists the other official release attachments.
+            # Validate every non-empty line before checking the downloaded file.
+            LC_ALL=C awk -v release="keepraw-fly-$VERSION" '
+              { sub(/\r$/, "") }
+              $0 == "" { next }
+              {
+                digest = substr($0, 1, 64)
+                if (length(digest) != 64 || digest ~ /[^0-9a-fA-F]/ || substr($0, 65, 2) !~ /^ [ *]$/) exit 1
+                file = substr($0, 67)
+                sub(/^\.\//, "", file)
+                if (file != release ".tar.gz" && file != release ".zip" &&
+                    file !~ /^(provenance\.json|image\.txt|compose\.yaml|install\.sh|Caddyfile|deployment\.md|deployment\.zh-CN\.md|RELEASE_NOTES\.md)$/) exit 1
+                if (file in sums) exit 1
+                sums[file] = digest
+              }
+              END {
+                if (!("provenance.json" in sums)) exit 1
+                print sums["provenance.json"] "  provenance.json"
+              }
+            ' SHA256SUMS > provenance.sha256 || { echo '::error::Invalid release checksum manifest'; exit 1; }
+            sha256sum --strict -c provenance.sha256
             revision=$(jq -er '.revision' provenance.json)
             [[ "$revision" =~ ^[0-9a-f]{40}$ ]]
             jq -e --arg version "${VERSION#v}" '.version == $version and .author == "keepraw"' provenance.json
