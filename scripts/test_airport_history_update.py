@@ -25,45 +25,30 @@ SITE = "apt_11111111-1111-4111-8111-111111111111"
 NEW_SITE = "apt_22222222-2222-4222-8222-222222222222"
 LEGACY = "apt_33333333-3333-4333-8333-333333333333"
 HORIZON = {"fromInclusive": "2000-01-01", "toExclusive": "2026-11-19"}
-SOURCE = {"sourceId": "source", "verificationStatus": "verified"}
+PINNED_VERSION = "0.14.0"
+NEXT_VERSION = "0.15.0"
 AIRPORT = {
     "airportId": SITE,
     "externalIds": {"ourAirports": "1"},
-    "name": {"value": "Airport A", "sourceIds": ["source"]},
-    "coordinates": {"value": {"latitude": 10, "longitude": 20}, "sourceIds": ["source"]},
-    "timezone": {"value": "Europe/London", "sourceIds": ["source"]},
+    "name": {"value": "Airport A"},
+    "coordinates": {"value": {"latitude": 10, "longitude": 20}},
+    "timezone": {"value": "Europe/London"},
 }
 ASSIGNMENT = {
     "assignmentId": "test-aaa",
     "airportId": SITE,
     "scheme": "IATA",
     "code": "AAA",
-    "sourceIds": ["source"],
-    "verificationStatus": "verified",
-    "verifiedOn": "2026-11-18",
     "validFrom": {"earliest": None, "latest": "2000-01-01", "precision": "unknown"},
     "validTo": {"earliest": "2026-11-19", "latest": None, "precision": "unknown"},
 }
 
 
-def dataset(version="0.13.0"):
+def dataset(version=PINNED_VERSION):
     return copy.deepcopy({
-        "dataVersion": version, "schemaVersion": "3.0.0",
-        "airports": [AIRPORT], "assignments": [ASSIGNMENT], "names": [], "sources": [SOURCE],
+        "dataVersion": version, "schemaVersion": "4.0.0",
+        "airports": [AIRPORT], "assignments": [ASSIGNMENT], "names": [],
     })
-
-
-def schema_four(data):
-    data = copy.deepcopy(data)
-    data["schemaVersion"] = "4.0.0"
-    del data["sources"]
-    for row in data["airports"]:
-        for field in ("name", "coordinates", "timezone"):
-            del row[field]["sourceIds"]
-    for row in [*data["assignments"], *data["names"]]:
-        for field in ("sourceIds", "verificationStatus", "verifiedOn"):
-            row.pop(field, None)
-    return data
 
 
 def encoded(value):
@@ -72,7 +57,7 @@ def encoded(value):
 
 def publication(data):
     return {
-        "commit": "a" * 40 if data["dataVersion"] == "0.13.0" else "b" * 40,
+        "commit": "a" * 40 if data["dataVersion"] == PINNED_VERSION else "b" * 40,
         "schemaVersion": data["schemaVersion"],
         "dataVersion": data["dataVersion"],
         "queryHorizon": HORIZON,
@@ -115,13 +100,13 @@ class FormalUpdateTest(unittest.TestCase):
         self.snapshot.write_bytes(data)
         self.snapshot_sha = updater.sha(data)
 
-    def simulate(self, incoming, pin=None, download=None, extra_args=()):
+    def simulate(self, incoming, pin=None, download=None):
         pin = pin or publication(incoming)
         report = self.data / "report.md"
         with (
             patch.object(updater, "fetch", side_effect=[encoded(pin), download or encoded(incoming)]) as fetch,
             patch.object(airport_history_directory, "OURAIRPORTS_SHA256", self.snapshot_sha),
-            patch("sys.argv", ["update", "--ourairports", str(self.snapshot), "--report", str(report), *extra_args]),
+            patch("sys.argv", ["update", "--ourairports", str(self.snapshot), "--report", str(report)]),
         ):
             updater.main()
         return fetch, report
@@ -147,7 +132,7 @@ class FormalUpdateTest(unittest.TestCase):
         )
 
     def test_new_version_is_verified_and_adds_fallback_name_record(self):
-        after = schema_four(add_site(dataset("0.14.0")))
+        after = add_site(dataset(NEXT_VERSION))
         fetch, report = self.simulate(after)
         self.assertEqual(fetch.call_args.args[0], f"{updater.UPSTREAM}/{'b' * 40}/{updater.DATASET}")
         self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(after))
@@ -155,13 +140,6 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertEqual(json.loads(self.paths["NAMES"].read_bytes())[NEW_SITE], {})
         self.assertIn("ja-JP | 1 / 2 | 1", report.read_text())
         self.assertIn("IATA assignments added: 1", report.read_text())
-
-    def test_schema_only_update_preserves_the_directory_bytes(self):
-        original = self.paths["DIRECTORY"].read_bytes()
-        after = schema_four(dataset("0.14.0"))
-        self.simulate(after)
-        self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(after))
-        self.assertEqual(self.paths["DIRECTORY"].read_bytes(), original)
 
     def assert_rejected(self, after, **kwargs):
         with self.assertRaises(SystemExit) as error:
@@ -174,11 +152,11 @@ class FormalUpdateTest(unittest.TestCase):
         self.assert_rejected(add_site(dataset()))
 
     def test_invalid_sha256(self):
-        self.assert_rejected(dataset("0.14.0"), download=b"damaged")
+        self.assert_rejected(dataset(NEXT_VERSION), download=b"damaged")
 
     def test_rejects_an_unverified_directory_snapshot(self):
         self.snapshot.write_bytes(b"damaged")
-        self.assert_rejected(dataset("0.14.0"))
+        self.assert_rejected(dataset(NEXT_VERSION))
 
     def test_download_writes_only_a_verified_immutable_snapshot(self):
         path = self.data / "downloaded.csv"
@@ -194,7 +172,7 @@ class FormalUpdateTest(unittest.TestCase):
     def test_refreshes_existing_metadata_and_enriches_a_new_airport(self):
         self.save_existing_reference()
         self.set_snapshot("1,New Municipality,CA,closed\n2,New Airport City,GB,small_airport\n")
-        after = add_site(dataset("0.14.0"))
+        after = add_site(dataset(NEXT_VERSION))
         after["airports"][0]["timezone"]["value"] = None
         after["airports"][1]["externalIds"] = {"ourAirports": "2"}
         _, report = self.simulate(after)
@@ -213,7 +191,7 @@ class FormalUpdateTest(unittest.TestCase):
         self.assertIn("Existing airports with unverified current status: 0", report.read_text())
 
     def test_keeps_local_closure_override_for_its_snapshot_revision(self):
-        after = dataset("0.14.0")
+        after = dataset(NEXT_VERSION)
         override = {SITE: {"snapshotRevision": "a" * 40, "status": "closed"}}
         reference = {"1": {"type": "medium_airport"}}
         for revision, status in (("a" * 40, "closed"), ("b" * 40, "operating")):
@@ -226,7 +204,7 @@ class FormalUpdateTest(unittest.TestCase):
 
     def test_refresh_does_not_reopen_the_former_barter_island_runway(self):
         former_barter = "apt_2ab143ee-cd3b-4d44-99e0-5aaa35d55afc"
-        after = dataset("0.14.0")
+        after = dataset(NEXT_VERSION)
         after["airports"][0].update(
             airportId=former_barter, externalIds={"ourAirports": "5337"},
         )
@@ -251,7 +229,7 @@ class FormalUpdateTest(unittest.TestCase):
     def test_preserves_known_locality_and_reports_missing_metadata(self):
         self.save_existing_reference()
         self.set_snapshot("")
-        after = add_site(dataset("0.14.0"))
+        after = add_site(dataset(NEXT_VERSION))
         after["airports"][0]["timezone"]["value"] = None
         _, report = self.simulate(after)
         updated = json.loads(self.paths["DIRECTORY"].read_bytes())
@@ -267,44 +245,43 @@ class FormalUpdateTest(unittest.TestCase):
         ):
             self.assertIn(line, report.read_text())
 
-    def test_unsupported_schema(self):
-        self.assert_rejected({**dataset("0.14.0"), "schemaVersion": "5.0.0"})
+    def test_unsupported_manifest_schema(self):
+        for schema in ("3.0.0", "5.0.0"):
+            with self.subTest(schema=schema):
+                self.assert_rejected({**dataset(NEXT_VERSION), "schemaVersion": schema})
 
-    def test_automatic_update_leaves_schema_transition_for_manual_pr(self):
-        after = schema_four(dataset("0.14.0"))
-        fetch, report = self.simulate(after, extra_args=("--same-schema",))
-        fetch.assert_called_once_with(updater.PUBLICATION, 16_384)
-        self.assertFalse(report.exists())
-        self.assertEqual(self.paths["TARGET"].read_bytes(), encoded(self.before))
+    def test_unsupported_dataset_schema(self):
+        after = {**dataset(NEXT_VERSION), "schemaVersion": "5.0.0"}
+        self.assert_rejected(after, pin={**publication(after), "schemaVersion": "4.0.0"})
 
-    def test_coverage_preserves_schema_three_eligibility_and_uses_schema_four_dates(self):
-        after = dataset("0.14.0")
-        after["sources"][0]["verificationStatus"] = "pending"
-        self.assertEqual(updater.coverage(after, HORIZON)["IATA"], 0)
-        self.assertGreater(updater.coverage(schema_four(after), HORIZON)["IATA"], 0)
+    def test_coverage_counts_only_the_certain_days_within_the_horizon(self):
+        after = dataset(NEXT_VERSION)
+        assignment = after["assignments"][0]
+        assignment["validFrom"]["latest"] = "2000-01-02"
+        assignment["validTo"]["earliest"] = "2000-01-04"
+        horizon = {"fromInclusive": "2000-01-01", "toExclusive": "2000-01-05"}
+        self.assertEqual(updater.coverage(after, horizon), {"IATA": 2, "ICAO": 0})
 
     def test_removed_site_and_assignments(self):
-        after = add_site(dataset("0.14.0"))
+        after = add_site(dataset(NEXT_VERSION))
         after["airports"].pop(0)
         after["assignments"].pop(0)
         self.assert_rejected(after)
         self.assertIn("Removed airportId", (self.data / "report.md").read_text())
 
     def test_changed_physical_id_under_an_existing_assignment(self):
-        after = add_site(dataset("0.14.0"))
+        after = add_site(dataset(NEXT_VERSION))
         after["assignments"][0]["airportId"] = NEW_SITE
         self.assert_rejected(after)
         self.assertIn("Changed airportId", (self.data / "report.md").read_text())
 
     def test_overlapping_certain_assignments(self):
-        after = add_site(dataset("0.14.0"))
+        after = add_site(dataset(NEXT_VERSION))
         after["assignments"][1]["code"] = "AAA"
-        for data in after, schema_four(after):
-            with self.subTest(schema=data["schemaVersion"]):
-                self.assert_rejected(data)
+        self.assert_rejected(after)
 
     def test_rejects_a_move_of_an_existing_airport(self):
-        after = dataset("0.14.0")
+        after = dataset(NEXT_VERSION)
         after["airports"][0]["coordinates"]["value"]["latitude"] = 11
         self.assert_rejected(after)
         self.assertIn("Changed reference position", (self.data / "report.md").read_text())
@@ -312,7 +289,7 @@ class FormalUpdateTest(unittest.TestCase):
 
 class UpdatePullRequestTest(unittest.TestCase):
     def test_existing_pull_request_is_updated_without_a_new_branch(self):
-        pin = publication(dataset("0.14.0"))
+        pin = publication(dataset(NEXT_VERSION))
         calls = []
 
         def command(*args):
@@ -330,13 +307,13 @@ class UpdatePullRequestTest(unittest.TestCase):
         self.assertEqual(url, "https://example.test/pull/17")
         self.assertIn((
             "gh", "api", "--method", "PATCH", "repos/{owner}/{repo}/pulls/17",
-            "--raw-field", "title=Update Airport History data to v0.14.0",
+            "--raw-field", f"title=Update Airport History data to v{NEXT_VERSION}",
             "--field", "body=@report.md", "--jq", ".html_url",
         ), calls)
         self.assertFalse(any((args[0] == "git" and "push" in args) or args[:3] == ("gh", "pr", "create") for args in calls))
 
     def test_new_publication_pushes_a_branch_and_creates_a_pull_request(self):
-        pin = publication(dataset("0.14.0"))
+        pin = publication(dataset(NEXT_VERSION))
         calls = []
 
         def command(*args):
@@ -350,10 +327,10 @@ class UpdatePullRequestTest(unittest.TestCase):
         with patch.object(Path, "read_bytes", return_value=encoded(pin)):
             url = publisher.publish(Path("report.md"), command)
         self.assertEqual(url, "https://example.test/pull/18")
-        self.assertIn(("git", "switch", "-c", "automation/airport-history-v0.14.0"), calls)
+        self.assertIn(("git", "switch", "-c", f"automation/airport-history-v{NEXT_VERSION}"), calls)
         self.assertTrue(any(
             args[0] == "git" and "push" in args
-            and args[-1] == "HEAD:refs/heads/automation/airport-history-v0.14.0"
+            and args[-1] == f"HEAD:refs/heads/automation/airport-history-v{NEXT_VERSION}"
             for args in calls
         ))
 

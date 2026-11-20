@@ -12,36 +12,13 @@ from pathlib import Path
 SOURCE_PATH = Path(__file__).resolve().parents[1] / "packages/core/data/airports.source.json"
 OURAIRPORTS = json.loads(SOURCE_PATH.read_bytes())["formalDirectory"]
 OURAIRPORTS_SHA256 = OURAIRPORTS["sha256"]
-SUPPORTED_SCHEMAS = {"3.0.0", "4.0.0"}
+SCHEMA_VERSION = "4.0.0"
 IATA = re.compile(r"[A-Z]{3}")
 ICAO = re.compile(r"[A-Z]{4}")
 OPERATING_TYPES = {
     "small_airport", "medium_airport", "large_airport",
     "heliport", "seaplane_base", "balloonport",
 }
-
-
-def legacy_sources(dataset):
-    schema = dataset["schemaVersion"]
-    if schema == "4.0.0":
-        return None
-    if schema != "3.0.0":
-        raise ValueError(f"Unsupported Airport History schema: {schema}")
-    sources = {row["sourceId"]: row for row in dataset["sources"]}
-    if len(sources) != len(dataset["sources"]):
-        raise ValueError("Duplicate sourceId in formal data")
-    return sources
-
-
-def claim_can_resolve(row, sources):
-    if sources is None:
-        return True
-    return (
-        row["verificationStatus"] == "verified"
-        and bool(row.get("verifiedOn"))
-        and bool(row["sourceIds"])
-        and all(sources.get(id_, {}).get("verificationStatus") == "verified" for id_ in row["sourceIds"])
-    )
 
 
 def verify_ourairports(data):

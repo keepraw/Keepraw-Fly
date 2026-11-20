@@ -102,7 +102,7 @@ class AuditTest(unittest.TestCase):
     def test_0130_report_covers_every_committed_alias_and_fly_id(self):
         formal = audit.DATA / "airport-history/formal"
         manifest = json.loads((formal / "manifest.json").read_bytes())
-        if manifest["dataVersion"] not in {"0.13.0", "0.14.0"}:
+        if manifest["dataVersion"] != "0.14.0":
             self.skipTest("The committed report records the crosswalk retained through 0.14.0")
         directory = json.loads((formal / "directory.json").read_bytes())
         fly_rows = json.loads((audit.DATA / "airports.iata.json").read_bytes())

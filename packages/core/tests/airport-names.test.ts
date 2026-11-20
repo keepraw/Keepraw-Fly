@@ -51,7 +51,7 @@ describe("formal data and Fly directory", () => {
     );
     expect(formalIds.size).toBe(formal.airports.length);
     expect(formalHistoricalNames).toHaveLength(formal.names.length);
-    if (["0.13.0", "0.14.0"].includes(manifest.dataVersion)) {
+    if (manifest.dataVersion === "0.14.0") {
       expect(formalIds.size).toBe(6510);
       expect(
         formal.assignments.filter((row) => row.scheme === "IATA"),

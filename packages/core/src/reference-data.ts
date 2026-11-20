@@ -543,11 +543,7 @@ export function localizedAirportName(
     );
     if (possible?.length === 1) {
       const [row] = possible;
-      if (
-        row &&
-        row.canResolve &&
-        assignmentDateRelation(date, row) === "certain"
-      ) {
+      if (row && assignmentDateRelation(date, row) === "certain") {
         return row.name;
       }
     }

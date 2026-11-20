@@ -1,7 +1,4 @@
-/**
- * Application integration against the committed real airport-history package
- * (keepraw/airport-history dfa884dbd8d14e4ba1b03a092ce0155eb737169c).
- */
+/** Application integration against the pinned Airport History publication. */
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { utils, write } from "xlsx";
 import {
