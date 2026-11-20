@@ -104,14 +104,8 @@ export function resolveAirportAtDate(
   result.formalMatches = matches;
   const ids = [...new Set(matches.map((match) => match.assignment.airportId))];
   result.uncertainty.possibleAirportIds = ids;
-  const certain = matches.filter(
-    (match) => match.relation === "certain" && match.assignment.canResolve,
-  );
-  if (
-    ids.length === 1 &&
-    certain.length > 0 &&
-    matches.every((match) => match.assignment.canResolve)
-  ) {
+  const certain = matches.filter((match) => match.relation === "certain");
+  if (ids.length === 1 && certain.length > 0) {
     result.airportId = ids[0]!;
     result.airport = airportById.get(ids[0]!) ?? null;
     result.matchedAssignment = certain[0]!.assignment;
