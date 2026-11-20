@@ -493,6 +493,18 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
     .getByRole("combobox", { name: "语言", exact: true })
     .selectOption("en-US");
   await openSettingsCategory(page, "Data and backup");
+  const readSavedArchive = () =>
+    page.evaluate(async () => {
+      const path = "/src/storage/browser.ts";
+      const { browserStorage } = await import(path);
+      const result = await browserStorage.loadDocument();
+      if (result.status !== "valid")
+        throw new Error("Expected a saved archive");
+      return result.document;
+    });
+  const beforeConflict = await readSavedArchive();
+  // The example has the same flight ID, but omits the saved membership link.
+  expect(beforeConflict.flights).toEqual(archive.flights);
   await page
     .locator('#settings-import input[type="file"]')
     .setInputFiles(exampleArchive);
@@ -501,7 +513,15 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   });
   await expect(jsonPreview).toBeVisible();
   await expect(
-    jsonPreview.getByRole("button", { name: "No new flights to import" }),
+    jsonPreview
+      .getByRole("alert")
+      .getByText(/A saved flight has this ID but different facts/),
+  ).toBeVisible();
+  await expect(
+    jsonPreview.getByRole("button", {
+      name: "Resolve issues to import",
+      exact: true,
+    }),
   ).toBeDisabled();
   for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -526,6 +546,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await jsonPreview.getByRole("button", { name: "Cancel" }).click();
+  expect(await readSavedArchive()).toEqual(beforeConflict);
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const csvPreview = page.getByRole("region", { name: "Review CSV import" });
   await expect(
@@ -1577,6 +1598,59 @@ test("presents the flight archive as a single-column open ledger", async ({
     );
     expect(presentation.searchBoxShadow).toBe("none");
   }
+});
+
+test("blocks a conflicting native backup revision without changing the saved archive @cross-browser", async ({
+  page,
+}) => {
+  const archive = JSON.parse(await readFile(exampleArchive, "utf8"));
+  archive.frequentFlyerMemberships = [
+    {
+      id: "existing-member",
+      programId: "mileageplus",
+      memberNumber: "UA-EXISTING",
+      associatedAirlines: ["UA"],
+      defaultAirline: "UA",
+    },
+  ];
+  archive.flights[0].frequentFlyer = {
+    membershipId: "existing-member",
+    tierAtFlight: "Gold",
+  };
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "member-archive.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+  await page.getByRole("button", { name: "Import this archive" }).click();
+  await navigateTo(page, "settings");
+  await openSettingsCategory(page, "Data and backup");
+  const readSavedArchive = () =>
+    page.evaluate(async () => {
+      const { browserStorage } = await import("/src/storage/browser.ts");
+      const result = await browserStorage.loadDocument();
+      if (result.status !== "valid") throw new Error("Expected saved archive");
+      return result.document;
+    });
+  const before = await readSavedArchive();
+  await page
+    .locator('#settings-import input[type="file"]')
+    .setInputFiles(exampleArchive);
+  const preview = page.getByRole("region", { name: "Review before importing" });
+  await expect(
+    preview
+      .getByRole("alert")
+      .getByText(/A saved flight has this ID but different facts/),
+  ).toBeVisible();
+  await expect(
+    preview.getByRole("button", {
+      name: "Resolve issues to import",
+      exact: true,
+    }),
+  ).toBeDisabled();
+  await preview.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(await readSavedArchive()).toEqual(before);
 });
 
 test("keeps core archive surfaces precise and non-decorative", async ({
