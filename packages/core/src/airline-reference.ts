@@ -32,12 +32,28 @@ export const airlines: AirlineReference[] = [
   nameZhTw,
 }));
 
-export const airlineByIata = new Map(
-  airlines.map((airline) => [airline.iata, airline]),
+const airlineByPair = new Map(
+  airlines.map((airline) => [`${airline.iata}/${airline.icao}`, airline]),
 );
-export const airlineByIcao = new Map(
-  airlines.map((airline) => [airline.icao, airline]),
-);
+// A single code is usable only when unique or covered by an explicit curated
+// default. A complete pair always outranks such a default.
+function codeIndex(field: "iata" | "icao") {
+  const matches = new Map<string, AirlineReference>();
+  const seen = new Set<string>();
+  for (const airline of airlines) {
+    const code = airline[field];
+    if (seen.has(code)) matches.delete(code);
+    else matches.set(code, airline);
+    seen.add(code);
+  }
+  for (const [iata, icao] of airlineOverrideRows as AirlineRow[]) {
+    const airline = airlineByPair.get(`${iata}/${icao}`)!;
+    matches.set(airline[field], airline);
+  }
+  return matches;
+}
+export const airlineByIata = codeIndex("iata");
+export const airlineByIcao = codeIndex("icao");
 
 export function resolveAirline(
   codeOrReference: string | { iata?: string; icao?: string },
@@ -46,14 +62,14 @@ export function resolveAirline(
     const code = codeOrReference.trim().toUpperCase();
     return airlineByIata.get(code) ?? airlineByIcao.get(code);
   }
-  return (
-    (codeOrReference.iata
-      ? airlineByIata.get(codeOrReference.iata.toUpperCase())
-      : undefined) ??
-    (codeOrReference.icao
-      ? airlineByIcao.get(codeOrReference.icao.toUpperCase())
-      : undefined)
-  );
+  const iata = codeOrReference.iata?.trim().toUpperCase();
+  const icao = codeOrReference.icao?.trim().toUpperCase();
+  if (iata && icao) return airlineByPair.get(`${iata}/${icao}`);
+  return iata
+    ? airlineByIata.get(iata)
+    : icao
+      ? airlineByIcao.get(icao)
+      : undefined;
 }
 
 export function airlineNames(

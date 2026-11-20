@@ -291,7 +291,7 @@ function toKeeprawCsvRow(values: Record<FlightyField, string>): string[] {
   const cancelled = parseFlightyBoolean(values.Canceled) ?? false;
   const cabin = normalizeCabin(values["Cabin Class"]) ?? "";
   return [
-    `${airline.iata}${values.Flight}`,
+    `${resolveAirline(airline.iata)?.icao === airline.icao ? airline.iata : airline.icao}${values.Flight}`,
     values.Date,
     values.From.toUpperCase(),
     values.To.toUpperCase(),

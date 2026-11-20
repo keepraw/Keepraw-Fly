@@ -387,6 +387,7 @@
     "moreIssues_other": "{{count, number}} weitere Probleme werden nicht angezeigt.",
     "resolveIssues": "Probleme vor dem Import beheben",
     "issueMessages": {
+      "conflictingFlightId": "Ein gespeicherter Flug hat dieselbe ID, aber andere Daten. Bitte lösen Sie den Konflikt vor dem Import. Es wurde kein Flug geändert.",
       "parse": "Dies ist kein gültiges JSON. Überprüfen Sie, ob die Datei vollständig ist, und versuchen Sie es erneut.",
       "required": "Ein erforderliches Feld fehlt.",
       "additionalProperties": "Dieses Feld liegt außerhalb des Kernformats Keepraw Fly. Benutzerdefinierte Daten innerhalb eines Namespace-Erweiterungsobjekts beibehalten.",

@@ -387,6 +387,7 @@
     "moreIssues_other": "{{count, number}} more issues are not shown.",
     "resolveIssues": "Resolve issues to import",
     "issueMessages": {
+      "conflictingFlightId": "A saved flight has this ID but different facts. Resolve the conflict before appending; no flights have been changed.",
       "parse": "This is not valid JSON. Check that the file is complete and try again.",
       "required": "A required field is missing.",
       "additionalProperties": "This field is outside the Keepraw Fly core format. Preserve custom data inside a namespaced extensions object.",

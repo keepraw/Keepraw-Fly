@@ -101,13 +101,15 @@ describe("shareable (redacted) export", () => {
       seat: "32A",
       cabin: "economy",
     });
+    const exportedId = exported.frequentFlyerMemberships![0]!.id;
+    expect(exportedId).not.toBe("membership-1");
     expect(exported.flights[0]!.frequentFlyer).toEqual({
-      membershipId: "membership-1",
+      membershipId: exportedId,
       tierAtFlight: "Gold",
     });
     expect(exported.frequentFlyerMemberships).toEqual([
       expect.objectContaining({
-        id: "membership-1",
+        id: exportedId,
         programName: "Eastern Miles",
         tier: "Gold",
         memberNumber: "",
@@ -124,6 +126,35 @@ describe("shareable (redacted) export", () => {
     }
   });
 
+  it("remaps account-derived IDs and every linked flight in the serialized shareable copy only", async () => {
+    const source = sensitiveArchive();
+    const account = source.frequentFlyerMemberships![0]!;
+    account.id = account.memberNumber;
+    for (const f of source.flights.slice(0, 2))
+      f.frequentFlyer = { membershipId: account.id, tierAtFlight: "Gold" };
+    const second = {
+      ...account,
+      id: "other-private-key",
+      memberNumber: "SECOND-ACCOUNT",
+    };
+    source.frequentFlyerMemberships!.push(second);
+    source.flights[2]!.frequentFlyer = { membershipId: second.id };
+    const text = await serializeKeeprawFly(source, "shareable");
+    for (const token of [account.id, second.id, second.memberNumber])
+      expect(text).not.toContain(token);
+    const shared = JSON.parse(text) as KeeprawFlyDocument;
+    const ids = shared.frequentFlyerMemberships!.map((x) => x.id);
+    expect(new Set(ids).size).toBe(2);
+    expect(
+      shared.flights.slice(0, 3).map((x) => x.frequentFlyer?.membershipId),
+    ).toEqual([ids[0], ids[0], ids[1]]);
+    const backup = JSON.parse(await serializeKeeprawFly(source));
+    expect(backup.frequentFlyerMemberships[0].id).toBe(account.memberNumber);
+    expect(backup.flights[0].frequentFlyer.membershipId).toBe(
+      account.memberNumber,
+    );
+  });
+
   it("never modifies the stored archive", () => {
     const source = sensitiveArchive();
     const snapshot = structuredClone(source);
@@ -138,10 +169,12 @@ describe("shareable (redacted) export", () => {
     const preview = preflightJsonImport(text, validation, null);
     expect(preview.canImport).toBe(true);
     expect(preview.validRecords).toBe(preview.totalRecords);
-    // Importing it next to the original archive reports duplicates, not errors.
+    // A redacted revision is not byte-for-byte the original flight.
     const beside = preflightJsonImport(text, validation, sensitiveArchive());
-    expect(beside.canImport).toBe(true);
-    expect(beside.problemRecords).toBe(0);
+    expect(beside.canImport).toBe(false);
+    expect(
+      beside.issues.some((issue) => issue.keyword === "conflictingFlightId"),
+    ).toBe(true);
   });
 
   it("redacts legacy membership extensions while keeping their programs", () => {
@@ -162,7 +195,10 @@ describe("shareable (redacted) export", () => {
     const { document, summary } = redactSensitiveData(legacy);
     expect(JSON.stringify(document)).not.toContain(secrets.legacyMember);
     expect(document.frequentFlyerMemberships).toEqual([
-      expect.objectContaining({ id: "legacy-1", memberNumber: "" }),
+      expect.objectContaining({
+        id: expect.not.stringMatching(/^legacy-1$/),
+        memberNumber: "",
+      }),
     ]);
     expect(summary.memberNumbers).toBe(1);
     expect(validateAndMigrateKeeprawFly(document).valid).toBe(true);

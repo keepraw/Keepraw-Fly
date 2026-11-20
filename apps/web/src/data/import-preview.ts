@@ -32,6 +32,7 @@ export interface ImportPreflightCounts extends FlightImportCounts {
 }
 
 export interface JsonImportPreflight extends ImportPreflightCounts {
+  base: KeeprawFlyDocument | null;
   document?: KeeprawFlyDocument;
   assessments: FlightImportAssessment[];
   issues: ValidationIssue[];
@@ -60,26 +61,57 @@ export function preflightJsonImport(
   result: ValidationResult,
   existing: KeeprawFlyDocument | null,
 ): JsonImportPreflight {
-  const rawRecordCount = countJsonFlightRecords(text);
-
   if (result.valid) {
-    const assessments = assessFlightImports(
-      result.data.flights,
-      existing?.flights ?? [],
+    const assessments = existing
+      ? assessFlightImports(result.data.flights, existing.flights, "archive")
+      : [];
+    // Equal flight JSON is not an identical record if the same membership
+    // reference identifies a different account in the two archives.
+    const accounts = new Map(
+      existing?.frequentFlyerMemberships?.map((m) => [m.id, m]),
+    );
+    const importedAccounts = new Map(
+      result.data.frequentFlyerMemberships?.map((m) => [m.id, m]),
+    );
+    for (const assessment of assessments) {
+      const id = assessment.flight.frequentFlyer?.membershipId;
+      if (assessment.disposition !== "exact" || !id) continue;
+      const local = accounts.get(id),
+        incoming = importedAccounts.get(id);
+      if (local && incoming && !sameMembership(local, incoming))
+        assessment.disposition = "conflict";
+    }
+    const issues: ValidationIssue[] = assessments.flatMap(
+      ({ disposition, flight }, flightIndex) =>
+        disposition === "conflict"
+          ? [
+              {
+                path: `/flights/${flightIndex}/id`,
+                flightIndex,
+                keyword: "conflictingFlightId",
+                received: flight.id,
+                message:
+                  "An existing flight with this ID has different facts. Nothing will be appended.",
+              },
+            ]
+          : [],
     );
     return {
+      base: existing,
       document: result.data,
       totalRecords: result.data.flights.length,
       validRecords: result.data.flights.length,
-      problemRecords: 0,
+      problemRecords: issues.length,
       ...countFlightImportAssessments(assessments),
-      canImport: true,
+      ...(!existing ? { newRecords: result.data.flights.length } : {}),
+      canImport: issues.length === 0,
       assessments,
-      issues: [],
+      issues,
       migrations: result.migrations,
     };
   }
 
+  const rawRecordCount = countJsonFlightRecords(text);
   const problemIndexes = new Set(
     result.issues
       .map((issue) => issue.flightIndex)
@@ -90,6 +122,7 @@ export function preflightJsonImport(
   );
 
   return {
+    base: existing,
     totalRecords: rawRecordCount,
     validRecords: Math.max(0, rawRecordCount - problemIndexes.size),
     problemRecords: problemIndexes.size,
@@ -108,30 +141,30 @@ export function buildDocumentFromJsonImport(
   existing: KeeprawFlyDocument | null,
   includePossibleDuplicates = false,
 ): KeeprawFlyDocument {
-  if (!preflight.document) throw new Error("invalid-import-preflight");
+  if (
+    !preflight.canImport ||
+    !preflight.document ||
+    existing !== preflight.base
+  )
+    throw new Error("invalid-import-preflight");
+  // Welcome and confirmed recovery both replace from the validated document.
+  if (!existing) return preflight.document;
   const importedFlights = selectFlightsForImport(
     preflight.assessments,
     includePossibleDuplicates,
   );
 
-  if (existing) {
-    const merged = mergeFrequentFlyerMemberships(
-      existing.frequentFlyerMemberships ?? [],
-      preflight.document.frequentFlyerMemberships ?? [],
-      importedFlights,
-    );
-    return {
-      ...existing,
-      flights: [...existing.flights, ...merged.flights],
-      ...(merged.memberships.length
-        ? { frequentFlyerMemberships: merged.memberships }
-        : {}),
-    };
-  }
-
+  const merged = mergeFrequentFlyerMemberships(
+    existing.frequentFlyerMemberships ?? [],
+    preflight.document.frequentFlyerMemberships ?? [],
+    importedFlights,
+  );
   return {
-    ...preflight.document,
-    flights: importedFlights,
+    ...existing,
+    flights: [...existing.flights, ...merged.flights],
+    ...(merged.memberships.length
+      ? { frequentFlyerMemberships: merged.memberships }
+      : {}),
   };
 }
 

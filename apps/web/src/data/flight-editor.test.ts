@@ -4,6 +4,7 @@ import {
   parseKeeprawFlyJson,
 } from "@keepraw-fly/validator";
 import type { FrequentFlyerMembership } from "@keepraw-fly/schema";
+import { airportByIata, flightDuration } from "@keepraw-fly/core";
 import {
   createEmptyDocument,
   flightFromDraft,
@@ -14,6 +15,77 @@ import {
 } from "./flight-editor";
 
 describe("flight editor data", () => {
+  it("keeps the HND local date in the form without rewriting a UTC departure on save", () => {
+    const flight = {
+      ...flightFromDraft(baseDraft()),
+      origin: { iata: "HND" },
+      destination: { iata: "HNL" },
+      serviceDate: "2025-01-01",
+      scheduledDeparture: "2025-01-01T16:00:00Z",
+      scheduledArrival: "2025-01-01T13:30:00-10:00",
+    };
+    const draft = flightToDraft(flight);
+    expect(draft.serviceDate).toBe("2025-01-02");
+    const saved = flightFromDraft(
+      { ...draft, originGate: "A5", destinationTerminal: "2" },
+      flight,
+    );
+    expect(saved).toMatchObject({
+      serviceDate: flight.serviceDate,
+      scheduledDeparture: flight.scheduledDeparture,
+      scheduledArrival: flight.scheduledArrival,
+    });
+    expect(flightDuration(saved).minutes).toBe(450);
+    // Correcting only the saved site is not a request to re-enter the clocks.
+    const unresolved = {
+      ...flight,
+      origin: { iata: "HND", airportId: "unavailable-original" },
+    };
+    const hnd = airportByIata.get("HND")!.airportId;
+    const corrected = flightFromDraft(
+      { ...flightToDraft(unresolved), originAirportId: hnd },
+      unresolved,
+    );
+    expect(corrected).toMatchObject({
+      origin: { iata: "HND", airportId: hnd },
+      scheduledDeparture: flight.scheduledDeparture,
+      scheduledArrival: flight.scheduledArrival,
+      serviceDate: flight.serviceDate,
+    });
+    const changed = flightFromDraft(
+      { ...draft, departureTime: "01:15" },
+      flight,
+    );
+    expect(changed.scheduledDeparture).toBe("2025-01-02T01:15:00+09:00");
+    expect(changed.serviceDate).toBe("2025-01-02");
+    expect(changed.scheduledArrival).toBe(flight.scheduledArrival);
+  });
+
+  it("retains all four timestamp strings, including different DST folds and fractional seconds", () => {
+    const times = {
+      scheduledDeparture: "2024-11-03T01:30:00-04:00",
+      actualDeparture: "2024-11-03T01:30:21.123-05:00",
+      scheduledArrival: "2024-11-03T14:55:15.023Z",
+      actualArrival: "2024-11-03T07:15:30-08:00",
+    };
+    const flight = {
+      ...flightFromDraft(baseDraft()),
+      origin: { iata: "JFK" },
+      destination: { iata: "LAX" },
+      serviceDate: "2024-11-03",
+      ...times,
+    };
+    const draft = flightToDraft(flight);
+    expect(
+      flightFromDraft(
+        { ...draft, originTerminal: "1", destinationGate: "2B" },
+        flight,
+      ),
+    ).toMatchObject(times);
+    expect(
+      flightFromDraft({ ...draft, actualArrivalTime: "08:15" }, flight),
+    ).toMatchObject({ ...times, actualArrival: "2024-11-03T08:15:00-08:00" });
+  });
   it.each(["ZH9911", "zh9911", "ZH 9911", "ZH-9911"])(
     "normalizes %s as one flight-number field",
     (value) => {

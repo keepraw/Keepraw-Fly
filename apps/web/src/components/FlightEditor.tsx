@@ -100,7 +100,14 @@ export function FlightEditor({
   }, [onCancel, returnFocus]);
   const identity = splitFlightNumberInput(draft.flightNumber);
   const selectedAirline = identity
-    ? resolveAirline(identity.airline)
+    ? resolveAirline(
+        flight &&
+          !isDuplicate &&
+          splitFlightNumberInput(flight.flightNumber)?.airlineCode ===
+            identity.airlineCode
+          ? flight.airline
+          : identity.airline,
+      )
     : undefined;
   const airlineNamePair = selectedAirline
     ? airlineNames(selectedAirline, locale)

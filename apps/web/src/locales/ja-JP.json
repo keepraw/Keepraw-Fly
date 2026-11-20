@@ -360,6 +360,7 @@
     "moreIssues_other": "ほかに {{count, number}} 件の問題があります。",
     "resolveIssues": "問題を解決してからインポートしてください",
     "issueMessages": {
+      "conflictingFlightId": "同じ ID の保存済みフライトと内容が異なります。競合を解決してから追加してください。既存のフライトは変更されていません。",
       "parse": "これは有効な JSON ではありません。ファイルが完全であることを確認して、再試行してください。",
       "required": "必須フィールドが欠落しています。",
       "additionalProperties": "このフィールドは Keepraw Fly コア形式の範囲外です。カスタム データを名前空間拡張オブジェクト内に保持します。",

@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   airportByIata,
+  airportById,
+  airportIdsBySearchCode,
   airportCityGroupByCode,
   airportCityGroupForAirport,
   airportCityGroupName,
@@ -101,6 +103,22 @@ export function AirportCombobox({
 
   const selectedName = localizedAirportName(identity?.airportId, locale, date);
 
+  function commitSite(code: string, id: string, preserveRecorded = true) {
+    const recordedSites = airportIdsBySearchCode.get(value);
+    const sameSite = airportId && airportById.get(airportId)?.airportId === id;
+    const selectedCode =
+      preserveRecorded &&
+      value &&
+      (airportId
+        ? sameSite && (!recordedSites || recordedSites.has(id))
+        : recordedSites?.has(id))
+        ? value
+        : code;
+    setQuery(selectedCode);
+    onChange(selectedCode, id);
+    setOpen(false);
+  }
+
   function chooseAirport(airport: AirportReference) {
     const typedCode = keepableCode(query);
     const code =
@@ -109,16 +127,7 @@ export function AirportCombobox({
         ? typedCode
         : (airport.currentIata ?? airport.iata);
     if (!code) return;
-    setQuery(code);
-    onChange(code, airport.airportId);
-    setOpen(false);
-  }
-
-  function chooseCode(code: string, id: string) {
-    const original = value || keepableCode(query) || code;
-    setQuery(original);
-    onChange(original, id);
-    setOpen(false);
+    commitSite(code, airport.airportId, typedCode !== code);
   }
 
   function updateQuery(nextQuery: string) {
@@ -178,7 +187,7 @@ export function AirportCombobox({
             chooseAirport(results[activeIndex]);
           } else if (event.key === "Enter" && open && historical[0]) {
             event.preventDefault();
-            chooseCode(
+            commitSite(
               historicalCode(historical[0], date)!,
               historical[0].airportId,
             );
@@ -216,7 +225,7 @@ export function AirportCombobox({
                 type="button"
                 data-history-kind={result.kind}
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => chooseCode(code, result.airportId)}
+                onClick={() => commitSite(code, result.airportId)}
               >
                 <strong>{code}</strong>
                 <span>{result.name}</span>

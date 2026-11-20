@@ -83,6 +83,18 @@ claim subject | grep -qx "$digest" || { echo "subject digest not attested" >&2; 
 MOCK
 cat > "$work/bin/docker" <<'MOCK'
 #!/usr/bin/env bash
+if [[ $1 == compose && $2 == --project-name ]]; then
+  [[ -z ${KEEPRAW_IMAGE+x} && -z ${BIND_ADDRESS+x} && -z ${SITE_ADDRESS+x} && -z ${HTTP_PORT+x} && -z ${HTTPS_PORT+x} ]] || exit 42
+  args=("$@"); envfile=
+  for ((i=0;i<${#args[@]};i++)); do
+    if [[ ${args[i]} == --env-file ]]; then envfile=${args[i+1]}; fi
+  done
+  [[ -s $envfile ]] || exit 43
+  if [[ ${*: -2} == 'config --images' ]]; then
+    if [[ -n ${WRONG_RENDERED_IMAGE:-} ]]; then echo unexpected-image; else sed -n 's/^KEEPRAW_IMAGE=//p' "$envfile"; fi
+    exit 0
+  fi
+fi
 case "$*" in
   "compose up --help") echo "--wait" ;;
   ps\ *|volume\ ls*|network\ ls*) ;;
@@ -106,7 +118,8 @@ run() { # expected-status description args...
   echo "ok - $description"
 }
 
-run ok "attested release verifies every file and the image before deployment" --version v99.0.0
+KEEPRAW_IMAGE=stale-image BIND_ADDRESS=stale-bind SITE_ADDRESS=stale-site HTTP_PORT=1234 HTTPS_PORT=4321 \
+  run ok "attested release uses managed settings despite ambient overrides" --version v99.0.0
 grep -q '^verify compose.yaml ' "$GH_LOG" && grep -q '^verify image.txt ' "$GH_LOG" && grep -q '^verify provenance.json ' "$GH_LOG"
 grep -q "^verify keepraw-fly@sha256:$image_digest " "$GH_LOG"
 grep -q 'compose.*up -d --wait' "$DOCKER_LOG"
@@ -121,6 +134,9 @@ grep -q 'Neither its files nor its image carry provenance' "$work/out"
 refused() { # nothing was pulled or started
   ! grep -qE ' (pull|up) ' "$DOCKER_LOG"
 }
+
+WRONG_RENDERED_IMAGE=1 run fail "mismatched rendered image aborts before pull/start" --version v99.0.0; refused
+grep -q 'does not resolve to the verified release image' "$work/out"
 
 sed -i 's/^runner .*/runner self-hosted/' "$work/fixture/v99.0.0/attestation.sigstore.json"
 run fail "a file attestation from a self-hosted runner is refused" --version v99.0.0; refused; restore
@@ -183,4 +199,4 @@ sed -i 's/"version": "99.0.0"/"version": "99.0.1"/' "$work/fixture/v99.0.0/prove
 run fail "provenance metadata for another version is refused" --version v99.0.0; restore
 
 run fail "a floating version is refused" --version latest
-echo "PASS: installer provenance verification (2 success and 17 refusal cases; mock gh, not real Sigstore)"
+echo "PASS: installer provenance, effective image and refusal cases (mock gh, not real Sigstore)"

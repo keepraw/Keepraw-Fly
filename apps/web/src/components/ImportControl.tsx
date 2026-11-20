@@ -35,7 +35,8 @@ export function ImportControl({
 }: ImportControlProps) {
   const { i18n, t } = useTranslation();
   const inputId = useId();
-  const [pending, setPending] = useState<PendingImport | null>(null);
+  const [preview, setPending] = useState<PendingImport | null>(null);
+  const pending = preview?.base === existingDocument ? preview : null;
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
@@ -75,7 +76,7 @@ export function ImportControl({
   }
 
   async function confirmImport() {
-    if (!pending?.document) return;
+    if (!pending?.canImport || !pending.document) return;
     setBusy(true);
     setFailed(false);
     try {
