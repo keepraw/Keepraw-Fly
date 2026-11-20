@@ -80,7 +80,7 @@
       "apt_64b5eaa6-a984-4816-86d9-d8eb71c91451",
       "apt_f11bdf7d-d81d-46fc-a94f-8c8c42d4e245"
     ],
-    "correctionSource": "https://github.com/keepraw/airport-history/blob/dfa884dbd8d14e4ba1b03a092ce0155eb737169c/data/airports.json",
+    "correctionSource": "https://github.com/keepraw/Keepraw-Fly/blob/1ec962ccb11c741d0036152b9efdcc44d6aca204/packages/core/data/airport-history/formal/airports.json",
     "correctionReason": "LYG and LZO directory reference points described predecessor sites; NMI directory reference point was not the reviewed site."
   }
 }

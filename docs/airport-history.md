@@ -15,15 +15,15 @@ resolver uses the endpoint's local civil date to resolve a code assignment.
 
 [The pinned manifest](../packages/core/data/airport-history/formal/manifest.json)
 identifies the exact upstream commit, schema, query horizon and SHA-256.
-The formal JSON is vendored byte for byte. Version 0.13.0 integrates 6,510
-physical sites, 6,370 IATA assignments, 6,214 ICAO assignments, 214 sources
-and three name intervals. The supported bulk history starts on 2000-01-01
-and runs through 2026-11-18. A few reviewed intervals reach earlier dates,
-including Kai Tak. [Production repository](https://github.com/keepraw/airport-history)
+The formal JSON is vendored byte for byte. Version 0.14.0 contains 6,510
+physical sites, 6,370 IATA assignments, 6,214 ICAO assignments and three
+historical name intervals. The supported bulk history starts on 2000-01-01
+and runs up to 2026-11-19, exclusive. A few reviewed intervals reach earlier
+dates, including Kai Tak. [0.14.0 production manifest](https://raw.githubusercontent.com/keepraw/airport-history/9127f353831d50d53be91b5a24dd155c26c6ff1b/data/production-manifest.json)
 
-The importer supports schemas 3.0.0 and 4.0.0. Fly interprets the eligibility
-metadata in the current Schema 3.0.0 snapshot at load time. Schema 4.0.0
-uses the published intervals directly.
+The importer and runtime require Schema 4.0.0. Fly uses the published
+assignment and official-name intervals directly and applies its reviewed
+physical-site transfers to the original upstream assignments.
 
 All 7,885 preexisting Fly rows remain in `airports.iata.json`. The
 [formal directory](../packages/core/data/airport-history/formal/directory.json)
@@ -125,9 +125,9 @@ python3 scripts/update-airport-history.py --check --verify-upstream
 The workflow consumes the manifest and formal dataset for its immutable commit.
 It downloads and verifies the OurAirports revision and SHA-256 recorded under
 `formalDirectory` in [airports.source.json](../packages/core/data/airports.source.json).
-The importer preserves the existing directory during a schema transition if
-the physical-site inputs are identical. Other data updates refresh locality
-and status by the formal site's external ID.
+The 0.14.0 cutover retained the verified Fly directory and localization bytes.
+Future data versions refresh locality and status using the formal site's
+external ID and the pinned OurAirports snapshot.
 New, verified locality takes precedence in the directory. Missing fields use
 known locality and timezone references when available. Current status remains
 unknown when the snapshot provides no status evidence. Local corrections to known status discrepancies are keyed by physical ID
@@ -140,7 +140,7 @@ same version, incompatible schema, missing identity or assignment, changed
 external identity, material movement or conflicting certain intervals
 requires review. Inspect the workflow summary for the diagnostic.
 
-A new publication in the pinned schema updates the pin and reference data, checks the
+A new Schema 4.0.0 publication updates the pin and reference data, checks the
 hash, validates the directory, runs the workspace checks and proposes an
 English PR. The PR reports old and new versions and hashes, assignment and interval
 changes, resolved code/date coverage, gaps by locale and counts for missing
@@ -152,5 +152,3 @@ through the normal CI gate.
 GitHub's repository Actions setting must allow the workflow token to create
 pull requests. GitHub may ask a maintainer to approve the PR's CI run for
 token-created PRs. The updater validates the candidate before opening the PR.
-The first Schema 4.0.0 data import is a manual PR based on the published
-upstream manifest. This keeps the cutover in review order.
