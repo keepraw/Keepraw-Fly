@@ -81,11 +81,16 @@ describe("raw recovery export", () => {
     expect(mocks.link.click).not.toHaveBeenCalled();
   });
 
-  it("refuses a shared reference that would become two unrelated objects", () => {
-    const flight = { id: "flight-1" };
-    expect(() =>
-      serializeRecoveryCopy({ flights: [flight], saved: flight }),
-    ).toThrow(UnsafeRecoveryCopyError);
+  it("preserves the contents of repeated JSON values in legacy and canonical fields", () => {
+    const associatedAirlines = ["UA"];
+    const raw = {
+      canonical: { memberNumber: "canonical-001", associatedAirlines },
+      legacy: { memberNumber: "legacy-001", associatedAirlines },
+    };
+    expect(JSON.parse(serializeRecoveryCopy(raw))).toEqual(raw);
+    expect(raw.canonical.associatedAirlines).toBe(
+      raw.legacy.associatedAirlines,
+    );
   });
 
   it("downloads the raw JSON with a recovery filename and releases its URL", async () => {
