@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useState } from "react";
+import { lazy, StrictMode, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation } from "react-i18next";
 import { App } from "./App";
@@ -29,6 +29,12 @@ import "./styles/passport-desktop.css";
 import "./styles/flight-list.css";
 import "./styles/share-overlay.css";
 
+const NeonLabRoute = import.meta.env.DEV
+  ? lazy(() =>
+      import("./neon/NeonLab").then((module) => ({ default: module.NeonLab })),
+    )
+  : null;
+
 const root = document.getElementById("root");
 
 if (!root) {
@@ -36,6 +42,18 @@ if (!root) {
 }
 
 function Bootstrap() {
+  if (NeonLabRoute && window.location.pathname === "/neon-lab")
+    return (
+      <Suspense
+        fallback={<main className="loading-screen">Loading design lab…</main>}
+      >
+        <NeonLabRoute />
+      </Suspense>
+    );
+  return <ApplicationBootstrap />;
+}
+
+function ApplicationBootstrap() {
   const { t } = useTranslation();
   const [status, setStatus] = useState<"loading" | "ready" | "failed">(
     "loading",
