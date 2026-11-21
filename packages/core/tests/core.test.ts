@@ -595,6 +595,61 @@ describe("airline and travel references", () => {
 });
 
 describe("passport statistics", () => {
+  it("counts actual physical routes for normal, diverted, repeated and cancelled flights", () => {
+    const diverted = { ...flight, id: "diverted", divertedTo: { iata: "SJC" } };
+    const flights = [flight, diverted];
+    const before = structuredClone(flights);
+    expect(calculateYearStatistics([flight])[0]?.routes).toBe(1);
+    expect(calculateYearStatistics(flights)[0]?.routes).toBe(2);
+    expect(
+      buildRouteSegments(flights).map((route) => route.destination.iata),
+    ).toEqual(["LAX", "SJC"]);
+    const repeated = [
+      ...flights,
+      { ...flight, id: "repeat" },
+      { ...diverted, id: "repeat-diverted" },
+      {
+        ...flight,
+        id: "cancelled",
+        destination: { iata: "JFK" },
+        cancelled: true,
+      },
+    ];
+    expect(calculateYearStatistics(repeated)[0]?.routes).toBe(2);
+    expect(
+      buildRouteSegments(repeated).map((route) => route.flightCount),
+    ).toEqual([2, 2]);
+    expect(flights).toEqual(before);
+    expect(diverted.destination).toEqual({ iata: "LAX" });
+  });
+
+  it("uses physical arrival identities rather than shared airport codes for yearly routes", () => {
+    // Both HKG sites occur in 1998; the code alone must not collapse them.
+    const flights = ["1998-06-01", "1998-09-01", "1998-10-01"].map((date) => ({
+      ...flight,
+      id: date,
+      serviceDate: date,
+      destination: { iata: "HKG" },
+      scheduledDeparture: `${date}T01:00:00-07:00`,
+      scheduledArrival: `${date}T23:00:00+08:00`,
+      actualDeparture: `${date}T01:10:00-07:00`,
+      actualArrival: `${date}T23:10:00+08:00`,
+    }));
+    const routes = buildRouteSegments(flights);
+    expect(routes).toHaveLength(2);
+    expect(routes.map((route) => route.destination.iata)).toEqual([
+      "HKG",
+      "HKG",
+    ]);
+    expect(
+      new Set(routes.map((route) => route.destination.identityKey)).size,
+    ).toBe(2);
+    expect(calculateYearStatistics(flights)[0]).toMatchObject({
+      year: 1998,
+      routes: routes.length,
+    });
+  });
+
   it("derives aggregate facts without storing them", () => {
     const stats = calculatePassportStatistics([flight]);
     expect(stats.flights).toBe(1);

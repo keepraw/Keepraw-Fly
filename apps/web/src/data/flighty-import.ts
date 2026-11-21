@@ -144,19 +144,27 @@ export function* preflightFlightyImportWork(
 
   const mappedRows: string[][] = [];
   const sourceLines: number[] = [];
-  if (issues.length === 0) {
-    for (const [rowIndex, row] of parsed.rows.entries()) {
-      const lineNumber = rowIndex + 2;
-      const values = flightyValues(row, headerIndexes);
-      const rowIssues = validateFlightyRow(values, lineNumber, warnings);
-      if (rowIssues.length) {
-        issues.push(...rowIssues);
-      } else {
-        mappedRows.push(toKeeprawCsvRow(values));
-        sourceLines.push(lineNumber);
-      }
-      yield;
+  const completeHeaders = issues.length === 0;
+  // Missing columns are header errors, not a missing value on every data row.
+  const presentRequiredFields = requiredFlightyFields.filter(
+    (field) => headerIndexes[field] !== undefined,
+  );
+  for (const [rowIndex, row] of parsed.rows.entries()) {
+    const lineNumber = rowIndex + 2;
+    const values = flightyValues(row, headerIndexes);
+    const rowIssues = validateFlightyRow(
+      values,
+      lineNumber,
+      warnings,
+      presentRequiredFields,
+    );
+    if (rowIssues.length) {
+      issues.push(...rowIssues);
+    } else if (completeHeaders) {
+      mappedRows.push(toKeeprawCsvRow(values));
+      sourceLines.push(lineNumber);
     }
+    yield;
   }
 
   const mapped: ParsedCsv = { headers: csvFlightFields, rows: mappedRows };
@@ -180,15 +188,18 @@ export function* preflightFlightyImportWork(
     });
   }
 
-  const allIssues = [...issues];
   return {
     totalRecords: parsed.rows.length,
     validRecords: csvPreflight.validRecords,
-    problemRecords: allIssues.length,
+    problemRecords: new Set(
+      issues.flatMap(({ lineNumber }) =>
+        lineNumber === undefined ? [] : [lineNumber],
+      ),
+    ).size,
     newRecords: csvPreflight.newRecords,
     possibleDuplicateRecords: csvPreflight.possibleDuplicateRecords,
     exactDuplicateRecords: csvPreflight.exactDuplicateRecords,
-    canImport: allIssues.length === 0 && csvPreflight.canImport,
+    canImport: issues.length === 0 && csvPreflight.canImport,
     flights: csvPreflight.flights,
     assessments: csvPreflight.assessments,
     issues,
@@ -238,9 +249,10 @@ function validateFlightyRow(
   values: Record<FlightyField, string>,
   lineNumber: number,
   warnings: FlightyDiagnostic[],
+  requiredFields: readonly FlightyField[],
 ): FlightyDiagnostic[] {
   const issues: FlightyDiagnostic[] = [];
-  for (const field of requiredFlightyFields) {
+  for (const field of requiredFields) {
     if (!values[field])
       issues.push({
         severity: "error",

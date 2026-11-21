@@ -1679,6 +1679,12 @@ test("failed fonts and late stylesheet completion keep fallback measurements sta
     primary: "native",
   };
   await seed(page, archive, { language: "zh-CN" });
+  // Saved preferences load after navigation. A locale change during the click
+  // can move this button between Playwright's actionability check and input.
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  await expect(page.locator(".passport-share-button")).toHaveText(
+    "分享飞行护照",
+  );
   await openShare(page);
   await expect(image(page)).toHaveAttribute("data-fonts", "fallback");
   await keep(

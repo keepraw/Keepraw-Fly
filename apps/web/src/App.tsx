@@ -30,6 +30,7 @@ import { browserStorage } from "./storage/browser";
 import type { ArchiveKind, ArchiveLoadResult } from "./storage/adapter";
 import {
   createPersistenceQueue,
+  createSettingsPersistenceQueue,
   type PersistenceState,
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
@@ -121,8 +122,8 @@ export function App() {
     ),
   );
   const [settingsWrites] = useState(() =>
-    createPersistenceQueue<ViewerSettings>(
-      (snapshot) => browserStorage.saveSettings(snapshot),
+    createSettingsPersistenceQueue(
+      (patch) => browserStorage.saveSettings(patch),
       setSettingsPersistence,
     ),
   );
@@ -385,9 +386,9 @@ export function App() {
     return documentWrites.save({ document: nextDocument, kind: nextKind });
   }
 
-  function storeSettings(nextSettings: ViewerSettings) {
-    setSettings(nextSettings);
-    void settingsWrites.save(nextSettings);
+  function storeSettings(patch: Partial<ViewerSettings>) {
+    setSettings((current) => ({ ...current, ...patch }));
+    void settingsWrites.save(patch);
   }
 
   function updateProfile(name: ProfileName | undefined) {
@@ -533,7 +534,7 @@ export function App() {
       return;
     }
     if (await downloadArchiveCopy(document))
-      storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
+      storeSettings({ lastBackupAt: new Date().toISOString() });
   }
 
   async function reloadAfterConflict() {
