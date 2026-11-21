@@ -6,7 +6,11 @@ import type {
   SettingsStore,
   StorageAdapter,
 } from "./adapter";
-import { normalizeViewerSettings, type ViewerSettings } from "./types";
+import {
+  defaultViewerSettings,
+  normalizeViewerSettings,
+  type ViewerSettings,
+} from "./types";
 import { ArchiveConflictError } from "./conflict";
 
 export type PersistentStorageState =
@@ -247,11 +251,26 @@ export class BrowserStorageAdapter implements StorageAdapter, SettingsStore {
     return settings ? normalizeViewerSettings(settings) : null;
   }
 
-  async saveSettings(settings: ViewerSettings): Promise<void> {
-    await this.database.preferences.put({
-      key: "viewer",
-      settings: structuredClone(settings),
-    });
+  async saveSettings(patch: Partial<ViewerSettings>): Promise<void> {
+    const changes = structuredClone(patch);
+    // IndexedDB serializes read/write transactions across tabs. Merge only
+    // explicit fields into the latest record; the last commit wins per field.
+    await this.database.transaction(
+      "rw",
+      this.database.preferences,
+      async () => {
+        const current = (await this.database.preferences.get("viewer"))
+          ?.settings;
+        await this.database.preferences.put({
+          key: "viewer",
+          settings: normalizeViewerSettings({
+            ...defaultViewerSettings(),
+            ...current,
+            ...changes,
+          }),
+        });
+      },
+    );
   }
 
   async deleteDatabaseForTests(): Promise<void> {

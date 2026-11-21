@@ -5,9 +5,9 @@ import {
   arrivalIdentity,
   flightDistanceKilometers,
   originIdentity,
-  plannedDestinationIdentity,
   type FlightEndpointIdentity,
 } from "./flight-airports";
+import { flightRouteIdentityKey } from "./routes";
 import { airlineNames, resolveAirline } from "./airline-reference";
 
 export interface RankedCode {
@@ -200,10 +200,7 @@ export function calculateYearStatistics(
         routes: new Set(
           yearFlights
             .filter((flight) => !flight.cancelled)
-            .map(
-              (flight) =>
-                `${originIdentity(flight).identityKey}>${plannedDestinationIdentity(flight).identityKey}`,
-            ),
+            .map(flightRouteIdentityKey),
         ).size,
       };
     })

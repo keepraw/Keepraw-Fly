@@ -37,7 +37,7 @@ export default function GlobeLab({
   document: KeeprawFlyDocument;
   settings: ViewerSettings;
   isDemo: boolean;
-  onSettingsChange: (settings: ViewerSettings) => void;
+  onSettingsChange: (patch: Partial<ViewerSettings>) => void;
 }) {
   const { t } = useTranslation();
   const [theme, setTheme] = useState<GlobeTheme>(() =>
@@ -55,7 +55,7 @@ export default function GlobeLab({
   const [lighting, setLighting] = useState({ ...defaultLighting });
   const solarMode = settings.solarMode;
   const setSolarMode = (solarMode: ViewerSettings["solarMode"]) =>
-    onSettingsChange({ ...settings, solarMode });
+    onSettingsChange({ solarMode });
   const flights = useMemo(
     () =>
       passportVisibleFlights(document.flights, {

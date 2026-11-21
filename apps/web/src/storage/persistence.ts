@@ -1,4 +1,5 @@
 import { ArchiveConflictError } from "./conflict";
+import type { ViewerSettings } from "./types";
 
 export type PersistenceState =
   | { status: "idle" }
@@ -78,4 +79,17 @@ export function createPersistenceQueue<Snapshot>(
   }
 
   return { save, retry, reset };
+}
+
+/** Retain failed field edits for retry without replaying already committed fields. */
+export function createSettingsPersistenceQueue(
+  write: (patch: Partial<ViewerSettings>) => Promise<void>,
+  onStateChange: (state: PersistenceState) => void,
+) {
+  let pending: Partial<ViewerSettings> = {};
+  return createPersistenceQueue<Partial<ViewerSettings>>(async (patch) => {
+    pending = { ...pending, ...patch };
+    await write(pending);
+    pending = {};
+  }, onStateChange);
 }
