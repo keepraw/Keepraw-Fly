@@ -7,25 +7,28 @@ import {
   useRef,
   useState,
 } from "react";
-import { NEON_AVIATION, hatchTile } from "./neon-aviation-tokens";
-import {
-  datelineCrossing,
-  greatCirclePath,
-  projectionAt,
-  regionalWorldPaths,
-  routeFrame,
-} from "./neon-geometry";
+import { routePointIdentityKey } from "@keepraw-fly/core";
+import { buildMapScene } from "../map2d/scene";
+import { segmentsToPath } from "../map2d/svg-path";
+import { mapThemeCssVariables } from "../map2d/theme-css";
+import { resolveMapTheme } from "../map2d/theme-registry";
+import { hatchTile } from "../map2d/theme-style";
+import { datelineCrossing, routeFrame } from "../map2d/geometry";
+import { projectionAt, regionalWorldPaths } from "../data/map-geometry";
 import {
   NEON_AIRPORTS,
   SPARSE_ROUTES,
   type NeonAirport,
 } from "./sample-network";
 
+const theme = resolveMapTheme("neon-aviation");
+
 export interface NeonRouteMapProps {
   initialRoute?: "tpe-lax" | "pvg-cdg";
 }
 
 export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
+  const { tokens } = theme;
   const [routeId, setRouteId] = useState(initialRoute);
   const stageRef = useRef<HTMLDivElement>(null);
   const [pixelScale, setPixelScale] = useState(1);
@@ -43,6 +46,25 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
     () => routeFrame(origin, destination, 16 / 9, 0.12),
     [origin, destination],
   );
+  const routeDefinition = SPARSE_ROUTES.find(
+    (route) =>
+      route.origin.iata === fromCode && route.destination.iata === toCode,
+  );
+  const scene = useMemo(
+    () =>
+      buildMapScene({
+        routes: [
+          {
+            origin,
+            destination,
+            flightCount: routeDefinition?.count ?? 1,
+          },
+        ],
+        centerLongitude: frame.centerLongitude,
+      }),
+    [destination, frame.centerLongitude, origin, routeDefinition],
+  );
+  const sceneRoute = scene.routes[0];
   const paths = useMemo(
     () => regionalWorldPaths(frame.centerLongitude),
     [frame.centerLongitude],
@@ -52,8 +74,8 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
     [frame.centerLongitude],
   );
   const routePath = useMemo(
-    () => greatCirclePath(origin, destination, 64, frame.centerLongitude),
-    [origin, destination, frame.centerLongitude],
+    () => segmentsToPath(sceneRoute?.segments ?? []),
+    [sceneRoute],
   );
   const dateLine = useMemo(
     () => datelineCrossing(origin, destination),
@@ -62,10 +84,6 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
   const graticule = useMemo(
     () => geoPath(projection).digits(1)(geoGraticule()) ?? "",
     [projection],
-  );
-  const routeDefinition = SPARSE_ROUTES.find(
-    (route) =>
-      route.origin.iata === fromCode && route.destination.iata === toCode,
   );
   const distanceKm = Math.round(
     geoDistance(
@@ -76,7 +94,7 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
   const duration = `${Math.floor(distanceKm / 850)}h ${Math.round(
     ((distanceKm / 850) % 1) * 60,
   )}m`;
-  const tile = hatchTile(NEON_AVIATION.hatch, window.devicePixelRatio || 1);
+  const tile = hatchTile(tokens.hatch, window.devicePixelRatio || 1);
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -88,14 +106,24 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
     observer.observe(stage);
     return () => observer.disconnect();
   }, [frame.width]);
-  const originPoint = projectAirport(projection, origin);
-  const destinationPoint = projectAirport(projection, destination);
+  const originPoint = scene.airports.find(
+    (airport) => airport.identityKey === routePointIdentityKey(origin),
+  );
+  const destinationPoint = scene.airports.find(
+    (airport) => airport.identityKey === routePointIdentityKey(destination),
+  );
+  if (!originPoint || !destinationPoint)
+    throw new Error("Unable to project a sample route airport.");
   const dateLinePath = dateLine
     ? `M ${dateLine.x} ${Math.max(frame.y, dateLine.y - 34)} L ${dateLine.x} ${Math.min(frame.y + frame.height, dateLine.y + 34)}`
     : "";
 
   return (
-    <section className="neon-detail-sample" data-neon-detail-ready="true">
+    <section
+      className="neon-detail-sample"
+      data-neon-detail-ready="true"
+      style={mapThemeCssVariables(theme)}
+    >
       <div className="neon-detail-stage" ref={stageRef}>
         <svg
           className="neon-detail-map"
@@ -105,8 +133,8 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
         >
           <defs>
             <linearGradient id={backgroundId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="var(--neon-background-top)" />
-              <stop offset="1" stopColor="var(--neon-background-bottom)" />
+              <stop offset="0" stopColor="var(--map-theme-background-top)" />
+              <stop offset="1" stopColor="var(--map-theme-background-bottom)" />
             </linearGradient>
             <pattern
               id={patternId}
@@ -118,7 +146,7 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
               <path
                 d={`M 0 0 L 0 ${tile.size * pixelScale}`}
                 fill="none"
-                stroke="var(--neon-land-hatch)"
+                stroke="var(--map-theme-land-hatch)"
                 strokeWidth={tile.lineWidth * pixelScale}
               />
             </pattern>
@@ -128,12 +156,12 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
             <radialGradient id={haloId}>
               <stop
                 offset="0"
-                stopColor="var(--neon-airport-halo)"
+                stopColor="var(--map-theme-airport-halo)"
                 stopOpacity="0.45"
               />
               <stop
                 offset="1"
-                stopColor="var(--neon-airport-halo)"
+                stopColor="var(--map-theme-airport-halo)"
                 stopOpacity="0"
               />
             </radialGradient>
@@ -194,15 +222,15 @@ export function NeonRouteMap({ initialRoute = "tpe-lax" }: NeonRouteMapProps) {
                 className="neon-airport-halo"
                 cx="0"
                 cy="0"
-                r={NEON_AVIATION.airport.selected.halo}
+                r={tokens.airport.selected.halo}
                 fill={`url(#${haloId})`}
               />
               <circle
                 className="neon-airport-point neon-airport-point--selected"
                 cx="0"
                 cy="0"
-                r={NEON_AVIATION.airport.selected.radius}
-                strokeWidth={NEON_AVIATION.airport.selected.stroke}
+                r={tokens.airport.selected.radius}
+                strokeWidth={tokens.airport.selected.stroke}
               />
               <text
                 className="neon-detail-code"
@@ -268,16 +296,6 @@ function getAirport(code: string): NeonAirport {
   const airport = NEON_AIRPORTS.find((entry) => entry.iata === code);
   if (!airport) throw new Error(`Unknown sample airport ${code}.`);
   return airport;
-}
-
-function projectAirport(
-  projection: ReturnType<typeof projectionAt>,
-  airport: NeonAirport,
-) {
-  const projected = projection([airport.longitude, airport.latitude]);
-  if (!projected)
-    throw new Error(`Unable to project sample airport ${airport.iata}.`);
-  return { x: projected[0], y: projected[1] };
 }
 
 function geoGraticule() {
