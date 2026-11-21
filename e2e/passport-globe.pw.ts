@@ -306,6 +306,8 @@ test("formal Globe pointer route picking and both themes remain accessible @cros
       .locator(".globe-airport-label.is-selected")
       .filter({ hasText: /^BOM$/ }),
   ).toBeVisible();
+  // The highlight changes before the renderer publishes the focused camera.
+  await expect.poll(async () => (await scene(page)).atHome).toBe(false);
   const view = await scene(page);
   const target = view.routes.find((r: { key: string }) => r.key === "BOM-HKG");
   const midpoint = routeArc(target)[48]!;
