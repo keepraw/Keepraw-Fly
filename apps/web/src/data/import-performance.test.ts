@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { validateAndMigrateKeeprawFly } from "@keepraw-fly/validator";
+import { scaleArchive } from "../../../../tests/fixtures/scale-archives";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
   installAirportDirectory,
@@ -16,6 +18,10 @@ import {
   preflightFlightyImportWork,
 } from "./flighty-import";
 import { runImportPreflight } from "./import-preflight-work";
+import {
+  buildDocumentFromJsonImport,
+  preflightJsonFileWork,
+} from "./import-preview";
 
 installAirportDirectory(airportRows as CompactAirportRow[]);
 afterEach(() => vi.restoreAllMocks());
@@ -30,6 +36,62 @@ const ids = () => {
 };
 
 describe("import performance regressions", () => {
+  it.each([5_000, 10_000])(
+    "checks %i native records and preserves classification and restore contents",
+    async (count) => {
+      const existing = scaleArchive(count);
+      const incoming = scaleArchive(count, 20_000);
+      incoming.flights[0] = structuredClone(existing.flights[0]!);
+      incoming.flights[1] = {
+        ...existing.flights[1]!,
+        id: "separate-author-id",
+      };
+      incoming.flights[2] = {
+        ...existing.flights[2]!,
+        origin: { iata: "SFO", gate: "9" },
+      };
+      const matchingMembership = {
+        membershipId: "scale-membership",
+        tierAtFlight: "gold",
+      };
+      existing.flights[3]!.frequentFlyer = { ...matchingMembership };
+      incoming.flights[3] = structuredClone(existing.flights[3]!);
+      incoming.frequentFlyerMemberships![0]!.memberNumber = "987654321";
+      const text = JSON.stringify(incoming);
+
+      const append = await runImportPreflight(
+        preflightJsonFileWork(text, existing, validateAndMigrateKeeprawFly),
+      );
+      expect(
+        append.assessments.slice(0, 4).map(({ disposition }) => disposition),
+      ).toEqual(["exact", "possible", "conflict", "conflict"]);
+      expect(append).toMatchObject({
+        base: existing,
+        totalRecords: count,
+        validRecords: count,
+        newRecords: count - 4,
+        exactDuplicateRecords: 1,
+        possibleDuplicateRecords: 1,
+        problemRecords: 2,
+        canImport: false,
+      });
+      expect(append.issues.map(({ flightIndex }) => flightIndex)).toEqual([
+        2, 3,
+      ]);
+
+      const restore = await runImportPreflight(
+        preflightJsonFileWork(text, null, validateAndMigrateKeeprawFly),
+      );
+      expect(restore).toMatchObject({
+        base: null,
+        newRecords: count,
+        assessments: [],
+        canImport: true,
+      });
+      expect(buildDocumentFromJsonImport(restore, null)).toEqual(incoming);
+    },
+  );
+
   it("constructs formatters per zone rather than per row or offset candidate", async () => {
     // A fresh module cache makes this independent of earlier formatter use.
     vi.resetModules();

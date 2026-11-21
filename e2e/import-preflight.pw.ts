@@ -2,6 +2,113 @@ import { expect, test } from "@playwright/test";
 import { openSettingsCategory } from "./helpers/settings";
 
 for (const source of ["CSV", "Flighty"] as const) {
+  test(`${source} keeps the newest file and discards cancelled reads @cross-browser`, async ({
+    page,
+  }) => {
+    await page.goto("/#settings");
+    await openSettingsCategory(page, "Data and backup");
+    await page.evaluate(() => {
+      const readText = File.prototype.text;
+      const heldReads = new Map<string, () => void>();
+      const reads = {
+        isHeld: (name: string) => heldReads.has(name),
+        async release(name: string) {
+          const release = heldReads.get(name);
+          if (!release) throw new Error(`No read is held for ${name}`);
+          heldReads.delete(name);
+          release();
+          // Let the released read and any resulting React update commit.
+          await new Promise<void>((done) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => done())),
+          );
+        },
+      };
+      Object.assign(window, { heldImportReads: reads });
+      File.prototype.text = async function () {
+        const text = await readText.call(this);
+        if (!this.name.startsWith("slow-")) return text;
+        return new Promise<string>((resolve) =>
+          heldReads.set(this.name, () => resolve(text)),
+        );
+      };
+    });
+    const input = page.getByLabel(
+      source === "CSV" ? "Open CSV file" : "Open Flighty CSV",
+      { exact: true },
+    );
+    const control = page.locator(".csv-import-control").filter({ has: input });
+    const preview = control.locator(".csv-preview");
+    const date = "2026-01-15";
+    const headers =
+      source === "CSV"
+        ? "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival"
+        : "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)";
+    function select(name: string, number: number) {
+      const times = `${date}T09:00,${date}T12:00`;
+      const row =
+        source === "CSV"
+          ? `UA${number},${date},JFK,LAX,${times}`
+          : `${date},UA,${number},JFK,LAX,${times}`;
+      return input.setInputFiles({
+        name,
+        mimeType: "text/csv",
+        buffer: Buffer.from(`${headers}\n${row}`),
+      });
+    }
+    function isHeld(name: string) {
+      return page.evaluate(
+        (name) =>
+          (
+            window as unknown as {
+              heldImportReads: { isHeld: (name: string) => boolean };
+            }
+          ).heldImportReads.isHeld(name),
+        name,
+      );
+    }
+    function release(name: string) {
+      return page.evaluate(
+        (name) =>
+          (
+            window as unknown as {
+              heldImportReads: { release: (name: string) => Promise<void> };
+            }
+          ).heldImportReads.release(name),
+        name,
+      );
+    }
+
+    await select("slow-first.csv", 123);
+    await expect.poll(() => isHeld("slow-first.csv")).toBe(true);
+    await select("fast-second.csv", 456);
+    await expect(
+      preview.getByRole("button", { name: "Add 1 flight", exact: true }),
+    ).toBeEnabled();
+    await expect(preview.locator(".import-file-name")).toContainText(
+      "fast-second.csv",
+    );
+    await release("slow-first.csv");
+    await expect(preview.locator(".import-file-name")).toContainText(
+      "fast-second.csv",
+    );
+
+    await select("slow-cancelled.csv", 789);
+    await expect.poll(() => isHeld("slow-cancelled.csv")).toBe(true);
+    await control.getByRole("button", { name: "Cancel", exact: true }).click();
+    await release("slow-cancelled.csv");
+    await expect(preview).toHaveCount(0);
+    await expect(control.getByRole("alert")).toHaveCount(0);
+
+    await select("slow-unmounted.csv", 101);
+    await expect.poll(() => isHeld("slow-unmounted.csv")).toBe(true);
+    await page.goto("/#passport");
+    await expect(control).toHaveCount(0);
+    await release("slow-unmounted.csv");
+    await page.goto("/#settings");
+    await openSettingsCategory(page, "Data and backup");
+    await expect(preview).toHaveCount(0);
+  });
+
   test(`${source} preflight stays cancellable and replaces pending results @cross-browser`, async ({
     page,
   }) => {

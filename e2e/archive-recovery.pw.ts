@@ -1,8 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+import {
+  MAX_IMPORT_FILE_BYTES,
+  MAX_IMPORT_RECORDS,
+} from "../apps/web/src/data/import-limits";
+import { scaleArchive } from "../tests/fixtures/scale-archives";
 import { openSettingsCategory } from "./helpers/settings";
 import {
   controlArchiveReads,
@@ -182,7 +188,16 @@ async function writeRecord(
 }
 
 async function readRecord(page: Page): Promise<LocalRecord | null> {
-  return page.evaluate(async () => {
+  const record = await readRecordHandle(page);
+  try {
+    return await record.jsonValue();
+  } finally {
+    await record.dispose();
+  }
+}
+
+function readRecordHandle(page: Page) {
+  return page.evaluateHandle(async () => {
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open("keepraw-fly");
       request.onsuccess = () => resolve(request.result);
@@ -448,10 +463,302 @@ test("reports a recovery serialization failure without changing the stored sourc
     .getByRole("button", { name: "Download recovery copy", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText(
-    "The recovery copy could not be downloaded. Your stored data has not been changed.",
+    "A complete recovery copy cannot be safely generated in JSON.",
   );
   expect(downloads).toBe(0);
   expect(await readRecord(page)).toEqual(record);
+});
+
+test("refuses a future archive with Map flights and preserves its IndexedDB record @cross-browser", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Create my archive", exact: true }),
+  ).toBeVisible();
+  const raw = await page.evaluateHandle(() => ({
+    format: "keepraw-fly",
+    formatVersion: "99.0.0",
+    profile: { name: { native: "Recovery fixture" } },
+    flights: new Map([
+      ["future-flight", { id: "future-flight", value: ["keep", 42] }],
+    ]),
+  }));
+  await writeRecord(page, raw);
+  await raw.dispose();
+  await page.reload();
+  await expectRecovery(page);
+  const downloads: string[] = [];
+  page.on("download", (download) =>
+    downloads.push(download.suggestedFilename()),
+  );
+  await page
+    .getByRole("button", { name: "Download recovery copy", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText(
+    "A complete recovery copy cannot be safely generated in JSON.",
+  );
+  await page.reload();
+  await expectRecovery(page);
+
+  const record = await readRecordHandle(page);
+  const stored = await record.evaluate((entry) => {
+    if (!entry) return null;
+    const archive = entry.document as {
+      flights: unknown;
+      formatVersion: string;
+      profile: unknown;
+    };
+    return {
+      key: entry.key,
+      kind: entry.kind,
+      updatedAt: entry.updatedAt,
+      version: archive.formatVersion,
+      profile: archive.profile,
+      flights:
+        archive.flights instanceof Map ? Array.from(archive.flights) : null,
+    };
+  });
+  await record.dispose();
+  expect(downloads).toEqual([]);
+  expect(stored).toEqual({
+    key: "active",
+    kind: "personal",
+    updatedAt: storedAt,
+    version: "99.0.0",
+    profile: { name: { native: "Recovery fixture" } },
+    flights: [["future-flight", { id: "future-flight", value: ["keep", 42] }]],
+  });
+});
+
+test("exports and restores all 100,000 flights when formatted JSON exceeds the upload limit", async ({
+  page,
+  browser,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto("/#settings");
+  await openSettingsCategory(page, "Data and backup");
+  const source = await page.evaluateHandle(
+    ({ size, targetBytes }) => {
+      const common = {
+        flightNumber: "UA112",
+        airline: { iata: "UA" },
+        serviceDate: "2025-03-01",
+        origin: { iata: "SFO", airportId: "apt_scale_fixture_sfo" },
+        destination: { iata: "LAX", airportId: "apt_scale_fixture_lax" },
+        scheduledDeparture: "2025-03-01T10:00:00-08:00",
+        scheduledArrival: "2025-03-01T11:30:00-08:00",
+        frequentFlyer: { membershipId: "scale-member", tierAtFlight: "silver" },
+        cancelled: true,
+      };
+      const archive = {
+        format: "keepraw-fly",
+        formatVersion: "0.2.0",
+        profile: {
+          name: { native: "陈芳", romanized: "Fang Chen", primary: "native" },
+        },
+        extensions: { "example.revision": 3, "example.padding": "" },
+        frequentFlyerMemberships: [
+          {
+            id: "scale-member",
+            programId: "mileageplus",
+            memberNumber: "123456789",
+            tier: "gold",
+            associatedAirlines: ["UA"],
+            defaultAirline: "UA",
+          },
+        ],
+        // Every record has a different author-assigned ID, even though the flight facts repeat.
+        flights: Array.from({ length: size }, (_, index) => ({
+          ...common,
+          id: `restore-${index}`,
+        })),
+      };
+      const bytes = new Blob([JSON.stringify(archive), "\n"]).size;
+      archive.extensions["example.padding"] = "旅".repeat(
+        Math.floor((targetBytes - bytes) / 3),
+      );
+      return archive;
+    },
+    { size: MAX_IMPORT_RECORDS, targetBytes: 58 * 1024 * 1024 },
+  );
+  const before = await source.evaluate(async (archive) => {
+    const text = `${JSON.stringify(archive)}\n`;
+    const bytes = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return {
+      compactBytes: bytes.length,
+      prettyBytes: new Blob([JSON.stringify(archive, null, 2), "\n"]).size,
+      digest: Array.from(new Uint8Array(digest), (byte) =>
+        byte.toString(16).padStart(2, "0"),
+      ).join(""),
+    };
+  });
+  expect(before.prettyBytes).toBeGreaterThan(MAX_IMPORT_FILE_BYTES);
+  expect(before.compactBytes).toBeLessThan(MAX_IMPORT_FILE_BYTES);
+  await writeRecord(page, source);
+  await source.dispose();
+  await page.reload();
+  await openSettingsCategory(page, "Data and backup");
+  try {
+    const downloadEvent = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: "Export Keepraw Fly JSON", exact: true })
+      .click();
+    const download = await downloadEvent;
+    const path = await download.path();
+    const bytes = await readFile(path!);
+    expect(bytes.length).toBe(before.compactBytes);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      before.digest,
+    );
+
+    // Replace a separate invalid archive through Recovery, then reload its actual IndexedDB.
+    const receiver = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    try {
+      await seedArchive(receiver, invalidArchive);
+      await expectRecovery(receiver);
+      await receiver
+        .locator('input[type="file"][accept*=".json"]')
+        .setInputFiles(path!);
+      await expect(
+        receiver
+          .getByLabel("Import preflight summary")
+          .locator(".import-stat-new dd"),
+      ).toHaveText(String(MAX_IMPORT_RECORDS), { timeout: 45_000 });
+      await receiver
+        .getByRole("button", { name: "Import this archive", exact: true })
+        .click();
+      await receiver
+        .getByRole("button", { name: "Replace local archive", exact: true })
+        .click();
+      await expect(receiver).toHaveURL(/#settings$/, { timeout: 45_000 });
+      await expect(
+        receiver.getByRole("heading", {
+          name: "Data and backup",
+          exact: true,
+          level: 2,
+        }),
+      ).toBeVisible();
+      await receiver.reload();
+      await openSettingsCategory(receiver, "Data and backup");
+      const record = await readRecordHandle(receiver);
+      const after = await record.evaluate(async (entry) => {
+        if (!entry) return null;
+        const archive = entry.document as KeeprawFlyDocument;
+        const bytes = new TextEncoder().encode(`${JSON.stringify(archive)}\n`);
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+        return {
+          flights: archive.flights.length,
+          membership: archive.frequentFlyerMemberships?.[0]?.id,
+          kind: entry.kind,
+          digest: Array.from(new Uint8Array(digest), (byte) =>
+            byte.toString(16).padStart(2, "0"),
+          ).join(""),
+        };
+      });
+      await record.dispose();
+      expect(after).toEqual({
+        flights: MAX_IMPORT_RECORDS,
+        membership: "scale-member",
+        kind: "personal",
+        digest: before.digest,
+      });
+    } finally {
+      await receiver.context().close();
+    }
+  } finally {
+    await testInfo.attach("backup-sizes", {
+      body: JSON.stringify(before),
+      contentType: "application/json",
+    });
+  }
+});
+
+test("keeps the page interactive during the 10,000-flight append preflight @cross-browser", async ({
+  page,
+}, testInfo) => {
+  const count = 10_000;
+  const existing = scaleArchive(count);
+  const incoming = scaleArchive(count, 20_000);
+  for (const [index, flight] of incoming.flights.entries()) {
+    flight.flightNumber = existing.flights[index]!.flightNumber;
+  }
+  await page.goto("/#settings");
+  await openSettingsCategory(page, "Data and backup");
+  await writeRecord(page, existing);
+  await page.reload();
+  await openSettingsCategory(page, "Data and backup");
+
+  await page.evaluate(() => {
+    const probe = {
+      compared: 0,
+      comparedAtFirstFrame: 0,
+      focused: false,
+      started: 0,
+      lastComparison: 0,
+    };
+    Object.assign(window, { nativeImportProbe: probe });
+    const get = Map.prototype.get;
+    Map.prototype.get = function (key) {
+      // The parser does not use a Map keyed by the incoming flight IDs.
+      if (typeof key === "string" && /^scale-2\d{4}$/.test(key)) {
+        probe.lastComparison = performance.now();
+        if (++probe.compared === 1) {
+          probe.started = probe.lastComparison;
+          requestAnimationFrame(() => {
+            probe.comparedAtFirstFrame = probe.compared;
+            const cancel = document.querySelector<HTMLButtonElement>(
+              "#settings-import .import-preview-actions .button-secondary",
+            );
+            cancel?.focus();
+            probe.focused =
+              document.activeElement === cancel &&
+              Boolean(cancel && !cancel.disabled);
+          });
+        }
+      }
+      return get.call(this, key);
+    };
+  });
+
+  await page.locator('#settings-import input[type="file"]').setInputFiles({
+    name: "append-10000.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(incoming)),
+  });
+  const preview = page.locator("#settings-import .import-preview");
+  await expect(preview.locator(".import-stat-possible dd")).toHaveText(
+    String(count),
+  );
+  const probe = await page.evaluate(
+    () =>
+      (
+        window as unknown as {
+          nativeImportProbe: {
+            compared: number;
+            comparedAtFirstFrame: number;
+            focused: boolean;
+            started: number;
+            lastComparison: number;
+          };
+        }
+      ).nativeImportProbe,
+  );
+  expect(probe.compared).toBe(count);
+  expect(probe.comparedAtFirstFrame).toBeGreaterThan(0);
+  expect(probe.comparedAtFirstFrame).toBeLessThan(count);
+  expect(probe.focused).toBe(true);
+  await testInfo.attach("append-preflight", {
+    body: JSON.stringify({
+      ...probe,
+      elapsedMs: probe.lastComparison - probe.started,
+    }),
+    contentType: "application/json",
+  });
 });
 
 test("describes an unsupported future version accurately and never migrates its legacy fields", async ({

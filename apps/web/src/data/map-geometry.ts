@@ -105,11 +105,13 @@ export function sampleGreatCircle(
 
 export function regionalCenterLongitude(points: GeographicPoint[]): number {
   if (!points.length) return 0;
-  const longitudes = points.map((point) => point.longitude);
-  const span = Math.max(...longitudes) - Math.min(...longitudes);
-  return span > 150
-    ? 0
-    : (Math.max(...longitudes) + Math.min(...longitudes)) / 2;
+  let west = Infinity;
+  let east = -Infinity;
+  for (const { longitude } of points) {
+    west = Math.min(west, longitude);
+    east = Math.max(east, longitude);
+  }
+  return east - west > 150 ? 0 : (east + west) / 2;
 }
 
 // Reproject the existing offline M/L/Z polygons. Inverting their pinned world

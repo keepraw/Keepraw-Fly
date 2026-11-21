@@ -1,10 +1,69 @@
+export class UnsafeRecoveryCopyError extends Error {
+  constructor() {
+    super("A complete recovery copy cannot be safely represented as JSON.");
+    this.name = "UnsafeRecoveryCopyError";
+  }
+}
+
 /** Serialize the stored recovery source without validating or migrating it. */
 export function serializeRecoveryCopy(rawDocument: unknown): string {
-  const json = JSON.stringify(rawDocument, null, 2);
-  if (json === undefined) {
-    throw new Error("The stored archive cannot be represented as JSON.");
+  assertJsonTree(rawDocument);
+  try {
+    return `${JSON.stringify(rawDocument, null, 2)}\n`;
+  } catch {
+    throw new UnsafeRecoveryCopyError();
   }
-  return `${json}\n`;
+}
+
+function assertJsonTree(rawDocument: unknown): void {
+  const seen = new WeakSet<object>();
+  const pending = [rawDocument];
+  while (pending.length) {
+    const value = pending.pop();
+    if (
+      value === null ||
+      typeof value === "string" ||
+      typeof value === "boolean"
+    )
+      continue;
+    if (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      !Object.is(value, -0)
+    )
+      continue;
+    if (typeof value !== "object" || seen.has(value))
+      throw new UnsafeRecoveryCopyError();
+    seen.add(value);
+
+    const array = Array.isArray(value);
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== (array ? Array.prototype : Object.prototype))
+      throw new UnsafeRecoveryCopyError();
+
+    const keys = Reflect.ownKeys(value);
+    // JSON arrays only keep their indexed elements and replace holes with null.
+    if (array && keys.length !== value.length + 1)
+      throw new UnsafeRecoveryCopyError();
+    for (const key of keys) {
+      if (array && key === "length") continue;
+      if (typeof key !== "string") throw new UnsafeRecoveryCopyError();
+      if (array) {
+        const index = Number(key);
+        if (
+          !Number.isInteger(index) ||
+          index < 0 ||
+          index >= value.length ||
+          String(index) !== key
+        )
+          throw new UnsafeRecoveryCopyError();
+      }
+      const property = Object.getOwnPropertyDescriptor(value, key);
+      if (!property?.enumerable || !("value" in property))
+        throw new UnsafeRecoveryCopyError();
+      pending.push(property.value);
+    }
+  }
 }
 
 export function downloadRecoveryCopy(rawDocument: unknown): void {

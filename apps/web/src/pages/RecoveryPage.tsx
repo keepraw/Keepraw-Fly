@@ -5,7 +5,10 @@ import type { ArchiveLoadResult } from "../storage/adapter";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
 import { ImportControl } from "../components/ImportControl";
 import { PageShell } from "../components/PageShell";
-import { downloadRecoveryCopy } from "../data/recovery-export";
+import {
+  downloadRecoveryCopy,
+  UnsafeRecoveryCopyError,
+} from "../data/recovery-export";
 
 interface RecoveryPageProps {
   archive: Extract<
@@ -25,6 +28,7 @@ interface PendingBackup {
 
 type RecoveryError =
   | "downloadError"
+  | "unsafeDownloadError"
   | "retryError"
   | "importReadError"
   | "importError"
@@ -54,8 +58,12 @@ export function RecoveryPage({
     setError(null);
     try {
       await operation();
-    } catch {
-      setError(failure);
+    } catch (caught) {
+      setError(
+        caught instanceof UnsafeRecoveryCopyError
+          ? "unsafeDownloadError"
+          : failure,
+      );
     } finally {
       operationInFlight.current = false;
     }
