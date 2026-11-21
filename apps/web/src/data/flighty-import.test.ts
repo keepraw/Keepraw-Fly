@@ -262,7 +262,7 @@ describe("Flighty CSV import", () => {
     });
   });
 
-  it("imports cancelled flights without actual times and delegates conflicts to validation", () => {
+  it("imports cancelled flights without actual times and blocks conflicts at their source row", () => {
     const parsed = parseFlightyCsv(
       flightyCsv([
         "2026-09-23,CES,5243,TAO,SHA,1,12,2,33,true,,2026-09-23T14:30,,2026-09-23T16:20,,,,,,",
@@ -270,12 +270,32 @@ describe("Flighty CSV import", () => {
       ]),
     );
     const preflight = preflightFlightyImport(parsed, null, ids("cancelled"));
-    expect(preflight.issues).toEqual([]);
-    const document = buildDocumentFromFlightyPreflight(preflight, null);
+    expect(preflight).toMatchObject({
+      canImport: false,
+      validRecords: 1,
+      issues: [
+        {
+          severity: "error",
+          code: "cancelled-diverted-conflict",
+          lineNumber: 3,
+        },
+      ],
+    });
+    expect(() => buildDocumentFromFlightyPreflight(preflight, null)).toThrow(
+      "cancelled-diverted-conflict",
+    );
+
+    const corrected = preflightFlightyImport(
+      { ...parsed, rows: parsed.rows.slice(0, 1) },
+      null,
+      ids("cancelled"),
+    );
+    const document = buildDocumentFromFlightyPreflight(corrected, null);
+    expect(document.flights).toHaveLength(1);
     expect(document.flights[0]).toMatchObject({ cancelled: true });
     expect(document.flights[0]).not.toHaveProperty("actualDeparture");
     expect(document.flights[0]).not.toHaveProperty("actualArrival");
-    expect(validateKeeprawFly(document).valid).toBe(false);
+    expect(validateKeeprawFly(document).valid).toBe(true);
   });
 
   it("reports unknown ICAO per row without dropping valid rows", () => {
