@@ -37,5 +37,6 @@ export interface StorageAdapter {
 
 export interface SettingsStore {
   loadSettings(): Promise<ViewerSettings | null>;
-  saveSettings(settings: ViewerSettings): Promise<void>;
+  /** Write only explicitly changed fields, never an old full-viewer snapshot. */
+  saveSettings(patch: Partial<ViewerSettings>): Promise<void>;
 }

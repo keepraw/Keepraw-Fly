@@ -2,7 +2,11 @@ import "fake-indexeddb/auto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { BrowserStorageAdapter } from "./browser";
-import { createPersistenceQueue, type PersistenceState } from "./persistence";
+import {
+  createPersistenceQueue,
+  createSettingsPersistenceQueue,
+  type PersistenceState,
+} from "./persistence";
 import { ArchiveConflictError } from "./conflict";
 
 const adapters: BrowserStorageAdapter[] = [];
@@ -424,6 +428,67 @@ describe("document persistence queue", () => {
 });
 
 describe("persistence queue with IndexedDB", () => {
+  it("retries every failed settings field but never replays committed fields from a stale tab", async () => {
+    const name = `settings-queue-${crypto.randomUUID()}`;
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    adapters.push(first, second);
+    const states = observeStates();
+    const write = vi.spyOn(first, "saveSettings");
+    const queue = createSettingsPersistenceQueue(
+      (patch) => first.saveSettings(patch),
+      states,
+    );
+    await expect(queue.save({ language: "zh-TW" })).resolves.toBe(true);
+    await second.saveSettings({
+      language: "en-GB",
+      lastBackupAt: "2026-11-21T03:00:00Z",
+    });
+    write.mockRejectedValueOnce(new Error("Storage unavailable"));
+    await expect(queue.save({ timeFormat: "12-hour" })).resolves.toBe(false);
+    write.mockRejectedValueOnce(new Error("Storage still unavailable"));
+    await expect(queue.save({ appearance: "dark" })).resolves.toBe(false);
+    await expect(queue.retry()).resolves.toBe(true);
+    expect(await second.loadSettings()).toMatchObject({
+      language: "en-GB",
+      lastBackupAt: "2026-11-21T03:00:00Z",
+      timeFormat: "12-hour",
+      appearance: "dark",
+    });
+    expect(write.mock.calls).toEqual([
+      [{ language: "zh-TW" }],
+      [{ timeFormat: "12-hour" }],
+      [{ timeFormat: "12-hour", appearance: "dark" }],
+      [{ timeFormat: "12-hour", appearance: "dark" }],
+    ]);
+    expect(states.mock.lastCall?.[0].status).toBe("saved");
+  });
+
+  it("keeps the latest explicit value when another settings edit follows a failed patch", async () => {
+    const adapter = new BrowserStorageAdapter(
+      `settings-queue-${crypto.randomUUID()}`,
+    );
+    adapters.push(adapter);
+    const write = vi
+      .spyOn(adapter, "saveSettings")
+      .mockRejectedValueOnce(new Error("Storage unavailable"));
+    const queue = createSettingsPersistenceQueue(
+      (patch) => adapter.saveSettings(patch),
+      observeStates(),
+    );
+    await expect(
+      queue.save({ language: "zh-TW", timeFormat: "12-hour" }),
+    ).resolves.toBe(false);
+    await expect(queue.save({ language: "en-GB" })).resolves.toBe(true);
+    expect(await adapter.loadSettings()).toMatchObject({
+      language: "en-GB",
+      timeFormat: "12-hour",
+    });
+    expect(write.mock.calls[1]).toEqual([
+      { language: "en-GB", timeFormat: "12-hour" },
+    ]);
+  });
+
   it("keeps failed changes available for retry while IndexedDB retains the previous document", async () => {
     const adapter = new BrowserStorageAdapter(
       `persistence-${crypto.randomUUID()}`,
