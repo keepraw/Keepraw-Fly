@@ -1,9 +1,6 @@
-import { geoDistance, geoGraticule10, geoInterpolate, geoPath } from "d3-geo";
-import {
-  projectionAt,
-  regionalWorldPaths,
-  WORLD_WIDTH,
-} from "../data/map-geometry";
+import { geoDistance, geoGraticule10, geoPath } from "d3-geo";
+import { projectedRoute } from "../map2d/geometry";
+import { projectionAt, regionalWorldPaths } from "../data/map-geometry";
 import type { ShareGeoPoint } from "./share-model";
 
 /**
@@ -124,19 +121,10 @@ export function routePolylines(
   const b: [number, number] = [to.longitude, to.latitude];
   const degrees = (geoDistance(a, b) * 180) / Math.PI;
   const steps = Math.max(12, Math.ceil(degrees / 1.5));
-  const interpolate = geoInterpolate(a, b);
-  const projection = projectionAt(frame.centerLongitude);
-  const lines: Array<Array<{ x: number; y: number }>> = [[]];
-  let previous: [number, number] | null = null;
-  for (let index = 0; index <= steps; index += 1) {
-    const projected = projection(interpolate(index / steps));
-    if (!projected) continue;
-    if (previous && Math.abs(projected[0] - previous[0]) > WORLD_WIDTH * 0.4)
-      lines.push([]);
-    lines[lines.length - 1]!.push(
-      framePoint(frame, { x: projected[0], y: projected[1] }),
-    );
-    previous = projected;
-  }
-  return lines.filter((line) => line.length > 1);
+  return projectedRoute(
+    { iata: "", ...from },
+    { iata: "", ...to },
+    frame.centerLongitude,
+    steps,
+  ).map((segment) => segment.map((point) => framePoint(frame, point)));
 }

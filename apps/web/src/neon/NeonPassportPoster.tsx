@@ -5,7 +5,9 @@ import {
   renderNeonPassport,
 } from "./neon-passport-canvas";
 import { preparePosterFonts } from "../share/poster-fonts";
-import { NEON_AVIATION } from "./neon-aviation-tokens";
+import { resolveMapTheme } from "../map2d/theme-registry";
+
+const theme = resolveMapTheme("neon-aviation");
 
 type NeonExportWindow = Window & {
   __neonPassportExport?: (scale: number) => string;
@@ -31,7 +33,7 @@ export function NeonPassportPoster() {
       const cjkFontFamily =
         fonts.status === "fulfilled"
           ? fonts.value.families.text
-          : NEON_AVIATION.type.family.label;
+          : theme.tokens.type.family.label;
       renderNeonPassport(canvas, window.devicePixelRatio || 1, cjkFontFamily);
       canvas.dataset.ready = "true";
       exportWindow.__neonPassportExport = (scale) =>

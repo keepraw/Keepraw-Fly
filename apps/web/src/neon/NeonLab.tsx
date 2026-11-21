@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import "./neon-aviation.css";
-import {
-  contrastRatio,
-  NEON_AVIATION,
-  neonCssVariables,
-} from "./neon-aviation-tokens";
+import { contrastRatio } from "../map2d/theme-style";
+import { mapThemeCssVariables } from "../map2d/theme-css";
+import { resolveMapTheme } from "../map2d/theme-registry";
 import { NeonPassportPoster } from "./NeonPassportPoster";
 import { NeonRouteMap } from "./NeonRouteMap";
 import { NeonWorldMap } from "./NeonWorldMap";
@@ -13,6 +11,8 @@ type Sample = "world" | "detail" | "passport" | "all";
 type Density = "sparse" | "dense";
 type State = "normal" | "hover" | "selected";
 type Route = "tpe-lax" | "pvg-cdg";
+
+const theme = resolveMapTheme("neon-aviation");
 
 export function NeonLab() {
   const query = new URLSearchParams(window.location.search);
@@ -58,7 +58,7 @@ export function NeonLab() {
   return (
     <main
       className="neon-aviation"
-      style={neonCssVariables()}
+      style={mapThemeCssVariables(theme)}
       data-neon-samples-ready={ready ? "true" : "false"}
     >
       <header className="neon-lab-header">
@@ -178,7 +178,7 @@ export function NeonLab() {
           </span>
         </div>
         <div className="neon-token-grid">
-          {Object.entries(NEON_AVIATION.color).map(([name, color]) => (
+          {Object.entries(theme.tokens.color).map(([name, color]) => (
             <div className="neon-token-swatch" data-color={name} key={name}>
               <span className="neon-token-color" aria-hidden="true" />
               <span className="neon-token-name">{name}</span>
@@ -186,7 +186,8 @@ export function NeonLab() {
               <small>
                 {contrastRatio(
                   color,
-                  NEON_AVIATION.color.backgroundBottom,
+                  theme.tokens.color.backgroundBottom,
+                  theme.tokens.color.backgroundBottom,
                 ).toFixed(2)}
                 :1
               </small>
