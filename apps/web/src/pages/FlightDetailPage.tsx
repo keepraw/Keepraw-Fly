@@ -190,7 +190,7 @@ function AirportStop({
             }
             showZone
             timeZone={
-              (times.primary.source === "scheduled" && plannedAirport
+              (times.primary.source === "scheduled" && kind === "arrival"
                 ? plannedZone
                 : zone) ?? undefined
             }
@@ -208,7 +208,7 @@ function AirportStop({
                   : t("flightDetail.scheduled")
               }
               showZone
-              timeZone={(plannedAirport ? plannedZone : zone) ?? undefined}
+              timeZone={(kind === "arrival" ? plannedZone : zone) ?? undefined}
             />
           ) : null}
         </div>

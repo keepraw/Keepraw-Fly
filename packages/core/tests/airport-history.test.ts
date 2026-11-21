@@ -7,6 +7,7 @@ import {
   installAirportDirectory,
   resolveAirportAtDate,
   resolveEndpointIdentity,
+  searchAirports,
   originIdentity,
   plannedDestinationIdentity,
   arrivalIdentity,
@@ -35,6 +36,85 @@ const flight = (): KeeprawFlight => ({
 });
 
 describe("reviewed code assignments", () => {
+  it.each([
+    [
+      "EDC",
+      "Austin Executive Airport",
+      "America/Chicago",
+      "apt_eb562540-071e-4433-8d9b-26fe7170894c",
+    ],
+    [
+      "IHA",
+      "Niijima Airport",
+      "Asia/Tokyo",
+      "apt_89b4e952-f536-4b6f-85c3-eba5cb0dd279",
+    ],
+  ])(
+    "exposes %s for selection without claiming a formal IATA assignment",
+    (code, name, timezone, id) => {
+      const row = airportRows.find((row) => row[0] === code)!;
+      const airport = {
+        airportId: id,
+        currentIata: code,
+        name: { en: name },
+        timezone,
+        latitude: row[4],
+        longitude: row[5],
+      };
+      expect(airportByIata.get(code)).toMatchObject(airport);
+      expect(
+        searchAirports(name, "en", 8, (item) => Boolean(item.currentIata)),
+      ).toMatchObject([airport]);
+      expect(resolveAirportAtDate(code, "2025-01-01")).toMatchObject({
+        status: "current_directory_only",
+        matchedAssignment: null,
+        formalMatches: [],
+        airport,
+      });
+      expect(
+        resolveEndpointIdentity(code, "2025-01-01", "origin"),
+      ).toMatchObject({
+        airportId: id,
+        basis: "current_directory",
+        historicalAssignmentVerified: false,
+        timezone,
+      });
+      expect(formalAssignmentsForCode(code)).toEqual([]);
+    },
+  );
+
+  it("does not promote a directory IATA code also used as another site's alias", () => {
+    const rows = airportRows as CompactAirportRow[];
+    try {
+      installAirportDirectory([
+        ...rows,
+        [
+          "XYZ",
+          "Other site",
+          "Other city",
+          "US",
+          30,
+          -99,
+          "America/Chicago",
+          "apt_other",
+          undefined,
+          "closed",
+          [],
+          ["EDC"],
+        ],
+      ]);
+      expect(airportByIata.has("EDC")).toBe(false);
+      expect(
+        searchAirports("Austin Executive Airport", "en")[0]?.currentIata,
+      ).toBeUndefined();
+      expect(
+        resolveEndpointIdentity("EDC", "2025-01-01", "origin").confirmed,
+      ).toBe(false);
+    } finally {
+      installAirportDirectory(rows);
+    }
+  });
+
   it("distinguishes reused HKG and VHHH physical airports", () => {
     for (const [code, scheme] of [
       ["HKG", "IATA"],

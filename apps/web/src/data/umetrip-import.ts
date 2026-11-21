@@ -115,41 +115,74 @@ export function* preflightUmetripImportWork(
         const airline = resolveAirline(identity.airline);
         if (!airline) throw new Error("unknown-airline");
         const serviceDate = umetripDate(value("serviceDate"), record.date1904);
+        const arrivalDateCell = value("arrivalDate");
+        const arrivalDate =
+          arrivalDateCell === null || arrivalDateCell === ""
+            ? undefined
+            : umetripDate(arrivalDateCell, record.date1904);
         const origin = resolveAirport(
           String(value("origin") ?? ""),
           serviceDate,
         );
-        const destination = resolveAirport(
-          String(value("destination") ?? ""),
-          serviceDate,
-        );
         if ("code" in origin) throw new Error(origin.code);
+        const destinationName = String(value("destination") ?? "");
+        const candidateDate = arrivalDate ?? serviceDate;
+        let destination = resolveAirport(destinationName, candidateDate);
+        // A name may become valid after midnight. An undated, unique code is
+        // only a hint for time inference; the result must pass dated lookup.
+        if (
+          !arrivalDate &&
+          "code" in destination &&
+          destination.code === "unknown-airport"
+        )
+          destination = resolveAirport(destinationName);
         if ("code" in destination) throw new Error(destination.code);
         if (origin.iata === destination.iata) throw new Error("same-airport");
-        const times = inferUmetripTimes({
+        const clocks = {
           serviceDate,
           departureTime: umetripClock(value("departureTime")),
           arrivalTime: umetripClock(value("arrivalTime")),
-          ...(value("arrivalDate") !== null && value("arrivalDate") !== ""
-            ? {
-                arrivalDate: umetripDate(value("arrivalDate"), record.date1904),
-              }
-            : {}),
           origin: umetripEndpoint(
             origin.iata,
             serviceDate,
             "origin",
             overrides,
           ),
-          // The arrival date is not known yet; the destination's zone at the
-          // service date is a starting point that the CSV conversion re-checks.
+        };
+        let times = inferUmetripTimes({
+          ...clocks,
+          arrivalDate,
           destination: umetripEndpoint(
             destination.iata,
-            serviceDate,
+            candidateDate,
             "destination",
             overrides,
           ),
         });
+        if (!arrivalDate) {
+          const inferredDate = times.arrival.slice(0, 10);
+          const resolved = resolveAirport(destinationName, inferredDate);
+          if ("code" in resolved) throw new Error(resolved.code);
+          if (origin.iata === resolved.iata) throw new Error("same-airport");
+          if (
+            inferredDate !== candidateDate ||
+            resolved.iata !== destination.iata
+          ) {
+            // Rebuild the instant and check duration against the arrived-at
+            // site's historical timezone and position, not the initial hint.
+            times = inferUmetripTimes({
+              ...clocks,
+              arrivalDate: inferredDate,
+              destination: umetripEndpoint(
+                resolved.iata,
+                inferredDate,
+                "destination",
+                overrides,
+              ),
+            });
+          }
+          destination = resolved;
+        }
         if (Date.parse(times.arrival) > now)
           throw new Error("future-used-flight");
         const ticket = value("ticketNumber");

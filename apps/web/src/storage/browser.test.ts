@@ -362,6 +362,71 @@ describe("BrowserStorageAdapter", () => {
     expect(await readRecord()).toEqual(record);
   });
 
+  it.each(["merge", "conflict", "dangling reference"])(
+    "reloads mixed membership migration safely: %s",
+    async (scenario) => {
+      const membership = {
+        id: "legacy",
+        programId: "custom",
+        memberNumber: "TEST-001",
+        associatedAirlines: ["UA"],
+      };
+      const raw = {
+        format: "keepraw-fly",
+        formatVersion: "0.1.0",
+        profile: {},
+        frequentFlyerMemberships:
+          scenario === "conflict"
+            ? [{ ...membership, memberNumber: "OTHER" }]
+            : [],
+        extensions: {
+          "keepraw-fly.frequent-flyer": { memberships: [membership] },
+        },
+        flights: [
+          {
+            id: "reference",
+            flightNumber: "UA7911",
+            airline: { iata: "UA" },
+            serviceDate: "2025-01-01",
+            origin: { iata: "SFO" },
+            destination: { iata: "LAX" },
+            scheduledDeparture: "2025-01-01T11:00:00-08:00",
+            scheduledArrival: "2025-01-01T12:30:00-08:00",
+            frequentFlyer: {
+              membershipId:
+                scenario === "dangling reference" ? "missing" : "legacy",
+            },
+          },
+        ],
+      };
+      const { adapter, record, readRecord } = await storedArchive(raw);
+      const save = vi.spyOn(adapter, "saveDocument");
+      const result = await adapter.loadDocument();
+      if (scenario !== "merge") {
+        expect(result).toMatchObject({ status: "invalid", rawDocument: raw });
+        expect(await readRecord()).toEqual(record);
+        expect(save).not.toHaveBeenCalled();
+        await expect(adapter.loadDocument()).resolves.toEqual(result);
+        expect(await readRecord()).toEqual(record);
+      } else {
+        const expected = {
+          ...raw,
+          frequentFlyerMemberships: [membership],
+        } as Record<string, unknown>;
+        delete expected.extensions;
+        expect(result).toMatchObject({ status: "valid", document: expected });
+        expect((await readRecord()).document).toEqual(expected);
+        const written = await readRecord();
+        await expect(adapter.loadDocument()).resolves.toMatchObject({
+          status: "valid",
+          document: expected,
+        });
+        expect(await readRecord()).toEqual(written);
+        expect(save).toHaveBeenCalledTimes(1);
+      }
+    },
+  );
+
   it("bounds migration retries under continuous cross-tab contention, then recovers", async () => {
     const raw = {
       format: "rawfly",

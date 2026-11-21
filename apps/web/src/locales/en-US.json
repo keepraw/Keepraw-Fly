@@ -29,6 +29,7 @@
     "privacy": "Local by design. Nothing is uploaded."
   },
   "demo": {
+    "importReplacement": "Importing replaces the fictional demo flights, owner and memberships with your data. Demo data will not be kept.",
     "label": "Demo archive",
     "description": "You are exploring fictional sample flights. This is not your personal history.",
     "createPersonal": "Create my archive",
@@ -401,6 +402,9 @@
       "uniqueFlightId": "This flight id is repeated within the imported file.",
       "serviceDate": "The service date does not match the scheduled departure date.",
       "chronology": "An arrival time must be later than its departure time.",
+      "unsupportedLeapSecond": "Leap seconds are not supported in flight timestamps. Correct the source timestamp before importing.",
+      "runtimeInstant": "This timestamp cannot be parsed as a valid instant. Correct the source before importing.",
+      "membershipMigrationConflict": "Canonical and legacy memberships cannot be safely reconciled. The original archive is unchanged; resolve the conflicting accounts before importing.",
       "uniqueMembershipId": "This membership id is repeated within the imported file.",
       "membershipDefaultAirline": "The default airline must be one of this membership’s associated airlines.",
       "membershipReference": "This flight refers to a membership that is not in the archive.",
@@ -471,6 +475,8 @@
       "invalid-row": "The row contains invalid data. Check its remaining fields.",
       "date-mismatch": "The service date must match the scheduled departure date.",
       "chronology": "Arrival must be later than departure for both scheduled and actual times.",
+      "invalid-cancelled": "Use true, 1, yes or y for canceled; false, 0, no or n for not canceled. An empty value means not canceled.",
+      "cancelled-diverted-conflict": "A canceled flight cannot also have a diversion airport.",
       "airport-timezone-required": "This airport cannot be placed on the flight date and a time has no UTC offset. Add an offset or enter the airport's time zone below."
     },
     "fields": {
@@ -676,6 +682,8 @@
       "onTime": "Arrival on time"
     },
     "daysLater_one": "{{count, number}} day later",
+    "daysEarlier_one": "{{count, number}} day earlier",
+    "daysEarlier_other": "{{count, number}} days earlier",
     "daysLater_other": "{{count, number}} days later"
   },
   "globe": {

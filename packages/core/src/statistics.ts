@@ -114,7 +114,8 @@ export function calculatePassportStatistics(
     const kilometers = distanceForFlight(flight);
     if (kilometers !== null)
       distances.push({ flightId: flight.id, kilometers });
-    durationMinutes += flightDuration(flight).minutes;
+    const duration = flightDuration(flight).minutes;
+    if (duration !== null) durationMinutes += duration;
     const arrivalDelay = arrivalDelayMinutes(flight);
     if (arrivalDelay !== null) {
       delayCoverage += 1;

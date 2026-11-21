@@ -53,6 +53,9 @@ type DocumentSnapshot = {
   document: KeeprawFlyDocument;
   kind: ArchiveKind;
 } | null;
+type FlightEditorSession =
+  | { kind: "create"; template?: KeeprawFlight }
+  | { kind: "edit"; flightId: string };
 export type ArchiveLoadState =
   | Exclude<ArchiveLoadResult, { status: "valid" }>
   | {
@@ -129,11 +132,7 @@ export function App() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [passportView, setPassportView] =
     useState<PassportViewState>(initialPassportView);
-  const [editorFlightId, setEditorFlightId] = useState<string | "new" | null>(
-    null,
-  );
-  const [duplicateTemplate, setDuplicateTemplate] =
-    useState<KeeprawFlight | null>(null);
+  const [editor, setEditor] = useState<FlightEditorSession | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
   const editorReturnFocusRef = useRef<HTMLElement | null>(null);
 
@@ -144,10 +143,10 @@ export function App() {
   );
   const editedFlight = useMemo(
     () =>
-      editorFlightId && editorFlightId !== "new"
-        ? flightById(document, editorFlightId)
+      editor?.kind === "edit"
+        ? flightById(document, editor.flightId)
         : undefined,
-    [document, editorFlightId],
+    [document, editor],
   );
   const preferredAirportCodes = useMemo(
     () => recentAirportCodes(document?.flights ?? []),
@@ -416,8 +415,7 @@ export function App() {
     setPage("passport");
     window.location.hash = "passport";
     setSelectedFlightId(null);
-    setEditorFlightId(null);
-    setDuplicateTemplate(null);
+    setEditor(null);
   }
 
   function createArchive() {
@@ -430,8 +428,7 @@ export function App() {
     storeDocument(createEmptyDocument(), "personal");
     setPage("passport");
     setSelectedFlightId(null);
-    setEditorFlightId("new");
-    setDuplicateTemplate(null);
+    setEditor({ kind: "create" });
     window.location.hash = "passport";
   }
 
@@ -479,17 +476,16 @@ export function App() {
     )
       throw new Error("invalid-flight");
     storeDocument(nextDocument);
-    setEditorFlightId(null);
-    setDuplicateTemplate(null);
+    setEditor(null);
     openFlight(flight.id);
     setPage("passport");
     window.history.replaceState(null, "", "#passport");
   }
 
   function deleteEditedFlight() {
-    if (!document || !editorFlightId || editorFlightId === "new") return;
-    const deletedFlightId = editorFlightId;
-    setEditorFlightId(null);
+    if (!document || editor?.kind !== "edit") return;
+    const deletedFlightId = editor.flightId;
+    setEditor(null);
     if (selectedFlightId === deletedFlightId) setSelectedFlightId(null);
     storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
@@ -519,8 +515,7 @@ export function App() {
       applyArchiveLoad(result);
       conflictDraftRef.current = null;
       archiveConflictRef.current = false;
-      setEditorFlightId(null);
-      setDuplicateTemplate(null);
+      setEditor(null);
       setSelectedFlightId(null);
       setConfirmConflictReload(false);
     }).catch(() => {
@@ -592,15 +587,14 @@ export function App() {
                     window.document.activeElement instanceof HTMLElement
                       ? window.document.activeElement
                       : null;
-                  setDuplicateTemplate(selectedFlight);
-                  setEditorFlightId("new");
+                  setEditor({ kind: "create", template: selectedFlight });
                 },
                 onEdit: () => {
                   editorReturnFocusRef.current =
                     window.document.activeElement instanceof HTMLElement
                       ? window.document.activeElement
                       : null;
-                  setEditorFlightId(selectedFlight.id);
+                  setEditor({ kind: "edit", flightId: selectedFlight.id });
                 },
               }
             : undefined
@@ -773,8 +767,7 @@ export function App() {
               window.document.activeElement instanceof HTMLElement
                 ? window.document.activeElement
                 : null;
-            setDuplicateTemplate(null);
-            setEditorFlightId("new");
+            setEditor({ kind: "create" });
           }}
           onOpenImport={() => {
             setSettingsInitialCategory("data");
@@ -790,28 +783,25 @@ export function App() {
           }}
         />
       ) : null}
-      {document &&
-      editorFlightId &&
-      (editorFlightId === "new" || editedFlight) ? (
+      {document && editor && (editor.kind === "create" || editedFlight) ? (
         <FlightEditor
-          key={`${editorFlightId}-${duplicateTemplate?.id ?? "blank"}`}
-          flight={
-            editorFlightId === "new"
-              ? (duplicateTemplate ?? undefined)
-              : editedFlight
+          key={
+            editor.kind === "edit"
+              ? `edit:${editor.flightId}`
+              : editor.template
+                ? `duplicate:${editor.template.id}`
+                : "create"
           }
-          isDuplicate={editorFlightId === "new" && Boolean(duplicateTemplate)}
+          flight={editor.kind === "create" ? editor.template : editedFlight}
+          isDuplicate={editor.kind === "create" && Boolean(editor.template)}
           preferredAirportCodes={preferredAirportCodes}
           returnFocus={editorReturnFocusRef.current}
           locale={locale}
           memberships={memberships}
           onSave={saveFlight}
           archiveConflict={documentPersistence.status === "conflict"}
-          onDelete={editorFlightId === "new" ? undefined : deleteEditedFlight}
-          onCancel={() => {
-            setEditorFlightId(null);
-            setDuplicateTemplate(null);
-          }}
+          onDelete={editor.kind === "edit" ? deleteEditedFlight : undefined}
+          onCancel={() => setEditor(null)}
         />
       ) : null}
       {document && shareOpen && page === "passport" && !selectedFlight ? (
