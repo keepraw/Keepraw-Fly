@@ -29,6 +29,7 @@
     "privacy": "Todo se guarda localmente. No se sube nada."
   },
   "demo": {
+    "importReplacement": "La importación sustituye los vuelos ficticios, el propietario y las membresías de la demostración por tus datos. No se conservarán los datos de demostración.",
     "label": "Archivo de demostración",
     "description": "Estás explorando vuelos de muestra ficticios. Esta no es tu historia personal.",
     "createPersonal": "Crear mi archivo",
@@ -419,6 +420,9 @@
       "uniqueFlightId": "Esta identificación de vuelo se repite en el archivo importado.",
       "serviceDate": "La fecha del vuelo no coincide con la fecha de salida programada.",
       "chronology": "Una hora de llegada debe ser posterior a su hora de salida.",
+      "unsupportedLeapSecond": "Las marcas de tiempo de los vuelos no admiten segundos intercalares. Corrige el origen antes de importar.",
+      "runtimeInstant": "Esta marca de tiempo no se puede interpretar como un instante válido. Corrige el origen.",
+      "membershipMigrationConflict": "No es posible conciliar con seguridad las membresías antiguas y nuevas. El archivo original no se ha modificado; resuelve los conflictos de cuentas antes de importar.",
       "uniqueMembershipId": "Esta identificación de membresía se repite en el archivo importado.",
       "membershipDefaultAirline": "La aerolínea predeterminada debe ser una de las aerolíneas asociadas a esta membresía.",
       "membershipReference": "Este vuelo hace referencia a una membresía que no está en el archivo.",
@@ -495,6 +499,8 @@
       "invalid-row": "La fila contiene datos no válidos. Revisa los demás campos.",
       "date-mismatch": "La fecha del vuelo debe coincidir con la fecha de salida programada.",
       "chronology": "La llegada debe ser posterior a la salida, tanto para los horarios previstos como para los reales.",
+      "invalid-cancelled": "Para cancelado, usa true, 1, yes o y; para no cancelado, false, 0, no o n. Un valor vacío significa no cancelado.",
+      "cancelled-diverted-conflict": "Un vuelo cancelado no puede tener también un aeropuerto de desvío.",
       "airport-timezone-required": "No se puede identificar este aeropuerto en la fecha del vuelo y una hora no tiene desfase UTC. Añade el desfase o indica abajo la zona horaria."
     },
     "fields": {
@@ -705,6 +711,9 @@
       "onTime": "Llegada puntual"
     },
     "daysLater_one": "{{count, number}} día después",
+    "daysEarlier_one": "{{count, number}} día antes",
+    "daysEarlier_other": "{{count, number}} días antes",
+    "daysEarlier_many": "{{count, number}} días antes",
     "daysLater_other": "{{count, number}} días después",
     "daysLater_many": "{{count, number}} días después"
   },

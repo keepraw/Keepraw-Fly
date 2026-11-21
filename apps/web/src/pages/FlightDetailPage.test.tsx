@@ -136,6 +136,15 @@ describe("Flight Detail timing and facts", () => {
     expect(html).toContain("UTC+8");
     expect(html).not.toContain('class="time-zone">UTC</span>');
   });
+  it("safely renders unavailable times and duration if an invalid instant reaches Detail", () => {
+    const leap = "2016-12-31T23:59:60Z";
+    const record = { ...flight, scheduledArrival: leap, actualArrival: leap };
+    const arrival = stop(record, "arrival");
+    expect(arrival).toContain(">—</time>");
+    expect(arrival).toContain('class="time-zone">—</span>');
+    expect(arrival).not.toContain("time-day-offset");
+    expect(markup(record)).not.toContain("NaN");
+  });
   it("keeps planned and diverted airport facilities and zones separate", () => {
     const record = {
       ...flight,

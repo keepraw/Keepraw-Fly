@@ -5,6 +5,7 @@ import {
   calculatePassportStatistics,
   flightDuration,
   flightTimeDisplay,
+  formatDuration,
   localCalendarDayOffset,
 } from "../src";
 
@@ -22,6 +23,102 @@ const flight: KeeprawFlight = {
 };
 
 describe("shared flight time display", () => {
+  it.each([
+    ["LHR", "HND", "2025-01-01T11:00:00Z", "2025-01-01T23:30:00Z", "08:30", 1],
+    ["HND", "HNL", "2025-01-01T15:30:00Z", "2025-01-01T22:30:00Z", "12:30", -1],
+    ["LHR", "HND", "2025-01-01T11:00:00Z", "2025-01-02T23:30:00Z", "08:30", 2],
+  ])(
+    "marks %s → %s by the displayed local dates",
+    (origin, destination, departure, arrival, time, dayOffset) => {
+      const times = flightTimeDisplay(
+        {
+          ...flight,
+          serviceDate: departure.slice(0, 10),
+          origin: { iata: origin },
+          destination: { iata: destination },
+          scheduledDeparture: departure,
+          scheduledArrival: arrival,
+          actualDeparture: undefined,
+          actualArrival: undefined,
+        },
+        "en",
+        "24-hour",
+      );
+      expect(times.arrival.primary).toMatchObject({ time, dayOffset });
+      expect(times.scheduled.arrival.dayOffset).toBe(dayOffset);
+      expect(times.overnight).toBe(dayOffset > 0);
+    },
+  );
+
+  it("uses the diversion's own clock and date while retaining the planned date", () => {
+    const times = flightTimeDisplay(
+      {
+        ...flight,
+        serviceDate: "2025-01-01",
+        origin: { iata: "LHR" },
+        destination: { iata: "HND" },
+        divertedTo: { iata: "HNL" },
+        scheduledDeparture: "2025-01-01T11:00:00Z",
+        scheduledArrival: "2025-01-01T23:30:00Z",
+        actualDeparture: undefined,
+        actualArrival: "2025-01-02T00:30:00Z",
+      },
+      "en",
+      "24-hour",
+    );
+    expect(times.arrival.primary).toMatchObject({
+      time: "14:30",
+      dayOffset: 0,
+    });
+    expect(times.scheduled.arrival).toMatchObject({
+      time: "08:30",
+      dayOffset: 1,
+    });
+  });
+
+  it("uses the written offset dates when the airport zones are undetermined", () => {
+    const times = flightTimeDisplay(
+      {
+        ...flight,
+        serviceDate: "2025-01-02",
+        origin: { iata: "XXQ" },
+        destination: { iata: "XXJ" },
+        scheduledDeparture: "2025-01-02T00:30:00+09:00",
+        scheduledArrival: "2025-01-01T12:30:00-10:00",
+        actualDeparture: undefined,
+        actualArrival: undefined,
+      },
+      "en",
+      "24-hour",
+    );
+    expect(times.departure.primary.time).toBe("00:30");
+    expect(times.arrival.primary).toMatchObject({
+      time: "12:30",
+      dayOffset: -1,
+    });
+  });
+
+  it("does not turn an invalid instant into a duration, delay or displayed time", () => {
+    const invalid = "2016-12-31T23:59:60Z";
+    const broken = {
+      ...flight,
+      scheduledArrival: invalid,
+      actualArrival: invalid,
+    };
+    const times = flightTimeDisplay(broken, "en", "24-hour");
+    expect(times.arrival.primary).toMatchObject({ time: "—", dayOffset: 0 });
+    expect(times.arrival.delayMinutes).toBeNull();
+    expect(flightDuration(broken).minutes).toBeNull();
+    expect(formatDuration(flightDuration(broken).minutes)).toBe("—");
+    expect(calculatePassportStatistics([flight, broken]).durationMinutes).toBe(
+      154,
+    );
+    expect(flightDuration({ ...flight, actualArrival: invalid })).toEqual({
+      minutes: 200,
+      source: "scheduled",
+    });
+  });
+
   it("pairs actual with scheduled and compares offset instants for delay", () => {
     const times = flightTimeDisplay(flight, "zh-CN", "24-hour");
     expect(times.departure.primary).toMatchObject({

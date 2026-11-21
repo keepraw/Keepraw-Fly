@@ -29,6 +29,7 @@
     "privacy": "本機優先，不上傳任何資料。"
   },
   "demo": {
+    "importReplacement": "匯入會以你的資料取代虛構的示例航班、擁有者和會員資料，不會保留示例資料。",
     "label": "示例檔案",
     "description": "你正在體驗虛構的示例航班，這不是你的個人飛行歷史。",
     "createPersonal": "建立我的檔案",
@@ -374,6 +375,9 @@
       "uniqueFlightId": "匯入檔案中存在重複的航班 id。",
       "serviceDate": "航班日期與預定出發日期不一致。",
       "chronology": "抵達時間必須晚於對應的出發時間。",
+      "unsupportedLeapSecond": "航班時間戳記不支援閏秒。請修正來源檔案的時間戳記後再匯入。",
+      "runtimeInstant": "此時間戳記無法解析為有效時刻。請修正來源檔案後再匯入。",
+      "membershipMigrationConflict": "新版與舊版會員資料無法安全協調。原始檔案未變更；請解決帳戶衝突後再匯入。",
       "uniqueMembershipId": "匯入檔案中的會員 ID 重複。",
       "membershipDefaultAirline": "預設航空公司必須是該會員關聯的航空公司之一。",
       "membershipReference": "此航班引用了檔案中不存在的會員。",
@@ -442,6 +446,8 @@
       "invalid-row": "該列包含無效資料，請檢查其他欄位。",
       "date-mismatch": "航班日期必須與預定出發日期一致。",
       "chronology": "預定和實際抵達時間都必須晚於對應的出發時間。",
+      "invalid-cancelled": "已取消請使用 true、1、yes 或 y；未取消請使用 false、0、no 或 n。空值表示未取消。",
+      "cancelled-diverted-conflict": "已取消的航班不能同時指定轉降機場。",
       "airport-timezone-required": "無法確定該機場在航班日期的身分，且時間沒有 UTC 偏移。請新增偏移或在下方填寫機場時區。"
     },
     "fields": {
@@ -634,6 +640,7 @@
     "scheduled": "計畫",
     "overnight": "過夜航班",
     "daysLater": "{{count, number}} 天後",
+    "daysEarlier": "{{count, number}} 天前",
     "departure": {
       "early": "出發提前 {{count, number}} 分",
       "late": "出發延誤 {{count, number}} 分",

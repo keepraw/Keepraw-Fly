@@ -29,6 +29,7 @@
     "privacy": "모든 데이터는 로컬에 저장됩니다. 업로드되는 데이터는 없습니다."
   },
   "demo": {
+    "importReplacement": "가져오면 가상의 데모 항공편, 소유자 및 회원 정보가 내 데이터로 교체됩니다. 데모 데이터는 유지되지 않습니다.",
     "label": "데모 아카이브",
     "description": "가상의 샘플 항공편을 탐색하고 있습니다. 이것은 당신의 개인적인 역사가 아닙니다.",
     "createPersonal": "내 기록 만들기",
@@ -374,6 +375,9 @@
       "uniqueFlightId": "이 항공편 ID는 가져온 파일 내에서 반복됩니다.",
       "serviceDate": "운항일이 예정 출발일과 일치하지 않습니다.",
       "chronology": "도착 시간은 출발 시간보다 늦어야 합니다.",
+      "unsupportedLeapSecond": "항공편 타임스탬프는 윤초를 지원하지 않습니다. 원본 시간을 수정한 후 가져오세요.",
+      "runtimeInstant": "이 타임스탬프를 유효한 시각으로 해석할 수 없습니다. 원본을 수정하세요.",
+      "membershipMigrationConflict": "새 회원 정보와 기존 회원 정보를 안전하게 통합할 수 없습니다. 원본 기록은 변경되지 않았습니다. 계정 충돌을 해결하세요.",
       "uniqueMembershipId": "이 멤버십 ID는 가져온 파일 내에서 반복됩니다.",
       "membershipDefaultAirline": "기본 항공사는 이 멤버십에 연결된 항공사 중 하나여야 합니다.",
       "membershipReference": "이 항공편이 참조하는 회원 정보가 기록 파일에 없습니다.",
@@ -442,6 +446,8 @@
       "invalid-row": "이 행에 유효하지 않은 데이터가 있습니다. 나머지 항목을 확인하세요.",
       "date-mismatch": "운항일은 예정 출발일과 일치해야 합니다.",
       "chronology": "예정 시각과 실제 시각 모두 도착이 출발보다 늦어야 합니다.",
+      "invalid-cancelled": "결항은 true, 1, yes, y를, 결항이 아니면 false, 0, no, n을 사용하세요. 빈 값은 결항이 아님을 의미합니다.",
+      "cancelled-diverted-conflict": "결항된 항공편에는 회항 공항을 지정할 수 없습니다.",
       "airport-timezone-required": "운항일의 공항을 확인할 수 없고 시간에 UTC 오프셋이 없습니다. 오프셋을 추가하거나 아래에 공항 시간대를 입력하세요."
     },
     "fields": {
@@ -634,6 +640,7 @@
     "scheduled": "예정",
     "overnight": "하룻밤",
     "daysLater": "{{count, number}}일 후",
+    "daysEarlier": "{{count, number}}일 전",
     "departure": {
       "early": "{{count, number}}분 일찍 출발함",
       "late": "출발 지연 {{count, number}}분",

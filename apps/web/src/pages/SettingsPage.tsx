@@ -79,6 +79,9 @@ export function SettingsPage({
   const protectionReadVersion = useRef(0);
   const profileName = document?.profile.name;
   const memberships = document ? frequentFlyerMemberships(document) : [];
+  // All formats preview and build against the same base. The demo is never
+  // an append target, so neither its flights nor its profile enter the import.
+  const importBase = isDemo ? null : document;
 
   useEffect(() => {
     let active = true;
@@ -766,11 +769,17 @@ export function SettingsPage({
                       >
                         {t("settings.importTitle")}
                       </h3>
-                      <p>{t("settings.restoreDescription")}</p>
-                      <small>{t("settings.importDescription")}</small>
+                      {isDemo ? (
+                        <p role="note">{t("demo.importReplacement")}</p>
+                      ) : (
+                        <>
+                          <p>{t("settings.restoreDescription")}</p>
+                          <small>{t("settings.importDescription")}</small>
+                        </>
+                      )}
                     </div>
                     <ImportControl
-                      existingDocument={document}
+                      existingDocument={importBase}
                       onImport={onImport}
                       variant="settings"
                     />
@@ -786,10 +795,19 @@ export function SettingsPage({
                       >
                         {t("settings.csvImportTitle")}
                       </h3>
-                      <p>{t("settings.csvDescription")}</p>
-                      <small>{t("settings.csvImportDescription")}</small>
+                      {isDemo ? (
+                        <p role="note">{t("demo.importReplacement")}</p>
+                      ) : (
+                        <>
+                          <p>{t("settings.csvDescription")}</p>
+                          <small>{t("settings.csvImportDescription")}</small>
+                        </>
+                      )}
                     </div>
-                    <CsvImportControl document={document} onImport={onImport} />
+                    <CsvImportControl
+                      document={importBase}
+                      onImport={onImport}
+                    />
                   </section>
                   <section
                     className="settings-import-row settings-operation"
@@ -802,10 +820,16 @@ export function SettingsPage({
                       >
                         {t("settings.flightyImportTitle")}
                       </h3>
-                      <small>{t("settings.flightyImportDescription")}</small>
+                      <small>
+                        {t(
+                          isDemo
+                            ? "demo.importReplacement"
+                            : "settings.flightyImportDescription",
+                        )}
+                      </small>
                     </div>
                     <FlightyImportControl
-                      document={document}
+                      document={importBase}
                       onImport={onImport}
                     />
                   </section>
@@ -820,10 +844,16 @@ export function SettingsPage({
                       >
                         {t("umetripImport.title")}
                       </h3>
-                      <small>{t("umetripImport.description")}</small>
+                      <small>
+                        {t(
+                          isDemo
+                            ? "demo.importReplacement"
+                            : "umetripImport.description",
+                        )}
+                      </small>
                     </div>
                     <UmetripImportControl
-                      document={document}
+                      document={importBase}
                       onImport={onImport}
                     />
                   </section>

@@ -23,6 +23,8 @@
   "csvImport": {
     "sampleRecords": "Recognised records",
     "issues": {
+      "invalid-cancelled": "Use true, 1, yes or y for cancelled; false, 0, no or n for not cancelled. An empty value means not cancelled.",
+      "cancelled-diverted-conflict": "A cancelled flight cannot also have a diversion airport.",
       "airport-timezone-required": "This airport cannot be placed on the flight date and a time has no UTC offset. Add an offset or enter the airport's time zone below.",
       "unknown-airport": "The origin or destination is not a valid three-letter airport code (metropolitan city codes are not airports)."
     }

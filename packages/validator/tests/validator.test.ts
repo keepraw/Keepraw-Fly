@@ -350,6 +350,104 @@ describe("Keepraw Fly validator", () => {
     }
   });
 
+  it.each([false, true])(
+    "migrates mixed membership sources without losing accounts (existing accounts: %s)",
+    (withCanonical) => {
+      const canonical = {
+        id: "local",
+        programId: "custom",
+        memberNumber: "001",
+        associatedAirlines: ["UA"],
+      };
+      const shared = { ...canonical, id: "shared" };
+      const legacy = {
+        id: "legacy",
+        programName: "PhoenixMiles",
+        memberNumber: "002",
+        associatedAirlines: "CA",
+      };
+      const raw = {
+        ...structuredClone(validDocument),
+        frequentFlyerMemberships: withCanonical ? [canonical, shared] : [],
+        extensions: {
+          "keepraw-fly.frequent-flyer": {
+            memberships: [
+              legacy,
+              ...(withCanonical ? [{ ...shared, tier: "Gold" }] : []),
+            ],
+            preserved: true,
+          },
+        },
+        flights: validDocument.flights.map((flight) => ({
+          ...flight,
+          frequentFlyer: { membershipId: legacy.id },
+        })),
+      };
+      const snapshot = structuredClone(raw);
+      const migrated = validateAndMigrateKeeprawFly(raw);
+      expect(migrated).toMatchObject({
+        valid: true,
+        migrations: ["flight-metadata-v2"],
+      });
+      if (!migrated.valid)
+        throw new Error("Expected a safely migrated archive");
+      expect(migrated.data.frequentFlyerMemberships).toEqual([
+        ...(withCanonical ? [canonical, { ...shared, tier: "Gold" }] : []),
+        {
+          id: "legacy",
+          programId: "phoenixmiles",
+          programName: "PhoenixMiles",
+          memberNumber: "002",
+          associatedAirlines: ["CA"],
+          defaultAirline: "CA",
+        },
+      ]);
+      expect(migrated.data.extensions).toEqual({
+        "keepraw-fly.frequent-flyer": { preserved: true },
+      });
+      expect(migrated.data.formatVersion).toBe(raw.formatVersion);
+      expect(migrated.data.flights).toEqual(raw.flights);
+      expect(validateAndMigrateKeeprawFly(migrated.data)).toEqual({
+        ...migrated,
+        migrations: [],
+      });
+      expect(raw).toEqual(snapshot);
+    },
+  );
+
+  it.each([
+    "different account",
+    "duplicate legacy ID",
+    "malformed legacy list",
+  ])("refuses destructive membership migration: %s", (problem) => {
+    const account = {
+      id: "shared",
+      programId: "custom",
+      memberNumber: "001",
+      associatedAirlines: ["UA"],
+    };
+    const raw = {
+      ...structuredClone(validDocument),
+      frequentFlyerMemberships: [account],
+      extensions: {
+        "keepraw-fly.frequent-flyer": {
+          memberships:
+            problem === "malformed legacy list"
+              ? account
+              : problem === "duplicate legacy ID"
+                ? [account, account]
+                : [{ ...account, memberNumber: "002" }],
+        },
+      },
+    };
+    const snapshot = structuredClone(raw);
+    expect(validateAndMigrateKeeprawFly(raw)).toMatchObject({
+      valid: false,
+      issues: [{ keyword: "membershipMigrationConflict" }],
+    });
+    expect(raw).toEqual(snapshot);
+  });
+
   it("accepts nullable string metadata and keeps ticket number separate from PNR", () => {
     const input = structuredClone(validDocument) as Record<string, any>;
     Object.assign(input.flights[0], {
@@ -401,6 +499,64 @@ describe("Keepraw Fly validator", () => {
         }),
       );
     }
+  });
+
+  it.each([
+    "scheduledDeparture",
+    "scheduledArrival",
+    "actualDeparture",
+    "actualArrival",
+  ] as const)(
+    "rejects a real leap second at %s as an unsupported instant",
+    (field) => {
+      const raw = structuredClone(validDocument);
+      const timestamp = "2016-12-31T23:59:60Z";
+      raw.flights[0]![field] = timestamp;
+      raw.flights[0]!.serviceDate = raw.flights[0]!.scheduledDeparture.slice(
+        0,
+        10,
+      );
+      expect(parseKeeprawFlyJson(JSON.stringify(raw))).toMatchObject({
+        valid: false,
+        issues: [
+          {
+            flightIndex: 0,
+            path: `/flights/0/${field}`,
+            keyword: "unsupportedLeapSecond",
+            received: timestamp,
+            message: expect.stringContaining("Leap seconds"),
+          },
+        ],
+      });
+    },
+  );
+
+  it("accepts both explicitly offset sides of a DST overlap in chronological order", () => {
+    const raw = structuredClone(validDocument);
+    Object.assign(raw.flights[0]!, {
+      serviceDate: "2026-11-01",
+      scheduledDeparture: "2026-11-01T01:30:00-04:00",
+      scheduledArrival: "2026-11-01T01:15:00-05:00",
+      actualDeparture: "2026-11-01T01:30:00-04:00",
+      actualArrival: "2026-11-01T01:15:00-05:00",
+    });
+    expect(validateKeeprawFly(raw)).toMatchObject({ valid: true, data: raw });
+  });
+
+  it("reports an unparseable instant even when there is no other actual timestamp", () => {
+    const raw = structuredClone(validDocument) as { flights: KeeprawFlight[] };
+    delete raw.flights[0]!.actualDeparture;
+    raw.flights[0]!.actualArrival = "2026-08-19T12:21:00-07";
+    expect(validateKeeprawFly(raw)).toMatchObject({
+      valid: false,
+      issues: [
+        {
+          path: "/flights/0/actualArrival",
+          flightIndex: 0,
+          keyword: "runtimeInstant",
+        },
+      ],
+    });
   });
 
   it("rejects derived statistics stored as flight facts", () => {
