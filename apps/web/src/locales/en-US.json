@@ -236,6 +236,7 @@
     },
     "actual": "Actual",
     "plannedArrival": "Planned arrival: {{airport}}",
+    "routeMapLabel": "Map of this flight's route from {{origin}} to {{destination}}",
     "airportHistory": {
       "historicalSite": "Historical airport for this date",
       "unknown": "Airport not identified; the code is kept as recorded",
@@ -648,7 +649,9 @@
     "solarMode": "Solar illumination",
     "solarFixed": "Fixed Sun",
     "solarRealtime": "Real-time Sun",
-    "solarModeHint": "Fixed Sun keeps the lighting consistent. Real-time Sun follows the current UTC day and night."
+    "solarModeHint": "Fixed Sun keeps the lighting consistent. Real-time Sun follows the current UTC day and night.",
+    "mapTheme": "Map theme",
+    "mapThemeHint": "Applies to the Passport map and the flight route map."
   },
   "recovery": {
     "readFailedTitle": "Your local archive could not be read",

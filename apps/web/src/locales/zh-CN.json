@@ -233,6 +233,7 @@
     },
     "actual": "实际",
     "plannedArrival": "计划到达：{{airport}}",
+    "routeMapLabel": "本次航班的航线地图：{{origin}} 至 {{destination}}",
     "airportHistory": {
       "historicalSite": "该日期对应的历史机场",
       "unknown": "机场未识别；按记录保留代码",
@@ -616,7 +617,9 @@
     "solarMode": "太阳光照",
     "solarFixed": "固定太阳",
     "solarRealtime": "真实太阳（实时）",
-    "solarModeHint": "固定太阳保持一致的光照；真实太阳按当前 UTC 时间呈现昼夜变化。"
+    "solarModeHint": "固定太阳保持一致的光照；真实太阳按当前 UTC 时间呈现昼夜变化。",
+    "mapTheme": "地图主题",
+    "mapThemeHint": "应用于护照地图和航班航线地图。"
   },
   "recovery": {
     "readFailedTitle": "无法读取本地飞行档案",

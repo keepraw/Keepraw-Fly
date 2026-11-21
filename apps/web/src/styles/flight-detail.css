@@ -215,8 +215,17 @@
     aspect-ratio: 1 / 1;
   }
 
+  .detail-hero-grid > .detail-flight-map {
+    margin-block: 0;
+    aspect-ratio: 4 / 3;
+  }
+
   .detail-hero-grid
-    > .detail-route-map:has(.detail-globe-message, .globe-fallback) {
+    > .detail-route-map:has(
+      .detail-globe-message,
+      .detail-flight-map-message,
+      .globe-fallback
+    ) {
     /* Status-only views keep their own natural height; no empty sphere slot. */
     margin-block: 0;
     aspect-ratio: auto;

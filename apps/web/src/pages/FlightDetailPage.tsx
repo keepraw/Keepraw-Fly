@@ -1,11 +1,4 @@
-import {
-  Children,
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { Children, useEffect, useState, type ReactNode } from "react";
 import type { Namespace, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -42,14 +35,8 @@ import {
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
 import { PageShell } from "../components/PageShell";
-import type { Appearance } from "../storage/types";
-import type { SolarMode } from "../globe/globe-solar";
-
-const DetailGlobe = lazy(() =>
-  import("../globe/DetailGlobe").then((module) => ({
-    default: module.DetailGlobe,
-  })),
-);
+import { FlightRouteMap } from "../components/FlightRouteMap";
+import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 
 // The Globe is part of the two-column Hero, so narrow details never mount it.
 const DETAIL_DESKTOP_QUERY = "(min-width: 1200px)";
@@ -60,8 +47,7 @@ interface FlightDetailPageProps {
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
-  appearance: Appearance;
-  solarMode: SolarMode;
+  mapTheme: MapThemeId;
 }
 
 function AirportStop({
@@ -358,8 +344,7 @@ export function FlightDetailPage({
   locale,
   distanceUnit,
   timeFormat,
-  appearance,
-  solarMode,
+  mapTheme,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
   const [showDesktopMap, setShowDesktopMap] = useState(
@@ -563,23 +548,11 @@ export function FlightDetailPage({
           </div>
 
           {showDesktopMap ? (
-            <Suspense
-              fallback={
-                <section
-                  className="detail-route-map detail-route-map-loading"
-                  aria-busy="true"
-                >
-                  <span>{t("app.loading")}</span>
-                </section>
-              }
-            >
-              <DetailGlobe
-                key={flight.id}
-                flight={flight}
-                appearance={appearance}
-                solarMode={solarMode}
-              />
-            </Suspense>
+            <FlightRouteMap
+              key={flight.id}
+              flight={flight}
+              theme={resolveMapTheme(mapTheme)}
+            />
           ) : null}
         </div>
 

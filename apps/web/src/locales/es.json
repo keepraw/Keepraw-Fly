@@ -239,6 +239,7 @@
     },
     "actual": "Real",
     "plannedArrival": "Llegada prevista: {{airport}}",
+    "routeMapLabel": "Mapa de la ruta de este vuelo de {{origin}} a {{destination}}",
     "airportHistory": {
       "historicalSite": "Aeropuerto histórico de esta fecha",
       "unknown": "Aeropuerto no identificado; se conserva el código registrado",
@@ -677,7 +678,9 @@
     "solarMode": "Iluminación solar",
     "solarFixed": "Sol Fijo",
     "solarRealtime": "Sol en tiempo real",
-    "solarModeHint": "El Sol fijo mantiene una iluminación constante. El modo en tiempo real sigue el día y la noche según la hora UTC actual."
+    "solarModeHint": "El Sol fijo mantiene una iluminación constante. El modo en tiempo real sigue el día y la noche según la hora UTC actual.",
+    "mapTheme": "Tema del mapa",
+    "mapThemeHint": "Se aplica al mapa del pasaporte y al mapa de ruta del vuelo."
   },
   "recovery": {
     "readFailedTitle": "No se pudo leer tu archivo de vuelos local",

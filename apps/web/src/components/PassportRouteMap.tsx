@@ -4,6 +4,7 @@ import {
   useState,
   type CSSProperties,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -38,6 +39,9 @@ import { airportLabelPositions } from "../data/map-labels";
 import { routeVisuals } from "../data/map-route-visuals";
 import { MapViewport } from "./MapViewport";
 import { MapWorld } from "./MapWorld";
+import { buildMapScene } from "../map2d/scene";
+import { mapThemeCssVariables } from "../map2d/theme-css";
+import type { MapTheme } from "../map2d/theme";
 
 interface PassportRouteMapProps {
   routes: RouteSegment[];
@@ -50,6 +54,10 @@ interface PassportRouteMapProps {
   highlightedRoute?: string;
   onSelectAirport: (target: AirportSelectionTarget) => void;
   onSelectRoute: (target: RouteSelectionTarget) => void;
+  /** Registered 2D map theme; omitted keeps the legacy relief appearance. */
+  theme?: MapTheme;
+  /** Overlay controls rendered inside the map section. */
+  children?: ReactNode;
 }
 
 interface AirportMapPoint extends RoutePoint {
@@ -81,6 +89,8 @@ export function PassportRouteMap({
   highlightedRoute,
   onSelectAirport,
   onSelectRoute,
+  theme,
+  children,
 }: PassportRouteMapProps) {
   const { t, i18n } = useTranslation();
   const locale = normalizeLanguage(i18n.resolvedLanguage);
@@ -108,6 +118,31 @@ export function PassportRouteMap({
   const regionNames = useMemo(
     () => new Intl.DisplayNames([locale], { type: "region" }),
     [locale],
+  );
+  // Frequency tiers and hubs come from the shared 2D scene model.
+  const scene = useMemo(
+    () => (theme ? buildMapScene({ routes, centerLongitude }) : null),
+    [centerLongitude, routes, theme],
+  );
+  const glowLimit = theme?.tokens.glow.maxGlowingRoutes ?? 0;
+  const frequentRoutes = useMemo(
+    () =>
+      new Set(
+        scene?.routes
+          .filter((route) => route.tier === "frequent")
+          .slice(-glowLimit)
+          .map((route) => route.key),
+      ),
+    [glowLimit, scene],
+  );
+  const hubAirports = useMemo(
+    () =>
+      new Set(
+        scene?.airports
+          .filter((airport) => airport.hub)
+          .map((airport) => airport.identityKey),
+      ),
+    [scene],
   );
   const routeItems = useMemo(
     () =>
@@ -234,7 +269,12 @@ export function PassportRouteMap({
   );
 
   return (
-    <section className="route-map" id="passport-visual">
+    <section
+      className="route-map"
+      id="passport-visual"
+      data-map-theme={theme?.id}
+      style={theme ? mapThemeCssVariables(theme) : undefined}
+    >
       <MapViewport
         className="route-map-canvas"
         ariaLabel={t("passport.mapPreviewLabel", { flights: totalFlights })}
@@ -281,6 +321,9 @@ export function PassportRouteMap({
             <>
               <MapWorld
                 appearance="aviation"
+                theme={theme}
+                zoom={camera.zoom}
+                pixelScale={pixelScale}
                 centerLongitude={centerLongitude}
                 countryVisits={countryVisits}
                 showOutline={camera.zoom <= 1.05}
@@ -313,6 +356,7 @@ export function PassportRouteMap({
                         "map-route",
                         selected ? "is-selected" : "",
                         highlighted ? "is-highlighted" : "",
+                        frequentRoutes.has(route.identity) ? "is-frequent" : "",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -335,6 +379,12 @@ export function PassportRouteMap({
                     >
                       <path className="map-route-hit" d={route.path} />
                       <path className="map-route-underlay" d={route.path} />
+                      {theme &&
+                      (selected ||
+                        highlighted ||
+                        frequentRoutes.has(route.identity)) ? (
+                        <path className="map-route-glow" d={route.path} />
+                      ) : null}
                       <path
                         className="map-route-line"
                         d={route.path}
@@ -358,9 +408,13 @@ export function PassportRouteMap({
                           ? "historical"
                           : "current-directory"
                       }
-                      className={
-                        selected ? "map-airport is-selected" : "map-airport"
-                      }
+                      className={[
+                        "map-airport",
+                        selected ? "is-selected" : "",
+                        hubAirports.has(airport.identityKey) ? "is-hub" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
                       transform={`translate(${airport.point.x} ${airport.point.y})`}
                       role="button"
                       tabIndex={0}
@@ -449,6 +503,7 @@ export function PassportRouteMap({
           );
         }}
       </MapViewport>
+      {children}
       <div
         className="passport-map-frequency-legend"
         role="group"

@@ -233,6 +233,7 @@
     },
     "actual": "實際",
     "plannedArrival": "預定抵達：{{airport}}",
+    "routeMapLabel": "本次航班的航線地圖：{{origin}} 至 {{destination}}",
     "airportHistory": {
       "historicalSite": "該日期對應的歷史機場",
       "unknown": "機場未識別；依紀錄保留代碼",
@@ -616,7 +617,9 @@
     "solarMode": "太陽光照",
     "solarFixed": "固定太陽",
     "solarRealtime": "真實太陽（即時）",
-    "solarModeHint": "固定太陽保持一致的光照；真實太陽依目前 UTC 時間呈現晝夜變化。"
+    "solarModeHint": "固定太陽保持一致的光照；真實太陽依目前 UTC 時間呈現晝夜變化。",
+    "mapTheme": "地圖主題",
+    "mapThemeHint": "套用於護照地圖和航班航線地圖。"
   },
   "recovery": {
     "readFailedTitle": "無法讀取本機飛行檔案",

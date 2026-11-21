@@ -239,6 +239,7 @@
     },
     "actual": "Réel",
     "plannedArrival": "Arrivée prévue : {{airport}}",
+    "routeMapLabel": "Carte de l’itinéraire de ce vol, de {{origin}} à {{destination}}",
     "airportHistory": {
       "historicalSite": "Aéroport historique pour cette date",
       "unknown": "Aéroport non identifié ; le code est conservé tel qu’enregistré",
@@ -677,7 +678,9 @@
     "solarMode": "Éclairage solaire",
     "solarFixed": "Soleil fixe",
     "solarRealtime": "Soleil en temps réel",
-    "solarModeHint": "Le soleil fixe maintient un éclairage constant. Le mode en temps réel suit l’alternance du jour et de la nuit à l’heure UTC actuelle."
+    "solarModeHint": "Le soleil fixe maintient un éclairage constant. Le mode en temps réel suit l’alternance du jour et de la nuit à l’heure UTC actuelle.",
+    "mapTheme": "Thème de carte",
+    "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol."
   },
   "recovery": {
     "readFailedTitle": "Impossible de lire votre carnet de vol local",
