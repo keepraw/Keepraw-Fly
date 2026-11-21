@@ -29,13 +29,18 @@ archive startup. Its three samples are isolated under `.neon-aviation`:
 - **Flight passport (Canvas 2D):** `FLIGHT PASSPORT` as the main title, a
   multilingual passport line, and a smaller `KEEPRAW TRAVELER` holder line with
   route-derived hub markers and a full-width specimen MRZ. It exports
-  1080 × 1350 artwork and reads the shared token object directly.
+  1080 × 1350 artwork through the shared Canvas path adapter.
 
-The design source is
-[`neon-aviation-tokens.ts`](../apps/web/src/neon/neon-aviation-tokens.ts).
-SVG/CSS reads literal custom properties created by `neonCssVariables`; Canvas
-reads `NEON_AVIATION` and uses the same helpers. These are sample-only
-integrations; they do not replace production map components.
+The theme source is
+[`map2d/themes/neon-aviation.ts`](../apps/web/src/map2d/themes/neon-aviation.ts)
+and it is registered through
+[`theme-registry.ts`](../apps/web/src/map2d/theme-registry.ts). World and detail
+SVG samples use `buildMapScene`, `segmentsToPath`, and
+`mapThemeCssVariables`; the Canvas sample uses `buildMapScene`, `traceSegments`,
+and tokens resolved explicitly from the registry. The old
+[`neon-aviation-tokens.ts`](../apps/web/src/neon/neon-aviation-tokens.ts) file
+is a deprecated compatibility re-export. See the
+[shared 2D architecture](map-2d-architecture.md) for identity and theme rules.
 
 ### Final shared tokens
 
@@ -150,19 +155,19 @@ texture layer or reducing hatch spacing to compensate for individual captures.
 ### SVG and Canvas integration
 
 Keep the SVG implementation scoped beneath `.neon-aviation` and use
-`neonCssVariables()` on that root. SVG palette assignments refer to
-`var(--neon-*)`; geometry, route tiers, point sizing, and line widths use
-the typed helpers. Use one shared gradient and hatch definition per SVG scene,
-vector-effect non-scaling coastline strokes, and transparent wide hit targets.
-Respect reduced motion; transition only small state changes otherwise.
+`mapThemeCssVariables(theme)` on the scene root. SVG palette assignments refer
+to `var(--map-theme-*)`; geometry, route tiers, point sizing, and line widths
+use the shared 2D helpers. Use one shared gradient and hatch definition per SVG
+scene, vector-effect non-scaling coastline strokes, and transparent wide hit
+targets. Respect reduced motion; transition only small state changes otherwise.
 
-The Canvas renderer consumes the same token object without `getComputedStyle`.
-It uses the existing offline `posterMapFrame`, `posterWorldPaths`,
-`routePolylines`, and `projectToFrame` helpers. Keep canvas dimensions at the
-artboard multiplied by export scale, use layered strokes instead of shadows,
-and keep specimen names and statistics fictional. The bundled Barlow and IBM
-Plex Latin WOFF2 files are used when available; CSS and Canvas stacks retain
-Inter/system and monospace fallbacks.
+The Canvas renderer consumes tokens resolved from the registry without
+`getComputedStyle`. It uses `buildMapScene` and `traceSegments` for the shared
+fictional network geometry, while the offline poster-map helpers provide the
+world frame. Keep canvas dimensions at the artboard multiplied by export scale,
+use layered strokes instead of shadows, and keep specimen names and statistics
+fictional. The bundled Barlow and IBM Plex Latin WOFF2 files are used when
+available; CSS and Canvas stacks retain Inter/system and monospace fallbacks.
 
 ### Performance and verification
 
@@ -186,35 +191,13 @@ contain a zoomable camera. Values below are added only after capture completes.
 | WebKit                         | Not tested.                                                                                         |
 | Real hardware 4K display       | Not tested.                                                                                         |
 
-### Next-phase shared 2D map interface
+### Shared 2D map architecture
 
-An eventual shared model can keep geographical identity independent of a
-renderer:
-
-```ts
-interface MapScene {
-  background: MapBackground;
-  land: MapFeature[];
-  borders: MapFeature[];
-  routes: MapRoute[];
-  airports: MapAirport[];
-  labels: MapLabel[];
-  overlays: MapOverlay[];
-  camera: MapCamera;
-  tokens: NeonAviationTokens;
-}
-
-interface MapRenderer {
-  render(scene: MapScene, target: SVGSVGElement | HTMLCanvasElement): void;
-  hitTest(point: ScreenPoint, scene: MapScene): MapHit | null;
-}
-```
-
-`SvgMapRenderer` and `CanvasMapRenderer` would adapt the same ordered layers:
-background, land, borders, routes, airports, labels, and overlays. Camera
-projection, zoom/pan, hit-testing, accessibility, and token injection remain
-explicit interfaces rather than renderer-specific feature logic. This is a
-proposal for a later phase, not a production refactor in this change.
+The shared scene, geometry, theme registry, and SVG/Canvas path adapters are
+implemented in [`map-2d-architecture.md`](map-2d-architecture.md). They keep
+identity and route ordering independent of the drawing adapter without
+introducing a renderer class hierarchy. The production Passport map, Globe,
+pages, storage, and poster renderer remain outside this change.
 
 ## 简体中文
 
@@ -232,7 +215,8 @@ SVG 世界航线图、以 TPE–LAX 跨日期变更线航线为中心的 SVG 详
 ### Token、状态与纹理
 
 上方英文表格是所有最终 token 的唯一数值清单；RGBA 顺序为红、绿、蓝、透明度。
-`neonCssVariables()` 为 SVG/CSS 提供作用域变量，Canvas 直接读取同一 token 对象。
+`mapThemeCssVariables(theme)` 为 SVG/CSS 提供作用域变量，Canvas 从主题注册表显式读取
+token。
 基础/高频航线按重复次数分层；悬停进入高亮状态，选中状态增加内外描边光晕，其他航线降低
 透明度。空闲光晕受 token 预算限制，不使用 SVG filter、CSS filter 或 Canvas `shadowBlur`。
 
@@ -241,15 +225,15 @@ SVG 世界航线图、以 TPE–LAX 跨日期变更线航线为中心的 SVG 详
 clip；Canvas 使用设备像素倍率绘制图案后裁切。请检查 zoom-four 截图中的摩尔纹，不要为
 单张截图再叠加纹理或缩小间距。
 
-### SVG、Canvas 与后续方向
+### SVG、Canvas 与共享 2D 架构
 
-SVG 样例必须限定在 `.neon-aviation` 下，颜色使用 `var(--neon-*)`；Canvas 不读
-`getComputedStyle`，并复用现有离线海报地图几何。已打包的 Barlow 与 IBM Plex Latin
+SVG 样例必须限定在 `.neon-aviation` 下，颜色使用 `var(--map-theme-*)`；Canvas 不读
+`getComputedStyle`，并通过共享场景与 Canvas 路径适配器绘制样例航线。已打包的 Barlow 与 IBM Plex Latin
 WOFF2 可用时优先使用；CSS/Canvas 字体栈保留 Inter、系统字体和等宽字体回退。
 
-后续阶段可以定义独立于渲染器的 `MapScene` 模型，再由 `SvgMapRenderer` 与
-`CanvasMapRenderer` 适配背景、陆地、边界、航线、机场、标签和覆盖层；相机、命中测试及
-token 注入也应保持显式接口。本次改动仅提出方向，不重构生产地图。
+共享的 `MapScene`、几何、主题注册表以及 SVG/Canvas 路径适配器已在
+[2D 地图架构指南](map-2d-architecture.md)中定义。本次保持正式 Passport 地图、Globe、
+页面、存储与海报渲染器不变，不引入渲染器类层级。
 
 ### 验证记录
 

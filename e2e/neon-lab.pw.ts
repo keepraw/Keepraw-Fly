@@ -141,9 +141,12 @@ test("dense-only route selection does not dim the sparse network", async ({
 
   await page.goto("/neon-lab?sample=world&density=dense");
   await expect(page.locator('[data-neon-samples-ready="true"]')).toBeVisible();
-  const route = page.locator(
-    `.neon-route[data-route-id="${denseOnlyRoute.id}"]`,
-  );
+  const route = page.getByRole("button", {
+    name: new RegExp(
+      `^${denseOnlyRoute.origin.iata} to ${denseOnlyRoute.destination.iata},`,
+    ),
+  });
+  await expect(route).toHaveCount(1);
   await route.focus();
   await page.keyboard.press("Enter");
   await expect(route).toHaveAttribute("data-state", "selected");
