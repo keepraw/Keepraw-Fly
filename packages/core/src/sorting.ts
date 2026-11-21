@@ -5,8 +5,10 @@ export function sortFlightsNewestFirst(
 ): KeeprawFlight[] {
   return [...flights].sort((a, b) => {
     const dateOrder = b.serviceDate.localeCompare(a.serviceDate);
+    // Equal instants compare as zero, preserving the archive's stable order.
     return (
-      dateOrder || b.scheduledDeparture.localeCompare(a.scheduledDeparture)
+      dateOrder ||
+      Date.parse(b.scheduledDeparture) - Date.parse(a.scheduledDeparture)
     );
   });
 }

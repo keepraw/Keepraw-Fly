@@ -51,6 +51,131 @@ function ids(prefix: string): () => string {
 }
 
 describe("Flighty CSV import", () => {
+  const requiredHeaders =
+    "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)";
+
+  it("counts a row with multiple errors once while retaining every diagnostic", () => {
+    const preflight = preflightFlightyImport(
+      parseFlightyCsv(
+        `${requiredHeaders}\n2026-09-23,,,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00`,
+      ),
+      null,
+    );
+    expect(preflight).toMatchObject({
+      totalRecords: 1,
+      validRecords: 0,
+      problemRecords: 1,
+      canImport: false,
+    });
+    expect(preflight.issues).toEqual([
+      {
+        severity: "error",
+        code: "missing-value",
+        lineNumber: 2,
+        value: "Airline",
+      },
+      {
+        severity: "error",
+        code: "missing-value",
+        lineNumber: 2,
+        value: "Flight",
+      },
+    ]);
+    expect(() => buildDocumentFromFlightyPreflight(preflight, null)).toThrow(
+      "missing-value",
+    );
+  });
+
+  it("counts distinct source rows across Flighty and mapped CSV validation", () => {
+    const preflight = preflightFlightyImport(
+      parseFlightyCsv(
+        [
+          requiredHeaders,
+          "2026-09-23,,,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00",
+          "2026-09-23,ABC,invalid!,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00",
+          "2026-09-23,UAL,123,SFO,LAX,invalid,2026-09-23T12:00",
+          "2026-09-24,UAL,124,SFO,LAX,2026-09-24T10:00,2026-09-24T12:00",
+        ].join("\n"),
+      ),
+      null,
+    );
+    expect(preflight).toMatchObject({
+      totalRecords: 4,
+      validRecords: 1,
+      problemRecords: 3,
+      canImport: false,
+    });
+    expect(preflight.issues).toHaveLength(5);
+    expect(preflight.issues.map((issue) => issue.lineNumber)).toEqual([
+      2, 2, 3, 3, 4,
+    ]);
+    expect(() => buildDocumentFromFlightyPreflight(preflight, null)).toThrow();
+  });
+
+  it("keeps header errors separate from errors on identifiable data rows", () => {
+    const preflight = preflightFlightyImport(
+      parseFlightyCsv(
+        "Date,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)\n2026-09-23,,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00",
+      ),
+      null,
+    );
+    expect(preflight).toMatchObject({
+      totalRecords: 1,
+      problemRecords: 1,
+      canImport: false,
+    });
+    expect(preflight.issues).toEqual([
+      { severity: "error", code: "missing-required-header", value: "Airline" },
+      {
+        severity: "error",
+        code: "missing-value",
+        lineNumber: 2,
+        value: "Flight",
+      },
+    ]);
+    expect(() => buildDocumentFromFlightyPreflight(preflight, null)).toThrow(
+      "missing-required-header",
+    );
+  });
+
+  it("does not count missing headers as data records", () => {
+    const preflight = preflightFlightyImport(
+      parseFlightyCsv(
+        "Date,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)\n2026-09-23,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00",
+      ),
+      null,
+    );
+    expect(preflight).toMatchObject({
+      totalRecords: 1,
+      problemRecords: 0,
+      canImport: false,
+    });
+    expect(preflight.issues).toEqual([
+      { severity: "error", code: "missing-required-header", value: "Airline" },
+      { severity: "error", code: "missing-required-header", value: "Flight" },
+    ]);
+  });
+
+  it("keeps a valid file importable with no problem records", () => {
+    const preflight = preflightFlightyImport(
+      parseFlightyCsv(
+        `${requiredHeaders}\n2026-09-23,UAL,123,SFO,LAX,2026-09-23T10:00,2026-09-23T12:00`,
+      ),
+      null,
+    );
+    expect(preflight).toMatchObject({
+      totalRecords: 1,
+      validRecords: 1,
+      problemRecords: 0,
+      canImport: true,
+      issues: [],
+    });
+    expect(
+      validateKeeprawFly(buildDocumentFromFlightyPreflight(preflight, null))
+        .valid,
+    ).toBe(true);
+  });
+
   it("retains a specific ICAO identity across the CSV conversion when its IATA is shared", () => {
     const parsed = parseFlightyCsv(
       "Date,Airline,Flight,From,To,Gate Departure (Scheduled),Gate Arrival (Scheduled)\n2024-02-12,BOX,123,FRA,LEJ,2024-02-12T10:00,2024-02-12T11:30",

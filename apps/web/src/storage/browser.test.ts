@@ -125,6 +125,95 @@ describe("persistent storage", () => {
 });
 
 describe("BrowserStorageAdapter", () => {
+  it("merges independent settings from stale tabs and retains backup metadata after a fresh read", async () => {
+    vi.stubGlobal("navigator", { language: "en-US" });
+    const name = `settings-${crypto.randomUUID()}`;
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    const refreshed = new BrowserStorageAdapter(name);
+    adapters.push(first, second, refreshed);
+    const initial = defaultViewerSettings();
+    await first.saveSettings(initial);
+    const firstSnapshot = await first.loadSettings();
+    const staleSnapshot = await second.loadSettings();
+    expect(firstSnapshot).toEqual(staleSnapshot);
+    const lastBackupAt = "2026-11-21T01:00:00Z";
+    await first.saveSettings({ language: "zh-TW" });
+    await first.saveSettings({ lastBackupAt });
+    // Tab B has not reloaded: only its time-format field is part of the write.
+    expect(staleSnapshot).toEqual(initial);
+    await second.saveSettings({ timeFormat: "12-hour" });
+    const expected = {
+      ...initial,
+      language: "zh-TW",
+      timeFormat: "12-hour",
+      lastBackupAt,
+    };
+    expect(await first.loadSettings()).toEqual(expected);
+    expect(await second.loadSettings()).toEqual(expected);
+    expect(await refreshed.loadSettings()).toEqual(expected);
+  });
+
+  it("serializes simultaneous independent preference transactions on the same IndexedDB", async () => {
+    const name = `settings-${crypto.randomUUID()}`;
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    adapters.push(first, second);
+    await first.saveSettings(defaultViewerSettings());
+    await Promise.all([first.loadSettings(), second.loadSettings()]);
+    await Promise.all([
+      first.saveSettings({
+        language: "en-GB",
+        lastBackupAt: "2026-11-21T02:00:00Z",
+      }),
+      second.saveSettings({ timeFormat: "12-hour", appearance: "dark" }),
+    ]);
+    expect(await second.loadSettings()).toMatchObject({
+      language: "en-GB",
+      lastBackupAt: "2026-11-21T02:00:00Z",
+      timeFormat: "12-hour",
+      appearance: "dark",
+    });
+  });
+
+  it("uses last-committed-transaction wins for the same settings field", async () => {
+    const name = `settings-${crypto.randomUUID()}`;
+    const first = new BrowserStorageAdapter(name);
+    const second = new BrowserStorageAdapter(name);
+    adapters.push(first, second);
+    await first.saveSettings(defaultViewerSettings());
+    await Promise.all([first.loadSettings(), second.loadSettings()]);
+    await first.saveSettings({ language: "zh-TW" });
+    await second.saveSettings({ language: "en-GB" });
+    expect((await first.loadSettings())?.language).toBe("en-GB");
+    await first.saveSettings({ language: "zh-CN" });
+    expect((await second.loadSettings())?.language).toBe("zh-CN");
+    const committed: string[] = [];
+    await Promise.all([
+      first
+        .saveSettings({ language: "zh-TW" })
+        .then(() => committed.push("zh-TW")),
+      second
+        .saveSettings({ language: "en-GB" })
+        .then(() => committed.push("en-GB")),
+    ]);
+    expect((await first.loadSettings())?.language).toBe(committed.at(-1));
+  });
+
+  it("supplies defaults on the first field patch and does not mutate the caller", async () => {
+    const adapter = new BrowserStorageAdapter(
+      `settings-${crypto.randomUUID()}`,
+    );
+    adapters.push(adapter);
+    const patch = { timeFormat: "12-hour" as const };
+    await adapter.saveSettings(patch);
+    expect(await adapter.loadSettings()).toEqual({
+      ...defaultViewerSettings(),
+      ...patch,
+    });
+    expect(patch).toEqual({ timeFormat: "12-hour" });
+  });
+
   it.each([undefined, "invalid", null, 1, "fixed", "realtime"])(
     "normalizes legacy solar mode %s without changing other preferences or archives",
     async (solarMode) => {
@@ -590,6 +679,11 @@ it.each(["en", "en-GB", "unknown-language"])(
     ).toEqual(settings);
     await adapter.saveSettings(normalized!);
     expect(await adapter.loadSettings()).toEqual(normalized);
+    await adapter.saveSettings({ appearance: "dark" });
+    expect(await adapter.loadSettings()).toEqual({
+      ...normalized,
+      appearance: "dark",
+    });
     expect(await adapter.loadDocument()).toEqual({ status: "empty" });
   },
 );

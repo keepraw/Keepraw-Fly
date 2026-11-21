@@ -34,7 +34,7 @@ interface SettingsPageProps {
   onImport: (document: KeeprawFlyDocument) => void | Promise<void>;
   onExport?: (kind?: ExportKind) => void | Promise<void>;
   onClear?: () => void | Promise<void>;
-  onSettingsChange: (settings: ViewerSettings) => void | Promise<void>;
+  onSettingsChange: (patch: Partial<ViewerSettings>) => void | Promise<void>;
   onProfileChange: (name: ProfileName | undefined) => void | Promise<void>;
   onMembershipsChange: (
     memberships: readonly FrequentFlyerMembership[],
@@ -127,7 +127,7 @@ export function SettingsPage({
     key: Key,
     value: ViewerSettings[Key],
   ) {
-    void onSettingsChange({ ...settings, [key]: value });
+    void onSettingsChange({ [key]: value });
   }
 
   const lastBackup = settings.lastBackupAt

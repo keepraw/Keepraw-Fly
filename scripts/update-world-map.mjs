@@ -2,11 +2,14 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { geoEqualEarth, geoGraticule, geoPath } from "d3-geo";
+import { worldMapGeneratorVersions } from "./world-map-versions.mjs";
 
 const NATURAL_EARTH_VERSION = "5.1.2";
-const D3_GEO_VERSION = "3.1.1";
-const D3_ARRAY_VERSION = "3.2.4";
-const INTERNMAP_VERSION = "2.0.3";
+const {
+  d3Geo: D3_GEO_VERSION,
+  d3Array: D3_ARRAY_VERSION,
+  internmap: INTERNMAP_VERSION,
+} = worldMapGeneratorVersions(import.meta.url);
 const NATURAL_EARTH_ROOT = `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v${NATURAL_EARTH_VERSION}`;
 const COUNTRIES_URL = `${NATURAL_EARTH_ROOT}/geojson/ne_110m_admin_0_countries.geojson`;
 const NATURAL_EARTH_LICENSE_URL = `${NATURAL_EARTH_ROOT}/LICENSE.md`;

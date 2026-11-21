@@ -19,9 +19,10 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const dist = join(root, "apps/web/dist");
 const caddyfile = readFileSync(join(root, "deploy/Caddyfile"), "utf8");
 const { documentDirectives, documentPolicy, headerPolicy } = await import(
