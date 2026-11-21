@@ -579,7 +579,8 @@ function MapTooltip({
   );
 }
 
-function collectAirports(
+/** Every confirmed physical airport the map draws, one entry per site. */
+export function collectAirports(
   flights: KeeprawFlight[],
   locale: SupportedLocale,
 ): AirportMapPoint[] {

@@ -157,3 +157,43 @@ test("zoom, pan, keyboard and reset keep working on the themed map", async ({
     "non-scaling-stroke",
   );
 });
+
+test("a flight returning to its origin keeps its airport in the picker", async ({
+  page,
+}) => {
+  const date = "2026-05-01";
+  const archive = {
+    format: "keepraw-fly",
+    formatVersion: "0.1.0",
+    profile: { name: { romanized: "Test Traveller", primary: "romanized" } },
+    flights: [
+      {
+        id: "scenic",
+        flightNumber: "KF1",
+        serviceDate: date,
+        airline: { iata: "FI" },
+        origin: { iata: "KEF" },
+        destination: { iata: "KEF" },
+        scheduledDeparture: `${date}T10:00:00Z`,
+        scheduledArrival: `${date}T12:00:00Z`,
+      },
+    ],
+  };
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "scenic.keepraw-fly.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(archive)),
+  });
+  await page
+    .getByRole("button", { name: "Import this archive", exact: true })
+    .click();
+  const map = page.locator(".route-map[data-map-theme]");
+  await expect(map.locator(".map-airport")).toHaveCount(1);
+  await map.locator(".passport-map-navigation summary").click();
+  const picker = map.getByLabel("Select an airport", { exact: true });
+  await expect(picker.locator("option")).toHaveCount(2);
+  await map.locator(".map-airport").focus();
+  await page.keyboard.press("Enter");
+  await expect(picker).toHaveValue("KEF");
+});

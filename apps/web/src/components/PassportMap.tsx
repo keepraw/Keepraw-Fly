@@ -20,9 +20,8 @@ import {
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import { normalizeLanguage } from "../locales/registry";
 import { airportPickerValues, routePickerValues } from "../data/map-selection";
-import { buildMapScene } from "../map2d/scene";
 import type { MapTheme } from "../map2d/theme";
-import { PassportRouteMap } from "./PassportRouteMap";
+import { collectAirports, PassportRouteMap } from "./PassportRouteMap";
 
 export type PassportMapSelection =
   AirportSelectionTarget | RouteSelectionTarget;
@@ -68,10 +67,12 @@ export function PassportMap({
   };
   const airports = useMemo(
     () =>
-      [...buildMapScene({ routes }).airports].sort(
+      // Same source as the drawn markers, so a flight returning to its origin
+      // keeps its airport in the picker even though it draws no route.
+      collectAirports(flights, locale).sort(
         (a, b) => b.flightCount - a.flightCount || a.iata.localeCompare(b.iata),
       ),
-    [routes],
+    [flights, locale],
   );
   // Picker values are codes unless two physical sites share them.
   const routeValues = useMemo(() => routePickerValues(routes), [routes]);
