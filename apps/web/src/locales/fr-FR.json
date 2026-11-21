@@ -29,6 +29,7 @@
     "privacy": "Tout reste dans ce navigateur. Rien n’est envoyé en ligne."
   },
   "demo": {
+    "importReplacement": "L’importation remplace les vols fictifs, le propriétaire et les comptes de fidélité de la démo par vos données. Les données de démonstration ne seront pas conservées.",
     "label": "Archives de démonstration",
     "description": "Vous explorez des exemples de vols fictifs. Ceci n'est pas votre histoire personnelle.",
     "createPersonal": "Créer mes archives",
@@ -419,6 +420,9 @@
       "uniqueFlightId": "Cet identifiant de vol est répété dans le fichier importé.",
       "serviceDate": "La date du vol ne correspond pas à la date de départ prévue.",
       "chronology": "Une heure d'arrivée doit être postérieure à son heure de départ.",
+      "unsupportedLeapSecond": "Les horodatages des vols ne prennent pas en charge les secondes intercalaires. Corrigez la source avant l’importation.",
+      "runtimeInstant": "Cet horodatage ne peut pas être interprété comme un instant valide. Corrigez la source.",
+      "membershipMigrationConflict": "Les anciens et nouveaux comptes de fidélité ne peuvent pas être réconciliés sans risque. L’archive originale reste inchangée ; résolvez les conflits avant l’importation.",
       "uniqueMembershipId": "Cet identifiant d'adhésion est répété dans le fichier importé.",
       "membershipDefaultAirline": "La compagnie par défaut doit faire partie des compagnies associées à cette adhésion.",
       "membershipReference": "Ce vol fait référence à une adhésion qui n'est pas dans l'archive.",
@@ -495,6 +499,8 @@
       "invalid-row": "La ligne contient des données invalides. Vérifiez les autres champs.",
       "date-mismatch": "La date du vol doit correspondre à la date de départ prévue.",
       "chronology": "L’arrivée doit être postérieure au départ, pour les horaires prévus comme pour les horaires réels.",
+      "invalid-cancelled": "Pour un vol annulé, utilisez true, 1, yes ou y ; sinon false, 0, no ou n. Une valeur vide signifie non annulé.",
+      "cancelled-diverted-conflict": "Un vol annulé ne peut pas également avoir un aéroport de déroutement.",
       "airport-timezone-required": "Cet aéroport ne peut pas être identifié à la date du vol et une heure n’a pas de décalage UTC. Ajoutez le décalage ou saisissez le fuseau ci-dessous."
     },
     "fields": {
@@ -705,6 +711,9 @@
       "onTime": "Arrivée à l'heure"
     },
     "daysLater_one": "{{count, number}} jour plus tard",
+    "daysEarlier_one": "{{count, number}} jour plus tôt",
+    "daysEarlier_other": "{{count, number}} jours plus tôt",
+    "daysEarlier_many": "{{count, number}} jours plus tôt",
     "daysLater_other": "{{count, number}} jours plus tard",
     "daysLater_many": "{{count, number}} jours plus tard"
   },

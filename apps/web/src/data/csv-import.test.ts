@@ -4,12 +4,14 @@ import airportRows from "@keepraw-fly/core/airport-directory";
 import {
   airportById,
   airportByIata,
+  calculatePassportStatistics,
   installAirportDirectory,
   type CompactAirportRow,
 } from "@keepraw-fly/core";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   buildDocumentFromCsv,
+  buildDocumentFromCsvPreflight,
   csvFlightFields,
   detectCsvMapping,
   parseCsv,
@@ -36,6 +38,71 @@ function mappedRow(overrides: Record<string, string> = {}) {
 }
 
 describe("CSV flight import", () => {
+  it.each(["Y", "true", "1", " YeS "])(
+    "preserves cancellation %j through preview and commit without counting it as flown",
+    (cancelled) => {
+      const parsed = mappedRow({ cancelled });
+      const preflight = preflightCsvImport(
+        parsed,
+        detectCsvMapping(parsed.headers),
+        null,
+      );
+      expect(preflight).toMatchObject({
+        canImport: true,
+        issues: [],
+        flights: [{ cancelled: true }],
+      });
+      const result = buildDocumentFromCsvPreflight(preflight, null);
+      expect(result.flights).toEqual(preflight.flights);
+      expect(validateKeeprawFly(result).valid).toBe(true);
+      expect(calculatePassportStatistics(result.flights)).toMatchObject({
+        flights: 0,
+        distanceKilometers: 0,
+        durationMinutes: 0,
+      });
+    },
+  );
+
+  it.each(["N", "false", "0", "No", ""])(
+    "accepts %j as not cancelled",
+    (cancelled) => {
+      const parsed = mappedRow({ cancelled });
+      const result = buildDocumentFromCsv(
+        parsed,
+        detectCsvMapping(parsed.headers),
+        null,
+      );
+      expect(result.flights[0]).not.toHaveProperty("cancelled");
+      expect(calculatePassportStatistics(result.flights).flights).toBe(1);
+    },
+  );
+
+  it.each([
+    [{ cancelled: "maybe" }, "invalid-cancelled"],
+    [
+      { cancelled: "true", divertedToIata: "ORD" },
+      "cancelled-diverted-conflict",
+    ],
+  ] as const)(
+    "blocks a malformed cancellation row before confirmation: %j",
+    (fields, code) => {
+      const parsed = mappedRow(fields);
+      const preflight = preflightCsvImport(
+        parsed,
+        detectCsvMapping(parsed.headers),
+        null,
+      );
+      expect(preflight).toMatchObject({
+        canImport: false,
+        flights: [],
+        issues: [{ code, lineNumber: 2 }],
+      });
+      expect(() => buildDocumentFromCsvPreflight(preflight, null)).toThrow(
+        `line-2:${code}`,
+      );
+    },
+  );
+
   it.each(["-04:00", "-05:00"])(
     "preserves an explicit DST overlap instant with offset %s",
     (offset) => {
@@ -605,7 +672,7 @@ describe("CSV flight import", () => {
     );
     expect(emptyDocument.flights[0]).not.toHaveProperty("cancelled");
   });
-  it("imports divertedToIata and leaves the conflict to the canonical validator", () => {
+  it("imports divertedToIata and rejects cancellation conflicts during preflight", () => {
     const parsed = parseCsv(
       [
         csvFlightFields.join(","),
@@ -627,17 +694,14 @@ describe("CSV flight import", () => {
         "CX127,2026-09-23,TAO,HKG,2026-09-23T14:30,2026-09-23T18:00,,,1,12,1,33,true,KIX,,,,,,,,",
       ].join("\n"),
     );
-    const conflictDocument = buildDocumentFromCsv(
-      conflict,
-      detectCsvMapping(conflict.headers),
-      null,
-      () => "conflict",
+    const mapping = detectCsvMapping(conflict.headers);
+    expect(preflightCsvImport(conflict, mapping, null)).toMatchObject({
+      canImport: false,
+      flights: [],
+      issues: [{ code: "cancelled-diverted-conflict", lineNumber: 2 }],
+    });
+    expect(() => buildDocumentFromCsv(conflict, mapping, null)).toThrow(
+      "line-2:cancelled-diverted-conflict",
     );
-    const result = validateKeeprawFly(conflictDocument);
-    expect(result.valid).toBe(false);
-    if (!result.valid)
-      expect(result.issues).toContainEqual(
-        expect.objectContaining({ keyword: "cancelledDivertedConflict" }),
-      );
   });
 });

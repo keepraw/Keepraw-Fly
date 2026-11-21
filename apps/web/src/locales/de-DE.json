@@ -29,6 +29,7 @@
     "privacy": "Alle Daten bleiben lokal. Nichts wird hochgeladen."
   },
   "demo": {
+    "importReplacement": "Beim Import werden die fiktiven Demoflüge, der Eigentümer und die Mitgliedschaften durch Ihre Daten ersetzt. Demodaten werden nicht beibehalten.",
     "label": "Demo-Archiv",
     "description": "Sie erkunden fiktive Beispielflüge. Dies ist nicht Ihre persönliche Geschichte.",
     "createPersonal": "Mein Archiv erstellen",
@@ -401,6 +402,9 @@
       "uniqueFlightId": "Diese Flug-ID wird in der importierten Datei wiederholt.",
       "serviceDate": "Das Flugdatum stimmt nicht mit dem geplanten Abflugdatum überein.",
       "chronology": "Die Ankunftszeit muss nach der Abflugzeit liegen.",
+      "unsupportedLeapSecond": "Flugzeitstempel unterstützen keine Schaltsekunden. Korrigieren Sie den Quellzeitstempel vor dem Import.",
+      "runtimeInstant": "Dieser Zeitstempel kann nicht als gültiger Zeitpunkt gelesen werden. Korrigieren Sie die Quelldaten.",
+      "membershipMigrationConflict": "Neue und alte Mitgliedschaften können nicht sicher abgeglichen werden. Das ursprüngliche Archiv bleibt unverändert. Beheben Sie die Kontokonflikte vor dem Import.",
       "uniqueMembershipId": "Diese Mitglieds-ID wird in der importierten Datei wiederholt.",
       "membershipDefaultAirline": "Die Standardfluggesellschaft muss eine der mit dieser Mitgliedschaft verbundenen Fluggesellschaften sein.",
       "membershipReference": "Dieser Flug verweist auf eine Mitgliedschaft, die nicht im Archiv enthalten ist.",
@@ -471,6 +475,8 @@
       "invalid-row": "Die Zeile enthält ungültige Daten. Prüfen Sie die übrigen Felder.",
       "date-mismatch": "Das Flugdatum muss mit dem geplanten Abflugdatum übereinstimmen.",
       "chronology": "Die Ankunft muss nach dem Abflug liegen, sowohl bei geplanten als auch bei tatsächlichen Zeiten.",
+      "invalid-cancelled": "Für annulliert verwenden Sie true, 1, yes oder y; andernfalls false, 0, no oder n. Ein leerer Wert bedeutet nicht annulliert.",
+      "cancelled-diverted-conflict": "Ein annullierter Flug kann nicht zugleich einen Umleitungsflughafen haben.",
       "airport-timezone-required": "Dieser Flughafen lässt sich am Flugdatum nicht bestimmen, und eine Zeit hat keinen UTC-Versatz. Ergänzen Sie den Versatz oder geben Sie unten die Zeitzone ein."
     },
     "fields": {
@@ -676,6 +682,8 @@
       "onTime": "Ankunft pünktlich"
     },
     "daysLater_one": "{{count, number}} Tag später",
+    "daysEarlier_one": "{{count, number}} Tag früher",
+    "daysEarlier_other": "{{count, number}} Tage früher",
     "daysLater_other": "{{count, number}} Tage später"
   },
   "globe": {

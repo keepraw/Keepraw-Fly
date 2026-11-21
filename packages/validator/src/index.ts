@@ -100,6 +100,12 @@ function toIssue(error: ErrorObject, input: unknown): ValidationIssue {
   };
 }
 
+type FlightTimestamp =
+  | "scheduledDeparture"
+  | "scheduledArrival"
+  | "actualDeparture"
+  | "actualArrival";
+
 function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const seenIds = new Set<string>();
@@ -167,9 +173,32 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
       });
     }
 
+    const instant = (field: FlightTimestamp): number | null => {
+      const value = flight[field];
+      if (value === undefined) return null;
+      const millis = Date.parse(value);
+      const leapSecond = /[Tt ]\d{2}:\d{2}:60(?:[.Zz+-]|$)/.test(value);
+      if (!leapSecond && Number.isFinite(millis)) return millis;
+      issues.push({
+        path: `/flights/${flightIndex}/${field}`,
+        keyword: leapSecond ? "unsupportedLeapSecond" : "runtimeInstant",
+        message: leapSecond
+          ? "Leap seconds are not supported in flight timestamps."
+          : "Expected a flight timestamp the runtime can parse as a valid instant.",
+        received: value,
+        flightIndex,
+      });
+      return null;
+    };
+    const scheduledDeparture = instant("scheduledDeparture");
+    const scheduledArrival = instant("scheduledArrival");
+    const actualDeparture = instant("actualDeparture");
+    const actualArrival = instant("actualArrival");
+
     if (
-      Date.parse(flight.scheduledArrival) <=
-      Date.parse(flight.scheduledDeparture)
+      scheduledArrival !== null &&
+      scheduledDeparture !== null &&
+      scheduledArrival <= scheduledDeparture
     ) {
       issues.push({
         path: `/flights/${flightIndex}/scheduledArrival`,
@@ -181,9 +210,9 @@ function semanticIssues(document: KeeprawFlyDocument): ValidationIssue[] {
     }
 
     if (
-      flight.actualDeparture &&
-      flight.actualArrival &&
-      Date.parse(flight.actualArrival) <= Date.parse(flight.actualDeparture)
+      actualArrival !== null &&
+      actualDeparture !== null &&
+      actualArrival <= actualDeparture
     ) {
       issues.push({
         path: `/flights/${flightIndex}/actualArrival`,
@@ -244,16 +273,19 @@ export function validateAndMigrateKeeprawFly(input: unknown): ValidationResult {
     const { data, migrations } = migrateKeeprawFly(input);
     const result = validateKeeprawFly(data);
     return result.valid ? { ...result, migrations } : result;
-  } catch {
+  } catch (error) {
     return {
       valid: false,
       reason: "invalid",
       issues: [
-        {
-          path: "/",
-          keyword: "migration",
-          message: "The archive could not be safely migrated and validated.",
-        },
+        error instanceof MembershipMigrationConflict
+          ? error.issue
+          : {
+              path: "/",
+              keyword: "migration",
+              message:
+                "The archive could not be safely migrated and validated.",
+            },
       ],
     };
   }
@@ -324,22 +356,140 @@ export function migrateKeeprawFly(input: unknown): {
   return { data, migrations };
 }
 
+const legacyMembershipKey = "keepraw-fly.frequent-flyer";
+const legacyMembershipPath = `/extensions/${legacyMembershipKey}/memberships`;
+
+class MembershipMigrationConflict extends Error {
+  readonly issue: ValidationIssue;
+
+  constructor(path: string, message: string) {
+    super(message);
+    this.issue = { path, message, keyword: "membershipMigrationConflict" };
+  }
+}
+
+function normalizeMembershipEntries(source: unknown[]): unknown[] {
+  // Unrecognized/malformed entries must survive until schema validation rejects them.
+  return source.map((item) => normalizeMembership(item)[0] ?? item);
+}
+
+function membershipIndexes(
+  entries: unknown[],
+  path: string,
+): Map<string, number> {
+  const indexes = new Map<string, number>();
+  for (const [index, entry] of entries.entries()) {
+    const id = objectValue(entry)?.id;
+    if (typeof id !== "string") continue;
+    if (indexes.has(id))
+      throw new MembershipMigrationConflict(
+        `${path}/${index}/id`,
+        "Duplicate membership ID in one migration source.",
+      );
+    indexes.set(id, index);
+  }
+  return indexes;
+}
+
+function sameMembershipFact(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (
+    !Array.isArray(left) ||
+    !Array.isArray(right) ||
+    left.length !== right.length
+  )
+    return false;
+  // The order of the associated airlines is not an account fact. Keep the
+  // canonical display order when both sources contain the same codes.
+  const ordered = [...right].sort();
+  return [...left].sort().every((item, index) => item === ordered[index]);
+}
+
+function reconcileMembershipEntries(
+  canonical: unknown[],
+  legacy: unknown[],
+): unknown[] {
+  const localIndexes = membershipIndexes(
+    canonical,
+    "/frequentFlyerMemberships",
+  );
+  membershipIndexes(legacy, legacyMembershipPath);
+  const combined = [...canonical];
+  for (const [legacyIndex, entry] of legacy.entries()) {
+    const incoming = objectValue(entry);
+    const id = incoming?.id;
+    const localIndex =
+      typeof id === "string" ? localIndexes.get(id) : undefined;
+    if (!incoming || localIndex === undefined) {
+      combined.push(entry);
+      continue;
+    }
+
+    const current = objectValue(combined[localIndex])!;
+    // Only fill absent optional facts; don't repair a malformed required fact
+    // with data from the other source or guess which competing fact is current.
+    const required = ["programId", "memberNumber", "associatedAirlines"];
+    if (
+      required.some(
+        (key) => !Object.hasOwn(current, key) || !Object.hasOwn(incoming, key),
+      ) ||
+      Object.keys(incoming).some(
+        (key) =>
+          Object.hasOwn(current, key) &&
+          !sameMembershipFact(current[key], incoming[key]),
+      )
+    ) {
+      throw new MembershipMigrationConflict(
+        `${legacyMembershipPath}/${legacyIndex}`,
+        "Canonical and legacy memberships with the same ID cannot be safely reconciled.",
+      );
+    }
+    combined[localIndex] = { ...incoming, ...current };
+  }
+  return combined;
+}
+
 function migrateFlightMetadata(document: Record<string, unknown>): boolean {
-  let changed = false;
   const documentExtensions = objectValue(document.extensions);
   const legacyFrequentFlyer = objectValue(
-    documentExtensions?.["keepraw-fly.frequent-flyer"],
+    documentExtensions?.[legacyMembershipKey],
   );
-  const sourceMemberships = Array.isArray(document.frequentFlyerMemberships)
-    ? document.frequentFlyerMemberships
-    : !("frequentFlyerMemberships" in document) &&
-        Array.isArray(legacyFrequentFlyer?.memberships)
-      ? legacyFrequentFlyer.memberships
-      : [];
-  // Unrecognized/malformed entries must survive until schema validation rejects them.
-  const membershipEntries = sourceMemberships.map(
-    (item) => normalizeMembership(item)[0] ?? item,
-  );
+  const canonical = document.frequentFlyerMemberships;
+  const sourceMemberships = Array.isArray(canonical) ? canonical : [];
+  let membershipEntries = normalizeMembershipEntries(sourceMemberships);
+  let changed = sourceMemberships.some((item) => {
+    const value = objectValue(item);
+    return !value?.programId || membershipAirlinesNeedMigration(value);
+  });
+
+  if (
+    documentExtensions &&
+    legacyFrequentFlyer &&
+    Object.hasOwn(legacyFrequentFlyer, "memberships")
+  ) {
+    if (!Array.isArray(legacyFrequentFlyer.memberships))
+      throw new MembershipMigrationConflict(
+        legacyMembershipPath,
+        "Expected an array of legacy memberships.",
+      );
+    if (
+      Object.hasOwn(document, "frequentFlyerMemberships") &&
+      !Array.isArray(canonical)
+    )
+      throw new MembershipMigrationConflict(
+        "/frequentFlyerMemberships",
+        "Expected an array of canonical memberships.",
+      );
+    membershipEntries = reconcileMembershipEntries(
+      membershipEntries,
+      normalizeMembershipEntries(legacyFrequentFlyer.memberships),
+    );
+    delete legacyFrequentFlyer.memberships;
+    if (!Object.keys(legacyFrequentFlyer).length)
+      delete documentExtensions[legacyMembershipKey];
+    changed = true;
+  }
+
   const memberships = membershipEntries.flatMap((item) => {
     const value = objectValue(item);
     return value &&
@@ -357,28 +507,6 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
   });
   const originalMembershipCount = memberships.length;
   const membershipIds = new Set(memberships.map((membership) => membership.id));
-
-  if (
-    (!Array.isArray(document.frequentFlyerMemberships) &&
-      sourceMemberships.length) ||
-    sourceMemberships.some((item) => {
-      const value = objectValue(item);
-      return !value?.programId || membershipAirlinesNeedMigration(value);
-    })
-  )
-    changed = true;
-  if (
-    legacyFrequentFlyer &&
-    Array.isArray(legacyFrequentFlyer.memberships) &&
-    documentExtensions &&
-    (!("frequentFlyerMemberships" in document) ||
-      Array.isArray(document.frequentFlyerMemberships))
-  ) {
-    delete legacyFrequentFlyer.memberships;
-    if (!Object.keys(legacyFrequentFlyer).length)
-      delete documentExtensions["keepraw-fly.frequent-flyer"];
-    changed = true;
-  }
 
   if (Array.isArray(document.flights)) {
     document.flights = document.flights.map((item) => {
@@ -452,7 +580,13 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
               membershipIds.add(membershipId);
             }
           }
-          if (membershipId) {
+          // Preserve an explicit dangling reference for validation instead of
+          // discarding it when there is not enough legacy data to recover it.
+          membershipId ??=
+            typeof oldSnapshot.membershipId === "string"
+              ? oldSnapshot.membershipId
+              : undefined;
+          if (membershipId !== undefined) {
             next.frequentFlyer = {
               membershipId,
               tierAtFlight:
@@ -473,8 +607,9 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
   }
 
   if (
-    membershipEntries.length ||
-    memberships.length > originalMembershipCount
+    (!Object.hasOwn(document, "frequentFlyerMemberships") ||
+      Array.isArray(canonical)) &&
+    (membershipEntries.length || memberships.length > originalMembershipCount)
   ) {
     document.frequentFlyerMemberships = [
       ...membershipEntries,

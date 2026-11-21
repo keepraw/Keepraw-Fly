@@ -29,6 +29,7 @@
     "privacy": "データはこのブラウザ内だけに保存されます。アップロードされることはありません。"
   },
   "demo": {
+    "importReplacement": "インポートすると、架空のデモ便、所有者、会員情報があなたのデータに置き換わります。デモデータは保持されません。",
     "label": "デモ アーカイブ",
     "description": "あなたは架空のサンプルフライトを探索しています。これはあなたの個人的な経歴ではありません。",
     "createPersonal": "自分の記録を作成",
@@ -374,6 +375,9 @@
       "uniqueFlightId": "インポートするファイル内でフライト ID が重複しています。",
       "serviceDate": "運航日が出発予定日と一致しません。",
       "chronology": "到着時刻は出発時刻より遅くなければなりません。",
+      "unsupportedLeapSecond": "フライトのタイムスタンプはうるう秒に対応していません。元の時刻を修正してからインポートしてください。",
+      "runtimeInstant": "このタイムスタンプは有効な時刻として解析できません。元のデータを修正してください。",
+      "membershipMigrationConflict": "新旧の会員情報を安全に統合できません。元のアーカイブは変更されていません。アカウントの競合を解決してください。",
       "uniqueMembershipId": "インポートするファイル内で会員情報の ID が重複しています。",
       "membershipDefaultAirline": "デフォルトの航空会社は、このメンバーシップに関連付けられている航空会社のいずれかである必要があります。",
       "membershipReference": "このフライトは、アーカイブにないメンバーシップを参照しています。",
@@ -442,6 +446,8 @@
       "invalid-row": "この行に無効なデータがあります。他の項目を確認してください。",
       "date-mismatch": "運航日は出発予定日と一致する必要があります。",
       "chronology": "予定時刻と実際の時刻のいずれも、到着は出発より後である必要があります。",
+      "invalid-cancelled": "欠航は true、1、yes、y、欠航でない場合は false、0、no、n を使用してください。空欄は欠航なしを意味します。",
+      "cancelled-diverted-conflict": "欠航したフライトに目的地変更先の空港は指定できません。",
       "airport-timezone-required": "運航日の空港を特定できず、時刻に UTC オフセットがありません。オフセットを追加するか、下で空港のタイムゾーンを入力してください。"
     },
     "fields": {
@@ -634,6 +640,7 @@
     "scheduled": "予定",
     "overnight": "一晩",
     "daysLater": "{{count, number}}日後",
+    "daysEarlier": "{{count, number}}日前",
     "departure": {
       "early": "{{count, number}}分早く出発",
       "late": "出発遅延 {{count, number}}分",
