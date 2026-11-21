@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { disablePassportWebGL } from "../e2e/helpers/passport-svg";
+import { openSettingsCategory } from "../e2e/helpers/settings";
 import {
   regionalAirportCodes,
   scaleArchive,
@@ -8,7 +9,7 @@ import {
 test("fits all 3,080 regional routes in the production Passport SVG fallback", async ({
   page,
 }, testInfo) => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await disablePassportWebGL(page);
@@ -30,18 +31,32 @@ test("fits all 3,080 regional routes in the production Passport SVG fallback", a
   );
   expect(archive.flights).toHaveLength(3_080);
 
+  const fallback = page.locator(".globe-fallback .map-viewport");
+  // Finish normal lazy loading before expanding the archive under test.
   await page.goto("/");
   await page.locator('input[type="file"][accept*=".json"]').setInputFiles({
+    name: "regional-seed.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(
+      JSON.stringify({ ...archive, flights: [archive.flights[0]] }),
+    ),
+  });
+  await page
+    .getByRole("button", { name: "Import this archive", exact: true })
+    .click();
+  await expect(fallback).toBeVisible({ timeout: 30_000 });
+
+  await page.getByRole("link", { name: "Settings", exact: true }).click();
+  await openSettingsCategory(page, "Data and backup");
+  await page.locator('#settings-import input[type="file"]').setInputFiles({
     name: "regional-3080.json",
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(archive)),
   });
   await page
-    .getByRole("button", { name: "Import this archive", exact: true })
+    .getByRole("button", { name: "Import 3,079 new flights", exact: true })
     .click();
-  const fallback = page.locator(".globe-fallback .map-viewport");
-  // The production Globe loads lazily while Passport renders the large archive.
-  await expect(fallback).toBeVisible({ timeout: 30_000 });
+  await expect(fallback).toBeVisible({ timeout: 60_000 });
   await expect(fallback.locator(".map-airports .map-airport")).toHaveCount(56);
   await expect(fallback.locator(".map-routes .map-route")).toHaveCount(3_080);
   const camera = await fallback
