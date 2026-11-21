@@ -32,8 +32,10 @@ function assertJsonTree(rawDocument: unknown): void {
       !Object.is(value, -0)
     )
       continue;
-    if (typeof value !== "object" || seen.has(value))
-      throw new UnsafeRecoveryCopyError();
+    if (typeof value !== "object") throw new UnsafeRecoveryCopyError();
+    // Shared JSON values are written at each occurrence. The serializer
+    // rejects cycles, which have no finite JSON representation.
+    if (seen.has(value)) continue;
     seen.add(value);
 
     const array = Array.isArray(value);
