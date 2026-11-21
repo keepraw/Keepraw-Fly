@@ -1,18 +1,23 @@
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { KEEPRAW_FLY_FORMAT_VERSION } from "@keepraw-fly/schema";
+import {
+  assertRecordCount,
+  ImportFileError,
+  MAX_IMPORT_FILE_BYTES,
+} from "./import-limits";
 import { redactSensitiveData } from "./redacted-export";
 
 export type ExportKind = "backup" | "shareable";
 
 /**
- * Builds the exported JSON text. "backup" is the complete, lossless archive;
- * "shareable" removes personal identifiers (see redacted-export.ts) and is
- * validated exactly like a backup so it remains importable.
+ * Builds the exported JSON text. Complete backups must fit the restore limits.
+ * Shareable exports remove personal identifiers (see redacted-export.ts).
  */
 export async function serializeKeeprawFly(
   document: KeeprawFlyDocument,
   kind: ExportKind = "backup",
 ): Promise<string> {
+  if (kind === "backup") assertRecordCount(document.flights.length);
   const { validateAndMigrateKeeprawFly } =
     await import("@keepraw-fly/validator");
   const source =
@@ -30,7 +35,55 @@ export async function serializeKeeprawFly(
       (endpoint) => endpoint?.airportId,
     ),
   );
-  return `${JSON.stringify({ ...validation.data, formatVersion: hasIdentity ? KEEPRAW_FLY_FORMAT_VERSION : validation.data.formatVersion }, null, 2)}\n`;
+  const archive = {
+    ...validation.data,
+    formatVersion: hasIdentity
+      ? KEEPRAW_FLY_FORMAT_VERSION
+      : validation.data.formatVersion,
+  };
+  if (kind === "shareable") return `${JSON.stringify(archive, null, 2)}\n`;
+
+  // Abort obviously oversized serialization before it can build a large string.
+  // The lower bound excludes UTF-8 expansion, boundaries and escaping.
+  let minimumBytes = 1;
+  const compact = `${JSON.stringify(
+    archive,
+    function (this: Record<string, unknown>, key, value: unknown) {
+      const parentIsArray = Array.isArray(this);
+      const storedValue = this[key];
+      const losesFields =
+        value !== storedValue ||
+        (typeof value === "number" && !Number.isFinite(value)) ||
+        (parentIsArray && value === undefined) ||
+        (value !== null &&
+          typeof value === "object" &&
+          (Array.isArray(value)
+            ? Object.keys(value).length !== value.length
+            : Object.getPrototypeOf(value) !== Object.prototype));
+      if (losesFields)
+        throw new Error(
+          "A full JSON backup cannot preserve all values in the archive.",
+        );
+      if (!parentIsArray) {
+        if (value === undefined) return value;
+        minimumBytes += key.length;
+      }
+      minimumBytes += typeof value === "string" ? value.length + 2 : 1;
+      if (minimumBytes > MAX_IMPORT_FILE_BYTES)
+        throw new ImportFileError("file-too-large");
+      return value;
+    },
+  )}\n`;
+  if (new Blob([compact]).size > MAX_IMPORT_FILE_BYTES)
+    throw new ImportFileError("file-too-large");
+
+  // Keep normal backups readable and avoid expanding large documents with
+  // indentation. Test the exact UTF-8 bytes, including the trailing newline.
+  if (compact.length > 1024 * 1024) return compact;
+  const formatted = `${JSON.stringify(archive, null, 2)}\n`;
+  return new Blob([formatted]).size <= MAX_IMPORT_FILE_BYTES
+    ? formatted
+    : compact;
 }
 
 export async function downloadKeeprawFly(
