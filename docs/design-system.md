@@ -8,6 +8,10 @@ The visual system supports a local flight archive: flight facts, geographic
 relationships and data ownership lead the interface. Shared tokens and components
 live in the application; page CSS controls composition.
 
+The development-only [Neon Aviation design study](neon-aviation-design-system.md)
+documents a separate typed token set and three sample renderers. It does not
+change production map or passport output.
+
 ### Source of truth
 
 | Source                                                                  | Responsibility                                                                                          |
@@ -156,6 +160,9 @@ the browser does not then retry an earlier declaration of that property.
 
 视觉系统服务于本地飞行档案：界面优先表达航班事实、地理关系和数据归属。共享 token
 与组件保存在应用中，页面 CSS 负责具体构图。
+
+开发专用的[霓虹航空视觉研究](neon-aviation-design-system.md)记录独立的类型化 Token
+及三个视觉样例，不会改动正式地图或护照输出。
 
 ### 实现入口
 

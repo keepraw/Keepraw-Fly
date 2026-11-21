@@ -59,6 +59,7 @@ Reusable helpers live in `scripts/` and run from the repository root:
 | `capture-task-2c.mjs`                     | Running dev server and Chromium/font access; `artifacts/task-2c/`               |
 | `capture-theme-history.mjs before\|after` | Recorded Task A checkout, dev server and Chromium; `artifacts/task-a/`          |
 | `audit-globe-night.mjs`                   | Original NASA source and recorded browser setup; `artifacts/globe-night-audit/` |
+| `capture-neon-lab.mjs`                    | Running development server and Chromium; `artifacts/neon-lab/`                  |
 
 For Hero captures set `BASE_URL`, `LABEL` and optionally `OUT`; keep overrides
 under ignored `artifacts/`. It reads the existing Detail regression fixture and
