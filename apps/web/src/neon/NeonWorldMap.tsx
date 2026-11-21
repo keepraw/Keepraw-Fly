@@ -76,6 +76,7 @@ export function NeonWorldMap({
     }
     return counts;
   }, [routes]);
+  const routeIds = new Set(routeLines.map((route) => route.id));
   const hubs = new Set(
     [...airportCounts.entries()]
       .sort((left, right) => right[1] - left[1])
@@ -92,7 +93,18 @@ export function NeonWorldMap({
   const [selectedAirport, setSelectedAirport] = useState<string | null>(null);
   const forcedSelectedRoute =
     forcedState === "selected" ? (routeLines[0]?.id ?? null) : null;
-  const activeSelectedRoute = selectedRoute ?? forcedSelectedRoute;
+  const activeSelectedRoute =
+    selectedRoute && routeIds.has(selectedRoute)
+      ? selectedRoute
+      : forcedSelectedRoute;
+  const activeHoveredRoute =
+    hoveredRoute && routeIds.has(hoveredRoute) ? hoveredRoute : null;
+  const activeSelectedAirport =
+    selectedAirport && airportCounts.has(selectedAirport)
+      ? selectedAirport
+      : null;
+  const activeHoveredAirport =
+    hoveredAirport && airportCounts.has(hoveredAirport) ? hoveredAirport : null;
   const generatedId = useId().replaceAll(":", "");
   const patternId = `neon-hatch-${generatedId}`;
   const landClipId = `neon-land-${generatedId}`;
@@ -118,7 +130,9 @@ export function NeonWorldMap({
             .slice(0, NEON_AVIATION.glow.maxGlowingRoutes)
             .map((route) => route.id),
         );
-        const airportPoints = NEON_AIRPORTS.map((airport) => {
+        const airportPoints = NEON_AIRPORTS.filter((airport) =>
+          airportCounts.has(airport.iata),
+        ).map((airport) => {
           const projected = centerProjection([
             airport.longitude,
             airport.latitude,
@@ -135,7 +149,7 @@ export function NeonWorldMap({
         );
         const labelCandidates = airportPoints.flatMap(({ airport, point }) => {
           const isSelected =
-            selectedAirport === airport.iata ||
+            activeSelectedAirport === airport.iata ||
             selectedRouteData?.origin.iata === airport.iata ||
             selectedRouteData?.destination.iata === airport.iata;
           if (!hubs.has(airport.iata) && !isSelected) return [];
@@ -236,11 +250,11 @@ export function NeonWorldMap({
               {routeLines.map((route, index) => {
                 const forced = forcedState && index === 0 ? forcedState : null;
                 const state: NeonRouteState =
-                  selectedRoute === route.id
+                  activeSelectedRoute === route.id
                     ? "selected"
                     : forced === "selected"
                       ? "selected"
-                      : hoveredRoute === route.id || forced === "hover"
+                      : activeHoveredRoute === route.id || forced === "hover"
                         ? "hover"
                         : activeSelectedRoute
                           ? "dimmed"
@@ -298,10 +312,10 @@ export function NeonWorldMap({
             <g className="neon-airports">
               {airportPoints.map(({ airport, point }) => {
                 const isSelected =
-                  selectedAirport === airport.iata ||
+                  activeSelectedAirport === airport.iata ||
                   selectedRouteData?.origin.iata === airport.iata ||
                   selectedRouteData?.destination.iata === airport.iata;
-                const isHovered = hoveredAirport === airport.iata;
+                const isHovered = activeHoveredAirport === airport.iata;
                 const kind = isSelected
                   ? "selected"
                   : hubs.has(airport.iata)

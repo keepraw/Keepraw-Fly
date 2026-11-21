@@ -1,4 +1,8 @@
 import { expect, test } from "@playwright/test";
+import {
+  DENSE_ROUTES,
+  SPARSE_ROUTES,
+} from "../apps/web/src/neon/sample-network";
 
 test("Neon Aviation lab renders its samples and interactive SVG states", async ({
   page,
@@ -123,4 +127,29 @@ test("Neon Aviation lab fits mobile and disables motion when requested", async (
         animation.split(",").every((name) => name.trim() === "none"),
     ),
   ).toBe(true);
+});
+
+test("dense-only route selection does not dim the sparse network", async ({
+  page,
+}) => {
+  const sparseRouteIds = new Set(SPARSE_ROUTES.map((route) => route.id));
+  const denseOnlyRoute = DENSE_ROUTES.find(
+    (route) => !sparseRouteIds.has(route.id),
+  );
+  if (!denseOnlyRoute)
+    throw new Error("The dense sample needs a route outside the sparse set.");
+
+  await page.goto("/neon-lab?sample=world&density=dense");
+  await expect(page.locator('[data-neon-samples-ready="true"]')).toBeVisible();
+  const route = page.locator(
+    `.neon-route[data-route-id="${denseOnlyRoute.id}"]`,
+  );
+  await route.focus();
+  await page.keyboard.press("Enter");
+  await expect(route).toHaveAttribute("data-state", "selected");
+
+  await page.getByLabel("Route density").selectOption("sparse");
+  await expect(page.getByText("8 links · offline")).toBeVisible();
+  await expect(route).toHaveCount(0);
+  await expect(page.locator(".neon-route.is-dimmed")).toHaveCount(0);
 });
