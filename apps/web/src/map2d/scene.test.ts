@@ -5,6 +5,7 @@ import {
   installAirportDirectory,
   routeIdentityKey,
   type CompactAirportRow,
+  type RouteSegment,
 } from "@keepraw-fly/core";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import { buildMapScene } from "./scene";
@@ -34,6 +35,14 @@ function flight(
 }
 
 describe("buildMapScene", () => {
+  it("returns an empty scene with a finite center for empty routes", () => {
+    const scene = buildMapScene({ routes: [] });
+    expect(scene.routes).toEqual([]);
+    expect(scene.airports).toEqual([]);
+    expect(scene.bounds).toBeNull();
+    expect(Number.isFinite(scene.centerLongitude)).toBe(true);
+  });
+
   it("skips routes whose endpoints share one physical identity", () => {
     const routes = buildRouteSegments([flight("same", "TPE", "TPE")]);
     expect(routes).toHaveLength(1);
@@ -141,5 +150,96 @@ describe("buildMapScene", () => {
           scene.bounds!.y + scene.bounds!.height,
         );
       }
+  });
+
+  it("bounds every projected airport and route segment point", () => {
+    const routes = buildRouteSegments([
+      flight("tpe-lax-bounds", "TPE", "LAX"),
+      flight("hkg-mfm-bounds", "HKG", "MFM"),
+      flight("syd-cdg-bounds", "SYD", "CDG"),
+    ]);
+    const scene = buildMapScene({ routes });
+    const points = [
+      ...scene.routes.flatMap((route) => route.segments.flat()),
+      ...scene.airports.map(({ x, y }) => ({ x, y })),
+    ];
+    expect(points.length).toBeGreaterThan(0);
+    expect(scene.bounds).not.toBeNull();
+    const expectedBounds = {
+      x: Math.min(...points.map(({ x }) => x)),
+      y: Math.min(...points.map(({ y }) => y)),
+      width:
+        Math.max(...points.map(({ x }) => x)) -
+        Math.min(...points.map(({ x }) => x)),
+      height:
+        Math.max(...points.map(({ y }) => y)) -
+        Math.min(...points.map(({ y }) => y)),
+    };
+    expect(scene.bounds).toEqual(expectedBounds);
+    for (const { x, y } of points) {
+      expect(x).toBeGreaterThanOrEqual(scene.bounds!.x);
+      expect(x).toBeLessThanOrEqual(scene.bounds!.x + scene.bounds!.width);
+      expect(y).toBeGreaterThanOrEqual(scene.bounds!.y);
+      expect(y).toBeLessThanOrEqual(scene.bounds!.y + scene.bounds!.height);
+    }
+  });
+
+  it("marks dateline-crossing and regional routes", () => {
+    const routes = buildRouteSegments([
+      flight("tpe-lax-dateline", "TPE", "LAX"),
+      flight("hkg-mfm-regional", "HKG", "MFM"),
+    ]);
+    const scene = buildMapScene({ routes });
+    expect(
+      scene.routes.find(
+        ({ origin, destination }) =>
+          origin.iata === "TPE" && destination.iata === "LAX",
+      )?.crossesDateline,
+    ).toBe(true);
+    expect(
+      scene.routes.find(
+        ({ origin, destination }) =>
+          origin.iata === "HKG" && destination.iata === "MFM",
+      )?.crossesDateline,
+    ).toBe(false);
+  });
+
+  it("builds bounds for a large route scene without spreading arguments", () => {
+    const routes: RouteSegment[] = Array.from({ length: 3000 }, (_, index) => ({
+      origin: {
+        iata: `O${index}`,
+        identityKey: `airport:origin-${index}`,
+        latitude: ((index * 37) % 160) - 80,
+        longitude: ((index * 71) % 360) - 180,
+      },
+      destination: {
+        iata: `D${index}`,
+        identityKey: `airport:destination-${index}`,
+        latitude: ((index * 53 + 19) % 160) - 80,
+        longitude: ((index * 97 + 43) % 360) - 180,
+      },
+      flightCount: 1,
+    }));
+    const scene = buildMapScene({ routes });
+    const segmentPointCount = scene.routes.reduce(
+      (count, route) =>
+        count +
+        route.segments.reduce(
+          (segmentCount, segment) => segmentCount + segment.length,
+          0,
+        ),
+      0,
+    );
+    expect(scene.routes).toHaveLength(3000);
+    expect(segmentPointCount).toBeGreaterThan(100_000);
+    expect(scene.bounds).not.toBeNull();
+    expect(
+      [
+        scene.bounds!.x,
+        scene.bounds!.y,
+        scene.bounds!.width,
+        scene.bounds!.height,
+      ].every(Number.isFinite),
+    ).toBe(true);
   });
 });

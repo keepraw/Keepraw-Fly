@@ -152,21 +152,24 @@ export function buildMapScene(input: {
         : [];
     });
 
-  const points = [
-    ...sceneRoutes.flatMap((route) => route.segments.flat()),
-    ...airports.map(({ x, y }) => ({ x, y })),
-  ];
-  const bounds = points.length
-    ? {
-        x: Math.min(...points.map(({ x }) => x)),
-        y: Math.min(...points.map(({ y }) => y)),
-        width:
-          Math.max(...points.map(({ x }) => x)) -
-          Math.min(...points.map(({ x }) => x)),
-        height:
-          Math.max(...points.map(({ y }) => y)) -
-          Math.min(...points.map(({ y }) => y)),
-      }
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let hasBounds = false;
+  const includePoint = ({ x, y }: ProjectedPoint) => {
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+    hasBounds = true;
+  };
+  for (const route of sceneRoutes)
+    for (const segment of route.segments)
+      for (const point of segment) includePoint(point);
+  for (const airport of airports) includePoint(airport);
+  const bounds = hasBounds
+    ? { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
     : null;
 
   return { centerLongitude, routes: sceneRoutes, airports, bounds };
