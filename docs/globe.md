@@ -1,29 +1,17 @@
 # Current Globe implementation
 
-This is the maintained entry point for the production Globe. Start with
-[architecture](architecture.md) for data and package boundaries and
-[testing](testing.md#flight-detail-3d-globe) for renderer regression expectations.
+The Globe is no longer a production surface. Since the 2D map migration
+([map architecture](map-2d-architecture.md#production-map-surfaces-pr-3)),
+Passport and Flight Detail render the shared 2D SVG map and no production page
+mounts a WebGL canvas. This document describes the retained Globe source, which
+is reachable only through the DEV-only `/globe-lab` and is scheduled for removal.
 The original prototype and cinematic experiments are [historical design records](archive/README.md#design-rationale).
 
-## Production surfaces
+## Retained surfaces
 
-Desktop Passport lazily loads `PassportGlobe` at widths of at least 761px. It
-receives the current Passport routes, flights, appearance, solar mode and
-selection; route and airport choices remain connected to the archive. Rendering
-failure exposes a localized retry and the existing interactive SVG
-`PassportRouteMap` fallback. Mobile Passport does not mount this Globe.
-
-Desktop Flight Detail lazily loads `DetailGlobe` for the current flight at the
-1200px boundary. It builds a single route through core `buildRouteSegments`,
-using the diversion airport when applicable. Cancelled flights or unavailable
-route coordinates show localized explanations. Detail failures expose localized
-retry without an SVG fallback. Mobile Detail creates no Globe context or imagery
-requests.
-
-The renderer is shared, but Detail has an independent route-fit camera and Home
-composition. Detail appearance, language and solar updates preserve its renderer
-and the user's camera; changing route semantics clears the prior selection.
-Passport retains its own data-dependent composition and interaction behavior.
+`PassportGlobe` and `DetailGlobe` remain in the source tree without a production
+importer. `GlobeMap` and the renderer are exercised by Globe Lab; a non-detail
+`GlobeMap` failure still falls back to the unthemed `PassportRouteMap`.
 
 ## Rendering and lifecycle
 
@@ -44,16 +32,15 @@ demand and respects hidden-page and reduced-motion behavior. `GlobeMap` disposes
 controls before React detaches the canvas, and the renderer releases listeners,
 geometry, materials and textures, including textures that finish loading late.
 
-Globe UI text uses the regular locale resources. The DEV-only `/globe-lab` remains
-a diagnostic surface; Three.js and the production Globe are also shipped in the
-released application's lazy modules.
+Globe UI text uses the regular locale resources. The DEV-only `/globe-lab` is the
+only surface that loads Three.js and the Globe.
 
 ## Source entry points
 
 | Source                                                                                                                                        | Responsibility                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| [PassportPage](../apps/web/src/pages/PassportPage.tsx) / [PassportGlobe](../apps/web/src/globe/PassportGlobe.tsx)                             | Desktop loading and Passport selection integration            |
-| [FlightDetailPage](../apps/web/src/pages/FlightDetailPage.tsx) / [DetailGlobe](../apps/web/src/globe/DetailGlobe.tsx)                         | Desktop single-route composition and unavailable-route states |
+| [PassportGlobe](../apps/web/src/globe/PassportGlobe.tsx)                                                                                      | Retained Passport wrapper (no production importer)            |
+| [DetailGlobe](../apps/web/src/globe/DetailGlobe.tsx)                                                                                          | Retained single-route wrapper (no production importer)        |
 | [GlobeMap](../apps/web/src/globe/GlobeMap.tsx)                                                                                                | React lifecycle, updates, retry and variant-specific fallback |
 | [Renderer](../apps/web/src/globe/globe-renderer.ts) / [math](../apps/web/src/globe/globe-math.ts)                                             | Scene ownership, picking, camera and route geometry           |
 | [Lighting](../apps/web/src/globe/globe-lighting.ts) / [solar](../apps/web/src/globe/globe-solar.ts)                                           | Current material defaults and fixed/realtime solar model      |

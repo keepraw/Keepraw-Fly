@@ -181,45 +181,23 @@ for (const appearance of ["light", "dark"] as const) {
         [1920, 1080],
       ]) {
         await page.setViewportSize({ width, height });
-        const host = page.locator(".detail-globe-frame .globe-host");
-        await expect(host).toHaveAttribute("data-ready", "true", {
-          timeout: 25000,
-        });
+        const frame = page.locator(".detail-flight-map");
+        await expect(frame.locator(".map-route.is-selected")).toHaveCount(1);
         await expectTimeGrid(page, width);
         const geometry = await expectDetailHero(page, width);
         // Content-led: the Hero no longer stretches to the viewport bottom,
         // yet the core flight information still reads within the first screen.
         expect(geometry.heroBottom).toBeLessThan(height);
         expect(geometry.stops.bottom).toBeLessThanOrEqual(height);
-        const frame = page.locator(".detail-globe-frame");
-        await expect(frame).toHaveAttribute("data-theme", appearance);
-        await frame.hover({ position: { x: 12, y: 12 } });
-        const controls = frame.locator(".globe-controls");
-        await expect(controls).toHaveCSS("opacity", "1");
+        // The map frame is the viewport; its controls stay inside the frame
+        // corner instead of a viewport-driven Hero gutter.
+        const controls = frame.locator(".map-zoom-controls");
+        await expect(controls.getByRole("button")).toHaveCount(3);
         const box = (await controls.boundingBox())!;
-        // The square Globe frame is the rendering viewport; its controls sit
-        // in the frame's corner instead of a viewport-driven Hero gutter.
-        expect(geometry.map!.right - box.x - box.width).toBeCloseTo(8, 0);
-        expect(geometry.map!.bottom - box.y - box.height).toBeCloseTo(8, 0);
-        // The controls must clear the physical atmosphere, not merely labels.
-        const viewport = (await host.boundingBox())!;
-        const atmosphereRadius = await host.evaluate((element) => {
-          const scene = JSON.parse((element as HTMLElement).dataset.scene!);
-          const distance = Math.hypot(...scene.camera);
-          return (
-            (1.026 * scene.viewport.height) /
-            (2 *
-              Math.sqrt(distance ** 2 - 1.026 ** 2) *
-              Math.tan((scene.fov * Math.PI) / 360))
-          );
-        });
-        const centerX = viewport.x + viewport.width / 2;
-        const centerY = viewport.y + viewport.height / 2;
-        const closestX = Math.max(box.x, Math.min(centerX, box.x + box.width));
-        const closestY = Math.max(box.y, Math.min(centerY, box.y + box.height));
-        expect(
-          Math.hypot(closestX - centerX, closestY - centerY),
-        ).toBeGreaterThan(atmosphereRadius + 4);
+        expect(box.x).toBeGreaterThanOrEqual(geometry.map!.x);
+        expect(box.x + box.width).toBeLessThanOrEqual(geometry.map!.right);
+        expect(box.y).toBeGreaterThanOrEqual(geometry.map!.top);
+        expect(box.y + box.height).toBeLessThanOrEqual(geometry.map!.bottom);
         await expectHealthyPage(page, errors);
       }
       await page.setViewportSize({ width: 390, height: 900 });
@@ -287,15 +265,12 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           );
           expect(globeRequests).toEqual([]);
         } else {
-          await expect(
-            page.locator(".detail-globe-frame .globe-host"),
-          ).toHaveAttribute("data-ready", "true", { timeout: 25000 });
-          await expect(page.locator(".globe-airport-label")).toHaveText([
-            "PEK",
-            "PVG",
-          ]);
-          for (const label of await page.locator(".globe-airport-label").all())
+          const labels = page.locator(".detail-flight-map .map-airport-label");
+          await expect(labels).toHaveText(["PEK", "PVG"]);
+          for (const label of await labels.all())
             await expect(label).toBeVisible();
+          await expect(page.locator("canvas")).toHaveCount(0);
+          expect(globeRequests).toEqual([]);
         }
         await expectTimeGrid(page, width);
         await expectDetailHero(page, width);
@@ -303,25 +278,15 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           const stops = (await page.locator(".detail-stops").boundingBox())!;
           const map = (await page.locator(".detail-route-map").boundingBox())!;
           expect(map.x).toBeGreaterThan(stops.x + stops.width);
-          await expect(
-            page.locator(".detail-globe-frame .globe-stage"),
-          ).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
         }
         await expectHealthyPage(page, errors);
       }
-      if (appearance === "system") {
-        await page.setViewportSize({ width: 1440, height: 900 });
-        await page.emulateMedia({ colorScheme: "light" });
-        await expect(page.locator(".detail-globe-frame")).toHaveAttribute(
-          "data-theme",
-          "light",
-        );
-        await page.emulateMedia({ colorScheme: "dark" });
-        await expect(page.locator(".detail-globe-frame")).toHaveAttribute(
-          "data-theme",
-          "dark",
-        );
-      }
+      // The map follows the map theme setting, not the page appearance.
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(page.locator(".detail-flight-map")).toHaveAttribute(
+        "data-map-theme",
+        "neon-aviation",
+      );
       for (const record of records.slice(1)) {
         await page.setViewportSize({ width: 390, height: 900 });
         await page.locator(".detail-header-back").click();
@@ -332,8 +297,8 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await page.setViewportSize({ width, height: 900 });
           if (width >= 1200 && !record.cancelled)
             await expect(
-              page.locator(".detail-globe-frame .globe-host"),
-            ).toHaveAttribute("data-ready", "true", { timeout: 25000 });
+              page.locator(".detail-flight-map .map-route.is-selected"),
+            ).toHaveCount(1);
           if (record.id === "overnight" || record.id === "international")
             await expect(
               page.locator(".detail-stop--arrival .detail-airport-time"),

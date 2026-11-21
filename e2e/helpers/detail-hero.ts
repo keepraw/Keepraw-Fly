@@ -70,72 +70,51 @@ export async function expectDetailHero(page: Page, width: number) {
       geometry.information.width / (geometry.information.width + map.width);
     expect(ratio).toBeGreaterThanOrEqual(0.55);
     expect(ratio).toBeLessThanOrEqual(0.6);
-    const sky = page.locator(".detail-hero-grid > .detail-hero-space");
-    await expect(sky).toHaveCount(1);
-    await expect(sky).toHaveCSS("pointer-events", "none");
-    const skyBounds = (await sky.boundingBox())!;
-    expect(skyBounds.x).toBeGreaterThanOrEqual(geometry.information.right - 1);
-    expect(skyBounds.x + skyBounds.width).toBeLessThanOrEqual(width + 1);
-    if (geometry.shelf)
-      expect(skyBounds.y + skyBounds.height).toBeLessThanOrEqual(
-        geometry.shelf.top + 1,
-      );
-    const host = page.locator(".detail-globe-frame .globe-host:not([hidden])");
-    if (await host.count()) {
-      await expect(host).toHaveAttribute("data-ready", "true", {
-        timeout: 25000,
-      });
+    // The 2D route map never mounts the Globe's decorative sky.
+    await expect(page.locator(".detail-hero-space")).toHaveCount(0);
+    await expect(page.locator(".detail-globe-frame, canvas")).toHaveCount(0);
+    const viewport = page.locator(".detail-flight-map .map-viewport");
+    if (await viewport.count()) {
       // Content-led Hero: no viewport-driven padding or row height. The title
-      // starts at the Hero's natural top; the Globe is its own square frame
-      // with 16px breathing room, capped at 560px, and the Hero is exactly as
-      // tall as the taller of the two columns.
+      // and the 4:3 route map both start at the Hero's natural top, and the
+      // Hero is exactly as tall as the taller of the two columns.
       expect(geometry.heroPaddingTop).toBe(0);
       expect(geometry.heroPaddingBottom).toBe(0);
       expect(geometry.information.top).toBeCloseTo(geometry.hero.top, 0);
       expect(geometry.heading.top).toBeCloseTo(geometry.hero.top, 0);
-      expect(map.top).toBeCloseTo(geometry.hero.top + 16, 0);
-      expect(map.height).toBeCloseTo(Math.min(map.width, 560), 0);
+      expect(map.top).toBeCloseTo(geometry.hero.top, 0);
+      expect(map.height).toBeCloseTo((map.width * 3) / 4, 0);
       expect(geometry.hero.height).toBeCloseTo(
-        Math.max(geometry.information.height, map.height + 32),
+        Math.max(geometry.information.height, map.height),
         0,
       );
       expect(geometry.stops.bottom).toBeLessThanOrEqual(
         geometry.information.bottom + 1,
       );
-      expect(skyBounds.height).toBeLessThanOrEqual(560 + 96 + 1);
-      const viewport = (await host.boundingBox())!;
-      expect(viewport.width).toBeCloseTo(map.width, 0);
-      expect(viewport.height).toBeCloseTo(map.height, 0);
-      expect(viewport.y + viewport.height / 2).toBeCloseTo(
-        map.top + map.height / 2,
-        0,
-      );
-      const labels = (await page
-        .locator(".detail-globe-frame .globe-labels")
-        .boundingBox())!;
-      expect(labels).toEqual(viewport);
-      await expect
-        .poll(() =>
-          host.evaluate(
-            (element) =>
-              JSON.parse((element as HTMLElement).dataset.scene!).viewport
-                .height - element.clientHeight,
-          ),
-        )
-        .toBe(0);
-      // Verify the physical atmosphere fits inside the real rendering viewport.
-      // This does not infer clipping from a stretched wrapper or a CSS mask.
-      const atmosphereRatio = await host.evaluate((element) => {
-        const scene = JSON.parse((element as HTMLElement).dataset.scene!);
-        const distance = Math.hypot(...scene.camera);
-        return (
-          1.026 /
-          (Math.sqrt(distance ** 2 - 1.026 ** 2) *
-            Math.tan((scene.fov * Math.PI) / 360) *
-            Math.min(1, scene.viewport.width / scene.viewport.height))
+      const bounds = (await viewport.boundingBox())!;
+      expect(bounds.width).toBeCloseTo(map.width, 0);
+      expect(bounds.height).toBeCloseTo(map.height, 0);
+      // Automatic framing keeps both endpoints inside the map.
+      const markers = await page
+        .locator(".detail-flight-map .map-airport:not(.is-planned)")
+        .evaluateAll((elements) =>
+          elements.map((element) => {
+            const rect = element
+              .querySelector(".map-airport-point")!
+              .getBoundingClientRect();
+            return {
+              x: rect.x + rect.width / 2,
+              y: rect.y + rect.height / 2,
+            };
+          }),
         );
-      });
-      expect(atmosphereRatio).toBeLessThanOrEqual(0.98);
+      expect(markers).toHaveLength(2);
+      for (const marker of markers) {
+        expect(marker.x).toBeGreaterThan(bounds.x);
+        expect(marker.x).toBeLessThan(bounds.x + bounds.width);
+        expect(marker.y).toBeGreaterThan(bounds.y);
+        expect(marker.y).toBeLessThan(bounds.y + bounds.height);
+      }
     } else {
       // Status-only views keep their own natural height: no square slot, no
       // breathing margins and no sky.
@@ -144,7 +123,7 @@ export async function expectDetailHero(page: Page, width: number) {
       await expect(map_).toHaveCSS("margin-top", "0px");
       const content = await map_.evaluate((element) => {
         const child = element.querySelector<HTMLElement>(
-          ".detail-globe-message, .globe-fallback",
+          ".detail-flight-map-message",
         )!;
         return {
           height: child.scrollHeight,

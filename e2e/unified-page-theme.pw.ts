@@ -1,5 +1,5 @@
 import { openSettingsCategory } from "./helpers/settings";
-import { expectDetailGlobe } from "./helpers/detail-globe";
+import { expectDetailMap } from "./helpers/detail-map";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
@@ -124,10 +124,7 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1199, 1200, 1440]) {
           page.locator(".flight-deviation.is-late").first(),
         ).toHaveCSS("color", colors[dark ? "dark" : "light"].warning);
         if (width >= 1200) {
-          await expectDetailGlobe(page);
-          await expect(
-            page.locator(".detail-globe-frame .globe-stage"),
-          ).toHaveAttribute("data-theme", dark ? "dark" : "light");
+          await expectDetailMap(page);
         } else await expect(page.locator(".detail-route-map")).toHaveCount(0);
         // Switch the OS on the mounted Detail page, without a reload or navigation.
         if (mode === "system") {

@@ -1,6 +1,6 @@
 import { openSettingsCategory } from "./helpers/settings";
 import { expectDetailHero } from "./helpers/detail-hero";
-import { expectDetailGlobe } from "./helpers/detail-globe";
+import { expectDetailMap } from "./helpers/detail-map";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -415,7 +415,9 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       expect(fit.noOverflow).toBe(true);
       if (viewport.width <= 760) expect(fit.smallTargets).toEqual([]);
       if (category === "常规") {
-        await expect(region.getByRole("combobox").nth(4)).toHaveValue("fixed");
+        await expect(region.getByRole("combobox").nth(4)).toHaveValue(
+          "neon-aviation",
+        );
         for (const select of await region.getByRole("combobox").all()) {
           await expect(select).toHaveCSS("opacity", "1");
           await expect(select).not.toHaveCSS("position", "absolute");
@@ -889,9 +891,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
   expect(mobile.pageOverflow).toBe("visible");
   expect(mobile.pageScrolls).toBe(true);
   expect(mobile.fitsWidth).toBe(true);
-  await expect(
-    page.locator(".route-map-canvas, .route-map-loading"),
-  ).toHaveCount(0);
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+  await expect(page.locator(".route-map-loading, canvas")).toHaveCount(0);
   await page.setViewportSize({ width: 901, height: 900 });
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
 });
@@ -907,9 +908,8 @@ test("keeps the mobile Passport composition visually stable", async ({
   );
   await expect(page.locator(".mobile-navigation")).toHaveCount(0);
   await page.getByRole("button", { name: "Try demo" }).click();
-  await expect(
-    page.locator(".route-map-canvas, .route-map-loading"),
-  ).toHaveCount(0);
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+  await expect(page.locator(".route-map-loading, canvas")).toHaveCount(0);
 
   for (const viewport of [
     { width: 375, height: 812 },
@@ -918,9 +918,7 @@ test("keeps the mobile Passport composition visually stable", async ({
     { width: 760, height: 900 },
   ]) {
     await page.setViewportSize(viewport);
-    await expect(
-      page.locator(".route-map-canvas, .route-map-loading"),
-    ).toHaveCount(0);
+    await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
     await page.evaluate(async () => {
       window.scrollTo({ top: 0, behavior: "instant" });
       await document.fonts.ready;
@@ -987,8 +985,9 @@ test("keeps the mobile Passport composition visually stable", async ({
         archiveFollowsPanels:
           firstFlightYear.getBoundingClientRect().top >
           network.getBoundingClientRect().bottom,
-        noMapPlaceholder:
-          document.querySelector(".route-map, .route-map-loading") === null,
+        mapWithoutPlaceholder:
+          document.querySelector(".route-map[data-map-theme] svg") !== null &&
+          document.querySelector(".route-map-loading, canvas") === null,
         highlightsAbsent:
           document.querySelector(
             ".passport-highlights, .passport-highlight",
@@ -1016,7 +1015,7 @@ test("keeps the mobile Passport composition visually stable", async ({
     expect(composition.panelContentsFit).toBe(true);
     expect(composition.panelsOrdered).toBe(true);
     expect(composition.archiveFollowsPanels).toBe(true);
-    expect(composition.noMapPlaceholder).toBe(true);
+    expect(composition.mapWithoutPlaceholder).toBe(true);
     expect(composition.highlightsAbsent).toBe(true);
     expect(composition.periodYears).toEqual(["All", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
@@ -1142,7 +1141,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
   await page.getByRole("button", { name: /Open UA123/ }).click();
-  await expectDetailGlobe(page);
+  await expectDetailMap(page);
 
   for (const viewport of [
     { width: 1440, height: 900 },
@@ -1668,8 +1667,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     .getByRole("button", { name: /Open |打开 |打開 / })
     .first()
     .click();
-  await expectDetailGlobe(page);
-  await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
+  await expectDetailMap(page);
   await expect(
     page.locator(".detail-stop--departure .detail-stop-facts"),
   ).toContainText("F12");
@@ -1746,7 +1744,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     };
   });
   expect(passportPresentation).toEqual({
-    canvasHasDepth: true,
+    canvasHasDepth: false,
     countryPaths: 177,
     graticules: 1,
     highlightsVisible: true,
@@ -1758,7 +1756,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     switcherBorderRadius: "0px",
     switcherBackgroundImage: "none",
     visitedCountries: 9,
-    worldSilhouettes: 1,
+    worldSilhouettes: 0,
     zoomControls: 3,
   });
 
@@ -1792,7 +1790,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     await page.locator(".route-map-canvas").getAttribute("data-zoom"),
   ).toBe("8.00");
   await expect(
-    page.locator(".route-map-canvas .map-world > .map-sphere"),
+    page.locator(".route-map-canvas .map-world > .map-land-fill"),
   ).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
   await expect(mapCanvas).toHaveAttribute("data-zoom", fittedZoom!);
@@ -1823,7 +1821,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     page.locator(".route-map-canvas .map-viewport-content"),
   ).not.toHaveAttribute("transform", beforePan!);
   await expect(
-    page.locator(".route-map-canvas .map-world > .map-sphere"),
+    page.locator(".route-map-canvas .map-world > .map-land-fill"),
   ).toHaveCount(1);
   await page.getByRole("button", { name: "Fit recorded routes" }).click();
   await expect(mapCanvas).toHaveAttribute("data-zoom", fittedZoom!);
@@ -2009,12 +2007,11 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
       );
     });
   expect(mapSurface).toBeLessThan(30);
-  await expectDetailGlobe(page);
-  await expect(page.locator(".detail-globe-frame svg")).toHaveCount(0);
+  await expectDetailMap(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(
-    page.locator(".detail-globe-frame, .detail-route-map-loading"),
+    page.locator(".detail-flight-map, .detail-route-map-loading"),
   ).toHaveCount(0);
   await expect(page.locator(".detail-metadata-column").first()).toContainText(
     "B-1234",

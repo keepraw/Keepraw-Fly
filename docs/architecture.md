@@ -135,17 +135,13 @@ The texture is 554 KiB and does not replace airport/route geometry. Regenerate t
 `python scripts/generate-map-relief.py /path/to/SR_50M.tif`; the pinned download,
 archive checksum and public-domain license are in `map-relief.source.json`.
 
-Desktop Flight Detail (at least 1200px) lazily loads `DetailGlobe`, reusing the
-Passport Three.js renderer and `buildRouteSegments([flight])`. It draws only the
-current route, including the actual diversion airport; cancelled flights and
-unknown or invalid coordinates show localized explanations. Its independent
-camera fits the sampled great-circle arc to the container, including polar,
-date-line, coincident and antipodal routes. Home restores that route's composition;
-resize recomposes Home while preserving a user-operated camera. Theme, language
-and solar updates preserve the renderer. Mobile Detail creates no map or WebGL
-context and requests no Globe code or imagery. Detail has no SVG map or fallback:
-WebGL, context and texture failures provide localized retry. Passport keeps its
-existing default composition, materials, interaction and SVG failure path.
+Desktop Flight Detail (at least 1200px) mounts the 2D `FlightRouteMap`. It draws
+only the current route, including the actual diversion airport and a dashed
+planned leg; cancelled flights and unknown or invalid coordinates show localized
+explanations. Its camera fits the sampled great-circle arc to the container,
+recentred on the route for polar and date-line flights. Mobile Detail creates no
+map. Passport mounts the themed 2D `PassportMap` at every width. Both maps use the
+map theme chosen in Settings; see [2D map architecture](map-2d-architecture.md).
 
 Passport alone permits an overview zoom below 1 to fit the full world into wide
 stages; regional cameras retain 16% padding and a maximum initial zoom of 6 for
@@ -156,7 +152,7 @@ fall back to IATA when a city is unavailable, and flag arrival delays of at leas
 
 ## Source entry points
 
-- [Current production Globe](globe.md), including Passport/Detail differences and fallback
+- [Retained Globe source](globe.md), reachable only through the DEV-only Globe Lab
 - [Storage contracts](../apps/web/src/storage/adapter.ts) and
   [browser persistence](../apps/web/src/storage/browser.ts)
 - [JSON import preflight](../apps/web/src/data/import-preview.ts) and

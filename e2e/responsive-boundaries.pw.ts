@@ -1,5 +1,5 @@
 import { openSettingsCategory } from "./helpers/settings";
-import { expectDetailGlobe } from "./helpers/detail-globe";
+import { expectDetailMap } from "./helpers/detail-map";
 import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
@@ -327,24 +327,13 @@ for (const theme of ["light", "dark"]) {
       await page.setViewportSize({ width: 1200, height: 390 });
       await expectDetailLayout(page);
       await expect(page.locator(".detail-header-more")).toBeHidden();
-      const capable = await expectDetailGlobe(page);
-      const controls = page.locator(".detail-globe-frame .globe-controls");
-      if (capable) {
-        await page
-          .locator(".detail-globe-frame")
-          .hover({ position: { x: 12, y: 12 } });
-        await expectReachable(
-          controls.getByRole("button", { name: "Zoom out", exact: true }),
-        );
-        await controls
-          .getByRole("button", { name: "Zoom out", exact: true })
-          .click();
-        await controls
-          .getByRole("button", { name: "Zoom in", exact: true })
-          .click();
-        await controls
-          .getByRole("button", { name: "Fit recorded routes", exact: true })
-          .click();
+      const controls = (await expectDetailMap(page)).locator(
+        ".map-zoom-controls",
+      );
+      for (const name of ["Zoom out", "Zoom in", "Fit recorded routes"]) {
+        const control = controls.getByRole("button", { name, exact: true });
+        await expectReachable(control);
+        await control.click();
       }
       await expectReachable(
         page.locator(".detail-stop--arrival .detail-airport-time"),

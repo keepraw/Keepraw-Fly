@@ -304,6 +304,11 @@
 
   .passport-archive-page .route-map-canvas {
     min-height: 0;
+  }
+
+  /* Legacy paint below applies only to the unthemed fallback map; a themed
+     map (data-map-theme) is styled entirely by its theme tokens. */
+  .passport-archive-page .route-map:not([data-map-theme]) .route-map-canvas {
     background: radial-gradient(
       ellipse at 55% 28%,
       var(--color-map-surface),
@@ -337,21 +342,27 @@
     background: var(--color-map-tooltip);
   }
 
-  .passport-archive-page .map-world--aviation .map-country {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-world--aviation
+    .map-country {
     opacity: 0.16;
     stroke-width: 0.35;
   }
 
-  .passport-archive-page .map-world--aviation .map-country.is-visited {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-world--aviation
+    .map-country.is-visited {
     opacity: 0.26;
   }
 
-  .passport-archive-page .map-coastline {
+  .passport-archive-page .route-map:not([data-map-theme]) .map-coastline {
     stroke-width: 0.6;
     stroke: color-mix(in srgb, var(--color-map-outline) 66%, transparent);
   }
 
-  .passport-archive-page .map-graticule {
+  .passport-archive-page .route-map:not([data-map-theme]) .map-graticule {
     stroke: var(--color-map-outline);
     stroke-width: 0.5;
     opacity: 0.18;
@@ -370,17 +381,24 @@
     display: none;
   }
 
-  .passport-archive-page .map-routes .map-route-underlay {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-routes
+    .map-route-underlay {
     stroke-width: calc(var(--map-route-width) + 0.5px);
     opacity: 0.3;
   }
 
-  .passport-archive-page .map-routes .map-route-line {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-routes
+    .map-route-line {
     stroke-width: var(--map-route-width);
     opacity: 1;
   }
 
   .passport-archive-page
+    .route-map:not([data-map-theme])
     .map-routes.has-highlight
     .map-route:not(.is-highlighted)
     .map-route-line {
@@ -388,6 +406,7 @@
   }
 
   .passport-archive-page
+    .route-map:not([data-map-theme])
     .map-route:is(:hover, .is-selected, .is-highlighted)
     .map-route-line {
     stroke: var(--passport-route-selected);
@@ -399,13 +418,14 @@
     );
   }
 
-  .passport-archive-page .map-airport-point {
+  .passport-archive-page .route-map:not([data-map-theme]) .map-airport-point {
     filter: drop-shadow(
       0 0 calc(2 * var(--passport-px, 1px)) var(--color-map-airport)
     );
   }
 
   .passport-archive-page
+    .route-map:not([data-map-theme])
     .map-route:is(:hover, .is-selected, .is-highlighted)
     .map-route-underlay {
     stroke-width: calc(
@@ -414,18 +434,27 @@
     opacity: 0.5;
   }
 
-  .passport-archive-page .map-airport.is-selected .map-airport-point {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-airport.is-selected
+    .map-airport-point {
     fill: var(--passport-route-selected);
     stroke: var(--color-map-tooltip);
     stroke-width: 1.5;
   }
 
-  .passport-archive-page .map-airport.is-selected .map-airport-ring {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-airport.is-selected
+    .map-airport-ring {
     stroke: var(--passport-route-selected);
     fill: color-mix(in srgb, var(--passport-route-selected) 12%, transparent);
   }
 
-  .passport-archive-page .map-route:focus-visible .map-route-underlay {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-route:focus-visible
+    .map-route-underlay {
     stroke: var(--color-focus);
     stroke-width: calc(
       var(--map-route-width) + calc(4 * var(--passport-px, 1px))
@@ -433,7 +462,10 @@
     opacity: 1;
   }
 
-  .passport-archive-page .map-airport:focus-visible .map-airport-ring {
+  .passport-archive-page
+    .route-map:not([data-map-theme])
+    .map-airport:focus-visible
+    .map-airport-ring {
     stroke: var(--color-focus);
     stroke-width: 2;
   }
