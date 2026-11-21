@@ -339,7 +339,21 @@ function drawMrzBand(context: CanvasRenderingContext2D) {
   context.fillStyle = rgba(tokens.color.labelHalo, 0.72);
   context.fillRect(0, 1194, NEON_POSTER_SIZE.width, 156);
   context.fillStyle = rgba(tokens.color.label);
-  context.font = `400 27px ${tokens.type.family.data}`;
-  context.fillText("P<KRF<<KEEPRAW<TRAVELER<<<<<<<<<<<<<<<<<<<<", 36, 1258);
-  context.fillText("SPECIMEN<<NEON<AVIATION<<<<<<<<<<<<<<<<<<<<", 36, 1308);
+  context.font = `400 30px ${tokens.type.family.data}`;
+  context.textAlign = "center";
+  // TD3 machine-readable lines are 44 cells and span the full page width.
+  const cells = 44;
+  const margin = 36;
+  const advance = (NEON_POSTER_SIZE.width - margin * 2) / cells;
+  const lines = ["P<KRF<<KEEPRAW<TRAVELER", "SPECIMEN<<NEON<AVIATION"];
+  for (const [row, line] of lines.entries()) {
+    const text = line.padEnd(cells, "<");
+    for (let cell = 0; cell < cells; cell += 1)
+      context.fillText(
+        text[cell]!,
+        margin + advance * (cell + 0.5),
+        1258 + row * 50,
+      );
+  }
+  context.textAlign = "start";
 }
