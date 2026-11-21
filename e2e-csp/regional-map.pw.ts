@@ -40,7 +40,8 @@ test("fits all 3,080 regional routes in the production Passport SVG fallback", a
     .getByRole("button", { name: "Import this archive", exact: true })
     .click();
   const fallback = page.locator(".globe-fallback .map-viewport");
-  await expect(fallback).toBeVisible();
+  // The production Globe loads lazily while Passport renders the large archive.
+  await expect(fallback).toBeVisible({ timeout: 30_000 });
   await expect(fallback.locator(".map-airports .map-airport")).toHaveCount(56);
   await expect(fallback.locator(".map-routes .map-route")).toHaveCount(3_080);
   const camera = await fallback
