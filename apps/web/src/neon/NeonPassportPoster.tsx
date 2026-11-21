@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createNeonPassportExport,
   NEON_POSTER_SIZE,
   renderNeonPassport,
 } from "./neon-passport-canvas";
 import { preparePosterFonts } from "../share/poster-fonts";
+import { NEON_AVIATION } from "./neon-aviation-tokens";
 
 type NeonExportWindow = Window & {
   __neonPassportExport?: (scale: number) => string;
@@ -12,28 +13,30 @@ type NeonExportWindow = Window & {
 
 export function NeonPassportPoster() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const exportWindow = window as NeonExportWindow;
     let active = true;
-    void Promise.all([
+    void Promise.allSettled([
       document.fonts.load('600 56px "Barlow Semi Condensed"'),
       document.fonts.load('400 13px "IBM Plex Mono"'),
       preparePosterFonts("en", {
         sample: "FLIGHT PASSPORT · PASSEPORT · 护照",
       }),
-    ]).then(([, , fonts]) => {
+    ] as const).then(([, , fonts]) => {
       if (!active) return;
-      renderNeonPassport(
-        canvas,
-        window.devicePixelRatio || 1,
-        fonts.families.text,
-      );
+      const cjkFontFamily =
+        fonts.status === "fulfilled"
+          ? fonts.value.families.text
+          : NEON_AVIATION.type.family.label;
+      renderNeonPassport(canvas, window.devicePixelRatio || 1, cjkFontFamily);
       canvas.dataset.ready = "true";
       exportWindow.__neonPassportExport = (scale) =>
-        createNeonPassportExport(scale, fonts.families.text);
+        createNeonPassportExport(scale, cjkFontFamily);
+      setReady(true);
     });
     return () => {
       active = false;
@@ -42,7 +45,10 @@ export function NeonPassportPoster() {
   }, []);
 
   return (
-    <figure className="neon-passport-sample" data-neon-passport-ready="true">
+    <figure
+      className="neon-passport-sample"
+      data-neon-passport-ready={ready ? "true" : "false"}
+    >
       <canvas
         ref={canvasRef}
         className="neon-passport-canvas"
