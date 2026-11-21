@@ -579,6 +579,11 @@
     "exportShareable": "Exportar sin datos personales",
     "exportShareableNote": "Para compartir estadísticas: elimina nombres, localizadores, números de billete y de socio, y extensiones no reconocidas. No es una copia de seguridad. Se conservan fechas exactas, vuelos y asientos, por lo que el archivo no es anónimo.",
     "exportSensitiveWarning": "Las copias de seguridad completas contienen datos personales como nombres de pasajeros, localizadores de reserva (PNR), números de billete y de viajero frecuente. Guárdalas y compártelas con cuidado.",
+    "exportErrors": {
+      "too-many-records": "Una copia completa supera el límite de restauración de {{records, number}} vuelos.",
+      "file-too-large": "Una copia completa supera el límite de restauración de {{limit}}, incluso en JSON compacto.",
+      "download-failed": "No se pudo descargar la copia del archivo."
+    },
     "data": "Datos",
     "localDataTitle": "Datos locales",
     "localDataDescription": "Los registros de vuelo se almacenan únicamente en este navegador.",
@@ -691,6 +696,7 @@
     "clearDescription": "Elimina permanentemente el archivo guardado en este dispositivo. Esta acción no se puede deshacer.",
     "clearConfirmation": "¿Eliminar permanentemente el archivo local? Esta acción no se puede deshacer. Descarga primero una copia de recuperación si quieres conservar los datos originales.",
     "downloadError": "No se pudo descargar la copia de recuperación. Tus datos almacenados no han sido modificados.",
+    "unsafeDownloadError": "No se puede generar de forma segura una copia de recuperación completa en JSON. Tu archivo local sigue guardado en este dispositivo.",
     "retryError": "No se pudo leer el archivo local. Tus datos almacenados no han sido modificados.",
     "importReadError": "No se pudo abrir la copia de seguridad. Tus datos almacenados no han sido modificados.",
     "importError": "No se pudo guardar la copia de seguridad. Tus datos almacenados no han sido modificados.",

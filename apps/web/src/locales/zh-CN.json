@@ -518,6 +518,11 @@
     "exportShareable": "导出去除个人信息的版本",
     "exportShareableNote": "用于分享统计：去除姓名、订座记录、客票号、会员号及无法识别的扩展数据。不能作为备份。精确日期、航班和座位仍会保留，因此并非完全匿名。",
     "exportSensitiveWarning": "完整备份包含乘客姓名、订座记录（PNR）、客票号和常旅客会员号等个人信息，请妥善保存和分享。",
+    "exportErrors": {
+      "too-many-records": "完整备份超过 {{records, number}} 条航班记录的恢复上限。",
+      "file-too-large": "完整备份即使用紧凑 JSON 格式也超过 {{limit}} 的恢复上限。",
+      "download-failed": "无法下载档案副本。"
+    },
     "data": "数据",
     "localDataTitle": "本地数据",
     "localDataDescription": "航班记录仅保存在当前浏览器中。",
@@ -630,6 +635,7 @@
     "clearDescription": "永久删除此设备上存储的档案。此操作无法撤销。",
     "clearConfirmation": "永久清空本地档案？此操作无法撤销。如需保留原始数据，请先下载恢复副本。",
     "downloadError": "无法下载恢复副本。原始存储数据未被修改。",
+    "unsafeDownloadError": "无法以 JSON 格式安全生成完整的恢复副本。本地档案仍保存在此设备上。",
     "retryError": "无法读取本地档案。原始存储数据未被修改。",
     "importReadError": "无法打开备份。原始存储数据未被修改。",
     "importError": "无法保存备份。原始存储数据未被修改。",

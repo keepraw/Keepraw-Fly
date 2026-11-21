@@ -550,6 +550,11 @@
     "exportShareable": "Export without personal details",
     "exportShareableNote": "For sharing statistics: removes names, booking references, ticket and member numbers, and unrecognized extensions. Not a backup. Exact dates, flights and seats remain, so the file is not anonymous.",
     "exportSensitiveWarning": "Full backups contain personal details such as passenger names, booking references (PNR), ticket numbers and frequent flyer numbers. Store and share them carefully.",
+    "exportErrors": {
+      "too-many-records": "A full backup exceeds the restore limit of {{records, number}} flights.",
+      "file-too-large": "A full backup exceeds the restore limit of {{limit}}, even in compact JSON.",
+      "download-failed": "The archive copy could not be downloaded."
+    },
     "data": "Data",
     "localDataTitle": "Local data",
     "localDataDescription": "Flight records are stored only in this browser.",
@@ -662,6 +667,7 @@
     "clearDescription": "Permanently delete the archive stored on this device. This cannot be undone.",
     "clearConfirmation": "Permanently clear the local archive? This cannot be undone. Download a recovery copy first if you need to keep the original data.",
     "downloadError": "The recovery copy could not be downloaded. Your stored data has not been changed.",
+    "unsafeDownloadError": "A complete recovery copy cannot be safely generated in JSON. Your local archive is still stored on this device.",
     "retryError": "The local archive could not be read. Your stored data has not been changed.",
     "importReadError": "The backup could not be opened. Your stored data has not been changed.",
     "importError": "The backup could not be saved. Your stored data has not been changed.",

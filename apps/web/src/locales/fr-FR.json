@@ -579,6 +579,11 @@
     "exportShareable": "Exporter sans données personnelles",
     "exportShareableNote": "Pour partager des statistiques : supprime les noms, références de réservation, numéros de billet et de membre, et les extensions non reconnues. Ce n’est pas une sauvegarde. Les dates exactes, vols et sièges sont conservés : le fichier n’est donc pas anonyme.",
     "exportSensitiveWarning": "Les sauvegardes complètes contiennent des données personnelles : noms des passagers, références de réservation (PNR), numéros de billet et de fidélité. Conservez-les et partagez-les avec prudence.",
+    "exportErrors": {
+      "too-many-records": "Une sauvegarde complète dépasse la limite de restauration de {{records, number}} vols.",
+      "file-too-large": "Une sauvegarde complète dépasse la limite de restauration de {{limit}}, même en JSON compact.",
+      "download-failed": "La copie de l’archive n’a pas pu être téléchargée."
+    },
     "data": "Données",
     "localDataTitle": "Données locales",
     "localDataDescription": "Les enregistrements de vol sont stockés uniquement dans ce navigateur.",
@@ -691,6 +696,7 @@
     "clearDescription": "Supprimez définitivement les archives enregistrées sur cet appareil. Cette action est irréversible.",
     "clearConfirmation": "Effacer définitivement les archives locales ? Cette action est irréversible. Téléchargez d’abord une copie de récupération si vous souhaitez conserver les données d’origine.",
     "downloadError": "La copie de récupération n'a pas pu être téléchargée. Vos données stockées n'ont pas été modifiées.",
+    "unsafeDownloadError": "Impossible de créer en toute sécurité une copie de récupération complète en JSON. Votre archive locale reste enregistrée sur cet appareil.",
     "retryError": "L'archive locale n'a pas pu être lue. Vos données stockées n'ont pas été modifiées.",
     "importReadError": "La sauvegarde n'a pas pu être ouverte. Vos données stockées n'ont pas été modifiées.",
     "importError": "La sauvegarde n'a pas pu être enregistrée. Vos données stockées n'ont pas été modifiées.",

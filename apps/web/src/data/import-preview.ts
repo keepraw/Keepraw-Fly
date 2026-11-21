@@ -8,14 +8,20 @@ import type {
   KeeprawFlyMigration,
   ValidationIssue,
   ValidationResult,
+  validateAndMigrateKeeprawFly,
 } from "@keepraw-fly/validator";
 import {
-  assessFlightImports,
+  assessFlightImportsWork,
   countFlightImportAssessments,
   selectFlightsForImport,
   type FlightImportAssessment,
   type FlightImportCounts,
 } from "./duplicate-detection";
+import { assertRecordCount } from "./import-limits";
+import {
+  finishImportPreflight,
+  type ImportPreflightWork,
+} from "./import-preflight-work";
 
 export interface ImportPreviewSummary {
   flightCount: number;
@@ -42,17 +48,21 @@ export interface JsonImportPreflight extends ImportPreflightCounts {
 export function summarizeImport(
   document: KeeprawFlyDocument,
 ): ImportPreviewSummary {
-  const dates = document.flights
-    .map((flight) => flight.serviceDate)
-    .sort((left, right) => left.localeCompare(right));
+  let firstServiceDate: string | undefined;
+  let lastServiceDate: string | undefined;
+  for (const { serviceDate } of document.flights) {
+    if (!firstServiceDate || serviceDate < firstServiceDate)
+      firstServiceDate = serviceDate;
+    if (!lastServiceDate || serviceDate > lastServiceDate)
+      lastServiceDate = serviceDate;
+  }
+  const profileName = displayProfileName(document.profile.name);
 
   return {
     flightCount: document.flights.length,
-    ...(dates[0] ? { firstServiceDate: dates[0] } : {}),
-    ...(dates.at(-1) ? { lastServiceDate: dates.at(-1) } : {}),
-    ...(displayProfileName(document.profile.name)
-      ? { profileName: displayProfileName(document.profile.name) }
-      : {}),
+    ...(firstServiceDate ? { firstServiceDate } : {}),
+    ...(lastServiceDate ? { lastServiceDate } : {}),
+    ...(profileName ? { profileName } : {}),
   };
 }
 
@@ -61,41 +71,95 @@ export function preflightJsonImport(
   result: ValidationResult,
   existing: KeeprawFlyDocument | null,
 ): JsonImportPreflight {
+  return finishImportPreflight(
+    preflightJsonImportWork(
+      result,
+      existing,
+      result.valid ? result.data.flights.length : countJsonFlightRecords(text),
+    ),
+  );
+}
+
+export function* preflightJsonFileWork(
+  text: string,
+  existing: KeeprawFlyDocument | null,
+  validate: typeof validateAndMigrateKeeprawFly,
+): ImportPreflightWork<JsonImportPreflight> {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return yield* preflightJsonImportWork(
+      {
+        valid: false,
+        reason: "invalid",
+        issues: [
+          {
+            path: "/",
+            keyword: "parse",
+            message: "The file is not valid JSON.",
+          },
+        ],
+      },
+      existing,
+      0,
+    );
+  }
+  const recordCount = rawFlightCount(raw);
+  assertRecordCount(recordCount);
+  yield;
+  const result = validate(raw);
+  yield;
+  return yield* preflightJsonImportWork(result, existing, recordCount);
+}
+
+function* preflightJsonImportWork(
+  result: ValidationResult,
+  existing: KeeprawFlyDocument | null,
+  rawRecordCount: number,
+): ImportPreflightWork<JsonImportPreflight> {
   if (result.valid) {
     const assessments = existing
-      ? assessFlightImports(result.data.flights, existing.flights, "archive")
+      ? yield* assessFlightImportsWork(
+          result.data.flights,
+          existing.flights,
+          "archive",
+        )
       : [];
-    // Equal flight JSON is not an identical record if the same membership
-    // reference identifies a different account in the two archives.
-    const accounts = new Map(
-      existing?.frequentFlyerMemberships?.map((m) => [m.id, m]),
-    );
-    const importedAccounts = new Map(
-      result.data.frequentFlyerMemberships?.map((m) => [m.id, m]),
-    );
-    for (const assessment of assessments) {
-      const id = assessment.flight.frequentFlyer?.membershipId;
-      if (assessment.disposition !== "exact" || !id) continue;
-      const local = accounts.get(id),
-        incoming = importedAccounts.get(id);
-      if (local && incoming && !sameMembership(local, incoming))
-        assessment.disposition = "conflict";
+    const issues: ValidationIssue[] = [];
+    if (assessments.length) {
+      const accounts = new Map<string, FrequentFlyerMembership>();
+      for (const membership of existing?.frequentFlyerMemberships ?? []) {
+        accounts.set(membership.id, membership);
+        yield;
+      }
+      const importedAccounts = new Map<string, FrequentFlyerMembership>();
+      for (const membership of result.data.frequentFlyerMemberships ?? []) {
+        importedAccounts.set(membership.id, membership);
+        yield;
+      }
+      for (const [flightIndex, assessment] of assessments.entries()) {
+        // An otherwise identical flight can refer to a different account.
+        const id = assessment.flight.frequentFlyer?.membershipId;
+        if (assessment.disposition === "exact" && id) {
+          const local = accounts.get(id);
+          const incoming = importedAccounts.get(id);
+          if (local && incoming && !sameMembership(local, incoming))
+            assessment.disposition = "conflict";
+        }
+        if (assessment.disposition === "conflict") {
+          issues.push({
+            path: `/flights/${flightIndex}/id`,
+            flightIndex,
+            keyword: "conflictingFlightId",
+            received: assessment.flight.id,
+            message:
+              "An existing flight with this ID has different facts. Nothing will be appended.",
+          });
+        }
+        yield;
+      }
     }
-    const issues: ValidationIssue[] = assessments.flatMap(
-      ({ disposition, flight }, flightIndex) =>
-        disposition === "conflict"
-          ? [
-              {
-                path: `/flights/${flightIndex}/id`,
-                flightIndex,
-                keyword: "conflictingFlightId",
-                received: flight.id,
-                message:
-                  "An existing flight with this ID has different facts. Nothing will be appended.",
-              },
-            ]
-          : [],
-    );
     return {
       base: existing,
       document: result.data,
@@ -111,15 +175,12 @@ export function preflightJsonImport(
     };
   }
 
-  const rawRecordCount = countJsonFlightRecords(text);
-  const problemIndexes = new Set(
-    result.issues
-      .map((issue) => issue.flightIndex)
-      .filter(
-        (index): index is number =>
-          index !== undefined && index < rawRecordCount,
-      ),
-  );
+  const problemIndexes = new Set<number>();
+  for (const { flightIndex } of result.issues) {
+    if (flightIndex !== undefined && flightIndex < rawRecordCount)
+      problemIndexes.add(flightIndex);
+    yield;
+  }
 
   return {
     base: existing,
@@ -229,13 +290,16 @@ function sameMembership(
 
 function countJsonFlightRecords(text: string): number {
   try {
-    const input = JSON.parse(text) as unknown;
-    if (!input || typeof input !== "object" || Array.isArray(input)) return 0;
-    const flights = (input as { flights?: unknown }).flights;
-    return Array.isArray(flights) ? flights.length : 0;
+    return rawFlightCount(JSON.parse(text));
   } catch {
     return 0;
   }
+}
+
+function rawFlightCount(input: unknown): number {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return 0;
+  const flights = (input as { flights?: unknown }).flights;
+  return Array.isArray(flights) ? flights.length : 0;
 }
 
 function displayProfileName(name: ProfileName | undefined): string | undefined {

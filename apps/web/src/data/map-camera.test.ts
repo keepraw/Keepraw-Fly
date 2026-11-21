@@ -1,11 +1,25 @@
 import { describe, expect, it } from "vitest";
-import type { RoutePoint } from "@keepraw-fly/core";
+import {
+  installAirportDirectory,
+  resolveAirportAtDate,
+  type CompactAirportRow,
+  type RoutePoint,
+} from "@keepraw-fly/core";
+import airportRows from "@keepraw-fly/core/airport-directory";
+import { regionalAirportCodes } from "../../../../tests/fixtures/scale-archives";
 import {
   fitProjectedPoints,
   passportMapCamera,
   WORLD_CAMERA,
 } from "./map-camera";
-import { greatCirclePath } from "./map-geometry";
+import {
+  greatCirclePath,
+  projectPoint,
+  regionalCenterLongitude,
+  sampleGreatCircle,
+  WORLD_HEIGHT,
+  WORLD_WIDTH,
+} from "./map-geometry";
 
 const SZX: RoutePoint = { iata: "SZX", latitude: 22.6393, longitude: 113.8107 };
 const TAO: RoutePoint = { iata: "TAO", latitude: 36.2661, longitude: 120.3744 };
@@ -87,5 +101,53 @@ describe("map camera", () => {
     expect(Number.isFinite(onePoint.centerX)).toBe(true);
     expect(onePoint.zoom).toBe(2.5);
     expect(global).toEqual(WORLD_CAMERA);
+  });
+
+  it("fits all 150,976 samples from 3,080 directed regional routes", () => {
+    installAirportDirectory(airportRows as CompactAirportRow[]);
+    const airports = regionalAirportCodes.map((iata) => {
+      const airport = resolveAirportAtDate(iata, "2025-03-01").airport;
+      if (!airport) throw new Error(`Missing coordinates for ${iata}`);
+      return { iata, latitude: airport.latitude, longitude: airport.longitude };
+    });
+    const routes = airports.flatMap((origin) =>
+      airports
+        .filter((destination) => origin !== destination)
+        .map((destination) => ({ origin, destination, flightCount: 1 })),
+    );
+    expect(airports).toHaveLength(56);
+    expect(routes).toHaveLength(3_080);
+    const camera = passportMapCamera(routes, airports);
+    const center = regionalCenterLongitude(airports);
+    const points = [
+      ...airports.map((point) => projectPoint(point, center)),
+      ...routes.flatMap(({ origin, destination }) =>
+        sampleGreatCircle(origin, destination, 48, center),
+      ),
+    ];
+    expect(points).toHaveLength(150_976);
+    expect(camera.zoom).toBeGreaterThan(1);
+    expect(camera.zoom).toBeLessThanOrEqual(6);
+    const horizontalLimit = WORLD_WIDTH * (0.5 - 0.16) + 1e-9;
+    const verticalLimit = WORLD_HEIGHT * (0.5 - 0.16) + 1e-9;
+    expect(
+      points.every(
+        ({ x, y }) =>
+          Math.abs(x - camera.centerX) * camera.zoom <= horizontalLimit &&
+          Math.abs(y - camera.centerY) * camera.zoom <= verticalLimit,
+      ),
+    ).toBe(true);
+  });
+
+  it("handles empty, nonfinite and extreme finite coordinates", () => {
+    const fit = { maxZoom: 6, padding: 0.16 };
+    expect(fitProjectedPoints([], fit)).toBe(WORLD_CAMERA);
+    expect(fitProjectedPoints([{ x: NaN, y: 0 }], fit)).toBe(WORLD_CAMERA);
+    const extreme = { x: Number.MAX_VALUE, y: -Number.MAX_VALUE };
+    expect(fitProjectedPoints([extreme], fit)).toEqual({
+      centerX: extreme.x,
+      centerY: extreme.y,
+      zoom: 6,
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   assertRecordCount,
   importLimitValues,
@@ -35,6 +35,7 @@ export function FlightyImportControl({
 }: FlightyImportControlProps) {
   const { t } = useTranslation();
   const inputId = useId();
+  const selection = useRef(0);
   const [pending, setPending] = useState<PendingFlighty | null>(null);
   const [error, setError] = useState<
     { kind: "file"; code: string } | { kind: "import" } | null
@@ -42,6 +43,7 @@ export function FlightyImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(false);
   const [timezoneOverrides, setTimezoneOverrides] = useState<
     Record<string, string>
   >({});
@@ -57,19 +59,39 @@ export function FlightyImportControl({
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 
+  useEffect(
+    () => () => {
+      selection.current++;
+    },
+    [],
+  );
+
+  function cancel() {
+    selection.current++;
+    setPending(null);
+    setReading(false);
+    setIncludePossibleDuplicates(false);
+    setError(null);
+  }
+
   async function selectFile(file: File | undefined) {
-    if (!file) return;
+    if (!file || busy) return;
+    cancel();
+    const request = selection.current;
+    setReading(true);
     try {
-      const parsed = parseFlightyCsv(await readImportFile(file));
+      const text = await readImportFile(file);
+      if (selection.current !== request) return;
+      const parsed = parseFlightyCsv(text);
       assertRecordCount(parsed.rows.length);
       if (!isFlightyCsv(parsed)) throw new Error("not-flighty-file");
       setPending({ fileName: file.name, parsed });
-      setIncludePossibleDuplicates(false);
-      setError(null);
     } catch (caught) {
-      setPending(null);
+      if (selection.current !== request) return;
       const code = caught instanceof Error ? caught.message : "invalid-file";
       setError({ kind: "file", code });
+    } finally {
+      if (selection.current === request) setReading(false);
     }
   }
 
@@ -86,9 +108,7 @@ export function FlightyImportControl({
       const result = validateKeeprawFly(nextDocument);
       if (!result.valid) throw new Error("invalid-import");
       await onImport(result.data);
-      setPending(null);
-      setIncludePossibleDuplicates(false);
-      setError(null);
+      cancel();
     } catch {
       setError({ kind: "import" });
     } finally {
@@ -107,6 +127,7 @@ export function FlightyImportControl({
         className="sr-only"
         id={inputId}
         type="file"
+        disabled={busy}
         accept=".csv,text/csv"
         onChange={(event) => {
           void selectFile(event.target.files?.[0]);
@@ -117,6 +138,14 @@ export function FlightyImportControl({
         {t("flightyImport.openFile")}
       </label>
       <p className="csv-import-workflow">{t("flightyImport.workflow")}</p>
+      {reading ? (
+        <div className="import-preview-actions">
+          <span role="status">{t("actions.validating")}</span>
+          <button className="button-secondary" type="button" onClick={cancel}>
+            {t("actions.cancel")}
+          </button>
+        </div>
+      ) : null}
       {pending ? (
         <section
           className="csv-preview"
@@ -229,11 +258,7 @@ export function FlightyImportControl({
               className="button-secondary"
               type="button"
               disabled={busy}
-              onClick={() => {
-                setPending(null);
-                setIncludePossibleDuplicates(false);
-                setError(null);
-              }}
+              onClick={cancel}
             >
               {t("actions.cancel")}
             </button>
