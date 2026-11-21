@@ -19,19 +19,19 @@
 .neon-aviation {
   min-height: 100vh;
   padding: clamp(20px, 4vw, 64px);
-  color: var(--neon-label);
+  color: var(--map-theme-label);
   background:
     radial-gradient(
       ellipse at 76% 4%,
-      var(--neon-background-bloom),
+      var(--map-theme-background-bloom),
       transparent 38%
     ),
     linear-gradient(
       150deg,
-      var(--neon-background-top),
-      var(--neon-background-bottom) 72%
+      var(--map-theme-background-top),
+      var(--map-theme-background-bottom) 72%
     );
-  font-family: var(--neon-type-family-label);
+  font-family: var(--map-theme-type-family-label);
 }
 
 .neon-aviation *,
@@ -56,9 +56,9 @@
 .neon-aviation .neon-lab-header h1,
 .neon-aviation .neon-panel-heading h2 {
   margin: 4px 0 0;
-  color: var(--neon-label);
-  font-family: var(--neon-type-family-display);
-  font-weight: var(--neon-type-weight-semibold);
+  color: var(--map-theme-label);
+  font-family: var(--map-theme-type-family-display);
+  font-weight: var(--map-theme-type-weight-semibold);
   line-height: 1;
 }
 
@@ -73,16 +73,16 @@
 
 .neon-aviation .neon-eyebrow {
   margin: 0;
-  color: var(--neon-focus);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-focus);
+  font-family: var(--map-theme-type-family-data);
   font-size: 11px;
-  letter-spacing: var(--neon-type-letter-spacing-caps);
+  letter-spacing: var(--map-theme-type-letter-spacing-caps);
 }
 
 .neon-aviation .neon-lab-intro {
   max-width: 620px;
   margin: 14px 0 0;
-  color: var(--neon-label-muted);
+  color: var(--map-theme-label-muted);
   font-size: 15px;
   line-height: 1.6;
 }
@@ -97,7 +97,7 @@
 .neon-aviation .neon-lab-controls label {
   display: grid;
   gap: 6px;
-  color: var(--neon-label-muted);
+  color: var(--map-theme-label-muted);
   font-size: 12px;
 }
 
@@ -106,17 +106,17 @@
   min-width: 0;
   min-height: 40px;
   padding: 8px 11px;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 6px;
-  color: var(--neon-label);
-  background: var(--neon-tooltip);
+  color: var(--map-theme-label);
+  background: var(--map-theme-tooltip);
   font: inherit;
 }
 
 .neon-aviation .neon-lab-controls select:focus-visible,
 .neon-aviation .neon-route-switch button:focus-visible {
-  outline: var(--neon-state-focus-ring-width) solid var(--neon-focus);
-  outline-offset: var(--neon-state-focus-ring-offset);
+  outline: var(--map-theme-state-focus-ring-width) solid var(--map-theme-focus);
+  outline-offset: var(--map-theme-state-focus-ring-offset);
 }
 
 .neon-aviation .neon-sample-grid {
@@ -131,9 +131,9 @@
 .neon-aviation .neon-token-panel {
   min-width: 0;
   padding: clamp(16px, 2.2vw, 30px);
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 12px;
-  background: var(--neon-tooltip);
+  background: var(--map-theme-tooltip);
 }
 
 .neon-aviation .neon-sample-panel--world {
@@ -150,8 +150,8 @@
 
 .neon-aviation .neon-panel-meta {
   flex: 0 0 auto;
-  color: var(--neon-label-muted);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-label-muted);
+  font-family: var(--map-theme-type-family-data);
   font-size: 11px;
   text-align: right;
 }
@@ -159,9 +159,9 @@
 .neon-aviation .neon-map-viewport {
   aspect-ratio: 2 / 1;
   overflow: hidden;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 8px;
-  background: var(--neon-ocean);
+  background: var(--map-theme-ocean);
   isolation: isolate;
 }
 
@@ -172,9 +172,9 @@
 }
 
 .neon-aviation .neon-map-viewport .map-zoom-controls button {
-  border-color: var(--neon-tooltip-line);
-  color: var(--neon-label-muted);
-  background: var(--neon-tooltip);
+  border-color: var(--map-theme-tooltip-line);
+  color: var(--map-theme-label-muted);
+  background: var(--map-theme-tooltip);
 }
 
 .neon-aviation
@@ -182,13 +182,13 @@
   .map-zoom-controls
   button:hover:not(:disabled),
 .neon-aviation .neon-map-viewport .map-zoom-controls button:focus-visible {
-  border-color: var(--neon-focus);
-  color: var(--neon-label);
-  background: var(--neon-ocean);
+  border-color: var(--map-theme-focus);
+  color: var(--map-theme-label);
+  background: var(--map-theme-ocean);
 }
 
 .neon-aviation .neon-map-viewport .map-zoom-controls button:focus-visible {
-  outline-color: var(--neon-focus);
+  outline-color: var(--map-theme-focus);
 }
 
 .neon-aviation .neon-map-background {
@@ -196,22 +196,22 @@
 }
 
 .neon-aviation .neon-map-sphere {
-  fill: var(--neon-ocean);
-  stroke: var(--neon-border);
-  stroke-width: var(--neon-line-border);
+  fill: var(--map-theme-ocean);
+  stroke: var(--map-theme-border);
+  stroke-width: var(--map-theme-line-border);
   vector-effect: non-scaling-stroke;
 }
 
 .neon-aviation .neon-map-graticule {
   fill: none;
-  stroke: var(--neon-graticule);
-  stroke-width: var(--neon-line-graticule);
+  stroke: var(--map-theme-graticule);
+  stroke-width: var(--map-theme-line-graticule);
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
 
 .neon-aviation .neon-map-land {
-  fill: var(--neon-land);
+  fill: var(--map-theme-land);
   stroke: none;
 }
 
@@ -221,16 +221,16 @@
 
 .neon-aviation .neon-map-borders {
   fill: none;
-  stroke: var(--neon-border);
-  stroke-width: var(--neon-line-border);
+  stroke: var(--map-theme-border);
+  stroke-width: var(--map-theme-line-border);
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
 
 .neon-aviation .neon-map-coastline {
   fill: none;
-  stroke: var(--neon-coastline);
-  stroke-width: var(--neon-line-coastline);
+  stroke: var(--map-theme-coastline);
+  stroke-width: var(--map-theme-line-coastline);
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
@@ -251,60 +251,60 @@
 }
 
 .neon-aviation .neon-route-line {
-  stroke: var(--neon-route-base);
-  stroke-width: var(--neon-route-current-width);
-  opacity: var(--neon-route-current-opacity);
+  stroke: var(--map-theme-route-base);
+  stroke-width: var(--map-theme-route-current-width);
+  opacity: var(--map-theme-route-current-opacity);
   pointer-events: none;
 }
 
 .neon-aviation .neon-route--frequent .neon-route-line {
-  stroke: var(--neon-route-frequent);
+  stroke: var(--map-theme-route-frequent);
 }
 
 .neon-aviation .neon-route.is-hovered .neon-route-line {
-  stroke: var(--neon-route-highlight);
+  stroke: var(--map-theme-route-highlight);
 }
 
 .neon-aviation .neon-route.is-selected .neon-route-line {
-  stroke: var(--neon-route-selected);
+  stroke: var(--map-theme-route-selected);
 }
 
 .neon-aviation .neon-route.is-dimmed .neon-route-line {
-  opacity: var(--neon-route-dimmed-opacity);
+  opacity: var(--map-theme-route-dimmed-opacity);
 }
 
 .neon-aviation .neon-route-glow {
-  stroke: var(--neon-route-glow);
-  stroke-width: var(--neon-route-glow-width);
-  opacity: var(--neon-glow-intensity);
+  stroke: var(--map-theme-route-glow);
+  stroke-width: var(--map-theme-route-glow-width);
+  opacity: var(--map-theme-glow-intensity);
   pointer-events: none;
 }
 
 .neon-aviation .neon-route.is-selected .neon-route-glow {
-  opacity: var(--neon-glow-inner-intensity);
+  opacity: var(--map-theme-glow-inner-intensity);
 }
 
 .neon-aviation .neon-route-inner-glow {
-  stroke: var(--neon-route-glow);
-  stroke-width: var(--neon-route-inner-width);
-  opacity: var(--neon-glow-inner-intensity);
+  stroke: var(--map-theme-route-glow);
+  stroke-width: var(--map-theme-route-inner-width);
+  opacity: var(--map-theme-glow-inner-intensity);
   pointer-events: none;
 }
 
 .neon-aviation .neon-route-hit {
-  stroke: var(--neon-route-highlight);
+  stroke: var(--map-theme-route-highlight);
   stroke-width: 14px;
   opacity: 0;
   pointer-events: stroke;
 }
 
 .neon-aviation .neon-route:focus-visible .neon-route-line {
-  stroke: var(--neon-focus);
+  stroke: var(--map-theme-focus);
 }
 
 .neon-aviation .neon-airport {
   cursor: pointer;
-  opacity: var(--neon-airport-opacity);
+  opacity: var(--map-theme-airport-opacity);
   outline: none;
 }
 
@@ -313,23 +313,23 @@
 }
 
 .neon-aviation .neon-airport-point {
-  fill: var(--neon-airport);
-  stroke: var(--neon-ocean);
+  fill: var(--map-theme-airport);
+  stroke: var(--map-theme-ocean);
 }
 
 .neon-aviation .neon-airport--hub .neon-airport-point {
-  fill: var(--neon-airport-hub);
+  fill: var(--map-theme-airport-hub);
 }
 
 .neon-aviation .neon-airport--selected .neon-airport-point,
 .neon-aviation .neon-airport-point--selected {
-  fill: var(--neon-airport-selected);
+  fill: var(--map-theme-airport-selected);
 }
 
 .neon-aviation .neon-airport-focus {
   fill: none;
-  stroke: var(--neon-focus);
-  stroke-width: var(--neon-state-focus-ring-width);
+  stroke: var(--map-theme-focus);
+  stroke-width: var(--map-theme-state-focus-ring-width);
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
@@ -337,31 +337,31 @@
 .neon-aviation .neon-airport-label,
 .neon-aviation .neon-detail-code,
 .neon-aviation .neon-dateline-label {
-  fill: var(--neon-label);
+  fill: var(--map-theme-label);
   paint-order: stroke;
-  stroke: var(--neon-label-halo);
+  stroke: var(--map-theme-label-halo);
   stroke-linejoin: round;
   pointer-events: none;
 }
 
 .neon-aviation .neon-airport-label {
   stroke-width: 3px;
-  font-family: var(--neon-type-family-data);
-  font-size: var(--neon-type-size-map-label);
-  font-weight: var(--neon-type-weight-semibold);
-  letter-spacing: var(--neon-type-letter-spacing-code);
+  font-family: var(--map-theme-type-family-data);
+  font-size: var(--map-theme-type-size-map-label);
+  font-weight: var(--map-theme-type-weight-semibold);
+  letter-spacing: var(--map-theme-type-letter-spacing-code);
 }
 
 .neon-aviation .neon-airport-label.is-selected {
-  font-size: var(--neon-type-size-map-label-selected);
+  font-size: var(--map-theme-type-size-map-label-selected);
 }
 
 .neon-aviation .neon-detail-stage {
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 8px;
-  background: var(--neon-ocean);
+  background: var(--map-theme-ocean);
 }
 
 .neon-aviation .neon-detail-map {
@@ -372,11 +372,11 @@
 
 .neon-aviation .neon-route-glow--detail {
   fill: none;
-  stroke: var(--neon-route-glow);
+  stroke: var(--map-theme-route-glow);
   stroke-width: calc(
-    var(--neon-route-highlight-width) + var(--neon-glow-spread) * 2
+    var(--map-theme-route-highlight-width) + var(--map-theme-glow-spread) * 2
   );
-  opacity: var(--neon-glow-inner-intensity);
+  opacity: var(--map-theme-glow-inner-intensity);
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
@@ -384,9 +384,9 @@
 
 .neon-aviation .neon-route-line--selected {
   fill: none;
-  stroke: var(--neon-route-selected);
-  stroke-width: var(--neon-route-selected-width);
-  opacity: var(--neon-route-selected-opacity);
+  stroke: var(--map-theme-route-selected);
+  stroke-width: var(--map-theme-route-selected-width);
+  opacity: var(--map-theme-route-selected-opacity);
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -394,7 +394,7 @@
 
 .neon-aviation .neon-dateline {
   fill: none;
-  stroke: var(--neon-dateline);
+  stroke: var(--map-theme-dateline);
   stroke-width: 1px;
   stroke-dasharray: 4 5;
   vector-effect: non-scaling-stroke;
@@ -402,16 +402,16 @@
 
 .neon-aviation .neon-dateline-label {
   stroke-width: 3px;
-  font-family: var(--neon-type-family-data);
-  font-size: var(--neon-type-size-tooltip-body);
+  font-family: var(--map-theme-type-family-data);
+  font-size: var(--map-theme-type-size-tooltip-body);
 }
 
 .neon-aviation .neon-detail-code {
   stroke-width: 4px;
-  font-family: var(--neon-type-family-data);
-  font-size: var(--neon-type-size-map-label-selected);
-  font-weight: var(--neon-type-weight-bold);
-  letter-spacing: var(--neon-type-letter-spacing-code);
+  font-family: var(--map-theme-type-family-data);
+  font-size: var(--map-theme-type-size-map-label-selected);
+  font-weight: var(--map-theme-type-weight-bold);
+  letter-spacing: var(--map-theme-type-letter-spacing-code);
 }
 
 .neon-aviation .neon-detail-meta {
@@ -429,8 +429,8 @@
 }
 
 .neon-aviation .neon-endpoint strong {
-  color: var(--neon-label);
-  font-family: var(--neon-type-family-display);
+  color: var(--map-theme-label);
+  font-family: var(--map-theme-type-family-display);
   font-size: 30px;
   line-height: 1;
 }
@@ -438,7 +438,7 @@
 .neon-aviation .neon-endpoint span,
 .neon-aviation .neon-endpoint small {
   overflow-wrap: anywhere;
-  color: var(--neon-label-muted);
+  color: var(--map-theme-label-muted);
 }
 
 .neon-aviation .neon-endpoint--end {
@@ -447,22 +447,22 @@
 
 .neon-aviation .neon-next-day {
   margin-left: 5px;
-  color: var(--neon-focus);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-focus);
+  font-family: var(--map-theme-type-family-data);
   font-size: 10px;
 }
 
 .neon-aviation .neon-route-readout {
   display: grid;
   gap: 4px;
-  color: var(--neon-label-muted);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-label-muted);
+  font-family: var(--map-theme-type-family-data);
   font-size: 11px;
   text-align: center;
 }
 
 .neon-aviation .neon-route-readout span:first-child {
-  color: var(--neon-label);
+  color: var(--map-theme-label);
   font-size: 14px;
 }
 
@@ -479,8 +479,8 @@
 }
 
 .neon-aviation .neon-route-switch button[aria-pressed="true"] {
-  border-color: var(--neon-focus);
-  color: var(--neon-focus);
+  border-color: var(--map-theme-focus);
+  color: var(--map-theme-focus);
 }
 
 .neon-aviation .neon-passport-sample {
@@ -492,14 +492,14 @@
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 5;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 6px;
 }
 
 .neon-aviation .neon-passport-sample figcaption {
   margin-top: 8px;
-  color: var(--neon-label-muted);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-label-muted);
+  font-family: var(--map-theme-type-family-data);
   font-size: 10px;
 }
 
@@ -521,7 +521,7 @@
   gap: 4px 10px;
   min-width: 0;
   padding: 10px;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 6px;
 }
 
@@ -529,142 +529,142 @@
   grid-row: span 3;
   width: 30px;
   height: 30px;
-  border: 1px solid var(--neon-tooltip-line);
+  border: 1px solid var(--map-theme-tooltip-line);
   border-radius: 4px;
 }
 
 .neon-aviation .neon-token-name {
   overflow-wrap: anywhere;
-  color: var(--neon-label);
+  color: var(--map-theme-label);
   font-size: 11px;
 }
 
 .neon-aviation .neon-token-swatch code,
 .neon-aviation .neon-token-swatch small {
-  color: var(--neon-label-muted);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-label-muted);
+  font-family: var(--map-theme-type-family-data);
   font-size: 10px;
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="backgroundTop"]
   .neon-token-color {
-  background: var(--neon-background-top);
+  background: var(--map-theme-background-top);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="backgroundBottom"]
   .neon-token-color {
-  background: var(--neon-background-bottom);
+  background: var(--map-theme-background-bottom);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="backgroundBloom"]
   .neon-token-color {
-  background: var(--neon-background-bloom);
+  background: var(--map-theme-background-bloom);
 }
 
 .neon-aviation .neon-token-swatch[data-color="ocean"] .neon-token-color {
-  background: var(--neon-ocean);
+  background: var(--map-theme-ocean);
 }
 
 .neon-aviation .neon-token-swatch[data-color="land"] .neon-token-color {
-  background: var(--neon-land);
+  background: var(--map-theme-land);
 }
 
 .neon-aviation .neon-token-swatch[data-color="landHatch"] .neon-token-color {
-  background: var(--neon-land-hatch);
+  background: var(--map-theme-land-hatch);
 }
 
 .neon-aviation .neon-token-swatch[data-color="coastline"] .neon-token-color {
-  background: var(--neon-coastline);
+  background: var(--map-theme-coastline);
 }
 
 .neon-aviation .neon-token-swatch[data-color="border"] .neon-token-color {
-  background: var(--neon-border);
+  background: var(--map-theme-border);
 }
 
 .neon-aviation .neon-token-swatch[data-color="graticule"] .neon-token-color {
-  background: var(--neon-graticule);
+  background: var(--map-theme-graticule);
 }
 
 .neon-aviation .neon-token-swatch[data-color="routeBase"] .neon-token-color {
-  background: var(--neon-route-base);
+  background: var(--map-theme-route-base);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="routeFrequent"]
   .neon-token-color {
-  background: var(--neon-route-frequent);
+  background: var(--map-theme-route-frequent);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="routeHighlight"]
   .neon-token-color {
-  background: var(--neon-route-highlight);
+  background: var(--map-theme-route-highlight);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="routeSelected"]
   .neon-token-color {
-  background: var(--neon-route-selected);
+  background: var(--map-theme-route-selected);
 }
 
 .neon-aviation .neon-token-swatch[data-color="routeGlow"] .neon-token-color {
-  background: var(--neon-route-glow);
+  background: var(--map-theme-route-glow);
 }
 
 .neon-aviation .neon-token-swatch[data-color="airport"] .neon-token-color {
-  background: var(--neon-airport);
+  background: var(--map-theme-airport);
 }
 
 .neon-aviation .neon-token-swatch[data-color="airportHub"] .neon-token-color {
-  background: var(--neon-airport-hub);
+  background: var(--map-theme-airport-hub);
 }
 
 .neon-aviation
   .neon-token-swatch[data-color="airportSelected"]
   .neon-token-color {
-  background: var(--neon-airport-selected);
+  background: var(--map-theme-airport-selected);
 }
 
 .neon-aviation .neon-token-swatch[data-color="airportHalo"] .neon-token-color {
-  background: var(--neon-airport-halo);
+  background: var(--map-theme-airport-halo);
 }
 
 .neon-aviation .neon-token-swatch[data-color="label"] .neon-token-color {
-  background: var(--neon-label);
+  background: var(--map-theme-label);
 }
 
 .neon-aviation .neon-token-swatch[data-color="labelMuted"] .neon-token-color {
-  background: var(--neon-label-muted);
+  background: var(--map-theme-label-muted);
 }
 
 .neon-aviation .neon-token-swatch[data-color="labelHalo"] .neon-token-color {
-  background: var(--neon-label-halo);
+  background: var(--map-theme-label-halo);
 }
 
 .neon-aviation .neon-token-swatch[data-color="tooltip"] .neon-token-color {
-  background: var(--neon-tooltip);
+  background: var(--map-theme-tooltip);
 }
 
 .neon-aviation .neon-token-swatch[data-color="tooltipLine"] .neon-token-color {
-  background: var(--neon-tooltip-line);
+  background: var(--map-theme-tooltip-line);
 }
 
 .neon-aviation .neon-token-swatch[data-color="focus"] .neon-token-color {
-  background: var(--neon-focus);
+  background: var(--map-theme-focus);
 }
 
 .neon-aviation .neon-token-swatch[data-color="dateline"] .neon-token-color {
-  background: var(--neon-dateline);
+  background: var(--map-theme-dateline);
 }
 
 .neon-aviation .neon-lab-footer {
   max-width: 1600px;
   margin: 24px auto 0;
-  color: var(--neon-label-muted);
-  font-family: var(--neon-type-family-data);
+  color: var(--map-theme-label-muted);
+  font-family: var(--map-theme-type-family-data);
   font-size: 10px;
   text-align: center;
 }
@@ -759,10 +759,10 @@
   .neon-aviation .neon-airport-halo,
   .neon-aviation .neon-route-switch button {
     transition:
-      opacity var(--neon-state-transition) ease,
-      stroke var(--neon-state-transition) ease,
-      fill var(--neon-state-transition) ease,
-      r var(--neon-state-transition) ease;
+      opacity var(--map-theme-state-transition) ease,
+      stroke var(--map-theme-state-transition) ease,
+      fill var(--map-theme-state-transition) ease,
+      r var(--map-theme-state-transition) ease;
   }
 }
 

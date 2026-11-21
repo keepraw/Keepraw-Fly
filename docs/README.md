@@ -47,6 +47,7 @@ the browser; it does not add server backup or cloud synchronization.
 | Historical airport identity and data package / 历史机场身份与数据包                                     | [Airport history / 历史机场](airport-history.md)                                                               |
 | UI, typography, themes, tokens and interaction / 界面、字体、主题与交互                                 | [Design system / 视觉系统（双语）](design-system.md)                                                           |
 | Neon Aviation visual prototypes and typed tokens / 霓虹航空视觉样例与类型化 Token                       | [Neon Aviation design system / 霓虹航空视觉系统](neon-aviation-design-system.md)                               |
+| Shared 2D map core and theme registry / 共享 2D 地图核心与主题注册表                                    | [Map 2D architecture / 2D 地图架构](map-2d-architecture.md)                                                    |
 | Test layers, fixtures, captures and CI / 测试分层、输入、截图与 CI                                      | [Testing / 测试](testing.md)                                                                                   |
 | CSP, privacy, dependencies and release provenance / 安全、隐私、依赖与发行来源                          | [Security / 安全模型](security.md)                                                                             |
 | Globe rendering and lifecycle / 地球渲染与生命周期                                                      | [Globe / 地球实现](globe.md)                                                                                   |

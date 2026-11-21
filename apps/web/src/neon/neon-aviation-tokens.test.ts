@@ -1,44 +1,66 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { mapThemeCssVariables } from "../map2d/theme-css";
+import { NEON_AVIATION_THEME } from "../map2d/themes/neon-aviation";
 import {
   contrastRatio,
   deviceSnap,
   hatchTile,
-  NEON_AVIATION,
-  neonCssVariables,
   routeStroke,
   routeTier,
-} from "./neon-aviation-tokens";
+} from "../map2d/theme-style";
+
+const { tokens } = NEON_AVIATION_THEME;
 
 describe("Neon Aviation token helpers", () => {
   it("keeps label, airport, route, and focus contrast within accessible ranges", () => {
-    const { color } = NEON_AVIATION;
+    const { color } = tokens;
     expect(
-      contrastRatio(color.label, color.backgroundBottom),
+      contrastRatio(
+        color.label,
+        color.backgroundBottom,
+        color.backgroundBottom,
+      ),
     ).toBeGreaterThanOrEqual(4.5);
     expect(
-      contrastRatio(color.labelMuted, color.backgroundBottom),
+      contrastRatio(
+        color.labelMuted,
+        color.backgroundBottom,
+        color.backgroundBottom,
+      ),
     ).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(color.airport, color.ocean)).toBeGreaterThanOrEqual(3);
-    expect(contrastRatio(color.routeBase, color.ocean)).toBeGreaterThanOrEqual(
-      3,
-    );
-    expect(contrastRatio(color.focus, color.ocean)).toBeGreaterThanOrEqual(3);
+    for (const foreground of [
+      color.routeBase,
+      color.routeFrequent,
+      color.routeHighlight,
+      color.routeSelected,
+      color.airport,
+      color.airportHub,
+      color.airportSelected,
+      color.focus,
+    ])
+      expect(
+        contrastRatio(
+          foreground,
+          color.backgroundBottom,
+          color.backgroundBottom,
+        ),
+      ).toBeGreaterThanOrEqual(3);
   });
 
   it("exposes one CSS variable for every token leaf", () => {
-    const leaves = flatten(NEON_AVIATION);
-    const style = neonCssVariables();
+    const leaves = flatten(tokens);
+    const style = mapThemeCssVariables(NEON_AVIATION_THEME);
     expect(Object.keys(style)).toHaveLength(leaves.length);
-    expect(Object.keys(style).every((name) => name.startsWith("--neon-"))).toBe(
-      true,
-    );
+    expect(
+      Object.keys(style).every((name) => name.startsWith("--map-theme-")),
+    ).toBe(true);
   });
 
   it("keeps hatch geometry on device pixels at each DPR and zoom", () => {
     for (const dpr of [1, 1.5, 2, 3]) {
       for (const zoom of [1, 2, 6]) {
-        const tile = hatchTile(NEON_AVIATION.hatch, dpr, zoom);
+        const tile = hatchTile(tokens.hatch, dpr, zoom);
         expect(tile.size * dpr).toBeCloseTo(Math.round(tile.size * dpr), 8);
         expect(tile.lineWidth * dpr).toBeGreaterThanOrEqual(1);
         expect(tile.lineWidth * dpr).toBeCloseTo(
@@ -51,8 +73,8 @@ describe("Neon Aviation token helpers", () => {
   });
 
   it("makes selected routes decisively stronger and tiers monotonic", () => {
-    const normal = routeStroke("base", "normal");
-    const selected = routeStroke("base", "selected");
+    const normal = routeStroke(tokens, "base", "normal");
+    const selected = routeStroke(tokens, "base", "selected");
     expect(selected.width / normal.width).toBeGreaterThanOrEqual(2);
     expect(selected.opacity - normal.opacity).toBeGreaterThanOrEqual(0.3);
     expect([0, 1, 2, 3, 5, 8, 13].map((count) => routeTier(count, 13))).toEqual(
@@ -73,7 +95,7 @@ describe("Neon Aviation token helpers", () => {
         (match) => [match[1]!, match[2]!.trim()],
       ),
     );
-    for (const [name, value] of flatten(NEON_AVIATION)) {
+    for (const [name, value] of flatten(tokens)) {
       expect(documented.get(name), `${name} in design system doc`).toBe(value);
     }
   });

@@ -1,29 +1,40 @@
 import { geoPath } from "d3-geo";
 import { useId, useMemo, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
+import { routePointIdentityKey } from "@keepraw-fly/core";
 import { MapViewport } from "../components/MapViewport";
-import { regionalCenterLongitude, WORLD_WIDTH } from "../data/map-geometry";
+import {
+  projectionAt,
+  regionalCenterLongitude,
+  regionalWorldPaths,
+  WORLD_WIDTH,
+} from "../data/map-geometry";
 import { type MapCamera, WORLD_CAMERA } from "../data/map-camera";
+import { buildMapScene } from "../map2d/scene";
+import { segmentsToPath } from "../map2d/svg-path";
+import { mapThemeCssVariables } from "../map2d/theme-css";
+import { resolveMapTheme } from "../map2d/theme-registry";
 import {
   airportStyle,
   hatchTile,
-  NEON_AVIATION,
-  rgba,
   routeStroke,
   routeTier,
-  type NeonRouteState,
-} from "./neon-aviation-tokens";
-import {
-  greatCirclePath,
-  projectionAt,
-  regionalWorldPaths,
-} from "./neon-geometry";
+  type MapRouteState,
+} from "../map2d/theme-style";
 import {
   DENSE_ROUTES,
   NEON_AIRPORTS,
   SPARSE_ROUTES,
   type NeonAirport,
 } from "./sample-network";
+
+const theme = resolveMapTheme("neon-aviation");
+const NEON_MAP_CENTER_LONGITUDE = regionalCenterLongitude(
+  NEON_AIRPORTS.map(({ latitude, longitude }) => ({ latitude, longitude })),
+);
+const airportMetadata = new Map(
+  NEON_AIRPORTS.map((airport) => [routePointIdentityKey(airport), airport]),
+);
 
 export interface NeonWorldMapProps {
   density?: "sparse" | "dense";
@@ -34,65 +45,41 @@ export function NeonWorldMap({
   density = "sparse",
   forcedState,
 }: NeonWorldMapProps) {
+  const { tokens } = theme;
   const routes = density === "dense" ? DENSE_ROUTES : SPARSE_ROUTES;
-  const maxCount = Math.max(...routes.map((route) => route.count));
-  const routeCenter = useMemo(
+  const scene = useMemo(
     () =>
-      regionalCenterLongitude(
-        NEON_AIRPORTS.map(({ latitude, longitude }) => ({
-          latitude,
-          longitude,
+      buildMapScene({
+        routes: routes.map((route) => ({
+          origin: route.origin,
+          destination: route.destination,
+          flightCount: route.count,
         })),
-      ),
-    [],
+        centerLongitude: NEON_MAP_CENTER_LONGITUDE,
+      }),
+    [routes],
   );
+  const maxCount = scene.routes.at(-1)?.flightCount ?? 0;
+  const routeCenter = scene.centerLongitude;
   const paths = useMemo(() => regionalWorldPaths(routeCenter), [routeCenter]);
   const routeLines = useMemo(
     () =>
-      routes
-        .map((route) => ({
-          ...route,
-          path: greatCirclePath(
-            route.origin,
-            route.destination,
-            48,
-            routeCenter,
-          ),
-        }))
-        .sort((left, right) => left.count - right.count),
-    [routeCenter, routes],
+      scene.routes.map((route) => ({
+        ...route,
+        path: segmentsToPath(route.segments),
+      })),
+    [scene],
   );
-  const airportCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const route of routes) {
-      counts.set(
-        route.origin.iata,
-        (counts.get(route.origin.iata) ?? 0) + route.count,
-      );
-      counts.set(
-        route.destination.iata,
-        (counts.get(route.destination.iata) ?? 0) + route.count,
-      );
-    }
-    return counts;
-  }, [routes]);
-  const routeIds = new Set(routeLines.map((route) => route.id));
-  const hubs = new Set(
-    [...airportCounts.entries()]
-      .sort((left, right) => right[1] - left[1])
-      .slice(0, 5)
-      .map(([code]) => code),
-  );
-  const centerProjection = useMemo(
-    () => projectionAt(routeCenter),
-    [routeCenter],
+  const routeIds = new Set(routeLines.map((route) => route.key));
+  const airportIds = new Set(
+    scene.airports.map((airport) => airport.identityKey),
   );
   const [hoveredRoute, setHoveredRoute] = useState<string | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [hoveredAirport, setHoveredAirport] = useState<string | null>(null);
   const [selectedAirport, setSelectedAirport] = useState<string | null>(null);
   const forcedSelectedRoute =
-    forcedState === "selected" ? (routeLines[0]?.id ?? null) : null;
+    forcedState === "selected" ? (routeLines[0]?.key ?? null) : null;
   const activeSelectedRoute =
     selectedRoute && routeIds.has(selectedRoute)
       ? selectedRoute
@@ -100,11 +87,9 @@ export function NeonWorldMap({
   const activeHoveredRoute =
     hoveredRoute && routeIds.has(hoveredRoute) ? hoveredRoute : null;
   const activeSelectedAirport =
-    selectedAirport && airportCounts.has(selectedAirport)
-      ? selectedAirport
-      : null;
+    selectedAirport && airportIds.has(selectedAirport) ? selectedAirport : null;
   const activeHoveredAirport =
-    hoveredAirport && airportCounts.has(hoveredAirport) ? hoveredAirport : null;
+    hoveredAirport && airportIds.has(hoveredAirport) ? hoveredAirport : null;
   const generatedId = useId().replaceAll(":", "");
   const patternId = `neon-hatch-${generatedId}`;
   const landClipId = `neon-land-${generatedId}`;
@@ -119,64 +104,75 @@ export function NeonWorldMap({
     >
       {(camera, viewportHeight, pixelScale) => {
         const tile = hatchTile(
-          NEON_AVIATION.hatch,
+          tokens.hatch,
           window.devicePixelRatio || 1,
           camera.zoom,
         );
         const tileSize = tile.size * pixelScale;
         const sortedGlowIds = new Set(
-          [...routes]
-            .sort((left, right) => right.count - left.count)
-            .slice(0, NEON_AVIATION.glow.maxGlowingRoutes)
-            .map((route) => route.id),
+          scene.routes
+            .slice(-tokens.glow.maxGlowingRoutes)
+            .map((route) => route.key),
         );
-        const airportPoints = NEON_AIRPORTS.filter((airport) =>
-          airportCounts.has(airport.iata),
-        ).map((airport) => {
-          const projected = centerProjection([
-            airport.longitude,
-            airport.latitude,
-          ]);
-          return {
-            airport,
-            point: projected
-              ? { x: projected[0], y: projected[1] }
-              : { x: 0, y: 0 },
-          };
+        const airportPoints = scene.airports.flatMap((sceneAirport) => {
+          const airport = airportMetadata.get(sceneAirport.identityKey);
+          return airport
+            ? [
+                {
+                  airport,
+                  identityKey: sceneAirport.identityKey,
+                  flightCount: sceneAirport.flightCount,
+                  hub: sceneAirport.hub,
+                  point: { x: sceneAirport.x, y: sceneAirport.y },
+                },
+              ]
+            : [];
         });
-        const selectedRouteData = routes.find(
-          (route) => route.id === activeSelectedRoute,
+        const activeSelectedRouteData = routeLines.find(
+          (route) => route.key === activeSelectedRoute,
         );
-        const labelCandidates = airportPoints.flatMap(({ airport, point }) => {
-          const isSelected =
-            activeSelectedAirport === airport.iata ||
-            selectedRouteData?.origin.iata === airport.iata ||
-            selectedRouteData?.destination.iata === airport.iata;
-          if (!hubs.has(airport.iata) && !isSelected) return [];
-          const style = airportStyle(
-            isSelected ? "selected" : "hub",
-            isSelected ? "selected" : "normal",
-          );
-          return [
-            {
-              airport,
-              point,
-              flightCount: airportCounts.get(airport.iata) ?? 0,
-              isSelected,
-              radius: style.radius,
-              halo: style.halo,
-            },
-          ];
-        });
+        const labelCandidates = airportPoints.flatMap(
+          ({ identityKey, point, flightCount, hub }) => {
+            const isSelected =
+              activeSelectedAirport === identityKey ||
+              (activeSelectedRouteData !== undefined &&
+                (routePointIdentityKey(activeSelectedRouteData.origin) ===
+                  identityKey ||
+                  routePointIdentityKey(activeSelectedRouteData.destination) ===
+                    identityKey));
+            if (!hub && !isSelected) return [];
+            const style = airportStyle(
+              tokens,
+              isSelected ? "selected" : "hub",
+              isSelected ? "selected" : "normal",
+            );
+            return [
+              {
+                identityKey,
+                point,
+                flightCount,
+                isSelected,
+                radius: style.radius,
+                halo: style.halo,
+              },
+            ];
+          },
+        );
         const labelPositions = neonAirportLabelPositions(
           labelCandidates,
           camera,
           viewportHeight,
           pixelScale,
+          tokens.type.size.mapLabel,
+          tokens.type.size.mapLabelSelected,
         );
 
         return (
-          <g className="neon-world-scene" data-neon-world-ready="true">
+          <g
+            className="neon-world-scene"
+            data-neon-world-ready="true"
+            style={mapThemeCssVariables(theme)}
+          >
             <defs>
               <linearGradient
                 id={`neon-background-${generatedId}`}
@@ -185,8 +181,11 @@ export function NeonWorldMap({
                 x2="0"
                 y2="1"
               >
-                <stop offset="0" stopColor="var(--neon-background-top)" />
-                <stop offset="1" stopColor="var(--neon-background-bottom)" />
+                <stop offset="0" stopColor="var(--map-theme-background-top)" />
+                <stop
+                  offset="1"
+                  stopColor="var(--map-theme-background-bottom)"
+                />
               </linearGradient>
               <pattern
                 id={patternId}
@@ -198,7 +197,7 @@ export function NeonWorldMap({
                 <path
                   d={`M 0 0 L 0 ${tileSize}`}
                   fill="none"
-                  stroke="var(--neon-land-hatch)"
+                  stroke="var(--map-theme-land-hatch)"
                   strokeWidth={tile.lineWidth * pixelScale}
                 />
               </pattern>
@@ -208,12 +207,12 @@ export function NeonWorldMap({
               <radialGradient id={haloId}>
                 <stop
                   offset="0"
-                  stopColor="var(--neon-airport-halo)"
+                  stopColor="var(--map-theme-airport-halo)"
                   stopOpacity="0.45"
                 />
                 <stop
                   offset="1"
-                  stopColor="var(--neon-airport-halo)"
+                  stopColor="var(--map-theme-airport-halo)"
                   stopOpacity="0"
                 />
               </radialGradient>
@@ -249,44 +248,44 @@ export function NeonWorldMap({
             <g className="neon-routes">
               {routeLines.map((route, index) => {
                 const forced = forcedState && index === 0 ? forcedState : null;
-                const state: NeonRouteState =
-                  activeSelectedRoute === route.id
+                const state: MapRouteState =
+                  activeSelectedRoute === route.key
                     ? "selected"
                     : forced === "selected"
                       ? "selected"
-                      : activeHoveredRoute === route.id || forced === "hover"
+                      : activeHoveredRoute === route.key || forced === "hover"
                         ? "hover"
                         : activeSelectedRoute
                           ? "dimmed"
                           : "normal";
-                const tier = routeTier(route.count, maxCount);
-                const stroke = routeStroke(tier, state);
+                const tier = routeTier(route.flightCount, maxCount);
+                const stroke = routeStroke(tokens, tier, state);
                 const showGlow =
                   stroke.glow ||
-                  (sortedGlowIds.has(route.id) && !activeSelectedRoute);
+                  (sortedGlowIds.has(route.key) && !activeSelectedRoute);
                 const routeStyle = {
-                  "--neon-route-current-width": `${stroke.width}px`,
-                  "--neon-route-current-opacity": stroke.opacity,
-                  "--neon-route-glow-width": `${stroke.width + NEON_AVIATION.glow.spread * 2}px`,
-                  "--neon-route-inner-width": `${stroke.width + NEON_AVIATION.glow.innerSpread * 2}px`,
+                  "--map-theme-route-current-width": `${stroke.width}px`,
+                  "--map-theme-route-current-opacity": stroke.opacity,
+                  "--map-theme-route-glow-width": `${stroke.width + tokens.glow.spread * 2}px`,
+                  "--map-theme-route-inner-width": `${stroke.width + tokens.glow.innerSpread * 2}px`,
                 } as CSSProperties;
                 return (
                   <g
-                    key={route.id}
+                    key={route.key}
                     className={`neon-route neon-route--${tier}${stateClass(state)}`}
-                    data-route-id={route.id}
+                    data-route-id={route.key}
                     data-state={state}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${route.origin.iata} to ${route.destination.iata}, ${route.count} sample flights`}
+                    aria-label={`${route.origin.iata} to ${route.destination.iata}, ${route.flightCount} sample flights`}
                     style={routeStyle}
-                    onPointerEnter={() => setHoveredRoute(route.id)}
+                    onPointerEnter={() => setHoveredRoute(route.key)}
                     onPointerLeave={() => setHoveredRoute(null)}
-                    onFocus={() => setHoveredRoute(route.id)}
+                    onFocus={() => setHoveredRoute(route.key)}
                     onBlur={() => setHoveredRoute(null)}
-                    onClick={() => setSelectedRoute(route.id)}
+                    onClick={() => setSelectedRoute(route.key)}
                     onKeyDown={(event) =>
-                      activateOnEnter(event, () => setSelectedRoute(route.id))
+                      activateOnEnter(event, () => setSelectedRoute(route.key))
                     }
                   >
                     {showGlow && (
@@ -310,50 +309,51 @@ export function NeonWorldMap({
               })}
             </g>
             <g className="neon-airports">
-              {airportPoints.map(({ airport, point }) => {
+              {airportPoints.map(({ airport, identityKey, point, hub }) => {
                 const isSelected =
-                  activeSelectedAirport === airport.iata ||
-                  selectedRouteData?.origin.iata === airport.iata ||
-                  selectedRouteData?.destination.iata === airport.iata;
-                const isHovered = activeHoveredAirport === airport.iata;
-                const kind = isSelected
-                  ? "selected"
-                  : hubs.has(airport.iata)
-                    ? "hub"
-                    : "base";
-                const state: NeonRouteState = isSelected
+                  activeSelectedAirport === identityKey ||
+                  (activeSelectedRouteData !== undefined &&
+                    (routePointIdentityKey(activeSelectedRouteData.origin) ===
+                      identityKey ||
+                      routePointIdentityKey(
+                        activeSelectedRouteData.destination,
+                      ) === identityKey));
+                const isHovered = activeHoveredAirport === identityKey;
+                const kind = isSelected ? "selected" : hub ? "hub" : "base";
+                const state: MapRouteState = isSelected
                   ? "selected"
                   : isHovered
                     ? "hover"
                     : activeSelectedRoute
                       ? "dimmed"
                       : "normal";
-                const style = airportStyle(kind, state);
+                const style = airportStyle(tokens, kind, state);
                 const hoverScale =
-                  state === "hover" ? NEON_AVIATION.state.hoverScale : 1;
-                const label = labelPositions.get(airport.iata);
+                  state === "hover" ? tokens.state.hoverScale : 1;
+                const label = labelPositions.get(identityKey);
                 return (
                   <g
-                    key={airport.iata}
+                    key={identityKey}
                     className={`neon-airport neon-airport--${kind}${style.focus ? " is-focused" : ""}`}
                     data-airport-code={airport.iata}
+                    data-airport-identity={identityKey}
                     data-state={state}
                     role="button"
                     tabIndex={0}
                     aria-label={`${airport.iata}, ${airport.city}`}
-                    onPointerEnter={() => setHoveredAirport(airport.iata)}
+                    onPointerEnter={() => setHoveredAirport(identityKey)}
                     onPointerLeave={() => setHoveredAirport(null)}
-                    onFocus={() => setHoveredAirport(airport.iata)}
+                    onFocus={() => setHoveredAirport(identityKey)}
                     onBlur={() => setHoveredAirport(null)}
-                    onClick={() => setSelectedAirport(airport.iata)}
+                    onClick={() => setSelectedAirport(identityKey)}
                     onKeyDown={(event) =>
                       activateOnEnter(event, () =>
-                        setSelectedAirport(airport.iata),
+                        setSelectedAirport(identityKey),
                       )
                     }
                     style={
                       {
-                        "--neon-airport-opacity": style.opacity,
+                        "--map-theme-airport-opacity": style.opacity,
                       } as CSSProperties
                     }
                   >
@@ -376,7 +376,7 @@ export function NeonWorldMap({
                           r={
                             style.radius * hoverScale +
                             style.stroke +
-                            NEON_AVIATION.state.focusRingOffset
+                            tokens.state.focusRingOffset
                           }
                         />
                       )}
@@ -409,7 +409,7 @@ export function NeonWorldMap({
   );
 }
 
-function stateClass(state: NeonRouteState) {
+function stateClass(state: MapRouteState) {
   if (state === "hover") return " is-hovered";
   if (state === "selected") return " is-selected";
   if (state === "dimmed") return " is-dimmed";
@@ -427,7 +427,7 @@ function activateOnEnter(
 
 function neonAirportLabelPositions(
   candidates: Array<{
-    airport: NeonAirport;
+    identityKey: string;
     point: { x: number; y: number };
     flightCount: number;
     isSelected: boolean;
@@ -437,6 +437,8 @@ function neonAirportLabelPositions(
   camera: MapCamera,
   height: number,
   pixelScale: number,
+  mapLabelFontSize: number,
+  selectedLabelFontSize: number,
 ) {
   const placed: Array<{
     left: number;
@@ -452,13 +454,13 @@ function neonAirportLabelPositions(
     (left, right) =>
       Number(right.isSelected) - Number(left.isSelected) ||
       right.flightCount - left.flightCount ||
-      left.airport.iata.localeCompare(right.airport.iata),
+      left.identityKey.localeCompare(right.identityKey),
   );
 
   for (const candidate of ordered) {
     const fontSize = candidate.isSelected
-      ? NEON_AVIATION.type.size.mapLabelSelected
-      : NEON_AVIATION.type.size.mapLabel;
+      ? selectedLabelFontSize
+      : mapLabelFontSize;
     const gap = Math.max(candidate.radius, candidate.halo) + 4;
     const width = Math.max(30, fontSize * 2.8);
     const textHeight = fontSize * 1.4;
@@ -507,7 +509,7 @@ function neonAirportLabelPositions(
           box.bottom > other.top,
       );
       if (!inBounds || overlaps) continue;
-      labels.set(candidate.airport.iata, offset);
+      labels.set(candidate.identityKey, offset);
       placed.push(box);
       break;
     }
