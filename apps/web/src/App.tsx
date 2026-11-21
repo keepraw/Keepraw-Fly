@@ -23,6 +23,7 @@ import {
 import { SettingsPage } from "./pages/SettingsPage";
 import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly, type ExportKind } from "./data/export";
+import { ImportFileError, importLimitValues } from "./data/import-limits";
 import { documentWithoutFlight, flightById } from "./data/archive";
 import { createEmptyDocument } from "./data/flight-editor";
 import { browserStorage } from "./storage/browser";
@@ -44,6 +45,7 @@ import {
 } from "@keepraw-fly/core";
 
 const demoDocument = demoData as KeeprawFlyDocument;
+const LARGE_IMPORT_FLIGHT_COUNT = 10_000;
 // DEV is replaced at build time: the experiment and its assets are absent from
 // the normal production bundle and never replace PassportRouteMap.
 const GlobeLab = import.meta.env.DEV
@@ -134,6 +136,9 @@ export function App() {
     useState<PassportViewState>(initialPassportView);
   const [editor, setEditor] = useState<FlightEditorSession | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
+  const [exportError, setExportError] = useState<
+    "too-many-records" | "file-too-large" | "download-failed" | null
+  >(null);
   const editorReturnFocusRef = useRef<HTMLElement | null>(null);
 
   const locale = i18n.language;
@@ -280,10 +285,7 @@ export function App() {
         updatedAt: new Date().toISOString(),
       });
       setStorageError(null);
-      setPassportView(initialPassportView);
-      setPage("passport");
-      setSelectedFlightId(null);
-      window.location.hash = "passport";
+      openImportedArchive(nextDocument);
     });
   }
 
@@ -432,13 +434,24 @@ export function App() {
     window.location.hash = "passport";
   }
 
+  function openImportedArchive(nextDocument: KeeprawFlyDocument) {
+    // Passport mounts the whole flight list. Keep large import completions
+    // responsive by opening the Data and backup settings after the save starts.
+    const nextPage =
+      nextDocument.flights.length >= LARGE_IMPORT_FLIGHT_COUNT
+        ? "settings"
+        : "passport";
+    if (nextPage === "settings") setSettingsInitialCategory("data");
+    setPassportView(initialPassportView);
+    setPage(nextPage);
+    setSelectedFlightId(null);
+    window.location.hash = nextPage;
+  }
+
   async function importArchive(nextDocument: KeeprawFlyDocument) {
     if (!canWriteDocument()) throw new Error("archive-conflict");
-    setPassportView(initialPassportView);
     const saved = storeDocument(nextDocument, "personal");
-    setPage("passport");
-    setSelectedFlightId(null);
-    window.location.hash = "passport";
+    openImportedArchive(nextDocument);
     // Do not let a late commit navigate away from the user's next page.
     // The importer still receives a rejection if the archive was not committed.
     if (!(await saved)) throw new Error("archive-not-saved");
@@ -490,19 +503,37 @@ export function App() {
     storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
+  async function downloadArchiveCopy(
+    source: KeeprawFlyDocument,
+    kind: ExportKind = "backup",
+  ) {
+    setExportError(null);
+    try {
+      await downloadKeeprawFly(source, kind);
+      return true;
+    } catch (error) {
+      setExportError(
+        error instanceof ImportFileError && error.code !== "empty-file"
+          ? error.code
+          : "download-failed",
+      );
+      return false;
+    }
+  }
+
   async function exportDocument(kind: ExportKind = "backup") {
     if (!document) return;
     if (kind === "shareable") {
       // Not a backup: it neither restores the archive nor updates lastBackupAt.
-      await downloadKeeprawFly(document, "shareable");
+      await downloadArchiveCopy(document, "shareable");
       return;
     }
     if (archiveKind === "demo") {
       setConfirmDemoExport(true);
       return;
     }
-    await downloadKeeprawFly(document);
-    storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
+    if (await downloadArchiveCopy(document))
+      storeSettings({ ...settings, lastBackupAt: new Date().toISOString() });
   }
 
   async function reloadAfterConflict() {
@@ -615,7 +646,7 @@ export function App() {
                 type="button"
                 onClick={() => {
                   const draft = conflictDraftRef.current?.document ?? document;
-                  if (draft) void downloadKeeprawFly(draft);
+                  if (draft) void downloadArchiveCopy(draft);
                 }}
               >
                 {t("app.exportConflictDraft")}
@@ -647,10 +678,16 @@ export function App() {
         </div>
       ) : null}
       {storageError ||
+      exportError ||
       documentPersistence.status === "error" ||
       settingsPersistence.status === "error" ||
       (document && archiveKind === "demo") ? (
         <div className="page-notices">
+          {exportError ? (
+            <div className="storage-warning" role="alert">
+              {t(`settings.exportErrors.${exportError}`, importLimitValues)}
+            </div>
+          ) : null}
           {documentPersistence.status === "error" ? (
             <div className="storage-warning" role="alert">
               <span>{t("app.changesNotSaved")}</span>
@@ -822,7 +859,7 @@ export function App() {
           onCancel={() => setConfirmDemoExport(false)}
           onConfirm={async () => {
             setConfirmDemoExport(false);
-            if (document) await downloadKeeprawFly(document);
+            if (document) await downloadArchiveCopy(document);
           }}
         />
       ) : null}

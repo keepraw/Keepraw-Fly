@@ -40,13 +40,19 @@ export function passportMapCamera(
   )
     return passportWorldCamera(usableHeight);
   const centerLongitude = regionalCenterLongitude(airports);
-  const points = [
-    ...airports.map((airport) => projectPoint(airport, centerLongitude)),
-    ...routes.flatMap((route) =>
-      sampleGreatCircle(route.origin, route.destination, 48, centerLongitude),
-    ),
-  ];
-  const camera = fitProjectedPoints(points, {
+  function* projectedPoints() {
+    for (const airport of airports)
+      yield projectPoint(airport, centerLongitude);
+    for (const route of routes) {
+      yield* sampleGreatCircle(
+        route.origin,
+        route.destination,
+        48,
+        centerLongitude,
+      );
+    }
+  }
+  const camera = fitProjectedPoints(projectedPoints(), {
     maxZoom: 6,
     padding: 0.16,
     viewportHeight: usableHeight,
@@ -69,17 +75,21 @@ function passportWorldCamera(viewportHeight: number): MapCamera {
 }
 
 export function fitProjectedPoints(
-  points: ProjectedPoint[],
+  points: Iterable<ProjectedPoint>,
   options: { maxZoom: number; padding: number; viewportHeight?: number },
 ): MapCamera {
-  if (points.length === 0) return WORLD_CAMERA;
-
-  const xs = points.map((point) => point.x);
-  const ys = points.map((point) => point.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const { x, y } of points) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return WORLD_CAMERA;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  }
+  if (minX === Infinity) return WORLD_CAMERA;
   const spanX = Math.max(maxX - minX, 1);
   const spanY = Math.max(maxY - minY, 1);
   const availableWidth = WORLD_WIDTH * (1 - options.padding * 2);
@@ -96,8 +106,8 @@ export function fitProjectedPoints(
   if (spanX >= WORLD_WIDTH * 0.9 || zoom < 1) return WORLD_CAMERA;
 
   return {
-    centerX: (minX + maxX) / 2,
-    centerY: (minY + maxY) / 2,
+    centerX: minX / 2 + maxX / 2,
+    centerY: minY / 2 + maxY / 2,
     zoom,
   };
 }

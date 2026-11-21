@@ -1,6 +1,5 @@
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
-  assertRecordCount,
   ImportFileError,
   importLimitValues,
   readImportFile,
@@ -9,10 +8,11 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
   buildDocumentFromJsonImport,
-  preflightJsonImport,
+  preflightJsonFileWork,
   summarizeImport,
   type JsonImportPreflight,
 } from "../data/import-preview";
+import { runImportPreflight } from "../data/import-preflight-work";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
 import { localizedValidationIssue } from "../data/import-messages";
 
@@ -37,6 +37,11 @@ export function ImportControl({
   const inputId = useId();
   const [preview, setPending] = useState<PendingImport | null>(null);
   const pending = preview?.base === existingDocument ? preview : null;
+  const checkController = useRef<AbortController | null>(null);
+  const [checking, setChecking] = useState<{
+    base: KeeprawFlyDocument | null;
+    fileName: string;
+  } | null>(null);
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
@@ -45,24 +50,46 @@ export function ImportControl({
     null,
   );
 
+  useLayoutEffect(() => {
+    setChecking(null);
+    setPending(null);
+    setIncludePossibleDuplicates(false);
+    return () => checkController.current?.abort();
+  }, [existingDocument]);
+
+  function cancel() {
+    checkController.current?.abort();
+    checkController.current = null;
+    setChecking(null);
+    setPending(null);
+    setIncludePossibleDuplicates(false);
+  }
+
   async function importFile(file: File | undefined) {
     if (!file || busy) return;
-    setBusy(true);
+    cancel();
+    const controller = new AbortController();
+    checkController.current = controller;
+    const { signal } = controller;
+    setChecking({ base: existingDocument, fileName: file.name });
     setFailed(false);
     setFileError(null);
     try {
       const text = await readImportFile(file);
-      const { parseKeeprawFlyJson } = await import("@keepraw-fly/validator");
-      const result = parseKeeprawFlyJson(text);
-      if (result.valid) assertRecordCount(result.data.flights.length);
-      setPending({
-        fileName: file.name,
-        ...preflightJsonImport(text, result, existingDocument),
-      });
-      setIncludePossibleDuplicates(false);
+      signal.throwIfAborted();
+      const { validateAndMigrateKeeprawFly } =
+        await import("@keepraw-fly/validator");
+      const preflight = await runImportPreflight(
+        preflightJsonFileWork(
+          text,
+          existingDocument,
+          validateAndMigrateKeeprawFly,
+        ),
+        signal,
+      );
+      if (!signal.aborted) setPending({ fileName: file.name, ...preflight });
     } catch (error) {
-      setPending(null);
-      setIncludePossibleDuplicates(false);
+      if (signal.aborted) return;
       if (error instanceof ImportFileError) {
         // A size/count refusal is a user-actionable message, not a failure.
         setFileError(error.code);
@@ -71,7 +98,10 @@ export function ImportControl({
       setFailed(true);
       onError?.(error);
     } finally {
-      setBusy(false);
+      if (!signal.aborted) {
+        checkController.current = null;
+        setChecking(null);
+      }
     }
   }
 
@@ -103,7 +133,10 @@ export function ImportControl({
     : 0;
   const hasImportableContent = !existingDocument || selectedRecords > 0;
 
-  const summary = pending?.document ? summarizeImport(pending.document) : null;
+  const summary = useMemo(
+    () => (pending?.document ? summarizeImport(pending.document) : null),
+    [pending?.document],
+  );
   const dateFormatter = new Intl.DateTimeFormat(
     i18n.resolvedLanguage ?? "en-US",
     {
@@ -163,6 +196,16 @@ export function ImportControl({
         <p role="alert" className="import-file-error">
           {t(`import.fileErrors.${fileError}`, importLimitValues)}
         </p>
+      ) : null}
+      {checking?.base === existingDocument ? (
+        <div className="import-preview-actions">
+          <span role="status">
+            {t("import.checking")} {checking.fileName}
+          </span>
+          <button className="button-secondary" type="button" onClick={cancel}>
+            {t("actions.cancel")}
+          </button>
+        </div>
       ) : null}
       {pending ? (
         <section
@@ -248,10 +291,7 @@ export function ImportControl({
               className="button-secondary"
               type="button"
               disabled={busy}
-              onClick={() => {
-                setPending(null);
-                setIncludePossibleDuplicates(false);
-              }}
+              onClick={cancel}
             >
               {t("actions.cancel")}
             </button>

@@ -13,8 +13,8 @@ export async function runImportPreflight<T>(
   work: ImportPreflightWork<T>,
   signal?: AbortSignal,
 ): Promise<T> {
-  // Allow the pending preview to paint before starting, then keep row work in
-  // small slices. A row and a single duplicate lookup remain indivisible.
+  // Allow the pending state to paint before processing each slice of import
+  // work. Each generator step runs to completion before yielding.
   await yieldToMain();
   let started = performance.now();
   try {

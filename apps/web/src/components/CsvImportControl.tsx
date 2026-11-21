@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   assertRecordCount,
   importLimitValues,
@@ -58,6 +58,7 @@ export function CsvImportControl({
 }: CsvImportControlProps) {
   const { t } = useTranslation();
   const inputId = useId();
+  const selection = useRef(0);
   const [pending, setPending] = useState<PendingCsv | null>(null);
   const [error, setError] = useState<
     { kind: "file"; code: string } | { kind: "import" } | null
@@ -65,6 +66,7 @@ export function CsvImportControl({
   const [includePossibleDuplicates, setIncludePossibleDuplicates] =
     useState(false);
   const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(false);
   const [timezoneOverrides, setTimezoneOverrides] = useState<
     Record<string, string>
   >({});
@@ -84,22 +86,42 @@ export function CsvImportControl({
   );
   const { preflight, preflightFailed } = useImportPreflight(work);
 
+  useEffect(
+    () => () => {
+      selection.current++;
+    },
+    [],
+  );
+
+  function cancel() {
+    selection.current++;
+    setPending(null);
+    setReading(false);
+    setIncludePossibleDuplicates(false);
+    setError(null);
+  }
+
   async function selectFile(file: File | undefined) {
-    if (!file) return;
+    if (!file || busy) return;
+    cancel();
+    const request = selection.current;
+    setReading(true);
     try {
-      const parsed = parseCsv(await readImportFile(file));
+      const text = await readImportFile(file);
+      if (selection.current !== request) return;
+      const parsed = parseCsv(text);
       assertRecordCount(parsed.rows.length);
       setPending({
         fileName: file.name,
         parsed,
         mapping: detectCsvMapping(parsed.headers),
       });
-      setIncludePossibleDuplicates(false);
-      setError(null);
     } catch (caught) {
-      setPending(null);
+      if (selection.current !== request) return;
       const code = caught instanceof Error ? caught.message : "invalid-file";
       setError({ kind: "file", code });
+    } finally {
+      if (selection.current === request) setReading(false);
     }
   }
 
@@ -116,9 +138,7 @@ export function CsvImportControl({
       const result = validateKeeprawFly(nextDocument);
       if (!result.valid) throw new Error("invalid-import");
       await onImport(result.data);
-      setPending(null);
-      setIncludePossibleDuplicates(false);
-      setError(null);
+      cancel();
     } catch {
       setError({ kind: "import" });
     } finally {
@@ -137,6 +157,7 @@ export function CsvImportControl({
         className="sr-only"
         id={inputId}
         type="file"
+        disabled={busy}
         accept=".csv,text/csv"
         onChange={(event) => {
           void selectFile(event.target.files?.[0]);
@@ -156,6 +177,14 @@ export function CsvImportControl({
         </button>
       </div>
       <p className="csv-import-workflow">{t("csvImport.workflow")}</p>
+      {reading ? (
+        <div className="import-preview-actions">
+          <span role="status">{t("actions.validating")}</span>
+          <button className="button-secondary" type="button" onClick={cancel}>
+            {t("actions.cancel")}
+          </button>
+        </div>
+      ) : null}
       {pending ? (
         <section
           className="csv-preview"
@@ -303,11 +332,7 @@ export function CsvImportControl({
               className="button-secondary"
               type="button"
               disabled={busy}
-              onClick={() => {
-                setPending(null);
-                setIncludePossibleDuplicates(false);
-                setError(null);
-              }}
+              onClick={cancel}
             >
               {t("actions.cancel")}
             </button>

@@ -119,6 +119,50 @@ describe("duplicate flight detection", () => {
       selectFlightsForImport(assessments, true).map(({ id }) => id),
     ).toEqual(["possible", "fresh"]);
   });
+
+  it("keeps first eligible references across airline wildcards, times and physical sites", () => {
+    const first = { ...baseFlight, id: "first", airline: { icao: "DAL" } };
+    const otherSite = {
+      ...baseFlight,
+      id: "other-site",
+      origin: { iata: "SFO", airportId: "apt_other_site" },
+    };
+    const wildcard = {
+      ...baseFlight,
+      id: "wildcard",
+      scheduledDeparture: "2026-08-19T09:00:00-07:00",
+    };
+    const sameInstant = {
+      ...baseFlight,
+      id: "same-instant",
+      airline: { icao: "UAL" },
+      scheduledDeparture: "2026-08-19T17:20:00Z",
+    };
+    const candidate = {
+      ...baseFlight,
+      id: "candidate",
+      airline: { icao: "UAL" },
+    };
+    const existing = [first, otherSite, wildcard, sameInstant];
+    expect(
+      assessFlightImports([candidate], existing, "archive")[0],
+    ).toMatchObject({ disposition: "possible", matchedFlightId: "wildcard" });
+    expect(assessFlightImports([candidate], existing)[0]).toMatchObject({
+      disposition: "exact",
+      matchedFlightId: "same-instant",
+    });
+    expect(
+      assessFlightImports([{ ...candidate, airline: {} }], existing)[0],
+    ).toMatchObject({ disposition: "exact", matchedFlightId: "first" });
+    expect(
+      assessFlightImports([candidate, { ...candidate, id: "later" }], []).map(
+        ({ disposition, matchedFlightId }) => [disposition, matchedFlightId],
+      ),
+    ).toEqual([
+      ["new", undefined],
+      ["exact", "candidate"],
+    ]);
+  });
 });
 
 function classify(candidate: KeeprawFlight) {

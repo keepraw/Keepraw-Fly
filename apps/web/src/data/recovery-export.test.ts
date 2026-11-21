@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { downloadRecoveryCopy, serializeRecoveryCopy } from "./recovery-export";
+import {
+  downloadRecoveryCopy,
+  serializeRecoveryCopy,
+  UnsafeRecoveryCopyError,
+} from "./recovery-export";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -53,6 +57,40 @@ describe("raw recovery export", () => {
     circular.self = circular;
     expect(() => serializeRecoveryCopy(circular)).toThrow();
     expect(circular.self).toBe(circular);
+  });
+
+  it.each([
+    ["Map", new Map([["flight-1", { id: "flight-1" }]])],
+    ["Set", new Set(["flight-1"])],
+    ["undefined", undefined],
+    ["NaN", NaN],
+    ["Infinity", Infinity],
+    ["negative zero", -0],
+    ["sparse array", Array(1)],
+    ["undefined array entry", [undefined]],
+    ["array property", Object.assign([1], { extra: 2 })],
+    ["Date", new Date("2025-03-01T10:00:00Z")],
+    ["typed array", new Uint8Array([1, 2])],
+  ])("refuses a nested %s before creating a download", (_type, value) => {
+    const mocks = mockDownload();
+    const raw = { ...rawArchive, flights: { value } };
+    const stored = structuredClone(raw);
+    expect(() => downloadRecoveryCopy(raw)).toThrow(UnsafeRecoveryCopyError);
+    expect(raw).toStrictEqual(stored);
+    expect(mocks.createObjectURL).not.toHaveBeenCalled();
+    expect(mocks.link.click).not.toHaveBeenCalled();
+  });
+
+  it("preserves the contents of repeated JSON values in legacy and canonical fields", () => {
+    const associatedAirlines = ["UA"];
+    const raw = {
+      canonical: { memberNumber: "canonical-001", associatedAirlines },
+      legacy: { memberNumber: "legacy-001", associatedAirlines },
+    };
+    expect(JSON.parse(serializeRecoveryCopy(raw))).toEqual(raw);
+    expect(raw.canonical.associatedAirlines).toBe(
+      raw.legacy.associatedAirlines,
+    );
   });
 
   it("downloads the raw JSON with a recovery filename and releases its URL", async () => {

@@ -20,6 +20,16 @@ export interface FlightImportCounts {
   exactDuplicateRecords: number;
 }
 
+interface FlightReference {
+  flight: KeeprawFlight;
+  order: number;
+}
+
+interface ReferenceBucket {
+  references: FlightReference[];
+  matches?: Map<string, FlightReference>;
+}
+
 export function assessFlightImports(
   candidates: readonly KeeprawFlight[],
   existing: readonly KeeprawFlight[],
@@ -35,54 +45,90 @@ export function* assessFlightImportsWork(
   existing: readonly KeeprawFlight[],
   source: "rows" | "archive" = "rows",
 ): Generator<void, FlightImportAssessment[], void> {
-  const references = [...existing];
-  const byId = new Map(existing.map((flight) => [flight.id, flight]));
-  const physicalRoutes = new WeakMap<KeeprawFlight, string>();
-  function physicalRoute(flight: KeeprawFlight) {
-    let route = physicalRoutes.get(flight);
-    if (!route) {
-      route = JSON.stringify([
-        originIdentity(flight).identityKey,
-        plannedDestinationIdentity(flight).identityKey,
-        arrivalIdentity(flight).identityKey,
-      ]);
-      physicalRoutes.set(flight, route);
+  if (!candidates.length) return [];
+  const byId = new Map<string, KeeprawFlight>();
+  const byCore = new Map<string, ReferenceBucket>();
+  let order = 0;
+
+  function indexRoute(
+    matches: Map<string, FlightReference>,
+    reference: FlightReference,
+    route = physicalRoute(reference.flight),
+  ) {
+    const airline = reference.flight.airline.icao || "";
+    // A missing candidate ICAO matches any carrier. A missing reference ICAO
+    // is also eligible when the candidate has a specific carrier.
+    function remember(departure: number | null) {
+      for (const code of [airline, null]) {
+        const key = routeMatchKey(route, code, departure);
+        if (!matches.has(key)) matches.set(key, reference);
+      }
     }
-    return route;
+    remember(null);
+    if (source === "rows") {
+      const departure = Date.parse(reference.flight.scheduledDeparture);
+      if (Number.isFinite(departure)) remember(departure);
+    }
   }
+
+  function addReference(flight: KeeprawFlight, key: string, route?: string) {
+    byId.set(flight.id, flight);
+    let bucket = byCore.get(key);
+    if (!bucket) {
+      bucket = { references: [] };
+      byCore.set(key, bucket);
+    }
+    const reference = { flight, order: order++ };
+    if (bucket.matches) indexRoute(bucket.matches, reference, route);
+    else bucket.references.push(reference);
+  }
+
+  for (const flight of existing) {
+    addReference(flight, coreKey(flight));
+    yield;
+  }
+
   const assessments: FlightImportAssessment[] = [];
   for (const flight of candidates) {
+    const key = coreKey(flight);
     let match = byId.get(flight.id);
+    let route: string | undefined;
     let disposition: FlightImportDisposition = "new";
     if (match) {
       disposition = sameJsonFacts(flight, match) ? "exact" : "conflict";
     } else {
-      for (const reference of references) {
-        if (
-          !hasSameCoreIdentity(flight, reference) ||
-          physicalRoute(flight) !== physicalRoute(reference)
-        )
-          continue;
-        match ??= reference;
-        disposition = "possible";
-        // Row imports have generated IDs; native IDs belong to the author.
-        if (
-          source === "rows" &&
-          Date.parse(flight.scheduledDeparture) ===
-            Date.parse(reference.scheduledDeparture)
-        ) {
-          disposition = "exact";
-          match = reference;
-          break;
+      const bucket = byCore.get(key);
+      if (bucket) {
+        // Resolve physical identities only for buckets that receive a query.
+        // Yield between references even when every record shares a core key.
+        if (!bucket.matches) {
+          bucket.matches = new Map();
+          for (const reference of bucket.references) {
+            indexRoute(bucket.matches, reference);
+            yield;
+          }
+          bucket.references = [];
         }
-        if (source === "archive") break;
+        route = physicalRoute(flight);
+        const airline = flight.airline.icao || null;
+        const exact =
+          source === "rows"
+            ? firstRouteMatch(
+                bucket.matches,
+                route,
+                airline,
+                Date.parse(flight.scheduledDeparture),
+              )
+            : undefined;
+        match =
+          exact?.flight ??
+          firstRouteMatch(bucket.matches, route, airline, null)?.flight;
+        if (match) disposition = exact ? "exact" : "possible";
       }
     }
 
-    if (source === "rows") {
-      references.push(flight);
-      byId.set(flight.id, flight);
-    }
+    // Row imports have generated IDs; native IDs belong to the author.
+    if (source === "rows") addReference(flight, key, route);
     assessments.push({
       flight,
       disposition,
@@ -150,17 +196,43 @@ function sameJsonFacts(a: unknown, b: unknown): boolean {
   );
 }
 
-function hasSameCoreIdentity(
-  candidate: KeeprawFlight,
-  reference: KeeprawFlight,
-): boolean {
-  return (
-    candidate.serviceDate === reference.serviceDate &&
-    candidate.flightNumber === reference.flightNumber &&
-    (!candidate.airline.icao ||
-      !reference.airline.icao ||
-      candidate.airline.icao === reference.airline.icao) &&
-    candidate.origin.iata === reference.origin.iata &&
-    candidate.destination.iata === reference.destination.iata
-  );
+function coreKey(flight: KeeprawFlight): string {
+  return JSON.stringify([
+    flight.serviceDate,
+    flight.flightNumber,
+    flight.origin.iata,
+    flight.destination.iata,
+  ]);
+}
+
+function physicalRoute(flight: KeeprawFlight): string {
+  return JSON.stringify([
+    originIdentity(flight).identityKey,
+    plannedDestinationIdentity(flight).identityKey,
+    arrivalIdentity(flight).identityKey,
+  ]);
+}
+
+function routeMatchKey(
+  route: string,
+  airline: string | null,
+  departure: number | null,
+): string {
+  return JSON.stringify([route, airline, departure]);
+}
+
+function firstRouteMatch(
+  matches: Map<string, FlightReference>,
+  route: string,
+  airline: string | null,
+  departure: number | null,
+): FlightReference | undefined {
+  if (departure !== null && !Number.isFinite(departure)) return undefined;
+  const matchingCarrier = matches.get(routeMatchKey(route, airline, departure));
+  if (airline === null) return matchingCarrier;
+  const missingCarrier = matches.get(routeMatchKey(route, "", departure));
+  return !matchingCarrier ||
+    (missingCarrier && missingCarrier.order < matchingCarrier.order)
+    ? missingCarrier
+    : matchingCarrier;
 }

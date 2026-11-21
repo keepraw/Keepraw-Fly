@@ -550,6 +550,11 @@
     "exportShareable": "Ohne persönliche Daten exportieren",
     "exportShareableNote": "Zum Teilen von Statistiken: entfernt Namen, Buchungscodes, Ticket- und Mitgliedsnummern sowie unbekannte Erweiterungen. Kein Backup. Genaue Daten, Flüge und Sitzplätze bleiben erhalten, die Datei ist daher nicht anonym.",
     "exportSensitiveWarning": "Vollständige Backups enthalten personenbezogene Daten wie Passagiernamen, Buchungscodes (PNR), Ticket- und Vielfliegernummern. Bewahren und teilen Sie sie sorgfältig.",
+    "exportErrors": {
+      "too-many-records": "Eine vollständige Sicherung überschreitet das Wiederherstellungslimit von {{records, number}} Flügen.",
+      "file-too-large": "Eine vollständige Sicherung überschreitet das Wiederherstellungslimit von {{limit}}, auch als kompaktes JSON.",
+      "download-failed": "Die Archivkopie konnte nicht heruntergeladen werden."
+    },
     "data": "Daten",
     "localDataTitle": "Lokale Daten",
     "localDataDescription": "Flugaufzeichnungen werden nur in diesem Browser gespeichert.",
@@ -662,6 +667,7 @@
     "clearDescription": "Löschen Sie das auf diesem Gerät gespeicherte Archiv endgültig. Dies kann nicht rückgängig gemacht werden.",
     "clearConfirmation": "Das lokale Archiv endgültig löschen? Dies kann nicht rückgängig gemacht werden. Laden Sie zuerst eine Wiederherstellungskopie herunter, wenn Sie die ursprünglichen Daten behalten möchten.",
     "downloadError": "Die Wiederherstellungskopie konnte nicht heruntergeladen werden. Ihre gespeicherten Daten wurden nicht verändert.",
+    "unsafeDownloadError": "In JSON lässt sich keine vollständige Wiederherstellungskopie sicher erstellen. Ihr lokales Archiv bleibt auf diesem Gerät gespeichert.",
     "retryError": "Das lokale Archiv konnte nicht gelesen werden. Ihre gespeicherten Daten wurden nicht verändert.",
     "importReadError": "Das Backup konnte nicht geöffnet werden. Ihre gespeicherten Daten wurden nicht verändert.",
     "importError": "Das Backup konnte nicht gespeichert werden. Ihre gespeicherten Daten wurden nicht verändert.",
