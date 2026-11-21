@@ -2,9 +2,8 @@ import { geoPath } from "d3-geo";
 import { useId, useMemo, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { MapViewport } from "../components/MapViewport";
-import { airportLabelPositions } from "../data/map-labels";
-import { regionalCenterLongitude } from "../data/map-geometry";
-import { WORLD_CAMERA } from "../data/map-camera";
+import { regionalCenterLongitude, WORLD_WIDTH } from "../data/map-geometry";
+import { type MapCamera, WORLD_CAMERA } from "../data/map-camera";
 import {
   airportStyle,
   hatchTile,
@@ -134,37 +133,31 @@ export function NeonWorldMap({
         const selectedRouteData = routes.find(
           (route) => route.id === activeSelectedRoute,
         );
-        const labelCandidates = airportPoints.filter(
-          ({ airport }) =>
-            hubs.has(airport.iata) ||
+        const labelCandidates = airportPoints.flatMap(({ airport, point }) => {
+          const isSelected =
             selectedAirport === airport.iata ||
             selectedRouteData?.origin.iata === airport.iata ||
-            selectedRouteData?.destination.iata === airport.iata,
-        );
-        const requiredLabels = new Set(
-          [
-            selectedAirport,
-            selectedRouteData?.origin.iata,
-            selectedRouteData?.destination.iata,
-          ].filter((iata): iata is string => Boolean(iata)),
-        );
-        const labelPositions = airportLabelPositions(
-          labelCandidates.map(({ airport, point }) => ({
-            iata: airport.iata,
-            point,
-            flightCount: routes.reduce(
-              (total, route) =>
-                total +
-                (route.origin.iata === airport.iata ||
-                route.destination.iata === airport.iata
-                  ? route.count
-                  : 0),
-              0,
-            ),
-          })),
+            selectedRouteData?.destination.iata === airport.iata;
+          if (!hubs.has(airport.iata) && !isSelected) return [];
+          const style = airportStyle(
+            isSelected ? "selected" : "hub",
+            isSelected ? "selected" : "normal",
+          );
+          return [
+            {
+              airport,
+              point,
+              flightCount: airportCounts.get(airport.iata) ?? 0,
+              isSelected,
+              radius: style.radius,
+              halo: style.halo,
+            },
+          ];
+        });
+        const labelPositions = neonAirportLabelPositions(
+          labelCandidates,
           camera,
           viewportHeight,
-          requiredLabels,
           pixelScale,
         );
 
@@ -416,6 +409,96 @@ function activateOnEnter(
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
   activate();
+}
+
+function neonAirportLabelPositions(
+  candidates: Array<{
+    airport: NeonAirport;
+    point: { x: number; y: number };
+    flightCount: number;
+    isSelected: boolean;
+    radius: number;
+    halo: number;
+  }>,
+  camera: MapCamera,
+  height: number,
+  pixelScale: number,
+) {
+  const placed: Array<{
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  }> = [];
+  const labels = new Map<
+    string,
+    { x: number; y: number; anchor: "start" | "end" | "middle" }
+  >();
+  const ordered = [...candidates].sort(
+    (left, right) =>
+      Number(right.isSelected) - Number(left.isSelected) ||
+      right.flightCount - left.flightCount ||
+      left.airport.iata.localeCompare(right.airport.iata),
+  );
+
+  for (const candidate of ordered) {
+    const fontSize = candidate.isSelected
+      ? NEON_AVIATION.type.size.mapLabelSelected
+      : NEON_AVIATION.type.size.mapLabel;
+    const gap = Math.max(candidate.radius, candidate.halo) + 4;
+    const width = Math.max(30, fontSize * 2.8);
+    const textHeight = fontSize * 1.4;
+    const centerX =
+      (candidate.point.x - camera.centerX) * camera.zoom + WORLD_WIDTH / 2;
+    const centerY =
+      (candidate.point.y - camera.centerY) * camera.zoom + height / 2;
+    const offsets: Array<{
+      x: number;
+      y: number;
+      anchor: "start" | "end" | "middle";
+    }> = [
+      { x: gap, y: fontSize * 0.35, anchor: "start" },
+      { x: -gap, y: fontSize * 0.35, anchor: "end" },
+      { x: 0, y: -gap, anchor: "middle" },
+      { x: 0, y: gap + fontSize, anchor: "middle" },
+    ];
+
+    for (const offset of offsets) {
+      const x = centerX + offset.x * pixelScale;
+      const y = centerY + offset.y * pixelScale;
+      const left =
+        x -
+        (offset.anchor === "start"
+          ? 0
+          : offset.anchor === "end"
+            ? width * pixelScale
+            : (width * pixelScale) / 2);
+      const top = y - fontSize * pixelScale * 0.9;
+      const box = {
+        left,
+        top,
+        right: left + width * pixelScale,
+        bottom: top + textHeight * pixelScale,
+      };
+      const inBounds =
+        box.left >= 3 &&
+        box.right <= WORLD_WIDTH - 3 &&
+        box.top >= 3 &&
+        box.bottom <= height - 3;
+      const overlaps = placed.some(
+        (other) =>
+          box.left < other.right &&
+          box.right > other.left &&
+          box.top < other.bottom &&
+          box.bottom > other.top,
+      );
+      if (!inBounds || overlaps) continue;
+      labels.set(candidate.airport.iata, offset);
+      placed.push(box);
+      break;
+    }
+  }
+  return labels;
 }
 
 function pathsGraticule(centerLongitude: number) {

@@ -18,7 +18,11 @@ import {
 
 export const NEON_POSTER_SIZE = { width: 1080, height: 1350 } as const;
 
-export function renderNeonPassport(canvas: HTMLCanvasElement, scale = 1): void {
+export function renderNeonPassport(
+  canvas: HTMLCanvasElement,
+  scale = 1,
+  cjkFontFamily: string = NEON_AVIATION.type.family.label,
+): void {
   const pixelScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
   canvas.width = Math.round(NEON_POSTER_SIZE.width * pixelScale);
   canvas.height = Math.round(NEON_POSTER_SIZE.height * pixelScale);
@@ -30,16 +34,19 @@ export function renderNeonPassport(canvas: HTMLCanvasElement, scale = 1): void {
   drawAviationBand(context);
   drawWorldMap(context, pixelScale);
   drawSeparator(context);
-  drawPosterCopy(context);
+  drawPosterCopy(context, cjkFontFamily);
   drawStatsTexture(context);
   drawStats(context);
   drawEntryStamp(context);
-  drawSpecimenBand(context);
+  drawMrzBand(context);
 }
 
-export function createNeonPassportExport(scale: number): string {
+export function createNeonPassportExport(
+  scale: number,
+  cjkFontFamily: string = NEON_AVIATION.type.family.label,
+): string {
   const canvas = document.createElement("canvas");
-  renderNeonPassport(canvas, scale);
+  renderNeonPassport(canvas, scale, cjkFontFamily);
   return canvas.toDataURL("image/png");
 }
 
@@ -63,6 +70,7 @@ function drawBackground(context: CanvasRenderingContext2D) {
 }
 
 function drawAviationBand(context: CanvasRenderingContext2D) {
+  const hub = posterWaypointCodes()[0] ?? "";
   const gradient = context.createLinearGradient(70, 0, 1010, 0);
   gradient.addColorStop(0, rgba(NEON_AVIATION.color.airportHalo));
   gradient.addColorStop(0.46, rgba(NEON_AVIATION.color.routeFrequent));
@@ -75,10 +83,24 @@ function drawAviationBand(context: CanvasRenderingContext2D) {
     context.fillText("✈", 95 + index * 55, 55);
   context.font = `600 21px ${NEON_AVIATION.type.family.data}`;
   context.textAlign = "left";
-  context.fillText("TPE", 72, 93);
+  context.fillText(hub, 72, 93);
   context.textAlign = "right";
-  context.fillText("LAX", 1008, 93);
+  context.fillText(hub, 1008, 93);
   context.textAlign = "left";
+}
+
+function posterWaypointCodes(): string[] {
+  const counts = new Map<string, number>();
+  for (const route of SPARSE_ROUTES) {
+    for (const code of [route.origin.iata, route.destination.iata])
+      counts.set(code, (counts.get(code) ?? 0) + route.count);
+  }
+  return [...counts]
+    .sort(
+      ([leftCode, leftCount], [rightCode, rightCount]) =>
+        rightCount - leftCount || leftCode.localeCompare(rightCode),
+    )
+    .map(([code]) => code);
 }
 
 function drawWorldMap(context: CanvasRenderingContext2D, pixelScale: number) {
@@ -214,14 +236,19 @@ function drawSeparator(context: CanvasRenderingContext2D) {
   context.setLineDash([]);
 }
 
-function drawPosterCopy(context: CanvasRenderingContext2D) {
+function drawPosterCopy(
+  context: CanvasRenderingContext2D,
+  cjkFontFamily: string,
+) {
   context.fillStyle = rgba(NEON_AVIATION.color.label);
   context.textBaseline = "alphabetic";
-  context.font = `700 84px ${NEON_AVIATION.type.family.display}`;
-  context.fillText("KEEPRAW TRAVELER", 64, 705);
+  context.font = `700 ${NEON_AVIATION.type.size.posterTitle}px ${NEON_AVIATION.type.family.display}`;
+  context.fillText("FLIGHT PASSPORT", 64, 698);
   context.fillStyle = rgba(NEON_AVIATION.color.labelMuted);
   context.font = `500 18px ${NEON_AVIATION.type.family.label}`;
-  context.fillText("SPECIMEN · NEON AVIATION · FICTIONAL PASSPORT", 68, 744);
+  context.fillText("HOLDER · KEEPRAW TRAVELER · SPECIMEN", 68, 737);
+  context.font = `500 18px ${NEON_AVIATION.type.family.label}, ${cjkFontFamily}`;
+  context.fillText("PASSPORT · PASSEPORT · 护照", 68, 769);
 }
 
 function drawStatsTexture(context: CanvasRenderingContext2D) {
@@ -243,10 +270,11 @@ function drawStatsTexture(context: CanvasRenderingContext2D) {
   context.globalAlpha = 0.075;
   context.fillStyle = rgba(NEON_AVIATION.color.label);
   context.font = `400 13px ${NEON_AVIATION.type.family.data}`;
+  const airportCodes = posterWaypointCodes();
   for (let row = 0; row < 10; row += 1) {
     for (let column = 0; column < 12; column += 1)
       context.fillText(
-        ["TPE", "LAX", "PVG", "CDG", "SIN", "NRT"][(row + column) % 6]!,
+        airportCodes[(row + column) % airportCodes.length] ?? "",
         44 + column * 84,
         832 + row * 42,
       );
@@ -260,55 +288,60 @@ function drawStats(context: CanvasRenderingContext2D) {
       label: "FLIGHTS",
       value: String(NEON_PASSPORT_STATS.flights),
       x: 64,
-      y: 832,
+      y: 858,
+      valueY: 920,
     },
     {
       label: "DISTANCE (KM)",
       value: NEON_PASSPORT_STATS.distanceKm.toLocaleString("en-US"),
-      x: 555,
-      y: 832,
+      x: 400,
+      y: 858,
+      valueY: 920,
     },
     {
       label: "FLIGHT TIME",
       value: NEON_PASSPORT_STATS.flightTime,
       x: 64,
-      y: 1032,
+      y: 1054,
+      valueY: 1116,
     },
     {
       label: "AIRPORTS",
       value: String(NEON_PASSPORT_STATS.airports),
-      x: 555,
-      y: 1032,
+      x: 400,
+      y: 1054,
+      valueY: 1116,
     },
     {
       label: "AIRLINES",
       value: String(NEON_PASSPORT_STATS.airlines),
-      x: 64,
-      y: 1192,
+      x: 736,
+      y: 1054,
+      valueY: 1116,
     },
   ];
   for (const stat of stats) {
     context.fillStyle = rgba(NEON_AVIATION.color.labelMuted);
-    context.font = `600 15px ${NEON_AVIATION.type.family.label}`;
+    context.font = `600 ${NEON_AVIATION.type.size.statLabel}px ${NEON_AVIATION.type.family.label}`;
     context.letterSpacing = NEON_AVIATION.type.letterSpacing.caps;
     context.fillText(stat.label, stat.x, stat.y);
     context.letterSpacing = "0px";
     context.fillStyle = rgba(NEON_AVIATION.color.label);
-    context.font = `600 56px ${NEON_AVIATION.type.family.display}`;
-    context.fillText(stat.value, stat.x, stat.y + 66);
+    context.font = `600 ${NEON_AVIATION.type.size.statValue}px ${NEON_AVIATION.type.family.display}`;
+    context.fillText(stat.value, stat.x, stat.valueY);
   }
 }
 
 function drawEntryStamp(context: CanvasRenderingContext2D) {
   context.save();
-  context.translate(870, 1080);
+  context.translate(870, 900);
   context.strokeStyle = rgba(NEON_AVIATION.color.airportHalo, 0.72);
   context.lineWidth = 2;
   context.beginPath();
-  context.arc(0, 0, 86, 0, Math.PI * 2);
+  context.arc(0, 0, 72, 0, Math.PI * 2);
   context.stroke();
   context.beginPath();
-  context.arc(0, 0, 72, 0, Math.PI * 2);
+  context.arc(0, 0, 60, 0, Math.PI * 2);
   context.stroke();
   context.fillStyle = rgba(NEON_AVIATION.color.airportHalo);
   context.textAlign = "center";
@@ -321,11 +354,11 @@ function drawEntryStamp(context: CanvasRenderingContext2D) {
   context.restore();
 }
 
-function drawSpecimenBand(context: CanvasRenderingContext2D) {
-  context.fillStyle = rgba(NEON_AVIATION.color.labelHalo, 0.55);
-  context.fillRect(40, 1268, 1000, 57);
+function drawMrzBand(context: CanvasRenderingContext2D) {
+  context.fillStyle = rgba(NEON_AVIATION.color.labelHalo, 0.72);
+  context.fillRect(0, 1194, NEON_POSTER_SIZE.width, 156);
   context.fillStyle = rgba(NEON_AVIATION.color.label);
-  context.font = `400 14px ${NEON_AVIATION.type.family.data}`;
-  context.fillText("P<KRF<<KEEPRAW<TRAVELER<<<<<<<<<<<<<<<<<<", 58, 1291);
-  context.fillText("SPECIMEN<<NEON<AVIATION<<<<<<<<<<<<<<<<<<", 58, 1313);
+  context.font = `400 27px ${NEON_AVIATION.type.family.data}`;
+  context.fillText("P<KRF<<KEEPRAW<TRAVELER<<<<<<<<<<<<<<<<<<<<", 36, 1258);
+  context.fillText("SPECIMEN<<NEON<AVIATION<<<<<<<<<<<<<<<<<<<<", 36, 1308);
 }

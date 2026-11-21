@@ -63,6 +63,46 @@ test("Neon Aviation lab fits mobile and disables motion when requested", async (
   }));
   expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
   expect(dimensions.body).toBeLessThanOrEqual(dimensions.viewport);
+  const mapLayout = await page.locator(".neon-map-viewport").evaluate((map) => {
+    const overlaps = (left: DOMRect, right: DOMRect): boolean =>
+      left.left < right.right &&
+      left.right > right.left &&
+      left.top < right.bottom &&
+      left.bottom > right.top;
+    const controls = Array.from(
+      map.querySelectorAll(".map-zoom-controls button"),
+    ).map((button) => {
+      const { width, height } = button.getBoundingClientRect();
+      return { width, height };
+    });
+    const labels = Array.from(
+      map.querySelectorAll<SVGTextElement>(".neon-airport-label"),
+    ).map((label) => {
+      const halo =
+        label.parentElement?.querySelector<SVGCircleElement>(
+          ".neon-airport-halo",
+        );
+      if (!halo) throw new Error("Airport label has no marker halo.");
+      return {
+        label: label.getBoundingClientRect(),
+        marker: halo.getBoundingClientRect(),
+      };
+    });
+    return {
+      controlsFit: controls.every(
+        ({ width, height }) => width <= 32 && height <= 32,
+      ),
+      labelsAvoidMarkers: labels.every(
+        ({ label, marker }) => !overlaps(label, marker),
+      ),
+      labelsAvoidEachOther: labels.every(({ label }, index) =>
+        labels.slice(index + 1).every((other) => !overlaps(label, other.label)),
+      ),
+    };
+  });
+  expect(mapLayout.controlsFit).toBe(true);
+  expect(mapLayout.labelsAvoidMarkers).toBe(true);
+  expect(mapLayout.labelsAvoidEachOther).toBe(true);
 
   const motion = await page
     .locator(".neon-route-line, .neon-airport-point, .neon-route-switch button")

@@ -4,6 +4,7 @@ import {
   NEON_POSTER_SIZE,
   renderNeonPassport,
 } from "./neon-passport-canvas";
+import { preparePosterFonts } from "../share/poster-fonts";
 
 type NeonExportWindow = Window & {
   __neonPassportExport?: (scale: number) => string;
@@ -20,11 +21,19 @@ export function NeonPassportPoster() {
     void Promise.all([
       document.fonts.load('600 56px "Barlow Semi Condensed"'),
       document.fonts.load('400 13px "IBM Plex Mono"'),
-    ]).then(() => {
+      preparePosterFonts("en", {
+        sample: "FLIGHT PASSPORT · PASSEPORT · 护照",
+      }),
+    ]).then(([, , fonts]) => {
       if (!active) return;
-      renderNeonPassport(canvas, window.devicePixelRatio || 1);
+      renderNeonPassport(
+        canvas,
+        window.devicePixelRatio || 1,
+        fonts.families.text,
+      );
       canvas.dataset.ready = "true";
-      exportWindow.__neonPassportExport = createNeonPassportExport;
+      exportWindow.__neonPassportExport = (scale) =>
+        createNeonPassportExport(scale, fonts.families.text);
     });
     return () => {
       active = false;

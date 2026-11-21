@@ -26,8 +26,10 @@ archive startup. Its three samples are isolated under `.neon-aviation`:
   route glow budget.
 - **Great-circle detail (SVG):** a date-line-centered TPE–LAX view and a PVG–CDG
   comparison, with fictional local times and a route-distance estimate.
-- **Flight passport (Canvas 2D):** a fictional `KEEPRAW TRAVELER` specimen with
-  exportable 1080 × 1350 artwork. It reads the shared token object directly.
+- **Flight passport (Canvas 2D):** `FLIGHT PASSPORT` as the main title, a
+  multilingual passport line, and a smaller `KEEPRAW TRAVELER` holder line with
+  route-derived hub markers and a full-width specimen MRZ. It exports
+  1080 × 1350 artwork and reads the shared token object directly.
 
 The design source is
 [`neon-aviation-tokens.ts`](../apps/web/src/neon/neon-aviation-tokens.ts).
@@ -47,8 +49,8 @@ milliseconds; family stacks and letter spacing retain their CSS values.
 | `color.backgroundBottom`     | 11, 10, 38, 1                                                                    |
 | `color.backgroundBloom`      | 92, 64, 214, 0.22                                                                |
 | `color.ocean`                | 17, 13, 52, 1                                                                    |
-| `color.land`                 | 58, 52, 138, 0.42                                                                |
-| `color.landHatch`            | 140, 128, 255, 0.34                                                              |
+| `color.land`                 | 58, 52, 138, 0.5                                                                 |
+| `color.landHatch`            | 150, 140, 255, 0.58                                                              |
 | `color.coastline`            | 150, 140, 255, 0.55                                                              |
 | `color.border`               | 160, 150, 255, 0.16                                                              |
 | `color.graticule`            | 150, 140, 255, 0.08                                                              |
@@ -170,13 +172,19 @@ three-second wheel-zoom animation-frame sample for each case in
 sparse-world companion for the wheel sample because those prototypes do not
 contain a zoomable camera. Values below are added only after capture completes.
 
-| Check                                                                 | Result              |
-| --------------------------------------------------------------------- | ------------------- |
-| Contrast, unit, geometry, type, build, CSS, docs, and security checks | Pending measurement |
-| Chromium prototype captures and frame-time sample                     | Pending measurement |
-| Firefox                                                               | Not tested          |
-| WebKit                                                                | Not tested          |
-| Real hardware 4K display                                              | Not tested          |
+| Check                          | Result                                                                                              |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Format, CSS lint/token, docs   | Passed; 18 stylesheets, 0 unresolved tokens; documentation checks cover 40 files.                   |
+| Web unit and contrast tests    | Passed; 55 files and 794 tests.                                                                     |
+| Typecheck                      | Passed across all four workspace packages.                                                          |
+| Production build and dist grep | Passed; no `neon-lab` or `NeonLab` references in `apps/web/dist`.                                   |
+| Chromium e2e                   | Passed; 2 tests.                                                                                    |
+| Chromium capture               | 36 scenarios, 39 PNGs; ready 481.92–2409.01 ms (mean 1466.85 ms); 0–643 SVG nodes, 0 filters.       |
+| Wheel sample                   | 36 samples; mean average frame time 16.64 ms; per-sample averages 16.49–17.37 ms, p95 16.7–16.8 ms. |
+| Security headers               | Not re-run in this round; previous static check passed, runtime check skipped (Caddy unavailable).  |
+| Firefox                        | Not tested.                                                                                         |
+| WebKit                         | Not tested.                                                                                         |
+| Real hardware 4K display       | Not tested.                                                                                         |
 
 ### Next-phase shared 2D map interface
 
@@ -218,7 +226,8 @@ proposal for a later phase, not a production refactor in this change.
 
 `/neon-lab` 仅在 Vite 开发模式下懒加载，并跳过档案启动流程。页面包含三个隔离样例：
 SVG 世界航线图、以 TPE–LAX 跨日期变更线航线为中心的 SVG 详情图，以及可导出的
-1080 × 1350 Canvas 虚构护照样本。它们不会替换正式地图或护照输出。
+1080 × 1350 Canvas 虚构护照样本；护照主标题、持有人行、三列统计与全宽 MRZ 均使用
+同一画布规格。它们不会替换正式地图或护照输出。
 
 ### Token、状态与纹理
 
@@ -250,8 +259,9 @@ token 注入也应保持显式接口。本次改动仅提出方向，不重构�
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Chromium 截图覆盖      | 4 种 viewport/DPR × 9 种样本状态 = 36 个场景；另有 2 个 Canvas 导出和 1 个 zoom-4 裁图，共 39 张 PNG。                                                           |
 | Viewport/DPR           | 3840×2160@1、1920×1080@2、1440×900@1、390×844@3。                                                                                                                |
-| 页面 ready 时间        | 36 个场景：493.9–2453.46 ms，平均 1457.74 ms。                                                                                                                   |
+| 页面 ready 时间        | 36 个场景：481.92–2409.01 ms，平均 1466.85 ms。                                                                                                                  |
 | SVG 节点 / filter      | 0–643 个 SVG 子节点；36 个场景均为 0 个 SVG filter。                                                                                                             |
-| 3 秒 wheel zoom 帧时间 | 36 个样本的平均帧时间均值 16.63 ms；各样本平均值 16.49–17.17 ms，p95 为 16.7–16.8 ms。详情图与护照图使用相同 viewport 的 sparse/normal 世界地图 companion 测量。 |
+| 3 秒 wheel zoom 帧时间 | 36 个样本的平均帧时间均值 16.64 ms；各样本平均值 16.49–17.37 ms，p95 为 16.7–16.8 ms。详情图与护照图使用相同 viewport 的 sparse/normal 世界地图 companion 测量。 |
 | 单元与交互测试         | Web Vitest：794 项通过；指定 Chromium e2e：2 项通过。                                                                                                            |
-| Build / headers        | 生产 build 通过，dist 中未发现 `neon-lab` 或 `NeonLab`；静态安全头检查通过，runtime 检查因环境未安装 Caddy 而跳过。                                              |
+| Build / dist           | 生产 build 通过，dist 中未发现 `neon-lab` 或 `NeonLab`。                                                                                                         |
+| 安全头                 | 本轮未重跑；此前静态检查通过，runtime 检查因环境未安装 Caddy 而跳过。                                                                                            |

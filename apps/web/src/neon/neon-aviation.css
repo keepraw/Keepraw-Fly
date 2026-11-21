@@ -737,6 +737,22 @@
   }
 }
 
+@media (max-width: 390px) {
+  .neon-aviation .neon-map-viewport .map-zoom-controls {
+    right: 6px;
+    bottom: 6px;
+    gap: 3px;
+  }
+
+  .neon-aviation .neon-map-viewport .map-zoom-controls button {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    padding: 0;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .neon-aviation .neon-route-line,
   .neon-aviation .neon-airport-point,
