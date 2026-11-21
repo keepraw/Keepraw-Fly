@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { delayDirection, type DisplayTime } from "@keepraw-fly/core";
+import {
+  delayDirection,
+  isFixedOffset,
+  type DisplayTime,
+} from "@keepraw-fly/core";
 
 export function FlightTime({
   value,
@@ -26,13 +30,19 @@ export function FlightTime({
       ) : null}
       <time dateTime={value.timestamp}>
         {value.time}
-        {value.dayOffset > 0 ? (
+        {value.dayOffset !== 0 ? (
           <span
             className="time-day-offset"
-            aria-label={t("flightTiming.daysLater", { count: value.dayOffset })}
+            aria-label={t(
+              value.dayOffset > 0
+                ? "flightTiming.daysLater"
+                : "flightTiming.daysEarlier",
+              { count: Math.abs(value.dayOffset) },
+            )}
           >
             {" "}
-            +{value.dayOffset}
+            {value.dayOffset > 0 ? "+" : ""}
+            {value.dayOffset}
           </span>
         ) : null}
       </time>
@@ -65,22 +75,26 @@ export function FlightDeviation({
 
 /**
  * The UTC offset to show beside a time. Without a determined airport zone, the
- * offset written in the stored RFC 3339 timestamp is shown, never UTC.
+ * offset written in the stored RFC 3339 timestamp is shown.
  */
 function zoneLabel(timestamp: string, timeZone: string | undefined): string {
-  const written = /(Z|[+-]\d{2}:\d{2})$/.exec(timestamp)?.[1];
-  const fixed =
-    timeZone && /^[+-]\d{2}:\d{2}$/.test(timeZone) ? timeZone : undefined;
-  if (!timeZone || fixed) {
-    const offset = fixed ?? written;
-    if (!offset || offset === "Z" || offset === "+00:00") return "UTC";
-    const [, sign, hours, minutes] = /^([+-])(\d{2}):(\d{2})$/.exec(offset)!;
-    return `UTC${sign}${Number(hours)}${minutes === "00" ? "" : `:${minutes}`}`;
+  const instant = Date.parse(timestamp);
+  if (!Number.isFinite(instant)) return "—";
+  const fixed = timeZone && isFixedOffset(timeZone) ? timeZone : null;
+  if (timeZone && !fixed) {
+    try {
+      return (
+        new Intl.DateTimeFormat("en", { timeZone, timeZoneName: "shortOffset" })
+          .formatToParts(instant)
+          .find((part) => part.type === "timeZoneName")
+          ?.value.replace("GMT", "UTC") ?? "UTC"
+      );
+    } catch {
+      // The browser does not recognize the airport zone; use the written offset.
+    }
   }
-  return (
-    new Intl.DateTimeFormat("en", { timeZone, timeZoneName: "shortOffset" })
-      .formatToParts(new Date(timestamp))
-      .find((part) => part.type === "timeZoneName")
-      ?.value.replace("GMT", "UTC") ?? "UTC"
-  );
+  const offset = /([+-])(\d{2}):?(\d{2})$/.exec(fixed ?? timestamp);
+  if (!offset || (offset[2] === "00" && offset[3] === "00")) return "UTC";
+  const [, sign, hours, minutes] = offset;
+  return `UTC${sign}${Number(hours)}${minutes === "00" ? "" : `:${minutes}`}`;
 }

@@ -7,8 +7,9 @@ function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-export function minutesBetween(start: string, end: string): number {
-  return Math.round((Date.parse(end) - Date.parse(start)) / 60_000);
+export function minutesBetween(start: string, end: string): number | null {
+  const elapsed = Date.parse(end) - Date.parse(start);
+  return Number.isFinite(elapsed) ? Math.round(elapsed / 60_000) : null;
 }
 
 export function departureDelayMinutes(flight: KeeprawFlight): number | null {
@@ -38,16 +39,17 @@ export function flightOperationalStatus(
 }
 
 export interface FlightDuration {
-  minutes: number;
+  minutes: number | null;
   source: "actual" | "scheduled";
 }
 
 export function flightDuration(flight: KeeprawFlight): FlightDuration {
   if (flight.actualDeparture && flight.actualArrival) {
-    return {
-      minutes: minutesBetween(flight.actualDeparture, flight.actualArrival),
-      source: "actual",
-    };
+    const minutes = minutesBetween(
+      flight.actualDeparture,
+      flight.actualArrival,
+    );
+    if (minutes !== null) return { minutes, source: "actual" };
   }
 
   return {

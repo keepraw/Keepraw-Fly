@@ -100,6 +100,8 @@ export type CsvImportIssueCode =
   | "invalid-row"
   | "date-mismatch"
   | "chronology"
+  | "invalid-cancelled"
+  | "cancelled-diverted-conflict"
   | "airport-timezone-required";
 
 /** Zones the user confirmed for airports Keepraw cannot place, by IATA code. */
@@ -514,22 +516,27 @@ function flightFromCsvRow(
     bookingReference: value("bookingReference"),
     frequentFlyerMembershipId: "",
     frequentFlyerTierAtFlight: "",
-    cancelled: /^(true|1|yes)$/i.test(value("cancelled")),
+    cancelled: parseCancelled(value("cancelled")),
     divertedToIata,
     originTimezone: overrides[originIata] ?? "",
     destinationTimezone: overrides[destinationIata] ?? "",
     divertedTimezone: divertedToIata ? (overrides[divertedToIata] ?? "") : "",
   };
-  // Let the canonical validator report cancelled/diverted conflicts after import preview.
-  const flight = flightFromDraft({ ...draft, cancelled: false }, undefined, {
+  const flight = flightFromDraft(draft, undefined, {
     scheduledDeparture: departureIso,
     scheduledArrival: arrivalIso,
     actualDeparture,
     actualArrival,
   });
-  if (draft.cancelled) flight.cancelled = true;
   flight.id = `flight-${idFactory()}`;
   return flight;
+}
+
+// Blank is the optional field's default. Other tokens must be explicit.
+function parseCancelled(value: string): boolean {
+  if (/^(true|1|yes|y)$/i.test(value)) return true;
+  if (!value || /^(false|0|no|n)$/i.test(value)) return false;
+  throw new Error("invalid-cancelled");
 }
 
 function csvIssueFromError(
@@ -591,6 +598,8 @@ function isCsvIssueCode(value: string): value is CsvImportIssueCode {
     "invalid-row",
     "date-mismatch",
     "chronology",
+    "invalid-cancelled",
+    "cancelled-diverted-conflict",
     "airport-timezone-required",
   ].includes(value);
 }

@@ -1,4 +1,5 @@
 import { airportByIata, type SupportedLocale } from "./reference-data";
+import { isFixedOffset } from "./flight-airports";
 
 export type TimeFormat = "12-hour" | "24-hour";
 export type DistanceUnit = "miles" | "kilometers";
@@ -26,6 +27,8 @@ export function formatTimeAtAirport(
   timeFormat: TimeFormat,
   timezone?: string | null,
 ): string {
+  const instant = Date.parse(isoDateTime);
+  if (!Number.isFinite(instant)) return "—";
   const zone =
     timezone === undefined
       ? (airportByIata.get(airportIata)?.timezone ?? null)
@@ -35,34 +38,26 @@ export function formatTimeAtAirport(
     minute: "2-digit",
     hour12: timeFormat === "12-hour",
   };
-  const fixed = zone ? /^([+-])(\d{2}):(\d{2})$/.exec(zone) : null;
+  const fixed =
+    zone && isFixedOffset(zone) ? /^([+-])(\d{2}):(\d{2})$/.exec(zone) : null;
   if (zone && !fixed) {
     try {
       return new Intl.DateTimeFormat(locale, {
         ...options,
         timeZone: zone,
-      }).format(new Date(isoDateTime));
+      }).format(instant);
     } catch {
       // Fall through to the written offset for an invalid zone.
     }
   }
-  const instant = Date.parse(isoDateTime);
   let wall: number;
   if (fixed) {
     const minutes =
       (fixed[1] === "-" ? -1 : 1) * (Number(fixed[2]) * 60 + Number(fixed[3]));
     wall = instant + minutes * 60_000;
   } else {
-    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(isoDateTime);
-    wall = match
-      ? Date.UTC(
-          Number(match[1]),
-          Number(match[2]) - 1,
-          Number(match[3]),
-          Number(match[4]),
-          Number(match[5]),
-        )
-      : instant;
+    const match = /^(\d{4}-\d{2}-\d{2})[Tt ](\d{2}:\d{2})/.exec(isoDateTime);
+    wall = match ? Date.parse(`${match[1]}T${match[2]}:00Z`) : instant;
   }
   return new Intl.DateTimeFormat(locale, {
     ...options,
@@ -102,12 +97,13 @@ const durationLabels: Record<string, DurationLabels> = {
 };
 
 export function formatDuration(
-  minutes: number,
+  minutes: number | null,
   locale: SupportedLocale = "en-US",
   labels: DurationLabels = durationLabels[locale] ??
     durationLabels[locale.split("-")[0] ?? "en"] ??
     durationLabels.en!,
 ): string {
+  if (minutes === null || !Number.isFinite(minutes)) return "—";
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = Math.abs(minutes % 60);
   const hoursText = new Intl.NumberFormat(locale, {

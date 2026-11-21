@@ -121,7 +121,7 @@ export const MAX_RELIABLE_FLIGHT_MINUTES = 36 * 60;
  */
 export function reliableFlightMinutes(flight: KeeprawFlight): number | null {
   const minutes = flightDuration(flight).minutes;
-  return Number.isFinite(minutes) &&
+  return minutes !== null &&
     minutes > 0 &&
     minutes <= MAX_RELIABLE_FLIGHT_MINUTES
     ? minutes

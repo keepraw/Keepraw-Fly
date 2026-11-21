@@ -623,6 +623,7 @@ export function installAirportDirectory(
     }
   }
 
+  const directoryCodeCandidates = new Map<string, string>();
   for (const raw of formalAirports) {
     const metadata = referenceMetadata[raw.airportId]!;
     const entries = [raw.airportId, ...(metadata.legacyIds ?? [])]
@@ -636,6 +637,19 @@ export function installAirportDirectory(
         ? undefined
         : latestFormalCodesByAirportId.get(raw.airportId);
     const currentIata = codes?.IATA[0];
+    // A formal physical identity can have ICAO evidence without ever having
+    // a formal IATA assignment. Retain the same site's actual directory code
+    // as a candidate, never a code from formal metadata or a search alias.
+    const directoryCode = sameEntity?.currentIata;
+    if (
+      !currentIata &&
+      status === "operating" &&
+      directoryCode &&
+      directoryCode === sameEntity?.iata &&
+      !formalAssignmentsForCode(directoryCode).length &&
+      !assignments.some((row) => row.scheme === "IATA")
+    )
+      directoryCodeCandidates.set(raw.airportId, directoryCode);
     const iata =
       currentIata ??
       sameEntity?.iata ??
@@ -729,6 +743,13 @@ export function installAirportDirectory(
       if (ids) ids.add(airport.airportId);
       else airportIdsBySearchCode.set(code, new Set([airport.airportId]));
     }
+  }
+  for (const [id, code] of directoryCodeCandidates) {
+    const sites = airportIdsBySearchCode.get(code);
+    if (sites?.size !== 1 || !sites.has(id)) continue;
+    const airport = airportById.get(id)!;
+    airport.currentIata = code;
+    airportByIata.set(code, { ...airport, iata: code, currentIata: code });
   }
   airports.splice(
     0,

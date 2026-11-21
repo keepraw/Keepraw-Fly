@@ -29,6 +29,7 @@
     "privacy": "Tudo fica salvo localmente. Nada é enviado."
   },
   "demo": {
+    "importReplacement": "A importação substitui os voos fictícios, o proprietário e as associações da demonstração pelos seus dados. Os dados de demonstração não serão mantidos.",
     "label": "Arquivo de demonstração",
     "description": "Você está explorando exemplos de voos fictícios. Esta não é a sua história pessoal.",
     "createPersonal": "Criar meu arquivo",
@@ -419,6 +420,9 @@
       "uniqueFlightId": "Este ID de voo é repetido no arquivo importado.",
       "serviceDate": "A data do voo não corresponde à data de partida prevista.",
       "chronology": "A hora de chegada deve ser posterior à hora de partida.",
+      "unsupportedLeapSecond": "Os horários dos voos não aceitam segundos intercalares. Corrija o horário de origem antes de importar.",
+      "runtimeInstant": "Este horário não pode ser interpretado como um instante válido. Corrija a origem.",
+      "membershipMigrationConflict": "Não é possível conciliar com segurança as associações antigas e novas. O arquivo original permanece inalterado; resolva os conflitos entre contas antes de importar.",
       "uniqueMembershipId": "Este ID de associação é repetido no arquivo importado.",
       "membershipDefaultAirline": "A companhia aérea padrão deve ser uma das companhias aéreas associadas a esta associação.",
       "membershipReference": "Este voo refere-se a uma adesão que não se encontra em arquivo.",
@@ -495,6 +499,8 @@
       "invalid-row": "A linha contém dados inválidos. Verifique os demais campos.",
       "date-mismatch": "A data do voo deve corresponder à data de partida prevista.",
       "chronology": "A chegada deve ser posterior à partida, tanto nos horários programados quanto nos reais.",
+      "invalid-cancelled": "Para cancelado, use true, 1, yes ou y; caso contrário, false, 0, no ou n. Um valor vazio significa não cancelado.",
+      "cancelled-diverted-conflict": "Um voo cancelado não pode ter também um aeroporto de desvio.",
       "airport-timezone-required": "Não é possível identificar este aeroporto na data do voo e um horário não tem deslocamento UTC. Adicione o deslocamento ou informe o fuso abaixo."
     },
     "fields": {
@@ -705,6 +711,9 @@
       "onTime": "Chegada pontual"
     },
     "daysLater_one": "{{count, number}} dia depois",
+    "daysEarlier_one": "{{count, number}} dia antes",
+    "daysEarlier_other": "{{count, number}} dias antes",
+    "daysEarlier_many": "{{count, number}} dias antes",
     "daysLater_other": "{{count, number}} dias depois",
     "daysLater_many": "{{count, number}} dias depois"
   },

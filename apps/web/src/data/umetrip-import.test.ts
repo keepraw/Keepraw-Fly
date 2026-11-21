@@ -5,6 +5,7 @@ import { utils, write, type WorkBook } from "xlsx";
 import { validateKeeprawFly } from "@keepraw-fly/validator";
 import airportRows from "@keepraw-fly/core/airport-directory";
 import {
+  arrivalIdentity,
   installAirportDirectory,
   type CompactAirportRow,
 } from "@keepraw-fly/core";
@@ -439,6 +440,73 @@ describe("Umetrip BIFF8 XLS adapter", () => {
       "keepraw-fly.umetrip": { arrivalDateInferred: false },
     });
   });
+
+  it.each([
+    [
+      "Qingdao Jiaodong International Airport",
+      "2021-08-12",
+      "apt_6729d2b2-4b79-48c8-9c42-0d4eeba121b8",
+    ],
+    [
+      "Qingdao Jiaodong International Airport",
+      null,
+      "apt_6729d2b2-4b79-48c8-9c42-0d4eeba121b8",
+    ],
+    ["TAO", null, "apt_6729d2b2-4b79-48c8-9c42-0d4eeba121b8"],
+    ["青岛流亭", null, null],
+  ])(
+    "resolves %s on the arrival date across the TAO handover (explicit date: %s)",
+    async (destination, arrivalDate, airportId) => {
+      const result = preflight(
+        await parsed(
+          workbook([
+            [
+              "Flight history",
+              [
+                [...headers, "到达日期"],
+                [
+                  ...row({
+                    0: "2021-08-11",
+                    3: "PVG",
+                    4: "23:00",
+                    5: destination,
+                    6: "00:40",
+                  }),
+                  arrivalDate,
+                ],
+              ],
+            ],
+          ]),
+        ),
+      );
+      if (!airportId) {
+        expect(result).toMatchObject({
+          canImport: false,
+          issues: [
+            {
+              code: "unknown-airport",
+              lineNumber: 2,
+              sheetName: "Flight history",
+            },
+          ],
+        });
+        expect(() => buildDocumentFromUmetripPreflight(result, null)).toThrow();
+      } else {
+        expect(result.issues).toEqual([]);
+        const document = buildDocumentFromUmetripPreflight(result, null);
+        const imported = document.flights[0]!;
+        expect(imported).toMatchObject({
+          scheduledDeparture: "2021-08-11T23:00:00+08:00",
+          scheduledArrival: "2021-08-12T00:40:00+08:00",
+          destination: { iata: "TAO" },
+        });
+        expect(arrivalIdentity(imported)).toMatchObject({
+          airportId,
+          basis: "formal",
+        });
+      }
+    },
+  );
 
   it("rejects formulas or error cells even when they have a cached value", async () => {
     const bytes = readFileSync(

@@ -29,6 +29,7 @@
     "privacy": "本地优先，不上传任何数据。"
   },
   "demo": {
+    "importReplacement": "导入会用你的数据替换虚构的示例航班、所有者和会员资料，不会保留示例数据。",
     "label": "示例档案",
     "description": "你正在体验虚构的示例航班，这不是你的个人飞行历史。",
     "createPersonal": "创建我的档案",
@@ -374,6 +375,9 @@
       "uniqueFlightId": "导入文件中存在重复的航班 id。",
       "serviceDate": "航班日期与计划出发日期不一致。",
       "chronology": "到达时间必须晚于对应的出发时间。",
+      "unsupportedLeapSecond": "航班时间戳不支持闰秒。请修正源文件中的时间戳后再导入。",
+      "runtimeInstant": "此时间戳无法解析为有效时刻。请修正源文件后再导入。",
+      "membershipMigrationConflict": "新版和旧版会员资料无法安全协调。原始档案未更改；请解决账户冲突后再导入。",
       "uniqueMembershipId": "导入文件中的会员 ID 重复。",
       "membershipDefaultAirline": "默认航空公司必须是该会员关联的航空公司之一。",
       "membershipReference": "此航班引用了档案中不存在的会员。",
@@ -442,6 +446,8 @@
       "invalid-row": "该行包含无效数据，请检查其他字段。",
       "date-mismatch": "航班日期必须与计划出发日期一致。",
       "chronology": "计划和实际到达时间都必须晚于对应的出发时间。",
+      "invalid-cancelled": "已取消请使用 true、1、yes 或 y；未取消请使用 false、0、no 或 n。空值表示未取消。",
+      "cancelled-diverted-conflict": "已取消的航班不能同时指定备降机场。",
       "airport-timezone-required": "无法确定该机场在航班日期的身份，且时间没有 UTC 偏移。请添加偏移或在下方填写机场时区。"
     },
     "fields": {
@@ -634,6 +640,7 @@
     "scheduled": "计划",
     "overnight": "过夜航班",
     "daysLater": "{{count, number}} 天后",
+    "daysEarlier": "{{count, number}} 天前",
     "departure": {
       "early": "出发提前 {{count, number}} 分",
       "late": "出发晚点 {{count, number}} 分",

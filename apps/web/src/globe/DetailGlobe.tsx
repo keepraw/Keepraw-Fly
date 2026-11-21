@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { buildRouteSegments } from "@keepraw-fly/core";
+import {
+  airportDirectoryVersion,
+  buildRouteSegments,
+  storedEndpointTimezone,
+} from "@keepraw-fly/core";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import type { Appearance } from "../storage/types";
 import { GlobeMap } from "./GlobeMap";
@@ -58,10 +62,23 @@ export function DetailGlobe({
   }, []);
   // Only flight identity and route semantics rebuild the scene. Editing notes,
   // language, units, solar time or appearance preserves the user's camera.
-  const { id, origin, destination, divertedTo, cancelled } = flight;
+  const { id, origin, destination, divertedTo, cancelled, serviceDate } =
+    flight;
+  const arrival = divertedTo ?? destination;
   const routes = useMemo(
     () => buildRouteSegments([flight]),
-    [id, origin.iata, destination.iata, divertedTo?.iata, cancelled],
+    [
+      id,
+      cancelled,
+      serviceDate,
+      origin.iata,
+      origin.airportId,
+      arrival.iata,
+      arrival.airportId,
+      flight.actualArrival ?? flight.scheduledArrival,
+      storedEndpointTimezone(flight, divertedTo ? "divertedTo" : "destination"),
+      airportDirectoryVersion(),
+    ],
   );
   const [selected, setSelected] = useState<{
     routes: typeof routes;
