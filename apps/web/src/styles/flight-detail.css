@@ -215,8 +215,17 @@
     aspect-ratio: 1 / 1;
   }
 
+  .detail-hero-grid > .detail-flight-map {
+    margin-block: 0;
+    aspect-ratio: 4 / 3;
+  }
+
   .detail-hero-grid
-    > .detail-route-map:has(.detail-globe-message, .globe-fallback) {
+    > .detail-route-map:has(
+      .detail-globe-message,
+      .detail-flight-map-message,
+      .globe-fallback
+    ) {
     /* Status-only views keep their own natural height; no empty sphere slot. */
     margin-block: 0;
     aspect-ratio: auto;
@@ -659,6 +668,20 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
     margin-bottom: 24px;
+  }
+
+  /* Narrow layouts lead with the route map, sized to the screen: full
+     content width, 4:3, and never taller than about half the viewport. */
+  .detail-hero-grid > .detail-flight-map {
+    order: -1;
+    width: 100%;
+    max-height: min(52svh, 480px);
+    margin-bottom: 20px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .detail-hero-grid > .detail-flight-map:has(.detail-flight-map-message) {
+    aspect-ratio: auto;
   }
 
   .detail-hero-information {

@@ -206,7 +206,7 @@ for (const [source, number] of [
   );
 }
 
-test("correcting a physical SFO identity updates the mounted Detail globe (KF-06)", async ({
+test("correcting a physical SFO identity updates the mounted Detail map (KF-06)", async ({
   page,
 }) => {
   test.setTimeout(60_000);
@@ -219,7 +219,7 @@ test("correcting a physical SFO identity updates the mounted Detail globe (KF-06
     formatVersion: "0.2.0",
   });
   await openFlight(page);
-  const frame = page.locator(".detail-globe-frame");
+  const frame = page.locator(".detail-flight-map");
   const unavailable = frame.getByRole("status");
   await expect(unavailable).toContainText("The flight route is unavailable");
   const editor = await openEditor(page);
@@ -235,12 +235,8 @@ test("correcting a physical SFO identity updates the mounted Detail globe (KF-06
   await expect(
     page.getByRole("heading", { name: /San Francisco to Los Angeles/ }),
   ).toBeVisible();
-  const host = frame.locator(".globe-host");
-  await expect(host).toHaveAttribute("data-ready", "true", { timeout: 25_000 });
-  await expect(frame.locator(".globe-airport-label")).toHaveText([
-    "LAX",
-    "SFO",
-  ]);
+  await expect(frame).toHaveAttribute("data-route-status", "flown");
+  await expect(frame.locator(".map-airport-label")).toHaveText(["SFO", "LAX"]);
   await expect
     .poll(async () => (await stored(page))?.document.flights[0]?.origin)
     .toEqual({
@@ -249,11 +245,8 @@ test("correcting a physical SFO identity updates the mounted Detail globe (KF-06
     });
   await page.reload();
   await openFlight(page);
-  await expect(host).toHaveAttribute("data-ready", "true", { timeout: 25_000 });
-  await expect(frame.locator(".globe-airport-label")).toHaveText([
-    "LAX",
-    "SFO",
-  ]);
+  await expect(frame).toHaveAttribute("data-route-status", "flown");
+  await expect(frame.locator(".map-airport-label")).toHaveText(["SFO", "LAX"]);
 });
 
 test("selects EDC and IHA by name and reloads both directory identities (KF-07)", async ({

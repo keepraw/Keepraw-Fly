@@ -7,3 +7,4 @@ export * from "./theme-css";
 export * from "./theme-registry";
 export * from "./theme-style";
 export * from "./themes/neon-aviation";
+export * from "./themes/daylight-chart";

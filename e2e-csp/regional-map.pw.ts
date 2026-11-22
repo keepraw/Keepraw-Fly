@@ -1,18 +1,16 @@
 import { expect, test } from "@playwright/test";
-import { disablePassportWebGL } from "../e2e/helpers/passport-svg";
 import { openSettingsCategory } from "../e2e/helpers/settings";
 import {
   regionalAirportCodes,
   scaleArchive,
 } from "../tests/fixtures/scale-archives";
 
-test("fits all 3,080 regional routes in the production Passport SVG fallback", async ({
+test("fits all 3,080 regional routes in the production Passport 2D map", async ({
   page,
 }, testInfo) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await disablePassportWebGL(page);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const archive = scaleArchive(1);
@@ -31,7 +29,7 @@ test("fits all 3,080 regional routes in the production Passport SVG fallback", a
   );
   expect(archive.flights).toHaveLength(3_080);
 
-  const fallback = page.locator(".globe-fallback .map-viewport");
+  const fallback = page.locator(".route-map[data-map-theme] .map-viewport");
   // Finish normal lazy loading before expanding the archive under test.
   await page.goto("/");
   await page.locator('input[type="file"][accept*=".json"]').setInputFiles({

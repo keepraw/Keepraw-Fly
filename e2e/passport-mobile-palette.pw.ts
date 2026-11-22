@@ -75,7 +75,8 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           await expect(panel).toHaveAccessibleName(await title.innerText());
         }
         await expect(page.locator(".flight-row")).toHaveCount(24);
-        await expect(page.locator(".route-map, .globe-webgl")).toHaveCount(0);
+        await expect(page.locator(".route-map")).toHaveCount(1);
+        await expect(page.locator(".globe-webgl, canvas")).toHaveCount(0);
         expect(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth,

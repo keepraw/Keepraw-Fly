@@ -57,8 +57,7 @@ function markup(
         locale={locale}
         distanceUnit="kilometers"
         timeFormat={timeFormat}
-        appearance="light"
-        solarMode="fixed"
+        mapTheme="neon-aviation"
       />
     </I18nextProvider>,
   );

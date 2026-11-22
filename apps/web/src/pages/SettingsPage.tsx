@@ -13,6 +13,7 @@ import {
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
+import { listMapThemes } from "../map2d/theme-registry";
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { FlightyImportControl } from "../components/FlightyImportControl";
@@ -352,35 +353,32 @@ export function SettingsPage({
                   </div>
                   <div className="settings-row settings-item settings-preference">
                     <div className="settings-item-copy">
-                      <h3
-                        className="settings-item-title settings-row-label"
-                        id="settings-solar-label"
-                      >
-                        <label htmlFor="settings-solar">
-                          {t("settings.solarMode")}
+                      <h3 className="settings-item-title settings-row-label">
+                        <label htmlFor="settings-map-theme">
+                          {t("settings.mapTheme")}
                         </label>
                       </h3>
-                      <p id="settings-solar-hint">
-                        {t("settings.solarModeHint")}
+                      <p id="settings-map-theme-hint">
+                        {t("settings.mapThemeHint")}
                       </p>
                     </div>
                     <select
-                      id="settings-solar"
+                      id="settings-map-theme"
                       className="settings-row-control"
-                      value={settings.solarMode}
-                      title={t("settings.solarModeHint")}
-                      aria-describedby="settings-solar-hint"
+                      value={settings.mapTheme}
+                      aria-describedby="settings-map-theme-hint"
                       onChange={(event) =>
                         updateSetting(
-                          "solarMode",
-                          event.target.value as ViewerSettings["solarMode"],
+                          "mapTheme",
+                          event.target.value as ViewerSettings["mapTheme"],
                         )
                       }
                     >
-                      <option value="fixed">{t("settings.solarFixed")}</option>
-                      <option value="realtime">
-                        {t("settings.solarRealtime")}
-                      </option>
+                      {listMapThemes().map((theme) => (
+                        <option key={theme.id} value={theme.id}>
+                          {theme.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>

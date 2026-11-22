@@ -329,6 +329,7 @@ describe("BrowserStorageAdapter", () => {
       timeFormat: "12-hour" as const,
       powerUserMode: true,
       solarMode: "realtime" as const,
+      mapTheme: "daylight-chart" as const,
     };
 
     await adapter.saveSettings(settings);
