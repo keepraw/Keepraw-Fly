@@ -1,6 +1,12 @@
+import type { MapTheme } from "../map2d/theme";
 import type { PosterCopy } from "./poster-copy";
-import type { PosterLayout } from "./poster-layout";
-import { drawPoster, type PosterDrawReport } from "./poster-render";
+import type { PosterDrawReport } from "./poster-paint";
+import { resolveMapTheme } from "../map2d/theme-registry";
+import {
+  resolvePosterTemplate,
+  type PosterArtboard,
+  type PosterTemplate,
+} from "./poster-template";
 import { readPngHeader } from "./share-png";
 import type { PosterFonts } from "./poster-fonts";
 
@@ -22,9 +28,42 @@ export class PosterExportError extends Error {
 }
 
 export interface PosterRenderInput {
-  layout: PosterLayout;
+  /** Composition; independent of the map theme that colours it. */
+  template: PosterTemplate;
+  /** Created by `template.createLayout()`. */
+  layout: PosterArtboard;
   copy: PosterCopy;
   fonts: PosterFonts;
+  theme: MapTheme;
+}
+
+/** Complete input for a stored template id and map theme id; unknown ids
+ * resolve to the defaults. */
+export function posterRenderInput(
+  templateId: unknown,
+  mapThemeId: unknown,
+  copy: PosterCopy,
+  fonts: PosterFonts,
+): PosterRenderInput {
+  const template = resolvePosterTemplate(templateId);
+  return {
+    template,
+    layout: template.createLayout(),
+    copy,
+    fonts,
+    theme: resolveMapTheme(mapThemeId),
+  };
+}
+
+/** Exported pixel size: the artboard at the template's pixel ratio. */
+export function posterPixelSize(input: {
+  template: Pick<PosterTemplate, "pixelRatio">;
+  layout: Pick<PosterArtboard, "width" | "height">;
+}) {
+  return {
+    width: Math.round(input.layout.width * input.template.pixelRatio),
+    height: Math.round(input.layout.height * input.template.pixelRatio),
+  };
 }
 
 /** Draws into an existing canvas at `pixelWidth`. */
@@ -32,7 +71,7 @@ export function renderPosterToCanvas(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   input: PosterRenderInput,
   pixelWidth: number,
-): PosterDrawReport {
+): PosterDrawReport<PosterArtboard> {
   const scale = pixelWidth / input.layout.width;
   const width = Math.round(input.layout.width * scale);
   const height = Math.round(input.layout.height * scale);
@@ -47,7 +86,13 @@ export function renderPosterToCanvas(
     );
   context.setTransform(scale, 0, 0, scale, 0, 0);
   context.imageSmoothingEnabled = true;
-  const report = drawPoster(context, input.layout, input.copy, input.fonts);
+  const report = input.template.draw(
+    context,
+    input.layout,
+    input.copy,
+    input.fonts,
+    input.theme,
+  );
   context.setTransform(1, 0, 0, 1, 0, 0);
   return report;
 }
@@ -56,7 +101,7 @@ export interface PosterExportResult {
   blob: Blob;
   width: number;
   height: number;
-  report: PosterDrawReport;
+  report: PosterDrawReport<PosterArtboard>;
 }
 
 export interface PosterExportOptions {
@@ -85,15 +130,16 @@ function encode(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
-/** Full-resolution export at the layout's exact artboard size. */
+/** Full-resolution export: the artboard at the template's pixel ratio. */
 export async function exportPosterPng(
   input: PosterRenderInput,
   options: PosterExportOptions = {},
 ): Promise<PosterExportResult> {
   const owner = options.document ?? document;
   const canvas = owner.createElement("canvas");
+  const size = posterPixelSize(input);
   try {
-    const report = renderPosterToCanvas(canvas, input, input.layout.width);
+    const report = renderPosterToCanvas(canvas, input, size.width);
     if (report.outside.length || report.paperOutside.length)
       throw new PosterExportError(
         "layout-overflow",
@@ -104,8 +150,8 @@ export async function exportPosterPng(
     if (
       blob.type !== "image/png" ||
       !header ||
-      header.width !== input.layout.width ||
-      header.height !== input.layout.height
+      header.width !== size.width ||
+      header.height !== size.height
     )
       throw new PosterExportError(
         "invalid-png",

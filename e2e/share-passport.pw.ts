@@ -70,6 +70,8 @@ async function seed(
         timeFormat: "24-hour",
         powerUserMode: false,
         solarMode: "fixed",
+        // This suite covers the classic passport book layout.
+        passportTemplate: "book",
       });
     },
     {
@@ -878,7 +880,10 @@ test("all locales, units and long Unicode names render without overlaps or lost 
             const canvas = document.createElement("canvas");
             const report = exporter.renderPosterToCanvas(
               canvas,
-              { layout, copy, fonts },
+              {
+                ...exporter.posterRenderInput("book", undefined, copy, fonts),
+                layout,
+              },
               layout.width,
             );
             const png = canvas.toDataURL("image/png");
@@ -1038,7 +1043,10 @@ test("MRZ uses equal measured cells with native, absent and ignored Canvas track
           };
           const report = exporter.renderPosterToCanvas(
             canvas,
-            { layout, copy, fonts },
+            {
+              ...exporter.posterRenderInput("book", undefined, copy, fonts),
+              layout,
+            },
             layout.width,
           );
           results.push({
@@ -1409,7 +1417,10 @@ test("passport font roles load before measurement and preview matches PNG @cross
           timeoutMs: 15_000,
         });
         const canvas = document.createElement("canvas");
-        const input = { layout, copy, fonts };
+        const input = {
+          ...exporter.posterRenderInput("book", undefined, copy, fonts),
+          layout,
+        };
         const report = exporter.renderPosterToCanvas(
           canvas,
           input,
@@ -1583,7 +1594,10 @@ test("full world at a constant scale and no coverage caption on complete and inc
         };
         const report = exporter.renderPosterToCanvas(
           canvas,
-          { layout, copy, fonts },
+          {
+            ...exporter.posterRenderInput("book", undefined, copy, fonts),
+            layout,
+          },
           layout.width,
         );
         results.push({
@@ -1718,10 +1732,13 @@ test("failed fonts and late stylesheet completion keep fallback measurements sta
       });
       const layout = layoutModule.createPosterLayout();
       const canvas = document.createElement("canvas");
-      const input = { copy, fonts, layout };
+      const input = {
+        ...exporter.posterRenderInput("book", undefined, copy, fonts),
+        layout,
+      };
       const report = exporter.renderPosterToCanvas(canvas, input, layout.width);
       const first = canvas.toDataURL();
-      return { input, report, first };
+      return { input: { copy, fonts, layout }, report, first };
     },
     (await loadArchive()).flights,
   );
@@ -1742,7 +1759,19 @@ test("failed fonts and late stylesheet completion keep fallback measurements sta
       timeoutMs: 15_000,
     });
     const canvas = document.createElement("canvas");
-    exporter.renderPosterToCanvas(canvas, input, input.layout.width);
+    exporter.renderPosterToCanvas(
+      canvas,
+      {
+        ...exporter.posterRenderInput(
+          "book",
+          undefined,
+          input.copy,
+          input.fonts,
+        ),
+        layout: input.layout,
+      },
+      input.layout.width,
+    );
     return { status: loaded.status, same: canvas.toDataURL() === first };
   }, result);
   expect(after.status).toBe("webfont");
@@ -1784,7 +1813,10 @@ test("export rejects MRZ crossing the paper frame even inside canvas safety", as
         layout.frameInset +
         4 -
         layout.mrz.lineHeight;
-      const input = { copy, fonts, layout };
+      const input = {
+        ...exporter.posterRenderInput("book", undefined, copy, fonts),
+        layout,
+      };
       const report = exporter.renderPosterToCanvas(
         document.createElement("canvas"),
         input,

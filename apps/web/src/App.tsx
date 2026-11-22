@@ -845,6 +845,8 @@ export function App() {
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
+          mapTheme={settings.mapTheme}
+          passportTemplate={settings.passportTemplate}
           onClose={() => setShareOpen(false)}
         />
       ) : null}

@@ -44,6 +44,7 @@ describe("saved locale compatibility", () => {
         ...stored,
         language: language === "zh-HK" ? "zh-TW" : "en-US",
         mapTheme: "neon-aviation",
+        passportTemplate: "neon",
       });
       expect(stored).toEqual(copy);
     },
@@ -72,5 +73,18 @@ describe("map theme preference", () => {
       expect(normalizeViewerSettings({ ...base, mapTheme }).mapTheme).toBe(
         "neon-aviation",
       );
+  });
+
+  it("falls back to the default passport layout for unknown stored ids", () => {
+    const base = defaultViewerSettings();
+    expect(base.passportTemplate).toBe("neon");
+    expect(
+      normalizeViewerSettings({ ...base, passportTemplate: "book" })
+        .passportTemplate,
+    ).toBe("book");
+    for (const passportTemplate of ["retired", 3, null, undefined])
+      expect(
+        normalizeViewerSettings({ ...base, passportTemplate }).passportTemplate,
+      ).toBe("neon");
   });
 });
