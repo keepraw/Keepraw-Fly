@@ -32,9 +32,7 @@ Firefox runs headed on an Xvfb display. Test retries and
 
 The `verify` aggregate gate uses `always()` and requires `checks`, all Chromium
 shards, both compatibility engines and all CSP jobs to succeed. A failed,
-cancelled or skipped dependency fails the gate, with one exception: a pull
-request that changes only Markdown files skips the browser jobs (Chromium,
-compatibility and CSP), and the gate then requires exactly that skip. Only a successful push-to-main
+cancelled or skipped dependency fails the gate. Only a successful push-to-main
 run deploys the production artifact from that same run. PR CI never deploys.
 The checks job also packages the exact build and verifies release/deployment tools.
 

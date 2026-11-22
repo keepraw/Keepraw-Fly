@@ -1,8 +1,8 @@
 import { globSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-// Median summed Chromium attempt durations from three successful runs on
-// 2026-11-22. These are scheduling hints, never an allowlist.
+// Median summed Chromium attempt durations from 14 successful runs in the
+// 2026-10-20–22 audit. These are scheduling hints, never an allowlist.
 const times = JSON.parse(
   readFileSync(
     new URL("./playwright-file-times.json", import.meta.url),
