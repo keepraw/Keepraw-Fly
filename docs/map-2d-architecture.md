@@ -85,14 +85,14 @@ airport points carry no CSS or SVG filter, and strokes use
 
 ### Remaining 3D code (grep-verified after PR 3)
 
-| Code                                       | Status                                                                                                                                                                        | Removed in |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `globe/PassportGlobe`, `globe/DetailGlobe` | No importer in production pages. Kept as source only.                                                                                                                         | PR 5       |
-| `globe/GlobeMap`, renderer, math, textures | Reached only through the DEV-only Globe Lab. `GlobeMap` still falls back to the unthemed `PassportRouteMap`.                                                                  | PR 5       |
-| Globe Lab                                  | `App.tsx` creates the lazy import only under `import.meta.env.DEV`.                                                                                                           | PR 5       |
-| Stored `SolarMode`                         | `storage/types.ts` still imports the type and keeps the stored field for compatibility. Settings no longer shows it and no production surface reads it.                       | PR 5       |
-| Share WebGL renderer (`share-renderer.ts`) | Imports Globe textures, lighting and math and requests WebGL2. No production callsite; `share-plan.ts` imports Globe math and the fixed sun direction. Audited again in PR 4. | PR 4 / 5   |
-| Canvas 2D poster                           | `poster-render.ts` and `poster-map.ts` are already 2D. The formal Flight Passport moves to the Neon layout and the selected map theme in PR 4.                                | PR 4       |
+| Code                                       | Status                                                                                                                                                          | Removed in |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `globe/PassportGlobe`, `globe/DetailGlobe` | No importer in production pages. Kept as source only.                                                                                                           | PR 5       |
+| `globe/GlobeMap`, renderer, math, textures | Reached only through the DEV-only Globe Lab. `GlobeMap` still falls back to the unthemed `PassportRouteMap`.                                                    | PR 5       |
+| Globe Lab                                  | `App.tsx` creates the lazy import only under `import.meta.env.DEV`.                                                                                             | PR 5       |
+| Stored `SolarMode`                         | `storage/types.ts` still imports the type and keeps the stored field for compatibility. Settings no longer shows it and no production surface reads it.         | PR 5       |
+| Share WebGL renderer (`share-renderer.ts`) | PR 4 audit: `share-renderer.ts`, `share-plan.ts` and `share-png.ts` have no importer outside their own unit and e2e tests; the share dialog never reaches them. | PR 5       |
+| Canvas 2D poster                           | Migrated in PR 4: the Neon layout draws through the shared scene and the selected map theme. See "Flight Passport templates".                                   | Done       |
 
 ### Scope
 
@@ -140,3 +140,49 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 只经由仅 DEV 可用的 Globe Lab 访问；`SolarMode` 字段为兼容而保留，设置页不再显示；分享
 WebGL 渲染器没有正式调用点，将在 PR 4 再次审计。以上代码在 PR 5 删除。PR 3 不删除任何
 Globe、Three.js 或 WebGL 源码，也不改变正式飞行护照输出、统计或档案格式。
+
+## Flight Passport templates (PR 4)
+
+The shared Flight Passport image is drawn by a **layout template**
+(`share/poster-template.ts`) coloured by the active **map theme**. The two are
+separate settings and separate code:
+
+| Concern                                                      | Owner                                                                       | Stored as                         |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------- | --------------------------------- |
+| Composition: where map, statistics, holder fields and MRZ go | `PosterTemplate` (`neon` in `poster-neon.ts`, `book` in `poster-render.ts`) | `ViewerSettings.passportTemplate` |
+| Map and ink colours, strokes, hatch, glow, airport dots      | `MapTheme` tokens from the Theme Registry                                   | `ViewerSettings.mapTheme`         |
+| Numbers, labels, MRZ text                                    | `buildPosterModel` → `buildPosterCopy`, unchanged                           | —                                 |
+| Text measuring, fitting, MRZ rows                            | `poster-paint.ts`, shared by all templates                                  | —                                 |
+
+`neon` is the default: a 1080×1350 artboard exported at 2× (2160×2700 PNG).
+It builds its routes with `buildMapScene` and strokes them with `routeStroke`,
+so the frequency tiers, date-line splitting and glow budget are the same as the
+on-screen map. `book` is the previous passport-book layout; it keeps its own
+paper palette (`followsMapTheme: false`). Unknown stored template ids resolve
+to `neon`. Adding a layout means adding one `PosterTemplate`; adding a theme
+needs no passport change.
+
+**Multilingual text.** No position depends on a string's length. Every string
+is measured with the fonts that actually loaded (or the fallback stack):
+captions wrap onto a second line above their baseline (at spaces, or between
+graphemes for Chinese/Japanese/Korean), figures shrink together with their
+unit, and the holder name shrinks, then wraps. `e2e/share-neon-passport.pw.ts`
+renders all ten locales × two units × two themes × webfont/fallback and fails
+on any overlap, overflow, or shortened text.
+
+**Unchanged.** Export stays local Canvas 2D → PNG with header validation,
+overflow rejection, font fallback and retry. The map shows unlabelled dots
+only: no airport code, flight number or date of an individual flight.
+
+**WebGL audit.** The share dialog imports no Globe, Three.js or WebGL module
+(`poster-template.test.ts` walks the import graph). `share-renderer.ts`,
+`share-plan.ts` and `share-png.ts` are reachable only from their own tests and
+are deleted in PR 5.
+
+**飞行护照版式（PR 4）。** 分享图由“版式模板”绘制、由当前“地图主题”着色，两者是独立的
+设置与代码：版式只决定地图、统计、持有人信息和机读码的位置，颜色、线宽、斜线和光晕全部
+来自主题 Token。默认版式 `neon` 为 1080×1350 画板、2 倍导出（2160×2700 PNG），航线经
+`buildMapScene` 生成；`book` 为原护照本版式。所有文字都按实际加载（或回退）字体测量：
+标签过长时在基线上方换行（中日韩按字换行），数值与单位一起缩小，姓名先缩小再换行；
+十种语言 × 两种单位 × 两套主题 × 字体回退均有自动测试，出现重叠、溢出或截断即失败。
+导出仍为本地 Canvas 2D，不使用 WebGL；`share-renderer.ts` 等仅被自身测试引用，PR 5 删除。

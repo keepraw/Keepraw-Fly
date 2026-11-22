@@ -676,7 +676,13 @@
     "restoreDescription": "Adicione voos de um backup Keepraw Fly.",
     "csvDescription": "Traga o histórico de voo de uma planilha.",
     "mapTheme": "Tema do mapa",
-    "mapThemeHint": "Aplica-se ao mapa do passaporte e ao mapa de rota do voo."
+    "mapThemeHint": "Aplica-se ao mapa do passaporte e ao mapa de rota do voo.",
+    "passportLayout": "Layout do passaporte de voo",
+    "passportLayoutHint": "Layout da imagem do passaporte de voo compartilhada. Neon segue o tema do mapa.",
+    "passportLayoutOption": {
+      "neon": "Folha Neon",
+      "book": "Caderneta de passaporte clássica"
+    }
   },
   "recovery": {
     "readFailedTitle": "Não foi possível ler seu arquivo de voos local",
