@@ -187,7 +187,7 @@ async function instrument(page: Page) {
       // Detached canvases are the export canvas; attached ones belong to
       // Passport. The share image must never be a canvas on the page.
       log.contexts.push(`${this.isConnected ? "page" : "export"}:${type}`);
-      // The Passport Globe is covered elsewhere; keep this suite on 2D only.
+      // The export is Canvas 2D only; refuse WebGL so a dependency on it fails.
       if (type === "webgl2" || type === "webgl") return null;
       return Reflect.apply(getContext, this, [type, ...args]);
     } as typeof getContext;

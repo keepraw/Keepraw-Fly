@@ -66,7 +66,7 @@ export function loadTranslation(language: string): Promise<object> {
   return request;
 }
 
-// The native API and cloned instances (including independently mounted Globe
+// The native API and cloned instances (including independently mounted
 // modules) must use the same loader, not require the App's preload helper.
 export const localeBackend: BackendModule = {
   type: "backend",

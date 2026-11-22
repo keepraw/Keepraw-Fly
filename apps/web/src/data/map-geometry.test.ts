@@ -74,7 +74,7 @@ describe("passport map geometry", () => {
     expect(midpoint.y).toBeGreaterThan(0);
   });
 
-  it("bundles detailed generated globe geometry", () => {
+  it("bundles detailed generated world geometry", () => {
     expect(WORLD_SPHERE_PATH.length).toBeGreaterThan(500);
     expect(WORLD_GRATICULE_PATH.length).toBeGreaterThan(10_000);
     expect(WORLD_LAND_PATH.length).toBeGreaterThan(50_000);

@@ -121,7 +121,7 @@ export function PassportPage({
     null,
   );
   // Keep the period/search network stable while selecting or focusing Archive rows.
-  // Selection filters the report and Archive; the Globe retains the surrounding
+  // Selection filters the report and Archive; the map retains the surrounding
   // network so another airport/route can be selected without clearing first.
   const mapFlights = useMemo(
     () =>

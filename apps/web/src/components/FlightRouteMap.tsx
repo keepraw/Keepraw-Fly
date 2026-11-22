@@ -175,7 +175,11 @@ export function FlightRouteMap({
         </MapViewport>
       ) : (
         <div className="detail-flight-map-message" role="status">
-          {t(cancelled ? "globe.detailCancelled" : "globe.detailUnavailable")}
+          {t(
+            cancelled
+              ? "routeMap.detailCancelled"
+              : "routeMap.detailUnavailable",
+          )}
         </div>
       )}
     </div>
