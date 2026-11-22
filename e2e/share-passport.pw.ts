@@ -69,7 +69,6 @@ async function seed(
         distanceUnit,
         timeFormat: "24-hour",
         powerUserMode: false,
-        solarMode: "fixed",
         // This suite covers the classic passport book layout.
         passportTemplate: "book",
       });

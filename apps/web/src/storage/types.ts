@@ -18,17 +18,12 @@ import {
 export type { Language } from "../locales/registry";
 export type Appearance = "system" | "light" | "dark";
 
-/** Preference of the removed 3D globe. Still stored so existing saved
- * settings round-trip unchanged; nothing reads it. */
-export type SolarMode = "fixed" | "realtime";
-
 export interface ViewerSettings {
   language: Language;
   appearance: Appearance;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   powerUserMode: boolean;
-  solarMode: SolarMode;
   /** Registered 2D map theme; unknown stored values fall back to the default. */
   mapTheme: MapThemeId;
   /** Flight Passport layout; unknown stored values fall back to the default. */
@@ -44,7 +39,6 @@ export function defaultViewerSettings(): ViewerSettings {
     distanceUnit: language.startsWith("en-") ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
-    solarMode: "fixed",
     mapTheme: DEFAULT_MAP_THEME_ID,
     passportTemplate: DEFAULT_POSTER_TEMPLATE_ID,
   };
@@ -55,10 +49,9 @@ export function defaultViewerSettings(): ViewerSettings {
 export function normalizeViewerSettings(
   settings: Omit<
     ViewerSettings,
-    "solarMode" | "language" | "mapTheme" | "passportTemplate"
+    "language" | "mapTheme" | "passportTemplate"
   > & {
     language: unknown;
-    solarMode?: unknown;
     mapTheme?: unknown;
     passportTemplate?: unknown;
   },
@@ -66,7 +59,6 @@ export function normalizeViewerSettings(
   return {
     ...settings,
     language: normalizeLanguage(settings.language),
-    solarMode: settings.solarMode === "realtime" ? "realtime" : "fixed",
     mapTheme: resolveMapTheme(settings.mapTheme).id as MapThemeId,
     passportTemplate: isPosterTemplateId(settings.passportTemplate)
       ? settings.passportTemplate
