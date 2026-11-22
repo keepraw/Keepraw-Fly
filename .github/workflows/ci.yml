@@ -40,7 +40,7 @@ jobs:
         run: |
           browser=true
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            files=$(git diff --name-only "$BASE_SHA"...HEAD)
+            files=$(git diff --name-only --no-renames "$BASE_SHA"...HEAD)
             if ! printf '%s\n' "$files" | grep -qv '\.md$'; then
               browser=false
             fi
