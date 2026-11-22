@@ -614,10 +614,6 @@
     "backupDescription": "將飛行檔案儲存為本機 JSON 備份。",
     "restoreDescription": "從 Keepraw Fly 備份中新增航班紀錄。",
     "csvDescription": "從試算表匯入飛行歷史。",
-    "solarMode": "太陽光照",
-    "solarFixed": "固定太陽",
-    "solarRealtime": "真實太陽（即時）",
-    "solarModeHint": "固定太陽保持一致的光照；真實太陽依目前 UTC 時間呈現晝夜變化。",
     "mapTheme": "地圖主題",
     "mapThemeHint": "套用於護照地圖和航班航線地圖。"
   },

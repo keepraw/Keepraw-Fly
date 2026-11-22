@@ -614,10 +614,6 @@
     "backupDescription": "フライト アーカイブのローカル JSON バックアップを作成します。",
     "restoreDescription": "Keepraw Fly バックアップからフライトを追加します。",
     "csvDescription": "スプレッドシートからフライト履歴を取り込みます。",
-    "solarMode": "ソーラーイルミネーション",
-    "solarFixed": "固定太陽",
-    "solarRealtime": "リアルタイム太陽",
-    "solarModeHint": "太陽を固定すると、照明が一定に保たれます。リアルタイムでは、現在の UTC に基づく昼夜が反映されます。",
     "mapTheme": "地図テーマ",
     "mapThemeHint": "パスポートの地図とフライトの経路図に適用されます。"
   },

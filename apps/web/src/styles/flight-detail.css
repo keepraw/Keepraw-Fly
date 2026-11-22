@@ -670,6 +670,20 @@
     margin-bottom: 24px;
   }
 
+  /* Narrow layouts lead with the route map, sized to the screen: full
+     content width, 4:3, and never taller than about half the viewport. */
+  .detail-hero-grid > .detail-flight-map {
+    order: -1;
+    width: 100%;
+    max-height: min(52svh, 480px);
+    margin-bottom: 20px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .detail-hero-grid > .detail-flight-map:has(.detail-flight-map-message) {
+    aspect-ratio: auto;
+  }
+
   .detail-hero-information {
     gap: 24px;
   }

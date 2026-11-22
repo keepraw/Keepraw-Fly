@@ -112,7 +112,12 @@ test("Hero height follows content, not viewport height, across the viewport matr
       await expect(controls.getByRole("button").first()).toBeInViewport();
       await page.evaluate(() => window.scrollTo(0, 0));
     } else {
-      await expect(page.locator(".detail-flight-map")).toHaveCount(0);
+      // Narrow layouts lead with a screen-sized map: full content width and
+      // never taller than about half the viewport.
+      const box = (await page.locator(".detail-flight-map").boundingBox())!;
+      expect(box.width).toBeGreaterThan(width * 0.85);
+      expect(box.height).toBeLessThanOrEqual(Math.min(height * 0.52, 480) + 1);
+      expect(box.height).toBeGreaterThanOrEqual(120);
     }
   }
   // Same width, different heights: identical title position and Hero height.

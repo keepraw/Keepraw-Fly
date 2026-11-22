@@ -160,9 +160,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
         .locator("html")
         .evaluate((e) => e.scrollWidth <= e.clientWidth),
     ).toBe(true);
-    await expect(page.locator(".detail-route-map")).toHaveCount(
-      width < 1200 ? 0 : 1,
-    );
+    await expect(page.locator(".detail-route-map")).toHaveCount(1);
   }
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.locator(".detail-header-back").click();

@@ -1,4 +1,4 @@
-import { Children, useEffect, useState, type ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 import type { Namespace, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -39,7 +39,6 @@ import { FlightRouteMap } from "../components/FlightRouteMap";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 
 // The Globe is part of the two-column Hero, so narrow details never mount it.
-const DETAIL_DESKTOP_QUERY = "(min-width: 1200px)";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
@@ -347,20 +346,6 @@ export function FlightDetailPage({
   mapTheme,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
-  const [showDesktopMap, setShowDesktopMap] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      Boolean(window.matchMedia?.(DETAIL_DESKTOP_QUERY).matches),
-  );
-  useEffect(() => {
-    const media = window.matchMedia?.(DETAIL_DESKTOP_QUERY);
-    if (!media) return;
-    const update = () => setShowDesktopMap(media.matches);
-    media.addEventListener("change", update);
-    update();
-    return () => media.removeEventListener("change", update);
-  }, []);
-
   // Flight-date physical airports: names, coordinates and zones by history.
   const origin = originIdentity(flight);
   const actualDestination = arrivalIdentity(flight);
@@ -547,13 +532,11 @@ export function FlightDetailPage({
             </div>
           </div>
 
-          {showDesktopMap ? (
-            <FlightRouteMap
-              key={flight.id}
-              flight={flight}
-              theme={resolveMapTheme(mapTheme)}
-            />
-          ) : null}
+          <FlightRouteMap
+            key={flight.id}
+            flight={flight}
+            theme={resolveMapTheme(mapTheme)}
+          />
         </div>
 
         {hasExperience || hasTripRecord || frequentFlyer ? (

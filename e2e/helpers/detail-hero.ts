@@ -25,8 +25,8 @@ export async function expectDetailHero(page: Page, width: number) {
   // Wait for breakpoint styles and React's mount/unmount before measuring.
   await expect(hero).toHaveCSS("row-gap", width >= 1200 ? "32px" : "0px");
   const map_ = page.locator(".detail-hero-grid > .detail-route-map");
-  if (width >= 1200) await expect(map_).toBeVisible();
-  else await expect(map_).toHaveCount(0);
+  // The route map is mounted at every width; narrow layouts lead with it.
+  await expect(map_).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => window.scrollTo(0, 0));
   const geometry = await hero.evaluate((element) => {
@@ -60,6 +60,16 @@ export async function expectDetailHero(page: Page, width: number) {
     };
   });
   expect(geometry.overflow).toBeLessThanOrEqual(0);
+  if (width < 1200) {
+    // Single column: the map leads, spans the content width and stays within
+    // about half of the viewport height.
+    const map = geometry.map!;
+    expect(map.bottom).toBeLessThanOrEqual(geometry.information.top + 1);
+    expect(map.width).toBeCloseTo(geometry.hero.width, 0);
+    expect(map.height).toBeLessThanOrEqual(
+      Math.min(geometry.viewportHeight * 0.52, 480) + 1,
+    );
+  }
   if (width >= 1200) {
     const map = geometry.map!;
     expect(map).not.toBeNull();
@@ -138,7 +148,6 @@ export async function expectDetailHero(page: Page, width: number) {
       );
     }
   } else {
-    expect(geometry.map).toBeNull();
     await expect(page.locator(".detail-hero-space")).toHaveCount(0);
     await expect(page.locator(".detail-stop").first()).toHaveCSS(
       "grid-template-columns",

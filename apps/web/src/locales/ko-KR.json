@@ -614,10 +614,6 @@
     "backupDescription": "비행 아카이브의 로컬 JSON 백업을 생성합니다.",
     "restoreDescription": "Keepraw Fly 백업에서 항공편을 추가합니다.",
     "csvDescription": "스프레드시트에서 비행 기록을 가져옵니다.",
-    "solarMode": "태양광 조명",
-    "solarFixed": "고정 태양",
-    "solarRealtime": "실시간 태양",
-    "solarModeHint": "태양 위치를 고정하면 조명이 일정하게 유지됩니다. 실시간 모드는 현재 UTC 시각에 따른 낮과 밤을 반영합니다.",
     "mapTheme": "지도 테마",
     "mapThemeHint": "여권 지도와 항공편 경로 지도에 적용됩니다."
   },

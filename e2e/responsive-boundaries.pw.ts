@@ -170,7 +170,7 @@ test(
     });
 
     await page.getByRole("button", { name: /Open UA123/ }).click();
-    await test.step("Flight Detail: narrow resizes retain mobile layout and 1199↔1200 toggles Hero/map on the same flight", async () => {
+    await test.step("Flight Detail: narrow resizes retain mobile layout and 1199↔1200 toggles the Hero columns while the map stays mounted", async () => {
       for (const width of [
         761, 760, 761, 760, 1023, 1024, 1199, 1200, 1199, 1200,
       ]) {

@@ -237,7 +237,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
       await page
         .locator('.flight-record[data-flight-id="ca1831"] .flight-row')
         .click();
-      // Visit mobile before any desktop mount to prove code is not requested.
+      // No Globe code is requested at any width.
       for (const width of [
         360, 390, 430, 761, 900, 1023, 1024, 1199, 1200, 1280, 1440, 1920,
       ]) {
@@ -259,12 +259,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
         await expect(page.locator(".detail-metadata-shelf")).toContainText(
           "12A",
         );
-        if (width < 1200) {
-          await expect(page.locator(".detail-route-map, canvas")).toHaveCount(
-            0,
-          );
-          expect(globeRequests).toEqual([]);
-        } else {
+        {
           const labels = page.locator(".detail-flight-map .map-airport-label");
           await expect(labels).toHaveText(["PEK", "PVG"]);
           for (const label of await labels.all())

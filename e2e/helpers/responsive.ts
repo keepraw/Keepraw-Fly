@@ -261,13 +261,7 @@ export async function expectDetailLayout(page: Page) {
     "display",
     mobile ? "block" : "none",
   );
-  if (mobile) {
-    await expect(
-      page.locator(".detail-route-map, .detail-route-map-loading"),
-    ).toHaveCount(0);
-  } else {
-    await expectDetailMap(page);
-  }
+  await expectDetailMap(page);
   await expect(page.locator(".detail-stop--departure")).toContainText("SFO");
   await expect(page.locator(".detail-stop--arrival")).toContainText("LAX");
 }

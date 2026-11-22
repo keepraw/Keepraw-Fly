@@ -135,7 +135,8 @@ The texture is 554 KiB and does not replace airport/route geometry. Regenerate t
 `python scripts/generate-map-relief.py /path/to/SR_50M.tif`; the pinned download,
 archive checksum and public-domain license are in `map-relief.source.json`.
 
-Desktop Flight Detail (at least 1200px) mounts the 2D `FlightRouteMap`. It draws
+Flight Detail mounts the 2D `FlightRouteMap` at every width; below 1200px it
+leads the page at the content width, capped near half the viewport height. It draws
 only the current route, including the actual diversion airport and a dashed
 planned leg; cancelled flights and unknown or invalid coordinates show localized
 explanations. Its camera fits the sampled great-circle arc to the container,

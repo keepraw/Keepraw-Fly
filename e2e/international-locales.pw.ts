@@ -159,9 +159,7 @@ for (const language of newLanguages) {
           return range.getClientRects().length;
         }),
       ).toBe(1);
-      await expect(page.locator(".detail-flight-map")).toHaveCount(
-        width === 1440 ? 1 : 0,
-      );
+      await expect(page.locator(".detail-flight-map")).toHaveCount(1);
       await expect(page.locator(".detail-globe-frame, canvas")).toHaveCount(0);
       await healthy(page);
       await reviewScreenshot(page, language, "detail", width);

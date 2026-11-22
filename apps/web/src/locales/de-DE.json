@@ -646,10 +646,6 @@
     "backupDescription": "Erstellen Sie ein lokales JSON-Backup Ihres Flugarchivs.",
     "restoreDescription": "Flüge aus einem Keepraw Fly-Backup hinzufügen.",
     "csvDescription": "Holen Sie sich den Flugverlauf aus einer Tabelle.",
-    "solarMode": "Solarbeleuchtung",
-    "solarFixed": "Feste Sonnenposition",
-    "solarRealtime": "Sonnenposition in Echtzeit",
-    "solarModeHint": "Eine feste Sonnenposition sorgt für gleichbleibende Beleuchtung. Der Echtzeitmodus folgt dem Tag-Nacht-Verlauf zur aktuellen UTC-Zeit.",
     "mapTheme": "Kartenthema",
     "mapThemeHint": "Gilt für die Passport-Karte und die Flugroutenkarte."
   },

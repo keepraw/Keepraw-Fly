@@ -675,10 +675,6 @@
     "backupDescription": "Créez une sauvegarde JSON locale de vos archives de vol.",
     "restoreDescription": "Ajoutez des vols à partir d'une sauvegarde Keepraw Fly.",
     "csvDescription": "Importez l'historique des vols à partir d'une feuille de calcul.",
-    "solarMode": "Éclairage solaire",
-    "solarFixed": "Soleil fixe",
-    "solarRealtime": "Soleil en temps réel",
-    "solarModeHint": "Le soleil fixe maintient un éclairage constant. Le mode en temps réel suit l’alternance du jour et de la nuit à l’heure UTC actuelle.",
     "mapTheme": "Thème de carte",
     "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol."
   },

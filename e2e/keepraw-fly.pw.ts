@@ -1152,7 +1152,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     await page.setViewportSize(viewport);
     await expect(
       page.locator(".detail-route-map, .detail-route-map-loading"),
-    ).toHaveCount(viewport.width < 1200 ? 0 : 1);
+    ).toHaveCount(1);
     // Viewport metadata can update before the engine's vh/grid layout does.
     await expect
       .poll(() =>
@@ -1203,8 +1203,11 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
 
     expect(layout.gridColumns).toBe(viewport.width < 1200 ? 1 : 2);
     if (viewport.width < 1200) {
-      expect(layout.mapHeight).toBe(0);
-      expect(layout.mapRadius).toBeNull();
+      expect(layout.mapHeight).toBeGreaterThan(0);
+      expect(layout.mapHeight).toBeLessThanOrEqual(
+        Math.min(viewport.height * 0.52, 480) + 1,
+      );
+      expect(layout.mapRadius).toBe("0px");
       await expect(page.locator(".detail-segment-meta")).toBeVisible();
       await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
     } else {
@@ -2010,9 +2013,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
   await expectDetailMap(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(
-    page.locator(".detail-flight-map, .detail-route-map-loading"),
-  ).toHaveCount(0);
+  await expectDetailMap(page);
   await expect(page.locator(".detail-metadata-column").first()).toContainText(
     "B-1234",
   );

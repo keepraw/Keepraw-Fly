@@ -646,10 +646,6 @@
     "backupDescription": "Create a local JSON backup of your flight archive.",
     "restoreDescription": "Add flights from a Keepraw Fly backup.",
     "csvDescription": "Bring in flight history from a spreadsheet.",
-    "solarMode": "Solar illumination",
-    "solarFixed": "Fixed Sun",
-    "solarRealtime": "Real-time Sun",
-    "solarModeHint": "Fixed Sun keeps the lighting consistent. Real-time Sun follows the current UTC day and night.",
     "mapTheme": "Map theme",
     "mapThemeHint": "Applies to the Passport map and the flight route map."
   },
