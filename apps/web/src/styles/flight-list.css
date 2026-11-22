@@ -47,7 +47,7 @@
 }
 
 .passport-archive .flight-number strong {
-  color: var(--muted);
+  color: var(--ink);
   font-size: calc(0.8125 * var(--passport-rem, 1rem));
   letter-spacing: var(--tracking-flight);
 }
