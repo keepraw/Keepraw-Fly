@@ -675,15 +675,24 @@ export function drawNeonPassport(
     box.y >= rect.y - 0.5 &&
     box.x + box.width <= rect.x + rect.width + 0.5 &&
     box.y + box.height <= rect.y + rect.height + 0.5;
+  const bleed = 12;
+  const inkArea: PosterRect = {
+    x: layout.content.x - bleed,
+    y: layout.content.y - bleed,
+    width: layout.content.width + bleed * 2,
+    height: layout.content.height + bleed * 2,
+  };
   const within = (box: PosterTextBox, rect: PosterRect) =>
     inside(box, rect) && inside(box.ink, rect);
   return {
     texts: painter.texts,
     outside: painter.texts.filter((box) => !within(box, layout.safe)),
+    // Advance boxes stay in the content column; ink may overhang it by a
+    // glyph's side bearing (a leading "j", an italic), never past the margin.
     paperOutside: painter.texts.filter((box) =>
       copy.mrz.includes(box.text)
         ? !inside(box.ink, layout.mrz.print)
-        : !within(box, layout.content),
+        : !inside(box, layout.content) || !inside(box.ink, inkArea),
     ),
     truncated: painter.truncated,
     map,

@@ -431,6 +431,9 @@ test("very long names wrap or shrink before anything is cut", async ({
     "W".repeat(40),
     "Wolfeschlegelsteinhausenbergerdorff ".repeat(3).trim(),
     "👩🏽‍✈️ e\u0301 東京 김하늘 São Luís",
+    // Leading glyphs whose ink overhangs the left edge of their advance.
+    "jane jörg",
+    "ĵ fjord",
   ];
   const drawn = await renderCases(
     page,
