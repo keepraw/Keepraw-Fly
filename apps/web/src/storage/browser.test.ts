@@ -330,6 +330,7 @@ describe("BrowserStorageAdapter", () => {
       powerUserMode: true,
       solarMode: "realtime" as const,
       mapTheme: "daylight-chart" as const,
+      passportTemplate: "book" as const,
     };
 
     await adapter.saveSettings(settings);

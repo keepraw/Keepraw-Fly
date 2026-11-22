@@ -287,3 +287,12 @@ OFL notices, pinned package sources, WOFF2 checksums and byte counts are in
 same limitation and pinned font URLs as existing MiSans. Use
 `node scripts/verify-passport-fonts.mjs --remote` to independently verify all
 eight CSS pins against jsDelivr and unpkg. CSP is unchanged.
+
+## Neon layout (map redesign PR 4)
+
+The default share layout is now the Neon sheet (`passportTemplate: "neon"`);
+the passport book described above remains available as `"book"` under
+Settings → Flight Passport layout. Both draw the same `PosterCopy`. See
+"Flight Passport templates" in `docs/map-2d-architecture.md`.
+`e2e/share-neon-passport.pw.ts` covers the Neon layout; this file's
+`e2e/share-passport.pw.ts` pins `passportTemplate: "book"`.

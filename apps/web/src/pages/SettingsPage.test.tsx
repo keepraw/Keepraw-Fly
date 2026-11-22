@@ -31,6 +31,7 @@ it.each(["general", "data"] as const)(
             timeFormat: "24-hour",
             solarMode: "fixed",
             mapTheme: "neon-aviation",
+            passportTemplate: "neon",
             powerUserMode: false,
           }}
           onImport={() => {}}

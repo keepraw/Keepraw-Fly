@@ -615,7 +615,13 @@
     "restoreDescription": "Keepraw Fly 백업에서 항공편을 추가합니다.",
     "csvDescription": "스프레드시트에서 비행 기록을 가져옵니다.",
     "mapTheme": "지도 테마",
-    "mapThemeHint": "여권 지도와 항공편 경로 지도에 적용됩니다."
+    "mapThemeHint": "여권 지도와 항공편 경로 지도에 적용됩니다.",
+    "passportLayout": "플라이트 패스포트 레이아웃",
+    "passportLayoutHint": "공유하는 플라이트 패스포트 이미지의 레이아웃입니다. Neon은 지도 테마를 따릅니다.",
+    "passportLayoutOption": {
+      "neon": "Neon 시트",
+      "book": "클래식 여권 수첩"
+    }
   },
   "recovery": {
     "readFailedTitle": "로컬 비행 기록을 읽을 수 없습니다",
