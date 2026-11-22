@@ -79,7 +79,7 @@ This complete example uses fictional data:
 ```json
 {
   "format": "keepraw-fly",
-  "formatVersion": "0.1.0",
+  "formatVersion": "0.2.0",
   "profile": {},
   "frequentFlyerMemberships": [
     {
