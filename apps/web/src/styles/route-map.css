@@ -353,3 +353,270 @@
   stroke-width: 0.8;
   opacity: 0.75;
 }
+
+/* Themed 2D map: registered theme tokens drive the shared map classes. */
+[data-map-theme] {
+  --color-map-surface: var(--map-theme-background-top);
+  --color-map-ocean: var(--map-theme-background-bottom);
+  --color-map-land: var(--map-theme-land);
+  --color-map-land-line: var(--map-theme-border);
+  --color-map-outline: var(--map-theme-coastline);
+  --color-map-grid: var(--map-theme-graticule);
+  --color-map-route: var(--map-theme-route-base);
+  --color-map-route-underlay: var(--map-theme-label-halo);
+  --color-map-airport: var(--map-theme-airport);
+  --color-map-text: var(--map-theme-label);
+  --color-map-muted: var(--map-theme-label-muted);
+  --color-map-faint: var(--map-theme-label-muted);
+  --color-map-tooltip: var(--map-theme-tooltip);
+  --color-map-tooltip-line: var(--map-theme-tooltip-line);
+}
+
+[data-map-theme] .map-land-fill {
+  fill: var(--map-theme-land);
+}
+
+[data-map-theme] .map-land-hatch {
+  pointer-events: none;
+}
+
+[data-map-theme] .map-country {
+  fill: transparent;
+  stroke: var(--map-theme-border);
+  stroke-width: var(--map-theme-line-border);
+}
+
+[data-map-theme] .map-country.is-visited {
+  fill: color-mix(in srgb, var(--map-theme-land-hatch) 22%, transparent);
+}
+
+[data-map-theme] .map-country:hover {
+  filter: none;
+  stroke: var(--map-theme-coastline);
+}
+
+[data-map-theme] .map-coastline {
+  stroke: var(--map-theme-coastline);
+  stroke-width: var(--map-theme-line-coastline);
+}
+
+[data-map-theme] .map-graticule {
+  stroke: var(--map-theme-graticule);
+  stroke-width: var(--map-theme-line-graticule);
+}
+
+[data-map-theme] .map-routes .map-route-underlay {
+  stroke: transparent;
+}
+
+[data-map-theme] .map-routes .map-route-line {
+  stroke: color-mix(
+    in srgb,
+    var(--map-theme-route-base) var(--map-route-strength, 100%),
+    var(--map-theme-background-bottom)
+  );
+}
+
+[data-map-theme] .map-route.is-frequent .map-route-line {
+  stroke: var(--map-theme-route-frequent);
+}
+
+/* Glow is a wide translucent stroke, never an SVG filter. */
+[data-map-theme] .map-routes .map-route-glow {
+  stroke: var(--map-theme-route-glow);
+  stroke-width: calc(
+    var(--map-route-width, var(--map-theme-route-frequent-width)) +
+      var(--map-theme-glow-spread) * 2
+  );
+  opacity: var(--map-theme-glow-intensity);
+  pointer-events: none;
+}
+
+[data-map-theme] .map-route:hover .map-route-line,
+[data-map-theme] .map-route:focus-visible .map-route-line,
+[data-map-theme] .map-route.is-highlighted .map-route-line {
+  stroke: var(--map-theme-route-highlight);
+  stroke-width: max(
+    var(--map-theme-route-highlight-width),
+    calc(var(--map-route-width, 0px) + 0.65px)
+  );
+  opacity: var(--map-theme-route-highlight-opacity);
+}
+
+[data-map-theme] .map-route.is-selected .map-route-line {
+  stroke: var(--map-theme-route-selected);
+  stroke-width: max(
+    var(--map-theme-route-selected-width),
+    calc(var(--map-route-width, 0px) + 0.65px)
+  );
+  opacity: var(--map-theme-route-selected-opacity);
+}
+
+[data-map-theme] .map-route.is-selected .map-route-glow,
+[data-map-theme] .map-route.is-highlighted .map-route-glow {
+  opacity: var(--map-theme-glow-inner-intensity);
+}
+
+[data-map-theme] .map-route:focus-visible .map-route-underlay {
+  stroke: var(--map-theme-focus);
+  stroke-width: calc(
+    var(--map-theme-route-selected-width) +
+      var(--map-theme-state-focus-ring-width) * 2
+  );
+}
+
+[data-map-theme] .map-airports .map-airport-point {
+  fill: var(--map-theme-airport);
+  stroke: var(--map-theme-label-halo);
+}
+
+[data-map-theme] .map-airport.is-hub .map-airport-point {
+  fill: var(--map-theme-airport-hub);
+}
+
+[data-map-theme] .map-airports .map-airport-ring {
+  stroke: color-mix(in srgb, var(--map-theme-airport-halo) 35%, transparent);
+}
+
+[data-map-theme] .map-airport:hover .map-airport-point,
+[data-map-theme] .map-airport:focus-visible .map-airport-point,
+[data-map-theme] .map-airport.is-selected .map-airport-point {
+  fill: var(--map-theme-airport-selected);
+  stroke: var(--map-theme-airport-halo);
+}
+
+[data-map-theme] .map-airport:focus-visible .map-airport-ring {
+  stroke: var(--map-theme-focus);
+  stroke-width: var(--map-theme-state-focus-ring-width);
+}
+
+[data-map-theme] .map-airports .map-airport-label {
+  fill: var(--map-theme-label);
+  stroke: var(--map-theme-label-halo);
+}
+
+[data-map-theme] .passport-map-frequency-sample line {
+  stroke: color-mix(
+    in srgb,
+    var(--map-theme-route-base) var(--map-route-strength),
+    var(--map-theme-background-bottom)
+  );
+}
+
+[data-map-theme] .map-zoom-controls button {
+  color: var(--map-theme-label);
+  background: var(--map-theme-tooltip);
+  border-color: var(--map-theme-tooltip-line);
+}
+
+/* Passport route and airport pickers over the themed map. */
+.passport-map-navigation {
+  position: absolute;
+  z-index: 3;
+  top: calc(12 * var(--passport-px, 1px));
+  left: calc(12 * var(--passport-px, 1px));
+  max-width: min(92%, calc(440 * var(--passport-px, 1px)));
+  border: 1px solid var(--map-theme-tooltip-line);
+  border-radius: calc(4 * var(--passport-px, 1px));
+  color: var(--map-theme-label);
+  background: var(--map-theme-tooltip);
+  font-size: calc(0.6875 * var(--passport-rem, 1rem));
+}
+
+.passport-map-navigation summary {
+  padding: calc(6 * var(--passport-px, 1px)) calc(10 * var(--passport-px, 1px));
+  cursor: pointer;
+}
+
+.passport-map-picker {
+  display: grid;
+  gap: calc(9 * var(--passport-px, 1px));
+  padding: calc(8 * var(--passport-px, 1px)) calc(10 * var(--passport-px, 1px))
+    calc(10 * var(--passport-px, 1px));
+}
+
+.passport-map-picker label {
+  display: grid;
+  gap: calc(4 * var(--passport-px, 1px));
+}
+
+.passport-map-picker select {
+  width: 100%;
+  min-width: 0;
+  max-width: calc(240 * var(--passport-px, 1px));
+  padding: calc(5 * var(--passport-px, 1px));
+  border: 1px solid var(--map-theme-tooltip-line);
+  border-radius: calc(3 * var(--passport-px, 1px));
+  color: var(--map-theme-label);
+  background: var(--map-theme-background-bottom);
+}
+
+.passport-map-navigation :focus-visible {
+  outline: var(--map-theme-state-focus-ring-width) solid var(--map-theme-focus);
+  outline-offset: var(--map-theme-state-focus-ring-offset);
+}
+
+/* Flight Detail route map. */
+.detail-flight-map {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--map-theme-tooltip-line);
+  border-radius: 4px;
+  color: var(--map-theme-label);
+  background: var(--map-theme-background-bottom);
+}
+
+.detail-flight-map-canvas {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    var(--map-theme-background-top),
+    var(--map-theme-background-bottom)
+  );
+}
+
+.detail-flight-map .map-route-planned {
+  stroke: var(--map-theme-label-muted);
+  stroke-width: var(--map-theme-route-base-width);
+  stroke-dasharray: 4 5;
+  opacity: 0.7;
+}
+
+.detail-flight-map .map-airport {
+  cursor: default;
+}
+
+.detail-flight-map .map-airport.is-planned .map-airport-point {
+  fill: transparent;
+  stroke: var(--map-theme-label-muted);
+}
+
+.detail-flight-map .map-airport.is-planned .map-airport-label {
+  fill: var(--map-theme-label-muted);
+}
+
+.detail-flight-map-message {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  padding: 16px;
+  color: var(--map-theme-label-muted);
+  text-align: center;
+}
+
+/* Narrow Passport: the map is a readable 4:3 stage, not a 180px strip. */
+@media (max-width: 760px) {
+  .passport-archive-page .passport-visual-sticky {
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .passport-archive-page [data-map-theme] .route-map-canvas {
+    height: auto;
+    min-height: calc(240 * var(--passport-px, 1px));
+    aspect-ratio: 4 / 3;
+  }
+
+  [data-map-theme] .passport-map-frequency-legend {
+    display: none;
+  }
+}

@@ -80,7 +80,7 @@ async function reviewScreenshot(
 }
 
 for (const language of newLanguages) {
-  test(`${language}: desktop/mobile Settings, Detail, Passport and editor; desktop Globe`, async ({
+  test(`${language}: desktop/mobile Settings, Detail, Passport and editor; Globe Lab`, async ({
     page,
   }, testInfo) => {
     test.setTimeout(90_000);
@@ -130,7 +130,8 @@ for (const language of newLanguages) {
           page.locator(".passport-network-facts > div").first().locator("span"),
         ).toHaveText(text.passport.countries_one ?? text.passport.countries);
       }
-      if (width === 1440) await globeMode(page);
+      await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+      await expect(page.locator("canvas")).toHaveCount(0);
       await healthy(page);
       await reviewScreenshot(page, language, "passport", width);
       await page.locator(".flight-row").first().click();
@@ -158,8 +159,8 @@ for (const language of newLanguages) {
           return range.getClientRects().length;
         }),
       ).toBe(1);
-      if (width === 1440) await globeMode(page);
-      else await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
+      await expect(page.locator(".detail-flight-map")).toHaveCount(1);
+      await expect(page.locator(".detail-globe-frame, canvas")).toHaveCount(0);
       await healthy(page);
       await reviewScreenshot(page, language, "detail", width);
       await page

@@ -233,6 +233,7 @@
     },
     "actual": "実績",
     "plannedArrival": "予定到着地：{{airport}}",
+    "routeMapLabel": "このフライトの経路図：{{origin}} から {{destination}}",
     "airportHistory": {
       "historicalSite": "この日付の歴史的空港",
       "unknown": "空港を特定できません。記録どおりコードを保持します",
@@ -613,10 +614,8 @@
     "backupDescription": "フライト アーカイブのローカル JSON バックアップを作成します。",
     "restoreDescription": "Keepraw Fly バックアップからフライトを追加します。",
     "csvDescription": "スプレッドシートからフライト履歴を取り込みます。",
-    "solarMode": "ソーラーイルミネーション",
-    "solarFixed": "固定太陽",
-    "solarRealtime": "リアルタイム太陽",
-    "solarModeHint": "太陽を固定すると、照明が一定に保たれます。リアルタイムでは、現在の UTC に基づく昼夜が反映されます。"
+    "mapTheme": "地図テーマ",
+    "mapThemeHint": "パスポートの地図とフライトの経路図に適用されます。"
   },
   "recovery": {
     "readFailedTitle": "ローカルの飛行記録を読み取れませんでした",

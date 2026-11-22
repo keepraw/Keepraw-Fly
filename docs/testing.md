@@ -3,7 +3,7 @@
 Chromium owns the full regression suite. The Firefox and WebKit projects select
 only tests explicitly tagged `@cross-browser` in [Playwright configuration](../playwright.config.ts).
 An untagged new E2E runs in Chromium automatically. The browser-layer split retains
-the full regression coverage in Chromium, while the 3D Globe and engine-sensitive
+the full regression coverage in Chromium, while engine-sensitive
 behaviors have their own targeted tests.
 
 ```bash
@@ -63,30 +63,25 @@ Reusable helpers live in `scripts/` and run from the repository root:
 
 For Hero captures set `BASE_URL`, `LABEL` and optionally `OUT`; keep overrides
 under ignored `artifacts/`. It reads the existing Detail regression fixture and
-records 16 viewport/theme/data scenarios after font and real-WebGL readiness.
+records 16 viewport/theme/data scenarios after font and map readiness.
 The historical theme helper is documented with its [source provenance](archive/visual-review/task-a/README.md).
 Task 2C retains the byte-verified approved Dark Control input and its
 [font evidence instructions](archive/visual-review/task-2c/resume/README.md).
 
-## Flight Detail 3D Globe
+## Production 2D maps
 
-`detail-map-curve.pw.ts` contains regression tests requiring a real, ready
-WebGL canvas. Unavailable WebGL fails those tests; there is no capability skip or
-SVG substitute. They cover single-route framing and Home at 1200/1280/1440px,
-resize after interaction, pointer/wheel/keyboard controls, diversion, cancellation,
-unknown airports, three languages, Light/Dark/System, Fixed/Realtime solar,
-1199/1200px lazy loading, all renderer failures and retry, StrictMode, hidden tabs,
-navigation and delayed texture cleanup. Mounted preference and language changes
-must preserve the canvas and user's camera.
-Changing the route of the same flight clears selected and hovered airports before
-the replacement scene focuses the new route. Unit tests additionally sample the
-entire arc for short, long, date-line, polar, antipodal and coincident routes,
-and reject invalid coordinates while accepting `(0,0)`.
+Production Passport and Flight Detail render SVG and need no WebGL.
+`passport-map.pw.ts` covers the themed Passport map on desktop and mobile:
+pointer, keyboard and picker selection, zoom, pan and reset, and the absence of
+canvases, filters and Globe requests. `flight-route-map.pw.ts` covers automatic
+framing for short, date-line, polar and long-haul routes, diversions, cancelled
+flights, controls and per-flight camera reset. `map-theme-preference.pw.ts`
+covers switching, persistence and the invalid-ID fallback. Unit tests in
+`apps/web/src/map2d/` sample the framing and identity rules directly.
 
-Shared layout journeys independently probe WebGL capability before requiring a
-ready canvas or the explicit localized error/retry UI. Passport's SVG interactions
-and real WebGL regressions remain covered. Generated diagnostics stay in ignored
-`test-results/` and `playwright-report/`.
+The retained Globe is covered only by the Globe Lab suites, which require real
+WebGL. Generated diagnostics stay in ignored `test-results/` and
+`playwright-report/`.
 
 ## Responsive and browser coverage
 
@@ -107,8 +102,9 @@ and project selection. Relevant coverage includes:
 - [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and
   [`cross-browser-smoke.pw.ts`](../e2e/cross-browser-smoke.pw.ts): mobile and
   desktop boundaries, scrolling, controls and browser-sensitive focus.
-- [`detail-map-curve.pw.ts`](../e2e/detail-map-curve.pw.ts) and the Globe
-  suites: real WebGL, failure recovery, camera and visual/lighting behavior.
+- [`passport-map.pw.ts`](../e2e/passport-map.pw.ts) and
+  [`flight-route-map.pw.ts`](../e2e/flight-route-map.pw.ts): production 2D maps.
+  The Globe Lab suites keep real WebGL, camera and lighting coverage.
 - [`persistent-storage.pw.ts`](../e2e/persistent-storage.pw.ts),
   [`document-persistence.pw.ts`](../e2e/document-persistence.pw.ts) and
   [`archive-recovery.pw.ts`](../e2e/archive-recovery.pw.ts): storage and

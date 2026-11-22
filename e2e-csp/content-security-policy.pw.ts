@@ -173,7 +173,7 @@ for (const { name, viewport, size } of [
   });
 }
 
-test("core journeys raise no CSP violation: import, Passport map/Globe, detail Globe, settings, export @cross-browser", async ({
+test("core journeys raise no CSP violation: import, Passport map, detail map, settings, export @cross-browser", async ({
   page,
   browserName,
 }) => {
@@ -184,15 +184,13 @@ test("core journeys raise no CSP violation: import, Passport map/Globe, detail G
 
   await importArchive(page);
   await expect(
-    page.locator(".passport-globe-frame, .route-map-canvas").first(),
+    page.locator(".route-map[data-map-theme] .route-map-canvas"),
   ).toBeVisible();
   await page.getByRole("button", { name: /Open UA123/ }).click();
   await expect(page.locator("#flight-detail-title")).toBeVisible();
-  await expect(page.locator(".detail-globe-frame .globe-host")).toHaveAttribute(
-    "data-ready",
-    "true",
-    { timeout: 30_000 },
-  );
+  await expect(
+    page.locator(".detail-flight-map .map-route.is-selected"),
+  ).toBeVisible({ timeout: 30_000 });
 
   await page.goto("/#settings");
   await openSettingsCategory(page, "Data and backup");

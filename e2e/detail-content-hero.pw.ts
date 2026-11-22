@@ -45,21 +45,8 @@ async function openFlight(page: Page, id: string) {
 }
 
 async function settle(page: Page, width: number) {
-  if (width >= 1200) {
-    // The Detail Globe is lazy; wait for the real frame, then for a genuine
-    // WebGL scene unless the explicit error UI replaced it.
-    await expect(page.locator(".detail-globe-frame")).toHaveCount(1, {
-      timeout: 25000,
-    });
-    if (await page.locator(".detail-globe-frame").count()) {
-      await expect(page.locator(".detail-hero-space")).toHaveCount(1);
-      await expect(
-        page.locator(
-          '.detail-globe-frame .globe-host[data-ready="true"], .detail-globe-frame .globe-fallback, .detail-globe-message',
-        ),
-      ).not.toHaveCount(0, { timeout: 25000 });
-    }
-  }
+  if (width >= 1200)
+    await expect(page.locator(".detail-flight-map")).toHaveCount(1);
   return expectDetailHero(page, width);
 }
 
@@ -67,14 +54,13 @@ async function measure(page: Page) {
   return page.evaluate(() => {
     const rect = (selector: string) =>
       document.querySelector(selector)?.getBoundingClientRect() ?? null;
-    const host = document.querySelector<HTMLElement>(
-      ".detail-globe-frame .globe-host",
-    );
-    const scene = host?.dataset.scene ? JSON.parse(host.dataset.scene) : null;
+    const viewport = rect(".detail-flight-map .map-viewport");
     return {
       titleTop: Math.round(rect(".detail-heading h1")!.top),
       heroHeight: Math.round(rect(".detail-hero-grid")!.height),
-      globe: scene ? `${scene.viewport.width}x${scene.viewport.height}` : null,
+      map: viewport
+        ? `${Math.round(viewport.width)}x${Math.round(viewport.height)}`
+        : null,
       shelfTop: rect(".detail-metadata-shelf")
         ? Math.round(rect(".detail-metadata-shelf")!.top)
         : null,
@@ -121,15 +107,17 @@ test("Hero height follows content, not viewport height, across the viewport matr
       // No viewport-filling Hero: a 4K screen must not be taken over again.
       expect(result.heroHeight).toBeLessThan(Math.max(height * 0.75, 600));
       // Short desktops scroll; every control stays reachable.
-      const controls = page.locator(".detail-globe-frame .globe-controls");
+      const controls = page.locator(".detail-flight-map .map-zoom-controls");
       await controls.scrollIntoViewIfNeeded();
-      const box = (await controls.boundingBox())!;
-      // Hover the frame right beside the controls so they reveal in place.
-      await page.mouse.move(box.x - 4, box.y + box.height / 2);
       await expect(controls.getByRole("button").first()).toBeInViewport();
       await page.evaluate(() => window.scrollTo(0, 0));
     } else {
-      await expect(page.locator(".detail-globe-frame")).toHaveCount(0);
+      // Narrow layouts lead with a screen-sized map: full content width and
+      // never taller than about half the viewport.
+      const box = (await page.locator(".detail-flight-map").boundingBox())!;
+      expect(box.width).toBeGreaterThan(width * 0.85);
+      expect(box.height).toBeLessThanOrEqual(Math.min(height * 0.52, 480) + 1);
+      expect(box.height).toBeGreaterThanOrEqual(120);
     }
   }
   // Same width, different heights: identical title position and Hero height.
@@ -141,7 +129,7 @@ test("Hero height follows content, not viewport height, across the viewport matr
     for (const other of others) {
       expect(results[other]!.titleTop).toBe(results[base]!.titleTop);
       expect(results[other]!.heroHeight).toBe(results[base]!.heroHeight);
-      expect(results[other]!.globe).toBe(results[base]!.globe);
+      expect(results[other]!.map).toBe(results[base]!.map);
     }
   }
   // Title top is decided by the header and normal flow at every desktop size.
@@ -180,9 +168,9 @@ for (const id of [
       await page.setViewportSize({ width, height });
       const geometry = await settle(page, width);
       if (id === "cancelled") {
-        await expect(page.locator(".detail-globe-message")).toBeVisible();
+        await expect(page.locator(".detail-flight-map-message")).toBeVisible();
         await expect(
-          page.locator(".detail-globe-frame .globe-host"),
+          page.locator(".detail-flight-map .map-viewport"),
         ).toHaveCount(0);
       }
       if (id === "sparse")
@@ -200,7 +188,7 @@ for (const id of [
   });
 }
 
-test("WebGL failure keeps a compact explanation and a working retry", async ({
+test("the route map needs no WebGL and never requests Globe code", async ({
   page,
 }) => {
   test.setTimeout(90_000);
@@ -219,6 +207,15 @@ test("WebGL failure keeps a compact explanation and a working retry", async ({
       );
     } as typeof original;
   });
+  const globeRequests: string[] = [];
+  page.on("request", (request) => {
+    if (
+      /DetailGlobe|GlobeMap|globe-renderer|three(?:[./-])|earth-\d|night-\d/.test(
+        request.url(),
+      )
+    )
+      globeRequests.push(request.url());
+  });
   await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "dark" });
   await page.setViewportSize({ width: 390, height: 900 });
   await importRecords(page);
@@ -229,19 +226,13 @@ test("WebGL failure keeps a compact explanation and a working retry", async ({
     [1200, 390],
   ] as const) {
     await page.setViewportSize({ width, height });
+    await settle(page, width);
     await expect(
-      page.locator(".detail-globe-frame .globe-stage"),
-    ).toHaveAttribute("data-error", /webgl2-unavailable/);
-    const geometry = await settle(page, width);
-    const retry = page.locator(".detail-globe-frame .globe-fallback button");
-    await expect(retry).toBeEnabled();
-    const button = (await retry.boundingBox())!;
-    expect(button.y).toBeGreaterThanOrEqual(geometry.map!.top - 1);
-    expect(button.y + button.height).toBeLessThanOrEqual(
-      geometry.map!.bottom + 1,
-    );
-    await expect(page.locator(".detail-globe-space")).toHaveCSS("opacity", "0");
+      page.locator(".detail-flight-map .map-route.is-selected"),
+    ).toHaveCount(1);
+    await expect(page.locator("canvas")).toHaveCount(0);
   }
+  expect(globeRequests).toEqual([]);
 });
 
 test("notices stay in normal flow through banner, warning, resize and breakpoint changes", async ({

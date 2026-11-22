@@ -1,5 +1,5 @@
 import { openSettingsCategory } from "./helpers/settings";
-import { expectDetailGlobe } from "./helpers/detail-globe";
+import { expectDetailMap } from "./helpers/detail-map";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
@@ -123,12 +123,7 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1199, 1200, 1440]) {
         await expect(
           page.locator(".flight-deviation.is-late").first(),
         ).toHaveCSS("color", colors[dark ? "dark" : "light"].warning);
-        if (width >= 1200) {
-          await expectDetailGlobe(page);
-          await expect(
-            page.locator(".detail-globe-frame .globe-stage"),
-          ).toHaveAttribute("data-theme", dark ? "dark" : "light");
-        } else await expect(page.locator(".detail-route-map")).toHaveCount(0);
+        await expectDetailMap(page);
         // Switch the OS on the mounted Detail page, without a reload or navigation.
         if (mode === "system") {
           await page.emulateMedia({ colorScheme: dark ? "light" : "dark" });
@@ -136,10 +131,9 @@ for (const width of [360, 390, 430, 760, 761, 1024, 1199, 1200, 1440]) {
           await expect(page.locator(".detail-heading-eyebrow")).toContainText(
             "UA123",
           );
-          if (width < 1200)
-            await expect(
-              page.locator(".detail-route-map, .detail-globe-frame, canvas"),
-            ).toHaveCount(0);
+          await expect(page.locator(".detail-globe-frame, canvas")).toHaveCount(
+            0,
+          );
         }
         await page.locator(".detail-header-back").click();
         await expect(page.locator(".flight-row")).toHaveCount(12);

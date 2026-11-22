@@ -30,6 +30,7 @@ it.each(["general", "data"] as const)(
             distanceUnit: "miles",
             timeFormat: "24-hour",
             solarMode: "fixed",
+            mapTheme: "neon-aviation",
             powerUserMode: false,
           }}
           onImport={() => {}}

@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
-/** Run the existing SVG contracts against the production failure path.
- * Task 3's WebGL journeys run independently in passport-globe.pw.ts.
+/** Production Passport is the 2D SVG map, so these journeys must stay green
+ * even when WebGL2 is unavailable. Globe Lab suites cover the retained Globe.
  */
 export async function disablePassportWebGL(page: Page) {
   await page.addInitScript(() => {

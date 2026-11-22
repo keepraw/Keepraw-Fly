@@ -260,13 +260,12 @@ test("globe local SVG fallback on texture failure and context loss @cross-browse
   await ready(page);
 });
 
-test("globe filtering, real archive loading and formal Passport integration @cross-browser", async ({
+test("globe filtering, real archive loading and 2D formal Passport @cross-browser", async ({
   page,
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo", exact: true }).click();
-  await globeMode(page);
-  await expect(page.locator(".passport-globe-frame")).toBeVisible();
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   await page.goto("/globe-lab");
   const mode = await globeMode(page);
   const expectMap = async () => {
@@ -290,8 +289,9 @@ test("globe filtering, real archive loading and formal Passport integration @cro
     page.getByRole("combobox", { name: "Route", exact: true }),
   ).toHaveValue("SFO-LAX");
   await page.goto("/#passport");
-  await globeMode(page);
-  await expect(page.locator(".passport-globe-frame")).toBeVisible();
+  // The formal Passport is the 2D map; the Globe now lives only in the Lab.
+  await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+  await expect(page.locator(".passport-globe-frame, canvas")).toHaveCount(0);
   await expect(page.locator(".globe-lab")).toHaveCount(0);
 });
 
