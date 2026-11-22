@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, refactor/persist-airport-identities]
+    branches: [main]
   pull_request:
 
 env:
@@ -17,6 +17,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # A pull request that only edits Markdown cannot change what a browser loads,
+  # so it skips the browser jobs; `checks` still runs the documentation, unit
+  # and build gates. Pushes to main always run everything.
+  changes:
+    if: github.repository == 'keepraw/Keepraw-Fly'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      browser: ${{ steps.filter.outputs.browser }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether the browser jobs are needed
+        id: filter
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          browser=true
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            files=$(git diff --name-only "$BASE_SHA"...HEAD)
+            if ! printf '%s\n' "$files" | grep -qv '\.md$'; then
+              browser=false
+            fi
+          fi
+          echo "browser=$browser" >> "$GITHUB_OUTPUT"
+
   checks:
     if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
@@ -99,7 +129,8 @@ jobs:
           path: apps/web/dist
 
   chromium:
-    if: github.repository == 'keepraw/Keepraw-Fly'
+    needs: changes
+    if: github.repository == 'keepraw/Keepraw-Fly' && needs.changes.outputs.browser == 'true'
     # Keep the hosted runner's font baseline for exact DPR/layout assertions.
     # Its libraries are checked explicitly; no runtime apt install is needed.
     runs-on: ubuntu-24.04
@@ -155,7 +186,8 @@ jobs:
           retention-days: 7
 
   cross-browser:
-    if: github.repository == 'keepraw/Keepraw-Fly'
+    needs: changes
+    if: github.repository == 'keepraw/Keepraw-Fly' && needs.changes.outputs.browser == 'true'
     runs-on: ubuntu-latest
     # Official runtime includes the matching browsers, fonts and system libraries.
     # Digest pinning avoids mutable tags and per-runner apt/download stalls.
@@ -217,7 +249,8 @@ jobs:
           retention-days: 7
 
   csp:
-    if: github.repository == 'keepraw/Keepraw-Fly'
+    needs: changes
+    if: github.repository == 'keepraw/Keepraw-Fly' && needs.changes.outputs.browser == 'true'
     runs-on: ubuntu-latest
     # Official runtime includes the matching browsers, fonts and system libraries.
     # Digest pinning avoids mutable tags and per-runner apt/download stalls.
@@ -269,23 +302,35 @@ jobs:
 
   # Preserve the existing required-check name as a gate over every validation job.
   # always() makes failed/cancelled/skipped dependencies fail this gate explicitly.
+  # The browser jobs may be skipped only when `changes` reported a Markdown-only
+  # pull request.
   verify:
-    needs: [checks, chromium, cross-browser, csp, airport-history]
+    needs: [changes, checks, chromium, cross-browser, csp, airport-history]
     if: ${{ always() && github.repository == 'keepraw/Keepraw-Fly' }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
       - name: Require all validation jobs to succeed
         env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          BROWSER_JOBS: ${{ needs.changes.outputs.browser }}
           CHECKS_RESULT: ${{ needs.checks.result }}
           CHROMIUM_RESULT: ${{ needs.chromium.result }}
           CROSS_BROWSER_RESULT: ${{ needs.cross-browser.result }}
           CSP_RESULT: ${{ needs.csp.result }}
           AIRPORT_HISTORY_RESULT: ${{ needs.airport-history.result }}
         run: |
-          for result in "$CHECKS_RESULT" "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT" "$AIRPORT_HISTORY_RESULT"; do
+          for result in "$CHANGES_RESULT" "$CHECKS_RESULT" "$AIRPORT_HISTORY_RESULT"; do
             if [ "$result" != success ]; then
               echo "Validation did not succeed: $result"
+              exit 1
+            fi
+          done
+          expected=success
+          if [ "$BROWSER_JOBS" = false ]; then expected=skipped; fi
+          for result in "$CHROMIUM_RESULT" "$CROSS_BROWSER_RESULT" "$CSP_RESULT"; do
+            if [ "$result" != "$expected" ]; then
+              echo "Browser validation was $result, expected $expected"
               exit 1
             fi
           done
@@ -293,8 +338,9 @@ jobs:
   deploy:
     # Publish only the validated main commit from this CI run. Pull requests,
     # failed, cancelled, or skipped validation jobs must never deploy.
-    if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}
-    needs: [verify, checks, chromium, cross-browser, csp, airport-history]
+    if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' && needs.changes.outputs.browser == 'true' }}
+    needs:
+      [changes, verify, checks, chromium, cross-browser, csp, airport-history]
     runs-on: ubuntu-latest
 
     permissions:
