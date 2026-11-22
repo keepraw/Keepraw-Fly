@@ -1,12 +1,14 @@
 # Neon Aviation design system / 霓虹航空视觉系统
 
-This is a development-only visual study. It uses fictional flight counts and
-passport statistics with public airport coordinates. It does not change the
-production Passport, Flight Detail maps, Globe, archive, or official passport
-export.
+This began as a development-only visual study with fictional flight counts and
+passport statistics. Its map themes and shared 2D scene now drive the production
+Passport, Flight Detail maps and Flight Passport export (see the
+[2D map architecture](map-2d-architecture.md)); the 3D Globe has been removed.
+The Neon Lab route itself remains development-only.
 
-这是仅供开发使用的视觉研究。机场坐标为公开信息，航班数量与护照统计均为虚构数据。
-本实验不会改动正式 Passport、航班详情地图、Globe、档案或正式护照导出。
+本页最初是仅供开发使用的视觉研究，航班数量与护照统计均为虚构数据。其地图主题与共享 2D
+场景现已用于正式 Passport、航班详情地图和飞行护照导出（见
+[2D 地图架构指南](map-2d-architecture.md)），3D Globe 已删除。Neon Lab 路由本身仍仅供开发使用。
 
 ## English
 
@@ -37,9 +39,7 @@ and it is registered through
 [`theme-registry.ts`](../apps/web/src/map2d/theme-registry.ts). World and detail
 SVG samples use `buildMapScene`, `segmentsToPath`, and
 `mapThemeCssVariables`; the Canvas sample uses `buildMapScene`, `traceSegments`,
-and tokens resolved explicitly from the registry. The old
-[`neon-aviation-tokens.ts`](../apps/web/src/neon/neon-aviation-tokens.ts) file
-is a deprecated compatibility re-export. See the
+and tokens resolved explicitly from the registry. See the
 [shared 2D architecture](map-2d-architecture.md) for identity and theme rules.
 
 ### Final shared tokens
@@ -196,8 +196,9 @@ contain a zoomable camera. Values below are added only after capture completes.
 The shared scene, geometry, theme registry, and SVG/Canvas path adapters are
 implemented in [`map-2d-architecture.md`](map-2d-architecture.md). They keep
 identity and route ordering independent of the drawing adapter without
-introducing a renderer class hierarchy. The production Passport map, Globe,
-pages, storage, and poster renderer remain outside this change.
+introducing a renderer class hierarchy. Later map redesign changes moved the
+production Passport map, Flight Detail maps and poster renderer onto them and
+removed the Globe.
 
 ## 简体中文
 
@@ -232,8 +233,8 @@ SVG 样例必须限定在 `.neon-aviation` 下，颜色使用 `var(--map-theme-*
 WOFF2 可用时优先使用；CSS/Canvas 字体栈保留 Inter、系统字体和等宽字体回退。
 
 共享的 `MapScene`、几何、主题注册表以及 SVG/Canvas 路径适配器已在
-[2D 地图架构指南](map-2d-architecture.md)中定义。本次保持正式 Passport 地图、Globe、
-页面、存储与海报渲染器不变，不引入渲染器类层级。
+[2D 地图架构指南](map-2d-architecture.md)中定义，不引入渲染器类层级。
+后续地图改版已将正式 Passport 地图、航班详情地图与海报渲染器迁移到这套实现，并删除了 Globe。
 
 ### 验证记录
 

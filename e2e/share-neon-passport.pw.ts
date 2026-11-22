@@ -54,7 +54,6 @@ async function seed(
         distanceUnit: "kilometers",
         timeFormat: "24-hour",
         powerUserMode: false,
-        solarMode: "fixed",
         ...settings,
       });
     },
