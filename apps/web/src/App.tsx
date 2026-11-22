@@ -785,8 +785,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          appearance={settings.appearance}
-          solarMode={settings.solarMode}
+          mapTheme={settings.mapTheme}
         />
       ) : page === "passport" ? (
         <PassportPage
@@ -796,8 +795,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          appearance={settings.appearance}
-          solarMode={settings.solarMode}
+          mapTheme={settings.mapTheme}
           onOpenFlight={openFlight}
           onOpenShare={() => setShareOpen(true)}
           onAddFlight={() => {

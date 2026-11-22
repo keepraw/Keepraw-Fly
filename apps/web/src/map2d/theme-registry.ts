@@ -1,8 +1,10 @@
 import type { MapTheme } from "./theme";
+import { DAYLIGHT_CHART_THEME } from "./themes/daylight-chart";
 import { NEON_AVIATION_THEME } from "./themes/neon-aviation";
 
 export const MAP_THEMES = {
   "neon-aviation": NEON_AVIATION_THEME,
+  "daylight-chart": DAYLIGHT_CHART_THEME,
 } as const;
 
 export type MapThemeId = keyof typeof MAP_THEMES;

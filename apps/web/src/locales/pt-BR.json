@@ -239,6 +239,7 @@
     },
     "actual": "Real",
     "plannedArrival": "Chegada prevista: {{airport}}",
+    "routeMapLabel": "Mapa da rota deste voo de {{origin}} a {{destination}}",
     "airportHistory": {
       "historicalSite": "Aeroporto histórico desta data",
       "unknown": "Aeroporto não identificado; o código é mantido como registrado",
@@ -674,10 +675,8 @@
     "backupDescription": "Crie um backup JSON local do seu arquivo de voo.",
     "restoreDescription": "Adicione voos de um backup Keepraw Fly.",
     "csvDescription": "Traga o histórico de voo de uma planilha.",
-    "solarMode": "Iluminação solar",
-    "solarFixed": "Sol Fixo",
-    "solarRealtime": "Sol em tempo real",
-    "solarModeHint": "O Sol fixo mantém a iluminação constante. O modo em tempo real acompanha o dia e a noite conforme a hora UTC atual."
+    "mapTheme": "Tema do mapa",
+    "mapThemeHint": "Aplica-se ao mapa do passaporte e ao mapa de rota do voo."
   },
   "recovery": {
     "readFailedTitle": "Não foi possível ler seu arquivo de voos local",

@@ -38,8 +38,8 @@ test("mobile Settings edits memberships and preserves all preferences after relo
     .getByRole("combobox", { name: "Time format", exact: true })
     .selectOption("12-hour");
   await page
-    .getByLabel("Solar illumination", { exact: true })
-    .selectOption("realtime");
+    .getByLabel("Map theme", { exact: true })
+    .selectOption("daylight-chart");
   await page.getByRole("switch", { name: /Power User Mode/ }).check();
 
   const add = page.getByRole("button", {
@@ -105,7 +105,7 @@ test("mobile Settings edits memberships and preserves all preferences after relo
         appearance: "dark",
         distanceUnit: "kilometers",
         timeFormat: "12-hour",
-        solarMode: "realtime",
+        mapTheme: "daylight-chart",
         powerUserMode: true,
       },
       profile: {
@@ -135,9 +135,9 @@ test("mobile Settings edits memberships and preserves all preferences after relo
   await expect(
     page.getByRole("combobox", { name: "Time format", exact: true }),
   ).toHaveValue("12-hour");
-  await expect(
-    page.getByLabel("Solar illumination", { exact: true }),
-  ).toHaveValue("realtime");
+  await expect(page.getByLabel("Map theme", { exact: true })).toHaveValue(
+    "daylight-chart",
+  );
   await expect(
     page.getByRole("switch", { name: /Power User Mode/ }),
   ).toBeChecked();

@@ -1,11 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
@@ -35,8 +28,8 @@ import {
 import { FlightRow } from "../components/FlightRow";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
-import type { Appearance } from "../storage/types";
-import type { SolarMode } from "../globe/globe-solar";
+import { PassportMap } from "../components/PassportMap";
+import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 import {
   matchesSelection,
   passportVisibleFlights,
@@ -45,19 +38,12 @@ import {
   type PassportViewState,
 } from "../data/passport-exploration";
 
-const PassportGlobe = lazy(() =>
-  import("../globe/PassportGlobe").then((module) => ({
-    default: module.PassportGlobe,
-  })),
-);
-
 interface PassportPageProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
-  appearance: Appearance;
-  solarMode: SolarMode;
+  mapTheme: MapThemeId;
   onAddFlight: () => void;
   onOpenImport: () => void;
   /** Opens the Flight Passport share overlay; optional so embedded uses can omit it. */
@@ -72,8 +58,7 @@ export function PassportPage({
   locale,
   distanceUnit,
   timeFormat,
-  appearance,
-  solarMode,
+  mapTheme,
   onAddFlight,
   onOpenImport,
   onOpenShare,
@@ -396,62 +381,48 @@ export function PassportPage({
                 )}
               </span>
             </p>
-            {isDesktop ? (
-              <Suspense
-                fallback={
-                  <section
-                    className="route-map route-map-loading"
-                    aria-busy="true"
-                  >
-                    <span>{t("app.loading")}</span>
-                  </section>
+            <PassportMap
+              routes={routes}
+              flights={mapFlights}
+              theme={resolveMapTheme(mapTheme)}
+              selection={
+                selection?.kind === "route" || selection?.kind === "airport"
+                  ? selection
+                  : null
+              }
+              highlightedRoute={highlightedRoute}
+              onClear={() => setSelection(null)}
+              onSelect={(target) => {
+                // The map uses the same scoped exploration as Archive/Highlights.
+                const matching = mapFlights.find((flight) =>
+                  matchesSelection(flight, target),
+                );
+                if (matching) {
+                  onViewChange({
+                    ...view,
+                    selection: target,
+                    flightId: matching.id,
+                    scrollFlightId: matching.id,
+                  });
+                  window.requestAnimationFrame(() => {
+                    const row = [
+                      ...window.document.querySelectorAll<HTMLElement>(
+                        ".flight-record",
+                      ),
+                    ].find((item) => item.dataset.flightId === matching.id);
+                    row?.scrollIntoView({
+                      block: "nearest",
+                      inline: "nearest",
+                    });
+                    row
+                      ?.querySelector<HTMLButtonElement>(".flight-row")
+                      ?.focus({ preventScroll: true });
+                  });
+                } else {
+                  setSelection(target);
                 }
-              >
-                <PassportGlobe
-                  routes={routes}
-                  flights={mapFlights}
-                  appearance={appearance}
-                  solarMode={solarMode}
-                  selection={
-                    selection?.kind === "route" || selection?.kind === "airport"
-                      ? selection
-                      : null
-                  }
-                  highlightedRoute={highlightedRoute}
-                  onClear={() => setSelection(null)}
-                  onSelect={(target) => {
-                    // Globe uses the same scoped exploration as Archive/Highlights.
-                    const matching = mapFlights.find((flight) =>
-                      matchesSelection(flight, target),
-                    );
-                    if (matching) {
-                      onViewChange({
-                        ...view,
-                        selection: target,
-                        flightId: matching.id,
-                        scrollFlightId: matching.id,
-                      });
-                      window.requestAnimationFrame(() => {
-                        const row = [
-                          ...window.document.querySelectorAll<HTMLElement>(
-                            ".flight-record",
-                          ),
-                        ].find((item) => item.dataset.flightId === matching.id);
-                        row?.scrollIntoView({
-                          block: "nearest",
-                          inline: "nearest",
-                        });
-                        row
-                          ?.querySelector<HTMLButtonElement>(".flight-row")
-                          ?.focus({ preventScroll: true });
-                      });
-                    } else {
-                      setSelection(target);
-                    }
-                  }}
-                />
-              </Suspense>
-            ) : null}
+              }}
+            />
 
             {isDesktop ? (
               <section

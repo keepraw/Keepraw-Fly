@@ -1,5 +1,5 @@
 import { openSettingsCategory } from "./settings";
-import { expectDetailGlobe } from "./detail-globe";
+import { expectDetailMap } from "./detail-map";
 import { expectDetailHero } from "./detail-hero";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
@@ -234,8 +234,9 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
   if (mobile) {
     await expect(layout).toHaveCSS("flex-direction", "column");
     await expect(page.locator(".passport-mobile-summary")).toBeVisible();
+    await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
     await expect(
-      page.locator(".route-map, .route-map-loading, .passport-highlights"),
+      page.locator(".route-map-loading, .passport-highlights"),
     ).toHaveCount(0);
   } else {
     await expectColumns(layout, 2);
@@ -260,13 +261,7 @@ export async function expectDetailLayout(page: Page) {
     "display",
     mobile ? "block" : "none",
   );
-  if (mobile) {
-    await expect(
-      page.locator(".detail-route-map, .detail-route-map-loading"),
-    ).toHaveCount(0);
-  } else {
-    await expectDetailGlobe(page);
-  }
+  await expectDetailMap(page);
   await expect(page.locator(".detail-stop--departure")).toContainText("SFO");
   await expect(page.locator(".detail-stop--arrival")).toContainText("LAX");
 }

@@ -120,15 +120,15 @@ test("shows all twelve offline routes with visible frequency encoding in both th
         };
         const map = document.querySelector(".route-map-canvas")!;
         const bounds = map.getBoundingClientRect();
+        // The map paints its own theme, independent of the page appearance.
         const backgrounds = [
+          "background-top",
+          "background-bottom",
           "ocean",
           "land",
-          "visited-low",
-          "visited-medium",
-          "visited-high",
         ].map((key) =>
           luminance(
-            getComputedStyle(map).getPropertyValue(`--color-map-${key}`),
+            getComputedStyle(map).getPropertyValue(`--map-theme-${key}`),
           ),
         );
         return elements.map((element) => {

@@ -190,7 +190,8 @@ for (const [locale, origin, destination] of [
         ),
       ).toBe(true);
       if (sample.width <= 760) {
-        await expect(page.locator(".route-map, .globe-webgl")).toHaveCount(0);
+        await expect(page.locator(".route-map")).toHaveCount(1);
+        await expect(page.locator(".globe-webgl, canvas")).toHaveCount(0);
         await expect(
           page.locator(
             ".passport-mobile-summary, .passport-delay-panel, .passport-network-panel",

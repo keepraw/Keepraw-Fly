@@ -63,8 +63,7 @@ async function render(
         locale={locale}
         distanceUnit={distanceUnit}
         timeFormat="24-hour"
-        appearance="dark"
-        solarMode="fixed"
+        mapTheme="neon-aviation"
         view={view}
         onViewChange={() => {}}
         onAddFlight={() => {}}

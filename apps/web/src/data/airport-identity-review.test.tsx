@@ -154,8 +154,7 @@ function detail(record: KeeprawFlight) {
         locale="en-US"
         distanceUnit="kilometers"
         timeFormat="24-hour"
-        appearance="light"
-        solarMode="fixed"
+        mapTheme="neon-aviation"
       />
     </I18nextProvider>,
   );

@@ -1,6 +1,5 @@
 import { chromium, expect, test } from "@playwright/test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { globeMode } from "./helpers/globe-capability";
 import {
   passportTypographyBounds,
   passportViewportDiagnostics,
@@ -48,7 +47,6 @@ for (const zoom of [1, 1.25]) {
           .first()
           .selectOption(locale);
         await page.goto("http://127.0.0.1:5173/#passport");
-        const mode = await globeMode(page);
         for (const [width, height] of [
           [1440, 900],
           [761, 900],
@@ -63,17 +61,9 @@ for (const zoom of [1, 1.25]) {
             diagnostics.innerWidth + 1,
           );
           if (diagnostics.desktop) {
-            // A return from Mobile mounts a fresh lazy Globe. Measure the ready
-            // scene and settled text, retaining all original clipping assertions.
-            if (mode === "webgl")
-              await expect(page.locator(".globe-host")).toHaveAttribute(
-                "data-ready",
-                "true",
-              );
-            else
-              await expect(
-                page.locator(".globe-fallback svg[role=group]"),
-              ).toBeVisible();
+            // Measure the mounted 2D map and settled text, retaining all
+            // original clipping assertions.
+            await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
             await page.evaluate(async () => {
               await document.fonts.ready;
               await Promise.all(
