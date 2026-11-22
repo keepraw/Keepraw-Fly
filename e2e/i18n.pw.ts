@@ -71,7 +71,6 @@ async function seed(page: Page, language: string) {
         distanceUnit: "kilometers",
         timeFormat: "12-hour",
         powerUserMode: true,
-        solarMode: "realtime",
         lastBackupAt: "2026-10-10T00:00:00Z",
         futurePreference: "preserved",
       });

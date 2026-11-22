@@ -34,8 +34,11 @@ parameters and approval statements apply only to their recorded revisions.
   counts and runner-upgrade recommendations are superseded; current follow-up is
   in [security](../security.md#known-dependency-advisory).
 
-The 3D Globe, its fixtures and its capture tools were removed in map redesign
-PR 5; these documents are kept as history only.
+The 3D Globe, its fixtures and its own capture tools were removed in map redesign
+PR 5; these documents are kept as history only. Two helpers remain on purpose:
+`scripts/capture-task-2c.mjs` still verifies rendered fonts and checks the Dark
+Control hash, and `scripts/capture-theme-history.mjs` only runs against the
+recorded Task A checkout, where the Globe selectors it knows still exist.
 
 ## Retention
 

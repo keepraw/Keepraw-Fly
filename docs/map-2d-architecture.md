@@ -21,7 +21,6 @@ not migrated by this change.
 | [`map2d/geometry.ts`](../apps/web/src/map2d/geometry.ts)                                                                  | Existing geographic projection helpers composed into route segments, frames, and seam detection. |
 | [`map2d/scene.ts`](../apps/web/src/map2d/scene.ts)                                                                        | Identity-keyed route and airport aggregation, ranking, tiers, hubs, and bounds.                  |
 | [`map2d/svg-path.ts`](../apps/web/src/map2d/svg-path.ts) / [`map2d/canvas-path.ts`](../apps/web/src/map2d/canvas-path.ts) | Separate SVG path serialization and Canvas path tracing adapters.                                |
-| [`map2d/index.ts`](../apps/web/src/map2d/index.ts)                                                                        | Public barrel for the shared 2D APIs.                                                            |
 
 ### Data flow and identity
 
@@ -93,8 +92,6 @@ dependencies. Kept on purpose:
 
 - `share-png.ts`: the Canvas 2D export (`poster-export.ts`) validates its PNG
   output with it.
-- The stored `solarMode` field and its `SolarMode` type, now declared in
-  `storage/types.ts`, so saved settings round-trip unchanged. Nothing reads it.
 - The picker and status strings formerly under the `globe.*` locale namespace,
   now `routeMap.*`.
 
@@ -141,8 +138,7 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 和机场点均不使用滤镜。
 
 3D 代码已在 PR 5 删除：整个 `globe/` 目录、WebGL 分享渲染器及其测试、脚本、测试数据和
-`three` 依赖。有意保留：`share-png.ts`（Canvas 2D 导出用它校验 PNG）、为兼容旧设置而保留的
-`solarMode` 字段，以及从 `globe.*` 改名为 `routeMap.*` 的选择器与状态文案。
+`three` 依赖。有意保留：`share-png.ts`（Canvas 2D 导出用它校验 PNG），以及从 `globe.*` 改名为 `routeMap.*` 的选择器与状态文案。
 
 ## Flight Passport templates (PR 4)
 
