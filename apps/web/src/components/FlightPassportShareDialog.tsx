@@ -13,8 +13,10 @@ import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
 import type { DistanceUnit, SupportedLocale } from "@keepraw-fly/core";
 import { buildPosterModel } from "../share/poster-data";
 import { buildPosterCopy } from "../share/poster-copy";
-import { createPosterLayout } from "../share/poster-layout";
-import { exportPosterPng } from "../share/poster-export";
+import { exportPosterPng, posterPixelSize } from "../share/poster-export";
+import { resolvePosterTemplate } from "../share/poster-template";
+import type { PosterTemplateId } from "../share/poster-template-ids";
+import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 import {
   PASSPORT_PROFILE_KEY,
   loadPassportProfile,
@@ -25,6 +27,8 @@ interface FlightPassportShareDialogProps {
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
+  mapTheme: MapThemeId;
+  passportTemplate: PosterTemplateId;
   onClose: () => void;
 }
 
@@ -59,6 +63,8 @@ export function FlightPassportShareDialog({
   document: archive,
   locale,
   distanceUnit,
+  mapTheme,
+  passportTemplate,
   onClose,
 }: FlightPassportShareDialogProps) {
   const { t } = useTranslation();
@@ -93,7 +99,11 @@ export function FlightPassportShareDialog({
       ),
     [model, t, locale, distanceUnit, identity.profile, archive.profile.name],
   );
-  const layout = useMemo(() => createPosterLayout(), []);
+  // Layout template and map theme are independent preferences.
+  const template = resolvePosterTemplate(passportTemplate);
+  const theme = resolveMapTheme(mapTheme);
+  const layout = useMemo(() => template.createLayout(), [template]);
+  const pixels = posterPixelSize({ template, layout });
   // CSSOM custom properties keep the viewer tied to the Canvas artboard under
   // production CSP, including native-size zoom. No duplicated aspect ratio.
   const attachStage = useCallback(
@@ -102,13 +112,13 @@ export function FlightPassportShareDialog({
       if (!stage) return;
       const dimensions = {
         "--share-image-ratio": layout.width / layout.height,
-        "--share-image-native-width": `${layout.width}px`,
-        "--share-image-native-height": `${layout.height}px`,
+        "--share-image-native-width": `${pixels.width}px`,
+        "--share-image-native-height": `${pixels.height}px`,
       } as CSSProperties;
       for (const [property, value] of Object.entries(dimensions))
         stage.style.setProperty(property, String(value));
     },
-    [layout],
+    [layout, pixels.width, pixels.height],
   );
   const empty = model.statistics.flights === 0;
   const [attempt, setAttempt] = useState(0);
@@ -123,7 +133,13 @@ export function FlightPassportShareDialog({
       const fonts = await preparePosterFonts(copy.locale, {
         copy,
       });
-      const result = await exportPosterPng({ layout, copy, fonts });
+      const result = await exportPosterPng({
+        template,
+        layout,
+        copy,
+        fonts,
+        theme,
+      });
       if (!active) return;
       url = URL.createObjectURL(result.blob);
       setState({
@@ -145,7 +161,7 @@ export function FlightPassportShareDialog({
       active = false;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [empty, attempt, copy, layout, locale]);
+  }, [empty, attempt, copy, layout, locale, template, theme]);
 
   useEffect(() => {
     const returnFocus =
@@ -228,7 +244,7 @@ export function FlightPassportShareDialog({
     return () => window.removeEventListener("storage", sync);
   }, []);
 
-  const sizeLabel = `${layout.width} × ${layout.height}`;
+  const sizeLabel = `${pixels.width} × ${pixels.height}`;
 
   return createPortal(
     <div
@@ -246,7 +262,9 @@ export function FlightPassportShareDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        data-layout="top-bottom"
+        data-layout={template.id === "book" ? "top-bottom" : template.id}
+        data-template={template.id}
+        data-map-theme={template.followsMapTheme ? theme.id : undefined}
         tabIndex={-1}
         data-zoom={zoom}
         data-status={empty ? "empty" : state.status}

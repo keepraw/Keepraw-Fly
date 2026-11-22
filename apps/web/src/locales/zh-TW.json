@@ -615,7 +615,13 @@
     "restoreDescription": "從 Keepraw Fly 備份中新增航班紀錄。",
     "csvDescription": "從試算表匯入飛行歷史。",
     "mapTheme": "地圖主題",
-    "mapThemeHint": "套用於護照地圖和航班航線地圖。"
+    "mapThemeHint": "套用於護照地圖和航班航線地圖。",
+    "passportLayout": "飛行護照版式",
+    "passportLayoutHint": "分享的飛行護照圖片所用的版式。Neon 版式會跟隨地圖主題。",
+    "passportLayoutOption": {
+      "neon": "Neon 單頁",
+      "book": "經典護照本"
+    }
   },
   "recovery": {
     "readFailedTitle": "無法讀取本機飛行檔案",

@@ -647,7 +647,13 @@
     "restoreDescription": "Add flights from a Keepraw Fly backup.",
     "csvDescription": "Bring in flight history from a spreadsheet.",
     "mapTheme": "Map theme",
-    "mapThemeHint": "Applies to the Passport map and the flight route map."
+    "mapThemeHint": "Applies to the Passport map and the flight route map.",
+    "passportLayout": "Flight Passport layout",
+    "passportLayoutHint": "Layout of the shared Flight Passport image. Neon follows the map theme.",
+    "passportLayoutOption": {
+      "neon": "Neon sheet",
+      "book": "Classic passport book"
+    }
   },
   "recovery": {
     "readFailedTitle": "Your local archive could not be read",

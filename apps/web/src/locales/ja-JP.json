@@ -615,7 +615,13 @@
     "restoreDescription": "Keepraw Fly バックアップからフライトを追加します。",
     "csvDescription": "スプレッドシートからフライト履歴を取り込みます。",
     "mapTheme": "地図テーマ",
-    "mapThemeHint": "パスポートの地図とフライトの経路図に適用されます。"
+    "mapThemeHint": "パスポートの地図とフライトの経路図に適用されます。",
+    "passportLayout": "フライトパスポートのレイアウト",
+    "passportLayoutHint": "共有するフライトパスポート画像のレイアウト。Neon は地図テーマに従います。",
+    "passportLayoutOption": {
+      "neon": "Neon シート",
+      "book": "クラシックな旅券冊子"
+    }
   },
   "recovery": {
     "readFailedTitle": "ローカルの飛行記録を読み取れませんでした",
