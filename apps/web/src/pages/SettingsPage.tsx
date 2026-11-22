@@ -749,7 +749,9 @@ export function SettingsPage({
                       >
                         {t("settings.exportSensitiveWarning")}
                       </small>
-                      <strong className="settings-backup-status">
+                      <strong
+                        className={`settings-backup-status${lastBackup ? "" : " is-missing"}`}
+                      >
                         {lastBackup
                           ? t("settings.lastBackup", { date: lastBackup })
                           : t("settings.noBackupYet")}
@@ -828,10 +830,7 @@ export function SettingsPage({
                       {isDemo ? (
                         <p role="note">{t("demo.importReplacement")}</p>
                       ) : (
-                        <>
-                          <p>{t("settings.csvDescription")}</p>
-                          <small>{t("settings.csvImportDescription")}</small>
-                        </>
+                        <p>{t("settings.csvDescription")}</p>
                       )}
                     </div>
                     <CsvImportControl
@@ -850,13 +849,9 @@ export function SettingsPage({
                       >
                         {t("settings.flightyImportTitle")}
                       </h3>
-                      <small>
-                        {t(
-                          isDemo
-                            ? "demo.importReplacement"
-                            : "settings.flightyImportDescription",
-                        )}
-                      </small>
+                      {isDemo ? (
+                        <small>{t("demo.importReplacement")}</small>
+                      ) : null}
                     </div>
                     <FlightyImportControl
                       document={importBase}
@@ -916,29 +911,28 @@ export function SettingsPage({
                         </small>
                       ) : null}
                     </div>
-                    <div className="settings-operation-actions settings-protection-actions">
-                      <button
-                        className="settings-action"
-                        type="button"
-                        disabled={
-                          protectingLocalData ||
-                          persistentState === "granted" ||
-                          persistentState === "checking" ||
-                          persistentState === "unsupported"
-                        }
-                        onClick={() => void protectLocalData()}
-                      >
-                        {t(
-                          persistentState === "granted"
-                            ? "settings.storageProtection.granted"
-                            : persistentState === "checking"
+                    {persistentState === "granted" ? null : (
+                      <div className="settings-operation-actions settings-protection-actions">
+                        <button
+                          className="settings-action"
+                          type="button"
+                          disabled={
+                            protectingLocalData ||
+                            persistentState === "checking" ||
+                            persistentState === "unsupported"
+                          }
+                          onClick={() => void protectLocalData()}
+                        >
+                          {t(
+                            persistentState === "checking"
                               ? "settings.storageProtection.checking"
                               : protectingLocalData
                                 ? "settings.requestingStorageProtection"
                                 : "settings.enableStorageProtection",
-                        )}
-                      </button>
-                    </div>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </section>
                 </div>
               </section>
