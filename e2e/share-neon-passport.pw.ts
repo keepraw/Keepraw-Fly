@@ -585,6 +585,8 @@ test("an archive with only cancelled flights explains instead of drawing", async
 test("a failed export can be retried, and webfont failure still exports", async ({
   page,
 }) => {
+  // Two renders, each allowed 30 s below, cannot fit the default 30 s budget.
+  test.setTimeout(90_000);
   await page.addInitScript(() => {
     const toBlob = HTMLCanvasElement.prototype.toBlob;
     (window as unknown as { failPng: boolean }).failPng = true;
