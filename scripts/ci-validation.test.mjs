@@ -148,17 +148,13 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     .map((line) => line.slice(10))
     .join("\n");
   const keys = [
-    "CHANGES_RESULT",
     "CHECKS_RESULT",
     "CHROMIUM_RESULT",
     "CROSS_BROWSER_RESULT",
     "CSP_RESULT",
     "AIRPORT_HISTORY_RESULT",
   ];
-  const success = {
-    ...Object.fromEntries(keys.map((key) => [key, "success"])),
-    BROWSER_JOBS: "true",
-  };
+  const success = Object.fromEntries(keys.map((key) => [key, "success"]));
   const run = (env) =>
     spawnSync("bash", ["-e", "-c", script], { env, encoding: "utf8" });
   assert.equal(run(success).status, 0);
@@ -169,32 +165,9 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
         1,
         `${key}: ${result}`,
       );
-  // A Markdown-only pull request must skip every browser job, and nothing else.
-  const browserKeys = ["CHROMIUM_RESULT", "CROSS_BROWSER_RESULT", "CSP_RESULT"];
-  const markdownOnly = {
-    ...success,
-    BROWSER_JOBS: "false",
-    ...Object.fromEntries(browserKeys.map((key) => [key, "skipped"])),
-  };
-  assert.equal(run(markdownOnly).status, 0);
-  for (const key of keys)
-    for (const result of browserKeys.includes(key)
-      ? ["success", "failure", "cancelled", ""]
-      : ["failure", "cancelled", "skipped", ""])
-      assert.equal(
-        run({ ...markdownOnly, [key]: result }).status,
-        1,
-        `markdown-only ${key}: ${result}`,
-      );
-  for (const browserJobs of ["", "skipped"])
-    assert.equal(
-      run({ ...markdownOnly, BROWSER_JOBS: browserJobs }).status,
-      1,
-      `BROWSER_JOBS: ${browserJobs}`,
-    );
   assert.match(
     gate,
-    /needs: \[changes, checks, chromium, cross-browser, csp, airport-history\]/,
+    /needs: \[checks, chromium, cross-browser, csp, airport-history\]/,
   );
   assert.ok(
     gate.includes(
@@ -204,12 +177,13 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
   const deploy = workflow.split("  deploy:\n")[1];
   assert.ok(
     deploy.includes(
-      "if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' && needs.changes.outputs.browser == 'true' }}",
+      "if: ${{ github.repository == 'keepraw/Keepraw-Fly' && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.verify.result == 'success' }}",
     ),
   );
-  assert.match(
-    deploy,
-    /needs:\s+\[changes, verify, checks, chromium, cross-browser, csp, airport-history\]/,
+  assert.ok(
+    deploy.includes(
+      "needs: [verify, checks, chromium, cross-browser, csp, airport-history]",
+    ),
   );
   assert.match(deploy, /uses: actions\/deploy-pages@[0-9a-f]{40} # v5\./);
   assert.match(
@@ -217,20 +191,17 @@ test("verify gate rejects failure, cancellation, skipping and missing results fo
     /uses: actions\/upload-pages-artifact@[0-9a-f]{40} # v\d+(\.\d+){0,2}/,
   );
   assert.ok(workflow.includes("path: apps/web/dist"));
-  assert.ok(workflow.includes("  push:\n    branches: [main]"));
+  assert.ok(
+    workflow.includes(
+      "  push:\n    branches: [main, refactor/persist-airport-identities]",
+    ),
+  );
   assert.ok(workflow.includes("group: ci-${{ github.ref }}"));
   assert.equal(existsSync(".github/workflows/pages.yml"), false);
-  for (const job of ["changes", "checks"]) {
+  for (const job of ["checks", "chromium", "cross-browser", "csp"]) {
     assert.ok(
       workflow.includes(
-        `  ${job}:\n    if: github.repository == 'keepraw/Keepraw-Fly'\n`,
-      ),
-    );
-  }
-  for (const job of ["chromium", "cross-browser", "csp"]) {
-    assert.ok(
-      workflow.includes(
-        `  ${job}:\n    needs: changes\n    if: github.repository == 'keepraw/Keepraw-Fly' && needs.changes.outputs.browser == 'true'\n`,
+        `  ${job}:\n    if: github.repository == 'keepraw/Keepraw-Fly'`,
       ),
     );
   }
