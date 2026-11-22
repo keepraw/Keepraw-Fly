@@ -676,7 +676,13 @@
     "restoreDescription": "Ajoutez des vols à partir d'une sauvegarde Keepraw Fly.",
     "csvDescription": "Importez l'historique des vols à partir d'une feuille de calcul.",
     "mapTheme": "Thème de carte",
-    "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol."
+    "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol.",
+    "passportLayout": "Mise en page du passeport de vol",
+    "passportLayoutHint": "Mise en page de l’image du passeport de vol partagée. Neon suit le thème de la carte.",
+    "passportLayoutOption": {
+      "neon": "Feuillet Neon",
+      "book": "Livret de passeport classique"
+    }
   },
   "recovery": {
     "readFailedTitle": "Impossible de lire votre carnet de vol local",

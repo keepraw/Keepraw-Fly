@@ -647,7 +647,13 @@
     "restoreDescription": "Flüge aus einem Keepraw Fly-Backup hinzufügen.",
     "csvDescription": "Holen Sie sich den Flugverlauf aus einer Tabelle.",
     "mapTheme": "Kartenthema",
-    "mapThemeHint": "Gilt für die Passport-Karte und die Flugroutenkarte."
+    "mapThemeHint": "Gilt für die Passport-Karte und die Flugroutenkarte.",
+    "passportLayout": "Layout des Flugpasses",
+    "passportLayoutHint": "Layout des geteilten Flugpass-Bildes. Neon folgt dem Kartenstil.",
+    "passportLayoutOption": {
+      "neon": "Neon-Blatt",
+      "book": "Klassisches Passbuch"
+    }
   },
   "recovery": {
     "readFailedTitle": "Ihr lokaler Flugpass konnte nicht gelesen werden",

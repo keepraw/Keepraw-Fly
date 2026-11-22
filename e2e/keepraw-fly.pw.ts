@@ -369,7 +369,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
             : null;
       if (controls) {
         const titles = region.getByRole("heading", { level: 3 });
-        await expect(controls).toHaveCount(category === "常规" ? 5 : 3);
+        await expect(controls).toHaveCount(category === "常规" ? 6 : 3);
         for (let index = 0; index < (await controls.count()); index++) {
           const control = controls.nth(index);
           await expect(control).toBeVisible();
@@ -459,7 +459,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         }
       }
     }
-    expect(controlBounds).toHaveLength(8);
+    expect(controlBounds).toHaveLength(9);
     expect(
       Math.max(...controlBounds.map((bounds) => bounds.x)) -
         Math.min(...controlBounds.map((bounds) => bounds.x)),

@@ -5,6 +5,11 @@ import {
   resolveMapTheme,
   type MapThemeId,
 } from "../map2d/theme-registry";
+import {
+  DEFAULT_POSTER_TEMPLATE_ID,
+  isPosterTemplateId,
+  type PosterTemplateId,
+} from "../share/poster-template-ids";
 
 import {
   browserLanguage,
@@ -23,6 +28,8 @@ export interface ViewerSettings {
   solarMode: SolarMode;
   /** Registered 2D map theme; unknown stored values fall back to the default. */
   mapTheme: MapThemeId;
+  /** Flight Passport layout; unknown stored values fall back to the default. */
+  passportTemplate: PosterTemplateId;
   lastBackupAt?: string;
 }
 
@@ -36,16 +43,21 @@ export function defaultViewerSettings(): ViewerSettings {
     powerUserMode: false,
     solarMode: "fixed",
     mapTheme: DEFAULT_MAP_THEME_ID,
+    passportTemplate: DEFAULT_POSTER_TEMPLATE_ID,
   };
 }
 
 // Preferences share the existing IndexedDB record. Read-time normalization
 // preserves older records and unrelated preferences without rewriting archives.
 export function normalizeViewerSettings(
-  settings: Omit<ViewerSettings, "solarMode" | "language" | "mapTheme"> & {
+  settings: Omit<
+    ViewerSettings,
+    "solarMode" | "language" | "mapTheme" | "passportTemplate"
+  > & {
     language: unknown;
     solarMode?: unknown;
     mapTheme?: unknown;
+    passportTemplate?: unknown;
   },
 ): ViewerSettings {
   return {
@@ -53,5 +65,8 @@ export function normalizeViewerSettings(
     language: normalizeLanguage(settings.language),
     solarMode: settings.solarMode === "realtime" ? "realtime" : "fixed",
     mapTheme: resolveMapTheme(settings.mapTheme).id as MapThemeId,
+    passportTemplate: isPosterTemplateId(settings.passportTemplate)
+      ? settings.passportTemplate
+      : DEFAULT_POSTER_TEMPLATE_ID,
   };
 }
