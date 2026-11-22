@@ -162,12 +162,13 @@ for (const firstOutcome of ["declined", "failed"] as const) {
         { exact: true },
       ),
     ).toBeVisible();
-    const grantedButton = page.getByRole("button", {
-      name: "Persistent storage enabled",
-      exact: true,
-    });
-    await expect(grantedButton).toBeDisabled();
-    await grantedButton.evaluate((button: HTMLButtonElement) => button.click());
+    // The status line already says so; no redundant disabled button.
+    await expect(
+      page.getByRole("button", {
+        name: "Persistent storage enabled",
+        exact: true,
+      }),
+    ).toHaveCount(0);
     expect(
       await page.evaluate(() => window.storageProtectionTest.persistCalls),
     ).toBe(2);
@@ -189,7 +190,7 @@ test("shows existing persistent storage without requesting again", async ({
       name: "Persistent storage enabled",
       exact: true,
     }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   expect(
     await page.evaluate(() => window.storageProtectionTest.persistCalls),
   ).toBe(0);
@@ -277,12 +278,10 @@ for (const event of ["focus", "visibilitychange"] as const) {
       );
       await expect(
         page.getByRole("button", {
-          name: granted
-            ? "Persistent storage enabled"
-            : "Request persistent storage",
+          name: "Request persistent storage",
           exact: true,
         }),
-      ).toBeEnabled({ enabled: !granted });
+      ).toHaveCount(granted ? 0 : 1);
     }
     expect(
       await page.evaluate(() => window.storageProtectionTest.persistCalls),
@@ -348,11 +347,9 @@ for (const locale of [
           document.documentElement.clientWidth,
       ),
     ).toBe(0);
-    expect(
-      await page
-        .getByRole("button", { name: locale.granted, exact: true })
-        .evaluate((element) => element.scrollWidth <= element.clientWidth),
-    ).toBe(true);
+    await expect(
+      page.getByRole("button", { name: locale.granted, exact: true }),
+    ).toHaveCount(0);
   });
 }
 
@@ -407,7 +404,7 @@ test(
           name: "Persistent storage enabled",
           exact: true,
         }),
-      ).toBeDisabled();
+      ).toHaveCount(0);
     } else if (!capabilities.persist || !capabilities.persisted) {
       await expect(status).toHaveText(
         "This browser does not support persistent storage requests",

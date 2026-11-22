@@ -262,7 +262,7 @@ for (const theme of ["light", "dark"] as const) {
     ).toHaveCSS("color", palette.positive);
     await expect(
       page.locator(".settings-protection-actions > button"),
-    ).toBeDisabled();
+    ).toHaveCount(0);
     const downloadPromise = page.waitForEvent("download");
     await page
       .getByRole("button", { name: "Export Keepraw Fly JSON", exact: true })
