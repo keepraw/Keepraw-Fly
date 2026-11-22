@@ -295,6 +295,12 @@
   }
 }
 
+@keyframes map-route-settle {
+  to {
+    stroke-dasharray: none;
+  }
+}
+
 @keyframes map-airport-arrive {
   from {
     opacity: 0;
@@ -311,8 +317,16 @@
   .map-routes .map-route-line {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    animation: map-route-arrive var(--duration-map) var(--ease-out) both;
-    animation-delay: calc(260ms + var(--map-item-index, 0) * 22ms);
+
+    /* With non-scaling strokes Chromium measures the dash pattern in screen
+       space, so a zoomed-in map leaves gaps in a line that keeps
+       dasharray 1. Drop the pattern once the line has been drawn. */
+    animation:
+      map-route-arrive var(--duration-map) var(--ease-out) both,
+      map-route-settle 1ms linear forwards;
+    animation-delay:
+      calc(260ms + var(--map-item-index, 0) * 22ms),
+      calc(260ms + var(--map-item-index, 0) * 22ms + var(--duration-map));
   }
 
   .map-airports .map-airport-point,
