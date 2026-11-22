@@ -332,6 +332,8 @@ test("Neon is the default layout: real totals, 2× PNG, local only @cross-browse
 test("the passport follows the map theme, and the layout is a separate setting", async ({
   page,
 }) => {
+  // Two full-resolution renders plus a reload: ~30 s on a CI runner.
+  test.setTimeout(90_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await seed(page, await loadArchive(), { mapTheme: "daylight-chart" });
   await openShare(page);
