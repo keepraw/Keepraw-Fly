@@ -197,3 +197,21 @@ test("a flight returning to its origin keeps its airport in the picker", async (
   await page.keyboard.press("Enter");
   await expect(picker).toHaveValue("KEF");
 });
+
+test("drawn route lines drop the draw-in dash pattern", async ({ page }) => {
+  // With non-scaling strokes Chromium spaces a retained pathLength dash in
+  // screen pixels, which leaves gaps in (or hides) lines on a zoomed-in map.
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try demo", exact: true }).click();
+  const lines = page.locator(".route-map-canvas .map-route-line");
+  await expect(lines.first()).toBeVisible();
+  await expect
+    .poll(() =>
+      lines.evaluateAll((elements) =>
+        elements.every(
+          (element) => getComputedStyle(element).strokeDasharray === "none",
+        ),
+      ),
+    )
+    .toBe(true);
+});
