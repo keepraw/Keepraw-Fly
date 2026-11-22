@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 
 // Native text wrapping and 12-hour/day-offset sizing need all three engines;
-// broader viewport, theme and Globe interaction matrices remain in their suites.
+// broader viewport, theme and map interaction matrices remain in their suites.
 for (const [locale, origin, destination] of [
   ["en-US", "Addis Ababa", "Johannesburg"],
   ["zh-CN", "亚的斯亚贝巴", "约翰内斯堡"],

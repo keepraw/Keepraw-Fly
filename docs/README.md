@@ -50,7 +50,6 @@ the browser; it does not add server backup or cloud synchronization.
 | Shared 2D map core and theme registry / 共享 2D 地图核心与主题注册表                                    | [Map 2D architecture / 2D 地图架构](map-2d-architecture.md)                                                    |
 | Test layers, fixtures, captures and CI / 测试分层、输入、截图与 CI                                      | [Testing / 测试](testing.md)                                                                                   |
 | CSP, privacy, dependencies and release provenance / 安全、隐私、依赖与发行来源                          | [Security / 安全模型](security.md)                                                                             |
-| Globe rendering and lifecycle / 地球渲染与生命周期                                                      | [Globe / 地球实现](globe.md)                                                                                   |
 | Passport image, TD3 specimen policy and migration / 护照图片、TD3 示例策略与迁移                        | [Flight Passport journal / 飞行护照](flight-passport-journal.md)                                               |
 | Language resources and open translation questions / 语言资源与待审术语                                  | [Locale notes / 本地化说明](i18n-locales.md)                                                                   |
 | Source builds and official publishing (maintainers only) / 源码构建与官方发布（仅维护者）               | [English](deployment.md#developers-and-official-publishing) / [简体中文](deployment.zh-CN.md#开发者与官方发布) |
@@ -75,7 +74,7 @@ specifications in this repository so changes can be reviewed with the code.
   [permission review / 许可审查](license-review-2026-10-10.md) retain distribution
   requirements and unresolved owner decisions. 保留分发要求及待所有者确认的问题。
 - [Historical archive / 历史归档](archive/README.md) preserves selected decisions,
-  approved Globe references and source provenance with explicit status.
+  the removed 3D Globe's references and source provenance with explicit status.
   保留有明确状态的设计决策、批准版参考及来源证明；历史参数和测试数量不能覆盖当前指南。
 
 Routine task reports and obsolete captures remain available through Git history.

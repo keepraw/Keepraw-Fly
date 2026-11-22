@@ -34,9 +34,8 @@ parameters and approval statements apply only to their recorded revisions.
   counts and runner-upgrade recommendations are superseded; current follow-up is
   in [security](../security.md#known-dependency-advisory).
 
-Formal machine-readable Globe inputs remain in
-[tests/fixtures/globe](../../tests/fixtures/globe/README.md). Capture tools live in
-`scripts/` and default to ignored `artifacts/`; see [testing](../testing.md).
+The 3D Globe, its fixtures and its capture tools were removed in map redesign
+PR 5; these documents are kept as history only.
 
 ## Retention
 

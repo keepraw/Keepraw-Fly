@@ -57,7 +57,7 @@ it.each(["ja-JP", "fr-FR", "de-DE", "es", "pt-BR", "ko-KR"])(
       ),
     );
     expect(clone.resolvedLanguage).toBe(language);
-    expect(clone.t("globe.keyboard")).toBe(resource.globe.keyboard);
+    expect(clone.t("routeMap.chooseRoute")).toBe(resource.routeMap.chooseRoute);
     expect(i18n.language).toBe(parentLanguage);
   },
 );

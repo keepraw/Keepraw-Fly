@@ -153,7 +153,6 @@ fall back to IATA when a city is unavailable, and flag arrival delays of at leas
 
 ## Source entry points
 
-- [Retained Globe source](globe.md), reachable only through the DEV-only Globe Lab
 - [Storage contracts](../apps/web/src/storage/adapter.ts) and
   [browser persistence](../apps/web/src/storage/browser.ts)
 - [JSON import preflight](../apps/web/src/data/import-preview.ts) and
@@ -179,14 +178,13 @@ later preference persists the normalized code. Language changes never change
 saved distance units or 12/24-hour preferences. Machine timestamps, CSV fields,
 archive keys and flight calculations remain locale-neutral.
 
-All UI text, including Globe text, belongs in the regular locale resources.
+All UI text belongs in the regular locale resources.
 Resource tests recursively verify logical keys, locale-specific cardinal plurals,
 interpolation, nonempty strings and actual i18next fallback resolution. Literal
 singular wording may omit `count`; other parameters must match. A new full
 translation needs a registry entry and a resource entry; it must pass the same
 tests before appearing in Settings. Do not register unfinished translations.
-The Globe renderer and imagery remain lazy. Globe text is part of each locale's
-complete resource and is available before a language switch commits.
+Each locale's complete resource is available before a language switch commits.
 
 US English is bundled as the startup and error fallback. Other resources are
 Vite URL imports emitted as separate, content-hashed static JSON files. The
