@@ -1,8 +1,13 @@
-import { lazy, StrictMode, Suspense, useEffect, useState } from "react";
+import {
+  lazy,
+  StrictMode,
+  Suspense,
+  useEffect,
+  useState,
+  type ComponentType,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation } from "react-i18next";
-import { App } from "./App";
-import { loadAirportDirectory } from "./data/airport-directory";
 import { browserStorage } from "./storage/browser";
 import { applyAppearance } from "./appearance";
 import "./i18n";
@@ -35,6 +40,20 @@ const NeonLabRoute = import.meta.env.DEV
     )
   : null;
 
+/** Resolves once the application code, reference data and directory are ready. */
+let applicationImportFailed = false;
+
+async function loadApplication(): Promise<ComponentType> {
+  const { App, loadAirportDirectory } = await import("./application").catch(
+    (error: unknown) => {
+      applicationImportFailed = true;
+      throw error;
+    },
+  );
+  await loadAirportDirectory();
+  return App;
+}
+
 const root = document.getElementById("root");
 
 if (!root) {
@@ -55,9 +74,8 @@ function Bootstrap() {
 
 function ApplicationBootstrap() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<"loading" | "ready" | "failed">(
-    "loading",
-  );
+  const [status, setStatus] = useState<"loading" | "failed">("loading");
+  const [Application, setApplication] = useState<ComponentType | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -74,9 +92,9 @@ function ApplicationBootstrap() {
           applyAppearance(settings.appearance);
       })
       .catch(() => {});
-    void loadAirportDirectory()
-      .then(() => {
-        if (active) setStatus("ready");
+    void loadApplication()
+      .then((component) => {
+        if (active) setApplication(() => component);
       })
       .catch(() => {
         if (active) setStatus("failed");
@@ -86,7 +104,7 @@ function ApplicationBootstrap() {
     };
   }, []);
 
-  if (status === "ready") return <App />;
+  if (Application) return <Application />;
 
   return (
     <main
@@ -106,9 +124,15 @@ function ApplicationBootstrap() {
             type="button"
             className="button-primary"
             onClick={() => {
+              // Browsers may cache a failed module load, so importing again
+              // cannot recover it; a failed directory request can be repeated.
+              if (applicationImportFailed) {
+                window.location.reload();
+                return;
+              }
               setStatus("loading");
-              void loadAirportDirectory()
-                .then(() => setStatus("ready"))
+              void loadApplication()
+                .then((component) => setApplication(() => component))
                 .catch(() => setStatus("failed"));
             }}
           >
