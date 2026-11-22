@@ -371,3 +371,17 @@ test("blocked cosmetic cache and storage read failure keep System recovery usabl
   await page.locator(".welcome .button-primary").click();
   await expect(page.getByRole("dialog")).toBeVisible();
 });
+
+test("a failed application module load recovers through Retry", async ({
+  page,
+}) => {
+  let fail = true;
+  await page.route("**/src/application.ts", (route) =>
+    fail ? route.abort() : route.continue(),
+  );
+  await page.goto("/");
+  await expect(page.locator(".bootstrap-screen--failed")).toBeVisible();
+  fail = false;
+  await page.locator(".bootstrap-screen .button-primary").click();
+  await expect(page.locator(".welcome")).toBeVisible();
+});

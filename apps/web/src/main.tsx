@@ -41,8 +41,15 @@ const NeonLabRoute = import.meta.env.DEV
   : null;
 
 /** Resolves once the application code, reference data and directory are ready. */
+let applicationImportFailed = false;
+
 async function loadApplication(): Promise<ComponentType> {
-  const { App, loadAirportDirectory } = await import("./application");
+  const { App, loadAirportDirectory } = await import("./application").catch(
+    (error: unknown) => {
+      applicationImportFailed = true;
+      throw error;
+    },
+  );
   await loadAirportDirectory();
   return App;
 }
@@ -117,6 +124,12 @@ function ApplicationBootstrap() {
             type="button"
             className="button-primary"
             onClick={() => {
+              // Browsers may cache a failed module load, so importing again
+              // cannot recover it; a failed directory request can be repeated.
+              if (applicationImportFailed) {
+                window.location.reload();
+                return;
+              }
               setStatus("loading");
               void loadApplication()
                 .then((component) => setApplication(() => component))
