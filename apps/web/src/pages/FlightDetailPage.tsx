@@ -1,11 +1,4 @@
-import {
-  Children,
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { Children, type ReactNode } from "react";
 import type { Namespace, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -42,17 +35,10 @@ import {
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
 import { PageShell } from "../components/PageShell";
-import type { Appearance } from "../storage/types";
-import type { SolarMode } from "../globe/globe-solar";
-
-const DetailGlobe = lazy(() =>
-  import("../globe/DetailGlobe").then((module) => ({
-    default: module.DetailGlobe,
-  })),
-);
+import { FlightRouteMap } from "../components/FlightRouteMap";
+import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 
 // The Globe is part of the two-column Hero, so narrow details never mount it.
-const DETAIL_DESKTOP_QUERY = "(min-width: 1200px)";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
@@ -60,8 +46,7 @@ interface FlightDetailPageProps {
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
-  appearance: Appearance;
-  solarMode: SolarMode;
+  mapTheme: MapThemeId;
 }
 
 function AirportStop({
@@ -358,24 +343,9 @@ export function FlightDetailPage({
   locale,
   distanceUnit,
   timeFormat,
-  appearance,
-  solarMode,
+  mapTheme,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
-  const [showDesktopMap, setShowDesktopMap] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      Boolean(window.matchMedia?.(DETAIL_DESKTOP_QUERY).matches),
-  );
-  useEffect(() => {
-    const media = window.matchMedia?.(DETAIL_DESKTOP_QUERY);
-    if (!media) return;
-    const update = () => setShowDesktopMap(media.matches);
-    media.addEventListener("change", update);
-    update();
-    return () => media.removeEventListener("change", update);
-  }, []);
-
   // Flight-date physical airports: names, coordinates and zones by history.
   const origin = originIdentity(flight);
   const actualDestination = arrivalIdentity(flight);
@@ -562,25 +532,11 @@ export function FlightDetailPage({
             </div>
           </div>
 
-          {showDesktopMap ? (
-            <Suspense
-              fallback={
-                <section
-                  className="detail-route-map detail-route-map-loading"
-                  aria-busy="true"
-                >
-                  <span>{t("app.loading")}</span>
-                </section>
-              }
-            >
-              <DetailGlobe
-                key={flight.id}
-                flight={flight}
-                appearance={appearance}
-                solarMode={solarMode}
-              />
-            </Suspense>
-          ) : null}
+          <FlightRouteMap
+            key={flight.id}
+            flight={flight}
+            theme={resolveMapTheme(mapTheme)}
+          />
         </div>
 
         {hasExperience || hasTripRecord || frequentFlyer ? (

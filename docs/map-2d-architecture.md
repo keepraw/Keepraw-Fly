@@ -66,26 +66,39 @@ The CSS adapter uses literal `--map-theme-*` keys so CSS tooling can audit them;
 it does not alter the existing production `--color-map-*` contract. Do not add
 a theme-specific default to a shared style helper.
 
-### 3D consumer audit (grep-verified)
+### Production map surfaces (PR 3)
 
-| Surface                         | Verified reachability and relationship to the 2D core                                                                                                                                                                                                          |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Passport page → `PassportGlobe` | `PassportPage.tsx` lazy-loads it only when `(min-width: 761px)` matches; mobile does not mount it. `PassportGlobe` delegates rendering to `GlobeMap`.                                                                                                          |
-| Flight detail → `DetailGlobe`   | `FlightDetailPage.tsx` gates the lazy component on `(min-width: 1200px)`. It is a separate single-flight surface and is not migrated to the 2D core.                                                                                                           |
-| Globe Lab                       | `App.tsx` creates the lazy import only under `import.meta.env.DEV`; `/globe-lab` also checks the path and write permission. This is a development diagnostic.                                                                                                  |
-| Stored `SolarMode`              | `storage/types.ts` imports the type from `globe-solar.ts` and stores it in viewer settings. It configures Globe lighting, not 2D map geometry.                                                                                                                 |
-| Share WebGL renderer            | `share-renderer.ts` defines `createShareRenderer` and requests WebGL2, but a source grep found no production callsite in `apps/web`; `share-verification-sample.ts` imports only the `ShareComposer` type. It is not a reachable production 3D consumer today. |
-| Globe failure fallback          | `GlobeMap.tsx` renders `PassportRouteMap` when a non-detail Globe fails. `variant === "detail"` has no SVG fallback.                                                                                                                                           |
-| Globe documentation             | [`docs/globe.md`](globe.md) records the current production Globe gates, behavior, and lifecycle; it is documentation, not a runtime consumer.                                                                                                                  |
-| Canvas 2D poster                | `poster-render.ts` uses Canvas 2D and `poster-map.ts` route geometry. It is the 2D poster path, not a WebGL renderer.                                                                                                                                          |
+Both production map entry points now render the shared 2D SVG map. No production
+page mounts a WebGL canvas or requests Globe code or imagery.
+
+| Surface       | Implementation                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Passport      | `PassportPage` mounts `PassportMap` at every width (the map is new on mobile). It wraps the themed `PassportRouteMap` and adds the route/airport pickers. Selection, row focus, keyboard activation, pan, zoom and reset are unchanged; frequency tiers and hubs come from `buildMapScene`.                                                                                        |
+| Flight Detail | `FlightDetailPage` mounts `FlightRouteMap` at every width; narrow layouts lead with it at the content width, capped at `min(52svh, 480px)`. `flightRouteScene` models flown, diverted (flown leg plus a dashed planned leg), cancelled and unavailable flights; `flightRouteCamera` fits the sampled great-circle arc, recentred on the route so date-line routes stay one stroke. |
+| Theme setting | `ViewerSettings.mapTheme` is chosen in Settings, stored with the other viewer settings and resolved through `resolveMapTheme`, so a missing or retired ID renders the default theme. `neon-aviation` and `daylight-chart` are registered.                                                                                                                                          |
+
+A themed map sets `data-map-theme` and the `--map-theme-*` variables on its root.
+Legacy Passport paint rules are scoped to `.route-map:not([data-map-theme])`, so
+they style only the unthemed fallback. Glow is layered strokes; routes, glows and
+airport points carry no CSS or SVG filter, and strokes use
+`vector-effect: non-scaling-stroke` so they stay crisp at any zoom and pixel ratio.
+
+### Remaining 3D code (grep-verified after PR 3)
+
+| Code                                       | Status                                                                                                                                                                        | Removed in |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `globe/PassportGlobe`, `globe/DetailGlobe` | No importer in production pages. Kept as source only.                                                                                                                         | PR 5       |
+| `globe/GlobeMap`, renderer, math, textures | Reached only through the DEV-only Globe Lab. `GlobeMap` still falls back to the unthemed `PassportRouteMap`.                                                                  | PR 5       |
+| Globe Lab                                  | `App.tsx` creates the lazy import only under `import.meta.env.DEV`.                                                                                                           | PR 5       |
+| Stored `SolarMode`                         | `storage/types.ts` still imports the type and keeps the stored field for compatibility. Settings no longer shows it and no production surface reads it.                       | PR 5       |
+| Share WebGL renderer (`share-renderer.ts`) | Imports Globe textures, lighting and math and requests WebGL2. No production callsite; `share-plan.ts` imports Globe math and the fixed sun direction. Audited again in PR 4. | PR 4 / 5   |
+| Canvas 2D poster                           | `poster-render.ts` and `poster-map.ts` are already 2D. The formal Flight Passport moves to the Neon layout and the selected map theme in PR 4.                                | PR 4       |
 
 ### Scope
 
-The Neon lab is the current integration of these shared utilities. The
-production Passport map, Globe components, page gates, storage, CSS contracts,
-and poster renderer remain outside this refactor. The poster-map route helper is
-the sole conditional production-adjacent change and is retained only with
-byte-identical parity for the required route matrix.
+PR 3 replaces the two production map entry points and adds the theme setting. It
+deletes no Globe, Three.js or WebGL source, and does not change the formal Flight
+Passport output, flight statistics or the archive format.
 
 ## 简体中文
 
@@ -111,12 +124,19 @@ token 叶节点添加字面量 CSS 属性映射；同时测试 ID 解析、无�
 共享样式函数必须显式接收主题 Token。CSS 变量使用 `--map-theme-*`，不改变正式
 `--color-map-*` 契约。
 
-3D 消费者审计表已根据源码搜索核实：Passport Globe 仅在 761px 及以上挂载；Flight Detail
-Globe 仅在 1200px 及以上挂载；`/globe-lab` 受 Vite DEV 与写入权限门控；`SolarMode` 是持久化
-的 Globe 设置。`GlobeMap` 在非 detail 变体失败时回退到 `PassportRouteMap`。分享 WebGL
-渲染器目前未发现生产调用点；正式海报路径使用 Canvas 2D。`docs/globe.md` 记录当前 Globe
-行为与生命周期。
+PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页面不再挂载 WebGL 画布，也不再
+请求 Globe 代码或贴图。Passport 在所有宽度下挂载 `PassportMap`（移动端为新增地图），保留
+航线/机场选择、行聚焦、键盘操作、平移、缩放和复位。Flight Detail 在所有宽度下挂载
+`FlightRouteMap`（窄屏置于页面顶部，宽度随屏幕自适应，高度不超过约半屏）：`flightRouteScene` 区分已飞、备降（实飞航段加虚线计划航段）、取消和不可用
+四种状态，`flightRouteCamera` 以航线为中心自动取景，跨日期变更线的航线保持为一条连续线。
+设置中的 `mapTheme` 随查看设置保存，并经 `resolveMapTheme` 解析，缺失或已下线的 ID 回退到
+默认主题；目前注册了 `neon-aviation` 与 `daylight-chart`。
 
-Neon lab 是共享工具的当前集成。正式 Passport 地图、Globe、页面门控、存储、CSS 契约和海报
-渲染器不在此次重构范围内；唯一的条件性生产相邻改动是经过指定路线矩阵逐字节验证的
-`poster-map.ts` 路线辅助函数。
+主题地图在根节点设置 `data-map-theme` 与 `--map-theme-*` 变量；旧的 Passport 绘制规则限定在
+`.route-map:not([data-map-theme])`，只作用于无主题的回退地图。光晕使用叠加描边，航线、光晕
+和机场点均不使用滤镜。
+
+仍保留的 3D 代码：`PassportGlobe`、`DetailGlobe` 已无正式页面引用；`GlobeMap`、渲染器和贴图
+只经由仅 DEV 可用的 Globe Lab 访问；`SolarMode` 字段为兼容而保留，设置页不再显示；分享
+WebGL 渲染器没有正式调用点，将在 PR 4 再次审计。以上代码在 PR 5 删除。PR 3 不删除任何
+Globe、Three.js 或 WebGL 源码，也不改变正式飞行护照输出、统计或档案格式。

@@ -7,8 +7,8 @@
 //
 // Every shot imports the same deterministic archive
 // (e2e/fixtures/detail-content-hero.keepraw-fly.json), uses DPR 1, reduced
-// motion, waits for document.fonts.ready and, where a Globe is mounted, for
-// the real WebGL scene to report data-ready="true". Geometry is written next
+// motion, waits for document.fonts.ready and, on desktop, for the 2D route
+// map to mount. Geometry is written next
 // to the PNGs as <LABEL>.json.
 import { chromium } from "@playwright/test";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -70,42 +70,21 @@ for (const [name, id, theme, width, height] of shots) {
     .locator(`.flight-record[data-flight-id="${id}"] .flight-row`)
     .click();
   await page.setViewportSize({ width, height });
-  const host = page.locator(".detail-globe-frame .globe-host");
   await page.locator(".detail-hero-grid").waitFor();
-  // The Detail Globe is lazy: wait for the real frame, not the placeholder.
-  if (width >= 1200)
-    await page.locator(".detail-globe-frame").waitFor({ timeout: 60000 });
-  if (await host.count())
-    await page.waitForSelector(
-      '.detail-globe-frame .globe-host[data-ready="true"]',
-      {
-        timeout: 60000,
-      },
-    );
+  if (width >= 1200) await page.locator(".detail-flight-map").waitFor();
   await page.evaluate(() => document.fonts.ready);
   await page.mouse.move(0, 0);
   await page.waitForTimeout(800);
   results[name] = await page.evaluate(() => {
     const rect = (s) => document.querySelector(s)?.getBoundingClientRect();
-    const host = document.querySelector(".detail-globe-frame .globe-host");
-    const scene = host?.dataset.scene ? JSON.parse(host.dataset.scene) : null;
-    const canvas = document.createElement("canvas").getContext("webgl2");
-    const debug = canvas?.getExtension("WEBGL_debug_renderer_info");
     return {
       viewport: `${innerWidth}x${innerHeight}`,
       dpr: devicePixelRatio,
       titleTop: Math.round(rect(".detail-heading h1").top),
       heroTop: Math.round(rect(".detail-hero-grid").top),
       heroHeight: Math.round(rect(".detail-hero-grid").height),
-      globeFrame: rect(".detail-route-map")
-        ? `${Math.round(rect(".detail-route-map").width)}x${Math.round(rect(".detail-route-map").height)}`
-        : null,
-      // The real WebGL drawing surface, not a wrapper.
-      globeCanvas: rect(".detail-globe-frame canvas")
-        ? `${Math.round(rect(".detail-globe-frame canvas").width)}x${Math.round(rect(".detail-globe-frame canvas").height)}`
-        : null,
-      sceneViewport: scene
-        ? `${scene.viewport.width}x${scene.viewport.height}`
+      mapFrame: rect(".detail-flight-map")
+        ? `${Math.round(rect(".detail-flight-map").width)}x${Math.round(rect(".detail-flight-map").height)}`
         : null,
       shelfTop: rect(".detail-metadata-shelf")
         ? Math.round(rect(".detail-metadata-shelf").top)
@@ -113,9 +92,6 @@ for (const [name, id, theme, width, height] of shots) {
       scrollHeight: document.documentElement.scrollHeight,
       verticalScroll: document.documentElement.scrollHeight > innerHeight,
       horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
-      renderer: debug
-        ? canvas.getParameter(debug.UNMASKED_RENDERER_WEBGL)
-        : null,
     };
   });
   await page.screenshot({ path: `${out}/${label}-${name}.png` });

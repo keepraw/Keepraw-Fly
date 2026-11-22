@@ -2,6 +2,8 @@ import { projectionAt, regionalWorldPaths } from "../data/map-geometry";
 import { geoGraticule10, geoPath } from "d3-geo";
 import { useId, useMemo } from "react";
 import { MapRelief } from "./MapRelief";
+import { hatchTile } from "../map2d/theme-style";
+import type { MapTheme } from "../map2d/theme";
 
 interface MapWorldProps {
   countryVisits?: ReadonlyMap<string, number>;
@@ -10,6 +12,10 @@ interface MapWorldProps {
   showOutline?: boolean;
   centerLongitude?: number;
   appearance?: "standard" | "aviation";
+  /** Draws the hatched, token-driven world instead of the relief raster. */
+  theme?: MapTheme;
+  zoom?: number;
+  pixelScale?: number;
 }
 
 export function MapWorld({
@@ -19,15 +25,18 @@ export function MapWorld({
   showOutline = true,
   centerLongitude = 0,
   appearance = "standard",
+  theme,
+  zoom = 1,
+  pixelScale = 1,
 }: MapWorldProps) {
   const id = useId().replace(/:/g, "");
-  const aviation = appearance === "aviation";
+  const aviation = !theme && appearance === "aviation";
   const graticule = useMemo(
     () =>
-      aviation
+      aviation || theme
         ? geoPath(projectionAt(centerLongitude))(geoGraticule10())
         : null,
-    [aviation, centerLongitude],
+    [aviation, theme, centerLongitude],
   );
   const paths = useMemo(
     () => regionalWorldPaths(centerLongitude),
@@ -37,6 +46,66 @@ export function MapWorld({
     1,
     ...(countryVisits ? [...countryVisits.values()] : []),
   );
+
+  if (theme) {
+    const tile = hatchTile(
+      theme.tokens.hatch,
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
+      zoom,
+    );
+    const tileSize = tile.size * pixelScale;
+    return (
+      <g className="map-world map-world--themed" aria-hidden="true">
+        <defs>
+          <linearGradient id={`sky-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--map-theme-background-top)" />
+            <stop offset="1" stopColor="var(--map-theme-background-bottom)" />
+          </linearGradient>
+          <pattern
+            id={`hatch-${id}`}
+            width={tileSize}
+            height={tileSize}
+            patternUnits="userSpaceOnUse"
+            patternTransform={`rotate(${tile.angle}) scale(${1 / zoom})`}
+          >
+            <path
+              d={`M 0 0 L 0 ${tileSize}`}
+              fill="none"
+              stroke="var(--map-theme-land-hatch)"
+              strokeWidth={tile.lineWidth * pixelScale}
+            />
+          </pattern>
+        </defs>
+        <path d={paths.sphere} fill={`url(#sky-${id})`} />
+        {graticule ? <path className="map-graticule" d={graticule} /> : null}
+        <path className="map-land-fill" d={paths.land} />
+        <path
+          className="map-land-hatch"
+          d={paths.land}
+          fill={`url(#hatch-${id})`}
+        />
+        <g className="map-countries">
+          {paths.countries.map((country) => {
+            const visited = (countryVisits?.get(country.code) ?? 0) > 0;
+            const name =
+              countryName?.(country.code, country.name) ?? country.name;
+            return (
+              <path
+                key={country.code}
+                className={visited ? "map-country is-visited" : "map-country"}
+                d={country.path}
+              >
+                {countryLabel ? (
+                  <title>{countryLabel(name, visited)}</title>
+                ) : null}
+              </path>
+            );
+          })}
+        </g>
+        <path className="map-coastline" d={paths.land} />
+      </g>
+    );
+  }
 
   return (
     <g

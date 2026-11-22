@@ -43,8 +43,34 @@ describe("saved locale compatibility", () => {
       expect(normalizeViewerSettings(stored)).toEqual({
         ...stored,
         language: language === "zh-HK" ? "zh-TW" : "en-US",
+        mapTheme: "neon-aviation",
       });
       expect(stored).toEqual(copy);
     },
   );
+});
+
+describe("map theme preference", () => {
+  const base = {
+    language: "en-US",
+    appearance: "dark" as const,
+    distanceUnit: "kilometers" as const,
+    timeFormat: "12-hour" as const,
+    powerUserMode: false,
+  };
+
+  it("defaults to the registered default theme", () => {
+    expect(defaultViewerSettings().mapTheme).toBe("neon-aviation");
+    expect(normalizeViewerSettings(base).mapTheme).toBe("neon-aviation");
+  });
+
+  it("keeps a registered theme and replaces an unknown one", () => {
+    expect(
+      normalizeViewerSettings({ ...base, mapTheme: "daylight-chart" }).mapTheme,
+    ).toBe("daylight-chart");
+    for (const mapTheme of ["removed-theme", 7, null])
+      expect(normalizeViewerSettings({ ...base, mapTheme }).mapTheme).toBe(
+        "neon-aviation",
+      );
+  });
 });

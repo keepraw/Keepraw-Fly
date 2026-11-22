@@ -34,9 +34,8 @@ for (const theme of ["light", "dark"]) {
       .selectOption(theme);
     await page.goto("/#passport");
     await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
-    await expect(page.locator(".map-relief-texture:visible")).toHaveCount(1, {
-      timeout: 20_000,
-    });
+    await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
+    await expect(page.locator(".map-relief-texture")).toHaveCount(0);
 
     let laptopRowHeight: number | undefined;
     for (const viewport of viewports) {
@@ -301,9 +300,8 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         .nth(1)
         .selectOption(theme);
       await page.goto("/#passport");
-      await expect(page.locator(".map-relief-texture:visible")).toHaveCount(1, {
-        timeout: 20_000,
-      });
+      await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
+      await expect(page.locator(".map-relief-texture")).toHaveCount(0);
       await context.setOffline(true);
       const first = flights[0]!;
       await expect(

@@ -1,4 +1,4 @@
-import { expectDetailGlobe } from "./helpers/detail-globe";
+import { expectDetailMap } from "./helpers/detail-map";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -148,12 +148,11 @@ test("shares search and year scope, map selection and adjacent detail navigation
   await expect(
     page.locator(".detail-stop--departure .detail-stop-facts"),
   ).toContainText("Gate338");
-  if (await expectDetailGlobe(page)) {
-    await expect(page.locator(".globe-airport-label")).toHaveText([
-      "SZX",
-      "TAO",
-    ]);
-  }
+  const detailMap = await expectDetailMap(page);
+  await expect(detailMap.locator(".map-airport-label")).toHaveText([
+    "SZX",
+    "TAO",
+  ]);
   for (const width of [1440, 1280, 1200, 1199, 1024, 1023, 390]) {
     await page.setViewportSize({ width, height: 720 });
     expect(
@@ -161,9 +160,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
         .locator("html")
         .evaluate((e) => e.scrollWidth <= e.clientWidth),
     ).toBe(true);
-    await expect(page.locator(".detail-route-map")).toHaveCount(
-      width < 1200 ? 0 : 1,
-    );
+    await expect(page.locator(".detail-route-map")).toHaveCount(1);
   }
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.locator(".detail-header-back").click();
