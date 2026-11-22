@@ -1,5 +1,9 @@
 # Third-party license and provenance review — 2026-10-10
 
+> **Later change.** Three.js and the NASA globe textures reviewed below were
+> removed from the application in map redesign PR 5; those sections are
+> historical.
+
 This is a source-and-documentation audit of the dependencies, fonts, imagery,
 airline branding and offline datasets specifically identified for Task 4.
 It describes what the repository actually uses on `main` at

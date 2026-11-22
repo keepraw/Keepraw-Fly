@@ -47,11 +47,6 @@ import {
 
 const demoDocument = demoData as KeeprawFlyDocument;
 const LARGE_IMPORT_FLIGHT_COUNT = 10_000;
-// DEV is replaced at build time: the experiment and its assets are absent from
-// the normal production bundle and never replace PassportRouteMap.
-const GlobeLab = import.meta.env.DEV
-  ? lazy(() => import("./globe/GlobeLab"))
-  : null;
 type DocumentSnapshot = {
   document: KeeprawFlyDocument;
   kind: ArchiveKind;
@@ -566,25 +561,6 @@ export function App() {
       >
         <span>K</span>
       </main>
-    );
-  }
-
-  if (
-    GlobeLab &&
-    window.location.pathname === "/globe-lab" &&
-    canWriteDocument()
-  ) {
-    return (
-      <Suspense
-        fallback={<main className="loading-screen">{t("app.loading")}</main>}
-      >
-        <GlobeLab
-          document={document ?? demoDocument}
-          settings={settings}
-          isDemo={!document || archiveKind === "demo"}
-          onSettingsChange={storeSettings}
-        />
-      </Suspense>
     );
   }
 

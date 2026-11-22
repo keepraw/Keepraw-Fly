@@ -63,7 +63,7 @@ new UI should prefer semantic roles instead of adding another palette.
   Both themes use the same semantic roles.
 - The shared content maximum is 1,280 px with fluid 20–40 px gutters; flight-detail
   composition uses a 1,240 px maximum. The shared navigation/Passport transition is 760/761 px. Flight Detail
-  has its own 1199/1200 px composition and lazy-Globe boundary.
+  has its own 1199/1200 px composition.
   Mobile uses a page heading with settings/back actions in place of desktop
   navigation. Insets account for device safe areas.
 
@@ -87,7 +87,7 @@ retains the shared form defaults.
 
 The chronological flight list is part of Passport, not a separate page. Desktop
 can place the map and archive beside each other; mobile reorders the same content
-into document flow. Flight Detail mounts its Globe only at widths of at least 1200 px.
+into document flow. Flight Detail places its 2D route map beside the Hero at widths of at least 1200 px and above it on narrower screens.
 Its hero is content-led; viewport height must not push the route heading downward.
 The [Flight Passport journal](flight-passport-journal.md) owns the exported image
 and MRZ specimen policy; it is distinct from the responsive Passport page.
@@ -202,7 +202,7 @@ Passport 的移动/桌面、航班列表和分享浮层样式保留后续顺序�
   导出护照的专用字体和 MRZ 规则见[护照文档](flight-passport-journal.md)。
 - 外观默认**跟随系统**，用户可明确选择浅色或深色。两种主题使用同一套语义角色。
 - 共享内容最大宽度为 1,280 px，水平间距在 20–40 px 之间变化；航班详情采用
-  1,240 px 最大宽度。共享导航/Passport 切换点为 760/761 px；详情采用独立的 1199/1200 px 构图与 Globe 加载边界。移动端使用页面标题及设置/返回
+  1,240 px 最大宽度。共享导航/Passport 切换点为 760/761 px；详情采用独立的 1199/1200 px 构图。移动端使用页面标题及设置/返回
   操作替代桌面导航；容器间距包含设备安全区域。
 
 ### 构图
@@ -216,7 +216,7 @@ Passport 的移动/桌面、航班列表和分享浮层样式保留后续顺序�
 | 设置       | 数据归属与可编辑偏好             | 章节标签、导入/导出控件和存储信息           |
 
 按时间组织的航班列表属于 Passport，不再是独立页面。桌面端可以并排展示地图与档案，
-移动端将同样的内容重排为文档流。航班详情仅在宽度至少 1200 px 时挂载 Globe；Hero 高度由内容决定，不随窗口高度向下推移路线标题。
+移动端将同样的内容重排为文档流。航班详情在宽度至少 1200 px 时把 2D 航线地图放在 Hero 旁，窄屏放在其上方；Hero 高度由内容决定，不随窗口高度向下推移路线标题。
 
 相关事实优先通过邻近关系、对齐行和分隔线组织。表面用于表达交互或内容边界，纵深
 用于表达重叠或浮层。避免嵌套卡片、一字段一卡片、装饰性指标和相互竞争的主视觉。

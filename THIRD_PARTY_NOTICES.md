@@ -166,51 +166,6 @@ are included in `apps/web/src/data/LICENSE.d3-geo`, `LICENSE.d3-array` and
 Run `pnpm update:world-map` to regenerate the checked-in SVG paths and refresh
 the upstream license files from their pinned versions.
 
-## Three.js (production Desktop Passport and Globe Lab)
-
-The official Desktop Passport lazily loads the 3D Globe and its actual
-`globe-renderer.ts`, which imports Three.js **0.186.1**, OrbitControls,
-Line2, LineGeometry and LineMaterial. This is a **production browser runtime
-dependency**, as well as a dependency of the earlier Globe Lab; it is not
-development-only. Three.js is MIT-licensed, and its copyright/license notice
-is retained in `apps/web/src/globe/LICENSE.three`.
-
-## NASA Blue Marble (production Desktop Passport and Globe Lab)
-
-The production 3D Globe bundles two resized Earth surface textures (2048 and
-4096 px widths) derived from NASA Earth Observatory's **Blue Marble Next
-Generation, July 2004** topography/bathymetry imagery, credited to **NASA
-Earth Observatory / Reto Stöckli**. The same source was used by the earlier
-Globe Lab. Exact source URL, source SHA-256, dimensions, processing generator
-and output asset sizes are recorded in
-`apps/web/src/globe/globe-texture.source.json`.
-
-NASA's [Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/)
-generally permit factual, educational and informational use of NASA imagery
-(including texture maps and web simulations), subject to acknowledgments and
-restrictions. NASA does **not** endorse Keepraw Fly, and this notice makes no
-blanket claim that all imagery on NASA sites is public domain or freely
-licensable. Third-party copyrighted items and promotional uses must be
-checked separately. These textures contain no NASA insignia or identifiable
-people.
-
-## NASA Black Marble (production Desktop Passport and Globe Lab)
-
-The production 3D Globe also bundles two downsampled nighttime-intensity
-textures derived from NASA Earth Observatory's **Earth at Night / Black
-Marble 2016** grayscale global composite. Credit: **NASA Earth Observatory /
-Joshua Stevens; Suomi NPP VIIRS data from Miguel Román, NASA GSFC**. The
-imagery represents a historical composite, not current or live light data.
-Source URL, exact source and output SHA-256 values, 2048/4096 asset dimensions,
-geographic registration and generator are recorded in
-`apps/web/src/globe/globe-night-texture.source.json`. These images are used
-both by the production Globe and the earlier Lab.
-
-The same NASA [media guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/)
-and non-endorsement restrictions apply. The textures contain no NASA logos or
-identifiable people; the NASA attribution describes the underlying imagery
-and does not imply sponsorship or approval.
-
 ## Flight Passport typography (Canvas export only)
 
 The passport uses Barlow Semi Condensed (600), IBM Plex Sans (400), IBM Plex

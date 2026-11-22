@@ -86,7 +86,7 @@
 }
 
 /* The sky can reach the viewport edge, including browsers that reserve space
-   for a vertical scrollbar. Clip paint there, not at the Globe's layout box. */
+   for a vertical scrollbar. Clip paint there, not at the map's layout box. */
 .app-shell:has(.detail-page) {
   overflow-x: clip;
 }
@@ -181,7 +181,7 @@
 }
 
 .detail-hero-grid {
-  --detail-globe-max-height: 640px;
+  --detail-map-max-height: 640px;
   --detail-space-bleed-inline: 32px;
 
   position: relative;
@@ -200,17 +200,17 @@
   }
 
   .detail-hero-grid {
-    --detail-globe-max-height: 560px;
+    --detail-map-max-height: 560px;
 
     /* Content-led Hero: its natural height comes from the flight information
-       and the Globe's own square frame, never from the viewport height. */
+       and the map's own frame, never from the viewport height. */
     align-items: start;
   }
 
   .detail-hero-grid > .detail-route-map {
     width: 100%;
     height: auto;
-    max-height: var(--detail-globe-max-height);
+    max-height: var(--detail-map-max-height);
     margin-block: 16px;
     aspect-ratio: 1 / 1;
   }
@@ -220,28 +220,10 @@
     aspect-ratio: 4 / 3;
   }
 
-  .detail-hero-grid
-    > .detail-route-map:has(
-      .detail-globe-message,
-      .detail-flight-map-message,
-      .globe-fallback
-    ) {
-    /* Status-only views keep their own natural height; no empty sphere slot. */
+  .detail-hero-grid > .detail-route-map:has(.detail-flight-map-message) {
+    /* Status-only views keep their own natural height; no empty map slot. */
     margin-block: 0;
     aspect-ratio: auto;
-  }
-
-  /* The flight information inherits the Light page's ink and canvas. Only
-     the Globe's independent decorative sky introduces a darker region. */
-  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
-    + .detail-metadata-shelf {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 0;
-  }
-
-  .detail-hero-grid:has(> .detail-globe-frame[data-theme="light"])
-    + .detail-metadata-shelf[data-count="1"] {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -460,7 +442,7 @@
 
 .detail-route-map {
   height: auto;
-  max-height: var(--detail-globe-max-height, 640px);
+  max-height: var(--detail-map-max-height, 640px);
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -640,7 +622,7 @@
   }
 }
 
-/* Complement the Globe mount query, including fractional viewport widths. */
+/* Complement the two-column Hero query, including fractional viewport widths. */
 @media not all and (min-width: 1200px) {
   .detail-page {
     --detail-title-size: 1.625rem;

@@ -198,7 +198,7 @@ jobs:
       # Keep engine diagnostics independent; Chromium shards run all E2E.
       # WebKit overlaps independent files. Firefox keeps one worker: the
       # two-worker trial had a hover retry and little wall-time benefit.
-      # A virtual display lets Firefox exercise the actual WebGL scene.
+      # Firefox runs headed, on a virtual display.
       - name: Run cross-browser smoke journeys
         run: xvfb-run -a pnpm test:e2e --project=${{ matrix.browser }} --workers=${{ matrix.workers }} --reporter=list,html,json
 

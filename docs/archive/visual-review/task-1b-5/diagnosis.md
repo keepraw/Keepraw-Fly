@@ -3,7 +3,7 @@
 Historical pre-change diagnosis of the Task 1B-4 emission response. The
 [original record](https://github.com/keepraw/Keepraw-Fly/blob/8090372ac6d02d2c4c9dec4c09c78c2444f4641b/docs/visual-review/task-1b-5/diagnosis.md)
 contains every regional measurement and earlier response formula. These grayscale
-visualization signals are not calibrated luminance. See [current Globe implementation](../../../globe.md)
+visualization signals are not calibrated luminance. See current Globe implementation (removed in map redesign PR 5)
 and the [legacy evidence inventory](../../README.md) for current ownership.
 
 ## Evidence and cause
@@ -11,7 +11,7 @@ and the [legacy evidence inventory](../../README.md) for current ownership.
 The recorded source and derived texture hashes matched NASA provenance; sampled
 RGB channels agreed. Sampling used geographic neighborhoods rather than airport
 positions. Full histograms and pixel bounds remain in the
-[texture audit](../../../../tests/fixtures/globe/texture-audit.json), which is also
+texture audit (removed in map redesign PR 5), which is also
 an input to the current response unit tests.
 
 - Source positive urban-core medians were 0.71–0.99; the 4K medians remained

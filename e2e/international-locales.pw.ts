@@ -1,7 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { openSettingsCategory } from "./helpers/settings";
-import { globeMode } from "./helpers/globe-capability";
 import { expectReachable } from "./helpers/responsive";
 import {
   supportedLanguages,
@@ -62,7 +61,7 @@ async function healthy(page: Page) {
     ),
   ).toBe(true);
   await expect(page.locator("body")).not.toContainText(
-    /(?:flightDetail|passport|settings|globe|csvImport)\.[a-zA-Z]/,
+    /(?:flightDetail|passport|settings|routeMap|csvImport)\.[a-zA-Z]/,
   );
 }
 
@@ -80,7 +79,7 @@ async function reviewScreenshot(
 }
 
 for (const language of newLanguages) {
-  test(`${language}: desktop/mobile Settings, Detail, Passport and editor; Globe Lab`, async ({
+  test(`${language}: desktop/mobile Settings, Detail, Passport and editor`, async ({
     page,
   }, testInfo) => {
     test.setTimeout(90_000);
@@ -160,7 +159,7 @@ for (const language of newLanguages) {
         }),
       ).toBe(1);
       await expect(page.locator(".detail-flight-map")).toHaveCount(1);
-      await expect(page.locator(".detail-globe-frame, canvas")).toHaveCount(0);
+      await expect(page.locator("canvas")).toHaveCount(0);
       await healthy(page);
       await reviewScreenshot(page, language, "detail", width);
       await page
@@ -176,22 +175,12 @@ for (const language of newLanguages) {
       await page.locator(".detail-header-back").click();
     }
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/globe-lab");
-    await expect(page.locator("html")).toHaveAttribute("lang", language);
-    await expect(page.locator(".globe-lab-header")).toContainText(
-      text.globe.lab,
-    );
-    await expect(
-      page.getByRole("textbox", { name: text.globe.search }),
-    ).toBeVisible();
-    await globeMode(page);
-    await healthy(page);
     await page.goto("/#settings");
     await expect(page.locator("#settings-language")).toHaveValue(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
     expect(errors).toEqual([]);
     await testInfo.attach("locale-review", {
-      body: `${language}: desktop/mobile Settings, Detail, Passport, editor; Globe Lab; reload; unchanged miles/12-hour.`,
+      body: `${language}: desktop/mobile Settings, Detail, Passport, editor; reload; unchanged miles/12-hour.`,
       contentType: "text/plain",
     });
   });

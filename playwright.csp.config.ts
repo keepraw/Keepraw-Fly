@@ -33,7 +33,7 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    // Firefox needs a display for genuine WebGL (CI uses xvfb-run).
+    // Headed Firefox (CI uses xvfb-run).
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"], headless: false },
