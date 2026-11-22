@@ -29,7 +29,6 @@ it.each(["general", "data"] as const)(
             appearance: "system",
             distanceUnit: "miles",
             timeFormat: "24-hour",
-            solarMode: "fixed",
             mapTheme: "neon-aviation",
             passportTemplate: "neon",
             powerUserMode: false,

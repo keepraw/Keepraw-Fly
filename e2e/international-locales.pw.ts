@@ -46,7 +46,6 @@ async function seed(page: Page) {
       distanceUnit: "miles",
       timeFormat: "12-hour",
       powerUserMode: false,
-      solarMode: "fixed",
     });
   }, archive);
   await page.goto("/#settings");
