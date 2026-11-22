@@ -65,7 +65,8 @@ specifications in this repository so changes can be reviewed with the code.
 
 ## History, releases and legal records / 历史、发布与法律记录
 
-- [v0.2.0 — Flight Passport Journal](releases/v0.2.0.md),
+- [v0.3.0 — 2D Maps and Airport History](releases/v0.3.0.md),
+  [v0.2.0 — Flight Passport Journal](releases/v0.2.0.md),
   [v0.1.1](releases/v0.1.1.md) and [v0.1.0](releases/v0.1.0.md): bilingual release
   notes describe their published versions, not current `main`.
   双语发布说明记录对应发行版，不代表当前 `main`。

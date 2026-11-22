@@ -132,6 +132,9 @@ are picked up on the next load.
 
 ## Known dependency advisory
 
+The v0.3.0 release review on 2026-11-22 ran `pnpm audit` and
+`pnpm audit --prod`; both report no known vulnerabilities.
+
 The v0.2.0 release review on 2026-10-25 found four newly disclosed `fast-uri`
 advisories in Ajv's locked 3.1.8 dependency: GHSA-w74x-v6f9-j3xg,
 GHSA-xhq7-xmqj-769h, GHSA-wjr9-j795-jxcr and GHSA-333x-w4r6-6crp. The release
