@@ -83,22 +83,26 @@ they style only the unthemed fallback. Glow is layered strokes; routes, glows an
 airport points carry no CSS or SVG filter, and strokes use
 `vector-effect: non-scaling-stroke` so they stay crisp at any zoom and pixel ratio.
 
-### Remaining 3D code (grep-verified after PR 3)
+### 3D code removal (PR 5)
 
-| Code                                       | Status                                                                                                                                                          | Removed in |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `globe/PassportGlobe`, `globe/DetailGlobe` | No importer in production pages. Kept as source only.                                                                                                           | PR 5       |
-| `globe/GlobeMap`, renderer, math, textures | Reached only through the DEV-only Globe Lab. `GlobeMap` still falls back to the unthemed `PassportRouteMap`.                                                    | PR 5       |
-| Globe Lab                                  | `App.tsx` creates the lazy import only under `import.meta.env.DEV`.                                                                                             | PR 5       |
-| Stored `SolarMode`                         | `storage/types.ts` still imports the type and keeps the stored field for compatibility. Settings no longer shows it and no production surface reads it.         | PR 5       |
-| Share WebGL renderer (`share-renderer.ts`) | PR 4 audit: `share-renderer.ts`, `share-plan.ts` and `share-png.ts` have no importer outside their own unit and e2e tests; the share dialog never reaches them. | PR 5       |
-| Canvas 2D poster                           | Migrated in PR 4: the Neon layout draws through the shared scene and the selected map theme. See "Flight Passport templates".                                   | Done       |
+PR 5 deleted the whole `globe/` directory (components, renderer, math,
+lighting, textures, Globe Lab), the WebGL share renderer (`share-renderer.ts`,
+`share-plan.ts`, `share-errors.ts`, `share-verification-sample.ts`), their unit
+and e2e suites, scripts and fixtures, and the `three` / `@types/three`
+dependencies. Kept on purpose:
+
+- `share-png.ts`: the Canvas 2D export (`poster-export.ts`) validates its PNG
+  output with it.
+- The stored `solarMode` field and its `SolarMode` type, now declared in
+  `storage/types.ts`, so saved settings round-trip unchanged. Nothing reads it.
+- The picker and status strings formerly under the `globe.*` locale namespace,
+  now `routeMap.*`.
 
 ### Scope
 
-PR 3 replaces the two production map entry points and adds the theme setting. It
-deletes no Globe, Three.js or WebGL source, and does not change the formal Flight
-Passport output, flight statistics or the archive format.
+PR 3 replaced the two production map entry points and added the theme setting
+without changing the formal Flight Passport output, flight statistics or the
+archive format.
 
 ## 简体中文
 
@@ -136,10 +140,9 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 `.route-map:not([data-map-theme])`，只作用于无主题的回退地图。光晕使用叠加描边，航线、光晕
 和机场点均不使用滤镜。
 
-仍保留的 3D 代码：`PassportGlobe`、`DetailGlobe` 已无正式页面引用；`GlobeMap`、渲染器和贴图
-只经由仅 DEV 可用的 Globe Lab 访问；`SolarMode` 字段为兼容而保留，设置页不再显示；分享
-WebGL 渲染器没有正式调用点，将在 PR 4 再次审计。以上代码在 PR 5 删除。PR 3 不删除任何
-Globe、Three.js 或 WebGL 源码，也不改变正式飞行护照输出、统计或档案格式。
+3D 代码已在 PR 5 删除：整个 `globe/` 目录、WebGL 分享渲染器及其测试、脚本、测试数据和
+`three` 依赖。有意保留：`share-png.ts`（Canvas 2D 导出用它校验 PNG）、为兼容旧设置而保留的
+`solarMode` 字段，以及从 `globe.*` 改名为 `routeMap.*` 的选择器与状态文案。
 
 ## Flight Passport templates (PR 4)
 
@@ -175,9 +178,8 @@ overflow rejection, font fallback and retry. The map shows unlabelled dots
 only: no airport code, flight number or date of an individual flight.
 
 **WebGL audit.** The share dialog imports no Globe, Three.js or WebGL module
-(`poster-template.test.ts` walks the import graph). `share-renderer.ts`,
-`share-plan.ts` and `share-png.ts` are reachable only from their own tests and
-are deleted in PR 5.
+(`poster-template.test.ts` walks the import graph). The legacy WebGL
+share renderer was deleted in PR 5.
 
 **飞行护照版式（PR 4）。** 分享图由“版式模板”绘制、由当前“地图主题”着色，两者是独立的
 设置与代码：版式只决定地图、统计、持有人信息和机读码的位置，颜色、线宽、斜线和光晕全部
@@ -185,4 +187,4 @@ are deleted in PR 5.
 `buildMapScene` 生成；`book` 为原护照本版式。所有文字都按实际加载（或回退）字体测量：
 标签过长时在基线上方换行（中日韩按字换行），数值与单位一起缩小，姓名先缩小再换行；
 十种语言 × 两种单位 × 两套主题 × 字体回退均有自动测试，出现重叠、溢出或截断即失败。
-导出仍为本地 Canvas 2D，不使用 WebGL；`share-renderer.ts` 等仅被自身测试引用，PR 5 删除。
+导出仍为本地 Canvas 2D，不使用 WebGL；旧的 WebGL 分享渲染器已在 PR 5 删除。

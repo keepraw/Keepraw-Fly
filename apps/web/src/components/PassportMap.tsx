@@ -108,13 +108,13 @@ export function PassportMap({
     >
       <details className="passport-map-navigation">
         <summary>
-          {t("globe.routes")} / {t("globe.airports")}
+          {t("routeMap.routes")} / {t("routeMap.airports")}
         </summary>
         <div className="passport-map-picker">
           <label>
-            <span>{t("globe.route")}</span>
+            <span>{t("routeMap.route")}</span>
             <select
-              aria-label={t("globe.chooseRoute")}
+              aria-label={t("routeMap.chooseRoute")}
               value={selectedRoute}
               onChange={(event) => {
                 const route = routes.find(
@@ -126,7 +126,7 @@ export function PassportMap({
                 else onClear();
               }}
             >
-              <option value="">{t("globe.chooseRoute")}</option>
+              <option value="">{t("routeMap.chooseRoute")}</option>
               {routes.map((route) => (
                 <option
                   key={routeIdentityKey(route)}
@@ -143,9 +143,9 @@ export function PassportMap({
             </select>
           </label>
           <label>
-            <span>{t("globe.airport")}</span>
+            <span>{t("routeMap.airport")}</span>
             <select
-              aria-label={t("globe.chooseAirport")}
+              aria-label={t("routeMap.chooseAirport")}
               value={selectedAirport}
               onChange={(event) => {
                 const airport = airports.find(
@@ -157,7 +157,7 @@ export function PassportMap({
                 else onClear();
               }}
             >
-              <option value="">{t("globe.chooseAirport")}</option>
+              <option value="">{t("routeMap.chooseAirport")}</option>
               {airports.map((airport) => (
                 <option
                   key={routePointIdentityKey(airport)}

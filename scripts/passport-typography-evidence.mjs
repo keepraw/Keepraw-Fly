@@ -3,11 +3,7 @@ export async function passportTypographyBounds(page) {
   // The formal map is lazy. Layout/locale readiness alone does not guarantee
   // that its scene or SVG fallback exists, especially on a cold browser context.
   await page.waitForFunction(() =>
-    Boolean(
-      document.querySelector(
-        '.passport-globe-frame .globe-host[data-ready="true"], .passport-globe-frame .globe-fallback svg, .route-map-canvas',
-      ),
-    ),
+    Boolean(document.querySelector(".route-map-canvas")),
   );
   await page.evaluate(
     () =>
@@ -37,14 +33,7 @@ export async function passportTypographyBounds(page) {
       ".passport-longest-flight",
     ];
     const components = Object.fromEntries(
-      selectors.map((s) => [
-        s,
-        box(
-          document.querySelector(
-            s === ".route-map" ? ".passport-globe-frame, .route-map" : s,
-          ),
-        ),
-      ]),
+      selectors.map((s) => [s, box(document.querySelector(s))]),
     );
     const failures = [];
     const nodes = [
@@ -83,13 +72,9 @@ export async function passportTypographyBounds(page) {
       }
     }
     const controls = [
-      ...document.querySelectorAll(
-        ".route-map .map-zoom-controls button, .passport-globe-frame .globe-controls button",
-      ),
+      ...document.querySelectorAll(".route-map .map-zoom-controls button"),
     ].map(box);
-    const canvas = box(
-      document.querySelector(".globe-stage, .route-map-canvas"),
-    );
+    const canvas = box(document.querySelector(".route-map-canvas"));
     const controlsContained = controls.every(
       (r) =>
         r.x >= canvas.x - 1 &&

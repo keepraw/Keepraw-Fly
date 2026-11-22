@@ -27,7 +27,7 @@ files by measured duration and discover new files. Its disjoint union must retai
 every test. Firefox uses one worker and WebKit uses two in the compatibility matrix.
 Chromium downloads its locked browser on Ubuntu 24.04; compatibility and CSP jobs
 use the pinned official Playwright container and check matching installed runtimes.
-Firefox receives an Xvfb display for real WebGL. Test retries and
+Firefox runs headed on an Xvfb display. Test retries and
 `fullyParallel: false` remain defined by the Playwright configuration.
 
 The `verify` aggregate gate uses `always()` and requires `checks`, all Chromium
@@ -41,25 +41,19 @@ failure screenshots/traces. `scripts/report-playwright.mjs` summarizes counts,
 per-file durations and diagnostics and fails on skipped/unexpected tests, global
 errors or an empty report. Normal CI does not collect success-only design galleries.
 
-## Globe fixtures and manual captures
+## Manual captures
 
-Shared night-response measurement inputs live in
-[`tests/fixtures/globe/`](../tests/fixtures/globe/README.md). Their original
-histograms, pixel measurements and test assertions are preserved. Manual capture
-and texture-audit helpers default to ignored `artifacts/`; their output does not
-replace a committed regression input or approved visual reference. The
-[historical archive](archive/README.md) records historical sources,
-approved PNGs and their retention reasons.
+Manual capture helpers default to ignored `artifacts/`; their output does not
+replace a committed regression input or approved visual reference.
 
 Reusable helpers live in `scripts/` and run from the repository root:
 
-| Helper                                    | Prerequisites and ignored default output                                        |
-| ----------------------------------------- | ------------------------------------------------------------------------------- |
-| `capture-detail-hero.mjs`                 | Running dev server and Chromium; `artifacts/detail-hero/`                       |
-| `capture-task-2c.mjs`                     | Running dev server and Chromium/font access; `artifacts/task-2c/`               |
-| `capture-theme-history.mjs before\|after` | Recorded Task A checkout, dev server and Chromium; `artifacts/task-a/`          |
-| `audit-globe-night.mjs`                   | Original NASA source and recorded browser setup; `artifacts/globe-night-audit/` |
-| `capture-neon-lab.mjs`                    | Running development server and Chromium; `artifacts/neon-lab/`                  |
+| Helper                                    | Prerequisites and ignored default output                               |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| `capture-detail-hero.mjs`                 | Running dev server and Chromium; `artifacts/detail-hero/`              |
+| `capture-task-2c.mjs`                     | Running dev server and Chromium/font access; `artifacts/task-2c/`      |
+| `capture-theme-history.mjs before\|after` | Recorded Task A checkout, dev server and Chromium; `artifacts/task-a/` |
+| `capture-neon-lab.mjs`                    | Running development server and Chromium; `artifacts/neon-lab/`         |
 
 For Hero captures set `BASE_URL`, `LABEL` and optionally `OUT`; keep overrides
 under ignored `artifacts/`. It reads the existing Detail regression fixture and
@@ -73,14 +67,14 @@ Task 2C retains the byte-verified approved Dark Control input and its
 Production Passport and Flight Detail render SVG and need no WebGL.
 `passport-map.pw.ts` covers the themed Passport map on desktop and mobile:
 pointer, keyboard and picker selection, zoom, pan and reset, and the absence of
-canvases, filters and Globe requests. `flight-route-map.pw.ts` covers automatic
+canvases, filters and any request for the removed 3D globe. `flight-route-map.pw.ts` covers automatic
 framing for short, date-line, polar and long-haul routes, diversions, cancelled
 flights, controls and per-flight camera reset. `map-theme-preference.pw.ts`
 covers switching, persistence and the invalid-ID fallback. Unit tests in
 `apps/web/src/map2d/` sample the framing and identity rules directly.
 
-The retained Globe is covered only by the Globe Lab suites, which require real
-WebGL. Generated diagnostics stay in ignored `test-results/` and
+The app has no WebGL renderer; most journeys run with WebGL2 refused
+(`helpers/passport-svg.ts`). Generated diagnostics stay in ignored `test-results/` and
 `playwright-report/`.
 
 ## Responsive and browser coverage
@@ -104,14 +98,13 @@ and project selection. Relevant coverage includes:
   desktop boundaries, scrolling, controls and browser-sensitive focus.
 - [`passport-map.pw.ts`](../e2e/passport-map.pw.ts) and
   [`flight-route-map.pw.ts`](../e2e/flight-route-map.pw.ts): production 2D maps.
-  The Globe Lab suites keep real WebGL, camera and lighting coverage.
 - [`persistent-storage.pw.ts`](../e2e/persistent-storage.pw.ts),
   [`document-persistence.pw.ts`](../e2e/document-persistence.pw.ts) and
   [`archive-recovery.pw.ts`](../e2e/archive-recovery.pw.ts): storage and
   archive failure/recovery paths.
 
 Firefox/WebKit select only `@cross-browser` cases. Those smoke tests exercise
-actual browser differences (layout, SVG, WebGL, scrolling, native storage and
+actual browser differences (layout, SVG, scrolling, native storage and
 keyboard focus) without repeating every Chromium business or viewport matrix.
 When updating test tags, compare the discovered lists for all three projects;
 never infer current coverage from an old fixed count.

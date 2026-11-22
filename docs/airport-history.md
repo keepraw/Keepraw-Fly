@@ -71,7 +71,7 @@ user edits a date, changes languages or updates reference data.
 ## Localized names and search
 
 Use `localizedAirportName(airportId, locale, date?)` for physical airport
-labels in the editor, archive, detail, map, globe, statistics and Passport.
+labels in the editor, archive, detail, map, statistics and Passport.
 Intentional code and city labels keep their own presentation. Share images
 derive their routes and counts from physical sites and use the existing
 airport-code consent controls.
