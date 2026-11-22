@@ -38,8 +38,6 @@ import { PageShell } from "../components/PageShell";
 import { FlightRouteMap } from "../components/FlightRouteMap";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 
-// The Globe is part of the two-column Hero, so narrow details never mount it.
-
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
   memberships: readonly FrequentFlyerMembership[];

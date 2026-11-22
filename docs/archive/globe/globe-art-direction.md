@@ -4,7 +4,7 @@ Historical Task 1B-3 decision. Rendered source:
 `2efd89b6bb6ea87a832ca6eecc1359e6c709a4d1`; baseline:
 `b9d32b3be9b6791a5a2861846d220c96ca0d59f0`.
 The [original report](https://github.com/keepraw/Keepraw-Fly/blob/8090372ac6d02d2c4c9dec4c09c78c2444f4641b/docs/globe-art-direction.md)
-contains the complete A/B review. Current behavior lives in [Globe implementation](../../globe.md);
+contains the complete A/B review. Current behavior lives in Globe implementation (removed in map redesign PR 5);
 the later [approved Control](../visual-review/task-1b-7b2/README.md) records acceptance.
 
 ## Problem and alternatives

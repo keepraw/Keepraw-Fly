@@ -39,16 +39,6 @@ export default defineConfig({
           if (id.endsWith("/core/data/airport-names.json"))
             return "airport-names";
         },
-        // Rollup names the shared lazy Three.js/Globe chunk after a CSS
-        // import ("globe-lab"), although the dev-only GlobeLab experiment is
-        // not in production builds. Name it after the renderer it contains.
-        chunkFileNames(chunk) {
-          return chunk.moduleIds.some((id) =>
-            id.endsWith("/globe/GlobeMap.tsx"),
-          )
-            ? "assets/globe-renderer-[hash].js"
-            : "assets/[name]-[hash].js";
-        },
       },
     },
   },

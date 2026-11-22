@@ -28,7 +28,7 @@
     "check:i18n": "pnpm --filter @keepraw-fly/web exec vitest run src/i18n-resources.test.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md,yaml,yml}\"",
-    "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\" \"apps/web/src/globe/detail-globe.css\"",
+    "lint:css": "stylelint \"apps/web/src/design-system.css\" \"apps/web/src/styles/*.css\"",
     "check:css-tokens": "node scripts/check-css-tokens.mjs",
     "test:e2e:csp": "playwright test --config playwright.csp.config.ts",
     "check:security-headers": "node scripts/check-security-headers.mjs",

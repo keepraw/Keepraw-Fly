@@ -1,5 +1,4 @@
 import type { DistanceUnit, TimeFormat } from "@keepraw-fly/core";
-import type { SolarMode } from "../globe/globe-solar";
 import {
   DEFAULT_MAP_THEME_ID,
   resolveMapTheme,
@@ -18,6 +17,10 @@ import {
 } from "../locales/registry";
 export type { Language } from "../locales/registry";
 export type Appearance = "system" | "light" | "dark";
+
+/** Preference of the removed 3D globe. Still stored so existing saved
+ * settings round-trip unchanged; nothing reads it. */
+export type SolarMode = "fixed" | "realtime";
 
 export interface ViewerSettings {
   language: Language;

@@ -2,7 +2,7 @@
 
 Historical decision from the 2026-10-09 prototype, starting at checkpoint `a6be5cc`.
 The [original report](https://github.com/keepraw/Keepraw-Fly/blob/8090372ac6d02d2c4c9dec4c09c78c2444f4641b/docs/globe-prototype.md)
-contains the full delivery and validation record. See [current Globe implementation](../../globe.md)
+contains the full delivery and validation record. See current Globe implementation (removed in map redesign PR 5)
 for production behavior.
 
 ## Context and choice

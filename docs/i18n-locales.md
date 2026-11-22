@@ -7,7 +7,7 @@ and overrides regional spelling, including cancelled, recognised, kilometres,
 romanised, programme and licence. There are no additional released languages.
 
 All user-facing sections are included: navigation, settings, editor, detail,
-passport, statistics, maps, Globe and Globe Lab, JSON/CSV/Flighty import,
+passport, statistics, maps, JSON/CSV/Flighty import,
 recovery, errors, empty/loading states and accessibility labels. `pnpm check:i18n`
 checks recursive logical keys, variables, empty/malformed strings, cardinal
 plural categories and actual resolution without unintended English fallback.
@@ -74,7 +74,7 @@ US English is the bundled fallback. Other locales are independent Vite static
 JSON assets loaded on demand and stored in optional CacheStorage. The current
 UI stays visible while a full resource loads; only the latest request commits.
 The native i18next backend uses the same loader for standard `changeLanguage()`
-calls and cloned instances, including independently mounted Globe modules.
+calls and cloned instances.
 Load failure keeps that UI and presents a localized retry. Other locales warm
 sequentially 15 seconds after archive startup completes, so cached languages remain available for
 offline switching. A never-cached locale still requires a connection; browser
@@ -87,8 +87,7 @@ only the existing Chinese MiSans subsets download fonts.
 
 Public English UI strings were used for machine-assisted drafts, followed by AI
 post-editing of aviation vocabulary, interface actions, counts, time semantics,
-storage/backup warnings, recovery replacement/deletion and independent Globe
-copy. No translation service is used at runtime and no English placeholders
+storage/backup warnings, recovery replacement/deletion copy. No translation service is used at runtime and no English placeholders
 were added to simulate completion. Automated checks and AI semantic review are
 not professional native-speaker review. The following specific choices warrant
 native review; they are complete translations, not untranslated keys:
@@ -101,7 +100,6 @@ native review; they are complete translations, not untranslated keys:
 | es: `flightEditor.cabins.business`, `flightyImport.fileErrors.not-flighty-file` | Confirm neutral Spanish cabin wording and the airport gate-time explanation across regions.                                |
 | pt-BR: `settings.newMembership`, `settings.frequentFlyerProfiles`               | Confirm cadastro/perfil wording for multiple loyalty accounts, rather than an airline subscription.                        |
 | ko-KR: `status.diverted`, `status.divertedTo`, `nav.passport`                   | Confirm 회항 covers diversion to an alternate airport, not only return to origin; confirm 비행 기록장 as the product name. |
-| All six: `globe.neutralProbe`, `globe.artDirectionA`, `globe.artDirectionB`     | Globe Lab diagnostic/art labels need specialist native review.                                                             |
 
 Chinese resources are maintained independently. Taiwan wording uses 設定, 資料,
 航廈, 登機門, 轉降 and 常旅客計畫; Simplified Chinese keeps its regional terms.
@@ -117,9 +115,6 @@ and loyalty-account scenarios, not only isolated JSON strings. In particular:
   `flightDetail.divertedTo` and `import.issueMessages.cancelledDivertedConflict`
   together. Confirm an alternate landing as well as return to origin, including
   the airport particle `(으)로`.
-- Taiwan: reconcile Globe's `globe.scheduled` wording `計畫` with the maintained
-  scheduled-time term `預定`; review backup/recovery and app-installation copy
-  without regenerating reviewed text through OpenCC.
 - French: check `Porte d’embarquement` in both departure and arrival contexts,
   `Prévu / Réel`, diversion and loyalty-membership wording. Across locales,
   distinguish membership from airline subscriptions or flight crew.
