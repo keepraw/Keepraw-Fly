@@ -361,6 +361,20 @@
   overflow-wrap: anywhere;
 }
 
+/* Records live only in this browser: a missing backup is the page's one
+   warning, so it reads as one. */
+.settings-backup-status.is-missing,
+.settings-compact .settings-backup-status.is-missing {
+  width: fit-content;
+  padding: var(--space-1) var(--space-2);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-control);
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  font-size: var(--type-size-label);
+  font-weight: var(--font-weight-semibold);
+}
+
 .settings-storage-status {
   color: var(--ink);
   font-size: var(--type-size-label);
