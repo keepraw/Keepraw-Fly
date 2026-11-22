@@ -332,6 +332,8 @@ test("Neon is the default layout: real totals, 2× PNG, local only @cross-browse
 test("the passport follows the map theme, and the layout is a separate setting", async ({
   page,
 }) => {
+  // Two full-resolution renders plus a reload: ~30 s on a CI runner.
+  test.setTimeout(90_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await seed(page, await loadArchive(), { mapTheme: "daylight-chart" });
   await openShare(page);
@@ -585,6 +587,8 @@ test("an archive with only cancelled flights explains instead of drawing", async
 test("a failed export can be retried, and webfont failure still exports", async ({
   page,
 }) => {
+  // Two renders, each allowed 30 s below, cannot fit the default 30 s budget.
+  test.setTimeout(90_000);
   await page.addInitScript(() => {
     const toBlob = HTMLCanvasElement.prototype.toBlob;
     (window as unknown as { failPng: boolean }).failPng = true;
@@ -595,8 +599,12 @@ test("a failed export can be retried, and webfont failure still exports", async 
     };
   });
   await seed(page, await loadArchive(), { language: "zh-CN" });
-  await page.route(/cdn\.jsdelivr\.net|\/share\/fonts\/.*\.woff2/, (route) =>
-    route.abort(),
+  // Abort the font files, not the dev server's `.woff2?import&url` modules:
+  // those belong to the application's module graph, which now loads after
+  // this route is installed.
+  await page.route(
+    /cdn\.jsdelivr\.net|\/share\/fonts\/[^?]*\.woff2(?!\?import)/,
+    (route) => route.abort(),
   );
   await page.goto("/#passport");
   await page.locator(".passport-share-button").click();

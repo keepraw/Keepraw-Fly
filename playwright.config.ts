@@ -21,6 +21,10 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
+  // The entry paints the startup screen and then loads the application, so
+  // page.goto() no longer waits for the unbundled dev-server module graph;
+  // the first assertion after a navigation has to cover that load instead.
+  expect: { timeout: 10_000 },
   use: {
     baseURL: "http://127.0.0.1:5173",
     locale: "en-US",
