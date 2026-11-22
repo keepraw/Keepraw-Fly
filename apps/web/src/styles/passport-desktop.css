@@ -118,18 +118,25 @@
 
   .passport-archive .archive-controls {
     justify-content: flex-start;
-    gap: calc(16 * var(--passport-px, 1px));
+    gap: calc(8 * var(--passport-px, 1px));
   }
 
   .passport-archive .passport-import-button {
     display: inline-flex;
-    min-height: calc(32 * var(--passport-px, 1px));
+    min-height: calc(34 * var(--passport-px, 1px));
     align-items: center;
-    padding: calc(4 * var(--passport-px, 1px)) 0;
-    border: 0;
-    color: var(--muted);
+    padding: calc(6 * var(--passport-px, 1px))
+      calc(10 * var(--passport-px, 1px));
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-control);
+    color: var(--ink);
     background: transparent;
     font-size: calc(0.75 * var(--passport-rem, 1rem));
+    font-weight: var(--font-weight-medium);
+  }
+
+  .passport-archive .passport-import-button:hover {
+    background: var(--color-surface-sunken);
   }
 
   .passport-search-field {
@@ -580,10 +587,6 @@
     line-height: 1.45;
   }
 
-  .passport-delay-highlight[data-delayed="true"] > strong {
-    color: var(--color-danger);
-  }
-
   .passport-delay-chart {
     display: flex;
     align-items: end;
@@ -622,7 +625,7 @@
   }
 
   .passport-delay-chart [data-emphasized="true"] .passport-delay-bar {
-    background: var(--color-danger);
+    background: var(--color-warning);
   }
 
   .passport-chart-scope {
