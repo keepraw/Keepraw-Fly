@@ -599,8 +599,12 @@ test("a failed export can be retried, and webfont failure still exports", async 
     };
   });
   await seed(page, await loadArchive(), { language: "zh-CN" });
-  await page.route(/cdn\.jsdelivr\.net|\/share\/fonts\/.*\.woff2/, (route) =>
-    route.abort(),
+  // Abort the font files, not the dev server's `.woff2?import&url` modules:
+  // those belong to the application's module graph, which now loads after
+  // this route is installed.
+  await page.route(
+    /cdn\.jsdelivr\.net|\/share\/fonts\/[^?]*\.woff2(?!\?import)/,
+    (route) => route.abort(),
   );
   await page.goto("/#passport");
   await page.locator(".passport-share-button").click();
