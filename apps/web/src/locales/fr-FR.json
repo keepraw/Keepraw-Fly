@@ -8,6 +8,8 @@
     "changesNotSaved": "Les modifications ne sont pas enregistrées sur cet appareil.",
     "settingsNotSaved": "Les paramètres ne sont pas enregistrés sur cet appareil.",
     "skipToContent": "Passer au contenu",
+    "flightNotFound": "Ce vol ne figure pas dans cette archive.",
+    "dismissNotice": "Fermer",
     "unavailable": "Cette information n'est pas disponible.",
     "languageLoadFailed": "Impossible de charger cette langue. Vous pouvez continuer avec la langue actuelle. Vérifiez la connexion et réessayez.",
     "archiveConflict": "Un autre onglet a modifié ou vidé cette archive. Vos modifications ne sont pas enregistrées. Exportez l’archive non enregistrée de cet onglet avant de charger la version enregistrée.",
@@ -20,7 +22,10 @@
     "flights": "Vols",
     "passport": "Carnet de vol",
     "settings": "Paramètres",
-    "backToPassport": "Retour au carnet de vol"
+    "log": "Journal",
+    "map": "Carte",
+    "stats": "Statistiques",
+    "back": "Retour"
   },
   "welcome": {
     "eyebrow": "Votre historique de vols, entre vos mains",

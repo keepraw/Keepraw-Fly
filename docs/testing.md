@@ -93,6 +93,9 @@ and project selection. Relevant coverage includes:
 
 - [`keepraw-fly.pw.ts`](../e2e/keepraw-fly.pw.ts): editing, Settings, import
   flows, accessibility and responsive app journeys.
+- [`views-routing.pw.ts`](../e2e/views-routing.pw.ts): the four views and their
+  fragments, the addressable Flight across reload, Back and Forward, legacy
+  fragments, Settings parts, and the Compact tab bar with its touch targets.
 - [`unified-page-theme.pw.ts`](../e2e/unified-page-theme.pw.ts): live System
   appearance, Settings dialogs, persistence affordances, export and cancellation.
 - [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and

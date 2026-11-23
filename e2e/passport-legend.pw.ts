@@ -54,9 +54,12 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
     buffer: Buffer.from(JSON.stringify(archive)),
   });
   await page.getByRole("button", { name: "Import this archive" }).click();
-  await expect(page.locator(".passport-core-stat:nth-child(2)")).toContainText(
-    "9Flights",
-  );
+  const flightCount = page.locator(".passport-core-stat:nth-child(2)");
+  // Highlights live in Stats and the flights in Log; both share one selection.
+  const show = (view: "log" | "stats") =>
+    page.locator(`.site-navigation a[href="#/${view}"]`).click();
+  await expect(flightCount).toContainText("9Flights");
+  await show("stats");
   await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
     "1h 30m",
   );
@@ -86,14 +89,14 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
 
   await expect(page.locator(".passport-highlights")).toBeVisible();
   await expect(page.locator(".passport-highlight")).toHaveCount(5);
+  await show("log");
   await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(8);
-  await expect(page.locator(".passport-core-stat:nth-child(2)")).toContainText(
-    "8Flights",
-  );
+  await expect(flightCount).toContainText("8Flights");
   await page.locator("#passport-flight-search").fill("");
   await expect(page.locator(".flight-row")).toHaveCount(9);
   await expect(page.locator(".passport-exploration")).toHaveCount(0);
+  await show("stats");
 
   const airport = page.getByRole("button", {
     name: /Filter flights visiting .*TAO/,
@@ -101,28 +104,32 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await expect(airport).toContainText("8 visits");
   await airport.focus();
   await page.keyboard.press("Enter");
-  await expect(page.locator(".flight-row")).toHaveCount(8);
+  await expect(flightCount).toContainText("8Flights");
   await expect(airport).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".passport-exploration")).toBeVisible();
+  await show("log");
+  await expect(page.locator(".flight-row")).toHaveCount(8);
+  await show("stats");
   await airport.click();
-  await expect(page.locator(".flight-row")).toHaveCount(9);
+  await expect(flightCount).toContainText("9Flights");
   await expect(
     page.getByRole("button", {
       name: /Filter flights flown with Cathay Pacific/,
     }),
   ).toHaveCount(0);
-  await page.locator("#passport-flight-search").fill("CX");
-  await expect(page.locator(".flight-row")).toHaveCount(4);
-  await page.locator("#passport-flight-search").fill("");
+  await expect(
+    page.getByRole("button", { name: /Shortest flight: filter/ }),
+  ).toHaveCount(0);
   await page
     .getByRole("button", {
       name: /Longest flight: filter flights from HKG to BOM/,
     })
     .click();
+  await show("log");
   await expect(page.locator(".flight-row")).toHaveCount(1);
   await page.locator(".passport-exploration-close").click();
-  await expect(
-    page.getByRole("button", { name: /Shortest flight: filter/ }),
-  ).toHaveCount(0);
+  await page.locator("#passport-flight-search").fill("CX");
+  await expect(page.locator(".flight-row")).toHaveCount(4);
   await page.locator("#passport-flight-search").fill("SHA");
   await expect(page.locator(".flight-row")).toHaveCount(4);
   await page.locator("#passport-flight-search").fill("");
@@ -132,8 +139,14 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
       const settings = page.locator(".settings-display-fields select");
       await settings.nth(0).selectOption(locale);
       await settings.nth(1).selectOption(theme);
-      await page.goto("/#passport");
+      await page.setViewportSize({ width: 1280, height: 720 });
+      await page.goto("/#/map");
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.locator(".passport-legend")).toBeVisible();
+      await page.setViewportSize({ width: 390, height: 720 });
+      await expect(page.locator(".passport-legend")).toBeHidden();
+      await expect(page.locator(".passport-mobile-summary")).toBeVisible();
+      await page.goto("/#/stats");
       for (const width of [1440, 1366, 1280, 1024, 761, 390]) {
         await page.setViewportSize({ width, height: 720 });
         expect(
@@ -144,7 +157,6 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
         if (width > 760) {
           await expect(page.locator(".passport-highlights")).toBeVisible();
           await expect(page.locator(".passport-highlight")).toHaveCount(5);
-          await expect(page.locator(".passport-legend")).toBeVisible();
           expect(
             await page
               .locator(".passport-visual-sticky")
@@ -174,7 +186,6 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
               ".passport-highlights, .passport-highlight, .passport-spotlight",
             ),
           ).toHaveCount(0);
-          await expect(page.locator(".passport-legend")).toBeHidden();
           await expect(page.locator(".passport-mobile-summary")).toBeVisible();
           await expect(page.locator(".passport-delay-panel")).toBeVisible();
           await expect(page.locator(".passport-network-panel")).toBeVisible();

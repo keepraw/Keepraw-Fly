@@ -752,7 +752,7 @@
 
   .detail-header-back,
   .detail-header-action {
-    min-height: 36px;
+    min-height: 44px;
   }
 
   .detail-header-back {
@@ -782,8 +782,8 @@
 
   .detail-header-more summary {
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     place-items: center;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -824,7 +824,7 @@
   .detail-header-more-menu button {
     display: flex;
     width: 100%;
-    min-height: 38px;
+    min-height: 44px;
     align-items: center;
     gap: 9px;
     padding: 6px 10px;

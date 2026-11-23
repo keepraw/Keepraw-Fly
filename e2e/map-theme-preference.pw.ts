@@ -50,6 +50,7 @@ test("map theme switches both maps at once and survives reload @cross-browser", 
   );
 
   // The preference is stored, so a reload comes back in the chosen theme.
+  await page.goto("/#/map");
   await page.reload();
   await expect(passportMap).toHaveAttribute("data-map-theme", "daylight-chart");
 

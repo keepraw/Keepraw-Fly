@@ -192,11 +192,12 @@ for (const [locale, origin, destination] of [
       if (sample.width <= 760) {
         await expect(page.locator(".route-map")).toHaveCount(1);
         await expect(page.locator(".globe-webgl, canvas")).toHaveCount(0);
+        // Map keeps the totals; delay and network detail belong to Stats.
         await expect(
           page.locator(
             ".passport-mobile-summary, .passport-delay-panel, .passport-network-panel",
           ),
-        ).toHaveCount(3);
+        ).toHaveCount(1);
       }
     }
   });

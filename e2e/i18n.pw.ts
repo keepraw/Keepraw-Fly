@@ -140,7 +140,7 @@ async function verifyLocalePersistence(
       .poll(async () => (await stored(page)).settings.language)
       .toBe(language);
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page).toHaveURL(/#settings$/);
+    await expect(page).toHaveURL(/#\/settings$/);
     await expect(page.locator(".settings-page")).toBeVisible();
     await expect(localeSelect).toHaveValue(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);

@@ -28,11 +28,11 @@ for (const theme of ["light", "dark"]) {
     await page.setViewportSize(viewports[0]!);
     await page.goto("/");
     await page.getByRole("button", { name: "Try demo" }).click();
-    await page.goto("/#settings");
+    await page.goto("/#/settings");
     await page
       .getByRole("combobox", { name: "Appearance", exact: true })
       .selectOption(theme);
-    await page.goto("/#passport");
+    await page.goto("/#/map");
     await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
     await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
     await expect(page.locator(".map-relief-texture")).toHaveCount(0);
@@ -158,20 +158,22 @@ for (const theme of ["light", "dark"]) {
           ".flight-ledger-duration, .flight-ledger-exception, .flight-scheduled-times, .flight-deviation",
         ),
       ).toHaveCount(0);
-      await expect(page.locator(".passport-highlights"))[
-        viewport.height > 540 ? "toBeVisible" : "toBeHidden"
-      ]();
-      if (viewport.height > 540) {
-        await expect(
-          page.locator(".passport-longest-route").last(),
-        ).toBeVisible();
-        await expect(page.locator(".passport-longest-route").last()).toHaveText(
-          /\S.+\s*→\s*\S.+/,
-        );
-        await expect(page.locator(".passport-longest-facts")).toHaveText(
-          /Flight duration\d+h.*Distance.*\d/,
-        );
-      }
+      // Map keeps the six core facts; Stats holds the highlights at every
+      // height.
+      await expect(page.locator(".passport-highlights")).toHaveCount(0);
+      await page.goto("/#/stats");
+      await expect(page.locator(".passport-highlights")).toBeVisible();
+      await expect(
+        page.locator(".passport-longest-route").last(),
+      ).toBeVisible();
+      await expect(page.locator(".passport-longest-route").last()).toHaveText(
+        /\S.+\s*→\s*\S.+/,
+      );
+      await expect(page.locator(".passport-longest-facts")).toHaveText(
+        /Flight duration\d+h.*Distance.*\d/,
+      );
+      await page.goto("/#/map");
+      await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
       expect(geometry.mapAfterArchive).toBe(true);
       expect(geometry.reportBelowMap).toBe(true);
       expect(geometry.scrollportsFit).toBe(true);
@@ -270,7 +272,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
     // The first distribution starts from the welcome page. The second adds
     // the remaining flights through Settings in the already-open archive.
     if (distribution === "asia") {
-      await page.goto("/#settings");
+      await page.goto("/#/settings");
       await page
         .locator(".settings-display-fields select")
         .nth(0)
@@ -290,7 +292,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
       .getByRole("button", { name: /^Import (this archive|\d+ new flights?)$/ })
       .click();
     for (const theme of ["light", "dark"]) {
-      await page.goto("/#settings");
+      await page.goto("/#/settings");
       await page
         .locator(".settings-display-fields select")
         .nth(0)
@@ -299,7 +301,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         .locator(".settings-display-fields select")
         .nth(1)
         .selectOption(theme);
-      await page.goto("/#passport");
+      await page.goto("/#/map");
       await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
       await expect(page.locator(".map-relief-texture")).toHaveCount(0);
       await context.setOffline(true);

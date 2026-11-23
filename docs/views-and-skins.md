@@ -4,11 +4,15 @@
 
 ## English
 
-**Status: approved design, not yet implemented.** This is the phase 0
-specification for the view architecture and the three official skins. Current
-`main` still has the two-page Passport/Settings structure described in the
-[visual system](design-system.md). Each later phase updates this document with
-its implementation.
+**Status: phase 1 of 6 implemented.** The views, the fragment routes, the
+addressable Flight, the primary navigation with its persistent Add flight and
+the Compact touch targets below are in the application. Log, Map and Stats still
+share the v0.3.0 Passport composition and palette described in the
+[visual system](design-system.md), and the landing view is Map for every user.
+The exploration state is kept in memory; mirroring it into the fragment query
+arrives with the Log filters in phase 2. Skins, their extensions and the Wide,
+Ultrawide and Short layouts are not implemented yet. Each later phase updates
+this document with its implementation.
 
 **Contract version: `skin-contract/0` (internal, unstable).** The contract exists
 so that the three official skins are built against one structure. It is not a
@@ -322,9 +326,11 @@ synchronisation; live flight data; 3D maps.
 
 ## 简体中文
 
-**状态：设计已批准，尚未实现。** 本文是视图架构与三套官方皮肤的阶段 0 规格。当前
-`main` 仍是[视觉系统](design-system.md)所描述的「飞行护照 / 设置」两页结构。后续每个
-阶段在实现的同时更新本文。
+**状态：6 个阶段中的阶段 1 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
+「添加航班」的主导航，以及紧凑档的触控目标已经在应用中。日志、地图、统计仍沿用
+[视觉系统](design-system.md)所描述的 v0.3.0 飞行护照构图与配色，落地视图对所有用户都是
+地图。探索状态目前只保存在内存中；写入片段查询串的部分随阶段 2 的日志筛选一起实现。
+皮肤、皮肤扩展以及宽屏、超宽、矮屏布局尚未实现。后续每个阶段在实现的同时更新本文。
 
 **约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让三套官方皮肤基于同一
 结构实现。它不是对外的扩展接口：不支持第三方皮肤、皮肤导入，也不支持运行时加载的代码

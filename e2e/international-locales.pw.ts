@@ -78,7 +78,7 @@ async function reviewScreenshot(
 }
 
 for (const language of newLanguages) {
-  test(`${language}: desktop/mobile Settings, Detail, Passport and editor`, async ({
+  test(`${language}: desktop/mobile Settings, Stats, Map, Detail and editor`, async ({
     page,
   }, testInfo) => {
     test.setTimeout(90_000);
@@ -95,10 +95,10 @@ for (const language of newLanguages) {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 900 });
       if (width === 1440)
-        await page.locator('.site-navigation a[href="#settings"]').click();
+        await page.locator('.site-navigation a[href="#/settings"]').click();
       else
         await page
-          .getByRole("button", { name: text.nav.settings, exact: true })
+          .getByRole("link", { name: text.nav.settings, exact: true })
           .click();
       await openSettingsCategory(page, "General");
       await expect(page.locator("#settings-distance")).toHaveValue("miles");
@@ -110,12 +110,13 @@ for (const language of newLanguages) {
       ).toHaveText(text.settings.miles);
       await healthy(page);
       await reviewScreenshot(page, language, "settings", width);
-      if (width === 1440)
-        await page.locator('.site-navigation a[href="#passport"]').click();
-      else
+      const navigation =
+        width === 1440 ? ".site-navigation" : ".primary-tab-bar";
+      if (width === 390)
         await page
-          .getByRole("button", { name: text.nav.backToPassport, exact: true })
+          .getByRole("button", { name: text.nav.back, exact: true })
           .click();
+      await page.locator(`${navigation} a[href="#/stats"]`).click();
       await expect(page.locator(".passport-page")).toBeVisible();
       await expect(page.locator(".passport-page")).toContainText(
         text.passport.totalDelay,
@@ -128,10 +129,13 @@ for (const language of newLanguages) {
           page.locator(".passport-network-facts > div").first().locator("span"),
         ).toHaveText(text.passport.countries_one ?? text.passport.countries);
       }
+      await healthy(page);
+      await reviewScreenshot(page, language, "stats", width);
+      await page.locator(`${navigation} a[href="#/map"]`).click();
       await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
       await expect(page.locator("canvas")).toHaveCount(0);
       await healthy(page);
-      await reviewScreenshot(page, language, "passport", width);
+      await reviewScreenshot(page, language, "map", width);
       await page.locator(".flight-row").first().click();
       await expect(page.locator(".detail-page")).toBeVisible();
       await expect(page.locator(".detail-stop--departure")).toContainText(
@@ -174,12 +178,12 @@ for (const language of newLanguages) {
       await page.locator(".detail-header-back").click();
     }
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/#settings");
+    await page.goto("/#/settings");
     await expect(page.locator("#settings-language")).toHaveValue(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
     expect(errors).toEqual([]);
     await testInfo.attach("locale-review", {
-      body: `${language}: desktop/mobile Settings, Detail, Passport, editor; reload; unchanged miles/12-hour.`,
+      body: `${language}: desktop/mobile Settings, Stats, Map, Detail, editor; reload; unchanged miles/12-hour.`,
       contentType: "text/plain",
     });
   });

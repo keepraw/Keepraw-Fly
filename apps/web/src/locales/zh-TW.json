@@ -8,6 +8,8 @@
     "changesNotSaved": "變更尚未儲存到此裝置。",
     "settingsNotSaved": "設定尚未儲存到此裝置。",
     "skipToContent": "跳到主要內容",
+    "flightNotFound": "這個檔案裡沒有該航班。",
+    "dismissNotice": "關閉",
     "unavailable": "此資訊暫時無法使用。",
     "languageLoadFailed": "無法載入此語言。你仍可使用目前的語言。請檢查連線後再試一次。",
     "archiveConflict": "另一個分頁已修改或清空此檔案。本頁變更未儲存。載入已儲存版本前，請先匯出本頁未儲存的檔案。",
@@ -20,7 +22,10 @@
     "flights": "航班",
     "passport": "飛行護照",
     "settings": "設定",
-    "backToPassport": "返回飛行護照"
+    "log": "日誌",
+    "map": "地圖",
+    "stats": "統計",
+    "back": "返回"
   },
   "welcome": {
     "eyebrow": "你的飛行歷史，由你掌握",

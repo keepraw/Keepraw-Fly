@@ -81,8 +81,8 @@ test("manual selection survives save, reload and a date edit", async ({
   await expect(page.locator(".route-origin-airport")).toHaveText(
     "Hong Kong International Airport Kai Tak",
   );
+  // The open flight keeps its address across the reload.
   await page.reload();
-  await page.locator(".flight-row").click();
   await expect(page.locator(".route-origin-airport")).toHaveText(
     "Hong Kong International Airport Kai Tak",
   );
@@ -122,7 +122,6 @@ test("replacing SFO with historical Kai Tak persists the HKG code and site after
   await expect(
     page.locator(`[data-airport-identity="airport:${kaiTak}"]`),
   ).toHaveCount(1);
-  await page.locator(".flight-row").click();
   await expect(page.locator(".detail-stop--departure")).toContainText("HKG");
   await expect(page.locator(".route-origin-airport")).toContainText("Kai Tak");
 });
@@ -153,8 +152,8 @@ for (const [priorSite, expected] of [
     await expect(page.locator(".route-origin-airport")).toContainText(
       "Ataturk International Airport",
     );
+    // The open flight keeps its address across the reload.
     await page.reload();
-    await page.locator(".flight-row").click();
     await expect(page.locator(".detail-stop--departure")).toContainText(
       expected,
     );

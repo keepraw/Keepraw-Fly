@@ -103,9 +103,12 @@ test("shares search and year scope, map selection and adjacent detail navigation
       '.flight-record[data-flight-id="zh9911"] .flight-route-cities',
     ),
   ).toHaveText("Shenzhen→Qingdao");
+  // Arrival delay belongs to Stats; the scope is shared with Map.
+  await page.goto("/#/stats");
   await expect(page.locator(".passport-delay-highlight")).toContainText(
     "0h 11m",
   );
+  await page.goto("/#/map");
 
   await page
     .locator('.flight-record[data-flight-id="zh9911"] .flight-row')

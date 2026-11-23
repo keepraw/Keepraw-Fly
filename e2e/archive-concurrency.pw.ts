@@ -134,7 +134,7 @@ test("replaces a loaded large archive and edits, exports and reloads the current
     replacement.profile.name,
   );
   await expect.poll(() => stored(page)).toEqual(replacement);
-  await page.locator('.site-navigation a[href="#settings"]').click();
+  await page.locator('.site-navigation a[href="#/settings"]').click();
   await openSettingsCategory(page, "Data and backup");
   const downloading = page.waitForEvent("download");
   await page

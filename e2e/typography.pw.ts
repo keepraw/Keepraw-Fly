@@ -48,10 +48,10 @@ test("Chinese stylesheets are locale-scoped, pinned, non-blocking and deduplicat
   expect(requests).toHaveLength(0);
   await page.locator("#passport-flight-search").fill("TAO");
   for (const locale of ["zh-CN", "zh-TW", "en-US", "zh-CN"]) {
-    await page.goto("/#settings");
+    await page.goto("/#/settings");
     await page.locator(".settings-fields select").first().selectOption(locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
-    await page.goto("/#passport");
+    await page.goto("/#/map");
     await expect(page.locator(".passport-map-title")).toHaveCSS(
       "font-family",
       locale === "en-US"
@@ -100,7 +100,7 @@ for (const locale of ["zh-CN", "zh-TW"])
         );
         await page.emulateMedia({ reducedMotion: "reduce" });
         await importFixture(page);
-        await page.goto("/#settings");
+        await page.goto("/#/settings");
         await page
           .locator(".settings-fields select")
           .nth(0)
@@ -114,7 +114,7 @@ for (const locale of ["zh-CN", "zh-TW"])
           .nth(2)
           .selectOption("kilometers");
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
-        await page.goto("/#passport");
+        await page.goto("/#/map");
         await expect(page.locator(".flight-row")).toHaveCount(12);
       });
 
@@ -139,8 +139,15 @@ for (const locale of ["zh-CN", "zh-TW"])
             expect(bounds.failures).toEqual([]);
             expect(bounds.bottomSafety).toBeGreaterThanOrEqual(24);
             expect(bounds.controlsContained).toBe(true);
-            expect(bounds.longestHasMap).toBe(false);
             expect(bounds.archiveScroll.overflowY).toBe("auto");
+            await page.goto("/#/stats");
+            await settle(page);
+            const stats = await passportTypographyBounds(page);
+            expect(stats.documentFits).toBe(true);
+            expect(stats.failures).toEqual([]);
+            expect(stats.rightScroll.reachableBottom).toBe(true);
+            expect(stats.longestHasMap).toBe(false);
+            expect(stats.components).toHaveProperty([".passport-highlights"]);
           });
         });
       }
@@ -151,16 +158,26 @@ for (const locale of ["zh-CN", "zh-TW"])
           page,
         }) => {
           await settle(page);
+          // Stats owns the highlights; the selection it makes filters Log.
+          await page.goto("/#/stats");
           const longest = page.locator(".passport-longest-flight");
           await longest.focus();
           await page.keyboard.press("Space");
           await expect(longest).toHaveAttribute("aria-pressed", "true");
           await page.keyboard.press("Space");
-          await expect(page.locator(".flight-row")).toHaveCount(12);
-          await page.locator('[data-airport="TAO"]').focus();
+          await expect(longest).toHaveAttribute("aria-pressed", "false");
+          const airport = page.locator('[data-airport="TAO"]');
+          await airport.focus();
           await page.keyboard.press("Enter");
+          await page.goto("/#/log");
           await expect(page.locator(".flight-row")).toHaveCount(5);
+          await page.goto("/#/stats");
+          await airport.focus();
           await page.keyboard.press("Enter");
+          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+            [],
+          );
+          await page.goto("/#/map");
           await expect(page.locator(".flight-row")).toHaveCount(12);
           expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
             [],
@@ -206,7 +223,7 @@ for (const locale of ["zh-CN", "zh-TW"]) {
         .click();
       for (const theme of ["dark", "light"]) {
         await page.setViewportSize({ width: 1440, height: 900 });
-        await page.goto("/#settings");
+        await page.goto("/#/settings");
         await page
           .locator(".settings-fields select")
           .nth(0)
@@ -215,7 +232,7 @@ for (const locale of ["zh-CN", "zh-TW"]) {
           .locator(".settings-fields select")
           .nth(1)
           .selectOption(theme);
-        await page.goto("/#passport");
+        await page.goto("/#/map");
         await expect(
           page.locator(".flight-route-cities").first(),
         ).toContainText(locale === "zh-CN" ? "亚的斯亚贝巴" : "亞的斯亞貝巴");
@@ -236,17 +253,23 @@ for (const locale of ["zh-CN", "zh-TW"]) {
           expect(bounds.singleScreen).toBe(true);
           expect(bounds.failures).toEqual([]);
           expect(bounds.controlsContained).toBe(true);
-          expect(bounds.longestHasMap).toBe(false);
           expect(bounds.kpis).toHaveLength(6);
+          await page.goto("/#/stats");
+          await settle(page);
+          const stats = await passportTypographyBounds(page);
+          expect(stats.documentFits).toBe(true);
+          expect(stats.failures).toEqual([]);
+          expect(stats.longestHasMap).toBe(false);
+          const endpoints = page.locator(".passport-longest-endpoint > span");
+          await expect(endpoints).not.toHaveCount(0);
           expect(
-            await page
-              .locator(".passport-longest-endpoint > span")
-              .evaluateAll((nodes) =>
-                nodes.every(
-                  (node) => getComputedStyle(node).textOverflow !== "ellipsis",
-                ),
+            await endpoints.evaluateAll((nodes) =>
+              nodes.every(
+                (node) => getComputedStyle(node).textOverflow !== "ellipsis",
               ),
+            ),
           ).toBe(true);
+          await page.goto("/#/map");
         }
       }
     },

@@ -191,14 +191,25 @@ export async function expectShell(
   );
   await expectReachable(
     mobile
-      ? page.getByRole("button", {
-          name: current === "passport" ? "Settings" : "Back to Flight Passport",
-          exact: true,
-        })
+      ? current === "passport"
+        ? page.getByRole("link", { name: "Settings", exact: true })
+        : page.getByRole("button", { name: "Back", exact: true })
       : page.locator(
-          `.site-navigation a[href="#${current === "passport" ? "settings" : "passport"}"]`,
+          `.site-navigation a[href="#/${current === "passport" ? "settings" : "map"}"]`,
         ),
   );
+  // Primary destinations: a bottom tab bar when compact, the header otherwise.
+  if (current === "passport") {
+    await expect(page.locator(".primary-tab-bar")).toHaveCSS(
+      "display",
+      mobile ? "flex" : "none",
+    );
+    await expect(
+      page
+        .locator(mobile ? ".primary-tab-bar" : ".site-navigation")
+        .locator('a[aria-current="page"]'),
+    ).toHaveAttribute("href", "#/map");
+  }
 }
 
 export async function navigateTo(
@@ -215,7 +226,11 @@ export async function navigateTo(
       )
       .click();
   } else {
-    await page.locator(`.site-navigation a[href="#${destination}"]`).click();
+    await page
+      .locator(
+        `.site-navigation a[href="#/${destination === "settings" ? "settings" : "map"}"]`,
+      )
+      .click();
   }
   await expect(page.locator(`.${destination}-page`)).toBeVisible();
 }
@@ -242,10 +257,8 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
     await expectColumns(layout, 2);
     await expect(page.locator(".passport-mobile-summary")).toBeHidden();
     await expect(page.locator(".route-map-canvas")).toBeVisible();
-    await expect(page.locator(".passport-highlights")).toHaveCount(1);
-    await expect(page.locator(".passport-highlights"))[
-      page.viewportSize()!.height <= 540 ? "toBeHidden" : "toBeVisible"
-    ]();
+    // Highlights belong to Stats, not to Map.
+    await expect(page.locator(".passport-highlights")).toHaveCount(0);
   }
 }
 

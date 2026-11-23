@@ -150,7 +150,7 @@ for (const zoom of [1, 1.25]) {
             gate = { releases: [], ready: resolve };
           });
         }
-        await page.goto(`${origin}/#settings`);
+        await page.goto(`${origin}/#/settings`);
         await page
           .locator(".settings-fields select")
           .nth(0)
@@ -163,7 +163,7 @@ for (const zoom of [1, 1.25]) {
           .locator(".settings-fields select")
           .nth(2)
           .selectOption("kilometers");
-        await page.goto(`${origin}/#passport`);
+        await page.goto(`${origin}/#/map`);
         if (firstLocaleLoad) {
           await page.waitForFunction(
             (locale) =>

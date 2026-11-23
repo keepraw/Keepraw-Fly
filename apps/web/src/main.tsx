@@ -33,6 +33,7 @@ import "./styles/passport-mobile.css";
 import "./styles/passport-desktop.css";
 import "./styles/flight-list.css";
 import "./styles/share-overlay.css";
+import "./styles/views.css";
 
 const NeonLabRoute = import.meta.env.DEV
   ? lazy(() =>
