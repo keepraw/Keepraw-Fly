@@ -46,6 +46,7 @@ the browser; it does not add server backup or cloud synchronization.
 | Portable archive, compatibility and CSV contracts / 档案格式、兼容性与 CSV 契约                         | [Schema / 数据规范](schema.md)                                                                                 |
 | Historical airport identity and data package / 历史机场身份与数据包                                     | [Airport history / 历史机场](airport-history.md)                                                               |
 | UI, typography, themes, tokens and interaction / 界面、字体、主题与交互                                 | [Design system / 视觉系统（双语）](design-system.md)                                                           |
+| Views, skin contract and screen classes (design, phase 0) / 视图、皮肤约定与屏幕档位（设计，阶段 0）    | [Views and skins / 视图与皮肤（双语）](views-and-skins.md)                                                     |
 | Neon Aviation visual prototypes and typed tokens / 霓虹航空视觉样例与类型化 Token                       | [Neon Aviation design system / 霓虹航空视觉系统](neon-aviation-design-system.md)                               |
 | Shared 2D map core and theme registry / 共享 2D 地图核心与主题注册表                                    | [Map 2D architecture / 2D 地图架构](map-2d-architecture.md)                                                    |
 | Test layers, fixtures, captures and CI / 测试分层、输入、截图与 CI                                      | [Testing / 测试](testing.md)                                                                                   |
