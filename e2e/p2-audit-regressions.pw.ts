@@ -155,6 +155,7 @@ test("KF-27: stale tabs merge preference fields and backup metadata across reloa
     expect((await savedSettings(tab))?.lastBackupAt).toBe(lastBackupAt);
   }
   // Same-field conflicts have a documented, deterministic last-commit winner.
+  await openSettingsCategory(page, "General");
   await page.locator("#settings-appearance").selectOption("light");
   await expect
     .poll(async () => (await savedSettings(page))?.appearance)

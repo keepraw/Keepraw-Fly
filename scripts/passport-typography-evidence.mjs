@@ -3,7 +3,11 @@ export async function passportTypographyBounds(page) {
   // The formal map is lazy. Layout/locale readiness alone does not guarantee
   // that its scene or SVG fallback exists, especially on a cold browser context.
   await page.waitForFunction(() =>
-    Boolean(document.querySelector(".route-map-canvas")),
+    Boolean(
+      document.querySelector(
+        '.route-map-canvas, .passport-layout:is([data-view="log"], [data-view="stats"])',
+      ),
+    ),
   );
   await page.evaluate(
     () =>
@@ -25,15 +29,19 @@ export async function passportTypographyBounds(page) {
       };
     };
     const viewport = box(visual);
+    // Each view renders its own subset of these shared regions.
     const selectors = [
       ".passport-scope",
       ".route-map",
       ".passport-core-stats",
       ".passport-highlights",
       ".passport-longest-flight",
-    ];
+    ].filter((s) => document.querySelector(s));
     const components = Object.fromEntries(
       selectors.map((s) => [s, box(document.querySelector(s))]),
+    );
+    const lowest = Math.max(
+      ...Object.values(components).map((component) => component.bottom),
     );
     const failures = [];
     const nodes = [
@@ -74,7 +82,8 @@ export async function passportTypographyBounds(page) {
     const controls = [
       ...document.querySelectorAll(".route-map .map-zoom-controls button"),
     ].map(box);
-    const canvas = box(document.querySelector(".route-map-canvas"));
+    const canvasElement = document.querySelector(".route-map-canvas");
+    const canvas = canvasElement ? box(canvasElement) : null;
     const controlsContained = controls.every(
       (r) =>
         r.x >= canvas.x - 1 &&
@@ -83,12 +92,15 @@ export async function passportTypographyBounds(page) {
         r.bottom <= canvas.bottom + 1,
     );
     const archive = document.querySelector(".passport-archive-scroll");
-    const highlights = document.querySelector(".passport-highlights");
+    const last = visual.querySelector(
+      ".passport-highlights, .passport-core-stats",
+    );
     const previous = visual.scrollTop;
     visual.scrollTop = visual.scrollHeight;
     const reachableBottom =
-      highlights.getBoundingClientRect().bottom <=
-      visual.getBoundingClientRect().bottom + 1;
+      !last ||
+      last.getBoundingClientRect().bottom <=
+        visual.getBoundingClientRect().bottom + 1;
     visual.scrollTop = previous;
     return {
       viewport: { width: innerWidth, height: innerHeight, devicePixelRatio },
@@ -100,7 +112,7 @@ export async function passportTypographyBounds(page) {
       failures,
       controlsContained,
       singleScreen:
-        components[".passport-highlights"].bottom <= viewport.bottom + 1 &&
+        lowest <= viewport.bottom + 1 &&
         visual.scrollHeight <= visual.clientHeight + 1,
       rightScroll: {
         clientHeight: visual.clientHeight,
@@ -110,11 +122,13 @@ export async function passportTypographyBounds(page) {
         reachableBottom,
       },
       bottomSafety: (visualViewport?.height ?? innerHeight) - viewport.bottom,
-      archiveScroll: {
-        clientHeight: archive.clientHeight,
-        scrollHeight: archive.scrollHeight,
-        overflowY: getComputedStyle(archive).overflowY,
-      },
+      archiveScroll: archive
+        ? {
+            clientHeight: archive.clientHeight,
+            scrollHeight: archive.scrollHeight,
+            overflowY: getComputedStyle(archive).overflowY,
+          }
+        : null,
       longestHasMap: Boolean(
         document.querySelector(
           ".passport-longest-flight svg, .passport-longest-flight canvas, .passport-longest-flight img",

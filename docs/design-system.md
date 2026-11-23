@@ -20,7 +20,7 @@ change production map or passport output.
 | [styles/](../apps/web/src/styles/)                                      | Global foundations, shared presentation and feature composition; responsive rules stay with their owner |
 | [main.tsx](../apps/web/src/main.tsx)                                    | Explicit, stable stylesheet import order after design-system tokens                                     |
 | [PageShell](../apps/web/src/components/PageShell.tsx)                   | Main-content landmark and shared page shell                                                             |
-| [AppHeader](../apps/web/src/components/AppHeader.tsx)                   | Passport/Settings navigation, mobile headings and flight-detail actions                                 |
+| [AppHeader](../apps/web/src/components/AppHeader.tsx)                   | Primary and Settings navigation, Compact tab bar, headings and flight-detail actions                    |
 | [AviationPrimitives](../apps/web/src/components/AviationPrimitives.tsx) | Airport codes, status badges and aviation icons                                                         |
 | [MapViewport](../apps/web/src/components/MapViewport.tsx)               | Local SVG pan, zoom, reset and camera transitions                                                       |
 
@@ -34,12 +34,14 @@ helpers; `shell.css` owns the header, navigation, page shell and loading screen;
 effects and controls. `import.css`, `settings.css`, `flight-editor.css`,
 `flight-detail.css` and `passport.css` own their workflows and composition,
 including their responsive rules. Passport also owns the archive and flight-row
-presentation.
+presentation. `views.css` selects which of those regions each view shows
+(`data-view` on the Passport layout) and owns the Compact tab bar; see
+[views and skins](views-and-skins.md).
 
 The exact import order in [main.tsx](../apps/web/src/main.tsx) is authoritative.
 `shared-page-theme.css` follows base/shell and owns the shared Passport blue-gray
 palette; feature composition follows shared controls. Passport mobile/desktop,
-flight-list and share-overlay styles retain their explicit later positions.
+flight-list, share-overlay and views styles retain their explicit later positions.
 Do not duplicate that ordered list here. Source order is part of the cascade:
 shared motion follows Settings interaction rules, and Passport time/deviation
 colors follow Flight Detail status rules. Check cross-file dependencies before
@@ -64,8 +66,9 @@ new UI should prefer semantic roles instead of adding another palette.
 - The shared content maximum is 1,280 px with fluid 20–40 px gutters; flight-detail
   composition uses a 1,240 px maximum. The shared navigation/Passport transition is 760/761 px. Flight Detail
   has its own 1199/1200 px composition.
-  Mobile uses a page heading with settings/back actions in place of desktop
-  navigation. Insets account for device safe areas.
+  Mobile uses a page heading with settings/back actions and a fixed bottom tab bar
+  (Log, Map, Stats, Passport and Add flight) in place of desktop navigation.
+  Insets account for device safe areas.
 
 ### Composition
 

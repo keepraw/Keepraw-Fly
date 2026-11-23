@@ -26,7 +26,12 @@ async function navigateTo(page: Page, destination: "passport" | "settings") {
       await page.locator(".detail-header-back").click();
     return;
   }
-  await page.locator(`.site-navigation a[href="#${destination}"]`).click();
+  // The flight list these journeys return to lives on Map.
+  await page
+    .locator(
+      `.site-navigation a[href="#/${destination === "passport" ? "map" : "settings"}"]`,
+    )
+    .click();
 }
 
 test("creates, edits and deletes a personal flight without a JSON file", async ({
@@ -291,9 +296,11 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await powerUserMode.uncheck();
   // The switch updates optimistically; reload only after IndexedDB commits it.
   await expect.poll(savedPowerUserMode).toBe(false);
+  // The open Settings part is in the address and survives the reload.
   await page.reload();
+  await expect(page).toHaveURL(/#\/settings\/advanced$/);
   await expect(
-    page.getByRole("heading", { name: "General", exact: true }),
+    page.getByRole("heading", { name: "Advanced", exact: true }),
   ).toBeVisible();
   await openSettingsCategory(page, "Profile");
   await expect(page.getByLabel("Romanized name", { exact: true })).toHaveValue(
@@ -696,7 +703,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       const periodSelector =
         document.querySelector<HTMLElement>(".passport-period");
       const addFlight = document.querySelector<HTMLElement>(
-        ".archive-controls .add-flight-button",
+        ".site-header .add-flight-button",
       );
       if (!archive || !archiveScroll || !visual) {
         throw new Error("Passport workspace landmarks are missing");
@@ -715,9 +722,6 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
       )!;
       const support = document.querySelector<HTMLElement>(
         ".passport-core-stat span",
-      )!;
-      const delay = document.querySelector<HTMLElement>(
-        ".passport-delay-highlight",
       )!;
       const legend = document.querySelector<HTMLElement>(".passport-legend")!;
       const network = document.querySelector<HTMLElement>(
@@ -738,20 +742,9 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
           getComputedStyle(archiveScroll).overflowY === "auto",
         bodyFitsViewport:
           document.documentElement.scrollHeight <= window.innerHeight,
-        highlightsVisible:
-          document.querySelectorAll(".passport-airport-rank").length === 4 &&
-          document.querySelectorAll(".passport-longest-flight").length === 1 &&
-          getComputedStyle(document.querySelector(".passport-highlights")!)
-            .display !== "none",
         distanceLeads:
           parseFloat(getComputedStyle(hero).fontSize) >
-            parseFloat(getComputedStyle(support).fontSize) &&
-          parseFloat(getComputedStyle(hero).fontSize) >
-            parseFloat(
-              getComputedStyle(
-                delay.querySelector(".passport-spotlight-label")!,
-              ).fontSize,
-            ),
+          parseFloat(getComputedStyle(support).fontSize),
         legendIsReport: getComputedStyle(legend).display === "grid",
         networkIsReport:
           network.tagName === "SECTION" &&
@@ -789,9 +782,9 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
           document.querySelector<HTMLElement>(".route-map-canvas")!
             .clientHeight,
         selectorFlexGrow: getComputedStyle(periodSelector).flexGrow,
-        selectorPrecedesAddFlight:
-          periodSelector.getBoundingClientRect().bottom <=
-          addFlight.getBoundingClientRect().top,
+        addFlightPrecedesSelector:
+          addFlight.getBoundingClientRect().bottom <=
+          periodSelector.getBoundingClientRect().top,
         selectorUsesAvailableContentWidth:
           periodSelector.getBoundingClientRect().width <=
           archive.getBoundingClientRect().width + 0.5,
@@ -802,7 +795,6 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
     expect(workspace.archiveScrollsInternally).toBe(true);
     expect(workspace.bodyFitsViewport).toBe(true);
-    expect(workspace.highlightsVisible).toBe(true);
     expect(workspace.distanceLeads).toBe(true);
     expect(workspace.legendIsReport).toBe(true);
     expect(workspace.networkIsReport).toBe(true);
@@ -814,13 +806,43 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(new Set(workspace.logoStarts).size).toBe(1);
     expect(workspace.mapHeight).toBeGreaterThanOrEqual(180);
     expect(workspace.selectorFlexGrow).toBe("0");
-    expect(workspace.selectorPrecedesAddFlight).toBe(true);
+    expect(workspace.addFlightPrecedesSelector).toBe(true);
     expect(workspace.selectorUsesAvailableContentWidth).toBe(true);
     expect(workspace.visualFitsViewport).toBe(true);
+
+    // Stats holds the highlights at every desktop height.
+    await page.locator('.site-navigation a[href="#/stats"]').click();
+    await expect(page.locator(".passport-highlights")).toBeVisible();
+    await expect(page.locator(".passport-airport-rank")).toHaveCount(4);
+    await expect(page.locator(".passport-longest-flight")).toHaveCount(1);
+    expect(
+      await page.evaluate(
+        () =>
+          parseFloat(
+            getComputedStyle(
+              document.querySelector(".passport-core-stat strong")!,
+            ).fontSize,
+          ) >
+          parseFloat(
+            getComputedStyle(
+              document.querySelector(
+                ".passport-delay-highlight .passport-spotlight-label",
+              )!,
+            ).fontSize,
+          ),
+      ),
+    ).toBe(true);
+    await page.locator('.site-navigation a[href="#/map"]').click();
+    await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   }
 
   const search = page.locator(".passport-search-field");
   const searchInput = page.locator("#passport-flight-search");
+  await page.evaluate(() =>
+    Promise.all(
+      document.getAnimations().map((animation) => animation.finished),
+    ),
+  );
   const searchBoundsBeforeFocus = await search.boundingBox();
   await searchInput.focus();
   const searchFocus = await search.evaluate((control) => {
@@ -846,18 +868,16 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     ),
   ).toHaveCount(0);
   await expect(
-    page
-      .locator(".passport-archive")
-      .getByRole("button", { name: "Add flight" }),
+    page.locator(".site-header").getByRole("button", { name: "Add flight" }),
   ).toBeVisible();
   await expect(
     page.locator('.passport-period[aria-label="Passport period"]'),
   ).toBeVisible();
 
   for (const locale of ["zh-CN", "zh-TW", "en-US"]) {
-    await page.locator('.site-navigation a[href="#settings"]').click();
+    await page.locator('.site-navigation a[href="#/settings"]').click();
     await page.locator(".settings-fields select").first().selectOption(locale);
-    await page.locator('.site-navigation a[href="#passport"]').click();
+    await page.locator('.site-navigation a[href="#/stats"]').click();
     await expect(page.locator(".passport-highlights")).toBeVisible();
     await expect(page.locator(".passport-highlight")).toHaveCount(5);
     expect(
@@ -867,6 +887,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     ).toBe(true);
   }
 
+  await page.locator('.site-navigation a[href="#/map"]').click();
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = await page.evaluate(() => {
     const archiveScroll = document.querySelector<HTMLElement>(
@@ -906,7 +927,7 @@ test("keeps the mobile Passport composition visually stable", async ({
   await expect(page.locator(".mobile-page-heading h1")).toHaveText(
     "Flight Passport",
   );
-  await expect(page.locator(".mobile-navigation")).toHaveCount(0);
+  await expect(page.locator(".primary-tab-bar")).toHaveCount(0);
   await page.getByRole("button", { name: "Try demo" }).click();
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   await expect(page.locator(".route-map-loading, canvas")).toHaveCount(0);
@@ -935,12 +956,6 @@ test("keeps the mobile Passport composition visually stable", async ({
       const summary = document.querySelector<HTMLElement>(
         ".passport-mobile-summary",
       )!;
-      const delay = document.querySelector<HTMLElement>(
-        ".passport-delay-panel",
-      )!;
-      const network = document.querySelector<HTMLElement>(
-        ".passport-network-panel",
-      )!;
       const archive = document.querySelector<HTMLElement>(".archive-heading")!;
       const firstFlightYear =
         document.querySelector<HTMLElement>(".flight-year")!;
@@ -948,9 +963,12 @@ test("keeps the mobile Passport composition visually stable", async ({
       const settings = document.querySelector<HTMLElement>(
         ".mobile-settings-button",
       )!;
-      const panels = [summary, delay, network];
+      const tabBar = document.querySelector<HTMLElement>(".primary-tab-bar")!;
       return {
-        noBottomNav: !document.querySelector(".mobile-navigation"),
+        tabDestinations: tabBar.querySelectorAll("nav > a").length,
+        tabBarPinned:
+          getComputedStyle(tabBar).position === "fixed" &&
+          Math.abs(tabBar.getBoundingClientRect().bottom - innerHeight) <= 0.5,
         title: document.querySelector(".mobile-page-heading h1")?.textContent,
         headerScrolls: getComputedStyle(header).position === "relative",
         touchTarget:
@@ -960,31 +978,11 @@ test("keeps the mobile Passport composition visually stable", async ({
           document.documentElement.scrollWidth <=
           document.documentElement.clientWidth,
         summaryVisible: getComputedStyle(summary).display !== "none",
-        panelsDistinct:
-          new Set(
-            panels.map((panel) => getComputedStyle(panel).backgroundColor),
-          ).size === 3,
-        panelContentsFit: panels.every((panel) => {
-          const bounds = panel.getBoundingClientRect();
-          return Array.from(panel.querySelectorAll("*")).every((element) => {
-            const content = element.getBoundingClientRect();
-            return (
-              content.width === 0 ||
-              (content.left >= bounds.left - 0.5 &&
-                content.right <= bounds.right + 0.5)
-            );
-          });
-        }),
-        panelsOrdered:
-          summary.getBoundingClientRect().top <
-            delay.getBoundingClientRect().top &&
-          delay.getBoundingClientRect().top <
-            network.getBoundingClientRect().top &&
-          network.getBoundingClientRect().top <
-            archive.getBoundingClientRect().top,
-        archiveFollowsPanels:
-          firstFlightYear.getBoundingClientRect().top >
-          network.getBoundingClientRect().bottom,
+        archiveFollowsSummary:
+          summary.getBoundingClientRect().bottom <=
+            archive.getBoundingClientRect().top + 0.5 &&
+          archive.getBoundingClientRect().top <
+            firstFlightYear.getBoundingClientRect().top,
         mapWithoutPlaceholder:
           document.querySelector(".route-map[data-map-theme] svg") !== null &&
           document.querySelector(".route-map-loading, canvas") === null,
@@ -998,41 +996,80 @@ test("keeps the mobile Passport composition visually stable", async ({
         pastFlightsTitle: archive
           .querySelector(".passport-mobile-section-title")
           ?.textContent?.trim(),
-        archiveActions: ["Add flight", "Import flights"].every((label) =>
-          Array.from(archive.querySelectorAll("button")).some((button) =>
-            button.textContent?.includes(label),
-          ),
-        ),
+        addFlightInTabBar:
+          tabBar.querySelector("button")?.getAttribute("aria-label") ===
+          "Add flight",
       };
     });
-    expect(composition.noBottomNav).toBe(true);
-    expect(composition.title).toBe("Flight Passport");
+    expect(composition.tabDestinations).toBe(4);
+    expect(composition.tabBarPinned).toBe(true);
+    expect(composition.title).toBe("Map");
     expect(composition.headerScrolls).toBe(true);
     expect(composition.touchTarget).toBe(true);
     expect(composition.fitsViewport).toBe(true);
     expect(composition.summaryVisible).toBe(true);
-    expect(composition.panelsDistinct).toBe(true);
-    expect(composition.panelContentsFit).toBe(true);
-    expect(composition.panelsOrdered).toBe(true);
-    expect(composition.archiveFollowsPanels).toBe(true);
+    expect(composition.archiveFollowsSummary).toBe(true);
     expect(composition.mapWithoutPlaceholder).toBe(true);
     expect(composition.highlightsAbsent).toBe(true);
     expect(composition.periodYears).toEqual(["All", "2026", "2025", "2024"]);
     expect(composition.pastFlightsTitle).toBe("Past flights");
-    expect(composition.archiveActions).toBe(true);
+    expect(composition.addFlightInTabBar).toBe(true);
+
+    // Stats carries the delay and network panels below the same summary.
+    await page.locator('.primary-tab-bar a[href="#/stats"]').click();
+    const panels = await page.evaluate(() => {
+      const list = [
+        ".passport-mobile-summary",
+        ".passport-delay-panel",
+        ".passport-network-panel",
+      ].map((selector) => document.querySelector<HTMLElement>(selector)!);
+      return {
+        distinct:
+          new Set(list.map((panel) => getComputedStyle(panel).backgroundColor))
+            .size === 3,
+        contentsFit: list.every((panel) => {
+          const bounds = panel.getBoundingClientRect();
+          return Array.from(panel.querySelectorAll("*")).every((element) => {
+            const content = element.getBoundingClientRect();
+            return (
+              content.width === 0 ||
+              (content.left >= bounds.left - 0.5 &&
+                content.right <= bounds.right + 0.5)
+            );
+          });
+        }),
+        ordered: list.every(
+          (panel, index) =>
+            index === 0 ||
+            list[index - 1]!.getBoundingClientRect().top <
+              panel.getBoundingClientRect().top,
+        ),
+        fitsViewport:
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      };
+    });
+    expect(panels).toEqual({
+      distinct: true,
+      contentsFit: true,
+      ordered: true,
+      fitsViewport: true,
+    });
+    await page.locator('.primary-tab-bar a[href="#/map"]').click();
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("link", { name: "Settings" }).click();
   await expect(page.locator(".mobile-page-heading h1")).toHaveText("Settings");
-  await expect(page).toHaveURL(/#settings$/);
-  await page.getByRole("button", { name: "Back to Flight Passport" }).click();
-  await expect(page.locator(".mobile-page-heading h1")).toHaveText(
-    "Flight Passport",
-  );
+  await expect(page).toHaveURL(/#\/settings$/);
+  await expect(page.locator(".primary-tab-bar")).toBeHidden();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.locator(".mobile-page-heading h1")).toHaveText("Map");
+  await page.locator('.primary-tab-bar a[href="#/log"]').click();
   await page.getByRole("button", { name: "Import flights" }).click();
   await expect(page.locator("#settings-import")).toBeInViewport();
-  await page.getByRole("button", { name: "Back to Flight Passport" }).click();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.locator(".mobile-page-heading h1")).toHaveText("Log");
   await page.evaluate(() =>
     window.scrollTo({
       top: document.documentElement.scrollHeight,
@@ -1045,7 +1082,11 @@ test("keeps the mobile Passport composition visually stable", async ({
         .locator(".flight-row")
         .last()
         .evaluate(
-          (row) => row.getBoundingClientRect().bottom <= window.innerHeight,
+          // The last flight clears the fixed tab bar.
+          (row) =>
+            row.getBoundingClientRect().bottom <=
+            document.querySelector(".primary-tab-bar")!.getBoundingClientRect()
+              .top,
         ),
     )
     .toBe(true);
@@ -1069,14 +1110,14 @@ test.describe("Chinese distance defaults", () => {
     await expect(page.locator(".detail-segment-meta")).toContainText("公里");
 
     await page.locator(".detail-header-back").click();
-    await page.locator('.site-navigation a[href="#settings"]').click();
+    await page.locator('.site-navigation a[href="#/settings"]').click();
     const distanceSelect = page.getByRole("combobox", {
       name: "距离",
       exact: true,
     });
     await expect(distanceSelect).toHaveValue("kilometers");
     await distanceSelect.selectOption("miles");
-    await page.locator('.site-navigation a[href="#passport"]').click();
+    await page.locator('.site-navigation a[href="#/map"]').click();
     await expect(page.locator(".passport-legend")).toContainText("英里");
     await page
       .getByRole("button", { name: /Open |打开 |打開 / })
@@ -1093,14 +1134,11 @@ test.describe("Chinese distance defaults", () => {
       )
       .toBe("miles");
     await page.reload();
-    // The archive and preferences persist; the selected Detail is session state.
+    // The archive, the preferences and the addressed Detail all persist.
     await expect(page.locator(".demo-banner")).toBeVisible();
-    await expect(page.locator(".passport-legend")).toContainText("英里");
-    await page
-      .getByRole("button", { name: /Open |打开 |打開 / })
-      .first()
-      .click();
     await expect(page.locator(".detail-segment-meta")).toContainText("英里");
+    await page.locator(".detail-header-back").click();
+    await expect(page.locator(".passport-legend")).toContainText("英里");
     await page.goto("/#settings");
     await expect(distanceSelect).toHaveValue("miles");
   });
@@ -1224,7 +1262,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
     expect(layout.fitsViewport).toBe(true);
   }
 
-  await page.getByRole("button", { name: "Flight Passport" }).click();
+  await page.locator(".detail-header-back").click();
   await navigateTo(page, "settings");
   await page.getByLabel("Appearance").selectOption("light");
   await page.getByLabel("Language").selectOption("zh-CN");
@@ -1257,7 +1295,7 @@ test("maps and previews CSV columns before appending flights", async ({
   await preview.getByRole("button", { name: "Add 1 flight" }).click();
   // Import navigates itself; wait for completion before any subsequent action.
   await expect(preview).toHaveCount(0);
-  await expect(page).toHaveURL(/#passport$/);
+  await expect(page).toHaveURL(/#\/map$/);
   await expect(page.getByRole("button", { name: /Open MU589/ })).toBeVisible();
   await expect(page.locator(".persistence-status")).toHaveText("");
   await page.reload();
@@ -1711,7 +1749,7 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     timelineBoxShadow: "none",
   });
 
-  await page.getByRole("button", { name: "Flight Passport" }).click();
+  await page.locator(".detail-header-back").click();
   await navigateTo(page, "passport");
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
   const passportPresentation = await page.evaluate(() => {
@@ -1725,11 +1763,6 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     const switcherStyle = getComputedStyle(switcher);
     return {
       canvasHasDepth: getComputedStyle(canvas).backgroundImage !== "none",
-      highlightsVisible:
-        document.querySelectorAll(".passport-airport-rank").length === 4 &&
-        document.querySelectorAll(".passport-longest-flight").length === 1 &&
-        getComputedStyle(document.querySelector(".passport-highlights")!)
-          .display !== "none",
       mapBorderRadius: mapStyle.borderRadius,
       mapBoxShadow: mapStyle.boxShadow,
       countryPaths: map.querySelectorAll(".map-country").length,
@@ -1750,7 +1783,6 @@ test("keeps core archive surfaces precise and non-decorative", async ({
     canvasHasDepth: false,
     countryPaths: 177,
     graticules: 1,
-    highlightsVisible: true,
     mapBorderRadius: "4px",
     mapBoxShadow: "none",
     permanentAirportLabels: expect.any(Number),
@@ -1888,7 +1920,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
     page.locator(".detail-stop--departure .detail-stop-facts"),
   ).toContainText("338");
 
-  await page.getByRole("button", { name: "Flight Passport" }).click();
+  await page.locator(".detail-header-back").click();
   await navigateTo(page, "settings");
   await page.getByLabel("Appearance").selectOption("light");
   await page.getByLabel("Language").selectOption("zh-CN");
@@ -2023,7 +2055,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
       .evaluate((element) => element.scrollWidth <= element.clientWidth),
   ).toBe(true);
 
-  await page.getByRole("button", { name: "飞行护照", exact: true }).click();
+  await page.locator(".detail-header-back").click();
   await navigateTo(page, "settings");
   await page.getByLabel("语言").selectOption("zh-TW");
   await navigateTo(page, "passport");
@@ -2144,10 +2176,7 @@ test("enforces the static responsive UI acceptance constraints", async ({
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", {
-      name: "Flight Passport",
-      exact: true,
-    });
+    const detailBack = page.locator(".detail-header-back");
     if (await detailBack.isVisible()) await detailBack.click();
     else await navigateTo(page, "passport");
 
@@ -2265,10 +2294,7 @@ test("enforces the static responsive UI acceptance constraints", async ({
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    const detailBack = page.getByRole("button", {
-      name: "Flight Passport",
-      exact: true,
-    });
+    const detailBack = page.locator(".detail-header-back");
     if (await detailBack.isVisible()) await detailBack.click();
     else await navigateTo(page, "passport");
     await page.getByRole("button", { name: "Add flight" }).click();

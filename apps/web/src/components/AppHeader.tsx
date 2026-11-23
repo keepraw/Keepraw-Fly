@@ -1,11 +1,26 @@
+import type { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  DEFAULT_LANDING_VIEW,
+  formatRoute,
+  primaryViewOrder,
+  type PrimaryView,
+  type Route,
+} from "../routing";
 
-export type Page = "passport" | "settings";
+interface NavigationProps {
+  route: Route;
+  onNavigate: (route: Route) => void;
+  onAddFlight?: () => void;
+}
 
-interface AppHeaderProps {
-  currentPage: Page;
-  onNavigate: (page: Page) => void;
+interface AppHeaderProps extends NavigationProps {
+  /** Primary destinations need an archive; Settings is always reachable. */
+  hasArchive: boolean;
+  /** Leaves Settings on small screens, where the tab bar is replaced by Back. */
+  onBack: () => void;
   detailActions?: {
+    backLabel: string;
     onBack: () => void;
     onDuplicate: () => void;
     onEdit: () => void;
@@ -14,21 +29,40 @@ interface AppHeaderProps {
   };
 }
 
+/** Let the browser handle modified clicks so links open in a new tab. */
+function followInApp(
+  event: MouseEvent<HTMLAnchorElement>,
+  route: Route,
+  onNavigate: (route: Route) => void,
+) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return;
+  event.preventDefault();
+  onNavigate(route);
+}
+
 export function AppHeader({
-  currentPage,
+  route,
+  hasArchive,
   onNavigate,
+  onAddFlight,
+  onBack,
   detailActions,
 }: AppHeaderProps) {
   const { t } = useTranslation();
-  const links: Array<{ page: Page; label: string }> = [
-    { page: "passport", label: t("nav.passport") },
-    { page: "settings", label: t("nav.settings") },
+  const home: Route = { view: DEFAULT_LANDING_VIEW };
+  const links: Route[] = [
+    ...(hasArchive ? primaryViewOrder().map((view) => ({ view })) : []),
+    { view: "settings" },
   ];
-
-  function navigate(page: Page) {
-    onNavigate(page);
-    window.location.hash = page;
-  }
+  const currentView = route.view === "flight" ? null : route.view;
 
   return (
     <>
@@ -44,7 +78,7 @@ export function AppHeader({
                 onClick={detailActions.onBack}
               >
                 <HeaderIcon kind="back" />
-                <span>{t("nav.passport")}</span>
+                <span>{detailActions.backLabel}</span>
               </button>
               <div className="detail-header-actions">
                 <div
@@ -125,54 +159,128 @@ export function AppHeader({
             <>
               <a
                 className="wordmark"
-                href="#passport"
+                href={formatRoute(home)}
                 aria-label={t("app.homeLabel")}
-                onClick={() => onNavigate("passport")}
+                onClick={(event) => followInApp(event, home, onNavigate)}
               >
                 <span className="wordmark-name">KEEPRAW FLY</span>
               </a>
               <nav className="site-navigation" aria-label={t("nav.label")}>
-                {links.map(({ page, label }) => (
+                {links.map((link) => (
                   <a
-                    key={page}
-                    href={`#${page}`}
-                    aria-current={currentPage === page ? "page" : undefined}
-                    onClick={() => onNavigate(page)}
+                    key={link.view}
+                    href={formatRoute(link)}
+                    aria-current={
+                      currentView === link.view ? "page" : undefined
+                    }
+                    onClick={(event) => followInApp(event, link, onNavigate)}
                   >
-                    {label}
+                    {t(`nav.${link.view}`)}
                   </a>
                 ))}
               </nav>
+              {onAddFlight ? (
+                <button
+                  className="add-flight-button site-header-add"
+                  type="button"
+                  onClick={onAddFlight}
+                >
+                  <span aria-hidden="true">＋</span>
+                  <span className="site-header-add-label">
+                    {t("actions.addFlight")}
+                  </span>
+                </button>
+              ) : null}
             </>
           )}
-          {!detailActions ? (
+          {!detailActions && currentView ? (
             <div className="mobile-page-heading">
-              {currentPage === "settings" ? (
+              {currentView === "settings" ? (
                 <button
                   className="mobile-page-back"
                   type="button"
-                  onClick={() => navigate("passport")}
-                  aria-label={t("nav.backToPassport")}
+                  onClick={onBack}
+                  aria-label={t("nav.back")}
                 >
                   <HeaderIcon kind="back" />
                 </button>
               ) : null}
-              <h1>{t(`nav.${currentPage}`)}</h1>
-              {currentPage === "passport" ? (
-                <button
+              <h1>
+                {t(
+                  `nav.${hasArchive || currentView === "settings" ? currentView : "passport"}`,
+                )}
+              </h1>
+              {currentView !== "settings" ? (
+                <a
                   className="mobile-settings-button"
-                  type="button"
-                  onClick={() => navigate("settings")}
+                  href={formatRoute({ view: "settings" })}
                   aria-label={t("nav.settings")}
+                  onClick={(event) =>
+                    followInApp(event, { view: "settings" }, onNavigate)
+                  }
                 >
                   <HeaderIcon kind="settings" />
-                </button>
+                </a>
               ) : null}
             </div>
           ) : null}
         </div>
       </header>
     </>
+  );
+}
+
+/** Bottom tab bar for the Compact screen class; hidden from 761 px. */
+export function PrimaryTabBar({
+  route,
+  onNavigate,
+  onAddFlight,
+}: NavigationProps) {
+  const { t } = useTranslation();
+  return (
+    <div className="primary-tab-bar">
+      <nav aria-label={t("nav.label")}>
+        {primaryViewOrder().map((view) => (
+          <a
+            key={view}
+            href={formatRoute({ view })}
+            aria-current={route.view === view ? "page" : undefined}
+            onClick={(event) => followInApp(event, { view }, onNavigate)}
+          >
+            <TabIcon view={view} />
+            <span>{t(`nav.${view}`)}</span>
+          </a>
+        ))}
+      </nav>
+      {onAddFlight ? (
+        <button
+          className="add-flight-button primary-tab-add"
+          type="button"
+          onClick={onAddFlight}
+          aria-label={t("actions.addFlight")}
+          title={t("actions.addFlight")}
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function TabIcon({ view }: { view: PrimaryView }) {
+  const paths: Record<PrimaryView, string> = {
+    log: "M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01",
+    map: "M4 17c4-9 12-9 16-9M4 17h.01M20 8h.01M4 17a1.5 1.5 0 1 0 0-.01M20 8a1.5 1.5 0 1 0 0-.01",
+    stats: "M5 20V11M12 20V4M19 20v-6M3 20h18",
+    passport:
+      "M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3v18M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM10 17h4",
+  };
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={paths[view]} />
+    </svg>
   );
 }
 

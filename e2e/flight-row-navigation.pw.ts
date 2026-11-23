@@ -30,6 +30,8 @@ for (const width of [1280, 390]) {
       ).toHaveCount(1);
       await expect(row.locator("button, a")).toHaveCount(0);
       await expect(row.locator(".flight-row-open")).toHaveCount(0);
+      // The pointer rests where the import button was, which may be this row.
+      await page.mouse.move(0, 0);
       const restingBackground = await row.evaluate(
         (element) => getComputedStyle(element).backgroundColor,
       );

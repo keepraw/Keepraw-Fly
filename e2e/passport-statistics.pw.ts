@@ -64,7 +64,7 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
   await page
     .getByRole("combobox", { name: "Distance", exact: true })
     .selectOption("kilometers");
-  await page.goto("/#passport");
+  await page.goto("/#/stats");
   const years = page.locator(".passport-delay-chart li");
   await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
     "1h 10m",
@@ -125,16 +125,26 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
   await tao.focus();
   await page.keyboard.press("Enter");
   await expect(tao).toHaveAttribute("aria-pressed", "true");
+  // The selection is shared: Map shows it on the chart and in its list.
+  await page.goto("/#/map");
   await expect(page.locator(".flight-row")).toHaveCount(3);
   await expect(page.locator(".map-airport.is-selected")).toHaveCount(1);
+  await page.goto("/#/stats");
+  await tao.focus();
   await page.keyboard.press("Enter");
-  await expect(page.locator(".flight-row")).toHaveCount(6);
+  await expect(tao).toHaveAttribute("aria-pressed", "false");
   await longest.focus();
   await page.keyboard.press("Space");
   await expect(longest).toHaveAttribute("aria-pressed", "true");
+  await page.goto("/#/log");
   await expect(page.locator(".flight-row")).toHaveCount(1);
+  await page.goto("/#/stats");
+  await longest.focus();
   await page.keyboard.press("Space");
+  await expect(longest).toHaveAttribute("aria-pressed", "false");
+  await page.goto("/#/log");
   await expect(page.locator(".flight-row")).toHaveCount(6);
+  await page.goto("/#/stats");
 
   await page.getByRole("button", { name: "2024", exact: true }).click();
   await expect(years).toHaveCount(1);
@@ -143,7 +153,11 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
     "0h 00m",
   );
   await page.getByRole("button", { name: "All", exact: true }).click();
+  // Stats has no search field; it names the search made in Log instead.
+  await page.goto("/#/log");
   await page.locator("#passport-flight-search").fill("CX2023");
+  await page.goto("/#/stats");
+  await expect(page.locator(".passport-active-search")).toContainText("CX2023");
   await expect(years).toHaveCount(1);
   await expect(years).toHaveAttribute("data-year", "2023");
   await expect(years).toHaveAttribute("data-minutes", "40");
@@ -151,19 +165,26 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
   await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
     "0h 40m",
   );
+  await page.goto("/#/log");
   await page.locator("#passport-flight-search").fill("no matching flight");
+  await page.goto("/#/stats");
   await expect(years).toHaveCount(0);
   await expect(ranks).toHaveCount(0);
   await expect(longest).not.toHaveAttribute("aria-pressed");
   await expect(
     longest.locator(".passport-longest-endpoint > strong"),
   ).toHaveText(["—", "—"]);
-  await page.locator("#passport-flight-search").fill("");
+  await page
+    .locator(".passport-active-search")
+    .getByRole("button", { name: /Clear search/ })
+    .click();
+  await expect(page.locator(".passport-active-search")).toHaveCount(0);
+  await expect(years).toHaveCount(3);
   await page.goto("/#settings");
   await page
     .getByRole("combobox", { name: "Distance", exact: true })
     .selectOption("miles");
-  await page.goto("/#passport");
+  await page.goto("/#/stats");
   await expect(longest.locator(".passport-longest-facts")).toContainText(
     "7,494 mi",
   );

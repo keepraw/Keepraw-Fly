@@ -200,6 +200,7 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
     await expect(edit).toHaveCount(0);
     await expect(editButton).toBeFocused();
     await expectHealthyPage(page, errors);
+    await page.goto("/#/map");
     await page.reload();
     await expect(
       page.getByRole("button", { name: /Open UA999/ }),

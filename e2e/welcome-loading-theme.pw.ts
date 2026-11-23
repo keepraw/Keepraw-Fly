@@ -46,9 +46,13 @@ async function expectPrimary(target: Locator, theme: Theme) {
 
 async function headerColors(page: Page) {
   return page.locator(".site-header").evaluate((header) => {
+    // Primary destinations and Add Flight only exist once there is an
+    // archive; the wordmark and Settings are in the header on every screen.
     return [
       header,
-      ...header.querySelectorAll("a, button, .wordmark-mark"),
+      ...header.querySelectorAll(
+        '.wordmark, .wordmark-mark, .site-navigation a[href="#/settings"]',
+      ),
     ].map((el) => {
       const css = getComputedStyle(el);
       return [css.color, css.backgroundColor, css.borderBottomColor];
@@ -82,7 +86,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           ["system", "light", "light"],
           ["system", "dark", "dark"],
         ] as const) {
-          await page.goto("/#settings");
+          await page.goto("/#/settings");
           await page
             .locator(".settings-display-fields select")
             .nth(1)
@@ -141,7 +145,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await page.reload();
           await expect(page.locator(".passport-empty-page")).toBeVisible();
           await expectSurface(page.locator(".app-shell"), theme);
-          await page.goto("/#settings");
+          await page.goto("/#/settings");
           await openSettingsCategory(page, "Danger zone");
           await page.locator(".danger-action").click();
           await page.locator(".confirmation-danger").click();
@@ -159,7 +163,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
         await page.reload();
         await expect(page.locator(".demo-banner")).toBeVisible();
         await expectSurface(page.locator(".app-shell"), "dark");
-        await page.goto("/#settings");
+        await page.goto("/#/settings");
         await openSettingsCategory(page, "Danger zone");
         await page.locator(".danger-action").click();
         await page.locator(".confirmation-danger").click();

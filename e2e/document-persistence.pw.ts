@@ -148,6 +148,12 @@ async function editFlightNumber(page: Page, flightNumber: string) {
   );
 }
 
+/** An open flight survives a reload, so return to the list first. */
+async function reloadToMap(page: Page) {
+  await page.goto("/#/map");
+  await page.reload();
+}
+
 async function openImportedFlight(page: Page) {
   await page.getByRole("button", { name: /Open UA123/ }).click();
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA123");
@@ -157,7 +163,7 @@ async function openSettings(page: Page) {
   if (await page.locator(".detail-header-back").isVisible()) {
     await page.locator(".detail-header-back").click();
   }
-  await page.locator('.site-navigation a[href="#settings"]').click();
+  await page.locator('.site-navigation a[href="#/settings"]').click();
   await expect(page.locator(".settings-page")).toBeVisible();
 }
 
@@ -175,7 +181,7 @@ test(
     await expectSavingFinished(page);
     await expect(page.locator(".storage-warning")).toHaveCount(0);
 
-    await page.reload();
+    await reloadToMap(page);
     await expect(
       page.getByRole("button", { name: /Open UA124/ }),
     ).toBeVisible();
@@ -249,7 +255,7 @@ test("retries the edited document snapshot and persists it without re-editing", 
     ),
   ).toEqual(["UA124", "UA124"]);
 
-  await page.reload();
+  await reloadToMap(page);
   await expect(page.getByRole("button", { name: /Open UA124/ })).toBeVisible();
   await expect(page.locator(".storage-warning")).toHaveCount(0);
 });
@@ -296,7 +302,7 @@ test("retrying a failed new flight write does not add the flight twice", async (
     saved?.flights.map((flight) => flight.id),
   ]);
 
-  await page.reload();
+  await reloadToMap(page);
   await expect(page.getByRole("button", { name: /Open UA123/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /Open UA124/ })).toHaveCount(1);
 });
@@ -377,7 +383,7 @@ test("serializes two rapid flight edits and leaves both the UI and IndexedDB at 
   await expect(page.locator(".detail-heading-eyebrow")).toContainText("UA125");
   await expect(page.locator(".storage-warning")).toHaveCount(0);
 
-  await page.reload();
+  await reloadToMap(page);
   await expect(page.getByRole("button", { name: /Open UA125/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Open UA124/ })).toHaveCount(0);
   await expect(page.locator(".storage-warning")).toHaveCount(0);
@@ -702,7 +708,7 @@ async function expectValidEditorReload(
 ) {
   expect(await storedArchive(page)).toEqual(expected);
   expect((await readEditorRecord(page)).document).toEqual(expected);
-  await page.reload();
+  await reloadToMap(page);
   await expect(
     page.getByRole("button", { name: /Open UA/ }).first(),
   ).toBeVisible();
@@ -1151,9 +1157,8 @@ for (const change of [
       ).toBeVisible();
       expect(await readEditorRecord(page)).toBeUndefined();
     } else {
-      await expect(
-        page.getByRole("button", { name: /Open UA/ }).first(),
-      ).toBeVisible();
+      // The flight whose editor was open is addressable and returns.
+      await expect(page.locator(".detail-flight-card")).toBeVisible();
       expect(await storedArchive(page)).toEqual(expected);
       expect((await readEditorRecord(page)).document).toEqual(expected);
     }

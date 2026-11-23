@@ -16,6 +16,7 @@ import {
   type PassportViewState,
 } from "../data/passport-exploration";
 import { PassportPage } from "./PassportPage";
+import type { PrimaryView } from "../routing";
 import en from "../locales/en-US.json";
 import zhCN from "../locales/zh-CN.json";
 import zhTW from "../locales/zh-TW.json";
@@ -38,6 +39,7 @@ async function render(
   record: KeeprawFlight | KeeprawFlight[] | null = flight,
   desktop = true,
   distanceUnit: DistanceUnit = "kilometers",
+  mode: PrimaryView = "stats",
 ) {
   const i18n = createInstance();
   await i18n.init({
@@ -59,6 +61,7 @@ async function render(
   const markup = renderToStaticMarkup(
     <I18nextProvider i18n={i18n}>
       <PassportPage
+        mode={mode}
         document={document}
         locale={locale}
         distanceUnit={distanceUnit}
@@ -235,9 +238,85 @@ describe("Passport narrative and spotlights", () => {
       expect(markup).toContain("passport-mobile-summary");
       expect(markup).toContain("passport-delay-panel");
       expect(markup).toContain("passport-network-panel");
-      expect(markup).toContain('data-flight-id="tao"');
+      expect(markup).not.toContain('data-flight-id="tao"');
     },
   );
+
+  it.each([true, false])(
+    "composes each view from the shared regions (desktop: %s)",
+    async (desktop) => {
+      const compose = async (mode: PrimaryView) =>
+        (
+          await render(
+            "en",
+            initialPassportView,
+            flight,
+            desktop,
+            "kilometers",
+            mode,
+          )
+        ).markup;
+      const [log, map, stats, passport] = await Promise.all(
+        (["log", "map", "stats", "passport"] as const).map(compose),
+      );
+      for (const [mode, markup] of [
+        ["log", log],
+        ["map", map],
+        ["stats", stats],
+        ["passport", passport],
+      ] as const) {
+        expect(markup).toContain(`data-view="${mode}"`);
+        // Add flight lives in the persistent navigation, not in a view.
+        expect(markup).not.toContain("add-flight-button");
+        expect(markup).toContain(
+          desktop ? "passport-core-stats" : "passport-mobile-summary",
+        );
+      }
+      for (const markup of [log, map]) {
+        expect(markup).toContain('data-flight-id="tao"');
+        expect(markup).toContain('id="passport-flight-search"');
+      }
+      for (const markup of [stats, passport]) {
+        expect(markup).not.toContain('data-flight-id="tao"');
+        expect(markup).not.toContain('id="passport-flight-search"');
+      }
+      expect(log).toContain("passport-import-button");
+      expect(map).not.toContain("passport-import-button");
+      expect(log).not.toContain('class="route-map"');
+      expect(stats).not.toContain('class="route-map"');
+      expect(map).toContain('class="route-map"');
+      expect(passport).toContain('class="route-map"');
+    },
+  );
+
+  it("names an active search where the search field is not shown", async () => {
+    const searching = { ...initialPassportView, query: "TAO" };
+    for (const mode of ["stats", "passport"] as const) {
+      const { markup } = await render(
+        "en",
+        searching,
+        flight,
+        true,
+        "kilometers",
+        mode,
+      );
+      expect(markup).toContain("passport-active-search");
+      expect(markup).toContain("Search flights · TAO");
+      expect(markup).toContain("Clear search");
+    }
+    for (const mode of ["log", "map"] as const) {
+      const { markup } = await render(
+        "en",
+        searching,
+        flight,
+        true,
+        "kilometers",
+        mode,
+      );
+      expect(markup).not.toContain("passport-active-search");
+    }
+    expect((await render("en")).markup).not.toContain("passport-active-search");
+  });
 
   it.each(["en", "zh-CN", "zh-TW"] as const)(
     "keeps %s summaries complete and the delay hint out of visible copy",

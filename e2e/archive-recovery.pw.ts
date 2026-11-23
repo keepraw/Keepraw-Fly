@@ -369,8 +369,9 @@ test("gate-only edit persists a complete 3S/BOX identity and original HND timest
   await expect
     .poll(saved)
     .toMatchObject({ ...flight, origin: { iata: "HND", gate: "G4" } });
+  // The open flight is addressable and returns after the reload.
   await page.reload();
-  await page.locator(".flight-row").click();
+  await expect(page.locator(".detail-flight-card")).toBeVisible();
   expect(await saved()).toMatchObject({
     ...flight,
     origin: { iata: "HND", gate: "G4" },
@@ -635,7 +636,9 @@ test("exports and restores all 100,000 flights when formatted JSON exceeds the u
       await receiver
         .getByRole("button", { name: "Replace local archive", exact: true })
         .click();
-      await expect(receiver).toHaveURL(/#settings$/, { timeout: 45_000 });
+      await expect(receiver).toHaveURL(/#\/settings\/data$/, {
+        timeout: 45_000,
+      });
       await expect(
         receiver.getByRole("heading", {
           name: "Data and backup",
@@ -1302,7 +1305,7 @@ for (const settingsFail of [false, true]) {
     expect(await page.evaluate(() => window.canWriteFromLoadingRender())).toBe(
       true,
     );
-    await page.locator('.site-navigation a[href="#settings"]').click();
+    await page.locator('.site-navigation a[href="#/settings"]').click();
     await openSettingsCategory(page, "Profile");
     await expect(page.locator("#settings-native-name")).toHaveValue(
       "Synthetic Pilot",
@@ -1423,7 +1426,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
         expect(flight.destination).not.toHaveProperty("airportId");
       }
     } else {
-      await page.locator('.site-navigation a[href="#settings"]').click();
+      await page.locator('.site-navigation a[href="#/settings"]').click();
       await openSettingsCategory(page, "Data and backup");
       const flight = generatedArchive().flights[0]!;
       const csv =

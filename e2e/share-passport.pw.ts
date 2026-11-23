@@ -227,7 +227,7 @@ const image = (page: Page) => page.locator(".share-overlay-image");
 
 /** Press Share on Passport and wait for the finished image. */
 async function openShare(page: Page) {
-  if (!/#passport$/.test(page.url())) await page.goto("/#passport");
+  if (!/#\/passport$/.test(page.url())) await page.goto("/#/passport");
   const before = new URL(page.url()).hash;
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toBeVisible();
@@ -489,7 +489,7 @@ test("Settings names drive the photo and MRZ across edits, reopening and reload"
   expect(saved.number).toMatch(/^[A-Z0-9]{9}$/);
   const oldUrl = await image(page).getAttribute("src");
   await page.keyboard.press("Escape");
-  await page.goto("/#settings");
+  await page.goto("/#/settings");
   await page.getByRole("button", { name: "Profile", exact: true }).click();
   await page.locator("#settings-romanized-name").fill("LI, SI");
   await page.locator("#settings-native-name").fill("李四");
@@ -571,14 +571,20 @@ test("full archive is used even with year and search filters", async ({
   page,
 }) => {
   await seed(page, await loadArchive());
-  await page.goto("/#passport");
+  await page.goto("/#/map");
   await page.getByRole("button", { name: "2023", exact: true }).click();
   await page.locator("#passport-flight-search").fill("SFO");
   await openShare(page);
   await expect(image(page)).toHaveAttribute("data-map-routes", "49");
   expect((await readLog(page)).text).toContain("91");
   await page.keyboard.press("Escape");
+  // The filters belong to the session and are still set back on Map.
+  await page.goBack();
+  await expect(page).toHaveURL(/#\/map$/);
   await expect(page.locator("#passport-flight-search")).toHaveValue("SFO");
+  await expect(
+    page.getByRole("button", { name: "2023", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 for (const viewport of [
@@ -1121,7 +1127,7 @@ test("an archive without non-cancelled flights explains instead of drawing", asy
     cancelled: true,
   }));
   await seed(page, archive);
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toHaveAttribute("data-status", "empty");
   await expect(image(page)).toHaveCount(0);
@@ -1143,7 +1149,7 @@ test("export errors can be retried without closing the book", async ({
     };
   });
   await seed(page, await loadArchive());
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   await page.locator(".passport-share-button").click();
   await expect(page.getByRole("alert")).toContainText(
     "The image could not be created.",
@@ -1695,6 +1701,7 @@ test("failed fonts and late stylesheet completion keep fallback measurements sta
   // Saved preferences load after navigation. A locale change during the click
   // can move this button between Playwright's actionability check and input.
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
+  await page.goto("/#/passport");
   await expect(page.locator(".passport-share-button")).toHaveText(
     "分享飞行护照",
   );

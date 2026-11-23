@@ -8,6 +8,8 @@
     "changesNotSaved": "変更はこのデバイスにまだ保存されていません。",
     "settingsNotSaved": "設定はこのデバイスにまだ保存されていません。",
     "skipToContent": "コンテンツへスキップ",
+    "flightNotFound": "このフライトはこのアーカイブにありません。",
+    "dismissNotice": "閉じる",
     "unavailable": "この情報は利用できません。",
     "languageLoadFailed": "言語を読み込めませんでした。現在の表示は引き続き使えます。接続を確認して再試行してください。",
     "archiveConflict": "別のタブでこのアーカイブが変更または消去されました。このタブの変更は保存されていません。保存済みの内容を読み込む前に、未保存のアーカイブをエクスポートしてください。",
@@ -20,7 +22,10 @@
     "flights": "フライト",
     "passport": "フライトパスポート",
     "settings": "設定",
-    "backToPassport": "フライトパスポートに戻る"
+    "log": "ログ",
+    "map": "マップ",
+    "stats": "統計",
+    "back": "戻る"
   },
   "welcome": {
     "eyebrow": "あなたのフライト履歴をあなたの手に",

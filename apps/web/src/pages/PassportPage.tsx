@@ -30,6 +30,7 @@ import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
 import { PassportMap } from "../components/PassportMap";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
+import type { PrimaryView } from "../routing";
 import {
   matchesSelection,
   passportVisibleFlights,
@@ -39,6 +40,8 @@ import {
 } from "../data/passport-exploration";
 
 interface PassportPageProps {
+  /** Primary view to compose from the shared regions; defaults to Map. */
+  mode?: PrimaryView;
   document: KeeprawFlyDocument;
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
@@ -54,6 +57,7 @@ interface PassportPageProps {
 }
 
 export function PassportPage({
+  mode = "map",
   document,
   locale,
   distanceUnit,
@@ -68,6 +72,9 @@ export function PassportPage({
 }: PassportPageProps) {
   const { t } = useTranslation();
   const { year: selectedYear, query, selection } = view;
+  const showMap = mode === "map" || mode === "passport";
+  const showList = mode === "log" || mode === "map";
+  const showInsights = mode === "stats";
   const setSelection = (selection: PassportSelection | null) =>
     onViewChange({ ...view, selection, flightId: null, scrollFlightId: null });
   const setQuery = (query: string) =>
@@ -337,7 +344,10 @@ export function PassportPage({
 
   return (
     <PageShell className="passport-page passport-archive-page">
-      <div className="passport-layout">
+      <div className="passport-layout" data-view={mode}>
+        {isDesktop && !showList ? (
+          <h1 className="sr-only">{t(`nav.${mode}`)}</h1>
+        ) : null}
         <div
           className="passport-period view-switcher"
           role="group"
@@ -381,48 +391,50 @@ export function PassportPage({
                 )}
               </span>
             </p>
-            <PassportMap
-              routes={routes}
-              flights={mapFlights}
-              theme={resolveMapTheme(mapTheme)}
-              selection={
-                selection?.kind === "route" || selection?.kind === "airport"
-                  ? selection
-                  : null
-              }
-              highlightedRoute={highlightedRoute}
-              onClear={() => setSelection(null)}
-              onSelect={(target) => {
-                // The map uses the same scoped exploration as Archive/Highlights.
-                const matching = mapFlights.find((flight) =>
-                  matchesSelection(flight, target),
-                );
-                if (matching) {
-                  onViewChange({
-                    ...view,
-                    selection: target,
-                    flightId: matching.id,
-                    scrollFlightId: matching.id,
-                  });
-                  window.requestAnimationFrame(() => {
-                    const row = [
-                      ...window.document.querySelectorAll<HTMLElement>(
-                        ".flight-record",
-                      ),
-                    ].find((item) => item.dataset.flightId === matching.id);
-                    row?.scrollIntoView({
-                      block: "nearest",
-                      inline: "nearest",
-                    });
-                    row
-                      ?.querySelector<HTMLButtonElement>(".flight-row")
-                      ?.focus({ preventScroll: true });
-                  });
-                } else {
-                  setSelection(target);
+            {showMap ? (
+              <PassportMap
+                routes={routes}
+                flights={mapFlights}
+                theme={resolveMapTheme(mapTheme)}
+                selection={
+                  selection?.kind === "route" || selection?.kind === "airport"
+                    ? selection
+                    : null
                 }
-              }}
-            />
+                highlightedRoute={highlightedRoute}
+                onClear={() => setSelection(null)}
+                onSelect={(target) => {
+                  // The map uses the same scoped exploration as Archive/Highlights.
+                  const matching = mapFlights.find((flight) =>
+                    matchesSelection(flight, target),
+                  );
+                  if (matching) {
+                    onViewChange({
+                      ...view,
+                      selection: target,
+                      flightId: matching.id,
+                      scrollFlightId: matching.id,
+                    });
+                    window.requestAnimationFrame(() => {
+                      const row = [
+                        ...window.document.querySelectorAll<HTMLElement>(
+                          ".flight-record",
+                        ),
+                      ].find((item) => item.dataset.flightId === matching.id);
+                      row?.scrollIntoView({
+                        block: "nearest",
+                        inline: "nearest",
+                      });
+                      row
+                        ?.querySelector<HTMLButtonElement>(".flight-row")
+                        ?.focus({ preventScroll: true });
+                    });
+                  } else {
+                    setSelection(target);
+                  }
+                }}
+              />
+            ) : null}
 
             {isDesktop ? (
               <section
@@ -645,70 +657,80 @@ export function PassportPage({
                   </div>
                 </section>
 
-                <section
-                  className="passport-mobile-panel passport-delay-panel"
-                  aria-label={t("passport.totalDelay")}
-                >
-                  <h2>{t("passport.totalDelay")}</h2>
-                  <div
-                    className="passport-delay-main"
-                    title={t("passport.delayBasedOnArrivals")}
-                    aria-description={t("passport.delayBasedOnArrivals")}
-                  >
-                    <StatisticValue value={arrivalDelay} />
-                  </div>
-                  {stats.totalDelayMinutes === null ? (
-                    <p>{t("passport.delayUnavailable")}</p>
-                  ) : (
-                    <>
-                      {worstDelay ? (
-                        <p className="passport-delay-longest">
-                          <span>{t("passport.longestDelay")}</span>
+                {showInsights ? (
+                  <>
+                    <section
+                      className="passport-mobile-panel passport-delay-panel"
+                      aria-label={t("passport.totalDelay")}
+                    >
+                      <h2>{t("passport.totalDelay")}</h2>
+                      <div
+                        className="passport-delay-main"
+                        title={t("passport.delayBasedOnArrivals")}
+                        aria-description={t("passport.delayBasedOnArrivals")}
+                      >
+                        <StatisticValue value={arrivalDelay} />
+                      </div>
+                      {stats.totalDelayMinutes === null ? (
+                        <p>{t("passport.delayUnavailable")}</p>
+                      ) : (
+                        <>
+                          {worstDelay ? (
+                            <p className="passport-delay-longest">
+                              <span>{t("passport.longestDelay")}</span>
+                              <strong>
+                                {worstDelay.flight.flightNumber} ·{" "}
+                                {formatDuration(worstDelay.minutes, locale)}
+                              </strong>
+                            </p>
+                          ) : null}
+                        </>
+                      )}
+                    </section>
+
+                    <section
+                      className="passport-mobile-panel passport-network-panel"
+                      aria-label={t("passport.networkPanelTitle")}
+                    >
+                      <h2>{t("passport.networkPanelTitle")}</h2>
+                      <div className="passport-network-facts">
+                        <div>
                           <strong>
-                            {worstDelay.flight.flightNumber} ·{" "}
-                            {formatDuration(worstDelay.minutes, locale)}
+                            {stats.countries.toLocaleString(locale)}
+                          </strong>
+                          <span>
+                            {t("passport.countries", {
+                              count: stats.countries,
+                            })}
+                          </span>
+                        </div>
+                        <div>
+                          <strong>
+                            {stats.airports.toLocaleString(locale)}
+                          </strong>
+                          <span>
+                            {t("passport.airports", { count: stats.airports })}
+                          </span>
+                        </div>
+                      </div>
+                      {stats.mostVisitedAirport ? (
+                        <p>
+                          <span>{t("passport.mostVisitedAirport")}</span>
+                          <strong>
+                            {localizedAirportName(
+                              stats.mostVisitedAirport.identity.airportId,
+                              locale,
+                              stats.mostVisitedAirport.identity.localDate,
+                            ) ?? stats.mostVisitedAirport.code}
                           </strong>
                         </p>
                       ) : null}
-                    </>
-                  )}
-                </section>
-
-                <section
-                  className="passport-mobile-panel passport-network-panel"
-                  aria-label={t("passport.networkPanelTitle")}
-                >
-                  <h2>{t("passport.networkPanelTitle")}</h2>
-                  <div className="passport-network-facts">
-                    <div>
-                      <strong>{stats.countries.toLocaleString(locale)}</strong>
-                      <span>
-                        {t("passport.countries", { count: stats.countries })}
-                      </span>
-                    </div>
-                    <div>
-                      <strong>{stats.airports.toLocaleString(locale)}</strong>
-                      <span>
-                        {t("passport.airports", { count: stats.airports })}
-                      </span>
-                    </div>
-                  </div>
-                  {stats.mostVisitedAirport ? (
-                    <p>
-                      <span>{t("passport.mostVisitedAirport")}</span>
-                      <strong>
-                        {localizedAirportName(
-                          stats.mostVisitedAirport.identity.airportId,
-                          locale,
-                          stats.mostVisitedAirport.identity.localDate,
-                        ) ?? stats.mostVisitedAirport.code}
-                      </strong>
-                    </p>
-                  ) : null}
-                </section>
+                    </section>
+                  </>
+                ) : null}
               </>
             ) : null}
-            {isDesktop ? (
+            {isDesktop && showInsights ? (
               <div
                 className="passport-highlights"
                 key={`highlights-${selectedYear}`}
@@ -859,68 +881,88 @@ export function PassportPage({
         </aside>
 
         <section className="passport-archive">
-          <header className="archive-heading" id="flight-archive">
-            <h2 className="passport-mobile-section-title">
-              {t("passport.pastFlights")}
-            </h2>
-            <div className="archive-controls">
-              <button
-                className="add-flight-button"
-                type="button"
-                onClick={onAddFlight}
-              >
-                <span aria-hidden="true">＋</span>
-                {t("actions.addFlight")}
-              </button>
-              <button
-                className="passport-import-button"
-                type="button"
-                onClick={onOpenImport}
-              >
-                {t("actions.importFlights")}
-              </button>
-              {onOpenShare ? (
-                <button
-                  className="passport-share-button"
-                  type="button"
-                  aria-haspopup="dialog"
-                  title={t("share.entryHint")}
-                  onClick={onOpenShare}
-                >
-                  {t("share.entry")}
-                </button>
+          {mode !== "stats" ? (
+            <header className="archive-heading" id="flight-archive">
+              {showList ? (
+                <h2 className="passport-mobile-section-title">
+                  {t("passport.pastFlights")}
+                </h2>
               ) : null}
-            </div>
-            <div className="search-field passport-search-field">
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="6.5" />
-                <path d="m16 16 4 4" />
-              </svg>
-              <label className="sr-only" htmlFor="passport-flight-search">
-                {t("flights.searchLabel")}
-              </label>
-              <input
-                id="passport-flight-search"
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("flights.searchPlaceholder")}
-                autoComplete="off"
-              />
-              {query ? (
-                <button
-                  className="clear-search"
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label={t("actions.clearSearch")}
-                >
-                  ×
-                </button>
+              {showList ? (
+                <div className="search-field passport-search-field">
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="6.5" />
+                    <path d="m16 16 4 4" />
+                  </svg>
+                  <label className="sr-only" htmlFor="passport-flight-search">
+                    {t("flights.searchLabel")}
+                  </label>
+                  <input
+                    id="passport-flight-search"
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={t("flights.searchPlaceholder")}
+                    autoComplete="off"
+                  />
+                  {query ? (
+                    <button
+                      className="clear-search"
+                      type="button"
+                      onClick={() => setQuery("")}
+                      aria-label={t("actions.clearSearch")}
+                    >
+                      ×
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
-            </div>
-          </header>
+              {mode !== "map" ? (
+                <div className="archive-controls">
+                  {mode === "log" ? (
+                    <button
+                      className="passport-import-button"
+                      type="button"
+                      onClick={onOpenImport}
+                    >
+                      {t("actions.importFlights")}
+                    </button>
+                  ) : null}
+                  {mode === "passport" && onOpenShare ? (
+                    <button
+                      className="passport-share-button"
+                      type="button"
+                      aria-haspopup="dialog"
+                      title={t("share.entryHint")}
+                      onClick={onOpenShare}
+                    >
+                      {t("share.entry")}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </header>
+          ) : null}
 
           <div className="passport-archive-scroll">
+            {/* Without the search field, an active search stays visible. */}
+            {!showList && query ? (
+              <section
+                className="passport-exploration passport-active-search"
+                aria-live="polite"
+              >
+                <span>
+                  {t("flights.searchLabel")} · {query}
+                </span>
+                <button
+                  className="passport-exploration-close"
+                  type="button"
+                  onClick={() => setQuery("")}
+                >
+                  {t("actions.clearSearch")} ×
+                </button>
+              </section>
+            ) : null}
             {selection ? (
               <section
                 className="passport-exploration"
@@ -941,7 +983,7 @@ export function PassportPage({
               </section>
             ) : null}
 
-            {groups.length ? (
+            {!showList ? null : groups.length ? (
               <div className="flight-groups" aria-live="polite">
                 {groups.map((group, groupIndex) => (
                   <section className="flight-year" key={group.year}>

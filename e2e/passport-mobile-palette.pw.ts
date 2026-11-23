@@ -62,6 +62,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           primaryText,
         );
         await expect(page.locator(".passport-mobile-summary")).toBeVisible();
+        await page.goto("/#/stats");
         await expect(page.locator(".passport-delay-panel")).toBeVisible();
         await expect(page.locator(".passport-network-panel")).toBeVisible();
         for (const selector of [
@@ -74,6 +75,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           await expect(panel).toHaveRole("region");
           await expect(panel).toHaveAccessibleName(await title.innerText());
         }
+        await page.goto("/#/map");
         await expect(page.locator(".flight-row")).toHaveCount(24);
         await expect(page.locator(".route-map")).toHaveCount(1);
         await expect(page.locator(".globe-webgl, canvas")).toHaveCount(0);

@@ -66,7 +66,7 @@ const dialog = (page: Page) => page.getByRole("dialog");
 const image = (page: Page) => page.locator(".share-overlay-image");
 
 async function openShare(page: Page) {
-  if (!/#passport$/.test(page.url())) await page.goto("/#passport");
+  if (!/#\/passport$/.test(page.url())) await page.goto("/#/passport");
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toBeVisible();
   await expect(image(page)).toBeVisible({ timeout: 30_000 });
@@ -348,13 +348,13 @@ test("the passport follows the map theme, and the layout is a separate setting",
   await page.keyboard.press("Escape");
 
   // Same theme, other layout: chosen in Settings and remembered.
-  await page.goto("/#settings");
+  await page.goto("/#/settings");
   const select = page.locator("#settings-passport-layout");
   await expect(select).toHaveValue("neon");
   await select.selectOption("book");
   await page.reload();
   await expect(page.locator("#settings-passport-layout")).toHaveValue("book");
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   await openShare(page);
   await expect(dialog(page)).toHaveAttribute("data-template", "book");
   await expect(dialog(page)).not.toHaveAttribute("data-map-theme", /.+/);
@@ -363,9 +363,9 @@ test("the passport follows the map theme, and the layout is a separate setting",
 
 test("an unknown stored layout falls back to Neon", async ({ page }) => {
   await seed(page, await loadArchive(), { passportTemplate: "retired-layout" });
-  await page.goto("/#settings");
+  await page.goto("/#/settings");
   await expect(page.locator("#settings-passport-layout")).toHaveValue("neon");
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   await openShare(page);
   await expect(dialog(page)).toHaveAttribute("data-template", "neon");
 });
@@ -574,7 +574,7 @@ test("an archive with only cancelled flights explains instead of drawing", async
     .slice(0, 2)
     .map((flight: object) => ({ ...flight, cancelled: true }));
   await seed(page, archive);
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   const share = page.locator(".passport-share-button");
   if (await share.isEnabled().catch(() => false)) {
     await share.click();
@@ -605,7 +605,7 @@ test("a failed export can be retried, and webfont failure still exports", async 
     /cdn\.jsdelivr\.net|\/share\/fonts\/[^?]*\.woff2(?!\?import)/,
     (route) => route.abort(),
   );
-  await page.goto("/#passport");
+  await page.goto("/#/passport");
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toHaveAttribute("data-status", "error", {
     timeout: 30_000,

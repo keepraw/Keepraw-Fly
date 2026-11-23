@@ -1,0 +1,273 @@
+/* View composition and primary navigation (docs/views-and-skins.md).
+ * Log, Map, Stats and Passport arrange the same shared regions; the look is
+ * unchanged until skins arrive. Loaded after the Passport stylesheets. */
+
+.site-header-add {
+  flex: 0 0 auto;
+}
+
+.primary-tab-bar {
+  display: none;
+}
+
+@media (min-width: 761px) {
+  .site-header:not(.site-header--detail) .site-navigation {
+    margin-left: auto;
+  }
+
+  /* One column: the regions stack instead of sharing the map workspace. */
+  .passport-layout:not([data-view="map"]) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .passport-layout[data-view="stats"] {
+    height: auto;
+    grid-template-rows: auto auto auto;
+    align-content: start;
+  }
+
+  .passport-layout[data-view="passport"] {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .passport-layout:not([data-view="map"]) .passport-visual {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .passport-layout:not([data-view="map"]) .passport-archive {
+    grid-row: 3;
+  }
+
+  .passport-layout:is([data-view="log"], [data-view="stats"]) .passport-visual {
+    height: auto;
+  }
+
+  .passport-layout:is([data-view="stats"], [data-view="passport"])
+    .passport-archive {
+    height: auto;
+  }
+
+  .passport-layout:is([data-view="log"], [data-view="stats"])
+    .passport-visual-sticky {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+  }
+
+  /* Stats is the highlights' own view: they stay at every height and the page
+   * scrolls when they do not fit. */
+  .passport-archive-page:has(.passport-layout[data-view="stats"]) {
+    overflow-y: auto;
+  }
+
+  .passport-archive-page
+    .passport-layout[data-view="stats"]
+    .passport-highlights {
+    display: block;
+  }
+
+  .passport-layout[data-view="log"] .archive-heading {
+    display: flex;
+    align-items: center;
+    gap: calc(12 * var(--passport-px, 1px));
+  }
+
+  .passport-layout[data-view="log"] .passport-search-field {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .passport-layout[data-view="log"] .archive-controls {
+    flex: 0 0 auto;
+  }
+
+  .passport-layout[data-view="passport"] .archive-heading {
+    padding-bottom: 0;
+  }
+
+  .passport-layout[data-view="passport"] .archive-controls {
+    justify-content: flex-end;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1000px) {
+  .site-header-add-label {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header-add {
+    display: none;
+  }
+
+  .mobile-page-heading .mobile-settings-button {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 50%;
+    color: var(--color-text);
+  }
+
+  .mobile-page-heading .mobile-settings-button:hover {
+    background: var(--color-surface-sunken);
+  }
+
+  /* Keep the last content clear of the fixed tab bar. */
+  .app-shell:has(.primary-tab-bar) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  .primary-tab-bar {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px max(8px, env(safe-area-inset-right))
+      calc(4px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    border-top: 1px solid var(--color-line-strong);
+    background: var(--color-surface);
+  }
+
+  .primary-tab-bar nav {
+    display: grid;
+    min-width: 0;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  .primary-tab-bar nav > a {
+    display: flex;
+    min-width: 0;
+    min-height: 56px;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+    border-radius: var(--radius-control);
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .primary-tab-bar nav > a > span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .primary-tab-bar nav > a[aria-current="page"] {
+    color: var(--color-accent);
+    background: var(--color-surface-sunken);
+  }
+
+  .primary-tab-bar svg {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .primary-tab-bar .primary-tab-add {
+    width: 48px;
+    min-height: 48px;
+    flex: 0 0 48px;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .primary-tab-bar .primary-tab-add svg {
+    stroke-width: 2;
+  }
+
+  /* Compact touch targets are at least 44 px. */
+  .passport-period button {
+    min-width: 44px;
+  }
+
+  .passport-search-field,
+  .passport-share-button,
+  .passport-map-navigation summary,
+  .passport-map-navigation select {
+    min-height: 44px;
+  }
+
+  .map-zoom-controls button {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* The 240 px minimum height must not widen the stage past a 320 px screen
+   * and push the zoom controls out of view. */
+  .passport-archive-page [data-map-theme] .route-map-canvas {
+    min-width: 0;
+  }
+
+  .passport-search-field input {
+    min-height: 44px;
+  }
+
+  .demo-banner button {
+    min-height: 44px;
+  }
+
+  /* Log names itself in the page heading; search and import share a row so
+   * the first flights sit higher on a phone. */
+  .passport-layout[data-view="log"] .passport-mobile-section-title {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .passport-layout[data-view="log"] .archive-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .passport-layout[data-view="log"] .passport-search-field {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .passport-layout[data-view="log"] .archive-controls {
+    flex: 0 0 auto;
+  }
+
+  .passport-layout[data-view="passport"] .archive-heading {
+    margin-top: 12px;
+    border-top: 0;
+  }
+}

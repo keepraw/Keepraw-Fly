@@ -8,6 +8,8 @@
     "changesNotSaved": "Los cambios no se han guardado en este dispositivo.",
     "settingsNotSaved": "La configuración no se ha guardado en este dispositivo.",
     "skipToContent": "Saltar al contenido",
+    "flightNotFound": "Ese vuelo no está en este archivo.",
+    "dismissNotice": "Cerrar",
     "unavailable": "Esta información no está disponible.",
     "languageLoadFailed": "No se pudo cargar el idioma. Puedes seguir usando el idioma actual. Comprueba la conexión y reintenta.",
     "archiveConflict": "Otra pestaña modificó o vació este archivo. Tus cambios no se guardaron. Exporta el archivo sin guardar de esta pestaña antes de cargar la versión guardada.",
@@ -20,7 +22,10 @@
     "flights": "Vuelos",
     "passport": "Pasaporte de vuelos",
     "settings": "Configuración",
-    "backToPassport": "Volver al pasaporte de vuelos"
+    "log": "Registro",
+    "map": "Mapa",
+    "stats": "Estadísticas",
+    "back": "Atrás"
   },
   "welcome": {
     "eyebrow": "Tu historial de vuelos, en tus manos",

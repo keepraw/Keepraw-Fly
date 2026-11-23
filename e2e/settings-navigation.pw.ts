@@ -72,6 +72,7 @@ test("Passport import opens Data independent of hover or retained button focus @
     name: "Import flights",
     exact: true,
   });
+  await page.getByRole("link", { name: "Log", exact: true }).click();
   await page.mouse.move(0, 0);
   await importButton.focus();
   // Some browsers clear button focus on activation; navigation must not infer intent from it.
@@ -114,16 +115,14 @@ test("Passport import opens Data independent of hover or retained button focus @
   await preview.getByRole("button", { name: "Cancel", exact: true }).click();
   // Leaving through the location hash must clear the import intent too.
   await page.evaluate(() => {
-    window.location.hash = "passport";
+    window.location.hash = "/log";
   });
   await expect(importButton).toBeVisible();
   await page.getByRole("link", { name: "Settings", exact: true }).click();
   await expect(
     navigation.getByRole("button", { name: "General", exact: true }),
   ).toHaveAttribute("aria-current", "true");
-  await page
-    .getByRole("link", { name: "Flight Passport", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Log", exact: true }).click();
   await importButton.click();
   await expect(
     navigation.getByRole("button", { name: "Data and backup", exact: true }),
@@ -147,9 +146,8 @@ test("direct Settings and Passport import retain the mobile scrolling workflow @
   await expect(
     page.getByRole("textbox", { name: "Native name", exact: true }),
   ).toHaveValue("Mobile profile");
-  await page
-    .getByRole("button", { name: "Back to Flight Passport", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("link", { name: "Log", exact: true }).click();
   await page
     .getByRole("button", { name: "Import flights", exact: true })
     .click();

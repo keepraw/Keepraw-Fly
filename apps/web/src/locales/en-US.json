@@ -8,6 +8,8 @@
     "changesNotSaved": "Changes are not saved on this device.",
     "settingsNotSaved": "Settings are not saved on this device.",
     "skipToContent": "Skip to content",
+    "flightNotFound": "That flight is not in this archive.",
+    "dismissNotice": "Dismiss",
     "unavailable": "This information is unavailable.",
     "languageLoadFailed": "This language could not be loaded. You can keep using the current language. Check the connection and try again.",
     "archiveConflict": "Another tab changed or cleared this archive. Your changes were not saved. Export this tab’s unsaved archive before loading the saved version.",
@@ -20,7 +22,10 @@
     "flights": "Flights",
     "passport": "Flight Passport",
     "settings": "Settings",
-    "backToPassport": "Back to Flight Passport"
+    "log": "Log",
+    "map": "Map",
+    "stats": "Stats",
+    "back": "Back"
   },
   "welcome": {
     "eyebrow": "Your flight history, in your hands",

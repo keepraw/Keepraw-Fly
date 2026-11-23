@@ -15,8 +15,14 @@ async function openDemo(page: Page) {
   await page.setViewportSize(reference);
   await page.goto("/");
   await page.getByRole("button", { name: "Try demo" }).click();
-  await page.goto("/#passport");
+  await page.goto("/#/map");
   await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
+}
+
+function highlightsHeight(page: Page) {
+  return page
+    .locator(".passport-highlights")
+    .evaluate((element) => element.getBoundingClientRect().height);
 }
 
 async function settle(page: Page, viewport: { width: number; height: number }) {
@@ -57,7 +63,6 @@ function layout(page: Page) {
       report: box(".passport-visual-sticky"),
       map: box(".route-map"),
       stats: box(".passport-core-stats"),
-      highlights: box(".passport-highlights"),
       row: box(".passport-archive .flight-row"),
       statFont: font(".passport-core-stat strong"),
       cityFont: font(".passport-archive .flight-route-cities"),
@@ -105,7 +110,6 @@ test("Passport desktop grows as one composition above the 1080p reference", asyn
       near(view.report.width, base.report.width * view.scale);
       near(view.map.width, base.map.width * view.scale);
       near(view.stats.height, base.stats.height * view.scale);
-      near(view.highlights.height, base.highlights.height * view.scale);
       near(view.row.height, base.row.height * view.scale);
       near(view.statFont, base.statFont * view.scale);
       near(view.cityFont, base.cityFont * view.scale);
@@ -121,6 +125,16 @@ test("Passport desktop grows as one composition above the 1080p reference", asyn
       await settle(page, { width, height: Math.round((width * 9) / 16) });
     await settle(page, reference);
     expect(await layout(page)).toEqual(base);
+  });
+
+  await test.step("Stats highlights grow by the same factor", async () => {
+    await page.goto("/#/stats");
+    await settle(page, reference);
+    const height = await highlightsHeight(page);
+    await settle(page, { width: 3840, height: 2160 });
+    expect(Math.abs((await highlightsHeight(page)) - height * 2)).toBeLessThan(
+      4,
+    );
   });
 });
 
@@ -173,7 +187,7 @@ for (const [language, theme] of [
       .getByRole("combobox", { name: "Appearance", exact: true })
       .selectOption(theme);
     await page.getByLabel("Language").selectOption(language);
-    await page.goto("/#passport");
+    await page.goto("/#/map");
     await expect(page.locator("html")).toHaveAttribute("lang", language);
     await settle(page, { width: 3840, height: 2160 });
     const view = await layout(page);

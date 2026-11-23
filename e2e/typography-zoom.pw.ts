@@ -41,12 +41,12 @@ for (const zoom of [1, 1.25]) {
         .click();
       for (const locale of ["en-US", "zh-CN", "zh-TW"]) {
         await page.setViewportSize({ width: 1440, height: 900 });
-        await page.goto("http://127.0.0.1:5173/#settings");
+        await page.goto("http://127.0.0.1:5173/#/settings");
         await page
           .locator(".settings-fields select")
           .first()
           .selectOption(locale);
-        await page.goto("http://127.0.0.1:5173/#passport");
+        await page.goto("http://127.0.0.1:5173/#/map");
         for (const [width, height] of [
           [1440, 900],
           [761, 900],
@@ -83,13 +83,17 @@ for (const zoom of [1, 1.25]) {
             expect(bounds.archiveScroll.overflowY).toBe("auto");
             expect(bounds.failures).toEqual([]);
             expect(bounds.kpis).toHaveLength(6);
-            expect(bounds.longestHasMap).toBe(false);
-            if (diagnostics.compact)
-              await expect(page.locator(".passport-highlights")).toBeHidden();
-            else {
-              await expect(page.locator(".passport-highlights")).toBeVisible();
+            if (!diagnostics.compact)
               expect(bounds.bottomSafety).toBeGreaterThanOrEqual(23.99);
-            }
+            // Stats keeps the highlights at every height.
+            await page.goto("http://127.0.0.1:5173/#/stats");
+            await waitForPassportLayout(page);
+            await expect(page.locator(".passport-highlights")).toBeVisible();
+            const stats = await passportTypographyBounds(page);
+            expect(stats.documentFits).toBe(true);
+            expect(stats.failures).toEqual([]);
+            expect(stats.longestHasMap).toBe(false);
+            await page.goto("http://127.0.0.1:5173/#/map");
           } else {
             await expect(page.locator(".passport-highlights")).toHaveCount(0);
             expect(diagnostics.shell.rect.height).toBeGreaterThan(

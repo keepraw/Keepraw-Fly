@@ -6,7 +6,7 @@ import type {
   ProfileName,
 } from "@keepraw-fly/schema";
 import demoData from "@keepraw-fly/core/demo";
-import { AppHeader, type Page } from "./components/AppHeader";
+import { AppHeader, PrimaryTabBar } from "./components/AppHeader";
 import { EmptyState } from "./components/EmptyState";
 import { PageShell } from "./components/PageShell";
 import { DemoBanner } from "./components/DemoBanner";
@@ -36,6 +36,15 @@ import {
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
 import { applyAppearance, initialAppearance } from "./appearance";
+import {
+  DEFAULT_LANDING_VIEW,
+  PRIMARY_VIEWS,
+  formatRoute,
+  parseRoute,
+  sameRoute,
+  type PrimaryView,
+  type Route,
+} from "./routing";
 import { changeUiLanguage } from "./i18n";
 import { warmLocaleCache } from "./locales/resources";
 import {
@@ -122,12 +131,22 @@ export function App() {
       setSettingsPersistence,
     ),
   );
-  const [page, setPage] = useState<Page>(pageFromHash);
+  const [route, setRouteState] = useState<Route>(
+    () => parseRoute(window.location.hash) ?? { view: DEFAULT_LANDING_VIEW },
+  );
+  // The route as last set, readable from event handlers before a render.
+  const routeRef = useRef(route);
+  function setRoute(next: Route) {
+    routeRef.current = next;
+    setRouteState(next);
+  }
+  const selectedFlightId = route.view === "flight" ? route.flightId : null;
+  // The primary view to return to from Flight or Settings.
+  const lastPrimaryViewRef = useRef<PrimaryView>(
+    primaryView(route.view) ?? DEFAULT_LANDING_VIEW,
+  );
+  const [flightNotFound, setFlightNotFound] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [settingsInitialCategory, setSettingsInitialCategory] = useState<
-    "general" | "data"
-  >("general");
-  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [passportView, setPassportView] =
     useState<PassportViewState>(initialPassportView);
   const [editor, setEditor] = useState<FlightEditorSession | null>(null);
@@ -169,14 +188,67 @@ export function App() {
   const nextFlight =
     flightIndex >= 0 ? visibleFlights[flightIndex + 1] : undefined;
 
+  // Flight entries remember the view they were opened from, so Back in the
+  // header and the browser's Back button lead to the same place.
+  const flightOrigin =
+    route.view === "flight" ? primaryView(historyOrigin()) : null;
+  const returnView = flightOrigin ?? lastPrimaryViewRef.current;
+
+  function navigate(
+    next: Route,
+    mode: "push" | "replace" = "push",
+    state: unknown = null,
+  ) {
+    const fragment = formatRoute(next);
+    if (mode === "replace") window.history.replaceState(state, "", fragment);
+    else if (window.location.hash !== fragment)
+      window.history.pushState(state, "", fragment);
+    setFlightNotFound(false);
+    setRoute(next);
+  }
+
   function openFlight(flightId: string) {
     setPassportView((view) => ({
       ...view,
       flightId: null,
       scrollFlightId: flightId,
     }));
-    setSelectedFlightId(flightId);
+    const next: Route = { view: "flight", flightId };
+    // Previous/next and saving an open flight stay on the same history entry.
+    if (route.view === "flight")
+      navigate(next, "replace", window.history.state);
+    else navigate(next, "push", { from: returnViewFor(route) });
   }
+
+  function returnViewFor(current: Route): PrimaryView {
+    return primaryView(current.view) ?? lastPrimaryViewRef.current;
+  }
+
+  function closeFlight() {
+    // Read the entry itself: an in-page anchor adds one without an origin.
+    if (primaryView(historyOrigin())) window.history.back();
+    else navigate({ view: lastPrimaryViewRef.current }, "replace");
+  }
+
+  /** Leave a flight that no longer exists without adding a history entry. */
+  function leaveFlight() {
+    if (parseRoute(window.location.hash)?.view === "flight")
+      navigate({ view: lastPrimaryViewRef.current }, "replace");
+  }
+
+  useEffect(() => {
+    const view = primaryView(route.view);
+    if (view) lastPrimaryViewRef.current = view;
+  }, [route]);
+
+  // A link to a flight that is not in this archive opens Log with a notice.
+  useEffect(() => {
+    if (!loaded || !document || route.view !== "flight") return;
+    if (flightById(document, route.flightId)) return;
+    window.history.replaceState(null, "", formatRoute({ view: "log" }));
+    setRoute({ view: "log" });
+    setFlightNotFound(true);
+  }, [loaded, document, route]);
 
   useEffect(() => {
     let active = true;
@@ -291,9 +363,7 @@ export function App() {
       await browserStorage.clearDocument();
       applyArchiveLoad({ status: "empty" });
       setStorageError(null);
-      setPage("passport");
-      setSelectedFlightId(null);
-      window.location.hash = "passport";
+      navigate({ view: DEFAULT_LANDING_VIEW });
     });
   }
 
@@ -327,30 +397,43 @@ export function App() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [page, selectedFlightId]);
+  }, [route.view, selectedFlightId]);
 
   // Leaving Passport closes the share overlay; returning never reopens it.
   useEffect(() => {
     setShareOpen(false);
-  }, [page, selectedFlightId]);
+  }, [route.view, selectedFlightId]);
 
   useEffect(() => {
-    if (retiredPassportHashes.has(window.location.hash.slice(1))) {
-      window.history.replaceState(null, "", "#passport");
-    }
-    const handleHashChange = () => {
-      const nextPage = pageFromLocationHash();
-      if (nextPage) {
-        if (retiredPassportHashes.has(window.location.hash.slice(1))) {
-          window.history.replaceState(null, "", "#passport");
-        }
-        setPage(nextPage);
-        if (nextPage !== "settings") setSettingsInitialCategory("general");
-        setSelectedFlightId(null);
+    // Links, typed addresses and Back/Forward all arrive here. An unknown
+    // fragment (an in-page anchor such as Skip to content) leaves the view
+    // alone; its entry takes the view's address so reload and Back still work.
+    const syncRoute = () => {
+      const next = parseRoute(window.location.hash);
+      if (!next) {
+        window.history.replaceState(
+          window.history.state,
+          "",
+          formatRoute(routeRef.current),
+        );
+        return;
       }
+      const fragment = formatRoute(next);
+      if (window.location.hash !== fragment)
+        window.history.replaceState(window.history.state, "", fragment);
+      // A hash navigation raises both events; the second one changes nothing.
+      if (sameRoute(routeRef.current, next)) return;
+      setFlightNotFound(false);
+      routeRef.current = next;
+      setRouteState(next);
     };
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    syncRoute();
+    window.addEventListener("popstate", syncRoute);
+    window.addEventListener("hashchange", syncRoute);
+    return () => {
+      window.removeEventListener("popstate", syncRoute);
+      window.removeEventListener("hashchange", syncRoute);
+    };
   }, []);
 
   const hasUnsavedChanges =
@@ -410,9 +493,7 @@ export function App() {
     setDocument(null);
     setArchiveKind(null);
     void documentWrites.save(null);
-    setPage("passport");
-    window.location.hash = "passport";
-    setSelectedFlightId(null);
+    navigate({ view: DEFAULT_LANDING_VIEW });
     setEditor(null);
   }
 
@@ -424,24 +505,19 @@ export function App() {
         ? window.document.activeElement
         : null;
     storeDocument(createEmptyDocument(), "personal");
-    setPage("passport");
-    setSelectedFlightId(null);
+    navigate({ view: DEFAULT_LANDING_VIEW });
     setEditor({ kind: "create" });
-    window.location.hash = "passport";
   }
 
   function openImportedArchive(nextDocument: KeeprawFlyDocument) {
     // Passport mounts the whole flight list. Keep large import completions
     // responsive by opening the Data and backup settings after the save starts.
-    const nextPage =
-      nextDocument.flights.length >= LARGE_IMPORT_FLIGHT_COUNT
-        ? "settings"
-        : "passport";
-    if (nextPage === "settings") setSettingsInitialCategory("data");
     setPassportView(initialPassportView);
-    setPage(nextPage);
-    setSelectedFlightId(null);
-    window.location.hash = nextPage;
+    navigate(
+      nextDocument.flights.length >= LARGE_IMPORT_FLIGHT_COUNT
+        ? { view: "settings", part: "data" }
+        : { view: DEFAULT_LANDING_VIEW },
+    );
   }
 
   async function importArchive(nextDocument: KeeprawFlyDocument) {
@@ -457,9 +533,7 @@ export function App() {
     if (!canWriteDocument()) return;
     setPassportView(initialPassportView);
     storeDocument(structuredClone(demoDocument), "demo");
-    setPage("passport");
-    setSelectedFlightId(null);
-    window.location.hash = "passport";
+    navigate({ view: DEFAULT_LANDING_VIEW });
   }
 
   async function saveFlight(flight: KeeprawFlight) {
@@ -487,15 +561,13 @@ export function App() {
     storeDocument(nextDocument);
     setEditor(null);
     openFlight(flight.id);
-    setPage("passport");
-    window.history.replaceState(null, "", "#passport");
   }
 
   function deleteEditedFlight() {
     if (!document || editor?.kind !== "edit") return;
     const deletedFlightId = editor.flightId;
     setEditor(null);
-    if (selectedFlightId === deletedFlightId) setSelectedFlightId(null);
+    if (selectedFlightId === deletedFlightId) leaveFlight();
     storeDocument(documentWithoutFlight(document, deletedFlightId));
   }
 
@@ -543,7 +615,7 @@ export function App() {
       conflictDraftRef.current = null;
       archiveConflictRef.current = false;
       setEditor(null);
-      setSelectedFlightId(null);
+      leaveFlight();
       setConfirmConflictReload(false);
     }).catch(() => {
       setConflictReloadFailed(true);
@@ -564,32 +636,43 @@ export function App() {
     );
   }
 
+  // Welcome, recovery and read-error states take precedence over routes.
+  const archiveBlocked =
+    archiveLoad.status === "read-error" || Boolean(recoveryArchive);
+  // Tab bar and persistent Add flight belong to the primary views only.
+  const canAddFlight =
+    Boolean(document) && !archiveBlocked && primaryView(route.view) !== null;
+
+  function addFlight() {
+    editorReturnFocusRef.current =
+      window.document.activeElement instanceof HTMLElement
+        ? window.document.activeElement
+        : null;
+    setEditor({ kind: "create" });
+  }
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
         {t("app.skipToContent")}
       </a>
       <AppHeader
-        currentPage={page}
-        onNavigate={(nextPage) => {
-          setSettingsInitialCategory("general");
-          setPage(nextPage);
-          setSelectedFlightId(null);
-        }}
+        route={route}
+        hasArchive={Boolean(document) && !archiveBlocked}
+        onNavigate={navigate}
+        onAddFlight={canAddFlight ? addFlight : undefined}
+        onBack={() => navigate({ view: lastPrimaryViewRef.current })}
         detailActions={
-          selectedFlight
+          selectedFlight && !archiveBlocked
             ? {
+                backLabel: t(`nav.${returnView}`),
                 onPrevious: previousFlight
                   ? () => openFlight(previousFlight.id)
                   : undefined,
                 onNext: nextFlight
                   ? () => openFlight(nextFlight.id)
                   : undefined,
-                onBack: () => {
-                  setSelectedFlightId(null);
-                  setPage("passport");
-                  window.location.hash = "passport";
-                },
+                onBack: closeFlight,
                 onDuplicate: () => {
                   editorReturnFocusRef.current =
                     window.document.activeElement instanceof HTMLElement
@@ -697,10 +780,20 @@ export function App() {
           ) : null}
           {document && archiveKind === "demo" ? (
             <DemoBanner
-              compact={Boolean(selectedFlight) || page === "passport"}
+              compact={route.view !== "settings"}
               onCreateArchive={createArchive}
             />
           ) : null}
+        </div>
+      ) : null}
+      {flightNotFound ? (
+        <div className="page-notices">
+          <div className="storage-warning" role="status">
+            <span>{t("app.flightNotFound")}</span>
+            <button type="button" onClick={() => setFlightNotFound(false)}>
+              {t("app.dismissNotice")}
+            </button>
+          </div>
         </div>
       ) : null}
       {archiveLoad.status === "read-error" ? (
@@ -735,9 +828,17 @@ export function App() {
           onImport={importRecoveryBackup}
           onClear={clearRecoveryArchive}
         />
-      ) : page === "settings" ? (
+      ) : route.view === "settings" ? (
         <SettingsPage
-          initialCategory={settingsInitialCategory}
+          initialCategory={route.part}
+          onCategoryChange={(part) =>
+            navigate(
+              part === "general"
+                ? { view: "settings" }
+                : { view: "settings", part },
+              "replace",
+            )
+          }
           document={document}
           isDemo={archiveKind === "demo"}
           settings={settings}
@@ -763,8 +864,9 @@ export function App() {
           timeFormat={settings.timeFormat}
           mapTheme={settings.mapTheme}
         />
-      ) : page === "passport" ? (
+      ) : route.view === "flight" ? null : (
         <PassportPage
+          mode={route.view}
           view={passportView}
           onViewChange={setPassportView}
           document={document}
@@ -774,17 +876,9 @@ export function App() {
           mapTheme={settings.mapTheme}
           onOpenFlight={openFlight}
           onOpenShare={() => setShareOpen(true)}
-          onAddFlight={() => {
-            editorReturnFocusRef.current =
-              window.document.activeElement instanceof HTMLElement
-                ? window.document.activeElement
-                : null;
-            setEditor({ kind: "create" });
-          }}
+          onAddFlight={addFlight}
           onOpenImport={() => {
-            setSettingsInitialCategory("data");
-            setPage("settings");
-            window.location.hash = "settings";
+            navigate({ view: "settings", part: "data" });
             window.requestAnimationFrame(() =>
               window.requestAnimationFrame(() =>
                 window.document
@@ -793,6 +887,13 @@ export function App() {
               ),
             );
           }}
+        />
+      )}
+      {canAddFlight ? (
+        <PrimaryTabBar
+          route={route}
+          onNavigate={navigate}
+          onAddFlight={addFlight}
         />
       ) : null}
       {document && editor && (editor.kind === "create" || editedFlight) ? (
@@ -816,7 +917,7 @@ export function App() {
           onCancel={() => setEditor(null)}
         />
       ) : null}
-      {document && shareOpen && page === "passport" && !selectedFlight ? (
+      {document && shareOpen && route.view === "passport" ? (
         <FlightPassportShareDialog
           document={document}
           locale={locale}
@@ -828,7 +929,7 @@ export function App() {
       ) : null}
       {confirmDemoExport ? (
         <ConfirmationDialog
-          themeScope={page === "settings" ? "settings" : undefined}
+          themeScope={route.view === "settings" ? "settings" : undefined}
           title={t("demo.exportTitle")}
           description={t("demo.exportConfirmation")}
           confirmLabel={t("actions.export")}
@@ -854,16 +955,16 @@ export function App() {
   );
 }
 
-function pageFromHash(): Page {
-  return pageFromLocationHash() ?? "passport";
+function primaryView(value: unknown): PrimaryView | null {
+  return (PRIMARY_VIEWS as readonly unknown[]).includes(value)
+    ? (value as PrimaryView)
+    : null;
 }
 
-/** Retired hashes that now land on Passport: the old flight list and the
- * removed Share Studio page (sharing is an overlay on Passport). */
-const retiredPassportHashes = new Set(["flights", "share"]);
-
-function pageFromLocationHash(): Page | null {
-  const hash = window.location.hash.slice(1);
-  if (retiredPassportHashes.has(hash)) return "passport";
-  return hash === "passport" || hash === "settings" ? hash : null;
+/** The view a Flight history entry was opened from, if this session set it. */
+function historyOrigin(): unknown {
+  const state: unknown = window.history.state;
+  return state && typeof state === "object" && "from" in state
+    ? state.from
+    : null;
 }

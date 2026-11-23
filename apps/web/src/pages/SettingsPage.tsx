@@ -29,7 +29,9 @@ import {
 } from "../storage/browser";
 
 interface SettingsPageProps {
-  initialCategory?: "general" | "data";
+  /** Settings part from the address; unknown values open General. */
+  initialCategory?: string;
+  onCategoryChange?: (category: string) => void;
   document: KeeprawFlyDocument | null;
   isDemo: boolean;
   settings: ViewerSettings;
@@ -45,6 +47,7 @@ interface SettingsPageProps {
 
 export function SettingsPage({
   initialCategory = "general",
+  onCategoryChange,
   document,
   isDemo,
   settings,
@@ -67,7 +70,6 @@ export function SettingsPage({
   const [expandedMembershipId, setExpandedMembershipId] = useState<
     string | null
   >(null);
-  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
   const categoryContentRef = useRef<HTMLDivElement>(null);
   const categories = [
     { id: "general", label: "settings.general" },
@@ -77,6 +79,43 @@ export function SettingsPage({
     { id: "advanced", label: "settings.advanced" },
     { id: "danger", label: "settings.dangerZone" },
   ];
+  const requestedCategory = categories.some(
+    (category) => category.id === initialCategory,
+  )
+    ? initialCategory
+    : "general";
+  const [activeCategory, setActiveCategory] =
+    useState<string>(requestedCategory);
+  // The address can change while Settings is open (Back, a typed address).
+  useEffect(() => {
+    setActiveCategory(requestedCategory);
+  }, [requestedCategory]);
+  // Compact lists every category, so an addressed one is scrolled to instead.
+  useEffect(() => {
+    // Run after App's navigation scroll reset.
+    const frame = window.requestAnimationFrame(() => {
+      const content = categoryContentRef.current;
+      const sections = content?.querySelectorAll(".settings-section") ?? [];
+      const allListed = [...sections].every(
+        (section) => getComputedStyle(section).display !== "none",
+      );
+      if (!allListed) return;
+      // General is the first category: plain Settings is the top of the page.
+      // Layout offsets leave out the section's enter-animation transform.
+      let top = 0;
+      if (requestedCategory !== "general")
+        for (
+          let node = content?.querySelector<HTMLElement>(
+            `#settings-category-${requestedCategory}`,
+          );
+          node;
+          node = node.offsetParent as HTMLElement | null
+        )
+          top += node.offsetTop;
+      window.scrollTo({ top });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [requestedCategory]);
   const persistRequestInFlight = useRef(false);
   const protectionReadVersion = useRef(0);
   const profileName = document?.profile.name;
@@ -207,6 +246,7 @@ export function SettingsPage({
 
   function showCategory(category: string) {
     setActiveCategory(category);
+    onCategoryChange?.(category);
     categoryContentRef.current?.scrollIntoView({ block: "start" });
   }
 

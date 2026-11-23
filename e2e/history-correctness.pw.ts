@@ -79,6 +79,12 @@ async function openFlight(page: Page, number = flight.flightNumber) {
     .click();
 }
 
+/** An open flight is addressable, so a reload returns to its Detail. */
+async function reloadDetail(page: Page) {
+  await page.reload();
+  await expect(page.locator(".detail-flight-card")).toBeVisible();
+}
+
 async function openEditor(page: Page) {
   await page.getByRole("button", { name: "Edit flight", exact: true }).click();
   return page.getByRole("dialog", { name: "Edit flight", exact: true });
@@ -243,8 +249,7 @@ test("correcting a physical SFO identity updates the mounted Detail map (KF-06)"
       iata: "SFO",
       airportId: expect.stringMatching(/^apt_(?!unavailable)/),
     });
-  await page.reload();
-  await openFlight(page);
+  await reloadDetail(page);
   await expect(frame).toHaveAttribute("data-route-status", "flown");
   await expect(frame.locator(".map-airport-label")).toHaveText(["SFO", "LAX"]);
 });
@@ -286,8 +291,7 @@ test("selects EDC and IHA by name and reloads both directory identities (KF-07)"
         airportId: "apt_89b4e952-f536-4b6f-85c3-eba5cb0dd279",
       },
     });
-  await page.reload();
-  await openFlight(page);
+  await reloadDetail(page);
   await expect(page.locator(".route-origin-airport")).toHaveText(
     "Austin Executive Airport",
   );
@@ -421,8 +425,7 @@ test(
         ["new", "UA7912"],
         ["neighbor", "UA7913"],
       ]);
-    await page.reload();
-    await openFlight(page, "UA7912");
+    await reloadDetail(page);
     editor = await openEditor(page);
     await editor
       .getByRole("button", { name: "Delete flight", exact: true })
@@ -471,7 +474,7 @@ test("blocks a native leap-second import without changing the saved archive (KF-
     }),
   ).toBeDisabled();
   expect(await stored(page)).toEqual(before);
-  await page.goto("/#passport");
+  await page.goto("/#/map");
   await page.reload();
   await openFlight(page);
   await expect(page.locator(".detail-stop--arrival time")).toHaveText("12:30");
@@ -561,7 +564,7 @@ for (const conflict of [false, true]) {
       const after = await stored(page);
       await page.reload();
       await expect(
-        page.locator(conflict ? ".recovery-page" : ".flight-row"),
+        page.locator(conflict ? ".recovery-page" : ".detail-flight-card"),
       ).toBeVisible();
       expect(await stored(page)).toEqual(after);
     },

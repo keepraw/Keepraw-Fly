@@ -8,6 +8,8 @@
     "changesNotSaved": "Änderungen sind auf diesem Gerät nicht gespeichert.",
     "settingsNotSaved": "Die Einstellungen sind auf diesem Gerät nicht gespeichert.",
     "skipToContent": "Zum Inhalt springen",
+    "flightNotFound": "Dieser Flug ist in diesem Archiv nicht vorhanden.",
+    "dismissNotice": "Schließen",
     "unavailable": "Diese Informationen sind nicht verfügbar.",
     "languageLoadFailed": "Die Sprache konnte nicht geladen werden. Die aktuelle Ansicht bleibt nutzbar. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
     "archiveConflict": "Ein anderer Tab hat dieses Archiv geändert oder geleert. Deine Änderungen wurden nicht gespeichert. Exportiere das ungespeicherte Archiv dieses Tabs, bevor du die gespeicherte Version lädst.",
@@ -20,7 +22,10 @@
     "flights": "Flüge",
     "passport": "Flugpass",
     "settings": "Einstellungen",
-    "backToPassport": "Zurück zum Flugpass"
+    "log": "Logbuch",
+    "map": "Karte",
+    "stats": "Statistik",
+    "back": "Zurück"
   },
   "welcome": {
     "eyebrow": "Ihre Flughistorie in Ihren Händen",
