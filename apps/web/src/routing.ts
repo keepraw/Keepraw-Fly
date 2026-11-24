@@ -11,7 +11,7 @@ export type Route =
   | { view: "flight"; flightId: string }
   | { view: "settings"; part?: string };
 
-/** Landing view until skins choose their own (phase 3). */
+/** Landing view where no skin is known: tests and callers outside the app. */
 export const DEFAULT_LANDING_VIEW: PrimaryView = "map";
 
 /** Fragments of earlier versions that now open the landing view. */
@@ -29,6 +29,12 @@ function decodeSegment(value: string): string | null {
   }
 }
 
+/** Whether the fragment names no view, so the skin's landing view opens. */
+export function isLandingFragment(fragment: string): boolean {
+  const raw = fragment.startsWith("#") ? fragment.slice(1) : fragment;
+  return raw === "" || raw === "/" || LEGACY_LANDING_FRAGMENTS.has(raw);
+}
+
 /**
  * Resolve a fragment (with or without the leading `#`). Returns `null` for an
  * unknown fragment so in-page anchors and foreign fragments are left alone.
@@ -38,8 +44,7 @@ export function parseRoute(
   landing: PrimaryView = DEFAULT_LANDING_VIEW,
 ): Route | null {
   const raw = fragment.startsWith("#") ? fragment.slice(1) : fragment;
-  if (raw === "" || raw === "/") return { view: landing };
-  if (LEGACY_LANDING_FRAGMENTS.has(raw)) return { view: landing };
+  if (isLandingFragment(raw)) return { view: landing };
   if (raw === "settings") return { view: "settings" };
   if (!raw.startsWith("/")) return null;
 

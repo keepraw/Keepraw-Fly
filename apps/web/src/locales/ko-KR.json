@@ -617,6 +617,16 @@
     "backupDescription": "비행 아카이브의 로컬 JSON 백업을 생성합니다.",
     "restoreDescription": "Keepraw Fly 백업에서 항공편을 추가합니다.",
     "csvDescription": "스프레드시트에서 비행 기록을 가져옵니다.",
+    "skin": "스킨",
+    "skinHint": "모양, 레이아웃, 처음 열리는 화면을 정합니다. 항공편 기록은 바뀌지 않습니다.",
+    "skinOption": {
+      "classic": "클래식",
+      "minimal": "미니멀"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}} 스킨은 라이트만 지원합니다.",
+      "dark": "{{skin}} 스킨은 다크만 지원합니다."
+    },
     "mapTheme": "지도 테마",
     "mapThemeHint": "여권 지도와 항공편 경로 지도에 적용됩니다.",
     "passportLayout": "플라이트 패스포트 레이아웃",

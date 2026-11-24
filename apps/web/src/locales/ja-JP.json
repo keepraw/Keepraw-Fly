@@ -617,6 +617,16 @@
     "backupDescription": "フライト アーカイブのローカル JSON バックアップを作成します。",
     "restoreDescription": "Keepraw Fly バックアップからフライトを追加します。",
     "csvDescription": "スプレッドシートからフライト履歴を取り込みます。",
+    "skin": "スキン",
+    "skinHint": "見た目、レイアウト、最初に開く画面を決めます。フライトの記録は変わりません。",
+    "skinOption": {
+      "classic": "クラシック",
+      "minimal": "ミニマル"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}}はライトのみです。",
+      "dark": "{{skin}}はダークのみです。"
+    },
     "mapTheme": "地図テーマ",
     "mapThemeHint": "パスポートの地図とフライトの経路図に適用されます。",
     "passportLayout": "フライトパスポートのレイアウト",

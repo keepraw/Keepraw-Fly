@@ -649,6 +649,16 @@
     "backupDescription": "Erstellen Sie ein lokales JSON-Backup Ihres Flugarchivs.",
     "restoreDescription": "Flüge aus einem Keepraw Fly-Backup hinzufügen.",
     "csvDescription": "Holen Sie sich den Flugverlauf aus einer Tabelle.",
+    "skin": "Design",
+    "skinHint": "Legt Aussehen, Anordnung und die Startansicht fest. Ihre Flüge bleiben unverändert.",
+    "skinOption": {
+      "classic": "Klassisch",
+      "minimal": "Minimal"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}} gibt es nur in Hell.",
+      "dark": "{{skin}} gibt es nur in Dunkel."
+    },
     "mapTheme": "Kartenthema",
     "mapThemeHint": "Gilt für die Passport-Karte und die Flugroutenkarte.",
     "passportLayout": "Layout des Flugpasses",

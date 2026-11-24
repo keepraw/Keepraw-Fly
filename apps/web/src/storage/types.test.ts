@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_SKIN_ID } from "../skins/registry";
 import { defaultViewerSettings, normalizeViewerSettings } from "./types";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -42,12 +43,59 @@ describe("saved locale compatibility", () => {
       expect(normalizeViewerSettings(stored)).toEqual({
         ...stored,
         language: language === "zh-HK" ? "zh-TW" : "en-US",
+        skin: DEFAULT_SKIN_ID,
         mapTheme: "neon-aviation",
         passportTemplate: "neon",
       });
       expect(stored).toEqual(copy);
     },
   );
+});
+
+describe("skin preference", () => {
+  const base = {
+    language: "en-US",
+    appearance: "system" as const,
+    distanceUnit: "kilometers" as const,
+    timeFormat: "24-hour" as const,
+    powerUserMode: false,
+  };
+
+  it("starts on the default skin", () => {
+    vi.stubGlobal("navigator", { language: "en-US" });
+    expect(defaultViewerSettings().skin).toBe(DEFAULT_SKIN_ID);
+  });
+
+  it("keeps a registered skin", () => {
+    expect(normalizeViewerSettings({ ...base, skin: "minimal" }).skin).toBe(
+      "minimal",
+    );
+  });
+
+  it.each([undefined, null, 3, "", "retired-skin"])(
+    "resolves %s to the default without losing other preferences",
+    (skin) => {
+      expect(normalizeViewerSettings({ ...base, skin })).toMatchObject({
+        ...base,
+        skin: DEFAULT_SKIN_ID,
+      });
+    },
+  );
+
+  it("still loads the map theme and layout an earlier version stored", () => {
+    expect(
+      normalizeViewerSettings({
+        ...base,
+        skin: "minimal",
+        mapTheme: "daylight-chart",
+        passportTemplate: "book",
+      }),
+    ).toMatchObject({
+      skin: "minimal",
+      mapTheme: "daylight-chart",
+      passportTemplate: "book",
+    });
+  });
 });
 
 describe("map theme preference", () => {

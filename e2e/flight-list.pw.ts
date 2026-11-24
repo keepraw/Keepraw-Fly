@@ -60,10 +60,7 @@ for (const [locale, origin, destination] of [
           'link[data-chinese-webfont][data-font-status="unavailable"]',
         ),
       ).toHaveCount(locale === "en-US" ? 0 : 3);
-      await page
-        .locator(".settings-fields select")
-        .nth(1)
-        .selectOption(sample.theme);
+      await page.locator("#settings-appearance").selectOption(sample.theme);
       await page
         .getByRole("combobox")
         .filter({ has: page.locator('option[value="12-hour"]') })

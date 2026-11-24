@@ -678,6 +678,16 @@
     "backupDescription": "Crea una copia de seguridad JSON local de tu archivo de vuelo.",
     "restoreDescription": "Agregar vuelos desde una copia de seguridad Keepraw Fly.",
     "csvDescription": "Traer el historial de vuelos desde una hoja de cálculo.",
+    "skin": "Estilo",
+    "skinHint": "Define el aspecto, la disposición y la vista inicial. Tus vuelos no cambian.",
+    "skinOption": {
+      "classic": "Clásico",
+      "minimal": "Minimalista"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}} solo está disponible en claro.",
+      "dark": "{{skin}} solo está disponible en oscuro."
+    },
     "mapTheme": "Tema del mapa",
     "mapThemeHint": "Se aplica al mapa del pasaporte y al mapa de ruta del vuelo.",
     "passportLayout": "Diseño del pasaporte de vuelo",

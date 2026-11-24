@@ -4,6 +4,7 @@ import {
   resolveMapTheme,
   type MapThemeId,
 } from "../map2d/theme-registry";
+import { DEFAULT_SKIN_ID, resolveSkin, type SkinId } from "../skins/registry";
 import {
   DEFAULT_POSTER_TEMPLATE_ID,
   isPosterTemplateId,
@@ -21,6 +22,8 @@ export type Appearance = "system" | "light" | "dark";
 export interface ViewerSettings {
   language: Language;
   appearance: Appearance;
+  /** Registered skin; unknown stored values fall back to the default. */
+  skin: SkinId;
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   powerUserMode: boolean;
@@ -36,6 +39,7 @@ export function defaultViewerSettings(): ViewerSettings {
   return {
     language,
     appearance: "system",
+    skin: DEFAULT_SKIN_ID,
     distanceUnit: language.startsWith("en-") ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
@@ -49,9 +53,10 @@ export function defaultViewerSettings(): ViewerSettings {
 export function normalizeViewerSettings(
   settings: Omit<
     ViewerSettings,
-    "language" | "mapTheme" | "passportTemplate"
+    "language" | "skin" | "mapTheme" | "passportTemplate"
   > & {
     language: unknown;
+    skin?: unknown;
     mapTheme?: unknown;
     passportTemplate?: unknown;
   },
@@ -59,6 +64,7 @@ export function normalizeViewerSettings(
   return {
     ...settings,
     language: normalizeLanguage(settings.language),
+    skin: resolveSkin(settings.skin).id as SkinId,
     mapTheme: resolveMapTheme(settings.mapTheme).id as MapThemeId,
     passportTemplate: isPosterTemplateId(settings.passportTemplate)
       ? settings.passportTemplate

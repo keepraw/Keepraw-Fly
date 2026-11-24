@@ -14,7 +14,15 @@ import {
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
-import { listMapThemes } from "../map2d/theme-registry";
+import { listSelectableMapThemes } from "../map2d/theme-registry";
+import { resolveAppearance } from "../appearance";
+import {
+  resolveSkin,
+  SKIN_IDS,
+  SKINS,
+  skinAppearance,
+  skinHasAppearanceChoice,
+} from "../skins/registry";
 import { ImportControl } from "../components/ImportControl";
 import { CsvImportControl } from "../components/CsvImportControl";
 import { FlightyImportControl } from "../components/FlightyImportControl";
@@ -59,6 +67,12 @@ export function SettingsPage({
   onMembershipsChange,
 }: SettingsPageProps) {
   const { t } = useTranslation();
+  const skin = resolveSkin(settings.skin);
+  const appearanceChoice = skinHasAppearanceChoice(skin);
+  const shownAppearance = skinAppearance(
+    skin,
+    resolveAppearance(settings.appearance),
+  );
   const [confirmClear, setConfirmClear] = useState(false);
   const [persistentState, setPersistentState] =
     useState<PersistentStorageState>("checking");
@@ -319,15 +333,58 @@ export function SettingsPage({
                   <div className="settings-row settings-item settings-preference">
                     <div className="settings-item-copy">
                       <h3 className="settings-item-title settings-row-label">
+                        <label htmlFor="settings-skin">
+                          {t("settings.skin")}
+                        </label>
+                      </h3>
+                      <p id="settings-skin-hint">{t("settings.skinHint")}</p>
+                    </div>
+                    <select
+                      id="settings-skin"
+                      className="settings-row-control"
+                      value={settings.skin}
+                      aria-describedby="settings-skin-hint"
+                      onChange={(event) =>
+                        updateSetting(
+                          "skin",
+                          event.target.value as ViewerSettings["skin"],
+                        )
+                      }
+                    >
+                      {SKIN_IDS.map((id) => (
+                        <option key={id} value={id}>
+                          {t(SKINS[id].labelKey)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="settings-row settings-item settings-preference">
+                    <div className="settings-item-copy">
+                      <h3 className="settings-item-title settings-row-label">
                         <label htmlFor="settings-appearance">
                           {t("settings.appearance")}
                         </label>
                       </h3>
+                      {!appearanceChoice && (
+                        <p id="settings-appearance-hint">
+                          {t(`settings.appearanceFixed.${shownAppearance}`, {
+                            skin: t(skin.labelKey),
+                          })}
+                        </p>
+                      )}
                     </div>
                     <select
                       id="settings-appearance"
                       className="settings-row-control"
-                      value={settings.appearance}
+                      value={
+                        appearanceChoice ? settings.appearance : shownAppearance
+                      }
+                      disabled={!appearanceChoice}
+                      aria-describedby={
+                        appearanceChoice
+                          ? undefined
+                          : "settings-appearance-hint"
+                      }
                       onChange={(event) =>
                         updateSetting(
                           "appearance",
@@ -392,67 +449,71 @@ export function SettingsPage({
                       </option>
                     </select>
                   </div>
-                  <div className="settings-row settings-item settings-preference">
-                    <div className="settings-item-copy">
-                      <h3 className="settings-item-title settings-row-label">
-                        <label htmlFor="settings-map-theme">
-                          {t("settings.mapTheme")}
-                        </label>
-                      </h3>
-                      <p id="settings-map-theme-hint">
-                        {t("settings.mapThemeHint")}
-                      </p>
+                  {!skin.mapTheme && (
+                    <div className="settings-row settings-item settings-preference">
+                      <div className="settings-item-copy">
+                        <h3 className="settings-item-title settings-row-label">
+                          <label htmlFor="settings-map-theme">
+                            {t("settings.mapTheme")}
+                          </label>
+                        </h3>
+                        <p id="settings-map-theme-hint">
+                          {t("settings.mapThemeHint")}
+                        </p>
+                      </div>
+                      <select
+                        id="settings-map-theme"
+                        className="settings-row-control"
+                        value={settings.mapTheme}
+                        aria-describedby="settings-map-theme-hint"
+                        onChange={(event) =>
+                          updateSetting(
+                            "mapTheme",
+                            event.target.value as ViewerSettings["mapTheme"],
+                          )
+                        }
+                      >
+                        {listSelectableMapThemes().map((theme) => (
+                          <option key={theme.id} value={theme.id}>
+                            {theme.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <select
-                      id="settings-map-theme"
-                      className="settings-row-control"
-                      value={settings.mapTheme}
-                      aria-describedby="settings-map-theme-hint"
-                      onChange={(event) =>
-                        updateSetting(
-                          "mapTheme",
-                          event.target.value as ViewerSettings["mapTheme"],
-                        )
-                      }
-                    >
-                      {listMapThemes().map((theme) => (
-                        <option key={theme.id} value={theme.id}>
-                          {theme.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="settings-row settings-item settings-preference">
-                    <div className="settings-item-copy">
-                      <h3 className="settings-item-title settings-row-label">
-                        <label htmlFor="settings-passport-layout">
-                          {t("settings.passportLayout")}
-                        </label>
-                      </h3>
-                      <p id="settings-passport-layout-hint">
-                        {t("settings.passportLayoutHint")}
-                      </p>
+                  )}
+                  {!skin.passportTemplate && (
+                    <div className="settings-row settings-item settings-preference">
+                      <div className="settings-item-copy">
+                        <h3 className="settings-item-title settings-row-label">
+                          <label htmlFor="settings-passport-layout">
+                            {t("settings.passportLayout")}
+                          </label>
+                        </h3>
+                        <p id="settings-passport-layout-hint">
+                          {t("settings.passportLayoutHint")}
+                        </p>
+                      </div>
+                      <select
+                        id="settings-passport-layout"
+                        className="settings-row-control"
+                        value={settings.passportTemplate}
+                        aria-describedby="settings-passport-layout-hint"
+                        onChange={(event) =>
+                          updateSetting(
+                            "passportTemplate",
+                            event.target
+                              .value as ViewerSettings["passportTemplate"],
+                          )
+                        }
+                      >
+                        {POSTER_TEMPLATE_IDS.map((id) => (
+                          <option key={id} value={id}>
+                            {t(`settings.passportLayoutOption.${id}`)}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <select
-                      id="settings-passport-layout"
-                      className="settings-row-control"
-                      value={settings.passportTemplate}
-                      aria-describedby="settings-passport-layout-hint"
-                      onChange={(event) =>
-                        updateSetting(
-                          "passportTemplate",
-                          event.target
-                            .value as ViewerSettings["passportTemplate"],
-                        )
-                      }
-                    >
-                      {POSTER_TEMPLATE_IDS.map((id) => (
-                        <option key={id} value={id}>
-                          {t(`settings.passportLayoutOption.${id}`)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  )}
                 </div>
               </section>
 

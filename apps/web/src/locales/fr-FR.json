@@ -678,6 +678,16 @@
     "backupDescription": "Créez une sauvegarde JSON locale de vos archives de vol.",
     "restoreDescription": "Ajoutez des vols à partir d'une sauvegarde Keepraw Fly.",
     "csvDescription": "Importez l'historique des vols à partir d'une feuille de calcul.",
+    "skin": "Habillage",
+    "skinHint": "Définit l’aspect, la disposition et la vue d’ouverture. Vos vols ne sont pas modifiés.",
+    "skinOption": {
+      "classic": "Classique",
+      "minimal": "Minimal"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}} n’existe qu’en clair.",
+      "dark": "{{skin}} n’existe qu’en sombre."
+    },
     "mapTheme": "Thème de carte",
     "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol.",
     "passportLayout": "Mise en page du passeport de vol",

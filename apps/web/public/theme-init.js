@@ -1,10 +1,20 @@
-// Applies a saved light/dark choice before the first paint. Kept as a
-// same-origin file (not inline) so the Content Security Policy needs no
-// 'unsafe-inline' or per-build script hash.
+// Applies the saved skin and light/dark choice before the first paint. Kept
+// as a same-origin file (not inline) so the Content Security Policy needs no
+// 'unsafe-inline' or per-build script hash. The skin table mirrors
+// src/skins/registry.ts; a test keeps the two in step.
+const SKIN_APPEARANCES = {
+  classic: ["light", "dark"],
+  minimal: ["light", "dark"],
+};
 try {
+  const root = document.documentElement;
+  const skin = localStorage.getItem("keepraw-fly-skin");
+  const appearances = SKIN_APPEARANCES[skin] ?? SKIN_APPEARANCES.classic;
+  if (Object.hasOwn(SKIN_APPEARANCES, skin)) root.dataset.skin = skin;
   const appearance = localStorage.getItem("keepraw-fly-appearance");
-  if (appearance === "light" || appearance === "dark")
-    document.documentElement.dataset.theme = appearance;
+  if (appearances.length === 1) root.dataset.theme = appearances[0];
+  else if (appearance === "light" || appearance === "dark")
+    root.dataset.theme = appearance;
 } catch {
-  // System appearance also works when the cosmetic cache is unavailable.
+  // The default skin and the system appearance also work without the cache.
 }

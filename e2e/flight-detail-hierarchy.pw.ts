@@ -228,10 +228,10 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
       await page.goto("/#settings");
       const selects = page.locator(".settings-display-fields select");
       await selects.nth(0).selectOption(language);
-      await selects.nth(1).selectOption(appearance);
-      await selects.nth(2).selectOption("kilometers");
-      await selects
-        .nth(3)
+      await page.locator("#settings-appearance").selectOption(appearance);
+      await page.locator("#settings-distance").selectOption("kilometers");
+      await page
+        .locator("#settings-time-format")
         .selectOption(appearance === "system" ? "12-hour" : "24-hour");
       await page.goto("/#passport");
       await page

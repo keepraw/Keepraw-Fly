@@ -87,10 +87,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           ["system", "dark", "dark"],
         ] as const) {
           await page.goto("/#/settings");
-          await page
-            .locator(".settings-display-fields select")
-            .nth(1)
-            .selectOption(mode);
+          await page.locator("#settings-appearance").selectOption(mode);
           await page.emulateMedia({ colorScheme: os });
           await expect(page.locator(".persistence-status")).toHaveText("");
           await page.goto("/#passport");

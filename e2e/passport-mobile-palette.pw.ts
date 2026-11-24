@@ -39,10 +39,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(language);
-        await page
-          .locator(".settings-fields select")
-          .nth(1)
-          .selectOption(viewport.theme);
+        await page.locator("#settings-appearance").selectOption(viewport.theme);
         await page.goto("/#passport");
         await expect(page.locator("html")).toHaveAttribute("lang", language);
         const canvas =
@@ -171,7 +168,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await page.locator(".detail-header-back").click();
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
-      await page.locator(".settings-fields select").nth(1).selectOption(theme);
+      await page.locator("#settings-appearance").selectOption(theme);
       await page.goto("/#passport");
       await page.locator(".passport-search-field input").focus();
       await page.keyboard.press("Tab");
@@ -221,10 +218,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
       ["dark", "light", "rgb(18, 25, 35)"],
     ] as const) {
       await page.goto("/#settings");
-      await page
-        .locator(".settings-fields select")
-        .nth(1)
-        .selectOption(appearance);
+      await page.locator("#settings-appearance").selectOption(appearance);
       await page.emulateMedia({ colorScheme: os });
       await page.goto("/#passport");
       await expect(page.locator(".app-shell")).toHaveCSS(
@@ -244,7 +238,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
   }) => {
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
-      await page.locator(".settings-fields select").nth(1).selectOption(theme);
+      await page.locator("#settings-appearance").selectOption(theme);
       const canvas =
         theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)";
       await expect(page.locator(".site-header")).toHaveCSS(

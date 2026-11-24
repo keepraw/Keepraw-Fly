@@ -649,6 +649,16 @@
     "backupDescription": "Create a local JSON backup of your flight archive.",
     "restoreDescription": "Add flights from a Keepraw Fly backup.",
     "csvDescription": "Bring in flight history from a spreadsheet.",
+    "skin": "Skin",
+    "skinHint": "Sets the look, the layout and the view that opens first. Your flights are not changed.",
+    "skinOption": {
+      "classic": "Classic",
+      "minimal": "Minimal"
+    },
+    "appearanceFixed": {
+      "light": "{{skin}} is only available in light.",
+      "dark": "{{skin}} is only available in dark."
+    },
     "mapTheme": "Map theme",
     "mapThemeHint": "Applies to the Passport map and the flight route map.",
     "passportLayout": "Flight Passport layout",
