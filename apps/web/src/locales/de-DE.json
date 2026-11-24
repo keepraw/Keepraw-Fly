@@ -652,20 +652,12 @@
     "skin": "Design",
     "skinHint": "Legt Aussehen, Anordnung und die Startansicht fest. Ihre Flüge bleiben unverändert.",
     "skinOption": {
-      "classic": "Klassisch",
-      "minimal": "Minimal"
+      "minimal": "Minimal",
+      "aviation": "Luftfahrt"
     },
     "appearanceFixed": {
       "light": "{{skin}} gibt es nur in Hell.",
       "dark": "{{skin}} gibt es nur in Dunkel."
-    },
-    "mapTheme": "Kartenthema",
-    "mapThemeHint": "Gilt für die Passport-Karte und die Flugroutenkarte.",
-    "passportLayout": "Layout des Flugpasses",
-    "passportLayoutHint": "Layout des geteilten Flugpass-Bildes. Neon folgt dem Kartenstil.",
-    "passportLayoutOption": {
-      "neon": "Neon-Blatt",
-      "book": "Klassisches Passbuch"
     }
   },
   "recovery": {
@@ -867,6 +859,18 @@
       "title": "In diesem Archiv",
       "airportVisit": "Besuch {{ordinal, number}} von {{total, number}}",
       "routeFlight": "Flug {{ordinal, number}} von {{total, number}}"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "Geplant und tatsächlich",
+      "durationSame": "Flugzeit wie geplant",
+      "durationLonger": "{{count, number}} Min. länger als geplant",
+      "durationShorter": "{{count, number}} Min. kürzer als geplant",
+      "clocksTitle": "Ortszeit an beiden Flughäfen",
+      "dateLine": "Datumsgrenze",
+      "midnightNote": "Ein Strich markiert Mitternacht Ortszeit.",
+      "dateLineNote": "Die Datumsgrenze steht dort, wo die Großkreisroute sie kreuzt; sie ist keine aufgezeichnete Zeit."
     }
   }
 }

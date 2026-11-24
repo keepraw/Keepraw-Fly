@@ -64,6 +64,14 @@ export async function expectHealthyPage(page: Page, errors: string[]) {
 }
 
 export async function expectReachable(control: Locator) {
+  await expectShown(control);
+  await expect(control).toBeEnabled();
+  // A rendered box alone does not prove another element is not covering it.
+  await control.click({ trial: true });
+}
+
+/** Scrolls a control into its scrollport and requires all of it to show. */
+export async function expectShown(control: Locator) {
   await control.scrollIntoViewIfNeeded();
   // Native scrolling honors scroll-padding, whose optimal region can be smaller
   // than a flight row at short heights. Center in the actual scrollport instead;
@@ -87,9 +95,6 @@ export async function expectReachable(control: Locator) {
     }
   });
   await expectUnclipped(control);
-  await expect(control).toBeEnabled();
-  // A rendered box alone does not prove another element is not covering it.
-  await control.click({ trial: true });
 }
 
 export async function expectColumns(grid: Locator, count: number) {
@@ -332,7 +337,9 @@ export async function expectSettingsLayout(page: Page, mobile: boolean) {
     page.locator(".settings-preference").filter({ has: appearance }),
     1,
   );
-  await expectReachable(appearance);
+  // Appearance is disabled under a skin with one appearance; Skin never is.
+  await expectReachable(page.locator("#settings-skin"));
+  await expectShown(appearance);
   await expect
     .poll(() =>
       page.evaluate(

@@ -177,7 +177,13 @@ for (const id of [
         await expect(page.locator(".detail-metadata-shelf")).toHaveCount(0);
       else {
         await expect(page.locator(".detail-metadata-shelf")).toHaveCount(1);
-        expect(geometry.shelf!.top).toBeCloseTo(geometry.heroBottom + 32, 0);
+        // The skin's extension, when present, sits between Hero and shelf.
+        const below = geometry.extension ?? geometry.shelf!;
+        expect(below.top).toBeCloseTo(geometry.heroBottom + 32, 0);
+        if (geometry.extension)
+          expect(geometry.shelf!.top).toBeGreaterThanOrEqual(
+            geometry.extension.bottom + 23,
+          );
       }
       if (id === "rich")
         await expect(page.locator(".detail-metadata-shelf")).toContainText(

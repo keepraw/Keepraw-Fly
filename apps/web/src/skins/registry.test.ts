@@ -12,17 +12,16 @@ import {
   skinAppearance,
   skinHasAppearanceChoice,
   skinMapTheme,
-  skinPassportTemplate,
   type SkinDefinition,
 } from "./registry";
 
-const darkOnly: SkinDefinition = {
-  id: "dark-only",
+const lightOnly: SkinDefinition = {
+  id: "light-only",
   labelKey: "settings.skinOption.minimal",
-  appearances: ["dark"],
-  landingView: "map",
-  mapTheme: { dark: "neon-aviation" },
-  passportTemplate: "neon",
+  appearances: ["light"],
+  landingView: "passport",
+  mapTheme: { light: "daylight-chart" },
+  passportTemplate: "book",
 };
 
 describe("skin registry", () => {
@@ -34,10 +33,8 @@ describe("skin registry", () => {
       expect(skin.appearances.length).toBeGreaterThan(0);
       expect(PRIMARY_VIEWS).toContain(skin.landingView);
       for (const appearance of skin.appearances)
-        if (skin.mapTheme)
-          expect(isMapThemeId(skin.mapTheme[appearance])).toBe(true);
-      if (skin.passportTemplate)
-        expect(isPosterTemplateId(skin.passportTemplate)).toBe(true);
+        expect(isMapThemeId(skin.mapTheme[appearance])).toBe(true);
+      expect(isPosterTemplateId(skin.passportTemplate)).toBe(true);
     }
   });
 
@@ -50,40 +47,45 @@ describe("skin registry", () => {
     });
   });
 
-  it.each([undefined, null, "", "aviation-2", 7, "toString", "__proto__"])(
-    "falls back to the default for %s",
-    (stored) => {
-      expect(isSkinId(stored)).toBe(false);
-      expect(resolveSkin(stored).id).toBe(DEFAULT_SKIN_ID);
-    },
-  );
+  it("defines aviation as the contract describes it, and as the default", () => {
+    expect(DEFAULT_SKIN_ID).toBe("aviation");
+    expect(SKINS.aviation).toMatchObject({
+      appearances: ["dark"],
+      landingView: "map",
+      mapTheme: { dark: "neon-aviation" },
+      passportTemplate: "neon",
+    });
+  });
+
+  it.each([
+    undefined,
+    null,
+    "",
+    "classic",
+    "aviation-2",
+    7,
+    "toString",
+    "__proto__",
+  ])("falls back to the default for %s", (stored) => {
+    expect(isSkinId(stored)).toBe(false);
+    expect(resolveSkin(stored).id).toBe(DEFAULT_SKIN_ID);
+  });
 
   it("constrains the appearance to what the skin draws", () => {
     expect(skinAppearance(SKINS.minimal, "light")).toBe("light");
     expect(skinAppearance(SKINS.minimal, "dark")).toBe("dark");
     expect(skinHasAppearanceChoice(SKINS.minimal)).toBe(true);
-    expect(skinAppearance(darkOnly, "light")).toBe("dark");
-    expect(skinHasAppearanceChoice(darkOnly)).toBe(false);
+    expect(skinAppearance(SKINS.aviation, "light")).toBe("dark");
+    expect(skinHasAppearanceChoice(SKINS.aviation)).toBe(false);
+    expect(skinAppearance(lightOnly, "dark")).toBe("light");
   });
 
-  it("lets a skin own the map theme and the passport layout", () => {
-    expect(skinMapTheme(SKINS.minimal, "light", "neon-aviation")).toBe(
-      "daylight-chart",
-    );
-    expect(skinMapTheme(SKINS.minimal, "dark", "daylight-chart")).toBe(
-      "graphite-chart",
-    );
-    expect(skinMapTheme(darkOnly, "light", "daylight-chart")).toBe(
-      "neon-aviation",
-    );
-    expect(skinPassportTemplate(SKINS.minimal, "book")).toBe("neon");
-  });
-
-  it("keeps the stored choices for the transitional classic skin only", () => {
-    expect(skinMapTheme(SKINS.classic, "dark", "daylight-chart")).toBe(
-      "daylight-chart",
-    );
-    expect(skinPassportTemplate(SKINS.classic, "book")).toBe("book");
+  it("lets every skin own its map theme and passport layout", () => {
+    expect(skinMapTheme(SKINS.minimal, "light")).toBe("daylight-chart");
+    expect(skinMapTheme(SKINS.minimal, "dark")).toBe("graphite-chart");
+    expect(skinMapTheme(SKINS.aviation, "light")).toBe("neon-aviation");
+    expect(skinMapTheme(lightOnly, "dark")).toBe("daylight-chart");
+    expect(SKINS.minimal.passportTemplate).toBe("neon");
   });
 });
 

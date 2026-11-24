@@ -5,6 +5,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { chooseAppearance } from "./helpers/settings";
 
 test("shares search and year scope, map selection and adjacent detail navigation", async ({
   page,
@@ -196,7 +197,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     await page.goto("/#settings");
     const settings = page.locator(".settings-display-fields select");
     await settings.nth(0).selectOption(locale);
-    await page.locator("#settings-appearance").selectOption(appearance);
+    await chooseAppearance(page, appearance);
     await page.goto("/#passport");
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await page.setViewportSize({ width: 1280, height: 720 });

@@ -1,5 +1,4 @@
 import { localeRegistry, supportedLanguages } from "../locales/registry";
-import { POSTER_TEMPLATE_IDS } from "../share/poster-template-ids";
 import type { ExportKind } from "../data/export";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +13,6 @@ import {
   type FrequentFlyerMembership,
 } from "@keepraw-fly/core";
 import type { ViewerSettings } from "../storage/types";
-import { listSelectableMapThemes } from "../map2d/theme-registry";
 import { resolveAppearance } from "../appearance";
 import {
   resolveSkin,
@@ -449,71 +447,6 @@ export function SettingsPage({
                       </option>
                     </select>
                   </div>
-                  {!skin.mapTheme && (
-                    <div className="settings-row settings-item settings-preference">
-                      <div className="settings-item-copy">
-                        <h3 className="settings-item-title settings-row-label">
-                          <label htmlFor="settings-map-theme">
-                            {t("settings.mapTheme")}
-                          </label>
-                        </h3>
-                        <p id="settings-map-theme-hint">
-                          {t("settings.mapThemeHint")}
-                        </p>
-                      </div>
-                      <select
-                        id="settings-map-theme"
-                        className="settings-row-control"
-                        value={settings.mapTheme}
-                        aria-describedby="settings-map-theme-hint"
-                        onChange={(event) =>
-                          updateSetting(
-                            "mapTheme",
-                            event.target.value as ViewerSettings["mapTheme"],
-                          )
-                        }
-                      >
-                        {listSelectableMapThemes().map((theme) => (
-                          <option key={theme.id} value={theme.id}>
-                            {theme.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  {!skin.passportTemplate && (
-                    <div className="settings-row settings-item settings-preference">
-                      <div className="settings-item-copy">
-                        <h3 className="settings-item-title settings-row-label">
-                          <label htmlFor="settings-passport-layout">
-                            {t("settings.passportLayout")}
-                          </label>
-                        </h3>
-                        <p id="settings-passport-layout-hint">
-                          {t("settings.passportLayoutHint")}
-                        </p>
-                      </div>
-                      <select
-                        id="settings-passport-layout"
-                        className="settings-row-control"
-                        value={settings.passportTemplate}
-                        aria-describedby="settings-passport-layout-hint"
-                        onChange={(event) =>
-                          updateSetting(
-                            "passportTemplate",
-                            event.target
-                              .value as ViewerSettings["passportTemplate"],
-                          )
-                        }
-                      >
-                        {POSTER_TEMPLATE_IDS.map((id) => (
-                          <option key={id} value={id}>
-                            {t(`settings.passportLayoutOption.${id}`)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
                 </div>
               </section>
 

@@ -20,10 +20,10 @@ describe("early appearance hint", () => {
       removeItem: (key: string) => cache.delete(key),
     });
     expect(initialAppearance()).toBe("dark");
-    applyAppearance("light");
+    applyAppearance("light", "minimal");
     expect(dataset.theme).toBe("light");
     expect(cache.get("keepraw-fly-appearance")).toBe("light");
-    applyAppearance("system");
+    applyAppearance("system", "minimal");
     expect(initialAppearance()).toBe("system");
     expect(cache.has("keepraw-fly-appearance")).toBe(false);
   });
@@ -43,9 +43,9 @@ describe("early appearance hint", () => {
       },
     });
     expect(initialAppearance()).toBe("system");
-    applyAppearance("dark");
+    applyAppearance("dark", "minimal");
     expect(dataset.theme).toBe("dark");
-    applyAppearance("system");
+    applyAppearance("system", "minimal");
     expect(dataset.theme).toBeUndefined();
   });
 });
@@ -78,8 +78,22 @@ describe("early skin hint", () => {
     expect(dataset).toEqual({ skin: "minimal", theme: "dark" });
     expect(cache.get("keepraw-fly-skin")).toBe("minimal");
     applyAppearance("system", DEFAULT_SKIN_ID);
-    expect(dataset).toEqual({ skin: DEFAULT_SKIN_ID });
+    expect(dataset.skin).toBe(DEFAULT_SKIN_ID);
     expect(cache.has("keepraw-fly-skin")).toBe(false);
+  });
+
+  it("draws a dark-only skin in dark and keeps the request for later", () => {
+    const dataset: { theme?: string; skin?: string } = {};
+    const cache = stub(dataset);
+    for (const requested of ["light", "system", "dark"] as const) {
+      applyAppearance(requested, "aviation");
+      expect(dataset).toEqual({ skin: "aviation", theme: "dark" });
+    }
+    applyAppearance("light", "aviation");
+    expect(cache.get("keepraw-fly-appearance")).toBe("light");
+    // The request returns with a skin that offers the choice.
+    applyAppearance("light", "minimal");
+    expect(dataset).toEqual({ skin: "minimal", theme: "light" });
   });
 
   it("does not mistake a theme forced by the skin for the saved appearance", () => {

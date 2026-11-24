@@ -1,4 +1,4 @@
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 import { expectDetailMap } from "./helpers/detail-map";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -10,27 +10,28 @@ import {
 } from "./helpers/responsive";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 
+// The `minimal` skin's tokens: the one skin drawn in both appearances.
 const colors = {
   light: {
-    canvas: "rgb(243, 246, 250)",
-    text: "rgb(30, 43, 62)",
-    surface: "rgb(247, 249, 252)",
-    focus: "rgb(101, 88, 199)",
-    warning: "rgb(137, 84, 8)",
-    positive: "rgb(40, 121, 93)",
-    map: "rgb(220, 233, 245)",
+    canvas: "rgb(251, 251, 250)",
+    text: "rgb(22, 24, 29)",
+    surface: "rgb(255, 255, 255)",
+    focus: "rgb(47, 95, 214)",
+    warning: "rgb(168, 72, 10)",
+    positive: "rgb(25, 117, 79)",
+    danger: "rgb(179, 56, 44)",
   },
   dark: {
-    canvas: "rgb(18, 25, 35)",
-    text: "rgb(229, 234, 242)",
-    surface: "rgb(21, 30, 42)",
-    focus: "rgb(183, 167, 245)",
-    warning: "rgb(219, 173, 102)",
-    positive: "rgb(116, 186, 149)",
-    map: "rgb(9, 25, 45)",
+    canvas: "rgb(14, 15, 18)",
+    text: "rgb(236, 238, 241)",
+    surface: "rgb(20, 22, 26)",
+    focus: "rgb(169, 193, 255)",
+    warning: "rgb(231, 161, 94)",
+    positive: "rgb(111, 194, 154)",
+    danger: "rgb(240, 138, 124)",
   },
 };
-async function appearance(page: Page, value: string) {
+async function appearance(page: Page, value: "light" | "dark" | "system") {
   const navigation = page.getByRole("navigation", {
     name: /^(Settings|设置|設定)$/,
   });
@@ -38,9 +39,8 @@ async function appearance(page: Page, value: string) {
     ? await navigation.locator('[aria-current="true"]').textContent()
     : null;
   await openSettingsCategory(page, "General");
-  await page
-    .getByRole("combobox", { name: /^(Appearance|外观|外觀)$/ })
-    .selectOption(value);
+  // These palettes are `minimal`'s; aviation, the default, is dark only.
+  await chooseAppearance(page, value, "minimal");
   // Theme changes must preserve expanded editors, queries and import previews
   // even though desktop categories hide their controls while General is open.
   if (previous) await openSettingsCategory(page, previous);
@@ -59,7 +59,7 @@ async function shell(page: Page, dark: boolean) {
       .evaluate((el) =>
         getComputedStyle(el).getPropertyValue("--color-focus").trim(),
       ),
-  ).toBe(dark ? "#b7a7f5" : "#6558c7");
+  ).toBe(dark ? "#a9c1ff" : "#2f5fd6");
   expect(
     await page.evaluate(
       () =>
@@ -230,7 +230,7 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.locator(".validation-errors")).toBeVisible();
     await expect(page.locator(".validation-errors strong")).toHaveCSS(
       "color",
-      theme === "dark" ? "rgb(237, 139, 124)" : "rgb(189, 68, 58)",
+      palette.danger,
     );
     await page
       .getByLabel("Open CSV file", { exact: true })
@@ -354,7 +354,7 @@ test("United search selects the explicit UA / UAL airline result @cross-browser"
   ).toBeVisible();
 });
 
-test("Settings Portal follows live System; unrelated editor confirmations retain default colors @cross-browser", async ({
+test("Settings Portal follows live System; editor confirmations share the skin surface @cross-browser", async ({
   page,
 }) => {
   await page.goto("/");
@@ -397,7 +397,7 @@ test("Settings Portal follows live System; unrelated editor confirmations retain
   await expect(page.locator(".confirmation-backdrop--settings")).toHaveCount(0);
   await expect(page.getByRole("alertdialog")).toHaveCSS(
     "background-color",
-    "rgb(253, 252, 248)",
+    colors.light.surface,
   );
   await page.keyboard.press("Escape");
   await expect(
@@ -410,7 +410,7 @@ test("125% layout zoom and live 760/761px boundaries keep page state and control
 }) => {
   await importArchive(page);
   await page.goto("/#settings");
-  for (const theme of ["light", "dark"]) {
+  for (const theme of ["light", "dark"] as const) {
     await appearance(page, theme);
     for (const width of [360, 390, 430, 760, 761, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
@@ -552,14 +552,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           if (id === "cancelled") {
             await expect(
               page.locator(".detail-flight-phase.is-cancelled"),
-            ).toHaveCSS(
-              "color",
-              theme === "dark"
-                ? "rgb(237, 139, 124)"
-                : width <= 760
-                  ? "rgb(180, 64, 54)"
-                  : "rgb(189, 68, 58)",
-            );
+            ).toHaveCSS("color", colors[theme].danger);
             await expect(page.locator(".route-origin-city")).toHaveText("ZZZ");
           }
           const heading = page.locator(".detail-heading h1");

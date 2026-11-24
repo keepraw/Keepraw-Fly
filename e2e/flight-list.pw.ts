@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
+import { chooseAppearance } from "./helpers/settings";
 
 // Native text wrapping and 12-hour/day-offset sizing need all three engines;
 // broader viewport, theme and map interaction matrices remain in their suites.
@@ -60,25 +61,25 @@ for (const [locale, origin, destination] of [
           'link[data-chinese-webfont][data-font-status="unavailable"]',
         ),
       ).toHaveCount(locale === "en-US" ? 0 : 3);
-      await page.locator("#settings-appearance").selectOption(sample.theme);
+      await chooseAppearance(page, sample.theme, "minimal");
       await page
         .getByRole("combobox")
         .filter({ has: page.locator('option[value="12-hour"]') })
         .selectOption(sample.timeFormat);
-      await page.goto("/#passport");
+      await page.goto("/#/map");
       const rows = page.locator(".flight-row");
       await expect(rows).toHaveCount(7);
       await expect(page.locator(".app-shell")).toHaveCSS(
         "background-color",
         sample.colorScheme === "dark"
-          ? "rgb(18, 25, 35)"
-          : "rgb(243, 246, 250)",
+          ? "rgb(14, 15, 18)"
+          : "rgb(251, 251, 250)",
       );
       await expect(page.locator(".year-heading h1")).toHaveCSS(
         "color",
         sample.colorScheme === "dark"
-          ? "rgb(229, 234, 242)"
-          : "rgb(30, 43, 62)",
+          ? "rgb(236, 238, 241)"
+          : "rgb(22, 24, 29)",
       );
       await expect(rows.locator(".flight-times time")).toHaveCount(14);
       await expect(rows.locator(".airport-code-display")).toHaveCount(14);

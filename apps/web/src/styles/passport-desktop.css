@@ -1,4 +1,4 @@
-/* Desktop Passport layout and interactions; approved palette lives in shared-page-theme.css. */
+/* Desktop Passport layout and interactions; the palette comes from the active skin. */
 @media (min-width: 761px) {
   /* Passport layout scale. 1920x1080 is the reference composition: up to it
    * (and on any viewport smaller in either direction) one Passport pixel is a

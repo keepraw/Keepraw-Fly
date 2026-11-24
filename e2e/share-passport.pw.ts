@@ -53,6 +53,15 @@ async function seed(
     distanceUnit?: "miles" | "kilometers";
   } = {},
 ) {
+  // This suite covers the passport book layout. No skin selects it until the
+  // archive skin does, so each document points the minimal skin at it.
+  await page.addInitScript(() => {
+    if (!location.protocol.startsWith("http")) return;
+    const modulePath = "/src/skins/registry.ts";
+    void import(/* @vite-ignore */ modulePath).then(({ SKINS }) => {
+      SKINS.minimal.passportTemplate = "book";
+    });
+  });
   await page.goto("/");
   await expect(page.locator(".loading-screen")).toHaveCount(0);
   await expect(
@@ -69,8 +78,7 @@ async function seed(
         distanceUnit,
         timeFormat: "24-hour",
         powerUserMode: false,
-        // This suite covers the classic passport book layout.
-        passportTemplate: "book",
+        skin: "minimal",
       });
     },
     {

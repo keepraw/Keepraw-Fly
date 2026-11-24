@@ -27,11 +27,9 @@ it.each(["general", "data"] as const)(
           settings={{
             language: "en-US",
             appearance: "system",
-            skin: "classic",
+            skin: "aviation",
             distanceUnit: "miles",
             timeFormat: "24-hour",
-            mapTheme: "neon-aviation",
-            passportTemplate: "neon",
             powerUserMode: false,
           }}
           onImport={() => {}}

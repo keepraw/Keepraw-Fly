@@ -681,20 +681,12 @@
     "skin": "Habillage",
     "skinHint": "Définit l’aspect, la disposition et la vue d’ouverture. Vos vols ne sont pas modifiés.",
     "skinOption": {
-      "classic": "Classique",
-      "minimal": "Minimal"
+      "minimal": "Minimal",
+      "aviation": "Aviation"
     },
     "appearanceFixed": {
       "light": "{{skin}} n’existe qu’en clair.",
       "dark": "{{skin}} n’existe qu’en sombre."
-    },
-    "mapTheme": "Thème de carte",
-    "mapThemeHint": "S’applique à la carte du passeport et à la carte d’itinéraire du vol.",
-    "passportLayout": "Mise en page du passeport de vol",
-    "passportLayoutHint": "Mise en page de l’image du passeport de vol partagée. Neon suit le thème de la carte.",
-    "passportLayoutOption": {
-      "neon": "Feuillet Neon",
-      "book": "Livret de passeport classique"
     }
   },
   "recovery": {
@@ -899,6 +891,18 @@
       "title": "Dans cette archive",
       "airportVisit": "Visite {{ordinal, number}} sur {{total, number}}",
       "routeFlight": "Vol {{ordinal, number}} sur {{total, number}}"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "Prévu et réel",
+      "durationSame": "Temps de vol conforme au prévu",
+      "durationLonger": "{{count, number}} min de plus que prévu",
+      "durationShorter": "{{count, number}} min de moins que prévu",
+      "clocksTitle": "Heure locale aux deux aéroports",
+      "dateLine": "Ligne de date",
+      "midnightNote": "Un trait marque minuit, heure locale.",
+      "dateLineNote": "La ligne de date est placée là où la route orthodromique la croise ; ce n’est pas une heure enregistrée."
     }
   }
 }

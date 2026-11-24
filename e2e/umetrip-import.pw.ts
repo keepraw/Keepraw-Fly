@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { fileURLToPath } from "node:url";
 import type { KeeprawFlyDocument } from "../packages/schema/src/index";
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 
 const fixture = (name: string) =>
   fileURLToPath(
@@ -181,7 +181,7 @@ test("the Chinese XLS preview remains usable on a narrow screen and in dark mode
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByLabel("Language").selectOption("zh-CN");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
-  await page.locator("#settings-appearance").selectOption("dark");
+  await chooseAppearance(page, "dark");
   await openSettingsCategory(page, "Data and backup");
   const section = page.getByRole("region", {
     name: "航旅纵横 XLS",

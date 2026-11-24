@@ -40,8 +40,11 @@ owns the Log filters, the dense flight-row facts, the Stats regions and the
 Flight context; see [views and skins](views-and-skins.md).
 
 The exact import order in [main.tsx](../apps/web/src/main.tsx) is authoritative.
-`shared-page-theme.css` follows base/shell and owns the shared Passport blue-gray
-palette; feature composition follows shared controls. Passport mobile/desktop,
+`shared-page-theme.css` follows base/shell and paints the startup, loading and
+page surfaces from the active skin's tokens. The `skin-*.css` files come last;
+the dev server also links them in the head so its first paint is themed, as the
+single production stylesheet already is. Feature composition follows shared
+controls. Passport mobile/desktop,
 flight-list, share-overlay and views styles retain their explicit later positions.
 Do not duplicate that ordered list here. Source order is part of the cascade:
 shared motion follows Settings interaction rules, and Passport time/deviation
@@ -189,7 +192,9 @@ the browser does not then retry an earlier declaration of that property.
 分别负责各自流程和构图，并包含所属响应式规则。Passport 同时负责档案列表与航班行展示。
 
 [main.tsx](../apps/web/src/main.tsx) 中的实际导入顺序是唯一依据，不在文档复制一份列表。
-`shared-page-theme.css` 位于 base/shell 之后，负责共享蓝灰主题；特性构图位于共享控件之后。
+`shared-page-theme.css` 位于 base/shell 之后，用当前皮肤的令牌绘制启动、加载和页面底色。
+`skin-*.css` 排在最后；开发服务器另在 head 中引用它们，使首屏与生产环境的单一样式表一样带有主题。
+特性构图位于共享控件之后。
 Passport 的移动/桌面、航班列表和分享浮层样式保留后续顺序。共享动效仍位于 Settings
 交互规则之后，Passport 时间偏差颜色仍位于详情状态规则之后。移动规则前检查跨文件依赖，
 保持 specificity、简写属性效果、继承和 cascade 顺序。
