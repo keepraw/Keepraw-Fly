@@ -142,6 +142,14 @@ describe("aviation flight extension", () => {
     expect(markup.match(/class="aviation-midnight"/g)).toHaveLength(2);
     expect(markup).toContain('class="aviation-date-line"');
     expect(content).toContain("A tick marks local midnight.");
+    // The ticks and the date line are drawn; their places are also said.
+    expect(content).toContain(
+      "Departure 20:41 Local midnight 3h 19m after departure. Arrival 11:08 +1",
+    );
+    expect(content).toContain(
+      "Departure 15:41 +1 Local midnight 8h 19m after departure. Arrival 06:08 +2",
+    );
+    expect(content).toMatch(/Date line at about \d+% of the route\./);
     expect(content).toContain("it is not a recorded time");
   });
 

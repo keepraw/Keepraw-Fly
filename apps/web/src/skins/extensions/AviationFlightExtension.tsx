@@ -162,6 +162,16 @@ export function AviationFlightExtension({
                       />
                     ))}
                   </span>
+                  {clock.midnights.map((fraction) => (
+                    <span key={fraction} className="sr-only">
+                      {t("extension.aviation.midnightAfter", {
+                        duration: formatDuration(
+                          Math.round(fraction * timeline.durationMinutes),
+                          locale,
+                        ),
+                      })}{" "}
+                    </span>
+                  ))}
                   <span className="aviation-clock-time is-arrival">
                     <span className="sr-only">
                       {t("flightDetail.arrival")}{" "}
@@ -187,7 +197,20 @@ export function AviationFlightExtension({
             ) : null}
           </div>
           {notes.length ? (
-            <p className="aviation-clocks-note">{notes.join(" ")}</p>
+            <p className="aviation-clocks-note">
+              {notes.join(" ")}
+              {timeline.dateLineFraction !== null ? (
+                <span className="sr-only">
+                  {" "}
+                  {t("extension.aviation.dateLineAt", {
+                    percent: new Intl.NumberFormat(locale, {
+                      style: "percent",
+                      maximumFractionDigits: 0,
+                    }).format(timeline.dateLineFraction),
+                  })}
+                </span>
+              ) : null}
+            </p>
           ) : null}
         </section>
       ) : null}

@@ -902,7 +902,9 @@
       "clocksTitle": "Hora local en ambos aeropuertos",
       "dateLine": "Línea de fecha",
       "midnightNote": "Una marca indica la medianoche local.",
-      "dateLineNote": "La línea de fecha se sitúa donde la ruta ortodrómica la cruza; no es una hora registrada."
+      "midnightAfter": "Medianoche local {{duration}} después de la salida.",
+      "dateLineNote": "La línea de fecha se sitúa donde la ruta ortodrómica la cruza; no es una hora registrada.",
+      "dateLineAt": "Línea de fecha aproximadamente al {{percent}} de la ruta."
     }
   }
 }

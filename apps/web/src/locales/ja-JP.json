@@ -835,7 +835,9 @@
       "clocksTitle": "両空港の現地時刻",
       "dateLine": "日付変更線",
       "midnightNote": "目盛りは現地の午前0時です。",
-      "dateLineNote": "日付変更線は大圏航路が交わる位置に示しています。記録された時刻ではありません。"
+      "midnightAfter": "出発から {{duration}} 後に現地の午前0時になります。",
+      "dateLineNote": "日付変更線は大圏航路が交わる位置に示しています。記録された時刻ではありません。",
+      "dateLineAt": "日付変更線は航路の約 {{percent}} の位置にあります。"
     }
   }
 }

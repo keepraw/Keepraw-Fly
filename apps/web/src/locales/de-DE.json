@@ -870,7 +870,9 @@
       "clocksTitle": "Ortszeit an beiden Flughäfen",
       "dateLine": "Datumsgrenze",
       "midnightNote": "Ein Strich markiert Mitternacht Ortszeit.",
-      "dateLineNote": "Die Datumsgrenze steht dort, wo die Großkreisroute sie kreuzt; sie ist keine aufgezeichnete Zeit."
+      "midnightAfter": "Mitternacht Ortszeit {{duration}} nach dem Abflug.",
+      "dateLineNote": "Die Datumsgrenze steht dort, wo die Großkreisroute sie kreuzt; sie ist keine aufgezeichnete Zeit.",
+      "dateLineAt": "Datumsgrenze bei etwa {{percent}} der Route."
     }
   }
 }

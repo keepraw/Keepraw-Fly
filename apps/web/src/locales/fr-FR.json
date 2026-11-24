@@ -902,7 +902,9 @@
       "clocksTitle": "Heure locale aux deux aéroports",
       "dateLine": "Ligne de date",
       "midnightNote": "Un trait marque minuit, heure locale.",
-      "dateLineNote": "La ligne de date est placée là où la route orthodromique la croise ; ce n’est pas une heure enregistrée."
+      "midnightAfter": "Minuit, heure locale, {{duration}} après le départ.",
+      "dateLineNote": "La ligne de date est placée là où la route orthodromique la croise ; ce n’est pas une heure enregistrée.",
+      "dateLineAt": "Ligne de date à environ {{percent}} de la route."
     }
   }
 }

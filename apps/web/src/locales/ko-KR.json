@@ -835,7 +835,9 @@
       "clocksTitle": "두 공항의 현지 시각",
       "dateLine": "날짜변경선",
       "midnightNote": "눈금은 현지 자정입니다.",
-      "dateLineNote": "날짜변경선은 대권 항로가 지나는 위치에 표시되며, 기록된 시각이 아닙니다."
+      "midnightAfter": "출발 {{duration}} 후 현지 자정입니다.",
+      "dateLineNote": "날짜변경선은 대권 항로가 지나는 위치에 표시되며, 기록된 시각이 아닙니다.",
+      "dateLineAt": "날짜변경선은 항로의 약 {{percent}} 지점에 있습니다."
     }
   }
 }

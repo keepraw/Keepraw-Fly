@@ -870,7 +870,9 @@
       "clocksTitle": "Local time at both airports",
       "dateLine": "Date line",
       "midnightNote": "A tick marks local midnight.",
-      "dateLineNote": "The date line is placed where the great-circle route crosses it; it is not a recorded time."
+      "midnightAfter": "Local midnight {{duration}} after departure.",
+      "dateLineNote": "The date line is placed where the great-circle route crosses it; it is not a recorded time.",
+      "dateLineAt": "Date line at about {{percent}} of the route."
     }
   }
 }

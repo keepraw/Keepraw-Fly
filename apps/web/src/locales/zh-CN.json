@@ -835,7 +835,9 @@
       "clocksTitle": "两地时间",
       "dateLine": "日界线",
       "midnightNote": "刻度表示当地午夜。",
-      "dateLineNote": "日界线画在大圆航线与它相交的位置，不是记录到的时刻。"
+      "midnightAfter": "起飞后 {{duration}} 到当地午夜。",
+      "dateLineNote": "日界线画在大圆航线与它相交的位置，不是记录到的时刻。",
+      "dateLineAt": "日界线约在航线的 {{percent}} 处。"
     }
   }
 }
