@@ -486,6 +486,21 @@ test.describe("skins", () => {
             ),
           ).toBeVisible();
           expect(await fitsWidth(page), `${view} fits`).toBe(true);
+          if (view !== "map" && view !== "passport") continue;
+          // The map clips its overflow, so a too-wide stage hides the controls
+          // without widening the page.
+          const controls = await page.locator(".route-map").evaluate((map) => {
+            const frame = map.getBoundingClientRect();
+            return [...map.querySelectorAll(".map-zoom-controls button")].map(
+              (control) => {
+                const box = control.getBoundingClientRect();
+                return (
+                  box.left >= frame.left - 1 && box.right <= frame.right + 1
+                );
+              },
+            );
+          });
+          expect(controls, `${view} map controls`).toEqual([true, true, true]);
         }
       });
   }
