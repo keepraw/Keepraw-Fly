@@ -22,8 +22,8 @@ export function AviationFlightExtension({
   const { t } = useTranslation();
   const { comparison, timeline } = insights;
   // Unrounded, so a share of it is the same minute the times themselves give.
-  const elapsedMinutes = timeline
-    ? (Date.parse(timeline.arrival) - Date.parse(timeline.departure)) / 60_000
+  const elapsed = timeline
+    ? Date.parse(timeline.arrival) - Date.parse(timeline.departure)
     : 0;
   const notes = timeline
     ? [
@@ -170,7 +170,9 @@ export function AviationFlightExtension({
                     <span key={fraction} className="sr-only">
                       {t("extension.aviation.midnightAfter", {
                         duration: formatDuration(
-                          Math.round(fraction * elapsedMinutes),
+                          // Whole milliseconds first: the share is inexact,
+                          // and half a minute must still round up.
+                          Math.round(Math.round(fraction * elapsed) / 60_000),
                           locale,
                         ),
                       })}{" "}

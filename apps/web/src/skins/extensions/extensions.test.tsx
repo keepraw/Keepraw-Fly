@@ -188,6 +188,21 @@ describe("aviation flight extension", () => {
     expect(text(markup)).toContain("Local midnight 3h 18m after departure.");
   });
 
+  it("rounds a midnight half a minute after a whole minute up", async () => {
+    // 198 min 30 s after departure; the share times the flight is 198.4999….
+    const markup = await render(
+      "aviation",
+      flight({
+        destination: { iata: "HNL" },
+        scheduledDeparture: "2024-11-27T20:20:00-08:00",
+        scheduledArrival: "2024-11-27T23:30:00-10:00",
+        actualDeparture: "2024-11-27T20:41:30-08:00",
+        actualArrival: "2024-11-27T23:00:01-10:00",
+      }),
+    );
+    expect(text(markup)).toContain("Local midnight 3h 19m after departure.");
+  });
+
   it("names both offsets of an airport that changes its clock in flight", async () => {
     // Los Angeles moves to daylight time at 10:00 UTC, during the flight.
     const markup = await render(
