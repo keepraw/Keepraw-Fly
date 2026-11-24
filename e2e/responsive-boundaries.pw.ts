@@ -133,6 +133,11 @@ for (const viewport of viewports) {
         page.locator(".import-control-settings > .settings-action"),
       );
       await expectHealthyPage(page, errors);
+      // Compact Import goes back to the Settings category that links to it.
+      if (await page.locator(".mobile-page-back").isVisible()) {
+        await page.locator(".mobile-page-back").click();
+        await expect(page).toHaveURL(/#\/settings\/data$/);
+      }
       await navigateTo(page, "passport");
       await expectPassportLayout(page, mobile);
       await expectHealthyPage(page, errors);
