@@ -34,8 +34,8 @@ export async function passportTypographyBounds(page) {
       ".passport-scope",
       ".route-map",
       ".passport-core-stats",
-      ".passport-highlights",
-      ".passport-longest-flight",
+      ".stats-insights",
+      '.stats-record[data-record="longest"]',
     ].filter((s) => document.querySelector(s));
     const components = Object.fromEntries(
       selectors.map((s) => [s, box(document.querySelector(s))]),
@@ -45,9 +45,7 @@ export async function passportTypographyBounds(page) {
     );
     const failures = [];
     const nodes = [
-      ...document.querySelectorAll(
-        ".passport-core-stat, .passport-highlights *",
-      ),
+      ...document.querySelectorAll(".passport-core-stat, .stats-insights *"),
     ].filter((e) => !e.closest(".sr-only"));
     for (const e of nodes) {
       const r = e.getBoundingClientRect();
@@ -92,9 +90,7 @@ export async function passportTypographyBounds(page) {
         r.bottom <= canvas.bottom + 1,
     );
     const archive = document.querySelector(".passport-archive-scroll");
-    const last = visual.querySelector(
-      ".passport-highlights, .passport-core-stats",
-    );
+    const last = visual.querySelector(".stats-insights, .passport-core-stats");
     const previous = visual.scrollTop;
     visual.scrollTop = visual.scrollHeight;
     const reachableBottom =
@@ -131,7 +127,7 @@ export async function passportTypographyBounds(page) {
         : null,
       longestHasMap: Boolean(
         document.querySelector(
-          ".passport-longest-flight svg, .passport-longest-flight canvas, .passport-longest-flight img",
+          ".stats-record svg, .stats-record canvas, .stats-record img",
         ),
       ),
       kpis: [...document.querySelectorAll(".passport-core-stat")].map((e) => ({

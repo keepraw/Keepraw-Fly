@@ -150,6 +150,7 @@ function detail(record: KeeprawFlight) {
     <I18nextProvider i18n={i18n}>
       <FlightDetailPage
         flight={record}
+        flights={[record]}
         memberships={[]}
         locale="en-US"
         distanceUnit="kilometers"

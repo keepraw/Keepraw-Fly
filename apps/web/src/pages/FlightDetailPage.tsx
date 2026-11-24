@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from "react";
+import { Children, useMemo, type ReactNode } from "react";
 import type { Namespace, TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
@@ -14,6 +14,7 @@ import {
   airportCityGroupName,
   baggageFacts,
   distanceForFlight,
+  flightContext,
   flightDuration,
   flightTimeDisplay,
   formatCityDisplayName,
@@ -35,11 +36,14 @@ import {
 } from "@keepraw-fly/core";
 import { FlightDeviation, FlightTime } from "../components/FlightTime";
 import { PageShell } from "../components/PageShell";
+import { cabinTranslationKey } from "../data/cabin-labels";
 import { FlightRouteMap } from "../components/FlightRouteMap";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
+  /** Every flight of the archive, for this flight's place in its history. */
+  flights: readonly KeeprawFlight[];
   memberships: readonly FrequentFlyerMembership[];
   locale: SupportedLocale;
   distanceUnit: DistanceUnit;
@@ -327,16 +331,9 @@ function airportCityLabel(
     : iata;
 }
 
-function cabinTranslationKey(cabin: string): string | undefined {
-  if (cabin === "economy") return "flightEditor.cabins.economy";
-  if (cabin === "premium economy") return "flightEditor.cabins.premiumEconomy";
-  if (cabin === "business") return "flightEditor.cabins.business";
-  if (cabin === "first") return "flightEditor.cabins.first";
-  return undefined;
-}
-
 export function FlightDetailPage({
   flight,
+  flights,
   memberships,
   locale,
   distanceUnit,
@@ -360,6 +357,14 @@ export function FlightDetailPage({
   const duration = flightDuration(flight);
   const distance = distanceForFlight(flight);
   const times = flightTimeDisplay(flight, locale, timeFormat);
+  const context = useMemo(
+    () => flightContext(flights, flight.id),
+    [flights, flight.id],
+  );
+  const position = (
+    key: "airportVisit" | "routeFlight",
+    place: { ordinal: number; total: number },
+  ) => t(`insights.context.${key}`, place);
   const phase = flight.cancelled
     ? t("status.cancelled")
     : flight.divertedTo
@@ -627,6 +632,34 @@ export function FlightDetailPage({
               </MetadataColumn>
             ) : null}
           </div>
+        ) : null}
+        {context.origin || context.arrival || context.route ? (
+          <section
+            className="detail-context"
+            aria-labelledby="flight-detail-context"
+          >
+            <h2 id="flight-detail-context">{t("insights.context.title")}</h2>
+            <DetailFactGroup>
+              {context.origin ? (
+                <DetailFact
+                  label={origin.iata}
+                  value={position("airportVisit", context.origin)}
+                />
+              ) : null}
+              {context.arrival ? (
+                <DetailFact
+                  label={actualDestination.iata}
+                  value={position("airportVisit", context.arrival)}
+                />
+              ) : null}
+              {context.route ? (
+                <DetailFact
+                  label={`${origin.iata} → ${actualDestination.iata}`}
+                  value={position("routeFlight", context.route)}
+                />
+              ) : null}
+            </DetailFactGroup>
+          </section>
         ) : null}
       </article>
     </PageShell>

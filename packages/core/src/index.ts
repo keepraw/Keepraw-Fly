@@ -12,6 +12,7 @@ export * from "./search";
 export * from "./sorting";
 export * from "./statistics";
 export * from "./passport-highlights";
+export * from "./insights";
 export * from "./time-display";
 export * from "./travel-extensions";
 export * from "./airport-history";

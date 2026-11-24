@@ -62,12 +62,6 @@
     overflow-y: auto;
   }
 
-  .passport-archive-page
-    .passport-layout[data-view="stats"]
-    .passport-highlights {
-    display: block;
-  }
-
   .passport-layout[data-view="log"] .archive-heading {
     display: flex;
     align-items: center;

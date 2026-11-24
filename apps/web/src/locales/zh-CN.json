@@ -774,5 +774,54 @@
       "invalid": "无效／作废"
     },
     "showMore": "显示更多行"
+  },
+  "insights": {
+    "filters": {
+      "label": "筛选与排序",
+      "airline": "航空公司",
+      "allAirlines": "全部航空公司",
+      "aircraft": "机型",
+      "allAircraft": "全部机型",
+      "sort": "排序方式",
+      "sortOrders": {
+        "newest": "从新到旧",
+        "oldest": "从旧到新",
+        "longest": "距离从长到短",
+        "shortest": "距离从短到长"
+      },
+      "active": "当前筛选",
+      "remove": "移除筛选：{{filter}}",
+      "clearAll": "清除全部筛选",
+      "noMatches": "没有符合当前筛选条件的航班。"
+    },
+    "facts": {
+      "duration": "时长",
+      "distance": "距离",
+      "aircraft": "机型",
+      "seat": "座位"
+    },
+    "stats": {
+      "title": "统计",
+      "year": "年份",
+      "arrivalDelay": "到达晚点",
+      "months": "每月航班数",
+      "airports": "机场到访次数",
+      "airlines": "航空公司乘坐次数",
+      "aircraft": "机型乘坐次数",
+      "cabins": "舱位等级",
+      "cabinNotRecorded": "未记录",
+      "records": "纪录",
+      "longestArrivalDelay": "最长到达晚点",
+      "mostFlownRoute": "最常飞航线",
+      "filterAircraft": "筛选乘坐 {{aircraft}} 的航班",
+      "showAll": "显示全部 {{count, number}} 项",
+      "showFewer": "收起",
+      "noData": "数据不足"
+    },
+    "context": {
+      "title": "在本档案中",
+      "airportVisit": "第 {{ordinal, number}} 次到访，共 {{total, number}} 次",
+      "routeFlight": "第 {{ordinal, number}} 次飞行，共 {{total, number}} 次"
+    }
   }
 }

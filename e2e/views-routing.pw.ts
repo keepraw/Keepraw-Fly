@@ -44,7 +44,7 @@ test.describe("desktop", () => {
     await expect(page.locator(".flight-row").first()).toBeVisible();
     await expect(page.locator(".route-map")).toHaveCount(0);
     await page.goto("/#/stats");
-    await expect(page.locator(".passport-highlights")).toBeVisible();
+    await expect(page.locator(".stats-insights")).toBeVisible();
     await expect(page.locator(".flight-row")).toHaveCount(0);
     await page.goto("/#/passport");
     await expect(page.locator(".route-map")).toBeVisible();

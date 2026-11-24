@@ -48,11 +48,13 @@ function markup(
   record = flight,
   locale: SupportedLocale = "zh-CN",
   timeFormat: "12-hour" | "24-hour" = "24-hour",
+  flights: KeeprawFlight[] = [record],
 ) {
   return renderToStaticMarkup(
     <I18nextProvider i18n={i18n}>
       <FlightDetailPage
         flight={record}
+        flights={flights}
         memberships={[]}
         locale={locale}
         distanceUnit="kilometers"
@@ -172,6 +174,8 @@ describe("Flight Detail timing and facts", () => {
     };
     const html = markup(record);
     expect(html).not.toContain("detail-metadata-shelf");
+    // Only the flight's place in the archive remains below the times.
+    expect(html).toContain("detail-context");
     expect(html).not.toContain('class="flight-deviation');
     expect(html).not.toContain('class="detail-scheduled-time"');
     expect(html).toContain("计划飞行时间");
@@ -179,6 +183,74 @@ describe("Flight Detail timing and facts", () => {
     expect(
       markup({ ...record, actualDeparture: flight.actualDeparture }),
     ).toContain("已出发");
+  });
+});
+
+describe("Flight Detail place in the archive", () => {
+  const earlier: KeeprawFlight = {
+    ...flight,
+    id: "earlier",
+    serviceDate: "2025-01-02",
+    scheduledDeparture: "2025-01-02T20:45:00+08:00",
+    actualDeparture: undefined,
+    scheduledArrival: "2025-01-03T00:05:00+08:00",
+    actualArrival: undefined,
+  };
+  const back: KeeprawFlight = {
+    ...earlier,
+    id: "back",
+    serviceDate: "2025-01-09",
+    origin: { iata: "TAO" },
+    destination: { iata: "SZX" },
+    scheduledDeparture: "2025-01-09T08:00:00+08:00",
+    scheduledArrival: "2025-01-09T11:00:00+08:00",
+  };
+  const context = (html: string) =>
+    [
+      ...(html
+        .match(/detail-context[\s\S]*$/)?.[0]
+        .matchAll(/<dt>([^<]*)<\/dt><dd>([^<]*)<\/dd>/g) ?? []),
+    ].map((match) => [match[1], match[2]]);
+
+  it("counts visits to both airports and flights on the directed route", () => {
+    const flights = [flight, back, earlier];
+    expect(context(markup(flight, "zh-CN", "24-hour", flights))).toEqual([
+      ["SZX", "第 3 次到访，共 3 次"],
+      ["TAO", "第 3 次到访，共 3 次"],
+      ["SZX → TAO", "第 2 次飞行，共 2 次"],
+    ]);
+    expect(context(markup(earlier, "zh-CN", "24-hour", flights))).toEqual([
+      ["SZX", "第 1 次到访，共 3 次"],
+      ["TAO", "第 1 次到访，共 3 次"],
+      ["SZX → TAO", "第 1 次飞行，共 2 次"],
+    ]);
+    expect(context(markup(back, "zh-CN", "24-hour", flights))).toEqual([
+      ["TAO", "第 2 次到访，共 3 次"],
+      ["SZX", "第 2 次到访，共 3 次"],
+      ["TAO → SZX", "第 1 次飞行，共 1 次"],
+    ]);
+  });
+
+  it("counts a diverted flight at the airport it arrived at", () => {
+    const diverted = { ...flight, divertedTo: { iata: "PEK" } };
+    expect(
+      context(markup(diverted, "en", "24-hour", [diverted, earlier])),
+    ).toEqual([
+      ["SZX", "第 2 次到访，共 2 次"],
+      ["PEK", "第 1 次到访，共 1 次"],
+      ["SZX → PEK", "第 1 次飞行，共 1 次"],
+    ]);
+  });
+
+  it("leaves out a cancelled flight and airports that are not determined", () => {
+    const cancelled = { ...flight, cancelled: true };
+    expect(
+      markup(cancelled, "en", "24-hour", [cancelled, earlier]),
+    ).not.toContain("detail-context");
+    const unknown = { ...flight, destination: { iata: "ZZZ" } };
+    expect(
+      context(markup(unknown, "en", "24-hour", [unknown, earlier])),
+    ).toEqual([["SZX", "第 2 次到访，共 2 次"]]);
   });
 });
 

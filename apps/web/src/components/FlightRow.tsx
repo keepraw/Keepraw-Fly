@@ -2,7 +2,14 @@ import { useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
+  aircraftFacts,
   airportByIata,
+  arrivalDelayMinutes,
+  distanceForFlight,
+  flightDuration,
+  formatDistance,
+  formatDuration,
+  seatFacts,
   originIdentity,
   plannedDestinationIdentity,
   airportCityGroupForAirport,
@@ -12,11 +19,12 @@ import {
   formatServiceDate,
   localizedText,
   localizedAirportName,
+  type DistanceUnit,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
 import { AirportCode } from "./AviationPrimitives";
-import { FlightTime } from "./FlightTime";
+import { FlightDeviation, FlightTime } from "./FlightTime";
 import {
   airlineLogoByCode,
   type AirlineLogoAsset,
@@ -26,6 +34,7 @@ interface FlightRowProps {
   flight: KeeprawFlight;
   locale: SupportedLocale;
   timeFormat: TimeFormat;
+  distanceUnit?: DistanceUnit;
   onOpen: () => void;
   selected?: boolean;
   onHoverChange?: (flight: KeeprawFlight | null) => void;
@@ -66,6 +75,7 @@ export function FlightRow({
   flight,
   locale,
   timeFormat,
+  distanceUnit = "kilometers",
   onOpen,
   selected,
   onHoverChange,
@@ -116,6 +126,27 @@ export function FlightRow({
         : identity.iata;
   const originCity = endpointCity(originEndpoint, origin);
   const destinationCity = endpointCity(destinationEndpoint, destination);
+  // A cancelled flight was not flown: its schedule is not a duration or distance.
+  const duration = flight.cancelled ? null : flightDuration(flight).minutes;
+  const distance = flight.cancelled ? null : distanceForFlight(flight);
+  const arrivalDelay = flight.cancelled ? null : arrivalDelayMinutes(flight);
+  const facts = [
+    ["duration", duration === null ? null : formatDuration(duration, locale)],
+    [
+      "distance",
+      distance === null
+        ? null
+        : t(
+            distanceUnit === "miles"
+              ? "passport.distanceMiles"
+              : "passport.distanceKilometers",
+            { value: formatDistance(distance, locale, distanceUnit) },
+          ),
+    ],
+    ["aircraft", aircraftFacts(flight)?.type ?? null],
+    ["seat", seatFacts(flight)?.seat ?? null],
+  ].filter((fact): fact is [string, string] => Boolean(fact[1]));
+  const late = arrivalDelay !== null && arrivalDelay > 0;
   const unresolved = [originEndpoint, destinationEndpoint]
     .filter((identity) => !identity.confirmed)
     .map((identity) => identity.iata);
@@ -215,6 +246,21 @@ export function FlightRow({
                   }
                 />
               </div>
+              {facts.length || late ? (
+                <div className="flight-row-detail">
+                  {facts.map(([fact, value]) => (
+                    <span key={fact} data-fact={fact}>
+                      <span className="sr-only">
+                        {t(`insights.facts.${fact}`)}{" "}
+                      </span>
+                      {value}
+                    </span>
+                  ))}
+                  {late ? (
+                    <FlightDeviation kind="arrival" minutes={arrivalDelay} />
+                  ) : null}
+                </div>
+              ) : null}
               <div className="flight-time-column">
                 <span className="flight-times">
                   <FlightTime value={times.departure.primary} />

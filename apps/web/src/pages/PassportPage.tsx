@@ -1,27 +1,26 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import {
+  FLIGHT_SORT_ORDERS,
   airlineDisplayName,
   airportTargetMatches,
-  arrivalDelayMinutes,
   arrivalIdentity,
   buildRouteSegments,
-  calculatePassportHighlights,
   calculatePassportStatistics,
   calculateYearStatistics,
-  distanceForFlight,
   formatDistance,
   formatDuration,
-  flightDuration,
   flightRouteIdentityKey,
-  flightRouteTarget,
   groupFlightsByYear,
+  rankAircraftTypes,
+  rankAirlines,
   localizedText,
   localizedAirportName,
   originIdentity,
   type FlightEndpointIdentity,
   type DistanceUnit,
+  type FlightSortOrder,
   type SupportedLocale,
   type TimeFormat,
 } from "@keepraw-fly/core";
@@ -29,6 +28,8 @@ import { FlightRow } from "../components/FlightRow";
 import { PageShell } from "../components/PageShell";
 import { StatisticValue } from "../typography/StatisticValue";
 import { PassportMap } from "../components/PassportMap";
+import { StatsInsights } from "../components/StatsInsights";
+import { cabinTranslationKey } from "../data/cabin-labels";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
 import type { PrimaryView } from "../routing";
 import {
@@ -71,7 +72,14 @@ export function PassportPage({
   onViewChange,
 }: PassportPageProps) {
   const { t } = useTranslation();
-  const { year: selectedYear, query, selection } = view;
+  const {
+    year: selectedYear,
+    query,
+    selection,
+    airline,
+    aircraft,
+    sort,
+  } = view;
   const showMap = mode === "map" || mode === "passport";
   const showList = mode === "log" || mode === "map";
   const showInsights = mode === "stats";
@@ -79,9 +87,21 @@ export function PassportPage({
     onViewChange({ ...view, selection, flightId: null, scrollFlightId: null });
   const setQuery = (query: string) =>
     onViewChange({ ...view, query, flightId: null, scrollFlightId: null });
+  const setFilters = (
+    filters: Partial<Pick<PassportViewState, "airline" | "aircraft" | "sort">>,
+  ) =>
+    onViewChange({
+      ...view,
+      ...filters,
+      flightId: null,
+      scrollFlightId: null,
+    });
   const [hoveredFlight, setHoveredFlight] = useState<KeeprawFlight | null>(
     null,
   );
+  // Compact keeps the Log filters behind one control, so the first flights stay
+  // on the first screen whatever the length of a language's choices.
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -101,31 +121,37 @@ export function PassportPage({
   );
   const flights = useMemo(
     () => passportVisibleFlights(document.flights, view),
-    [document.flights, selectedYear, query, selection],
+    [document.flights, selectedYear, query, selection, airline, aircraft, sort],
   );
-  const groups = useMemo(() => groupFlightsByYear(flights), [flights]);
-  const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
-  const highlights = useMemo(
-    () => calculatePassportHighlights(flights),
-    [flights],
-  );
-  const delayYears = highlights.annualArrivalDelays.slice(-3);
-  const maximumDelay = Math.max(
-    0,
-    ...delayYears.map((year) => year.minutes ?? 0),
-  );
-  const delays = useMemo(
+  // Distance orders cut across years, so they list the flights in one group.
+  const groups = useMemo(
     () =>
-      flights.flatMap((flight) => {
-        if (flight.cancelled) return [];
-        const minutes = arrivalDelayMinutes(flight);
-        return minutes !== null && minutes > 0 ? [{ flight, minutes }] : [];
-      }),
-    [flights],
+      sort === "newest" || sort === "oldest"
+        ? groupFlightsByYear(flights, sort)
+        : flights.length
+          ? [{ year: null, flights }]
+          : [],
+    [flights, sort],
   );
-  const worstDelay = delays.reduce<(typeof delays)[number] | null>(
-    (worst, item) => (!worst || item.minutes > worst.minutes ? item : worst),
-    null,
+  const stats = useMemo(() => calculatePassportStatistics(flights), [flights]);
+  // Each filter lists its choices from the flights the other filters leave, so
+  // an active airline or aircraft type never hides its own alternatives.
+  const airlineFlights = useMemo(
+    () => passportVisibleFlights(document.flights, { ...view, airline: null }),
+    [document.flights, selectedYear, query, selection, aircraft],
+  );
+  const aircraftFlights = useMemo(
+    () => passportVisibleFlights(document.flights, { ...view, aircraft: null }),
+    [document.flights, selectedYear, query, selection, airline],
+  );
+  // The Log lists cancelled flights, so its filters count and offer them too.
+  const airlineChoices = useMemo(
+    () => rankAirlines(airlineFlights, { includeCancelled: true }),
+    [airlineFlights],
+  );
+  const aircraftChoices = useMemo(
+    () => rankAircraftTypes(aircraftFlights, { includeCancelled: true }),
+    [aircraftFlights],
   );
   // Keep the period/search network stable while selecting or focusing Archive rows.
   // Selection filters the report and Archive; the map retains the surrounding
@@ -133,12 +159,9 @@ export function PassportPage({
   const mapFlights = useMemo(
     () =>
       passportVisibleFlights(document.flights, { ...view, selection: null }),
-    [document.flights, selectedYear, query],
+    [document.flights, selectedYear, query, airline, aircraft, sort],
   );
   const routes = useMemo(() => buildRouteSegments(mapFlights), [mapFlights]);
-  const longest = flights.find(
-    (flight) => flight.id === stats.longestFlight?.flightId,
-  );
   const duration = formatDuration(stats.durationMinutes, locale);
   const arrivalDelay =
     stats.totalDelayMinutes === null
@@ -213,86 +236,10 @@ export function PassportPage({
     setSelection(isSelected(target) ? null : target);
   }
 
-  function routeHighlight(flight: typeof longest, context: string) {
-    // Flight-date physical endpoints: a historical site keeps its own name.
-    const endpoints = flight
-      ? { origin: originIdentity(flight), arrival: arrivalIdentity(flight) }
-      : undefined;
-    const target: PassportSelection | undefined = flight
-      ? flightRouteTarget(flight)
-      : undefined;
-    const distance = flight ? distanceForFlight(flight) : null;
-    const content = (
-      <>
-        <span className="passport-spotlight-label">{context}</span>
-        <span className="passport-longest-route">
-          <span className="passport-longest-endpoint">
-            <strong>{target?.origin ?? "—"}</strong>
-            <span>{endpoints ? identityLabel(endpoints.origin) : "—"}</span>
-          </span>
-          <span className="passport-longest-arrow" aria-hidden="true">
-            →
-          </span>
-          <span className="passport-longest-endpoint">
-            <strong>{target?.destination ?? "—"}</strong>
-            <span>{endpoints ? identityLabel(endpoints.arrival) : "—"}</span>
-          </span>
-        </span>
-        <span className="passport-longest-facts">
-          <span>
-            <span className="passport-spotlight-label">
-              {t("passport.timeInAir")}
-            </span>
-            <StatisticValue
-              value={
-                flight
-                  ? formatDuration(flightDuration(flight).minutes, locale)
-                  : "—"
-              }
-            />
-          </span>
-          <span>
-            <span className="passport-spotlight-label">
-              {t("passport.distance")}
-            </span>
-            <StatisticValue
-              value={
-                distance === null
-                  ? "—"
-                  : t(distanceKey, {
-                      value: formatDistance(distance, locale, distanceUnit),
-                    })
-              }
-            />
-          </span>
-        </span>
-      </>
-    );
-    return target ? (
-      <button
-        type="button"
-        className="passport-highlight passport-spotlight-item passport-longest-flight"
-        aria-pressed={isSelected(target)}
-        onClick={() => toggleHighlight(target)}
-      >
-        {content}
-        <span className="sr-only">
-          {t("passport.filterRoute", {
-            context,
-            origin: target.origin,
-            destination: target.destination,
-          })}
-        </span>
-      </button>
-    ) : (
-      <div className="passport-highlight passport-spotlight-item passport-longest-flight is-unavailable">
-        {content}
-      </div>
-    );
-  }
-
   function selectYear(year: number | "lifetime") {
+    // Airline, aircraft type and order are explicit choices and survive.
     onViewChange({
+      ...view,
       year,
       query: "",
       selection: null,
@@ -313,10 +260,69 @@ export function PassportPage({
       );
       return name ? `${current.code} · ${name}` : current.code;
     }
-    if (current.kind === "airline")
-      return `${airlineDisplayName(current.code, locale)} · ${current.code}`;
     return `${current.origin} → ${current.destination}`;
   }
+
+  const airlineName = (code: string) =>
+    `${airlineDisplayName(code, locale)} · ${code}`;
+  const filterChip = (
+    kind: "airline" | "aircraft",
+    label: string,
+    value: string,
+  ) => (
+    <section
+      className="passport-exploration"
+      data-filter={kind}
+      aria-live="polite"
+    >
+      <span>
+        {label} · {value}
+      </span>
+      <button
+        className="passport-exploration-close"
+        type="button"
+        aria-label={t("insights.filters.remove", { filter: value })}
+        onClick={() => setFilters({ [kind]: null })}
+      >
+        {t("passport.closeExploration")} ×
+      </button>
+    </section>
+  );
+  // Shown wherever the flights are narrowed, so a filter is never invisible.
+  const activeFilters = (
+    <>
+      {selection ? (
+        <section
+          className="passport-exploration"
+          data-filter={selection.kind}
+          aria-labelledby="passport-exploration-title"
+          aria-live="polite"
+        >
+          <span id="passport-exploration-title">
+            {t(`passport.explore.${selection.kind}`)} ·{" "}
+            {explorationTitle(selection)}
+          </span>
+          <button
+            className="passport-exploration-close"
+            type="button"
+            onClick={() => setSelection(null)}
+          >
+            {t("passport.closeExploration")} ×
+          </button>
+        </section>
+      ) : null}
+      {airline
+        ? filterChip(
+            "airline",
+            t("insights.filters.airline"),
+            airlineName(airline),
+          )
+        : null}
+      {aircraft
+        ? filterChip("aircraft", t("insights.filters.aircraft"), aircraft)
+        : null}
+    </>
+  );
 
   if (!document.flights.length) {
     return (
@@ -656,226 +662,34 @@ export function PassportPage({
                     </span>
                   </div>
                 </section>
-
-                {showInsights ? (
-                  <>
-                    <section
-                      className="passport-mobile-panel passport-delay-panel"
-                      aria-label={t("passport.totalDelay")}
-                    >
-                      <h2>{t("passport.totalDelay")}</h2>
-                      <div
-                        className="passport-delay-main"
-                        title={t("passport.delayBasedOnArrivals")}
-                        aria-description={t("passport.delayBasedOnArrivals")}
-                      >
-                        <StatisticValue value={arrivalDelay} />
-                      </div>
-                      {stats.totalDelayMinutes === null ? (
-                        <p>{t("passport.delayUnavailable")}</p>
-                      ) : (
-                        <>
-                          {worstDelay ? (
-                            <p className="passport-delay-longest">
-                              <span>{t("passport.longestDelay")}</span>
-                              <strong>
-                                {worstDelay.flight.flightNumber} ·{" "}
-                                {formatDuration(worstDelay.minutes, locale)}
-                              </strong>
-                            </p>
-                          ) : null}
-                        </>
-                      )}
-                    </section>
-
-                    <section
-                      className="passport-mobile-panel passport-network-panel"
-                      aria-label={t("passport.networkPanelTitle")}
-                    >
-                      <h2>{t("passport.networkPanelTitle")}</h2>
-                      <div className="passport-network-facts">
-                        <div>
-                          <strong>
-                            {stats.countries.toLocaleString(locale)}
-                          </strong>
-                          <span>
-                            {t("passport.countries", {
-                              count: stats.countries,
-                            })}
-                          </span>
-                        </div>
-                        <div>
-                          <strong>
-                            {stats.airports.toLocaleString(locale)}
-                          </strong>
-                          <span>
-                            {t("passport.airports", { count: stats.airports })}
-                          </span>
-                        </div>
-                      </div>
-                      {stats.mostVisitedAirport ? (
-                        <p>
-                          <span>{t("passport.mostVisitedAirport")}</span>
-                          <strong>
-                            {localizedAirportName(
-                              stats.mostVisitedAirport.identity.airportId,
-                              locale,
-                              stats.mostVisitedAirport.identity.localDate,
-                            ) ?? stats.mostVisitedAirport.code}
-                          </strong>
-                        </p>
-                      ) : null}
-                    </section>
-                  </>
-                ) : null}
               </>
             ) : null}
-            {isDesktop && showInsights ? (
-              <div
-                className="passport-highlights"
-                key={`highlights-${selectedYear}`}
-              >
-                <h2 className="passport-mobile-section-title">
-                  {t("passport.highlights")}
-                </h2>
-                <div className="passport-spotlight">
-                  <div
-                    className="passport-delay-highlight"
-                    data-delayed={Boolean(
-                      stats.totalDelayMinutes && stats.totalDelayMinutes > 0,
-                    )}
-                    title={t("passport.delayBasedOnArrivals")}
-                    aria-description={t("passport.delayBasedOnArrivals")}
-                  >
-                    <span className="passport-spotlight-label">
-                      {t("passport.totalDelay")}
-                    </span>
-                    <strong>{arrivalDelay}</strong>
-                    {delayYears.length ? (
-                      <ol
-                        className="passport-delay-chart"
-                        aria-label={t("passport.annualArrivalDelay")}
-                      >
-                        {delayYears.map(
-                          ({ year, minutes, recordedArrivals }) => (
-                            <li
-                              key={year}
-                              data-year={year}
-                              data-minutes={minutes ?? "unknown"}
-                              data-recorded-arrivals={recordedArrivals}
-                              data-emphasized={
-                                minutes !== null &&
-                                minutes > 0 &&
-                                minutes === maximumDelay
-                              }
-                              title={`${year} · ${minutes === null ? "—" : formatDuration(minutes, locale)}`}
-                            >
-                              <span
-                                className="passport-delay-column"
-                                aria-hidden="true"
-                              >
-                                {minutes === null ? (
-                                  <span>—</span>
-                                ) : (
-                                  <span
-                                    className="passport-delay-bar"
-                                    style={
-                                      {
-                                        "--delay-height": `${maximumDelay ? (minutes / maximumDelay) * 100 : 0}%`,
-                                      } as CSSProperties
-                                    }
-                                  />
-                                )}
-                              </span>
-                              <span>{year}</span>
-                              <span className="sr-only">
-                                {minutes === null
-                                  ? "—"
-                                  : formatDuration(minutes, locale)}
-                              </span>
-                            </li>
-                          ),
-                        )}
-                      </ol>
-                    ) : (
-                      <span className="passport-highlight-empty">—</span>
-                    )}
-                    {highlights.annualArrivalDelays.length > 3 ? (
-                      <span className="passport-chart-scope">
-                        {t("passport.recentDelayYears")}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="passport-airport-ranking">
-                    <span className="passport-spotlight-label">
-                      {t("passport.highlightBeen")}
-                    </span>
-                    {highlights.mostVisitedAirports.length ? (
-                      <ol>
-                        {highlights.mostVisitedAirports.map(
-                          ({ code, count, identity, identityKey }) => {
-                            const name = identityLabel(identity);
-                            const target: PassportSelection = {
-                              kind: "airport",
-                              code,
-                              identityKey,
-                            };
-                            return (
-                              <li key={identityKey}>
-                                <button
-                                  type="button"
-                                  className="passport-highlight passport-spotlight-item passport-airport-rank"
-                                  data-airport={code}
-                                  data-visits={count}
-                                  aria-pressed={isSelected(target)}
-                                  onClick={() => toggleHighlight(target)}
-                                >
-                                  <span className="passport-airport-name">
-                                    {name}{" "}
-                                    <span className="passport-spotlight-code">
-                                      · {code}
-                                    </span>
-                                  </span>
-                                  <span
-                                    className="passport-airport-track"
-                                    aria-hidden="true"
-                                  >
-                                    <span
-                                      style={{
-                                        width: `${(count / highlights.mostVisitedAirports[0]!.count) * 100}%`,
-                                      }}
-                                    />
-                                  </span>
-                                  <span
-                                    className="passport-airport-count"
-                                    aria-hidden="true"
-                                  >
-                                    {count.toLocaleString(locale)}
-                                  </span>
-                                  <span className="sr-only">
-                                    {t("passport.visitFrequency", { count })}
-                                  </span>
-                                  <span className="sr-only">
-                                    {t("passport.filterAirport", {
-                                      airport: name,
-                                      code,
-                                    })}
-                                  </span>
-                                </button>
-                              </li>
-                            );
-                          },
-                        )}
-                      </ol>
-                    ) : (
-                      <div className="passport-highlight passport-spotlight-item is-unavailable">
-                        —
-                      </div>
-                    )}
-                  </div>
-                  {routeHighlight(longest, t("passport.longestFlight"))}
-                </div>
-              </div>
+            {showInsights ? (
+              <>
+                {activeFilters}
+                <StatsInsights
+                  flights={flights}
+                  airlineFlights={airlineFlights}
+                  aircraftFlights={aircraftFlights}
+                  stats={stats}
+                  view={view}
+                  locale={locale}
+                  distanceUnit={distanceUnit}
+                  airportLabel={identityLabel}
+                  cabinLabel={(cabin) => {
+                    const key = cabinTranslationKey(cabin);
+                    return key ? t(key) : cabin;
+                  }}
+                  onToggleSelection={toggleHighlight}
+                  onToggleAirline={(code) =>
+                    setFilters({ airline: airline === code ? null : code })
+                  }
+                  onToggleAircraft={(type) =>
+                    setFilters({ aircraft: aircraft === type ? null : type })
+                  }
+                  onOpenFlight={onOpenFlight}
+                />
+              </>
             ) : null}
           </div>
         </aside>
@@ -915,6 +729,100 @@ export function PassportPage({
                       ×
                     </button>
                   ) : null}
+                </div>
+              ) : null}
+              {mode === "log" ? (
+                <button
+                  className="log-filters-toggle"
+                  type="button"
+                  aria-expanded={filtersOpen}
+                  aria-controls="log-filters"
+                  onClick={() => setFiltersOpen((open) => !open)}
+                >
+                  {t("insights.filters.label")}
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+              ) : null}
+              {mode === "log" ? (
+                <div
+                  className="log-filters"
+                  id="log-filters"
+                  role="group"
+                  aria-label={t("insights.filters.label")}
+                  data-open={filtersOpen || undefined}
+                >
+                  <label>
+                    <span className="log-filter-label">
+                      {t("insights.filters.airline")}
+                    </span>
+                    <select
+                      name="airline"
+                      value={airline ?? ""}
+                      onChange={(event) =>
+                        setFilters({ airline: event.target.value || null })
+                      }
+                    >
+                      <option value="">
+                        {t("insights.filters.allAirlines")}
+                      </option>
+                      {airline &&
+                      !airlineChoices.some(({ code }) => code === airline) ? (
+                        <option value={airline}>{airlineName(airline)}</option>
+                      ) : null}
+                      {airlineChoices.map(({ code, count }) => (
+                        <option key={code} value={code}>
+                          {airlineName(code)} ({count.toLocaleString(locale)})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="log-filter-label">
+                      {t("insights.filters.aircraft")}
+                    </span>
+                    <select
+                      name="aircraft"
+                      value={aircraft ?? ""}
+                      onChange={(event) =>
+                        setFilters({ aircraft: event.target.value || null })
+                      }
+                    >
+                      <option value="">
+                        {t("insights.filters.allAircraft")}
+                      </option>
+                      {aircraft &&
+                      !aircraftChoices.some(({ code }) => code === aircraft) ? (
+                        <option value={aircraft}>{aircraft}</option>
+                      ) : null}
+                      {aircraftChoices.map(({ code, count }) => (
+                        <option key={code} value={code}>
+                          {code} ({count.toLocaleString(locale)})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span className="log-filter-label">
+                      {t("insights.filters.sort")}
+                    </span>
+                    <select
+                      name="sort"
+                      value={sort}
+                      onChange={(event) =>
+                        setFilters({
+                          sort: event.target.value as FlightSortOrder,
+                        })
+                      }
+                    >
+                      {FLIGHT_SORT_ORDERS.map((order) => (
+                        <option key={order} value={order}>
+                          {t(`insights.filters.sortOrders.${order}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
               ) : null}
               {mode !== "map" ? (
@@ -963,33 +871,22 @@ export function PassportPage({
                 </button>
               </section>
             ) : null}
-            {selection ? (
-              <section
-                className="passport-exploration"
-                aria-labelledby="passport-exploration-title"
-                aria-live="polite"
-              >
-                <span id="passport-exploration-title">
-                  {t(`passport.explore.${selection.kind}`)} ·{" "}
-                  {explorationTitle(selection)}
-                </span>
-                <button
-                  className="passport-exploration-close"
-                  type="button"
-                  onClick={() => setSelection(null)}
-                >
-                  {t("passport.closeExploration")} ×
-                </button>
-              </section>
-            ) : null}
+            {showInsights ? null : activeFilters}
 
             {!showList ? null : groups.length ? (
               <div className="flight-groups" aria-live="polite">
                 {groups.map((group, groupIndex) => (
-                  <section className="flight-year" key={group.year}>
+                  <section
+                    className="flight-year"
+                    key={group.year ?? sort}
+                    data-order={sort}
+                  >
                     <div className="year-heading">
                       {groupIndex === 0 ? (
-                        <h1>{group.year}</h1>
+                        <h1>
+                          {group.year ??
+                            t(`insights.filters.sortOrders.${sort}`)}
+                        </h1>
                       ) : (
                         <h2>{group.year}</h2>
                       )}
@@ -1004,6 +901,7 @@ export function PassportPage({
                           flight={flight}
                           locale={locale}
                           timeFormat={timeFormat}
+                          distanceUnit={distanceUnit}
                           onOpen={() => onOpenFlight(flight.id)}
                           selected={view.flightId === flight.id}
                           onHoverChange={setHoveredFlight}
@@ -1018,7 +916,11 @@ export function PassportPage({
             ) : (
               <div className="no-results" role="status">
                 <h2>{t("flights.noResultsTitle")}</h2>
-                <p>{t("flights.noResultsDescription", { query })}</p>
+                <p>
+                  {query
+                    ? t("flights.noResultsDescription", { query })
+                    : t("insights.filters.noMatches")}
+                </p>
               </div>
             )}
           </div>

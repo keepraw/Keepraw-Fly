@@ -774,5 +774,54 @@
       "invalid": "無効／取消済み"
     },
     "showMore": "さらに行を表示"
+  },
+  "insights": {
+    "filters": {
+      "label": "絞り込みと並べ替え",
+      "airline": "航空会社",
+      "allAirlines": "すべての航空会社",
+      "aircraft": "機種",
+      "allAircraft": "すべての機種",
+      "sort": "並び順",
+      "sortOrders": {
+        "newest": "新しい順",
+        "oldest": "古い順",
+        "longest": "距離が長い順",
+        "shortest": "距離が短い順"
+      },
+      "active": "適用中の絞り込み",
+      "remove": "絞り込みを解除：{{filter}}",
+      "clearAll": "すべての絞り込みを解除",
+      "noMatches": "現在の絞り込みに一致するフライトはありません。"
+    },
+    "facts": {
+      "duration": "所要時間",
+      "distance": "距離",
+      "aircraft": "機種",
+      "seat": "座席"
+    },
+    "stats": {
+      "title": "統計",
+      "year": "年",
+      "arrivalDelay": "到着遅延",
+      "months": "月別フライト数",
+      "airports": "空港別の訪問回数",
+      "airlines": "航空会社別のフライト数",
+      "aircraft": "機種別のフライト数",
+      "cabins": "搭乗クラス",
+      "cabinNotRecorded": "記録なし",
+      "records": "記録",
+      "longestArrivalDelay": "最長の到着遅延",
+      "mostFlownRoute": "最も多く飛んだ路線",
+      "filterAircraft": "{{aircraft}} のフライトで絞り込む",
+      "showAll": "{{count, number}} 件すべて表示",
+      "showFewer": "折りたたむ",
+      "noData": "データが不足しています"
+    },
+    "context": {
+      "title": "このアーカイブでは",
+      "airportVisit": "{{total, number}} 回中 {{ordinal, number}} 回目の訪問",
+      "routeFlight": "{{total, number}} 回中 {{ordinal, number}} 回目のフライト"
+    }
   }
 }

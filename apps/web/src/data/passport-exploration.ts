@@ -2,9 +2,13 @@ import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   flightMatchesAirportTarget,
   flightMatchesRouteTarget,
+  flightAircraftType,
+  flightAirlineCode,
   searchFlights,
+  sortFlights,
   sortFlightsNewestFirst,
   type AirportSelectionTarget,
+  type FlightSortOrder,
   type RouteSelectionTarget,
 } from "@keepraw-fly/core";
 
@@ -14,15 +18,17 @@ import {
  * codes remain for display; a transient selection without identity keys
  * (older state) still matches by code.
  */
-export type PassportSelection =
-  | AirportSelectionTarget
-  | { kind: "airline"; code: string }
-  | RouteSelectionTarget;
+export type PassportSelection = AirportSelectionTarget | RouteSelectionTarget;
 
 export interface PassportViewState {
   year: number | "lifetime";
   query: string;
   selection: PassportSelection | null;
+  /** Airline code (IATA, else ICAO) the flights are narrowed to. */
+  airline: string | null;
+  /** Recorded aircraft type the flights are narrowed to. */
+  aircraft: string | null;
+  sort: FlightSortOrder;
   // Explicit list selection from map interactions, independent of detail navigation.
   flightId: string | null;
   scrollFlightId: string | null;
@@ -32,25 +38,40 @@ export const initialPassportView: PassportViewState = {
   year: "lifetime",
   query: "",
   selection: null,
+  airline: null,
+  aircraft: null,
+  sort: "newest",
   flightId: null,
   scrollFlightId: null,
 };
+
+/** The flights of the year scope, before any filter, selection or search. */
+export function passportScopeFlights(
+  flights: KeeprawFlight[],
+  year: PassportViewState["year"],
+): KeeprawFlight[] {
+  return year === "lifetime"
+    ? flights
+    : flights.filter((flight) => flight.serviceDate.startsWith(String(year)));
+}
 
 export function passportVisibleFlights(
   flights: KeeprawFlight[],
   view: PassportViewState,
 ): KeeprawFlight[] {
-  const period =
-    view.year === "lifetime"
-      ? flights
-      : flights.filter((flight) =>
-          flight.serviceDate.startsWith(String(view.year)),
-        );
-  const selection = view.selection;
-  const selected = selection
-    ? period.filter((flight) => matchesSelection(flight, selection))
-    : period;
-  return sortFlightsNewestFirst(searchFlights(selected, view.query));
+  const { selection, airline, aircraft } = view;
+  const selected = passportScopeFlights(flights, view.year).filter(
+    (flight) =>
+      (!selection || matchesSelection(flight, selection)) &&
+      (!airline || flightAirlineCode(flight) === airline) &&
+      (!aircraft || flightAircraftType(flight) === aircraft),
+  );
+  return sortFlights(searchFlights(selected, view.query), view.sort);
+}
+
+/** Whether anything narrows the year scope. */
+export function hasPassportFilters(view: PassportViewState): boolean {
+  return Boolean(view.selection || view.airline || view.aircraft || view.query);
 }
 
 export interface PassportExploration {
@@ -79,18 +100,12 @@ export function explorePassportFlights(
   };
 }
 
-export function airlineCode(flight: KeeprawFlight): string {
-  return flight.airline.iata ?? flight.airline.icao ?? "";
-}
-
 export function matchesSelection(
   flight: KeeprawFlight,
   selection: PassportSelection,
 ): boolean {
   if (selection.kind === "airport")
     return flightMatchesAirportTarget(flight, selection);
-  if (selection.kind === "airline")
-    return airlineCode(flight) === selection.code;
   return flightMatchesRouteTarget(flight, selection);
 }
 
@@ -100,7 +115,6 @@ export function sameSelection(
   b: PassportSelection,
 ): boolean {
   if (!a || a.kind !== b.kind) return false;
-  if (a.kind === "airline" && b.kind === "airline") return a.code === b.code;
   if (a.kind === "airport" && b.kind === "airport")
     return a.identityKey && b.identityKey
       ? a.identityKey === b.identityKey

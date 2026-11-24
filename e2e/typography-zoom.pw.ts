@@ -85,17 +85,17 @@ for (const zoom of [1, 1.25]) {
             expect(bounds.kpis).toHaveLength(6);
             if (!diagnostics.compact)
               expect(bounds.bottomSafety).toBeGreaterThanOrEqual(23.99);
-            // Stats keeps the highlights at every height.
+            // Stats keeps its regions at every height.
             await page.goto("http://127.0.0.1:5173/#/stats");
             await waitForPassportLayout(page);
-            await expect(page.locator(".passport-highlights")).toBeVisible();
+            await expect(page.locator(".stats-insights")).toBeVisible();
             const stats = await passportTypographyBounds(page);
             expect(stats.documentFits).toBe(true);
             expect(stats.failures).toEqual([]);
             expect(stats.longestHasMap).toBe(false);
             await page.goto("http://127.0.0.1:5173/#/map");
           } else {
-            await expect(page.locator(".passport-highlights")).toHaveCount(0);
+            await expect(page.locator(".stats-insights")).toHaveCount(0);
             expect(diagnostics.shell.rect.height).toBeGreaterThan(
               diagnostics.innerHeight,
             );

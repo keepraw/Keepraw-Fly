@@ -147,7 +147,7 @@ for (const locale of ["zh-CN", "zh-TW"])
             expect(stats.failures).toEqual([]);
             expect(stats.rightScroll.reachableBottom).toBe(true);
             expect(stats.longestHasMap).toBe(false);
-            expect(stats.components).toHaveProperty([".passport-highlights"]);
+            expect(stats.components).toHaveProperty([".stats-insights"]);
           });
         });
       }
@@ -158,15 +158,15 @@ for (const locale of ["zh-CN", "zh-TW"])
           page,
         }) => {
           await settle(page);
-          // Stats owns the highlights; the selection it makes filters Log.
+          // A selection made in Stats filters Log.
           await page.goto("/#/stats");
-          const longest = page.locator(".passport-longest-flight");
+          const longest = page.locator('.stats-record[data-record="longest"]');
           await longest.focus();
           await page.keyboard.press("Space");
           await expect(longest).toHaveAttribute("aria-pressed", "true");
           await page.keyboard.press("Space");
           await expect(longest).toHaveAttribute("aria-pressed", "false");
-          const airport = page.locator('[data-airport="TAO"]');
+          const airport = page.locator('.stats-rank[data-key="TAO"]');
           await airport.focus();
           await page.keyboard.press("Enter");
           await page.goto("/#/log");
@@ -260,7 +260,7 @@ for (const locale of ["zh-CN", "zh-TW"]) {
           expect(stats.documentFits).toBe(true);
           expect(stats.failures).toEqual([]);
           expect(stats.longestHasMap).toBe(false);
-          const endpoints = page.locator(".passport-longest-endpoint > span");
+          const endpoints = page.locator(".stats-record-places");
           await expect(endpoints).not.toHaveCount(0);
           expect(
             await endpoints.evaluateAll((nodes) =>

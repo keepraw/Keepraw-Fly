@@ -809,5 +809,54 @@
       "invalid": "Invalid / voided"
     },
     "showMore": "Show more rows"
+  },
+  "insights": {
+    "filters": {
+      "label": "Filters and sorting",
+      "airline": "Airline",
+      "allAirlines": "All airlines",
+      "aircraft": "Aircraft type",
+      "allAircraft": "All aircraft types",
+      "sort": "Sort order",
+      "sortOrders": {
+        "newest": "Newest first",
+        "oldest": "Oldest first",
+        "longest": "Longest distance first",
+        "shortest": "Shortest distance first"
+      },
+      "active": "Active filters",
+      "remove": "Remove filter: {{filter}}",
+      "clearAll": "Clear all filters",
+      "noMatches": "No flights match the current filters."
+    },
+    "facts": {
+      "duration": "Duration",
+      "distance": "Distance",
+      "aircraft": "Aircraft",
+      "seat": "Seat"
+    },
+    "stats": {
+      "title": "Statistics",
+      "year": "Year",
+      "arrivalDelay": "Arrival delay",
+      "months": "Flights per month",
+      "airports": "Airports by visits",
+      "airlines": "Airlines by flights",
+      "aircraft": "Aircraft types by flights",
+      "cabins": "Cabin classes",
+      "cabinNotRecorded": "Not recorded",
+      "records": "Records",
+      "longestArrivalDelay": "Longest arrival delay",
+      "mostFlownRoute": "Most flown route",
+      "filterAircraft": "Filter flights flown on {{aircraft}}",
+      "showAll": "Show all {{count, number}}",
+      "showFewer": "Show fewer",
+      "noData": "Not enough data"
+    },
+    "context": {
+      "title": "In this archive",
+      "airportVisit": "Visit {{ordinal, number}} of {{total, number}}",
+      "routeFlight": "Flight {{ordinal, number}} of {{total, number}}"
+    }
   }
 }

@@ -96,6 +96,10 @@ and project selection. Relevant coverage includes:
 - [`views-routing.pw.ts`](../e2e/views-routing.pw.ts): the four views and their
   fragments, the addressable Flight across reload, Back and Forward, legacy
   fragments, Settings parts, and the Compact tab bar with its touch targets.
+- [`log-stats.pw.ts`](../e2e/log-stats.pw.ts): Log filters and order, the
+  exploration query across reload, Back and Forward, dense rows, every Stats
+  region, the Flight context, and Compact parity at 320 and 390 px in English,
+  Chinese and German.
 - [`unified-page-theme.pw.ts`](../e2e/unified-page-theme.pw.ts): live System
   appearance, Settings dialogs, persistence affordances, export and cancellation.
 - [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and

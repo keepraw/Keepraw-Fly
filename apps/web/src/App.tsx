@@ -20,6 +20,10 @@ import {
   passportVisibleFlights,
   type PassportViewState,
 } from "./data/passport-exploration";
+import {
+  formatExplorationQuery,
+  parseExplorationQuery,
+} from "./data/exploration-query";
 import { SettingsPage } from "./pages/SettingsPage";
 import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly, type ExportKind } from "./data/export";
@@ -147,8 +151,13 @@ export function App() {
   );
   const [flightNotFound, setFlightNotFound] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [passportView, setPassportView] =
-    useState<PassportViewState>(initialPassportView);
+  const [passportView, setPassportView] = useState<PassportViewState>(() => ({
+    ...initialPassportView,
+    ...(parseExplorationQuery(window.location.hash) ?? historyExploration()),
+  }));
+  // The exploration state as last set, readable from event handlers.
+  const passportViewRef = useRef(passportView);
+  passportViewRef.current = passportView;
   const [editor, setEditor] = useState<FlightEditorSession | null>(null);
   const [confirmDemoExport, setConfirmDemoExport] = useState(false);
   const [exportError, setExportError] = useState<
@@ -194,12 +203,33 @@ export function App() {
     route.view === "flight" ? primaryView(historyOrigin()) : null;
   const returnView = flightOrigin ?? lastPrimaryViewRef.current;
 
+  /** Whether this history entry already carries the mirrored exploration state. */
+  function entryMirrored(): boolean {
+    const state: unknown = window.history.state;
+    return Boolean(state && typeof state === "object" && "explored" in state);
+  }
+
+  function mirroredState(): object {
+    const state: unknown = window.history.state;
+    return {
+      ...(state && typeof state === "object" ? state : null),
+      explored: true,
+    };
+  }
+
+  /** The address of a route; primary views carry the exploration query. */
+  function fragmentFor(next: Route): string {
+    return primaryView(next.view)
+      ? formatRoute(next) + formatExplorationQuery(passportViewRef.current)
+      : formatRoute(next);
+  }
+
   function navigate(
     next: Route,
     mode: "push" | "replace" = "push",
     state: unknown = null,
   ) {
-    const fragment = formatRoute(next);
+    const fragment = fragmentFor(next);
     if (mode === "replace") window.history.replaceState(state, "", fragment);
     else if (window.location.hash !== fragment)
       window.history.pushState(state, "", fragment);
@@ -217,7 +247,12 @@ export function App() {
     // Previous/next and saving an open flight stay on the same history entry.
     if (route.view === "flight")
       navigate(next, "replace", window.history.state);
-    else navigate(next, "push", { from: returnViewFor(route) });
+    else
+      navigate(next, "push", {
+        from: returnViewFor(route),
+        // Kept for a reload, so previous/next still walk the list it came from.
+        explore: formatExplorationQuery(passportViewRef.current),
+      });
   }
 
   function returnViewFor(current: Route): PrimaryView {
@@ -240,6 +275,30 @@ export function App() {
     const view = primaryView(route.view);
     if (view) lastPrimaryViewRef.current = view;
   }, [route]);
+
+  // The exploration state is mirrored into the address without adding history.
+  useEffect(() => {
+    if (!primaryView(route.view)) return;
+    const current = parseRoute(window.location.hash);
+    if (!current || !sameRoute(current, route)) return;
+    const fragment = formatRoute(route) + formatExplorationQuery(passportView);
+    if (window.location.hash !== fragment || !entryMirrored())
+      window.history.replaceState(mirroredState(), "", fragment);
+  }, [route, passportView]);
+
+  // A year without flights (a stale address, or its last flight deleted)
+  // falls back to the whole archive instead of an empty view.
+  useEffect(() => {
+    const year = passportView.year;
+    if (!document || year === "lifetime") return;
+    if (
+      document.flights.some((flight) =>
+        flight.serviceDate.startsWith(`${year}`),
+      )
+    )
+      return;
+    setPassportView((view) => ({ ...view, year: "lifetime" }));
+  }, [document, passportView.year]);
 
   // A link to a flight that is not in this archive opens Log with a notice.
   useEffect(() => {
@@ -414,13 +473,37 @@ export function App() {
         window.history.replaceState(
           window.history.state,
           "",
-          formatRoute(routeRef.current),
+          fragmentFor(routeRef.current),
         );
         return;
       }
-      const fragment = formatRoute(next);
+      // A query in the address sets the exploration state. Without one, a new
+      // address (a link, a typed fragment) keeps the state in memory, and an
+      // entry this app already mirrored (Back, Forward, reload) means defaults.
+      const query = primaryView(next.view)
+        ? (parseExplorationQuery(window.location.hash) ??
+          (entryMirrored() ? parseExplorationQuery("?") : null))
+        : null;
+      if (
+        query &&
+        formatExplorationQuery(query) !==
+          formatExplorationQuery(passportViewRef.current)
+      ) {
+        passportViewRef.current = {
+          ...passportViewRef.current,
+          ...query,
+          flightId: null,
+          scrollFlightId: null,
+        };
+        setPassportView(passportViewRef.current);
+      }
+      const fragment = fragmentFor(next);
       if (window.location.hash !== fragment)
-        window.history.replaceState(window.history.state, "", fragment);
+        window.history.replaceState(
+          primaryView(next.view) ? mirroredState() : window.history.state,
+          "",
+          fragment,
+        );
       // A hash navigation raises both events; the second one changes nothing.
       if (sameRoute(routeRef.current, next)) return;
       setFlightNotFound(false);
@@ -858,6 +941,7 @@ export function App() {
       ) : selectedFlight ? (
         <FlightDetailPage
           flight={selectedFlight}
+          flights={document?.flights ?? []}
           memberships={memberships}
           locale={locale}
           distanceUnit={settings.distanceUnit}
@@ -958,6 +1042,17 @@ export function App() {
 function primaryView(value: unknown): PrimaryView | null {
   return (PRIMARY_VIEWS as readonly unknown[]).includes(value)
     ? (value as PrimaryView)
+    : null;
+}
+
+/** The exploration state a Flight history entry was opened with, if any. */
+function historyExploration() {
+  const state: unknown = window.history.state;
+  return state &&
+    typeof state === "object" &&
+    "explore" in state &&
+    typeof state.explore === "string"
+    ? parseExplorationQuery(state.explore)
     : null;
 }
 

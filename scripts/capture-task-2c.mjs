@@ -223,7 +223,7 @@ for (const zoom of [1, 1.25]) {
             });
           };
           if (!diagnostics.desktop) {
-            assert.equal(await page.locator(".passport-highlights").count(), 0);
+            assert.equal(await page.locator(".stats-insights").count(), 0);
             records.push({
               zoom,
               language,
