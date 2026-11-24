@@ -198,11 +198,13 @@ for (const width of [390, 320]) {
       page,
     }) => {
       await openDemo(page, "#/log");
-      await page.goto("/#/settings/data");
+      // Plain Settings lists every category; the link sits in Data and backup.
+      await page.goto("/#/settings");
       await page.locator("#settings-import-link a").click();
       await expect(page.locator(".import-page")).toBeVisible();
       await page.locator(".mobile-page-back").click();
       await expect(page).toHaveURL(/#\/settings\/data$/);
+      await expect(page.locator("#settings-category-data")).toBeInViewport();
 
       await page.locator(".mobile-page-back").click();
       await expect(page).toHaveURL(/#\/log$/);
