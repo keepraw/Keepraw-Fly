@@ -20,7 +20,6 @@
   "nav": {
     "label": "主導航",
     "flights": "航班",
-    "passport": "飛行護照",
     "settings": "設定",
     "log": "日誌",
     "map": "地圖",
@@ -31,7 +30,14 @@
     "eyebrow": "你的飛行歷史，由你掌握",
     "title": "資料比應用更長久。",
     "description": "直接建立自己的飛行檔案，透過簡單表單新增航班，不需要準備 JSON 檔案。資料只儲存在這個瀏覽器中。",
-    "privacy": "本機優先，不上傳任何資料。"
+    "privacy": "本機優先，不上傳任何資料。",
+    "points": {
+      "map": "在一張地圖上查看飛過的每條航線。",
+      "log": "記錄每次航班的時刻、機型和座位。",
+      "export": "隨時把全部資料匯出為開放的 JSON 檔案。"
+    },
+    "importOther": "從 CSV、Flighty 或航旅縱橫匯入",
+    "previewCaption": "範例，航班資料為虛構。"
   },
   "demo": {
     "importReplacement": "匯入會以你的資料取代虛構的示例航班、擁有者和會員資料，不會保留示例資料。",
@@ -165,7 +171,10 @@
     "airportTimezoneHint": "IANA 時區或 UTC 偏移，例如 +08:00。",
     "airportHistory": {
       "searchGroup": "歷史機場與代碼"
-    }
+    },
+    "requiredNote": "標有 * 的為必填欄位。",
+    "statusSection": "取消或轉降",
+    "optional": "選填"
   },
   "status": {
     "scheduled": "預定",
@@ -839,5 +848,10 @@
       "dateLineNote": "換日線畫在大圓航線與它相交的位置，不是記錄到的時刻。",
       "dateLineAt": "換日線約在航線的 {{percent}} 處。"
     }
+  },
+  "importPage": {
+    "lead": "選擇航班的來源。每種來源都會先顯示預覽，確認後才會儲存。",
+    "settingsDescription": "匯入 Keepraw Fly 備份、CSV 檔案，或 Flighty、航旅縱橫的匯出檔案。",
+    "open": "開啟匯入"
   }
 }

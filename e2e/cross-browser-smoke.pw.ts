@@ -155,6 +155,8 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
       .fill("LAX");
     // Expanding optional content exercises the short-height modal scrollport.
     await editor.locator(".editor-optional summary").click();
+    for (const group of await editor.locator(".editor-group > summary").all())
+      await group.click();
     const save = editor.getByRole("button", {
       name: "Save flight",
       exact: true,

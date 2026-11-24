@@ -80,8 +80,8 @@ export function PassportPage({
     aircraft,
     sort,
   } = view;
-  const showMap = mode === "map" || mode === "passport";
-  const showList = mode === "log" || mode === "map";
+  const showMap = mode === "map";
+  const showList = mode !== "stats";
   const showInsights = mode === "stats";
   const setSelection = (selection: PassportSelection | null) =>
     onViewChange({ ...view, selection, flightId: null, scrollFlightId: null });
@@ -387,6 +387,17 @@ export function PassportPage({
                 <span className="passport-map-title">
                   {t("passport.worldTitle")}
                 </span>
+              ) : null}
+              {showMap && onOpenShare ? (
+                <button
+                  className="passport-share-button"
+                  type="button"
+                  aria-haspopup="dialog"
+                  title={t("share.entryHint")}
+                  onClick={onOpenShare}
+                >
+                  {t("share.entry")}
+                </button>
               ) : null}
               <span>
                 {t(
@@ -825,28 +836,15 @@ export function PassportPage({
                   </label>
                 </div>
               ) : null}
-              {mode !== "map" ? (
+              {mode === "log" ? (
                 <div className="archive-controls">
-                  {mode === "log" ? (
-                    <button
-                      className="passport-import-button"
-                      type="button"
-                      onClick={onOpenImport}
-                    >
-                      {t("actions.importFlights")}
-                    </button>
-                  ) : null}
-                  {mode === "passport" && onOpenShare ? (
-                    <button
-                      className="passport-share-button"
-                      type="button"
-                      aria-haspopup="dialog"
-                      title={t("share.entryHint")}
-                      onClick={onOpenShare}
-                    >
-                      {t("share.entry")}
-                    </button>
-                  ) : null}
+                  <button
+                    className="passport-import-button"
+                    type="button"
+                    onClick={onOpenImport}
+                  >
+                    {t("actions.importFlights")}
+                  </button>
                 </div>
               ) : null}
             </header>

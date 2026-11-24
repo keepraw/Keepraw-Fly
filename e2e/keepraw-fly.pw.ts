@@ -1,4 +1,8 @@
-import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
+import {
+  chooseAppearance,
+  openSettingsCategory,
+  openImport,
+} from "./helpers/settings";
 import { expectDetailHero } from "./helpers/detail-hero";
 import { expectDetailMap } from "./helpers/detail-map";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -499,7 +503,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await page
     .getByRole("combobox", { name: "语言", exact: true })
     .selectOption("en-US");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   const readSavedArchive = () =>
     page.evaluate(async () => {
       const path = "/src/storage/browser.ts";
@@ -576,6 +580,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       .toBe(true);
   }
   await csvPreview.getByRole("button", { name: "Cancel" }).click();
+  await page.goto("/#/settings");
   await openSettingsCategory(page, "Danger zone");
   const clearButton = page
     .locator(".settings-danger-zone")
@@ -923,7 +928,7 @@ test("keeps the mobile Passport composition visually stable", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.locator(".mobile-page-heading h1")).toHaveText(
-    "Flight Passport",
+    "Keepraw Fly",
   );
   await expect(page.locator(".primary-tab-bar")).toHaveCount(0);
   await page.getByRole("button", { name: "Try demo" }).click();
@@ -997,7 +1002,7 @@ test("keeps the mobile Passport composition visually stable", async ({
           "Add flight",
       };
     });
-    expect(composition.tabDestinations).toBe(4);
+    expect(composition.tabDestinations).toBe(3);
     expect(composition.tabBarPinned).toBe(true);
     expect(composition.title).toBe("Map");
     expect(composition.headerScrolls).toBe(true);
@@ -1060,6 +1065,7 @@ test("keeps the mobile Passport composition visually stable", async ({
   await expect(page.locator(".mobile-page-heading h1")).toHaveText("Map");
   await page.locator('.primary-tab-bar a[href="#/log"]').click();
   await page.getByRole("button", { name: "Import flights" }).click();
+  await expect(page).toHaveURL(/#\/import$/);
   await expect(page.locator("#settings-import")).toBeInViewport();
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page.locator(".mobile-page-heading h1")).toHaveText("Log");
@@ -1274,7 +1280,7 @@ test("maps and previews CSV columns before appending flights", async ({
   // Firefox smooth scrolling can move the button between mouse down/up.
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   await page.getByLabel("Open CSV file").setInputFiles(exampleCsv);
   const preview = page.getByRole("region", { name: "Review CSV import" });
   await expect(preview).toBeVisible();
@@ -1334,7 +1340,7 @@ test("skips an exact JSON duplicate without replacing the existing archive", asy
     .setInputFiles(exampleArchive);
   await page.getByRole("button", { name: "Import this archive" }).click();
   await navigateTo(page, "settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
 
   await page
     .locator('input[type="file"][accept*=".json"]')
@@ -1659,7 +1665,7 @@ test("blocks a conflicting native backup revision without changing the saved arc
   });
   await page.getByRole("button", { name: "Import this archive" }).click();
   await navigateTo(page, "settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   const readSavedArchive = () =>
     page.evaluate(async () => {
       const { browserStorage } = await import("/src/storage/browser.ts");
@@ -2136,6 +2142,14 @@ test("keeps every page aligned to the shared responsive shell", async ({
               layout.header.left -
               (layout.header.right - layout.main.right),
           ),
+        ).toBeLessThan(1);
+      } else if (pageName === "Settings" && width > 1024) {
+        // The header spans the workspace on every view; Settings keeps a
+        // reading width and is centred below it.
+        const inset = layout.main.left - layout.header.left;
+        expect(inset).toBeGreaterThan(-1);
+        expect(
+          Math.abs(inset - (layout.header.right - layout.main.right)),
         ).toBeLessThan(1);
       } else {
         expect(Math.abs(layout.header.left - layout.main.left)).toBeLessThan(1);

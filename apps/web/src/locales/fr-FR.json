@@ -20,7 +20,6 @@
   "nav": {
     "label": "Navigation principale",
     "flights": "Vols",
-    "passport": "Carnet de vol",
     "settings": "Paramètres",
     "log": "Journal",
     "map": "Carte",
@@ -31,7 +30,14 @@
     "eyebrow": "Votre historique de vols, entre vos mains",
     "title": "Les données survivent à l'application.",
     "description": "Créez votre propre archive et ajoutez des vols avec un formulaire simple. Aucun fichier JSON n'est requis. Vos données restent dans ce navigateur.",
-    "privacy": "Tout reste dans ce navigateur. Rien n’est envoyé en ligne."
+    "privacy": "Tout reste dans ce navigateur. Rien n’est envoyé en ligne.",
+    "points": {
+      "map": "Voyez toutes vos routes sur une seule carte.",
+      "log": "Consignez chaque vol avec ses horaires, son appareil et son siège.",
+      "export": "Exportez tout dans un fichier JSON ouvert à tout moment."
+    },
+    "importOther": "Importer depuis CSV, Flighty ou Umetrip",
+    "previewCaption": "Exemple avec des vols fictifs."
   },
   "demo": {
     "importReplacement": "L’importation remplace les vols fictifs, le propriétaire et les comptes de fidélité de la démo par vos données. Les données de démonstration ne seront pas conservées.",
@@ -171,7 +177,10 @@
     "airportTimezoneHint": "Fuseau IANA ou décalage UTC comme +08:00.",
     "airportHistory": {
       "searchGroup": "Aéroports et codes historiques"
-    }
+    },
+    "requiredNote": "Les champs marqués d’un * sont obligatoires.",
+    "statusSection": "Annulé ou dérouté",
+    "optional": "Facultatif"
   },
   "status": {
     "scheduled": "Prévu",
@@ -906,5 +915,10 @@
       "dateLineNote": "La ligne de date est placée là où la route orthodromique la croise ; ce n’est pas une heure enregistrée.",
       "dateLineAt": "Ligne de date à environ {{percent}} de la route."
     }
+  },
+  "importPage": {
+    "lead": "Choisissez l’origine de vos vols. Chaque source affiche un aperçu avant tout enregistrement.",
+    "settingsDescription": "Importez une sauvegarde Keepraw Fly, un fichier CSV ou un export Flighty ou Umetrip.",
+    "open": "Ouvrir l’import"
   }
 }

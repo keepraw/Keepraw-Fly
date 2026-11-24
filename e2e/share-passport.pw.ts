@@ -236,7 +236,7 @@ const image = (page: Page) => page.locator(".share-overlay-image");
 
 /** Press Share on Passport and wait for the finished image. */
 async function openShare(page: Page) {
-  if (!/#\/passport$/.test(page.url())) await page.goto("/#/passport");
+  if (!/#\/map$/.test(page.url())) await page.goto("/#/map");
   const before = new URL(page.url()).hash;
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toBeVisible();
@@ -1137,7 +1137,7 @@ test("an archive without non-cancelled flights explains instead of drawing", asy
     cancelled: true,
   }));
   await seed(page, archive);
-  await page.goto("/#/passport");
+  await page.goto("/#/map");
   await page.locator(".passport-share-button").click();
   await expect(dialog(page)).toHaveAttribute("data-status", "empty");
   await expect(image(page)).toHaveCount(0);
@@ -1159,7 +1159,7 @@ test("export errors can be retried without closing the book", async ({
     };
   });
   await seed(page, await loadArchive());
-  await page.goto("/#/passport");
+  await page.goto("/#/map");
   await page.locator(".passport-share-button").click();
   await expect(page.getByRole("alert")).toContainText(
     "The image could not be created.",
@@ -1711,7 +1711,7 @@ test("failed fonts and late stylesheet completion keep fallback measurements sta
   // Saved preferences load after navigation. A locale change during the click
   // can move this button between Playwright's actionability check and input.
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
-  await page.goto("/#/passport");
+  await page.goto("/#/map");
   await expect(page.locator(".passport-share-button")).toHaveText(
     "分享飞行护照",
   );

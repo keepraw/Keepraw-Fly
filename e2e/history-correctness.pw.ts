@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import { disablePassportWebGL } from "./helpers/passport-svg";
-import { openSettingsCategory } from "./helpers/settings";
+import { openImport, openSettingsCategory } from "./helpers/settings";
 
 const flight: KeeprawFlight = {
   id: "p1-fixture",
@@ -127,7 +127,7 @@ for (const [source, number] of [
         kind: "demo",
         document: { profile: { name: { romanized: "Yuan Lin" } } },
       });
-      await openBackupSettings(page);
+      await openImport(page);
       const select = async () => {
         if (source === "JSON") await selectJson(page, archive(flight));
         else if (source === "CSV")
@@ -347,7 +347,7 @@ test("blocks invalid CSV status rows before commit and persists Y as cancelled (
   await page.setViewportSize({ width: 1440, height: 900 });
   await importArchive(page, archive({ ...flight, flightNumber: "UA7912" }));
   const before = await stored(page);
-  await openBackupSettings(page);
+  await openImport(page);
   const input = page.getByLabel("Open CSV file", { exact: true });
   const preview = page.locator(".csv-preview");
   await input.setInputFiles(
@@ -451,7 +451,7 @@ test("blocks a native leap-second import without changing the saved archive (KF-
   await page.setViewportSize({ width: 680, height: 900 });
   await importArchive(page, archive(flight));
   const before = await stored(page);
-  await openBackupSettings(page);
+  await openImport(page);
   await selectJson(
     page,
     archive({

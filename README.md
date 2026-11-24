@@ -10,7 +10,7 @@
 
 **[https://fly.keepraw.com](https://fly.keepraw.com) is a demo provided by the developer** to try Keepraw Fly in your browser. Choose **Try demo** to explore fictional sample flights, or create your own archive. Flight records stay in the current browser; the Demo does not provide an account or cloud synchronization.
 
-To get started, choose **Create my archive**, then **Add flight**, or import an existing Keepraw Fly JSON file from the welcome screen. Use **Settings → Data and backup** for subsequent imports and exports. No Node.js, pnpm or source compilation is needed.
+To get started, choose **Create my archive**, then **Add flight**, or import an existing Keepraw Fly JSON file from the welcome screen. Later imports are on the **Import flights** page (`#/import`), opened from Log or from **Settings → Data and backup**, where exports live. No Node.js, pnpm or source compilation is needed.
 
 **Export a JSON backup regularly and before moving between instances, browsers or devices.** The Demo and self-hosted sites do not synchronize data.
 
@@ -42,7 +42,7 @@ Chinese UI fonts and, when needed, CJK fonts for passport images load from versi
 
 ## Import and backup
 
-In **Settings → Data and backup**, choose **Export Keepraw Fly JSON** for a complete archive backup. At the destination, choose the JSON import action, select the downloaded file, review the preview and confirm. Viewer preferences and the souvenir number are browser-local, not part of the portable archive.
+In **Settings → Data and backup**, choose **Export Keepraw Fly JSON** for a complete archive backup. At the destination, open **Import flights**, choose the JSON import action, select the downloaded file, review the preview and confirm. Viewer preferences and the souvenir number are browser-local, not part of the portable archive.
 
 - **Keepraw Fly JSON:** import or export the complete portable archive for backup and migration.
 - **Keepraw Fly CSV bulk import:** map and validate documented columns before adding rows.

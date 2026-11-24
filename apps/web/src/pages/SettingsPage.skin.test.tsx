@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import en from "../locales/en-US.json";
 import type { ViewerSettings } from "../storage/types";
 
-// A skin drawn only in light, as `archive` will be.
+// A skin drawn only in light.
 vi.mock("../skins/registry", async (original) => {
   const registry = await original<typeof import("../skins/registry")>();
   const SKINS = {
@@ -14,7 +14,7 @@ vi.mock("../skins/registry", async (original) => {
       id: "light-only",
       labelKey: "settings.skinOption.minimal",
       appearances: ["light"],
-      landingView: "passport",
+      landingView: "stats",
       mapTheme: { light: "daylight-chart" },
       passportTemplate: "book",
     },

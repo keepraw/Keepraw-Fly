@@ -33,6 +33,7 @@ import {
   parseExplorationQuery,
 } from "./data/exploration-query";
 import { SettingsPage } from "./pages/SettingsPage";
+import { ImportPage } from "./pages/ImportPage";
 import { RecoveryPage } from "./pages/RecoveryPage";
 import { downloadKeeprawFly, type ExportKind } from "./data/export";
 import { ImportFileError, importLimitValues } from "./data/import-limits";
@@ -313,9 +314,16 @@ export function App() {
       navigate({ view: lastPrimaryViewRef.current }, "replace");
   }
 
+  // Import opened from Settings goes back to Data and backup, which links to it.
+  const importFromSettingsRef = useRef(false);
+  const previousRouteRef = useRef<Route>(route);
   useEffect(() => {
     const view = primaryView(route.view);
     if (view) lastPrimaryViewRef.current = view;
+    const previous = previousRouteRef.current;
+    previousRouteRef.current = route;
+    if (route.view === "import" && previous.view !== "import")
+      importFromSettingsRef.current = previous.view === "settings";
   }, [route]);
 
   // The exploration state is mirrored into the address without adding history.
@@ -652,7 +660,7 @@ export function App() {
   }
 
   function openImportedArchive(nextDocument: KeeprawFlyDocument) {
-    // Passport mounts the whole flight list. Keep large import completions
+    // The primary views mount the whole flight list. Keep large import completions
     // responsive by opening the Data and backup settings after the save starts.
     setPassportView(initialPassportView);
     navigate(
@@ -781,9 +789,10 @@ export function App() {
   // Welcome, recovery and read-error states take precedence over routes.
   const archiveBlocked =
     archiveLoad.status === "read-error" || Boolean(recoveryArchive);
-  // Tab bar and persistent Add flight belong to the primary views only.
-  const canAddFlight =
-    Boolean(document) && !archiveBlocked && primaryView(route.view) !== null;
+  const hasOpenArchive = Boolean(document) && !archiveBlocked;
+  // The tab bar belongs to the primary views only. The header keeps Add flight
+  // on Settings too, so the navigation does not move between views.
+  const canAddFlight = hasOpenArchive && primaryView(route.view) !== null;
 
   function addFlight() {
     editorReturnFocusRef.current =
@@ -801,10 +810,16 @@ export function App() {
       <AppHeader
         route={route}
         landingView={landingView}
-        hasArchive={Boolean(document) && !archiveBlocked}
+        hasArchive={hasOpenArchive}
         onNavigate={navigate}
-        onAddFlight={canAddFlight ? addFlight : undefined}
-        onBack={() => navigate({ view: lastPrimaryViewRef.current })}
+        onAddFlight={hasOpenArchive ? addFlight : undefined}
+        onBack={() =>
+          navigate(
+            route.view === "import" && importFromSettingsRef.current
+              ? { view: "settings", part: "data" }
+              : { view: lastPrimaryViewRef.current },
+          )
+        }
         detailActions={
           selectedFlight && !archiveBlocked
             ? {
@@ -922,10 +937,7 @@ export function App() {
             </div>
           ) : null}
           {document && archiveKind === "demo" ? (
-            <DemoBanner
-              compact={route.view !== "settings"}
-              onCreateArchive={createArchive}
-            />
+            <DemoBanner compact onCreateArchive={createArchive} />
           ) : null}
         </div>
       ) : null}
@@ -992,6 +1004,12 @@ export function App() {
           onProfileChange={updateProfile}
           onMembershipsChange={updateMemberships}
         />
+      ) : route.view === "import" ? (
+        <ImportPage
+          document={document}
+          isDemo={archiveKind === "demo"}
+          onImport={importArchive}
+        />
       ) : !document ? (
         <EmptyState
           onCreateArchive={createArchive}
@@ -1022,16 +1040,7 @@ export function App() {
           onOpenFlight={openFlight}
           onOpenShare={() => setShareOpen(true)}
           onAddFlight={addFlight}
-          onOpenImport={() => {
-            navigate({ view: "settings", part: "data" });
-            window.requestAnimationFrame(() =>
-              window.requestAnimationFrame(() =>
-                window.document
-                  .getElementById("settings-import")
-                  ?.scrollIntoView({ block: "start" }),
-              ),
-            );
-          }}
+          onOpenImport={() => navigate({ view: "import" })}
         />
       )}
       {canAddFlight ? (
@@ -1063,7 +1072,7 @@ export function App() {
           onCancel={() => setEditor(null)}
         />
       ) : null}
-      {document && shareOpen && route.view === "passport" ? (
+      {document && shareOpen && route.view === "map" ? (
         <FlightPassportShareDialog
           document={document}
           locale={locale}
@@ -1075,7 +1084,11 @@ export function App() {
       ) : null}
       {confirmDemoExport ? (
         <ConfirmationDialog
-          themeScope={route.view === "settings" ? "settings" : undefined}
+          themeScope={
+            route.view === "settings" || route.view === "import"
+              ? "settings"
+              : undefined
+          }
           title={t("demo.exportTitle")}
           description={t("demo.exportConfirmation")}
           confirmLabel={t("actions.export")}

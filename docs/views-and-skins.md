@@ -4,7 +4,7 @@
 
 ## English
 
-**Status: phase 4 of 6 implemented.** The views, the fragment routes, the
+**Status: implemented.** The views, the fragment routes, the
 addressable Flight, the primary navigation with its persistent Add flight and
 the Compact touch targets below are in the application, and so are the Log
 filters and order, the denser Log row, every Stats region, the flight's place in
@@ -14,17 +14,23 @@ controls render one markup on every screen class. The skin mechanism, the
 Settings, and it sets the tokens, the supported appearances, the landing view,
 the navigation order, the map theme and the Flight Passport layout. `aviation`
 is the default, and the v0.3.0 look is no longer offered. `flight.extension` is
-the first extension slot in use. See
-[what phase 3 implements](#what-phase-3-implements) and
-[what phase 4 implements](#what-phase-4-implements) for what is not there yet.
-`archive` is not implemented. Each later phase updates this document with its
-implementation.
+the first extension slot in use. The primary views are Log, Map and Stats; the
+Flight Passport is an image shared from Map, and import is a task of its own at
+`#/import`. See [what phase 3 implements](#what-phase-3-implements),
+[what phase 4 implements](#what-phase-4-implements) and
+[what the last phase implements](#what-the-last-phase-implements).
+
+**The `archive` skin was abandoned.** It was planned as a third, light-only skin
+that landed on a Passport view. The owner dropped it together with that view;
+nothing in the application depends on it and it is not planned.
 
 **Contract version: `skin-contract/0` (internal, unstable).** The contract exists
-so that the three official skins are built against one structure. It is not a
-public extension API: third-party skins, skin import and runtime-loaded code or
-styles are not supported, and the [Content Security Policy](security.md) does not
-change.
+so that the official skins are built against one structure. It is not a public
+extension API: third-party skins and extensions, skin import and runtime-loaded
+code or styles are not supported, and the [Content Security Policy](security.md)
+does not change. Executable code from a third party would run with access to
+every flight record stored in the browser, and there is no model yet that
+prevents that.
 
 ### Why
 
@@ -43,31 +49,34 @@ cannot fix:
 
 ### Decisions
 
-| Topic                         | Decision                                                                                                                                |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Structure                     | One view architecture shared by every skin                                                                                              |
-| Official skins                | Three, selected in Settings: `minimal`, `aviation`, `archive`                                                                           |
-| Default skin                  | `aviation`. The v0.3.0 look is not kept as a fourth skin                                                                                |
-| Appearance                    | `minimal` light and dark; `aviation` dark only; `archive` light only. An unsupported Appearance control is disabled and says why        |
-| Landing view                  | Chosen by the skin: `minimal` Log, `aviation` Map, `archive` Passport                                                                   |
-| Map theme and passport layout | Fixed by the skin. The separate Map theme and Flight Passport layout settings are removed                                               |
-| Chinese typography            | MiSans / MiSans TC in every skin. `archive` falls back to system Chinese serif faces only when MiSans fails to load. No new CJK webfont |
-| Very wide screens             | `minimal` and `aviation` use the width; `archive` keeps a centred maximum width                                                         |
-| Selected-flight inspector     | Not built. Its content belongs to the Flight view, so a row behaves the same in every skin                                              |
-| Skin-specific content         | Only through extension slots fed by the read-only insights interface                                                                    |
-| Information parity            | A skin or screen class may move or restyle an item, never remove it                                                                     |
-| Third-party skins             | Not supported until a security model exists                                                                                             |
+| Topic                         | Decision                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Structure                     | One view architecture shared by every skin                                                                 |
+| Official skins                | Two, selected in Settings: `minimal` and `aviation`. A third skin, `archive`, was abandoned                |
+| Default skin                  | `aviation`. The v0.3.0 look is not kept as a fourth skin                                                   |
+| Appearance                    | `minimal` light and dark; `aviation` dark only. An unsupported Appearance control is disabled and says why |
+| Landing view                  | Chosen by the skin: `minimal` Log, `aviation` Map                                                          |
+| Map theme and passport layout | Fixed by the skin. The separate Map theme and Flight Passport layout settings are removed                  |
+| Chinese typography            | MiSans / MiSans TC in every skin. No new CJK webfont                                                       |
+| Very wide screens             | Both skins use the width for the primary views; Settings, Import and Flight keep a centred reading width   |
+| Selected-flight inspector     | Not built. Its content belongs to the Flight view, so a row behaves the same in every skin                 |
+| Skin-specific content         | Only through extension slots fed by the read-only insights interface                                       |
+| Information parity            | A skin or screen class may move or restyle an item, never remove it                                        |
+| Flight Passport               | Not a view. Map has a Share Flight Passport action that generates the image                                |
+| Import                        | Its own task at `#/import`, not a section of Settings                                                      |
+| Header                        | One geometry in every view: the wordmark, the navigation and Add flight do not move between views          |
+| Third-party skins             | Not supported until a security model exists. This covers any executable skin or extension                  |
 
 ### Views and addresses
 
-| View     | Address                           | Purpose                                                    |
-| -------- | --------------------------------- | ---------------------------------------------------------- |
-| Log      | `#/log`                           | Chronological flight list with search, filters and sorting |
-| Map      | `#/map`                           | Route map with the flights of the current scope            |
-| Stats    | `#/stats`                         | Totals, yearly history, rankings and records               |
-| Passport | `#/passport`                      | Holder page, totals, route plate and the shareable image   |
-| Flight   | `#/flight/<encoded flight id>`    | One flight record                                          |
-| Settings | `#/settings`, `#/settings/<part>` | Preferences, data and backup                               |
+| View     | Address                           | Purpose                                                                      |
+| -------- | --------------------------------- | ---------------------------------------------------------------------------- |
+| Log      | `#/log`                           | Chronological flight list with search, filters and sorting                   |
+| Map      | `#/map`                           | Route map with the flights of the current scope                              |
+| Stats    | `#/stats`                         | Totals, yearly history, rankings and records                                 |
+| Flight   | `#/flight/<encoded flight id>`    | One flight record                                                            |
+| Settings | `#/settings`, `#/settings/<part>` | Preferences, data and backup                                                 |
+| Import   | `#/import`                        | Keepraw Fly JSON, CSV, Flighty and Umetrip import, each with its review step |
 
 Routing stays in the URL fragment because the application is served as static
 files from arbitrary sub-paths (GitHub Pages projects, Docker, other hosts) with
@@ -75,7 +84,8 @@ no server rewrite.
 
 - An empty fragment opens the landing view of the active skin.
 - Legacy fragments keep working: `#passport` and the retired `#flights` and
-  `#share` open the landing view; `#settings` opens Settings.
+  `#share` open the landing view; `#settings` opens Settings. `#/passport`, the
+  address of the removed Passport view, opens Map.
 - Reload keeps the view and, for Flight, the flight. An unknown flight id opens
   Log with a notice; it never shows a blank page.
 - Opening a flight adds a history entry, so browser Back returns to the view it
@@ -101,8 +111,16 @@ no server rewrite.
 
 ### Navigation
 
-- Primary destinations are Log, Map, Stats and Passport. Settings is a secondary
-  destination. **Add flight** is available in every primary view.
+- Primary destinations are Log, Map and Stats. Settings is a secondary
+  destination. **Add flight** is available in every primary view and in
+  Settings and Import.
+- The header has one geometry. Its height, its gutters and the positions of the
+  wordmark, the navigation and Add flight are the same in Log, Map, Stats,
+  Settings and Import, in both skins and on every screen class. Content below it
+  may be narrower; the header is not.
+- Import is reached from Log, from the welcome page and from Settings (Data and
+  backup). On Compact it shows a Back button instead of the tab bar, like
+  Settings.
 - Below 760 px the primary destinations are a bottom tab bar that respects safe
   areas, and Add flight stays visible while scrolling. From 760 px the skin
   places the primary navigation as a rail or a top bar.
@@ -118,42 +136,43 @@ a skin decides placement, size and visual variant for each screen class. The
 items below are the **information inventory**: each must be reachable in every
 skin, supported appearance and screen class. Automated tests enumerate it.
 
-| View     | Region              | Inventory                                                                                                                                               |
-| -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| all      | `scope`             | All and each recorded year, with flight counts                                                                                                          |
-| all      | `banner.demo`       | Demo-archive notice and Create my archive                                                                                                               |
-| Log      | `log.search`        | Search field                                                                                                                                            |
-| Log      | `log.filters`       | Active selection with a clear action; airline and aircraft-type filters; sort order                                                                     |
-| Log      | `log.summary`       | Distance, flights, time in air, airports, airlines, countries/regions for the current scope                                                             |
-| Log      | `log.list`          | Year groups; per row: date, airline mark, flight number, origin and destination codes, local times with day offset, arrival delay or cancelled/diverted |
-| Log      | `log.list` (detail) | City names, duration, distance, aircraft type, seat — a second line or extra columns, never dropped                                                     |
-| Map      | `map.canvas`        | Routes and airports of the current scope, with selection                                                                                                |
-| Map      | `map.controls`      | Zoom in, zoom out, fit; route-frequency legend                                                                                                          |
-| Map      | `map.selection`     | Route and airport pickers; visits or flights, first and last date of the selection                                                                      |
-| Map      | `map.summary`       | The same six totals as `log.summary`                                                                                                                    |
-| Map      | `map.list`          | The flights of the current scope and selection, using the Log row                                                                                       |
-| Stats    | `stats.totals`      | Six totals; total arrival delay with its "early arrivals do not offset" note; unresolved historical airports                                            |
-| Stats    | `stats.byYear`      | Flights, distance and arrival delay per year                                                                                                            |
-| Stats    | `stats.months`      | Flights per month                                                                                                                                       |
-| Stats    | `stats.airports`    | Ranked airports; each entry filters the exploration state                                                                                               |
-| Stats    | `stats.airlines`    | Ranked airlines; each entry filters                                                                                                                     |
-| Stats    | `stats.aircraft`    | Ranked aircraft types; each entry filters                                                                                                               |
-| Stats    | `stats.cabins`      | Flights per cabin, including "not recorded"                                                                                                             |
-| Stats    | `stats.records`     | Longest and shortest flight, longest arrival delay, most flown route                                                                                    |
-| Passport | `passport.holder`   | Holder name, display number, first flight, record period                                                                                                |
-| Passport | `passport.totals`   | The six totals                                                                                                                                          |
-| Passport | `passport.plate`    | Route map plate                                                                                                                                         |
-| Passport | `passport.mrz`      | Machine-readable zone spanning the full line width, under the [specimen policy](flight-passport-journal.md)                                             |
-| Passport | `passport.share`    | Generate the image, with visible Save and Close actions                                                                                                 |
-| Flight   | `flight.header`     | Back, previous, next, edit, duplicate, delete with confirmation                                                                                         |
-| Flight   | `flight.identity`   | Origin to destination, flight number, airline, date, recorded status                                                                                    |
-| Flight   | `flight.times`      | Actual and scheduled local times, delay, UTC offset, day offset, terminal, gate                                                                         |
-| Flight   | `flight.metrics`    | Duration and distance                                                                                                                                   |
-| Flight   | `flight.map`        | Route map                                                                                                                                               |
-| Flight   | `flight.experience` | Aircraft type, registration, seat, cabin, booking class                                                                                                 |
-| Flight   | `flight.ticketing`  | Booking reference, ticket number, frequent-flyer details, when recorded                                                                                 |
-| Flight   | `flight.context`    | Which visit this is to each airport, and which flight on this route                                                                                     |
-| Settings | `settings.skin`     | Skin selector; Appearance, disabled with an explanation when the skin has one appearance                                                                |
+| View     | Region              | Inventory                                                                                                                                                                                       |
+| -------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| all      | `scope`             | All and each recorded year, with flight counts                                                                                                                                                  |
+| all      | `banner.demo`       | Demo-archive notice and Create my archive                                                                                                                                                       |
+| Log      | `log.search`        | Search field                                                                                                                                                                                    |
+| Log      | `log.filters`       | Active selection with a clear action; airline and aircraft-type filters; sort order                                                                                                             |
+| Log      | `log.summary`       | Distance, flights, time in air, airports, airlines, countries/regions for the current scope                                                                                                     |
+| Log      | `log.list`          | Year groups; per row: date, airline mark, flight number, origin and destination codes, local times with day offset, arrival delay or cancelled/diverted                                         |
+| Log      | `log.list` (detail) | City names, duration, distance, aircraft type, seat — a second line or extra columns, never dropped                                                                                             |
+| Map      | `map.canvas`        | Routes and airports of the current scope, with selection                                                                                                                                        |
+| Map      | `map.controls`      | Zoom in, zoom out, fit; route-frequency legend                                                                                                                                                  |
+| Map      | `map.selection`     | Route and airport pickers; visits or flights, first and last date of the selection                                                                                                              |
+| Map      | `map.summary`       | The same six totals as `log.summary`                                                                                                                                                            |
+| Map      | `map.list`          | The flights of the current scope and selection, using the Log row                                                                                                                               |
+| Stats    | `stats.totals`      | Six totals; total arrival delay with its "early arrivals do not offset" note; unresolved historical airports                                                                                    |
+| Stats    | `stats.byYear`      | Flights, distance and arrival delay per year                                                                                                                                                    |
+| Stats    | `stats.months`      | Flights per month                                                                                                                                                                               |
+| Stats    | `stats.airports`    | Ranked airports; each entry filters the exploration state                                                                                                                                       |
+| Stats    | `stats.airlines`    | Ranked airlines; each entry filters                                                                                                                                                             |
+| Stats    | `stats.aircraft`    | Ranked aircraft types; each entry filters                                                                                                                                                       |
+| Stats    | `stats.cabins`      | Flights per cabin, including "not recorded"                                                                                                                                                     |
+| Stats    | `stats.records`     | Longest and shortest flight, longest arrival delay, most flown route                                                                                                                            |
+| Map      | `map.share`         | Share Flight Passport: generates the image (holder, totals, route plate and machine-readable zone under the [specimen policy](flight-passport-journal.md)), with visible Save and Close actions |
+| Flight   | `flight.header`     | Back, previous, next, edit, duplicate, delete with confirmation                                                                                                                                 |
+| Flight   | `flight.identity`   | Origin to destination, flight number, airline, date, recorded status                                                                                                                            |
+| Flight   | `flight.times`      | Actual and scheduled local times, delay, UTC offset, day offset, terminal, gate                                                                                                                 |
+| Flight   | `flight.metrics`    | Duration and distance                                                                                                                                                                           |
+| Flight   | `flight.map`        | Route map                                                                                                                                                                                       |
+| Flight   | `flight.experience` | Aircraft type, registration, seat, cabin, booking class                                                                                                                                         |
+| Flight   | `flight.ticketing`  | Booking reference, ticket number, frequent-flyer details, when recorded                                                                                                                         |
+| Flight   | `flight.context`    | Which visit this is to each airport, and which flight on this route                                                                                                                             |
+| Flight   | `flight.editor`     | Required fields, marked and explained, always shown; optional groups for cancelled or diverted flights and for ticket and frequent-flyer details, opened when they hold data                    |
+| Settings | `settings.skin`     | Skin selector; Appearance, disabled with an explanation when the skin has one appearance                                                                                                        |
+| Settings | `settings.data`     | Export, backup and reset; a link to Import                                                                                                                                                      |
+| Import   | `import.sources`    | Keepraw Fly JSON, CSV, Flighty CSV and Umetrip XLS, each with its review before anything is written                                                                                             |
+| Welcome  | `welcome.start`     | Try demo, start an archive, open a file, other import formats                                                                                                                                   |
+| Welcome  | `welcome.preview`   | An illustration of the map, totals and log, labelled as fictional                                                                                                                               |
 
 The cross-filter between map, statistics and list — the best interaction of
 v0.3.0 — is kept: selecting an airport, airline or route anywhere updates the
@@ -180,7 +199,7 @@ How the regions behave:
 
 ### Extension slots
 
-`map.extension`, `stats.extension`, `passport.extension` and `flight.extension`
+`map.extension`, `stats.extension` and `flight.extension`
 are the only places where skins may differ in content.
 
 - An extension is first-party code compiled into the application.
@@ -197,8 +216,6 @@ Planned first-party extensions:
 | Skin       | Slot               | Content                                                                   |
 | ---------- | ------------------ | ------------------------------------------------------------------------- |
 | `aviation` | `flight.extension` | Scheduled versus actual bar; two-time-zone timeline with a date-line mark |
-| `archive`  | `flight.extension` | Typographic arrival stamp                                                 |
-| `archive`  | `stats.extension`  | Typographic airport stamps for the current scope                          |
 | `minimal`  | —                  | None                                                                      |
 
 ### Read-only insights interface
@@ -225,7 +242,7 @@ A skin is a first-party definition with these parts:
 
 | Part             | Meaning                                                                        |
 | ---------------- | ------------------------------------------------------------------------------ |
-| `id`, label key  | `minimal`, `aviation`, `archive`                                               |
+| `id`, label key  | `minimal`, `aviation`                                                          |
 | Appearances      | The appearances it supports                                                    |
 | Landing view     | The view an empty address opens                                                |
 | Navigation order | Order of the primary destinations, landing view first                          |
@@ -237,11 +254,10 @@ A skin is a first-party definition with these parts:
 | Variants         | Visual variant of shared components (row, statistic, heading)                  |
 | Extensions       | Components for the extension slots                                             |
 
-| Skin       | Appearances | Landing  | Map theme                                            | Passport layout                      |
-| ---------- | ----------- | -------- | ---------------------------------------------------- | ------------------------------------ |
-| `minimal`  | light, dark | Log      | Daylight Chart in light; a new restrained dark theme | Single page, following the map theme |
-| `aviation` | dark        | Map      | Neon Aviation                                        | Neon single page                     |
-| `archive`  | light       | Passport | A new engraved light theme                           | Classic passport book                |
+| Skin       | Appearances | Landing | Map theme                                            | Passport layout                      |
+| ---------- | ----------- | ------- | ---------------------------------------------------- | ------------------------------------ |
+| `minimal`  | light, dark | Log     | Daylight Chart in light; a new restrained dark theme | Single page, following the map theme |
+| `aviation` | dark        | Map     | Neon Aviation                                        | Neon single page                     |
 
 - The skin is a viewer preference stored with the other viewer settings in
   IndexedDB. It is not part of the portable archive. A cosmetic hint is cached
@@ -270,7 +286,7 @@ A skin is a first-party definition with these parts:
 - A skin with one appearance disables the Appearance control and explains why.
 - `minimal` tokens, font roles and layouts are in
   [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css). From Wide up the
-  Log row is one table-like line; from Ultrawide the four primary views use the
+  Log row is one table-like line; from Ultrawide the three primary views use the
   full width, Settings and Flight detail keep a centred reading width, and the
   v0.3.0 enlargement of the Passport workspace is switched off, so one
   unit stays one CSS pixel at every system scale.
@@ -289,13 +305,13 @@ A skin is a first-party definition with these parts:
   Flight Passport is the Neon single page.
 - Settings no longer has Map theme or Flight Passport layout; the skin decides
   both. Values stored by earlier versions are dropped the next time the settings
-  are saved. The passport book layout stays in the code and is not reachable
-  until `archive` selects it.
+  are saved. The passport book layout stays in the code and no skin selects
+  it.
 - Tokens and font roles are in
   [`skin-aviation.css`](../apps/web/src/styles/skin-aviation.css): indigo
   surfaces, one cyan accent, and a monospaced data role. Sizes, spacing and the
   type scale are the shared ones.
-- From Ultrawide the four primary views use the full width, so the map takes
+- From Ultrawide the three primary views use the full width, so the map takes
   the space. On a Short screen the header and the page padding are reduced;
   nothing is hidden.
 - `flight.extension` is in use. [`skins/extensions`](../apps/web/src/skins/extensions/index.tsx)
@@ -313,8 +329,28 @@ A skin is a first-party definition with these parts:
 - The derivations are pure functions in
   [`flight-timeline.ts`](../packages/core/src/flight-timeline.ts).
 - Not in this phase: the navigation rail, a Compact bottom sheet for Map, a
-  skin-specific Log row for `aviation`, and extensions in the Map, Stats and
-  Passport slots, which no skin fills yet.
+  skin-specific Log row for `aviation`, and extensions in the Map and Stats
+  slots, which no skin fills yet.
+
+#### What the last phase implements
+
+- The header is laid out from one set of shell tokens in every view, so the
+  wordmark, the navigation and Add flight stay where they are when the view
+  changes. Settings and Import show Add flight too.
+- Passport is no longer a view or a tab. `PRIMARY_VIEWS` is Log, Map and Stats,
+  `#/passport` opens Map, and Map carries the Share Flight Passport action,
+  which opens the same share dialog and produces the same image as before.
+- Import is [`ImportPage`](../apps/web/src/pages/ImportPage.tsx) at `#/import`.
+  The four import controls moved there unchanged, with their review step.
+  Settings keeps export, backup and reset, and links to Import.
+- The flight editor shows the required fields first, marks them with `*` and
+  says what the mark means. Cancelled or diverted, and ticket and frequent-flyer
+  details, are optional groups that are closed for a new flight and open when
+  the flight already has such data.
+- The welcome page shows what the application does: three short points, a link
+  to the other import formats and an illustration of the map, totals and log.
+  The illustration is fictional and says so; it is not read from any archive.
+- `archive` and the Passport view are not built; see the status above.
 
 Styling rules:
 
@@ -335,11 +371,8 @@ All ten interface languages must hold in every skin.
 - Font families are role tokens per skin and writing system (Latin, Simplified
   Chinese, Traditional Chinese, Japanese, Korean). Page styles do not carry
   per-language overrides.
-- Chinese uses MiSans or MiSans TC in every skin, loaded as today. In `archive`
-  the fallback after MiSans is a system Chinese serif stack. Japanese and Korean
-  keep system fonts.
-- A Latin serif for `archive` must be a font already bundled or a newly bundled,
-  same-origin font. Adding one is a new dependency and needs owner approval.
+- Chinese uses MiSans or MiSans TC in every skin, loaded as today. Japanese and
+  Korean keep system fonts.
 - Codes, flight numbers, times, figures and the machine-readable zone are
   language-neutral and use the `data` or `code` role.
 - All copy goes through the locale resources; all ten locales stay complete.
@@ -363,8 +396,8 @@ The 760 and 1200 px boundaries already exist. Ultrawide and Short are new.
 - Every skin defines every view for every class.
 - Short reduces chrome and summary height; it never clips content, and the view
   scrolls.
-- Ultrawide: `minimal` shows more list columns and `aviation` extends the map;
-  `archive` centres a bounded page.
+- Ultrawide: `minimal` shows more list columns and `aviation` extends the map.
+  Settings, Import and Flight centre a bounded page under the full-width header.
 - Compact: Map is the canvas with a bottom sheet for the summary and list. The
   sheet has buttons to expand and collapse; it does not depend on a gesture.
 - When panels cover the map, "fit" frames the routes inside the unobstructed
@@ -412,29 +445,34 @@ released or deployed without the owner's approval.
 | 2     | Log (density, sorting, airline and aircraft filters) and Stats; new derivations in `packages/core`; `flight.context`; one inventory on all classes |
 | 3     | Skin mechanism, tokenised page colours, font roles, type scale, Settings skin selector, and `minimal`                                              |
 | 4     | `aviation` with its extensions; it becomes the default and the v0.3.0 look is removed                                                              |
-| 5     | `archive` with its extensions                                                                                                                      |
-| 6     | Remaining review items: layered flight entry, import as its own task flow, welcome page                                                            |
+| 5     | `archive` with its extensions — abandoned, not built                                                                                               |
+| 6     | One header geometry; Passport view removed and its share action moved to Map; layered flight entry; import as its own task flow; welcome page      |
 
 ### Out of scope
 
-Third-party skins and skin import; data-format changes; a backend, accounts or
-synchronisation; live flight data; 3D maps.
+Third-party skins and extensions, and skin import; the `archive` skin; a
+Passport view; data-format changes; a backend, accounts or synchronisation; live
+flight data; 3D maps.
 
 ## 简体中文
 
-**状态：6 个阶段中的阶段 4 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
+**状态：已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
 「添加航班」的主导航，以及紧凑档的触控目标已经在应用中；日志的筛选与排序、更密的日志行、
 统计的全部区域、航班在档案中的位置，以及写入片段查询串的探索状态也已实现。统计和日志的
 筛选控件在所有屏幕档位使用同一份标记。皮肤机制、`minimal` 皮肤和 `aviation` 皮肤已实现：
 皮肤在设置中选择，并决定令牌、支持的外观、落地视图、导航顺序、地图主题和飞行护照版式。
 `aviation` 是默认皮肤，v0.3.0 的外观不再提供。`flight.extension` 是第一个投入使用的
-扩展位。尚未实现的部分见[阶段 3 的实现范围](#阶段-3-的实现范围)和
-[阶段 4 的实现范围](#阶段-4-的实现范围)。`archive` 尚未实现。
-后续每个阶段在实现的同时更新本文。
+扩展位。主视图是日志、地图、统计三个；飞行护照是从地图里分享出去的一张图片；导入是
+独立的任务，地址为 `#/import`。见[阶段 3 的实现范围](#阶段-3-的实现范围)、
+[阶段 4 的实现范围](#阶段-4-的实现范围)和[最后阶段的实现范围](#最后阶段的实现范围)。
 
-**约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让三套官方皮肤基于同一
-结构实现。它不是对外的扩展接口：不支持第三方皮肤、皮肤导入，也不支持运行时加载的代码
-或样式；[内容安全策略](security.md)保持不变。
+**`archive` 皮肤已放弃。** 它原计划是第三套皮肤，只有浅色，落地在护照视图。所有者决定
+连同护照视图一起放弃；应用中没有任何部分依赖它，也不再计划实现。
+
+**约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让官方皮肤基于同一结构
+实现。它不是对外的扩展接口：不支持第三方皮肤和扩展、皮肤导入，也不支持运行时加载的
+代码或样式；[内容安全策略](security.md)保持不变。第三方的可执行代码能读取浏览器里保存
+的全部航班记录，目前还没有办法阻止这一点。
 
 ### 原因
 
@@ -448,38 +486,41 @@ synchronisation; live flight data; 3D maps.
 
 ### 决定
 
-| 主题               | 决定                                                                                                            |
-| ------------------ | --------------------------------------------------------------------------------------------------------------- |
-| 结构               | 所有皮肤共用一套视图架构                                                                                        |
-| 官方皮肤           | 三套，在设置中选择：`minimal`、`aviation`、`archive`                                                            |
-| 默认皮肤           | `aviation`。v0.3.0 的外观不作为第四套保留                                                                       |
-| 外观               | `minimal` 浅色和深色；`aviation` 仅深色；`archive` 仅浅色。不支持时「外观」置灰并说明原因                       |
-| 落地视图           | 由皮肤决定：`minimal` 日志，`aviation` 地图，`archive` 护照                                                     |
-| 地图主题与护照版式 | 由皮肤固定。原有的「地图主题」「飞行护照版式」两个设置项移除                                                    |
-| 中文字体           | 所有皮肤都用 MiSans / MiSans TC。`archive` 仅在 MiSans 加载失败时回退到系统中文衬线字体。不引入新的中日韩网字体 |
-| 超宽屏             | `minimal` 和 `aviation` 铺开使用宽度；`archive` 限宽居中                                                        |
-| 选中航班检查器     | 不做。其内容属于航班视图，因此点击一行在所有皮肤下行为一致                                                      |
-| 皮肤专属内容       | 只能通过扩展位实现，数据来自只读的洞察接口                                                                      |
-| 信息一致           | 皮肤或屏幕档位可以移动或改变某项信息的样式，但不能去掉它                                                        |
-| 第三方皮肤         | 在安全方案明确之前不支持                                                                                        |
+| 主题               | 决定                                                                    |
+| ------------------ | ----------------------------------------------------------------------- |
+| 结构               | 所有皮肤共用一套视图架构                                                |
+| 官方皮肤           | 两套，在设置中选择：`minimal` 和 `aviation`。第三套 `archive` 已放弃    |
+| 默认皮肤           | `aviation`。v0.3.0 的外观不作为第四套保留                               |
+| 外观               | `minimal` 浅色和深色；`aviation` 仅深色。不支持时「外观」置灰并说明原因 |
+| 落地视图           | 由皮肤决定：`minimal` 日志，`aviation` 地图                             |
+| 地图主题与护照版式 | 由皮肤固定。原有的「地图主题」「飞行护照版式」两个设置项移除            |
+| 中文字体           | 所有皮肤都用 MiSans / MiSans TC。不引入新的中日韩网字体                 |
+| 超宽屏             | 两套皮肤的主视图都铺开使用宽度；设置、导入和航班保持居中的阅读宽度      |
+| 选中航班检查器     | 不做。其内容属于航班视图，因此点击一行在所有皮肤下行为一致              |
+| 皮肤专属内容       | 只能通过扩展位实现，数据来自只读的洞察接口                              |
+| 信息一致           | 皮肤或屏幕档位可以移动或改变某项信息的样式，但不能去掉它                |
+| 飞行护照           | 不是视图。地图里有「分享飞行护照」操作，用来生成图片                    |
+| 导入               | 独立的任务，地址为 `#/import`，不再是设置里的一个分区                   |
+| 页头               | 所有视图一种几何：标志、导航和「添加航班」在切换视图时不移动            |
+| 第三方皮肤         | 在安全方案明确之前不支持，包括任何可执行的皮肤或扩展                    |
 
 ### 视图与地址
 
-| 视图 | 地址                              | 用途                                     |
-| ---- | --------------------------------- | ---------------------------------------- |
-| 日志 | `#/log`                           | 按时间排列的航班列表，含搜索、筛选和排序 |
-| 地图 | `#/map`                           | 当前范围内航班的航线图                   |
-| 统计 | `#/stats`                         | 总计、年度历史、排行和纪录               |
-| 护照 | `#/passport`                      | 持有人页、总计、航线图版和可分享的图片   |
-| 航班 | `#/flight/<编码后的航班 id>`      | 单条航班记录                             |
-| 设置 | `#/settings`、`#/settings/<分区>` | 偏好、数据与备份                         |
+| 视图 | 地址                              | 用途                                                       |
+| ---- | --------------------------------- | ---------------------------------------------------------- |
+| 日志 | `#/log`                           | 按时间排列的航班列表，含搜索、筛选和排序                   |
+| 地图 | `#/map`                           | 当前范围内航班的航线图                                     |
+| 统计 | `#/stats`                         | 总计、年度历史、排行和纪录                                 |
+| 航班 | `#/flight/<编码后的航班 id>`      | 单条航班记录                                               |
+| 设置 | `#/settings`、`#/settings/<分区>` | 偏好、数据与备份                                           |
+| 导入 | `#/import`                        | Keepraw Fly JSON、CSV、Flighty、航旅纵横导入，各带确认步骤 |
 
 路由继续放在地址的 `#` 片段里，因为应用以静态文件形式部署在任意子路径下（GitHub Pages
 项目站点、Docker、其他主机），没有服务器重写。
 
 - 片段为空时打开当前皮肤的落地视图。
 - 旧片段继续可用：`#passport` 以及已退役的 `#flights`、`#share` 打开落地视图；
-  `#settings` 打开设置。
+  `#settings` 打开设置。已移除的护照视图的地址 `#/passport` 打开地图。
 - 刷新后保留视图；在航班视图下保留该航班。航班 id 不存在时打开日志并给出提示，不出现
   空白页。
 - 打开一条航班会新增一条历史记录，因此浏览器后退回到打开它的视图及其滚动位置。航班
@@ -499,8 +540,13 @@ synchronisation; live flight data; 3D maps.
 
 ### 导航
 
-- 主要目的地是日志、地图、统计、护照。设置是次要目的地。**添加航班**在每个主要视图中
-  都可用。
+- 主要目的地是日志、地图、统计。设置是次要目的地。**添加航班**在每个主要视图以及设置
+  和导入中都可用。
+- 页头只有一种几何。它的高度、两侧留白，以及标志、导航和「添加航班」的位置，在日志、
+  地图、统计、设置和导入中相同，两套皮肤、所有屏幕档位都是如此。页头下方的内容可以更窄，
+  页头不变。
+- 导入可以从日志、欢迎页和设置（数据与备份）进入。窄档位下它与设置一样显示返回按钮，
+  不显示标签栏。
 - 760 px 以下，主要目的地是底部标签栏并避开安全区，添加航班在滚动时保持可见。760 px
   及以上，由皮肤把主导航放成侧栏或顶栏。
 - 皮肤声明主要目的地的顺序，落地视图排第一。DOM 顺序与之相同，因此焦点顺序与视觉顺序
@@ -513,42 +559,43 @@ synchronisation; live flight data; 3D maps.
 大小和视觉变体。下表是**信息清单**：其中每一项在每套皮肤、每种支持的外观和每个屏幕
 档位下都必须能到达。自动化测试会逐项检查。
 
-| 视图 | 区域                | 清单                                                                                          |
-| ---- | ------------------- | --------------------------------------------------------------------------------------------- |
-| 全部 | `scope`             | 「全部」和每个有记录的年份，带航班数                                                          |
-| 全部 | `banner.demo`       | 示例档案提示与「创建我的档案」                                                                |
-| 日志 | `log.search`        | 搜索框                                                                                        |
-| 日志 | `log.filters`       | 当前筛选及清除操作；航司与机型筛选；排序方式                                                  |
-| 日志 | `log.summary`       | 当前范围的距离、航班、飞行时长、机场、航司、国家与地区                                        |
-| 日志 | `log.list`          | 年份分组；每行：日期、航司标识、航班号、起降机场代码、当地时间及跨日标记、到达晚点或取消/备降 |
-| 日志 | `log.list`（明细）  | 城市名、时长、距离、机型、座位——放在第二行或额外的列里，不得省略                              |
-| 地图 | `map.canvas`        | 当前范围的航线与机场，可选中                                                                  |
-| 地图 | `map.controls`      | 放大、缩小、适配；航线飞行次数图例                                                            |
-| 地图 | `map.selection`     | 航线与机场选择器；所选对象的到访或飞行次数、首次与最近日期                                    |
-| 地图 | `map.summary`       | 与 `log.summary` 相同的六项总计                                                               |
-| 地图 | `map.list`          | 当前范围和筛选下的航班，使用日志的行                                                          |
-| 统计 | `stats.totals`      | 六项总计；到达晚点合计及「提前到达不抵消」说明；尚未确认的历史机场                            |
-| 统计 | `stats.byYear`      | 每年的航班数、距离和到达晚点                                                                  |
-| 统计 | `stats.months`      | 每月航班数                                                                                    |
-| 统计 | `stats.airports`    | 机场排行；每一项可筛选探索状态                                                                |
-| 统计 | `stats.airlines`    | 航司排行；每一项可筛选                                                                        |
-| 统计 | `stats.aircraft`    | 机型排行；每一项可筛选                                                                        |
-| 统计 | `stats.cabins`      | 各舱等的航班数，包括「未记录」                                                                |
-| 统计 | `stats.records`     | 最长与最短航班、最长到达晚点、最常飞的航线                                                    |
-| 护照 | `passport.holder`   | 持有人姓名、显示编号、首次飞行、档案跨度                                                      |
-| 护照 | `passport.totals`   | 六项总计                                                                                      |
-| 护照 | `passport.plate`    | 航线图版                                                                                      |
-| 护照 | `passport.mrz`      | 机读码占满一整行，遵循[示例策略](flight-passport-journal.md)                                  |
-| 护照 | `passport.share`    | 生成图片，带可见的「保存」和「关闭」操作                                                      |
-| 航班 | `flight.header`     | 返回、上一条、下一条、编辑、复制、删除（需确认）                                              |
-| 航班 | `flight.identity`   | 出发地至目的地、航班号、航司、日期、记录的状态                                                |
-| 航班 | `flight.times`      | 实际与计划当地时间、晚点、UTC 偏移、跨日标记、航站楼、登机口                                  |
-| 航班 | `flight.metrics`    | 时长与距离                                                                                    |
-| 航班 | `flight.map`        | 航线图                                                                                        |
-| 航班 | `flight.experience` | 机型、注册号、座位、舱等、舱位代码                                                            |
-| 航班 | `flight.ticketing`  | 订座编号、客票号、常旅客信息（有记录时）                                                      |
-| 航班 | `flight.context`    | 这是第几次到访各机场、第几次飞这条航线                                                        |
-| 设置 | `settings.skin`     | 皮肤选择；「外观」在皮肤只有一种外观时置灰并说明                                              |
+| 视图 | 区域                | 清单                                                                                                                                     |
+| ---- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 全部 | `scope`             | 「全部」和每个有记录的年份，带航班数                                                                                                     |
+| 全部 | `banner.demo`       | 示例档案提示与「创建我的档案」                                                                                                           |
+| 日志 | `log.search`        | 搜索框                                                                                                                                   |
+| 日志 | `log.filters`       | 当前筛选及清除操作；航司与机型筛选；排序方式                                                                                             |
+| 日志 | `log.summary`       | 当前范围的距离、航班、飞行时长、机场、航司、国家与地区                                                                                   |
+| 日志 | `log.list`          | 年份分组；每行：日期、航司标识、航班号、起降机场代码、当地时间及跨日标记、到达晚点或取消/备降                                            |
+| 日志 | `log.list`（明细）  | 城市名、时长、距离、机型、座位——放在第二行或额外的列里，不得省略                                                                         |
+| 地图 | `map.canvas`        | 当前范围的航线与机场，可选中                                                                                                             |
+| 地图 | `map.controls`      | 放大、缩小、适配；航线飞行次数图例                                                                                                       |
+| 地图 | `map.selection`     | 航线与机场选择器；所选对象的到访或飞行次数、首次与最近日期                                                                               |
+| 地图 | `map.summary`       | 与 `log.summary` 相同的六项总计                                                                                                          |
+| 地图 | `map.list`          | 当前范围和筛选下的航班，使用日志的行                                                                                                     |
+| 统计 | `stats.totals`      | 六项总计；到达晚点合计及「提前到达不抵消」说明；尚未确认的历史机场                                                                       |
+| 统计 | `stats.byYear`      | 每年的航班数、距离和到达晚点                                                                                                             |
+| 统计 | `stats.months`      | 每月航班数                                                                                                                               |
+| 统计 | `stats.airports`    | 机场排行；每一项可筛选探索状态                                                                                                           |
+| 统计 | `stats.airlines`    | 航司排行；每一项可筛选                                                                                                                   |
+| 统计 | `stats.aircraft`    | 机型排行；每一项可筛选                                                                                                                   |
+| 统计 | `stats.cabins`      | 各舱等的航班数，包括「未记录」                                                                                                           |
+| 统计 | `stats.records`     | 最长与最短航班、最长到达晚点、最常飞的航线                                                                                               |
+| 地图 | `map.share`         | 分享飞行护照：生成图片（持有人、总计、航线图版，以及遵循[示例策略](flight-passport-journal.md)的机读码），带可见的「保存」和「关闭」操作 |
+| 航班 | `flight.header`     | 返回、上一条、下一条、编辑、复制、删除（需确认）                                                                                         |
+| 航班 | `flight.identity`   | 出发地至目的地、航班号、航司、日期、记录的状态                                                                                           |
+| 航班 | `flight.times`      | 实际与计划当地时间、晚点、UTC 偏移、跨日标记、航站楼、登机口                                                                             |
+| 航班 | `flight.metrics`    | 时长与距离                                                                                                                               |
+| 航班 | `flight.map`        | 航线图                                                                                                                                   |
+| 航班 | `flight.experience` | 机型、注册号、座位、舱等、舱位代码                                                                                                       |
+| 航班 | `flight.ticketing`  | 订座编号、客票号、常旅客信息（有记录时）                                                                                                 |
+| 航班 | `flight.context`    | 这是第几次到访各机场、第几次飞这条航线                                                                                                   |
+| 航班 | `flight.editor`     | 必填项带标记和说明，始终显示；「取消或备降」「客票与常旅客」是选填分组，有数据时自动展开                                                 |
+| 设置 | `settings.skin`     | 皮肤选择；「外观」在皮肤只有一种外观时置灰并说明原因                                                                                     |
+| 设置 | `settings.data`     | 导出、备份和重置；通往导入的链接                                                                                                         |
+| 导入 | `import.sources`    | Keepraw Fly JSON、CSV、Flighty CSV 和航旅纵横 XLS，写入前各有确认步骤                                                                    |
+| 欢迎 | `welcome.start`     | 试用示例、新建档案、打开文件、其他导入格式                                                                                               |
+| 欢迎 | `welcome.preview`   | 地图、总计和日志的示意图，并标明是虚构数据                                                                                               |
 
 地图、统计和列表之间的联动筛选是 v0.3.0 最好的交互，予以保留：在任何地方选中机场、航司
 或航线都会更新共享的探索状态，当前筛选始终可见并带清除操作。
@@ -566,7 +613,7 @@ synchronisation; live flight data; 3D maps.
 
 ### 扩展位
 
-`map.extension`、`stats.extension`、`passport.extension` 和 `flight.extension` 是皮肤之间
+`map.extension`、`stats.extension` 和 `flight.extension` 是皮肤之间
 唯一允许内容不同的地方。
 
 - 扩展是随应用编译的官方代码。
@@ -582,8 +629,6 @@ synchronisation; live flight data; 3D maps.
 | 皮肤       | 扩展位             | 内容                                         |
 | ---------- | ------------------ | -------------------------------------------- |
 | `aviation` | `flight.extension` | 计划与实际对照条；带日界线标记的双时区时间轴 |
-| `archive`  | `flight.extension` | 纯文字到达章                                 |
-| `archive`  | `stats.extension`  | 当前范围内的纯文字机场章                     |
 | `minimal`  | —                  | 无                                           |
 
 ### 只读洞察接口
@@ -604,7 +649,7 @@ synchronisation; live flight data; 3D maps.
 
 | 部分         | 含义                                                                 |
 | ------------ | -------------------------------------------------------------------- |
-| `id`、名称键 | `minimal`、`aviation`、`archive`                                     |
+| `id`、名称键 | `minimal`、`aviation`                                                |
 | 外观         | 支持哪些外观                                                         |
 | 落地视图     | 地址为空时打开的视图                                                 |
 | 导航顺序     | 主要目的地的顺序，落地视图排第一                                     |
@@ -620,7 +665,6 @@ synchronisation; live flight data; 3D maps.
 | ---------- | ---------- | -------- | ------------------------------------------------- | ------------------ |
 | `minimal`  | 浅色、深色 | 日志     | 浅色用 Daylight Chart；深色新增一个克制的深色主题 | 单页，跟随地图主题 |
 | `aviation` | 深色       | 地图     | Neon Aviation                                     | Neon 单页          |
-| `archive`  | 浅色       | 护照     | 新增一个雕版风格的浅色主题                        | 经典护照本         |
 
 - 皮肤是查看偏好，与其他查看设置一起保存在 IndexedDB，不属于可移植档案。另外缓存一个
   外观提示，使首次绘制就使用正确的皮肤，做法与恢复「外观」相同。
@@ -643,7 +687,7 @@ synchronisation; live flight data; 3D maps.
 - 只有一种外观的皮肤会禁用「外观」控件并说明原因。
 - `minimal` 的令牌、字体角色和布局在
   [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css)。从宽屏档起，日志行是
-  一行表格式的记录；从超宽档起，四个主视图铺满宽度，设置和航班详情保持居中的阅读宽度，并关闭 v0.3.0 对护照工作区的整体放大，
+  一行表格式的记录；从超宽档起，三个主视图铺满宽度，设置和航班详情保持居中的阅读宽度，并关闭 v0.3.0 对护照工作区的整体放大，
   因此在任何系统缩放下一个单位都是一个 CSS 像素。
 - 本阶段不包含：导航栏（rail）、扩展位，以及共享布局之外的矮屏专用布局。
 
@@ -655,11 +699,11 @@ synchronisation; live flight data; 3D maps.
   供有选择的皮肤使用。首次绘制前页面就是深色，与设备偏好无关。
 - 空地址或旧地址打开地图。地图主题是 Neon Aviation，飞行护照是 Neon 单页版式。
 - 设置中不再有「地图主题」和「飞行护照版式」，两者都由皮肤决定。旧版本保存的取值在下次
-  保存设置时丢弃。护照本版式的代码保留，在 `archive` 选用它之前无法进入。
+  保存设置时丢弃。护照本版式的代码保留，没有皮肤选用它。
 - 令牌和字体角色在
   [`skin-aviation.css`](../apps/web/src/styles/skin-aviation.css)：靛蓝色表面、一种
   青色强调色、等宽的数据字体角色。尺寸、间距和字号阶梯沿用共享值。
-- 从超宽档起，四个主视图铺满宽度，多出的空间给地图。矮屏下缩减页头和页面内边距，不隐藏
+- 从超宽档起，三个主视图铺满宽度，多出的空间给地图。矮屏下缩减页头和页面内边距，不隐藏
   任何内容。
 - `flight.extension` 已投入使用。[`skins/extensions`](../apps/web/src/skins/extensions/index.tsx)
   把每套皮肤对应到编译进应用的组件，只交给它们一个由这一条航班计算出的冻结对象。
@@ -672,7 +716,21 @@ synchronisation; live flight data; 3D maps.
     不是记录到的时刻，扩展中有相应说明。
 - 这些推导是 [`flight-timeline.ts`](../packages/core/src/flight-timeline.ts) 中的纯函数。
 - 本阶段不包含：导航栏（rail）、紧凑档地图的底部抽屉、`aviation` 专用的日志行，以及
-  地图、统计、护照三个扩展位的内容（目前没有皮肤使用它们）。
+  地图、统计两个扩展位的内容（目前没有皮肤使用它们）。
+
+#### 最后阶段的实现范围
+
+- 所有视图的页头用同一组外壳令牌排布，切换视图时标志、导航和「添加航班」留在原位。
+  设置和导入里也有「添加航班」。
+- 护照不再是视图或标签页。`PRIMARY_VIEWS` 是日志、地图、统计，`#/passport` 打开地图；
+  地图里有「分享飞行护照」操作，打开的分享对话框和生成的图片与之前相同。
+- 导入是位于 `#/import` 的 [`ImportPage`](../apps/web/src/pages/ImportPage.tsx)。四个
+  导入控件原样移到这里，确认步骤不变。设置保留导出、备份和重置，并链接到导入。
+- 航班编辑器先显示必填项，用 `*` 标出并说明标记的含义。「取消或备降」和「客票与常旅客」
+  是选填分组，新建航班时收起，航班已有这类数据时展开。
+- 欢迎页说明应用能做什么：三条简短要点、通往其他导入格式的链接，以及地图、总计和日志的
+  示意图。示意图是虚构的并已标明，不读取任何档案。
+- `archive` 和护照视图不实现，见上文状态。
 
 样式规则：
 
@@ -689,10 +747,8 @@ synchronisation; live flight data; 3D maps.
   它们的地方，同一层级要用字号、字重、颜色或间距来表达。
 - 字体族是按皮肤和文字系统（拉丁、简体中文、繁体中文、日文、韩文）定义的角色令牌。页面
   样式不写逐语言的覆盖规则。
-- 中文在所有皮肤下都用 MiSans 或 MiSans TC，加载方式与现在相同。`archive` 在 MiSans
-  之后的回退是系统中文衬线字体。日文和韩文继续使用系统字体。
-- `archive` 的拉丁衬线字体必须是已随应用打包的字体，或新打包、同源提供的字体。新增字体
-  属于新依赖，需要所有者批准。
+- 中文在所有皮肤下都用 MiSans 或 MiSans TC，加载方式与现在相同。日文和韩文继续使用
+  系统字体。
 - 代码、航班号、时间、数字和机读码与语言无关，使用 `data` 或 `code` 角色。
 - 所有文案走语言资源；十种语言保持齐全。
 
@@ -713,7 +769,8 @@ synchronisation; live flight data; 3D maps.
 
 - 每套皮肤都要为每个视图的每一档给出布局。
 - 矮：压缩界面框架和汇总区的高度；不裁切内容，视图可以滚动。
-- 超宽：`minimal` 显示更多列，`aviation` 扩大地图；`archive` 把限宽的页面居中。
+- 超宽：`minimal` 显示更多列，`aviation` 扩大地图。设置、导入和航班在全宽页头下把限宽
+  的页面居中。
 - 窄：地图视图是画布加底部抽屉（汇总和列表）。抽屉有展开和收起按钮，不依赖手势。
 - 面板遮挡地图时，「适配」把航线放进未被遮挡的区域。
 - 细线使用设备像素边框，不用缩放变换。纹理和装饰用矢量。保留现有的发光航线数量上限。
@@ -754,9 +811,10 @@ synchronisation; live flight data; 3D maps.
 | 2    | 日志（密度、排序、航司与机型筛选）和统计；`packages/core` 中的新派生；`flight.context`；所有档位同一份清单 |
 | 3    | 皮肤机制、页面颜色令牌化、字体角色、字号体系、设置中的皮肤选择，以及 `minimal`                             |
 | 4    | `aviation` 及其扩展；它成为默认皮肤，v0.3.0 的外观移除                                                     |
-| 5    | `archive` 及其扩展                                                                                         |
-| 6    | 审查中的其余事项：分层的航班录入、作为独立任务流的导入、欢迎页                                             |
+| 5    | `archive` 及其扩展——已放弃，未实现                                                                         |
+| 6    | 页头几何统一；移除护照视图，分享操作移到地图；分层的航班录入；作为独立任务流的导入；欢迎页                 |
 
 ### 不在范围内
 
-第三方皮肤和皮肤导入；数据格式变更；后端、账号或同步；实时航班数据；3D 地图。
+第三方皮肤和扩展、皮肤导入；`archive` 皮肤；护照视图；数据格式变更；后端、账号或同步；
+实时航班数据；3D 地图。

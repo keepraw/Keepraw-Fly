@@ -18,7 +18,7 @@ interface NavigationProps {
 interface AppHeaderProps extends NavigationProps {
   /** Primary destinations need an archive; Settings is always reachable. */
   hasArchive: boolean;
-  /** Leaves Settings on small screens, where the tab bar is replaced by Back. */
+  /** Leaves Settings or Import on small screens, where Back replaces the tab bar. */
   onBack: () => void;
   detailActions?: {
     backLabel: string;
@@ -199,7 +199,7 @@ export function AppHeader({
           )}
           {!detailActions && currentView ? (
             <div className="mobile-page-heading">
-              {currentView === "settings" ? (
+              {currentView === "settings" || currentView === "import" ? (
                 <button
                   className="mobile-page-back"
                   type="button"
@@ -210,11 +210,13 @@ export function AppHeader({
                 </button>
               ) : null}
               <h1>
-                {t(
-                  `nav.${hasArchive || currentView === "settings" ? currentView : "passport"}`,
-                )}
+                {currentView === "import"
+                  ? t("actions.importFlights")
+                  : hasArchive || currentView === "settings"
+                    ? t(`nav.${currentView}`)
+                    : "Keepraw Fly"}
               </h1>
-              {currentView !== "settings" ? (
+              {currentView !== "settings" && currentView !== "import" ? (
                 <a
                   className="mobile-settings-button"
                   href={formatRoute({ view: "settings" })}
@@ -279,8 +281,6 @@ function TabIcon({ view }: { view: PrimaryView }) {
     log: "M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01",
     map: "M4 17c4-9 12-9 16-9M4 17h.01M20 8h.01M4 17a1.5 1.5 0 1 0 0-.01M20 8a1.5 1.5 0 1 0 0-.01",
     stats: "M5 20V11M12 20V4M19 20v-6M3 20h18",
-    passport:
-      "M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3v18M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM10 17h4",
   };
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

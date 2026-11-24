@@ -184,6 +184,7 @@ describe("complete released resources", () => {
           "Import",
           "System",
           "Minimal",
+          "Optional",
         ],
         es: ["Terminal", "General", "min", "h"],
         "pt-BR": ["Terminal", "Backup", "min", "h"],

@@ -94,7 +94,7 @@ and project selection. Relevant coverage includes:
 
 - [`keepraw-fly.pw.ts`](../e2e/keepraw-fly.pw.ts): editing, Settings, import
   flows, accessibility and responsive app journeys.
-- [`views-routing.pw.ts`](../e2e/views-routing.pw.ts): the four views and their
+- [`views-routing.pw.ts`](../e2e/views-routing.pw.ts): the three views, the import task and their
   fragments, the addressable Flight across reload, Back and Forward, legacy
   fragments, Settings parts, and the Compact tab bar with its touch targets.
 - [`log-stats.pw.ts`](../e2e/log-stats.pw.ts): Log filters and order, the

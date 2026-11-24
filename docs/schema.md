@@ -213,7 +213,7 @@ Use Keepraw Fly JSON export to back up the complete portable archive.
 
 ## Umetrip XLS import
 
-In **Settings → Data and backup → Umetrip XLS import**, select a genuine binary
+On the **Import flights** page (`#/import`), under **Umetrip XLS import**, select a genuine binary
 Excel `.xls` file, review the counts and source-row diagnostics, then confirm.
 Everything runs in the browser. Selected flights append through the existing
 CSV preflight, exact/possible duplicate review, schema/semantic validation and

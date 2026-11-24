@@ -1,13 +1,13 @@
 # Flight Passport digital travel journal
 
-From Passport, choose **Share Flight Passport** to view the finished 1200 × 1684
+From Map, choose **Share Flight Passport** to view the finished 1200 × 1684
 PNG. The upper leaf retains the offline Equal Earth world map, real great-circle
 routes, airport dots and paper texture. The lower leaf retains holder information,
 flight statistics and the sewn binding. The viewer has no toolbar, second name
 editor, saving instructions or disclaimer captions. The image remains a Blob-backed
 `<img>` with native right-click / long-press saving. Click or Enter/Space enlarges;
 Escape restores the whole photograph, then closes it. Clicking the backdrop also
-closes it. Focus stays in the viewer and returns to the Passport share action.
+closes it. Focus stays in the viewer and returns to the Map share action.
 
 Both leaves share the existing plane wordmark and a right-aligned localized page
 title: route map on page 01 and holder profile on page 02. The map retains a

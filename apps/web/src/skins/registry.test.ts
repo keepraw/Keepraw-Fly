@@ -19,7 +19,7 @@ const lightOnly: SkinDefinition = {
   id: "light-only",
   labelKey: "settings.skinOption.minimal",
   appearances: ["light"],
-  landingView: "passport",
+  landingView: "stats",
   mapTheme: { light: "daylight-chart" },
   passportTemplate: "book",
 };

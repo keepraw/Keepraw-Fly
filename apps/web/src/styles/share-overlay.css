@@ -1,4 +1,4 @@
-/* Flight Passport share: the Passport entry button and the image overlay. */
+/* Flight Passport share: the Map entry button and the image overlay. */
 
 .passport-share-button {
   display: inline-flex;
@@ -20,7 +20,6 @@
   background: var(--color-surface-sunken);
 }
 
-/* Desktop Passport: match the outlined action beside "Import flights". */
 @media (min-width: 761px) {
   /* Long localized labels wrap to a second row instead of overflowing. */
   .passport-archive .archive-controls {
@@ -28,21 +27,8 @@
     row-gap: calc(4 * var(--passport-px, 1px));
   }
 
-  .passport-archive .archive-controls .passport-import-button,
-  .passport-archive .archive-controls .passport-share-button {
+  .passport-archive .archive-controls .passport-import-button {
     white-space: nowrap;
-  }
-
-  .passport-archive .archive-controls .passport-share-button {
-    min-height: calc(34 * var(--passport-px, 1px));
-    padding: calc(6 * var(--passport-px, 1px))
-      calc(10 * var(--passport-px, 1px));
-    background: transparent;
-    font-size: calc(0.75 * var(--passport-rem, 1rem));
-  }
-
-  .passport-archive .archive-controls .passport-share-button:hover {
-    background: var(--color-surface-sunken);
   }
 }
 
