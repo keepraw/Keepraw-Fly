@@ -314,9 +314,16 @@ export function App() {
       navigate({ view: lastPrimaryViewRef.current }, "replace");
   }
 
+  // Import opened from Settings goes back there, not to a primary view.
+  const importOriginRef = useRef<Route | null>(null);
+  const previousRouteRef = useRef<Route>(route);
   useEffect(() => {
     const view = primaryView(route.view);
     if (view) lastPrimaryViewRef.current = view;
+    const previous = previousRouteRef.current;
+    previousRouteRef.current = route;
+    if (route.view === "import" && previous.view !== "import")
+      importOriginRef.current = previous.view === "settings" ? previous : null;
   }, [route]);
 
   // The exploration state is mirrored into the address without adding history.
@@ -806,7 +813,13 @@ export function App() {
         hasArchive={hasOpenArchive}
         onNavigate={navigate}
         onAddFlight={hasOpenArchive ? addFlight : undefined}
-        onBack={() => navigate({ view: lastPrimaryViewRef.current })}
+        onBack={() =>
+          navigate(
+            (route.view === "import" && importOriginRef.current) || {
+              view: lastPrimaryViewRef.current,
+            },
+          )
+        }
         detailActions={
           selectedFlight && !archiveBlocked
             ? {

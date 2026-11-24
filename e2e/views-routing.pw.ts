@@ -194,6 +194,23 @@ for (const width of [390, 320]) {
       hasTouch: true,
     });
 
+    test("Back from Import returns to where it was opened", async ({
+      page,
+    }) => {
+      await openDemo(page, "#/log");
+      await page.goto("/#/settings/data");
+      await page.locator("#settings-import-link a").click();
+      await expect(page.locator(".import-page")).toBeVisible();
+      await page.locator(".mobile-page-back").click();
+      await expect(page).toHaveURL(/#\/settings\/data$/);
+
+      await page.locator(".mobile-page-back").click();
+      await expect(page).toHaveURL(/#\/log$/);
+      await page.goto("/#/import");
+      await page.locator(".mobile-page-back").click();
+      await expect(page).toHaveURL(/#\/log$/);
+    });
+
     test("an addressed Settings category is scrolled into view", async ({
       page,
     }) => {
