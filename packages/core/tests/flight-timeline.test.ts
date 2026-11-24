@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   antimeridianCrossing,
+  flightDuration,
   flightTimeline,
   plannedActualComparison,
   zoneOffsetMinutes,
@@ -32,8 +33,8 @@ describe("planned versus actual comparison", () => {
       ),
     ).toEqual({
       spanMinutes: 744,
-      scheduled: { startMinutes: 0, endMinutes: 715 },
-      actual: { startMinutes: 37, endMinutes: 744 },
+      scheduled: { startMinutes: 0, endMinutes: 715, durationMinutes: 715 },
+      actual: { startMinutes: 37, endMinutes: 744, durationMinutes: 707 },
       departureDelayMinutes: 37,
       arrivalDelayMinutes: 29,
       durationDeltaMinutes: -8,
@@ -54,6 +55,26 @@ describe("planned versus actual comparison", () => {
       departureDelayMinutes: -10,
       arrivalDelayMinutes: -20,
     });
+  });
+
+  it("rounds each duration from its elapsed time, like the flight duration", () => {
+    // 119 min 40 s: the ends round to 1 and 120 on the axis, 119 apart.
+    const recorded = flight({
+      scheduledDeparture: "2026-02-14T10:00:00-08:00",
+      scheduledArrival: "2026-02-14T12:00:00-08:00",
+      actualDeparture: "2026-02-14T10:00:40-08:00",
+      actualArrival: "2026-02-14T12:00:20-08:00",
+    });
+    const comparison = plannedActualComparison(recorded)!;
+    expect(comparison.actual).toEqual({
+      startMinutes: 1,
+      endMinutes: 120,
+      durationMinutes: 120,
+    });
+    expect(comparison.actual.durationMinutes).toBe(
+      flightDuration(recorded).minutes,
+    );
+    expect(comparison.durationDeltaMinutes).toBe(0);
   });
 
   it.each([

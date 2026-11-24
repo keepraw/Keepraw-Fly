@@ -11,14 +11,22 @@ import {
 const MINUTE = 60_000;
 const DAY = 86_400_000;
 
+/** One operation on the shared axis, and its own length. */
+export interface ComparisonInterval {
+  startMinutes: number;
+  endMinutes: number;
+  /** Rounded from the elapsed time, as `flightDuration` does. */
+  durationMinutes: number;
+}
+
 /** Two intervals on one axis, in minutes from the earliest of the four times. */
 export interface PlannedActualComparison {
   spanMinutes: number;
-  scheduled: { startMinutes: number; endMinutes: number };
-  actual: { startMinutes: number; endMinutes: number };
+  scheduled: ComparisonInterval;
+  actual: ComparisonInterval;
   departureDelayMinutes: number;
   arrivalDelayMinutes: number;
-  /** Actual minus scheduled time between departure and arrival. */
+  /** Actual minus scheduled duration, each as shown. */
   durationDeltaMinutes: number;
 }
 
@@ -41,21 +49,22 @@ export function plannedActualComparison(
   if (scheduledEnd <= scheduledStart || actualEnd <= actualStart) return null;
   const first = Math.min(scheduledStart, actualStart);
   const minutes = (time: number) => Math.round((time - first) / MINUTE);
+  // Each end is rounded for its place on the axis; a duration is rounded from
+  // the elapsed time, so it is the one shown elsewhere for the flight.
+  const interval = (start: number, end: number): ComparisonInterval => ({
+    startMinutes: minutes(start),
+    endMinutes: minutes(end),
+    durationMinutes: Math.round((end - start) / MINUTE),
+  });
+  const scheduled = interval(scheduledStart, scheduledEnd);
+  const actual = interval(actualStart, actualEnd);
   return {
     spanMinutes: minutes(Math.max(scheduledEnd, actualEnd)),
-    scheduled: {
-      startMinutes: minutes(scheduledStart),
-      endMinutes: minutes(scheduledEnd),
-    },
-    actual: {
-      startMinutes: minutes(actualStart),
-      endMinutes: minutes(actualEnd),
-    },
+    scheduled,
+    actual,
     departureDelayMinutes: Math.round((actualStart - scheduledStart) / MINUTE),
     arrivalDelayMinutes: Math.round((actualEnd - scheduledEnd) / MINUTE),
-    durationDeltaMinutes: Math.round(
-      (actualEnd - actualStart - (scheduledEnd - scheduledStart)) / MINUTE,
-    ),
+    durationDeltaMinutes: actual.durationMinutes - scheduled.durationMinutes,
   };
 }
 

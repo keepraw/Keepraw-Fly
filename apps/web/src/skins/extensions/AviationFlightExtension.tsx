@@ -101,10 +101,7 @@ export function AviationFlightExtension({
                   />
                 </span>
                 <span className="aviation-row-value">
-                  {formatDuration(
-                    comparison[kind].endMinutes - comparison[kind].startMinutes,
-                    locale,
-                  )}
+                  {formatDuration(comparison[kind].durationMinutes, locale)}
                 </span>
               </div>
             ))}
