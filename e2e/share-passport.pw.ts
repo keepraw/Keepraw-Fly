@@ -57,7 +57,8 @@ async function seed(
   // archive skin does, so each document points the minimal skin at it.
   await page.addInitScript(() => {
     if (!location.protocol.startsWith("http")) return;
-    const modulePath = "/src/skins/registry.ts";
+    // WebKit cannot resolve a relative specifier from an init script.
+    const modulePath = `${location.origin}/src/skins/registry.ts`;
     void import(/* @vite-ignore */ modulePath).then(({ SKINS }) => {
       SKINS.minimal.passportTemplate = "book";
     });
