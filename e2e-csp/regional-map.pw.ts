@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { openSettingsCategory } from "../e2e/helpers/settings";
+import { openImport } from "../e2e/helpers/settings";
 import {
   regionalAirportCodes,
   scaleArchive,
@@ -45,7 +45,7 @@ test("fits all 3,080 regional routes in the production Passport 2D map", async (
   await expect(fallback).toBeVisible({ timeout: 30_000 });
 
   await page.getByRole("link", { name: "Settings", exact: true }).click();
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   await page.locator('#settings-import input[type="file"]').setInputFiles({
     name: "regional-3080.json",
     mimeType: "application/json",

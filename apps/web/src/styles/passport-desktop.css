@@ -6,10 +6,18 @@
    * viewports the whole workspace (shell width, archive, map, stats and
    * highlights) grows together by the smaller of the width and height ratios,
    * so a wide-but-short or tall-but-narrow window never inflates one axis.
-   * Passport-only: the html font size and global tokens are untouched. */
-  .app-shell:has(.passport-archive-page) {
-    --passport-px: clamp(1px, min(100vw / 1920, 100dvh / 1080), 2px);
-    --passport-rem: clamp(1rem, min(100vw / 120, 100dvh / 67.5), 2rem);
+   * Passport-only: the html font size and global tokens are untouched.
+   * The navigation header takes the same scale on every view, Settings
+   * included, so it does not move or resize when the view changes. */
+  .app-shell {
+    --shell-px: clamp(1px, min(100vw / 1920, 100dvh / 1080), 2px);
+    --shell-rem: clamp(1rem, min(100vw / 120, 100dvh / 67.5), 2rem);
+  }
+
+  .app-shell:has(.passport-archive-page),
+  .app-shell > .site-header:not(.site-header--detail) {
+    --passport-px: var(--shell-px);
+    --passport-rem: var(--shell-rem);
 
     /* Shared size tokens used inside the Passport shell (header, notices,
      * buttons, search, controls) follow the same scale. Scoped redeclaration
@@ -38,20 +46,31 @@
     --control-height-lg: calc(46 * var(--passport-px));
   }
 
-  .app-shell:has(.passport-archive-page) .wordmark {
+  /* Sticky offsets below the header on Settings follow its real height, and
+   * pages outside the workspace start at the header's own gutter. */
+  .app-shell:has(.settings-page) {
+    --layout-header-height: calc(64 * var(--shell-px));
+  }
+
+  .app-shell:has(.settings-page),
+  .app-shell:has(.welcome) {
+    --layout-gutter: calc(24 * var(--shell-px));
+  }
+
+  .site-header .wordmark {
     gap: calc(8 * var(--passport-px));
   }
 
-  .app-shell:has(.passport-archive-page) .wordmark-mark {
+  .site-header .wordmark-mark {
     width: calc(29 * var(--passport-px));
     height: calc(29 * var(--passport-px));
   }
 
-  .app-shell:has(.passport-archive-page) .site-navigation {
+  .site-header .site-navigation {
     gap: calc(4 * var(--passport-px));
   }
 
-  .app-shell:has(.passport-archive-page) .site-navigation a {
+  .site-header .site-navigation a {
     padding: calc(9 * var(--passport-px)) calc(12 * var(--passport-px))
       calc(8 * var(--passport-px));
   }
@@ -71,7 +90,7 @@
     min-height: calc(27 * var(--passport-px));
   }
 
-  .app-shell:has(.passport-archive-page) .site-header-inner,
+  .site-header:not(.site-header--detail) .site-header-inner,
   .app-shell:has(.passport-archive-page) .page-notices {
     max-width: calc(1800 * var(--passport-px, 1px));
     padding-inline: calc(24 * var(--passport-px, 1px));
@@ -524,7 +543,10 @@
     line-height: 1.3;
   }
 
-  :root:is(:lang(zh-CN), :lang(zh-TW)) .app-shell:has(.passport-archive-page) {
+  :root:is(:lang(zh-CN), :lang(zh-TW)) .app-shell:has(.passport-archive-page),
+  :root:is(:lang(zh-CN), :lang(zh-TW))
+    .app-shell
+    > .site-header:not(.site-header--detail) {
     --font-weight-bold: 600;
   }
 
@@ -534,7 +556,7 @@
     letter-spacing: 0;
   }
 
-  .app-shell:has(.passport-archive-page) .wordmark-name {
+  .site-header .wordmark-name {
     font-family: var(--font-family-latin), sans-serif;
     font-size: calc(1.25 * var(--passport-rem));
     font-weight: 700;
@@ -562,7 +584,12 @@
 }
 
 @media (min-width: 761px) and (max-width: 1100px) {
-  .app-shell:has(.passport-archive-page) .site-header-inner,
+  .app-shell:has(.settings-page),
+  .app-shell:has(.welcome) {
+    --layout-gutter: calc(16 * var(--shell-px));
+  }
+
+  .site-header:not(.site-header--detail) .site-header-inner,
   .app-shell:has(.passport-archive-page) .page-notices {
     padding-inline: calc(16 * var(--passport-px, 1px));
   }
@@ -602,14 +629,14 @@
 
 /* A deliberately compact landscape presentation: six core facts, no highlights. */
 @media (min-width: 761px) and (max-height: 540px) {
-  .app-shell:has(.passport-archive-page) .site-header-inner {
+  .site-header:not(.site-header--detail),
+  .site-header:not(.site-header--detail) .site-header-inner {
     height: calc(44 * var(--passport-px, 1px));
     min-height: calc(44 * var(--passport-px, 1px));
   }
 
-  .app-shell:has(.passport-archive-page) .site-header {
-    height: calc(44 * var(--passport-px, 1px));
-    min-height: calc(44 * var(--passport-px, 1px));
+  .app-shell:has(.settings-page) {
+    --layout-header-height: calc(44 * var(--shell-px));
   }
 
   .app-shell:has(.passport-archive-page) .page-notices {

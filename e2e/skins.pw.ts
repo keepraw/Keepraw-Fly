@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 // The skin mechanism and the `minimal` skin (docs/views-and-skins.md, phase 3).
 
-const views = ["log", "map", "stats", "passport"];
+const views = ["log", "map", "stats"];
 
 async function openDemo(page: Page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -270,6 +270,73 @@ test.describe("skins", () => {
     await expect(extension).toHaveCount(0);
   });
 
+  // The header must not move when the view changes: the wordmark, the
+  // navigation and Add flight keep their boxes in every view of a skin.
+  for (const skin of ["aviation", "minimal"]) {
+    test(`${skin} keeps one header geometry in every view and screen class @cross-browser`, async ({
+      page,
+    }) => {
+      test.setTimeout(120_000);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await openDemo(page);
+      await chooseSkin(page, skin);
+      const box = (selector: string) =>
+        page.evaluate((query) => {
+          const element = [...document.querySelectorAll(query)].find(
+            (candidate) => candidate.getClientRects().length > 0,
+          );
+          if (!element) return null;
+          const { x, y, width, height } = element.getBoundingClientRect();
+          return [x, y, width, height].map(
+            (value) => Math.round(value * 2) / 2,
+          );
+        }, selector);
+      for (const [width, height] of [
+        [390, 844],
+        [1024, 900],
+        [1366, 650],
+        [1440, 900],
+        [1920, 1080],
+        [2560, 1440],
+        [3840, 2160],
+      ]) {
+        await page.setViewportSize({ width, height });
+        const desktop = width > 760;
+        const parts = desktop
+          ? [
+              ".site-header",
+              ".site-header-inner",
+              ".wordmark",
+              ".site-navigation",
+              '.site-navigation a[href="#/settings"]',
+              ".site-header-add",
+            ]
+          : [".site-header", ".site-header-inner", ".mobile-page-heading h1"];
+        // On a phone Settings and Import are sub-pages: a Back button and a
+        // compact title replace the tab bar, so they share their own geometry.
+        const references = new Map<boolean, unknown>();
+        for (const view of [...views, "settings", "import"]) {
+          const group = desktop || views.includes(view);
+          await page.goto(`/#/${view}`);
+          await expect(page.locator("main#main-content")).toBeVisible();
+          // The title's width follows its text; its position must not.
+          const measured = await Promise.all(
+            parts.map(async (part) => {
+              const rect = await box(part);
+              expect(rect, `${part} in ${view} at ${width}px`).not.toBeNull();
+              return part.endsWith("h1") ? rect!.slice(1, 2) : rect;
+            }),
+          );
+          if (!references.has(group)) references.set(group, measured);
+          expect(measured, `${view} at ${width}×${height}`).toEqual(
+            references.get(group),
+          );
+          expect(await fitsWidth(page)).toBe(true);
+        }
+      }
+    });
+  }
+
   test("minimal draws its own map theme for each appearance", async ({
     page,
   }) => {
@@ -486,7 +553,7 @@ test.describe("skins", () => {
             ),
           ).toBeVisible();
           expect(await fitsWidth(page), `${view} fits`).toBe(true);
-          if (view !== "map" && view !== "passport") continue;
+          if (view !== "map") continue;
           // The map clips its overflow, so a too-wide stage hides the controls
           // without widening the page.
           const controls = await page.locator(".route-map").evaluate((map) => {

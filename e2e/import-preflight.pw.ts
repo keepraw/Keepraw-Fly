@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { openSettingsCategory } from "./helpers/settings";
+import { openImport } from "./helpers/settings";
 
 for (const source of ["CSV", "Flighty"] as const) {
   test(`${source} keeps the newest file and discards cancelled reads @cross-browser`, async ({
     page,
   }) => {
     await page.goto("/#settings");
-    await openSettingsCategory(page, "Data and backup");
+    await openImport(page);
     await page.evaluate(() => {
       const readText = File.prototype.text;
       const heldReads = new Map<string, () => void>();
@@ -105,7 +105,7 @@ for (const source of ["CSV", "Flighty"] as const) {
     await expect(control).toHaveCount(0);
     await release("slow-unmounted.csv");
     await page.goto("/#settings");
-    await openSettingsCategory(page, "Data and backup");
+    await openImport(page);
     await expect(preview).toHaveCount(0);
   });
 
@@ -114,7 +114,7 @@ for (const source of ["CSV", "Flighty"] as const) {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#settings");
-    await openSettingsCategory(page, "Data and backup");
+    await openImport(page);
 
     // Observe two rendering opportunities after real row processing starts,
     // then cancel. Counting native ID allocations (forwarded unchanged) proves

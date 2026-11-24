@@ -20,7 +20,6 @@
   "nav": {
     "label": "Navegação primária",
     "flights": "Voos",
-    "passport": "Passaporte de voos",
     "settings": "Configurações",
     "log": "Registro",
     "map": "Mapa",
@@ -31,7 +30,14 @@
     "eyebrow": "Seu histórico de voo em suas mãos",
     "title": "Os dados sobrevivem ao aplicativo.",
     "description": "Crie o seu próprio arquivo e adicione voos com um formulário simples. Nenhum arquivo JSON é necessário. Seus dados permanecem neste navegador.",
-    "privacy": "Tudo fica salvo localmente. Nada é enviado."
+    "privacy": "Tudo fica salvo localmente. Nada é enviado.",
+    "points": {
+      "map": "Veja todas as rotas que você voou em um só mapa.",
+      "log": "Registre cada voo com horários, aeronave e assento.",
+      "export": "Exporte tudo como um arquivo JSON aberto a qualquer momento."
+    },
+    "importOther": "Importar de CSV, Flighty ou Umetrip",
+    "previewCaption": "Exemplo com voos fictícios."
   },
   "demo": {
     "importReplacement": "A importação substitui os voos fictícios, o proprietário e as associações da demonstração pelos seus dados. Os dados de demonstração não serão mantidos.",
@@ -171,7 +177,10 @@
     "airportTimezoneHint": "Fuso IANA ou deslocamento UTC como +08:00.",
     "airportHistory": {
       "searchGroup": "Aeroportos e códigos históricos"
-    }
+    },
+    "requiredNote": "Os campos marcados com * são obrigatórios.",
+    "statusSection": "Cancelado ou desviado",
+    "optional": "Opcional"
   },
   "status": {
     "scheduled": "Previsto",
@@ -906,5 +915,10 @@
       "dateLineNote": "A linha de data fica onde a rota ortodrômica a cruza; não é um horário registrado.",
       "dateLineAt": "Linha de data a cerca de {{percent}} da rota."
     }
+  },
+  "importPage": {
+    "lead": "Escolha de onde vêm seus voos. Cada origem mostra uma prévia antes de salvar qualquer coisa.",
+    "settingsDescription": "Importe um backup do Keepraw Fly, um arquivo CSV ou uma exportação do Flighty ou do Umetrip.",
+    "open": "Abrir importação"
   }
 }

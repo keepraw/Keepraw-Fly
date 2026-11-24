@@ -4,7 +4,8 @@ import { disablePassportWebGL } from "./helpers/passport-svg";
 // Passport desktop density: 1920x1080 is the reference composition. Larger
 // CSS viewports grow the whole workspace together (shell, archive, map,
 // stats, highlights, header) instead of only the map; laptop and 1080p
-// layouts are unchanged, and other pages keep their own widths.
+// layouts are unchanged. Settings shares the header and keeps its own
+// reading width beneath it.
 
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -196,26 +197,35 @@ for (const language of ["zh-CN", "zh-TW"] as const) {
   });
 }
 
-test("other pages keep their own width at 4K", async ({ page }) => {
+test("Settings shares the header and keeps its own width at 4K", async ({
+  page,
+}) => {
   await openDemo(page);
-  await page.goto("/#settings");
-  await settle(page, reference);
-  const header = () =>
+  const shell = () =>
+    page.evaluate(() => ({
+      header: document
+        .querySelector(".site-header-inner")!
+        .getBoundingClientRect().width,
+      navFont: parseFloat(
+        getComputedStyle(document.querySelector(".site-navigation a")!)
+          .fontSize,
+      ),
+    }));
+  const content = () =>
     page.evaluate(
       () =>
-        document.querySelector(".site-header-inner")!.getBoundingClientRect()
+        document.querySelector(".settings-content")!.getBoundingClientRect()
           .width,
     );
-  const atReference = await header();
   await settle(page, { width: 3840, height: 2160 });
-  const shell = await page.evaluate(() => ({
-    header: document
-      .querySelector(".site-header-inner")!
-      .getBoundingClientRect().width,
-    navFont: parseFloat(
-      getComputedStyle(document.querySelector(".site-navigation a")!).fontSize,
-    ),
-  }));
-  expect(shell.header).toBe(atReference);
-  expect(shell.navFont).toBe(14);
+  const map = await shell();
+  await page.goto("/#settings");
+  await expect(page.locator(".settings-page")).toBeVisible();
+  await settle(page, { width: 3840, height: 2160 });
+  // The header is the one Map draws, so it does not move between views.
+  expect(await shell()).toEqual(map);
+  const wide = await content();
+  await settle(page, reference);
+  // The settings themselves stay a reading column instead of growing.
+  expect(wide).toBe(await content());
 });

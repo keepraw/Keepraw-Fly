@@ -20,7 +20,6 @@
   "nav": {
     "label": "Primäre Navigation",
     "flights": "Flüge",
-    "passport": "Flugpass",
     "settings": "Einstellungen",
     "log": "Logbuch",
     "map": "Karte",
@@ -31,7 +30,14 @@
     "eyebrow": "Ihre Flughistorie in Ihren Händen",
     "title": "Die Daten überleben die App.",
     "description": "Erstellen Sie Ihr eigenes Archiv und fügen Sie Flüge mit einem einfachen Formular hinzu. Es ist keine JSON-Datei erforderlich. Ihre Daten bleiben in diesem Browser.",
-    "privacy": "Alle Daten bleiben lokal. Nichts wird hochgeladen."
+    "privacy": "Alle Daten bleiben lokal. Nichts wird hochgeladen.",
+    "points": {
+      "map": "Alle geflogenen Strecken auf einer Karte sehen.",
+      "log": "Jeden Flug mit Zeiten, Flugzeugtyp und Sitzplatz festhalten.",
+      "export": "Alles jederzeit als offene JSON-Datei exportieren."
+    },
+    "importOther": "Aus CSV, Flighty oder Umetrip importieren",
+    "previewCaption": "Beispiel mit fiktiven Flügen."
   },
   "demo": {
     "importReplacement": "Beim Import werden die fiktiven Demoflüge, der Eigentümer und die Mitgliedschaften durch Ihre Daten ersetzt. Demodaten werden nicht beibehalten.",
@@ -168,7 +174,10 @@
     "airportTimezoneHint": "IANA-Zeitzone oder UTC-Versatz wie +08:00.",
     "airportHistory": {
       "searchGroup": "Historische Flughäfen und Codes"
-    }
+    },
+    "requiredNote": "Mit * markierte Felder sind Pflichtfelder.",
+    "statusSection": "Annulliert oder umgeleitet",
+    "optional": "Optional"
   },
   "status": {
     "scheduled": "Geplant",
@@ -874,5 +883,10 @@
       "dateLineNote": "Die Datumsgrenze steht dort, wo die Großkreisroute sie kreuzt; sie ist keine aufgezeichnete Zeit.",
       "dateLineAt": "Datumsgrenze bei etwa {{percent}} der Route."
     }
+  },
+  "importPage": {
+    "lead": "Wählen Sie, woher Ihre Flüge stammen. Jede Quelle zeigt eine Vorschau, bevor etwas gespeichert wird.",
+    "settingsDescription": "Importieren Sie eine Keepraw-Fly-Sicherung, eine CSV-Datei oder einen Export aus Flighty oder Umetrip.",
+    "open": "Import öffnen"
   }
 }

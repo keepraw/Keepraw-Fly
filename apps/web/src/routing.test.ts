@@ -19,7 +19,7 @@ describe("fragment routing", () => {
   it("tells an address that names no view from one that does", () => {
     for (const fragment of ["", "#", "#/", "#passport", "#flights", "#share"]) {
       expect(isLandingFragment(fragment)).toBe(true);
-      expect(parseRoute(fragment, "passport")).toEqual({ view: "passport" });
+      expect(parseRoute(fragment, "stats")).toEqual({ view: "stats" });
     }
     for (const fragment of ["#/map", "#/log", "#settings", "#main-content"])
       expect(isLandingFragment(fragment)).toBe(false);
@@ -33,8 +33,14 @@ describe("fragment routing", () => {
   });
 
   it("resolves every primary view", () => {
-    for (const view of ["log", "map", "stats", "passport"] as const)
+    for (const view of ["log", "map", "stats"] as const)
       expect(parseRoute(`#/${view}`)).toEqual({ view });
+  });
+
+  it("opens Map for the Passport view it replaced", () => {
+    expect(parseRoute("#/passport")).toEqual({ view: "map" });
+    expect(parseRoute("#/passport", "log")).toEqual({ view: "map" });
+    expect(parseRoute("#/passport/extra")).toBeNull();
   });
 
   it("resolves settings parts and flights", () => {
@@ -82,12 +88,7 @@ describe("fragment routing", () => {
   });
 
   it("orders the primary destinations with the landing view first", () => {
-    expect(primaryViewOrder()).toEqual(["map", "log", "stats", "passport"]);
-    expect(primaryViewOrder("passport")).toEqual([
-      "passport",
-      "log",
-      "map",
-      "stats",
-    ]);
+    expect(primaryViewOrder()).toEqual(["map", "log", "stats"]);
+    expect(primaryViewOrder("stats")).toEqual(["stats", "log", "map"]);
   });
 });

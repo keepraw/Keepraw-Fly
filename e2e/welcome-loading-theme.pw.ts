@@ -107,6 +107,9 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await page.emulateMedia({ colorScheme: os });
           await page.goto("/#passport");
           await expect(page.locator(".welcome")).toBeVisible();
+          // The resting colours are compared, so the pointer must not be left
+          // over a button by the Settings step above.
+          await page.mouse.move(0, 0);
           await expectSurface(page.locator(".app-shell"), theme);
           const palette = colors[theme];
           await expect(page.locator(".welcome > p").nth(1)).toHaveCSS(

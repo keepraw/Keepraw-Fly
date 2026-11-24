@@ -21,10 +21,7 @@ import {
   skinAppearance,
   skinHasAppearanceChoice,
 } from "../skins/registry";
-import { ImportControl } from "../components/ImportControl";
-import { CsvImportControl } from "../components/CsvImportControl";
-import { FlightyImportControl } from "../components/FlightyImportControl";
-import { UmetripImportControl } from "../components/UmetripImportControl";
+import { formatRoute } from "../routing";
 import { PageShell } from "../components/PageShell";
 import { AirlineMultiSelect } from "../components/AirlineMultiSelect";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
@@ -824,97 +821,24 @@ export function SettingsPage({
                     </div>
                   </section>
                   <section
-                    className="settings-import-row settings-operation"
-                    id="settings-import"
-                    aria-label={t("settings.importTitle")}
+                    className="settings-operation"
+                    id="settings-import-link"
+                    aria-label={t("actions.importFlights")}
                   >
                     <div className="settings-operation-copy">
-                      <h3
-                        className="settings-item-title"
-                        id="settings-json-title"
-                      >
-                        {t("settings.importTitle")}
+                      <h3 className="settings-item-title">
+                        {t("actions.importFlights")}
                       </h3>
-                      {isDemo ? (
-                        <p role="note">{t("demo.importReplacement")}</p>
-                      ) : (
-                        <>
-                          <p>{t("settings.restoreDescription")}</p>
-                          <small>{t("settings.importDescription")}</small>
-                        </>
-                      )}
+                      <p>{t("importPage.settingsDescription")}</p>
                     </div>
-                    <ImportControl
-                      existingDocument={importBase}
-                      onImport={onImport}
-                      variant="settings"
-                    />
-                  </section>
-                  <section
-                    className="settings-import-row settings-operation"
-                    aria-label={t("settings.csvImportTitle")}
-                  >
-                    <div className="settings-operation-copy">
-                      <h3
-                        className="settings-item-title"
-                        id="settings-csv-title"
+                    <div className="settings-operation-actions">
+                      <a
+                        className="settings-action"
+                        href={formatRoute({ view: "import" })}
                       >
-                        {t("settings.csvImportTitle")}
-                      </h3>
-                      {isDemo ? (
-                        <p role="note">{t("demo.importReplacement")}</p>
-                      ) : (
-                        <p>{t("settings.csvDescription")}</p>
-                      )}
+                        {t("importPage.open")}
+                      </a>
                     </div>
-                    <CsvImportControl
-                      document={importBase}
-                      onImport={onImport}
-                    />
-                  </section>
-                  <section
-                    className="settings-import-row settings-operation"
-                    aria-label={t("settings.flightyImportTitle")}
-                  >
-                    <div className="settings-operation-copy">
-                      <h3
-                        className="settings-item-title"
-                        id="settings-flighty-title"
-                      >
-                        {t("settings.flightyImportTitle")}
-                      </h3>
-                      {isDemo ? (
-                        <small>{t("demo.importReplacement")}</small>
-                      ) : null}
-                    </div>
-                    <FlightyImportControl
-                      document={importBase}
-                      onImport={onImport}
-                    />
-                  </section>
-                  <section
-                    className="settings-import-row settings-operation"
-                    aria-label={t("umetripImport.title")}
-                  >
-                    <div className="settings-operation-copy">
-                      <h3
-                        className="settings-item-title"
-                        id="settings-umetrip-title"
-                      >
-                        {t("umetripImport.title")}
-                      </h3>
-                      <small>
-                        {t(
-                          isDemo
-                            ? "demo.importReplacement"
-                            : "umetripImport.description",
-                        )}
-                      </small>
-                    </div>
-                    <UmetripImportControl
-                      document={importBase}
-                      onImport={onImport}
-                    />
                   </section>
                   <section
                     className="settings-operation settings-operation--storage"

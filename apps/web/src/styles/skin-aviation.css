@@ -94,7 +94,7 @@
    the extra width to the map instead of to the margins. */
 @media (min-width: 1920px) {
   [data-skin="aviation"]
-    .app-shell:has(.passport-archive-page)
+    .site-header:not(.site-header--detail)
     .site-header-inner,
   [data-skin="aviation"] .app-shell:has(.passport-archive-page) .page-notices,
   [data-skin="aviation"] .passport-archive-page {
@@ -105,12 +105,16 @@
 /* Short: less chrome above the workspace, so the map keeps its height on a
    1366×768 laptop. Nothing is hidden; the 540 px rules take over below. */
 @media (min-width: 761px) and (min-height: 541px) and (max-height: 719px) {
-  [data-skin="aviation"] .app-shell:has(.passport-archive-page) .site-header,
+  [data-skin="aviation"] .site-header:not(.site-header--detail),
   [data-skin="aviation"]
-    .app-shell:has(.passport-archive-page)
+    .site-header:not(.site-header--detail)
     .site-header-inner {
     height: calc(52 * var(--passport-px, 1px));
     min-height: calc(52 * var(--passport-px, 1px));
+  }
+
+  [data-skin="aviation"] .app-shell:has(.settings-page) {
+    --layout-header-height: calc(52 * var(--shell-px));
   }
 
   [data-skin="aviation"] .app-shell:has(.passport-archive-page) .page-notices {

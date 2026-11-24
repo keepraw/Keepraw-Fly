@@ -1,4 +1,8 @@
-import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
+import {
+  chooseAppearance,
+  openSettingsCategory,
+  openImport,
+} from "./helpers/settings";
 import { expectDetailMap } from "./helpers/detail-map";
 import { chromium, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -205,7 +209,11 @@ for (const theme of ["light", "dark"] as const) {
       palette.surface,
     );
     await airlines.press("Escape");
-    await openSettingsCategory(page, "Data and backup");
+    // Import is its own page: a pending preview follows the system appearance
+    // while it is open, and must survive the change.
+    await appearance(page, "system");
+    await page.emulateMedia({ colorScheme: theme });
+    await openImport(page);
     const json = page.locator('#settings-import input[type="file"]');
     await json.setInputFiles("examples/basic.keepraw-fly.json");
     const preview = page.locator(".import-preview");
@@ -214,13 +222,12 @@ for (const theme of ["light", "dark"] as const) {
       "color",
       palette.positive,
     );
-    await appearance(page, "system");
-    await page.emulateMedia({ colorScheme: "dark" });
-    await expect(preview).toHaveCSS("background-color", colors.dark.canvas);
-    await page.emulateMedia({ colorScheme: "light" });
-    await expect(preview).toHaveCSS("background-color", colors.light.canvas);
+    const other = theme === "light" ? "dark" : "light";
+    await page.emulateMedia({ colorScheme: other });
+    await expect(preview).toHaveCSS("background-color", colors[other].canvas);
+    await page.emulateMedia({ colorScheme: theme });
+    await expect(preview).toHaveCSS("background-color", palette.canvas);
     await expect(preview).toContainText("basic.keepraw-fly.json");
-    await appearance(page, theme);
     await preview.getByRole("button", { name: "Cancel", exact: true }).click();
     await json.setInputFiles({
       name: "broken.json",
@@ -254,6 +261,9 @@ for (const theme of ["light", "dark"] as const) {
       .locator(".csv-preview")
       .getByRole("button", { name: "Cancel", exact: true })
       .click();
+    await page.goto("/#/settings");
+    await appearance(page, theme);
+    await openSettingsCategory(page, "Data and backup");
     await page
       .getByRole("button", { name: "Request persistent storage", exact: true })
       .click();

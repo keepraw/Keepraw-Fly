@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { disablePassportWebGL } from "./helpers/passport-svg";
-import { openSettingsCategory } from "./helpers/settings";
+import { openImport } from "./helpers/settings";
 import { readFileSync } from "node:fs";
 import {
   supportedLanguages,
@@ -203,7 +203,7 @@ for (const language of supportedLanguages) {
     page,
   }) => {
     await seed(page, language);
-    await openSettingsCategory(page, "Data and backup");
+    await openImport(page);
     const broken = structuredClone(archive) as typeof archive & {
       frequentFlyerMemberships: unknown[];
     };
@@ -257,7 +257,7 @@ for (const language of supportedLanguages) {
     page,
   }) => {
     await seed(page, language);
-    await openSettingsCategory(page, "Data and backup");
+    await openImport(page);
     const before = await stored(page);
     await page.evaluate(() => {
       File.prototype.text = async () => {

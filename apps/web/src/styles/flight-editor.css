@@ -54,6 +54,23 @@
   font-size: 1.45rem;
 }
 
+.editor-required-note {
+  margin: 14px 0 0;
+  color: var(--faint);
+  font-size: var(--font-size-caption);
+  line-height: 1.5;
+}
+
+/* Required fields carry the marker the note above explains. */
+.flight-editor label:has(> input:required) > span:first-child::after,
+.airport-combobox:has(> input:required) > label::after {
+  color: var(--red);
+  content: " *";
+
+  /* The control already reports "required"; keep the mark out of its name. */
+  content: " *" / "";
+}
+
 .editor-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -101,8 +118,29 @@
 }
 
 .airport-combobox > label {
+  display: block;
   color: var(--muted);
   font-size: var(--font-size-caption);
+}
+
+/* The cancelled switch reads as one row: its box, then its label. */
+.editor-status-grid > label {
+  min-height: var(--control-height-md);
+  flex-direction: row-reverse;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.editor-status-grid > label > input[type="checkbox"] {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--green);
 }
 
 .editor-field-hint {
@@ -234,6 +272,27 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Optional groups stack as one list of collapsed rows below the times. */
+.editor-group {
+  border-top: 1px solid var(--line);
+}
+
+.editor-group--first {
+  margin-top: 24px;
+}
+
+.editor-group + .editor-optional {
+  margin-top: 0;
+}
+
+.editor-group > .editor-grid,
+.editor-group > .editor-travel-grid {
+  margin-top: 0;
+  padding: 4px 0 24px;
+  border-top: 0;
+}
+
+.editor-group > summary,
 .editor-optional > summary {
   display: flex;
   align-items: baseline;
@@ -244,26 +303,31 @@
   list-style: none;
 }
 
+.editor-group > summary::-webkit-details-marker,
 .editor-optional > summary::-webkit-details-marker {
   display: none;
 }
 
+.editor-group > summary::after,
 .editor-optional > summary::after {
   color: var(--muted);
   content: "+";
   font-size: 1.1rem;
 }
 
+.editor-group[open] > summary::after,
 .editor-optional[open] > summary::after {
   content: "−";
 }
 
+.editor-group > summary span,
 .editor-optional > summary span {
   font-size: var(--type-size-label);
   font-weight: var(--font-weight-semibold);
   line-height: var(--type-leading-label);
 }
 
+.editor-group > summary small,
 .editor-optional > summary small {
   margin-left: auto;
   color: var(--faint);
@@ -405,12 +469,14 @@
     grid-column: auto;
   }
 
+  .editor-group > summary,
   .editor-optional > summary {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
   }
 
+  .editor-group > summary small,
   .editor-optional > summary small {
     margin-left: 0;
   }

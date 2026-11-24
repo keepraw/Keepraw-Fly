@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { fileURLToPath } from "node:url";
 import type { KeeprawFlyDocument } from "../packages/schema/src/index";
-import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openImport } from "./helpers/settings";
 
 const fixture = (name: string) =>
   fileURLToPath(
@@ -51,7 +51,7 @@ async function stored(page: Page): Promise<KeeprawFlyDocument | null> {
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   await page.locator('input[type="file"][accept*=".json"]').setInputFiles({
     name: "synthetic-baseline.json",
     mimeType: "application/json",
@@ -62,7 +62,7 @@ test.beforeEach(async ({ page }) => {
     .click();
   await expect.poll(() => stored(page)).toEqual(baseline);
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
 });
 
 test("previews XLS status exclusions and duplicates, then appends without replacing the archive", async ({
@@ -118,7 +118,7 @@ test("previews XLS status exclusions and duplicates, then appends without replac
   expect(uploads).toEqual([]);
   await page.reload();
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   expect(await stored(page)).toEqual(after);
   await input.setInputFiles(fixture("review"));
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
@@ -179,10 +179,11 @@ test("the Chinese XLS preview remains usable on a narrow screen and in dark mode
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/#settings");
   await page.getByLabel("Language").selectOption("zh-CN");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await chooseAppearance(page, "dark");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   const section = page.getByRole("region", {
     name: "航旅纵横 XLS",
     exact: true,

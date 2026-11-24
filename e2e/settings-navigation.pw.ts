@@ -65,7 +65,7 @@ test("Settings categories have native keyboard navigation and named current regi
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
-test("Passport import opens Data independent of hover or retained button focus @cross-browser", async ({
+test("Import opens its own page independent of hover or retained button focus @cross-browser", async ({
   page,
 }) => {
   const importButton = page.getByRole("button", {
@@ -83,19 +83,13 @@ test("Passport import opens Data independent of hover or retained button focus @
     }),
   );
   await importButton.press("Enter");
-  const navigation = page.getByRole("navigation", {
-    name: "Settings",
-    exact: true,
-  });
+  await expect(page).toHaveURL(/#\/import$/);
+  await expect(page.locator(".import-page")).toBeVisible();
   await expect(
-    navigation.getByRole("button", { name: "Data and backup", exact: true }),
-  ).toHaveAttribute("aria-current", "true");
-  await expect(
-    page.getByRole("region", { name: "Data and backup", exact: true }),
+    page.getByRole("heading", { name: "Import flights", level: 1 }),
   ).toBeVisible();
-  await expect(
-    page.getByLabel("Open Keepraw Fly file", { exact: true }),
-  ).toBeAttached();
+  // The four sources live here and nowhere in Settings.
+  await expect(page.locator('.import-page input[type="file"]')).toHaveCount(4);
   await page
     .getByLabel("Open Keepraw Fly file", { exact: true })
     .setInputFiles("examples/basic.keepraw-fly.json");
@@ -107,29 +101,32 @@ test("Passport import opens Data independent of hover or retained button focus @
   await expect(preview.getByLabel("Import preflight summary")).toContainText(
     "Recognized1",
   );
-  await openSettingsCategory(page, "General");
-  await expect(preview).toBeHidden();
-  await openSettingsCategory(page, "Data and backup");
-  await expect(preview).toBeVisible();
   await expect(preview).toContainText("basic.keepraw-fly.json");
-  await preview.getByRole("button", { name: "Cancel", exact: true }).click();
-  // Leaving through the location hash must clear the import intent too.
-  await page.evaluate(() => {
-    window.location.hash = "/log";
-  });
-  await expect(importButton).toBeVisible();
+  // Leaving the task discards the pending file instead of carrying it along.
   await page.getByRole("link", { name: "Settings", exact: true }).click();
+  const navigation = page.getByRole("navigation", {
+    name: "Settings",
+    exact: true,
+  });
   await expect(
     navigation.getByRole("button", { name: "General", exact: true }),
   ).toHaveAttribute("aria-current", "true");
-  await page.getByRole("link", { name: "Log", exact: true }).click();
-  await importButton.click();
-  await expect(
-    navigation.getByRole("button", { name: "Data and backup", exact: true }),
-  ).toHaveAttribute("aria-current", "true");
+  await expect(preview).toHaveCount(0);
+  await openSettingsCategory(page, "Data and backup");
+  await expect(page.locator('.settings-page input[type="file"]')).toHaveCount(
+    0,
+  );
+  await page
+    .locator("#settings-import-link")
+    .getByRole("link", { name: "Open import", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/import$/);
+  await expect(page.locator(".import-page")).toBeVisible();
+  await expect(preview).toHaveCount(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
-test("direct Settings and Passport import retain the mobile scrolling workflow @cross-browser", async ({
+test("Settings and the import page keep the mobile scrolling workflow @cross-browser", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -151,8 +148,12 @@ test("direct Settings and Passport import retain the mobile scrolling workflow @
   await page
     .getByRole("button", { name: "Import flights", exact: true })
     .click();
+  await expect(page).toHaveURL(/#\/import$/);
+  await expect(page.locator(".mobile-page-heading h1")).toHaveText(
+    "Import flights",
+  );
+  await expect(page.locator(".primary-tab-bar")).toBeHidden();
   await expect(page.locator("#settings-import")).toBeInViewport();
-  await expect(page.locator(".settings-section:visible")).toHaveCount(6);
   await page
     .getByLabel("Open Keepraw Fly file", { exact: true })
     .setInputFiles("examples/basic.keepraw-fly.json");
@@ -165,4 +166,13 @@ test("direct Settings and Passport import retain the mobile scrolling workflow @
     "Recognized1",
   );
   await preview.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(0);
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.locator(".mobile-page-heading h1")).toHaveText("Log");
 });

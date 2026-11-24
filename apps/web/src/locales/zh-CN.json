@@ -20,7 +20,6 @@
   "nav": {
     "label": "主导航",
     "flights": "航班",
-    "passport": "飞行护照",
     "settings": "设置",
     "log": "日志",
     "map": "地图",
@@ -31,7 +30,14 @@
     "eyebrow": "你的飞行历史，由你掌握",
     "title": "数据比应用更长久。",
     "description": "直接创建自己的飞行档案，通过简单表单添加航班，不需要准备 JSON 文件。数据只保存在这个浏览器中。",
-    "privacy": "本地优先，不上传任何数据。"
+    "privacy": "本地优先，不上传任何数据。",
+    "points": {
+      "map": "在一张地图上查看飞过的每条航线。",
+      "log": "记录每次航班的时刻、机型和座位。",
+      "export": "随时把全部数据导出为开放的 JSON 文件。"
+    },
+    "importOther": "从 CSV、Flighty 或航旅纵横导入",
+    "previewCaption": "示例，航班数据为虚构。"
   },
   "demo": {
     "importReplacement": "导入会用你的数据替换虚构的示例航班、所有者和会员资料，不会保留示例数据。",
@@ -165,7 +171,10 @@
     "airportTimezoneHint": "IANA 时区或 UTC 偏移，例如 +08:00。",
     "airportHistory": {
       "searchGroup": "历史机场与代码"
-    }
+    },
+    "requiredNote": "带 * 的为必填项。",
+    "statusSection": "取消或备降",
+    "optional": "选填"
   },
   "status": {
     "scheduled": "计划",
@@ -839,5 +848,10 @@
       "dateLineNote": "日界线画在大圆航线与它相交的位置，不是记录到的时刻。",
       "dateLineAt": "日界线约在航线的 {{percent}} 处。"
     }
+  },
+  "importPage": {
+    "lead": "选择航班的来源。每种来源都会先显示预览，确认后才会保存。",
+    "settingsDescription": "导入 Keepraw Fly 备份、CSV 文件，或 Flighty、航旅纵横的导出文件。",
+    "open": "打开导入"
   }
 }

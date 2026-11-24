@@ -24,6 +24,12 @@ const categoryKeys: Record<string, string> = {
   "Danger zone": "dangerZone",
 };
 
+/** Opens the standalone import task, where every import source lives. */
+export async function openImport(page: Page) {
+  await page.goto("/#/import");
+  await expect(page.locator(".import-page")).toBeVisible();
+}
+
 export async function openSettingsCategory(page: Page, name: string) {
   await expect(page.locator(".settings-page")).toBeVisible();
   const selectedLanguage = await page

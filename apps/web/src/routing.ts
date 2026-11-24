@@ -3,12 +3,13 @@
  * The application is served as static files from arbitrary sub-paths, so the
  * route lives in the URL fragment and never needs a server rewrite.
  */
-export const PRIMARY_VIEWS = ["log", "map", "stats", "passport"] as const;
+export const PRIMARY_VIEWS = ["log", "map", "stats"] as const;
 export type PrimaryView = (typeof PRIMARY_VIEWS)[number];
 
 export type Route =
   | { view: PrimaryView }
   | { view: "flight"; flightId: string }
+  | { view: "import" }
   | { view: "settings"; part?: string };
 
 /** Landing view where no skin is known: tests and callers outside the app. */
@@ -51,6 +52,9 @@ export function parseRoute(
   const path = raw.slice(1).split("?")[0] ?? "";
   const [head = "", ...rest] = path.split("/");
   if (isPrimaryView(head) && rest.length === 0) return { view: head };
+  // The Passport view was folded into Map, where the share action now lives.
+  if (head === "passport" && rest.length === 0) return { view: "map" };
+  if (head === "import" && rest.length === 0) return { view: "import" };
   if (head === "settings" && rest.length <= 1) {
     const part = rest[0] ? decodeSegment(rest[0]) : null;
     return part ? { view: "settings", part } : { view: "settings" };
