@@ -9,7 +9,7 @@ import {
   MAX_IMPORT_RECORDS,
 } from "../apps/web/src/data/import-limits";
 import { scaleArchive } from "../tests/fixtures/scale-archives";
-import { openSettingsCategory } from "./helpers/settings";
+import { openSettingsCategory, openImport } from "./helpers/settings";
 import {
   controlArchiveReads,
   injectLoadingCallbacks,
@@ -313,7 +313,7 @@ for (const mode of ["welcome", "recovery"] as const) {
 
     if (mode === "welcome") {
       await page.goto("/#settings");
-      await openSettingsCategory(page, "Data and backup");
+      await openImport(page);
       const conflicting = {
         ...source,
         id: archive.flights[0]!.id,
@@ -694,7 +694,7 @@ test("keeps the page interactive during the 10,000-flight append preflight @cros
   await openSettingsCategory(page, "Data and backup");
   await writeRecord(page, existing);
   await page.reload();
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
 
   await page.evaluate(() => {
     const probe = {
@@ -1427,7 +1427,7 @@ for (const action of ["create", "demo", "import", "csv", "flighty"] as const) {
       }
     } else {
       await page.locator('.site-navigation a[href="#/settings"]').click();
-      await openSettingsCategory(page, "Data and backup");
+      await openImport(page);
       const flight = generatedArchive().flights[0]!;
       const csv =
         action === "csv"

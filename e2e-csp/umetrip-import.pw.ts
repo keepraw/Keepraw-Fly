@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { fileURLToPath } from "node:url";
-import { openSettingsCategory } from "../e2e/helpers/settings";
+import { openImport } from "../e2e/helpers/settings";
 import { watchViolations } from "./helpers/csp-observer";
 
 test("the lazy XLS parser imports locally under the production CSP", async ({
@@ -23,7 +23,7 @@ test("the lazy XLS parser imports locally under the production CSP", async ({
       uploads.push(request.url());
   });
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   expect(requests.some((url) => /\/xlsx-[^/]+\.js/.test(url))).toBe(false);
   const beforeXls = await watch.readAll();
   await page

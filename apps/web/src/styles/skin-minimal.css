@@ -390,9 +390,9 @@
 /* The v0.3.0 look enlarges the whole Passport workspace above 1920 px. This
    skin keeps one CSS pixel per unit and spends the room on content instead. */
 @media (min-width: 761px) {
-  [data-skin="minimal"] .app-shell:has(.passport-archive-page) {
-    --passport-px: 1px;
-    --passport-rem: 1rem;
+  [data-skin="minimal"] .app-shell {
+    --shell-px: 1px;
+    --shell-rem: 1rem;
   }
 }
 
@@ -405,9 +405,6 @@
 
   [data-skin="minimal"] .app-shell .site-header-inner,
   [data-skin="minimal"] .app-shell .page-notices,
-  [data-skin="minimal"]
-    .app-shell:has(.passport-archive-page)
-    .site-header-inner,
   [data-skin="minimal"] .app-shell:has(.passport-archive-page) .page-notices,
   [data-skin="minimal"] .passport-archive-page {
     max-width: none;

@@ -20,7 +20,6 @@
   "nav": {
     "label": "기본 탐색",
     "flights": "항공편",
-    "passport": "비행 기록장",
     "settings": "설정",
     "log": "기록",
     "map": "지도",
@@ -31,7 +30,14 @@
     "eyebrow": "내 손안의 비행 기록",
     "title": "데이터가 앱보다 오래 지속됩니다.",
     "description": "나만의 기록을 만들고 간단한 양식으로 항공편을 추가하세요. JSON 파일은 필요하지 않습니다. 데이터는 이 브라우저에 저장됩니다.",
-    "privacy": "모든 데이터는 로컬에 저장됩니다. 업로드되는 데이터는 없습니다."
+    "privacy": "모든 데이터는 로컬에 저장됩니다. 업로드되는 데이터는 없습니다.",
+    "points": {
+      "map": "탑승한 모든 노선을 하나의 지도에서 확인합니다.",
+      "log": "각 항공편의 시각, 기종, 좌석을 기록합니다.",
+      "export": "언제든지 모든 데이터를 개방형 JSON 파일로 내보냅니다."
+    },
+    "importOther": "CSV, Flighty 또는 Umetrip에서 가져오기",
+    "previewCaption": "가상의 항공편으로 만든 예시입니다."
   },
   "demo": {
     "importReplacement": "가져오면 가상의 데모 항공편, 소유자 및 회원 정보가 내 데이터로 교체됩니다. 데모 데이터는 유지되지 않습니다.",
@@ -165,7 +171,10 @@
     "airportTimezoneHint": "IANA 시간대 또는 +08:00 같은 UTC 오프셋.",
     "airportHistory": {
       "searchGroup": "역사적 공항 및 코드"
-    }
+    },
+    "requiredNote": "* 표시된 항목은 필수입니다.",
+    "statusSection": "결항 또는 회항",
+    "optional": "선택 사항"
   },
   "status": {
     "scheduled": "예정",
@@ -839,5 +848,10 @@
       "dateLineNote": "날짜변경선은 대권 항로가 지나는 위치에 표시되며, 기록된 시각이 아닙니다.",
       "dateLineAt": "날짜변경선은 항로의 약 {{percent}} 지점에 있습니다."
     }
+  },
+  "importPage": {
+    "lead": "항공편을 가져올 원본을 선택하세요. 모든 원본은 저장하기 전에 미리보기를 표시합니다.",
+    "settingsDescription": "Keepraw Fly 백업, CSV 파일 또는 Flighty·Umetrip 내보내기 파일을 가져옵니다.",
+    "open": "가져오기 열기"
   }
 }

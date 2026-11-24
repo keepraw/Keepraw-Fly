@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
 // Views, addressable Flight and primary navigation (docs/views-and-skins.md).
 
-const primaryViews = ["map", "log", "stats", "passport"] as const;
+const primaryViews = ["map", "log", "stats"] as const;
 const flightId = "demo-2026-ua123";
 
 async function openDemo(page: Page, fragment = "") {
@@ -46,12 +46,15 @@ test.describe("desktop", () => {
     await page.goto("/#/stats");
     await expect(page.locator(".stats-insights")).toBeVisible();
     await expect(page.locator(".flight-row")).toHaveCount(0);
-    await page.goto("/#/passport");
-    await expect(page.locator(".route-map")).toBeVisible();
-    await expect(page.locator(".passport-share-button")).toBeVisible();
     await page.goto("/#/map");
     await expect(page.locator(".route-map")).toBeVisible();
     await expect(page.locator(".flight-row").first()).toBeVisible();
+    // Sharing the Flight Passport is an action of Map, not a view of its own.
+    await expect(navigation.locator("a")).toHaveCount(primaryViews.length + 1);
+    await expect(page.locator(".passport-share-button")).toBeVisible();
+    await page.goto("/#/passport");
+    await expect(page).toHaveURL(/#\/map$/);
+    await expect(layout(page)).toHaveAttribute("data-view", "map");
 
     await page.locator(".site-header-add").click();
     await expect(page.getByRole("dialog")).toBeVisible();
@@ -160,7 +163,27 @@ test.describe("desktop", () => {
     await page.reload();
     await expect(page).toHaveURL(/#\/settings\/data$/);
     await expect(page.locator(".settings-page")).toBeVisible();
-    await expect(page.locator('input[type="file"]').first()).toBeAttached();
+    await expect(page.locator("#settings-import-link a")).toHaveAttribute(
+      "href",
+      "#/import",
+    );
+  });
+
+  test("the import task has its own address, with or without an archive", async ({
+    page,
+  }) => {
+    await page.goto("/#/import");
+    await expect(page.locator(".import-page")).toBeVisible();
+    await expect(page.locator('.import-page input[type="file"]')).toHaveCount(
+      4,
+    );
+    await openDemo(page);
+    await page.goto("/#/import");
+    await page.reload();
+    await expect(page).toHaveURL(/#\/import$/);
+    await expect(page.locator(".import-page")).toBeVisible();
+    await page.goBack();
+    await expect(page.locator(".import-page")).toHaveCount(0);
   });
 });
 

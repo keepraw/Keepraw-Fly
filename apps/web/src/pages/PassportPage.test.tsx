@@ -315,14 +315,13 @@ describe("Stats regions", () => {
             mode,
           )
         ).markup;
-      const [log, map, stats, passport] = await Promise.all(
-        (["log", "map", "stats", "passport"] as const).map(compose),
+      const [log, map, stats] = await Promise.all(
+        (["log", "map", "stats"] as const).map(compose),
       );
       for (const [mode, markup] of [
         ["log", log],
         ["map", map],
         ["stats", stats],
-        ["passport", passport],
       ] as const) {
         expect(markup).toContain(`data-view="${mode}"`);
         // Add flight lives in the persistent navigation, not in a view.
@@ -337,22 +336,19 @@ describe("Stats regions", () => {
         expect(markup).toContain('data-flight-id="tao"');
         expect(markup).toContain('id="passport-flight-search"');
       }
-      for (const markup of [stats, passport]) {
-        expect(markup).not.toContain('data-flight-id="tao"');
-        expect(markup).not.toContain('id="passport-flight-search"');
-      }
+      expect(stats).not.toContain('data-flight-id="tao"');
+      expect(stats).not.toContain('id="passport-flight-search"');
       expect(log).toContain("passport-import-button");
       expect(map).not.toContain("passport-import-button");
       expect(log).not.toContain('class="route-map"');
       expect(stats).not.toContain('class="route-map"');
       expect(map).toContain('class="route-map"');
-      expect(passport).toContain('class="route-map"');
     },
   );
 
   it("names an active search where the search field is not shown", async () => {
     const searching = { ...initialPassportView, query: "TAO" };
-    for (const mode of ["stats", "passport"] as const) {
+    for (const mode of ["stats"] as const) {
       const { markup } = await render(
         "en",
         searching,

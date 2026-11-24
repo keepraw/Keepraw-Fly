@@ -127,6 +127,8 @@ for (const viewport of viewports) {
       await expect(appearance).toHaveValue("dark");
       await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
       await openSettingsCategory(page, "Data and backup");
+      await expectReachable(page.locator("#settings-import-link a"));
+      await page.locator("#settings-import-link a").click();
       await expectReachable(
         page.locator(".import-control-settings > .settings-action"),
       );
@@ -293,6 +295,8 @@ for (const theme of ["light", "dark"]) {
         editor.getByRole("heading", { name: "Add a flight", exact: true }),
       );
       await editor.locator(".editor-optional summary").click();
+      for (const group of await editor.locator(".editor-group > summary").all())
+        await group.click();
       for (const field of await editor
         .locator("input:not([readonly]), select")
         .all())
@@ -456,6 +460,10 @@ for (const theme of ["light", "dark"]) {
       );
       archive.flights[0].id = "landscape-import";
       archive.flights[0].flightNumber = "UA999";
+      const importLink = page.locator("#settings-import-link a");
+      await expectReachable(importLink);
+      await importLink.click();
+      await expect(page).toHaveURL(/#\/import$/);
       const importer = page.locator(".import-control-settings");
       await expectReachable(importer.locator(".settings-action"));
       // Round-trip the actual downloaded bytes through the import validator.

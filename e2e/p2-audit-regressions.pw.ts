@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import type { KeeprawFlight, KeeprawFlyDocument } from "@keepraw-fly/schema";
 import type { ViewerSettings } from "../apps/web/src/storage/types";
 import { disablePassportWebGL } from "./helpers/passport-svg";
-import { openSettingsCategory } from "./helpers/settings";
+import { openSettingsCategory, openImport } from "./helpers/settings";
 
 async function savedSettings(page: Page): Promise<ViewerSettings | null> {
   return page.evaluate(async () => {
@@ -76,7 +76,7 @@ test("KF-15: Flighty preflight counts one bad row and retains both missing-field
   page,
 }) => {
   await page.goto("/#settings");
-  await openSettingsCategory(page, "Data and backup");
+  await openImport(page);
   const input = page.getByLabel("Open Flighty CSV", { exact: true });
   await input.setInputFiles({
     name: "two-errors-one-row.csv",

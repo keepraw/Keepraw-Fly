@@ -71,7 +71,7 @@ new UI should prefer semantic roles instead of adding another palette.
   composition uses a 1,240 px maximum. The shared navigation/Passport transition is 760/761 px. Flight Detail
   has its own 1199/1200 px composition.
   Mobile uses a page heading with settings/back actions and a fixed bottom tab bar
-  (Log, Map, Stats, Passport and Add flight) in place of desktop navigation.
+  (Log, Map, Stats and Add flight) in place of desktop navigation.
   Insets account for device safe areas.
 
 ### Composition

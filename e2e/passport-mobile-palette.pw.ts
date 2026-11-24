@@ -161,6 +161,8 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await page
       .getByRole("button", { name: "Edit flight", exact: true })
       .click();
+    // Cancellation is an optional group, closed on a flight that is neither.
+    await page.locator(".editor-group--first > summary").click();
     await page.getByRole("checkbox", { name: "Canceled", exact: true }).check();
     await page
       .getByRole("button", { name: "Save flight", exact: true })

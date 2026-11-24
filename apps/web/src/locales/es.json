@@ -20,7 +20,6 @@
   "nav": {
     "label": "Navegación primaria",
     "flights": "Vuelos",
-    "passport": "Pasaporte de vuelos",
     "settings": "Configuración",
     "log": "Registro",
     "map": "Mapa",
@@ -31,7 +30,14 @@
     "eyebrow": "Tu historial de vuelos, en tus manos",
     "title": "Los datos sobreviven a la aplicación.",
     "description": "Crea tu propio archivo y añade vuelos con un sencillo formulario. No se requiere ningún archivo JSON. Tus datos permanecen en este navegador.",
-    "privacy": "Todo se guarda localmente. No se sube nada."
+    "privacy": "Todo se guarda localmente. No se sube nada.",
+    "points": {
+      "map": "Consulta todas tus rutas en un solo mapa.",
+      "log": "Registra cada vuelo con sus horarios, avión y asiento.",
+      "export": "Exporta todo como un archivo JSON abierto en cualquier momento."
+    },
+    "importOther": "Importar desde CSV, Flighty o Umetrip",
+    "previewCaption": "Ejemplo con vuelos ficticios."
   },
   "demo": {
     "importReplacement": "La importación sustituye los vuelos ficticios, el propietario y las membresías de la demostración por tus datos. No se conservarán los datos de demostración.",
@@ -171,7 +177,10 @@
     "airportTimezoneHint": "Zona IANA o desfase UTC como +08:00.",
     "airportHistory": {
       "searchGroup": "Aeropuertos y códigos históricos"
-    }
+    },
+    "requiredNote": "Los campos marcados con * son obligatorios.",
+    "statusSection": "Cancelado o desviado",
+    "optional": "Opcional"
   },
   "status": {
     "scheduled": "Programado",
@@ -906,5 +915,10 @@
       "dateLineNote": "La línea de fecha se sitúa donde la ruta ortodrómica la cruza; no es una hora registrada.",
       "dateLineAt": "Línea de fecha aproximadamente al {{percent}} de la ruta."
     }
+  },
+  "importPage": {
+    "lead": "Elige de dónde proceden tus vuelos. Cada origen muestra una vista previa antes de guardar nada.",
+    "settingsDescription": "Importa una copia de seguridad de Keepraw Fly, un archivo CSV o una exportación de Flighty o Umetrip.",
+    "open": "Abrir importación"
   }
 }

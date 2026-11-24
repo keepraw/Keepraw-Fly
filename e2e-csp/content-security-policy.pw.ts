@@ -123,7 +123,7 @@ for (const { name, viewport, size } of [
     await expect(
       page.locator('meta[http-equiv="Content-Security-Policy"]'),
     ).toHaveAttribute("content", documentPolicy);
-    await page.goto("/#/passport");
+    await page.goto("/#/map");
     const before = page.url();
     await page.locator(".passport-share-button").click();
     const dialog = page.getByRole("dialog", { name: "Flight Passport" });
@@ -464,7 +464,7 @@ test("passport regional fonts load through pinned SRI without changing UI fonts 
   await importArchive(page);
   await page.goto("/#settings");
   await page.locator(".settings-fields select").first().selectOption("zh-CN");
-  await page.goto("/#/passport");
+  await page.goto("/#/map");
   await page.locator(".passport-share-button").click();
   const image = page.locator(".share-overlay-image");
   await expect(image).toBeVisible({ timeout: 20_000 });
@@ -524,7 +524,7 @@ test("SRI rejects a tampered passport font stylesheet and exports with fallback 
   await importArchive(page);
   await page.goto("/#settings");
   await page.locator(".settings-fields select").first().selectOption("zh-CN");
-  await page.goto("/#/passport");
+  await page.goto("/#/map");
   await page.locator(".passport-share-button").click();
   await expect(page.locator(".share-overlay-image")).toBeVisible({
     timeout: 20_000,

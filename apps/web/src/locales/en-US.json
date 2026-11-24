@@ -20,7 +20,6 @@
   "nav": {
     "label": "Primary navigation",
     "flights": "Flights",
-    "passport": "Flight Passport",
     "settings": "Settings",
     "log": "Log",
     "map": "Map",
@@ -31,7 +30,14 @@
     "eyebrow": "Your flight history, in your hands",
     "title": "The data outlives the app.",
     "description": "Create your own archive and add flights with a simple form. No JSON file is required. Your data stays in this browser.",
-    "privacy": "Local by design. Nothing is uploaded."
+    "privacy": "Local by design. Nothing is uploaded.",
+    "points": {
+      "map": "See every route you have flown on one map.",
+      "log": "Log each flight with its times, aircraft and seat.",
+      "export": "Export everything as an open JSON file at any time."
+    },
+    "importOther": "Import from CSV, Flighty or Umetrip",
+    "previewCaption": "Example with fictional flights."
   },
   "demo": {
     "importReplacement": "Importing replaces the fictional demo flights, owner and memberships with your data. Demo data will not be kept.",
@@ -168,7 +174,10 @@
     "airportTimezoneHint": "IANA zone or UTC offset such as +08:00.",
     "airportHistory": {
       "searchGroup": "Historical airports and codes"
-    }
+    },
+    "requiredNote": "Fields marked * are required.",
+    "statusSection": "Canceled or diverted",
+    "optional": "Optional"
   },
   "status": {
     "scheduled": "Scheduled",
@@ -874,5 +883,10 @@
       "dateLineNote": "The date line is placed where the great-circle route crosses it; it is not a recorded time.",
       "dateLineAt": "Date line at about {{percent}} of the route."
     }
+  },
+  "importPage": {
+    "lead": "Choose where your flights come from. Every source shows a preview before anything is saved.",
+    "settingsDescription": "Bring in a Keepraw Fly backup, a CSV file, or a Flighty or Umetrip export.",
+    "open": "Open import"
   }
 }
