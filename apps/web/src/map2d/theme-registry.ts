@@ -24,11 +24,3 @@ export function resolveMapTheme(id: unknown): MapTheme {
 export function listMapThemes(): readonly MapTheme[] {
   return Object.values(MAP_THEMES);
 }
-
-/** Themes a skin brings with it; they are not offered as a separate choice. */
-const SKIN_ONLY_THEME_IDS: ReadonlySet<string> = new Set(["graphite-chart"]);
-
-/** The themes offered where the map theme is still chosen on its own. */
-export function listSelectableMapThemes(): readonly MapTheme[] {
-  return listMapThemes().filter((theme) => !SKIN_ONLY_THEME_IDS.has(theme.id));
-}

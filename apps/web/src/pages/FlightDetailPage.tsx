@@ -39,6 +39,8 @@ import { PageShell } from "../components/PageShell";
 import { cabinTranslationKey } from "../data/cabin-labels";
 import { FlightRouteMap } from "../components/FlightRouteMap";
 import { resolveMapTheme, type MapThemeId } from "../map2d/theme-registry";
+import { FlightExtensionSlot } from "../skins/extensions";
+import type { SkinId } from "../skins/registry";
 
 interface FlightDetailPageProps {
   flight: KeeprawFlight;
@@ -49,6 +51,8 @@ interface FlightDetailPageProps {
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   mapTheme: MapThemeId;
+  /** The skin whose `flight.extension` follows the route and times. */
+  skin: SkinId;
 }
 
 function AirportStop({
@@ -339,6 +343,7 @@ export function FlightDetailPage({
   distanceUnit,
   timeFormat,
   mapTheme,
+  skin,
 }: FlightDetailPageProps) {
   const { t } = useTranslation();
   // Flight-date physical airports: names, coordinates and zones by history.
@@ -541,6 +546,13 @@ export function FlightDetailPage({
             theme={resolveMapTheme(mapTheme)}
           />
         </div>
+
+        <FlightExtensionSlot
+          skin={skin}
+          flight={flight}
+          locale={locale}
+          timeFormat={timeFormat}
+        />
 
         {hasExperience || hasTripRecord || frequentFlyer ? (
           <div

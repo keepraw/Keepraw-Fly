@@ -44,8 +44,6 @@ describe("saved locale compatibility", () => {
         ...stored,
         language: language === "zh-HK" ? "zh-TW" : "en-US",
         skin: DEFAULT_SKIN_ID,
-        mapTheme: "neon-aviation",
-        passportTemplate: "neon",
       });
       expect(stored).toEqual(copy);
     },
@@ -82,56 +80,21 @@ describe("skin preference", () => {
     },
   );
 
-  it("still loads the map theme and layout an earlier version stored", () => {
-    expect(
-      normalizeViewerSettings({
-        ...base,
-        skin: "minimal",
-        mapTheme: "daylight-chart",
-        passportTemplate: "book",
-      }),
-    ).toMatchObject({
+  it("resolves the v0.3.0 look an earlier version stored to the default", () => {
+    expect(normalizeViewerSettings({ ...base, skin: "classic" }).skin).toBe(
+      DEFAULT_SKIN_ID,
+    );
+  });
+
+  it("loads a record with the map theme and layout an earlier version stored, without them", () => {
+    const loaded = normalizeViewerSettings({
+      ...base,
       skin: "minimal",
       mapTheme: "daylight-chart",
       passportTemplate: "book",
     });
-  });
-});
-
-describe("map theme preference", () => {
-  const base = {
-    language: "en-US",
-    appearance: "dark" as const,
-    distanceUnit: "kilometers" as const,
-    timeFormat: "12-hour" as const,
-    powerUserMode: false,
-  };
-
-  it("defaults to the registered default theme", () => {
-    expect(defaultViewerSettings().mapTheme).toBe("neon-aviation");
-    expect(normalizeViewerSettings(base).mapTheme).toBe("neon-aviation");
-  });
-
-  it("keeps a registered theme and replaces an unknown one", () => {
-    expect(
-      normalizeViewerSettings({ ...base, mapTheme: "daylight-chart" }).mapTheme,
-    ).toBe("daylight-chart");
-    for (const mapTheme of ["removed-theme", 7, null])
-      expect(normalizeViewerSettings({ ...base, mapTheme }).mapTheme).toBe(
-        "neon-aviation",
-      );
-  });
-
-  it("falls back to the default passport layout for unknown stored ids", () => {
-    const base = defaultViewerSettings();
-    expect(base.passportTemplate).toBe("neon");
-    expect(
-      normalizeViewerSettings({ ...base, passportTemplate: "book" })
-        .passportTemplate,
-    ).toBe("book");
-    for (const passportTemplate of ["retired", 3, null, undefined])
-      expect(
-        normalizeViewerSettings({ ...base, passportTemplate }).passportTemplate,
-      ).toBe("neon");
+    expect(loaded).toEqual({ ...base, skin: "minimal" });
+    expect(defaultViewerSettings()).not.toHaveProperty("mapTheme");
+    expect(defaultViewerSettings()).not.toHaveProperty("passportTemplate");
   });
 });

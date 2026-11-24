@@ -49,6 +49,8 @@ export async function expectDetailHero(page: Page, width: number) {
       information: bounds(".detail-hero-information")!,
       map: bounds(".detail-hero-grid > .detail-route-map"),
       shelf: bounds(".detail-flight-card > .detail-metadata-shelf"),
+      // The active skin's `flight.extension`, when it has something to show.
+      extension: bounds(".detail-flight-card > .detail-extension"),
       card: bounds(".detail-flight-card")!,
       hero: bounds(".detail-hero-grid")!,
       heroBottom: element.getBoundingClientRect().bottom,

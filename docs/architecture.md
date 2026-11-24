@@ -142,7 +142,7 @@ planned leg; cancelled flights and unknown or invalid coordinates show localized
 explanations. Its camera fits the sampled great-circle arc to the container,
 recentred on the route for polar and date-line flights. Mobile Detail creates no
 map. Passport mounts the themed 2D `PassportMap` at every width. Both maps use the
-map theme chosen in Settings; see [2D map architecture](map-2d-architecture.md).
+map theme of the active skin; see [2D map architecture](map-2d-architecture.md).
 
 Passport alone permits an overview zoom below 1 to fit the full world into wide
 stages; regional cameras retain 16% padding and a maximum initial zoom of 6 for

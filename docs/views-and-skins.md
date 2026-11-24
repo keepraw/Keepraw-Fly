@@ -4,18 +4,21 @@
 
 ## English
 
-**Status: phase 3 of 6 implemented.** The views, the fragment routes, the
+**Status: phase 4 of 6 implemented.** The views, the fragment routes, the
 addressable Flight, the primary navigation with its persistent Add flight and
 the Compact touch targets below are in the application, and so are the Log
 filters and order, the denser Log row, every Stats region, the flight's place in
 the archive and the exploration state in the fragment query. Stats and the Log
-controls render one markup on every screen class. The skin mechanism and the
-`minimal` skin are implemented: the skin is chosen in Settings, and it sets the
-tokens, the supported appearances, the landing view, the navigation order, the
-map theme and the Flight Passport layout. See
-[what phase 3 implements](#what-phase-3-implements) for the transitional parts.
-`aviation`, `archive` and the skin extensions are not implemented yet. Each
-later phase updates this document with its implementation.
+controls render one markup on every screen class. The skin mechanism, the
+`minimal` skin and the `aviation` skin are implemented: the skin is chosen in
+Settings, and it sets the tokens, the supported appearances, the landing view,
+the navigation order, the map theme and the Flight Passport layout. `aviation`
+is the default, and the v0.3.0 look is no longer offered. `flight.extension` is
+the first extension slot in use. See
+[what phase 3 implements](#what-phase-3-implements) and
+[what phase 4 implements](#what-phase-4-implements) for what is not there yet.
+`archive` is not implemented. Each later phase updates this document with its
+implementation.
 
 **Contract version: `skin-contract/0` (internal, unstable).** The contract exists
 so that the three official skins are built against one structure. It is not a
@@ -253,15 +256,11 @@ A skin is a first-party definition with these parts:
 
 #### What phase 3 implements
 
-- The registry is [`skins/registry.ts`](../apps/web/src/skins/registry.ts). It
-  holds `minimal` and, until phase 4, a transitional `classic` skin: the v0.3.0
-  look, with both appearances, Map as its landing view, and the stored Map theme
-  and Flight Passport layout still chosen in Settings. `classic` is the default
-  and the fallback for an unknown or missing value until `aviation` replaces it.
+- The registry is [`skins/registry.ts`](../apps/web/src/skins/registry.ts). Phase
+  3 added `minimal` next to a transitional `classic` skin, the v0.3.0 look, which
+  phase 4 removed.
 - `minimal` uses Daylight Chart in light and the new `graphite-chart` theme in
-  dark, and the single-page Flight Passport. With `minimal` selected, Settings
-  does not offer Map theme or Flight Passport layout; the stored values are kept
-  and are read again under `classic`.
+  dark, and the single-page Flight Passport.
 - The root element carries `data-skin`. `theme-init.js` restores it before the
   first paint from a cosmetic cache, next to the appearance; a test keeps its
   table of skins in step with the registry.
@@ -269,7 +268,6 @@ A skin is a first-party definition with these parts:
   navigation lists that view first. Changing the skin never moves the reader
   away from an explicit address.
 - A skin with one appearance disables the Appearance control and explains why.
-  Both registered skins have two appearances, so this is exercised by tests.
 - `minimal` tokens, font roles and layouts are in
   [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css). From Wide up the
   Log row is one table-like line; from Ultrawide the four primary views use the
@@ -278,6 +276,45 @@ A skin is a first-party definition with these parts:
   unit stays one CSS pixel at every system scale.
 - Not in this phase: the navigation rail, the extension slots, and Short-specific
   layouts beyond the shared ones.
+
+#### What phase 4 implements
+
+- `aviation` is registered and is the default. `classic` is gone: a stored
+  `classic`, like any unknown or missing value, resolves to `aviation`, and the
+  record keeps every other preference.
+- `aviation` is drawn in dark only. Settings shows Appearance disabled, set to
+  dark, with the reason; the stored appearance is kept for a skin that offers a
+  choice. Before the first paint the page is dark, whatever the device prefers.
+- An empty or legacy address opens Map. The map theme is Neon Aviation and the
+  Flight Passport is the Neon single page.
+- Settings no longer has Map theme or Flight Passport layout; the skin decides
+  both. Values stored by earlier versions are dropped the next time the settings
+  are saved. The passport book layout stays in the code and is not reachable
+  until `archive` selects it.
+- Tokens and font roles are in
+  [`skin-aviation.css`](../apps/web/src/styles/skin-aviation.css): indigo
+  surfaces, one cyan accent, and a monospaced data role. Sizes, spacing and the
+  type scale are the shared ones.
+- From Ultrawide the four primary views use the full width, so the map takes
+  the space. On a Short screen the header and the page padding are reduced;
+  nothing is hidden.
+- `flight.extension` is in use. [`skins/extensions`](../apps/web/src/skins/extensions/index.tsx)
+  maps each skin to its compiled-in components and gives them a frozen object
+  derived from the one flight, nothing else. `aviation` shows:
+  - the scheduled and the actual operation as two bars on one time axis, with
+    the difference in time in the air. It needs all four times and is absent for
+    a cancelled or diverted flight;
+  - the flight on the local clocks of both airports, with a tick at each local
+    midnight and the day offset of the arrival. It is absent when both airports
+    keep the same clock or a time zone is unknown;
+  - a date-line mark where the great-circle route between the two airports
+    crosses the 180th meridian. The position is computed from the route, not
+    recorded, and the extension says so.
+- The derivations are pure functions in
+  [`flight-timeline.ts`](../packages/core/src/flight-timeline.ts).
+- Not in this phase: the navigation rail, a Compact bottom sheet for Map, a
+  skin-specific Log row for `aviation`, and extensions in the Map, Stats and
+  Passport slots, which no skin fills yet.
 
 Styling rules:
 
@@ -385,12 +422,14 @@ synchronisation; live flight data; 3D maps.
 
 ## 简体中文
 
-**状态：6 个阶段中的阶段 3 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
+**状态：6 个阶段中的阶段 4 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
 「添加航班」的主导航，以及紧凑档的触控目标已经在应用中；日志的筛选与排序、更密的日志行、
 统计的全部区域、航班在档案中的位置，以及写入片段查询串的探索状态也已实现。统计和日志的
-筛选控件在所有屏幕档位使用同一份标记。皮肤机制和 `minimal` 皮肤已实现：皮肤在设置中
-选择，并决定令牌、支持的外观、落地视图、导航顺序、地图主题和飞行护照版式。过渡性的部分见
-[阶段 3 的实现范围](#阶段-3-的实现范围)。`aviation`、`archive` 和皮肤扩展尚未实现。
+筛选控件在所有屏幕档位使用同一份标记。皮肤机制、`minimal` 皮肤和 `aviation` 皮肤已实现：
+皮肤在设置中选择，并决定令牌、支持的外观、落地视图、导航顺序、地图主题和飞行护照版式。
+`aviation` 是默认皮肤，v0.3.0 的外观不再提供。`flight.extension` 是第一个投入使用的
+扩展位。尚未实现的部分见[阶段 3 的实现范围](#阶段-3-的实现范围)和
+[阶段 4 的实现范围](#阶段-4-的实现范围)。`archive` 尚未实现。
 后续每个阶段在实现的同时更新本文。
 
 **约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让三套官方皮肤基于同一
@@ -593,24 +632,47 @@ synchronisation; live flight data; 3D maps.
 
 #### 阶段 3 的实现范围
 
-- 注册表是 [`skins/registry.ts`](../apps/web/src/skins/registry.ts)。其中有 `minimal`，
-  以及在阶段 4 之前过渡使用的 `classic` 皮肤：即 v0.3.0 的外观，深浅两种外观都有，落地
-  视图是地图，「地图主题」和「飞行护照版式」仍在设置中选择。在 `aviation` 取代它之前，
-  `classic` 是默认皮肤，也是存储值未知或缺失时的回退值。
+- 注册表是 [`skins/registry.ts`](../apps/web/src/skins/registry.ts)。阶段 3 加入了
+  `minimal`，以及过渡使用的 `classic` 皮肤（即 v0.3.0 的外观）；后者已在阶段 4 移除。
 - `minimal` 浅色用 Daylight Chart，深色用新增的 `graphite-chart` 主题，飞行护照用单页
-  版式。选中 `minimal` 时，设置中不提供「地图主题」和「飞行护照版式」；已保存的值保留，
-  切回 `classic` 时重新生效。
+  版式。
 - 根元素带有 `data-skin`。`theme-init.js` 在首次绘制前从外观缓存恢复它，做法与外观相同；
   有测试保证其中的皮肤表与注册表一致。
 - 空地址或旧地址打开皮肤的落地视图，主导航把该视图排在第一位。切换皮肤不会把读者从明确
   的地址上移走。
-- 只有一种外观的皮肤会禁用「外观」控件并说明原因。目前注册的两套皮肤都有两种外观，所以
-  这一行为由测试覆盖。
+- 只有一种外观的皮肤会禁用「外观」控件并说明原因。
 - `minimal` 的令牌、字体角色和布局在
   [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css)。从宽屏档起，日志行是
   一行表格式的记录；从超宽档起，四个主视图铺满宽度，设置和航班详情保持居中的阅读宽度，并关闭 v0.3.0 对护照工作区的整体放大，
   因此在任何系统缩放下一个单位都是一个 CSS 像素。
 - 本阶段不包含：导航栏（rail）、扩展位，以及共享布局之外的矮屏专用布局。
+
+#### 阶段 4 的实现范围
+
+- `aviation` 已注册，并且是默认皮肤。`classic` 已移除：存储值为 `classic` 时，与未知
+  或缺失的值一样取 `aviation`，记录中的其他偏好全部保留。
+- `aviation` 只有深色。设置中的「外观」置灰、显示为深色并说明原因；已保存的外观值保留，
+  供有选择的皮肤使用。首次绘制前页面就是深色，与设备偏好无关。
+- 空地址或旧地址打开地图。地图主题是 Neon Aviation，飞行护照是 Neon 单页版式。
+- 设置中不再有「地图主题」和「飞行护照版式」，两者都由皮肤决定。旧版本保存的取值在下次
+  保存设置时丢弃。护照本版式的代码保留，在 `archive` 选用它之前无法进入。
+- 令牌和字体角色在
+  [`skin-aviation.css`](../apps/web/src/styles/skin-aviation.css)：靛蓝色表面、一种
+  青色强调色、等宽的数据字体角色。尺寸、间距和字号阶梯沿用共享值。
+- 从超宽档起，四个主视图铺满宽度，多出的空间给地图。矮屏下缩减页头和页面内边距，不隐藏
+  任何内容。
+- `flight.extension` 已投入使用。[`skins/extensions`](../apps/web/src/skins/extensions/index.tsx)
+  把每套皮肤对应到编译进应用的组件，只交给它们一个由这一条航班计算出的冻结对象。
+  `aviation` 显示：
+  - 计划与实际两条横条，画在同一条时间轴上，并给出空中时间的差值。需要四个时刻齐全；
+    航班取消或备降时不显示；
+  - 航班在两地当地时钟上的位置，当地午夜处有刻度，并标出到达的跨日。两地时钟相同或
+    时区未知时不显示；
+  - 日界线标记，画在两个机场之间的大圆航线与 180° 经线相交的位置。这个位置由航线算出，
+    不是记录到的时刻，扩展中有相应说明。
+- 这些推导是 [`flight-timeline.ts`](../packages/core/src/flight-timeline.ts) 中的纯函数。
+- 本阶段不包含：导航栏（rail）、紧凑档地图的底部抽屉、`aviation` 专用的日志行，以及
+  地图、统计、护照三个扩展位的内容（目前没有皮肤使用它们）。
 
 样式规则：
 

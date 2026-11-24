@@ -175,19 +175,15 @@ test("laptop sizes and browser zoom keep CSS-pixel Passport layout", async ({
   await context.close();
 });
 
-for (const [language, theme] of [
-  ["zh-CN", "dark"],
-  ["zh-TW", "light"],
-] as const) {
-  test(`${language} ${theme} Passport stays readable at 4K without wrapping stats`, async ({
+// The default skin, aviation, grows the workspace; minimal spreads its rows
+// instead (skins.pw.ts).
+for (const language of ["zh-CN", "zh-TW"] as const) {
+  test(`${language} Passport stays readable at 4K without wrapping stats`, async ({
     page,
   }) => {
     test.setTimeout(90_000);
     await openDemo(page);
     await page.goto("/#settings");
-    await page
-      .getByRole("combobox", { name: "Appearance", exact: true })
-      .selectOption(theme);
     await page.getByLabel("Language").selectOption(language);
     await page.goto("/#/map");
     await expect(page.locator("html")).toHaveAttribute("lang", language);

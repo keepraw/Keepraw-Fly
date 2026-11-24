@@ -16,6 +16,7 @@ import {
   importArchive,
   navigateTo,
 } from "./helpers/responsive";
+import { chooseAppearance } from "./helpers/settings";
 
 function routeFlight(
   index: number,
@@ -62,16 +63,15 @@ test.describe("Cross-browser engine smoke", { tag: "@cross-browser" }, () => {
       await importArchive(page);
       await navigateTo(page, "settings");
       await expectSettingsLayout(page, mobile);
-      await page
-        .getByRole("combobox", { name: "Appearance", exact: true })
-        .selectOption(viewport.theme);
+      await chooseAppearance(page, viewport.theme);
       await expect(page.locator("html")).toHaveCSS(
         "color-scheme",
         viewport.theme,
       );
       await expect(page.locator("body")).toHaveCSS(
         "background-color",
-        viewport.theme === "dark" ? "rgb(9, 11, 14)" : "rgb(250, 249, 246)",
+        // Dark is the aviation skin; light is minimal, which offers it.
+        viewport.theme === "dark" ? "rgb(12, 10, 36)" : "rgb(251, 251, 250)",
       );
       await expectHealthyPage(page, errors);
       await navigateTo(page, "passport");

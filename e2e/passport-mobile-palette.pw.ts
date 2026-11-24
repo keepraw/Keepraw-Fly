@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { chooseAppearance } from "./helpers/settings";
 
 const cases = [
   { width: 390, height: 844, theme: "light" },
@@ -39,17 +40,17 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(language);
-        await page.locator("#settings-appearance").selectOption(viewport.theme);
-        await page.goto("/#passport");
+        await chooseAppearance(page, viewport.theme, "minimal");
+        await page.goto("/#/map");
         await expect(page.locator("html")).toHaveAttribute("lang", language);
         const canvas =
-          viewport.theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)";
+          viewport.theme === "dark" ? "rgb(14, 15, 18)" : "rgb(251, 251, 250)";
         await expect(page.locator(".app-shell")).toHaveCSS(
           "background-color",
           canvas,
         );
         const primaryText =
-          viewport.theme === "dark" ? "rgb(229, 234, 242)" : "rgb(30, 43, 62)";
+          viewport.theme === "dark" ? "rgb(236, 238, 241)" : "rgb(22, 24, 29)";
         await expect(page.locator(".flight-row").first()).toHaveCSS(
           "color",
           primaryText,
@@ -97,9 +98,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         await search.focus();
         await expect(page.locator(".passport-search-field")).toHaveCSS(
           "border-top-color",
-          viewport.theme === "dark"
-            ? "rgb(183, 167, 245)"
-            : "rgb(101, 88, 199)",
+          viewport.theme === "dark" ? "rgb(169, 193, 255)" : "rgb(47, 95, 214)",
         );
         await search.fill("UA123");
         await expect(page.locator(".flight-row")).toHaveCount(1);
@@ -112,9 +111,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         await expect(row).toHaveCSS("outline-style", "solid");
         await expect(row).toHaveCSS(
           "outline-color",
-          viewport.theme === "dark"
-            ? "rgb(183, 167, 245)"
-            : "rgb(101, 88, 199)",
+          viewport.theme === "dark" ? "rgb(169, 193, 255)" : "rgb(47, 95, 214)",
         );
         await row.press("Enter");
         await expect(page.locator(".detail-heading-eyebrow")).toContainText(
@@ -130,9 +127,12 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
   test("reduced motion updates inherited header text and canvas together", async ({
     page,
   }) => {
+    await page.goto("/#settings");
+    await chooseAppearance(page, "light", "minimal");
+    await page.goto("/#/map");
     await expect(page.locator(".mobile-page-heading h1")).toHaveCSS(
       "color",
-      "rgb(30, 43, 62)",
+      "rgb(22, 24, 29)",
     );
     for (const theme of ["dark", "light"] as const) {
       // Change the CSS theme source and sample in the same task: polling here
@@ -148,8 +148,8 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         };
       }, theme);
       expect(palette).toEqual({
-        canvas: theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)",
-        text: theme === "dark" ? "rgb(229, 234, 242)" : "rgb(30, 43, 62)",
+        canvas: theme === "dark" ? "rgb(14, 15, 18)" : "rgb(251, 251, 250)",
+        text: theme === "dark" ? "rgb(236, 238, 241)" : "rgb(22, 24, 29)",
       });
     }
   });
@@ -168,8 +168,8 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     await page.locator(".detail-header-back").click();
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
-      await page.locator("#settings-appearance").selectOption(theme);
-      await page.goto("/#passport");
+      await chooseAppearance(page, theme, "minimal");
+      await page.goto("/#/map");
       await page.locator(".passport-search-field input").focus();
       await page.keyboard.press("Tab");
       const row = page.locator(".flight-row").first();
@@ -212,15 +212,15 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
     page,
   }) => {
     for (const [appearance, os, expected] of [
-      ["system", "dark", "rgb(18, 25, 35)"],
-      ["system", "light", "rgb(243, 246, 250)"],
-      ["light", "dark", "rgb(243, 246, 250)"],
-      ["dark", "light", "rgb(18, 25, 35)"],
+      ["system", "dark", "rgb(14, 15, 18)"],
+      ["system", "light", "rgb(251, 251, 250)"],
+      ["light", "dark", "rgb(251, 251, 250)"],
+      ["dark", "light", "rgb(14, 15, 18)"],
     ] as const) {
       await page.goto("/#settings");
-      await page.locator("#settings-appearance").selectOption(appearance);
+      await chooseAppearance(page, appearance, "minimal");
       await page.emulateMedia({ colorScheme: os });
-      await page.goto("/#passport");
+      await page.goto("/#/map");
       await expect(page.locator(".app-shell")).toHaveCSS(
         "background-color",
         expected,
@@ -238,9 +238,9 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
   }) => {
     for (const theme of ["light", "dark"]) {
       await page.goto("/#settings");
-      await page.locator("#settings-appearance").selectOption(theme);
+      await chooseAppearance(page, theme, "minimal");
       const canvas =
-        theme === "dark" ? "rgb(18, 25, 35)" : "rgb(243, 246, 250)";
+        theme === "dark" ? "rgb(14, 15, 18)" : "rgb(251, 251, 250)";
       await expect(page.locator(".site-header")).toHaveCSS(
         "background-color",
         canvas,
@@ -250,7 +250,7 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         .evaluate((el) =>
           getComputedStyle(el).getPropertyValue("--color-accent"),
         );
-      await page.goto("/#passport");
+      await page.goto("/#/map");
       await page.locator(".flight-row").first().click();
       await expect(page.locator(".app-shell")).toHaveCSS(
         "background-color",

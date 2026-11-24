@@ -1,16 +1,5 @@
 import type { DistanceUnit, TimeFormat } from "@keepraw-fly/core";
-import {
-  DEFAULT_MAP_THEME_ID,
-  resolveMapTheme,
-  type MapThemeId,
-} from "../map2d/theme-registry";
 import { DEFAULT_SKIN_ID, resolveSkin, type SkinId } from "../skins/registry";
-import {
-  DEFAULT_POSTER_TEMPLATE_ID,
-  isPosterTemplateId,
-  type PosterTemplateId,
-} from "../share/poster-template-ids";
-
 import {
   browserLanguage,
   normalizeLanguage,
@@ -27,10 +16,6 @@ export interface ViewerSettings {
   distanceUnit: DistanceUnit;
   timeFormat: TimeFormat;
   powerUserMode: boolean;
-  /** Registered 2D map theme; unknown stored values fall back to the default. */
-  mapTheme: MapThemeId;
-  /** Flight Passport layout; unknown stored values fall back to the default. */
-  passportTemplate: PosterTemplateId;
   lastBackupAt?: string;
 }
 
@@ -43,31 +28,25 @@ export function defaultViewerSettings(): ViewerSettings {
     distanceUnit: language.startsWith("en-") ? "miles" : "kilometers",
     timeFormat: "24-hour",
     powerUserMode: false,
-    mapTheme: DEFAULT_MAP_THEME_ID,
-    passportTemplate: DEFAULT_POSTER_TEMPLATE_ID,
   };
 }
 
 // Preferences share the existing IndexedDB record. Read-time normalization
 // preserves older records and unrelated preferences without rewriting archives.
+// The skin owns the map theme and the Flight Passport layout, so the values
+// earlier versions stored for them are dropped here.
 export function normalizeViewerSettings(
-  settings: Omit<
-    ViewerSettings,
-    "language" | "skin" | "mapTheme" | "passportTemplate"
-  > & {
+  settings: Omit<ViewerSettings, "language" | "skin"> & {
     language: unknown;
     skin?: unknown;
     mapTheme?: unknown;
     passportTemplate?: unknown;
   },
 ): ViewerSettings {
+  const { mapTheme: _mapTheme, passportTemplate: _layout, ...kept } = settings;
   return {
-    ...settings,
+    ...kept,
     language: normalizeLanguage(settings.language),
     skin: resolveSkin(settings.skin).id as SkinId,
-    mapTheme: resolveMapTheme(settings.mapTheme).id as MapThemeId,
-    passportTemplate: isPosterTemplateId(settings.passportTemplate)
-      ? settings.passportTemplate
-      : DEFAULT_POSTER_TEMPLATE_ID,
   };
 }

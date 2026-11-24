@@ -209,18 +209,16 @@ test("keeps failed flight edits visible and does not let a successful settings w
   expect((await storedArchive(page))?.flights[0]?.flightNumber).toBe("UA123");
 
   await openSettings(page);
-  await page
-    .getByRole("combobox", { name: "Appearance", exact: true })
-    .selectOption("dark");
+  await page.locator("#settings-distance").selectOption("kilometers");
   await expect
     .poll(() =>
       page.evaluate(async () => {
         const modulePath = "/src/storage/browser.ts";
         const { browserStorage } = await import(modulePath);
-        return (await browserStorage.loadSettings())?.appearance;
+        return (await browserStorage.loadSettings())?.distanceUnit;
       }),
     )
-    .toBe("dark");
+    .toBe("kilometers");
   await expect(unsavedWarning(page)).toBeVisible();
   expect(
     await page.evaluate(() => window.documentPersistenceTest.calls.length),
@@ -428,12 +426,12 @@ test("failed settings remain visible and Retry persists the current settings sna
   await importArchive(page);
   await openSettings(page);
   await mockSettingsFailure(page);
-  const appearance = page.getByRole("combobox", {
-    name: "Appearance",
+  const distance = page.getByRole("combobox", {
+    name: "Distance",
     exact: true,
   });
-  await appearance.selectOption("dark");
-  await expect(appearance).toHaveValue("dark");
+  await distance.selectOption("kilometers");
+  await expect(distance).toHaveValue("kilometers");
   const warning = page
     .locator(".storage-warning")
     .filter({ hasText: "Settings are not saved on this device." });
@@ -444,13 +442,13 @@ test("failed settings remain visible and Retry persists the current settings sna
   expect(
     await page.evaluate(() =>
       window.settingsPersistenceTest.calls.map(
-        (settings) => settings.appearance,
+        (settings) => settings.distanceUnit,
       ),
     ),
-  ).toEqual(["dark", "dark"]);
+  ).toEqual(["kilometers", "kilometers"]);
 
   await page.reload();
-  await expect(appearance).toHaveValue("dark");
+  await expect(distance).toHaveValue("kilometers");
   await expect(page.locator(".storage-warning")).toHaveCount(0);
 });
 
@@ -1194,7 +1192,7 @@ test("accepts delayed flight validation when only viewer preferences changed", a
   archive.flights[0]!.flightNumber = "UA799";
   await startDelayedFlightSave(page, archive.flights[0]!);
   await openSettings(page);
-  await page.locator("#settings-appearance").selectOption("dark");
+  await page.locator("#settings-distance").selectOption("kilometers");
   await expectSavingFinished(page);
   expect(
     await page.evaluate(() => window.documentPersistenceTest.calls),

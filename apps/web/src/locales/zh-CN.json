@@ -620,20 +620,12 @@
     "skin": "皮肤",
     "skinHint": "决定外观、布局和打开时的视图，不会改动你的航班记录。",
     "skinOption": {
-      "classic": "经典",
-      "minimal": "极简"
+      "minimal": "极简",
+      "aviation": "航空"
     },
     "appearanceFixed": {
       "light": "「{{skin}}」皮肤只有浅色外观。",
       "dark": "「{{skin}}」皮肤只有深色外观。"
-    },
-    "mapTheme": "地图主题",
-    "mapThemeHint": "应用于护照地图和航班航线地图。",
-    "passportLayout": "飞行护照版式",
-    "passportLayoutHint": "分享的飞行护照图片所用的版式。Neon 版式跟随地图主题。",
-    "passportLayoutOption": {
-      "neon": "Neon 单页",
-      "book": "经典护照本"
     }
   },
   "recovery": {
@@ -832,6 +824,20 @@
       "title": "在本档案中",
       "airportVisit": "第 {{ordinal, number}} 次到访，共 {{total, number}} 次",
       "routeFlight": "第 {{ordinal, number}} 次飞行，共 {{total, number}} 次"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "计划与实际",
+      "durationSame": "飞行时间与计划相同",
+      "durationLonger": "比计划多 {{count, number}} 分钟",
+      "durationShorter": "比计划少 {{count, number}} 分钟",
+      "clocksTitle": "两地时间",
+      "dateLine": "日界线",
+      "midnightNote": "刻度表示当地午夜。",
+      "midnightAfter": "起飞后 {{duration}} 到当地午夜。",
+      "dateLineNote": "日界线画在大圆航线与它相交的位置，不是记录到的时刻。",
+      "dateLineAt": "日界线约在航线的 {{percent}} 处。"
     }
   }
 }

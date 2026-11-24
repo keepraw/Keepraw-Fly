@@ -4,6 +4,7 @@ test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { chooseAppearance } from "./helpers/settings";
 
 // Layout fixtures use airport identities from the bundled offline directory.
 function flight(
@@ -77,8 +78,8 @@ test("shows all twelve offline routes with visible frequency encoding in both th
   for (const theme of ["light", "dark"]) {
     await context.setOffline(false);
     await page.goto("/#settings");
-    await page.locator("#settings-appearance").selectOption(theme);
-    await page.goto("/#passport");
+    await chooseAppearance(page, theme);
+    await page.goto("/#/map");
     await expect(page.locator(".map-route-line")).toHaveCount(12);
     // Hash navigation can leave the pointer or focus on a flight row. Measure
     // the resting network before exercising its hover state below.

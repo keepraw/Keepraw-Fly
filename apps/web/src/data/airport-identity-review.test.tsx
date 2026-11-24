@@ -156,6 +156,7 @@ function detail(record: KeeprawFlight) {
         distanceUnit="kilometers"
         timeFormat="24-hour"
         mapTheme="neon-aviation"
+        skin="minimal"
       />
     </I18nextProvider>,
   );

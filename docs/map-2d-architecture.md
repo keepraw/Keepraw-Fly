@@ -74,7 +74,7 @@ page mounts a WebGL canvas or requests Globe code or imagery.
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Passport      | `PassportPage` mounts `PassportMap` at every width (the map is new on mobile). It wraps the themed `PassportRouteMap` and adds the route/airport pickers. Selection, row focus, keyboard activation, pan, zoom and reset are unchanged; frequency tiers and hubs come from `buildMapScene`.                                                                                        |
 | Flight Detail | `FlightDetailPage` mounts `FlightRouteMap` at every width; narrow layouts lead with it at the content width, capped at `min(52svh, 480px)`. `flightRouteScene` models flown, diverted (flown leg plus a dashed planned leg), cancelled and unavailable flights; `flightRouteCamera` fits the sampled great-circle arc, recentred on the route so date-line routes stay one stroke. |
-| Theme setting | `ViewerSettings.mapTheme` is chosen in Settings, stored with the other viewer settings and resolved through `resolveMapTheme`, so a missing or retired ID renders the default theme. `neon-aviation` and `daylight-chart` are registered for that choice; `graphite-chart` is registered for the `minimal` [skin](views-and-skins.md), which sets the map theme itself.            |
+| Theme         | The active [skin](views-and-skins.md) sets the map theme: `neon-aviation` for `aviation`, `daylight-chart` and `graphite-chart` for `minimal` in light and dark. It is not a setting of its own, and a `mapTheme` stored by an earlier version is not read. `resolveMapTheme` still renders the default theme for an unknown ID.                                                   |
 
 A themed map sets `data-map-theme` and the `--map-theme-*` variables on its root.
 Legacy Passport paint rules are scoped to `.route-map:not([data-map-theme])`, so
@@ -130,8 +130,9 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 航线/机场选择、行聚焦、键盘操作、平移、缩放和复位。Flight Detail 在所有宽度下挂载
 `FlightRouteMap`（窄屏置于页面顶部，宽度随屏幕自适应，高度不超过约半屏）：`flightRouteScene` 区分已飞、备降（实飞航段加虚线计划航段）、取消和不可用
 四种状态，`flightRouteCamera` 以航线为中心自动取景，跨日期变更线的航线保持为一条连续线。
-设置中的 `mapTheme` 随查看设置保存，并经 `resolveMapTheme` 解析，缺失或已下线的 ID 回退到
-默认主题；目前可供选择的是 `neon-aviation` 与 `daylight-chart`；`graphite-chart` 供 `minimal`[皮肤](views-and-skins.md)使用，该皮肤自行决定地图主题。
+地图主题由当前[皮肤](views-and-skins.md)决定：`aviation` 用 `neon-aviation`，`minimal` 浅色用
+`daylight-chart`、深色用 `graphite-chart`。它不再是单独的设置，旧版本保存的 `mapTheme` 不再读取；
+未知的 ID 仍经 `resolveMapTheme` 回退到默认主题。
 
 主题地图在根节点设置 `data-map-theme` 与 `--map-theme-*` 变量；旧的 Passport 绘制规则限定在
 `.route-map:not([data-map-theme])`，只作用于无主题的回退地图。光晕使用叠加描边，航线、光晕
@@ -144,21 +145,21 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 
 The shared Flight Passport image is drawn by a **layout template**
 (`share/poster-template.ts`) coloured by the active **map theme**. The two are
-separate settings and separate code:
+separate code, and the active [skin](views-and-skins.md) chooses both:
 
-| Concern                                                      | Owner                                                                       | Stored as                         |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------- | --------------------------------- |
-| Composition: where map, statistics, holder fields and MRZ go | `PosterTemplate` (`neon` in `poster-neon.ts`, `book` in `poster-render.ts`) | `ViewerSettings.passportTemplate` |
-| Map and ink colours, strokes, hatch, glow, airport dots      | `MapTheme` tokens from the Theme Registry                                   | `ViewerSettings.mapTheme`         |
-| Numbers, labels, MRZ text                                    | `buildPosterModel` → `buildPosterCopy`, unchanged                           | —                                 |
-| Text measuring, fitting, MRZ rows                            | `poster-paint.ts`, shared by all templates                                  | —                                 |
+| Concern                                                      | Owner                                                                       | Chosen by                     |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------- | ----------------------------- |
+| Composition: where map, statistics, holder fields and MRZ go | `PosterTemplate` (`neon` in `poster-neon.ts`, `book` in `poster-render.ts`) | The skin's `passportTemplate` |
+| Map and ink colours, strokes, hatch, glow, airport dots      | `MapTheme` tokens from the Theme Registry                                   | The skin's `mapTheme`         |
+| Numbers, labels, MRZ text                                    | `buildPosterModel` → `buildPosterCopy`, unchanged                           | —                             |
+| Text measuring, fitting, MRZ rows                            | `poster-paint.ts`, shared by all templates                                  | —                             |
 
 `neon` is the default: a 1080×1350 artboard exported at 2× (2160×2700 PNG).
 It builds its routes with `buildMapScene` and strokes them with `routeStroke`,
 so the frequency tiers, date-line splitting and glow budget are the same as the
 on-screen map. `book` is the previous passport-book layout; it keeps its own
-paper palette (`followsMapTheme: false`). Unknown stored template ids resolve
-to `neon`. Adding a layout means adding one `PosterTemplate`; adding a theme
+paper palette (`followsMapTheme: false`). No skin selects `book` until `archive`
+is implemented. Adding a layout means adding one `PosterTemplate`; adding a theme
 needs no passport change.
 
 **Multilingual text.** No position depends on a string's length. Every string

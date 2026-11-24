@@ -60,6 +60,7 @@ function markup(
         distanceUnit="kilometers"
         timeFormat={timeFormat}
         mapTheme="neon-aviation"
+        skin="minimal"
       />
     </I18nextProvider>,
   );

@@ -53,11 +53,7 @@ import {
   initialSkin,
   resolveAppearance,
 } from "./appearance";
-import {
-  resolveSkin,
-  skinMapTheme,
-  skinPassportTemplate,
-} from "./skins/registry";
+import { resolveSkin, skinMapTheme } from "./skins/registry";
 import {
   isLandingFragment,
   PRIMARY_VIEWS,
@@ -144,7 +140,6 @@ export function App() {
   const mapTheme = skinMapTheme(
     skin,
     resolveAppearance(settings.appearance, () => ({ matches: systemDark })),
-    settings.mapTheme,
   );
   // Readable from event handlers that outlive a render.
   const landingViewRef = useRef(landingView);
@@ -1012,6 +1007,7 @@ export function App() {
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
           mapTheme={mapTheme}
+          skin={settings.skin}
         />
       ) : route.view === "flight" ? null : (
         <PassportPage
@@ -1073,10 +1069,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           mapTheme={mapTheme}
-          passportTemplate={skinPassportTemplate(
-            skin,
-            settings.passportTemplate,
-          )}
+          passportTemplate={skin.passportTemplate}
           onClose={() => setShareOpen(false)}
         />
       ) : null}

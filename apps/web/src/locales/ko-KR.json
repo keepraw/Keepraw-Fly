@@ -620,20 +620,12 @@
     "skin": "스킨",
     "skinHint": "모양, 레이아웃, 처음 열리는 화면을 정합니다. 항공편 기록은 바뀌지 않습니다.",
     "skinOption": {
-      "classic": "클래식",
-      "minimal": "미니멀"
+      "minimal": "미니멀",
+      "aviation": "에비에이션"
     },
     "appearanceFixed": {
       "light": "{{skin}} 스킨은 라이트만 지원합니다.",
       "dark": "{{skin}} 스킨은 다크만 지원합니다."
-    },
-    "mapTheme": "지도 테마",
-    "mapThemeHint": "여권 지도와 항공편 경로 지도에 적용됩니다.",
-    "passportLayout": "플라이트 패스포트 레이아웃",
-    "passportLayoutHint": "공유하는 플라이트 패스포트 이미지의 레이아웃입니다. Neon은 지도 테마를 따릅니다.",
-    "passportLayoutOption": {
-      "neon": "Neon 시트",
-      "book": "클래식 여권 수첩"
     }
   },
   "recovery": {
@@ -832,6 +824,20 @@
       "title": "이 기록에서",
       "airportVisit": "총 {{total, number}}회 중 {{ordinal, number}}번째 방문",
       "routeFlight": "총 {{total, number}}회 중 {{ordinal, number}}번째 비행"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "예정과 실제",
+      "durationSame": "비행 시간이 예정과 같음",
+      "durationLonger": "예정보다 {{count, number}}분 길어짐",
+      "durationShorter": "예정보다 {{count, number}}분 짧아짐",
+      "clocksTitle": "두 공항의 현지 시각",
+      "dateLine": "날짜변경선",
+      "midnightNote": "눈금은 현지 자정입니다.",
+      "midnightAfter": "출발 {{duration}} 후 현지 자정입니다.",
+      "dateLineNote": "날짜변경선은 대권 항로가 지나는 위치에 표시되며, 기록된 시각이 아닙니다.",
+      "dateLineAt": "날짜변경선은 항로의 약 {{percent}} 지점에 있습니다."
     }
   }
 }

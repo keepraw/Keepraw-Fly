@@ -620,20 +620,12 @@
     "skin": "佈景主題",
     "skinHint": "決定外觀、版面和開啟時的檢視，不會更動你的航班記錄。",
     "skinOption": {
-      "classic": "經典",
-      "minimal": "極簡"
+      "minimal": "極簡",
+      "aviation": "航空"
     },
     "appearanceFixed": {
       "light": "「{{skin}}」佈景主題只有淺色外觀。",
       "dark": "「{{skin}}」佈景主題只有深色外觀。"
-    },
-    "mapTheme": "地圖主題",
-    "mapThemeHint": "套用於護照地圖和航班航線地圖。",
-    "passportLayout": "飛行護照版式",
-    "passportLayoutHint": "分享的飛行護照圖片所用的版式。Neon 版式會跟隨地圖主題。",
-    "passportLayoutOption": {
-      "neon": "Neon 單頁",
-      "book": "經典護照本"
     }
   },
   "recovery": {
@@ -832,6 +824,20 @@
       "title": "在本檔案中",
       "airportVisit": "第 {{ordinal, number}} 次到訪，共 {{total, number}} 次",
       "routeFlight": "第 {{ordinal, number}} 次飛行，共 {{total, number}} 次"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "計畫與實際",
+      "durationSame": "飛行時間與計畫相同",
+      "durationLonger": "比計畫多 {{count, number}} 分鐘",
+      "durationShorter": "比計畫少 {{count, number}} 分鐘",
+      "clocksTitle": "兩地時間",
+      "dateLine": "換日線",
+      "midnightNote": "刻度表示當地午夜。",
+      "midnightAfter": "起飛後 {{duration}} 到當地午夜。",
+      "dateLineNote": "換日線畫在大圓航線與它相交的位置，不是記錄到的時刻。",
+      "dateLineAt": "換日線約在航線的 {{percent}} 處。"
     }
   }
 }

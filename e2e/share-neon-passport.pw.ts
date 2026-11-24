@@ -328,13 +328,10 @@ test("Neon is the default layout: real totals, 2× PNG, local only @cross-browse
   expect(writes).toEqual([]);
 });
 
-test("the passport follows the map theme, and the layout is a separate setting", async ({
-  page,
-}) => {
-  // Two full-resolution renders plus a reload: ~30 s on a CI runner.
-  test.setTimeout(90_000);
+test("the passport follows the skin's map theme", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await seed(page, await loadArchive(), { mapTheme: "daylight-chart" });
+  await seed(page, await loadArchive(), { skin: "minimal" });
   await openShare(page);
   await expect(dialog(page)).toHaveAttribute("data-template", "neon");
   await expect(dialog(page)).toHaveAttribute(
@@ -345,29 +342,22 @@ test("the passport follows the map theme, and the layout is a separate setting",
   expect(daylight.ihdr).toEqual(PNG);
   expect(daylight.cornerLuma).toBeGreaterThan(150);
   await keep("neon-daylight.png", daylight.bytes);
-  await page.keyboard.press("Escape");
-
-  // Same theme, other layout: chosen in Settings and remembered.
-  await page.goto("/#/settings");
-  const select = page.locator("#settings-passport-layout");
-  await expect(select).toHaveValue("neon");
-  await select.selectOption("book");
-  await page.reload();
-  await expect(page.locator("#settings-passport-layout")).toHaveValue("book");
-  await page.goto("/#/passport");
-  await openShare(page);
-  await expect(dialog(page)).toHaveAttribute("data-template", "book");
-  await expect(dialog(page)).not.toHaveAttribute("data-map-theme", /.+/);
-  expect((await decode(page)).ihdr).not.toEqual(PNG);
 });
 
-test("an unknown stored layout falls back to Neon", async ({ page }) => {
-  await seed(page, await loadArchive(), { passportTemplate: "retired-layout" });
+test("a layout or map theme stored by an earlier version does not override the skin", async ({
+  page,
+}) => {
+  await seed(page, await loadArchive(), {
+    passportTemplate: "book",
+    mapTheme: "daylight-chart",
+  });
   await page.goto("/#/settings");
-  await expect(page.locator("#settings-passport-layout")).toHaveValue("neon");
+  await expect(page.locator("#settings-skin")).toHaveValue("aviation");
+  await expect(page.locator("#settings-passport-layout")).toHaveCount(0);
   await page.goto("/#/passport");
   await openShare(page);
   await expect(dialog(page)).toHaveAttribute("data-template", "neon");
+  await expect(dialog(page)).toHaveAttribute("data-map-theme", "neon-aviation");
 });
 
 test("every language, unit and theme fits without overlap, overflow or lost text", async ({

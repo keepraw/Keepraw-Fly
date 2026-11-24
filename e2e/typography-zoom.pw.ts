@@ -83,8 +83,12 @@ for (const zoom of [1, 1.25]) {
             expect(bounds.archiveScroll.overflowY).toBe("auto");
             expect(bounds.failures).toEqual([]);
             expect(bounds.kpis).toHaveLength(6);
+            // Aviation, the default skin, halves the page padding on a
+            // short screen (below 720 px) to keep the map's height.
             if (!diagnostics.compact)
-              expect(bounds.bottomSafety).toBeGreaterThanOrEqual(23.99);
+              expect(bounds.bottomSafety).toBeGreaterThanOrEqual(
+                diagnostics.innerHeight < 720 ? 11.99 : 23.99,
+              );
             // Stats keeps its regions at every height.
             await page.goto("http://127.0.0.1:5173/#/stats");
             await waitForPassportLayout(page);
