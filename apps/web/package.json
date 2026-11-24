@@ -17,12 +17,12 @@
     "@keepraw-fly/validator": "workspace:*",
     "d3-geo": "3.1.2",
     "dexie": "^4.4.7",
-    "i18next": "^27.1.1",
+    "i18next": "^27.2.2",
     "pinyin-pro": "3.29.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-i18next": "^18.0.1",
-    "soaring-symbols": "0.3.3",
+    "react-i18next": "^18.0.3",
+    "soaring-symbols": "0.5.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
