@@ -4,6 +4,7 @@ import {
   antimeridianCrossing,
   flightDuration,
   flightTimeline,
+  localMidnights,
   plannedActualComparison,
   zoneOffsetMinutes,
 } from "../src";
@@ -126,6 +127,35 @@ describe("zone offsets", () => {
     expect(zoneOffsetMinutes(winter, "Asia/Tokyo")).toBe(540);
     expect(zoneOffsetMinutes(winter, "Not/A_Zone")).toBeNull();
     expect(zoneOffsetMinutes(Number.NaN, "Asia/Tokyo")).toBeNull();
+  });
+});
+
+describe("local midnights", () => {
+  const fractions = (from: string, to: string, zone: string) =>
+    localMidnights(Date.parse(from), Date.parse(to), zone);
+
+  it("finds midnight after an offset change earlier in the evening", () => {
+    // Midnight on 2 November 2026 in Los Angeles, a day after the clocks
+    // went back: 08:00 UTC, not 07:00.
+    expect(
+      fractions(
+        "2026-11-01T06:00:00Z",
+        "2026-11-02T12:00:00Z",
+        "America/Los_Angeles",
+      ),
+    ).toEqual([1 / 30, 26 / 30]);
+  });
+
+  it("marks the change itself when the clocks skip midnight", () => {
+    // Havana goes from 00:00 to 01:00 on 8 March 2026 (05:00 UTC), so the
+    // day starts there and 23:00 the evening before is not a midnight.
+    expect(
+      fractions(
+        "2026-03-08T03:00:00Z",
+        "2026-03-08T09:00:00Z",
+        "America/Havana",
+      ),
+    ).toEqual([1 / 3]);
   });
 });
 

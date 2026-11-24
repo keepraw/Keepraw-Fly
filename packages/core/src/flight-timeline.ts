@@ -148,7 +148,15 @@ function dayOffset(from: string, to: string): number | null {
   return Number.isFinite(days) ? Math.round(days) : null;
 }
 
-function midnights(start: number, end: number, zone: string): number[] {
+/**
+ * Where the clock of `zone` starts a new calendar day between two instants, as
+ * fractions (0–1) of the interval.
+ */
+export function localMidnights(
+  start: number,
+  end: number,
+  zone: string,
+): number[] {
   const result: number[] = [];
   let cursor = start;
   // A flight passes at most a few midnights; the bound guards odd records.
@@ -158,9 +166,14 @@ function midnights(start: number, end: number, zone: string): number[] {
     const wall = cursor + offset * MINUTE;
     const nextWall = (Math.floor(wall / DAY) + 1) * DAY;
     let instant = nextWall - offset * MINUTE;
-    // The offset may change before that midnight (daylight saving time).
+    // The offset may change before that midnight (daylight saving time). The
+    // later offset gives the midnight only if it is in force at that instant;
+    // otherwise the change skips midnight and the day starts at the change.
     const offsetThen = zoneOffsetMinutes(instant, zone);
-    if (offsetThen !== null) instant = nextWall - offsetThen * MINUTE;
+    if (offsetThen !== null && offsetThen !== offset) {
+      const shifted = nextWall - offsetThen * MINUTE;
+      if (zoneOffsetMinutes(shifted, zone) === offsetThen) instant = shifted;
+    }
     if (instant >= end || instant <= cursor) break;
     result.push((instant - start) / (end - start));
     cursor = instant;
@@ -242,7 +255,7 @@ function clock(
     timezone,
     departureDayOffset,
     arrivalDayOffset,
-    midnights: midnights(start, end, timezone),
+    midnights: localMidnights(start, end, timezone),
   };
 }
 
