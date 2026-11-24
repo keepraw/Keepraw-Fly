@@ -105,14 +105,8 @@ for (const locale of ["zh-CN", "zh-TW"])
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(locale);
-        await page
-          .locator(".settings-fields select")
-          .nth(1)
-          .selectOption(theme);
-        await page
-          .locator(".settings-fields select")
-          .nth(2)
-          .selectOption("kilometers");
+        await page.locator("#settings-appearance").selectOption(theme);
+        await page.locator("#settings-distance").selectOption("kilometers");
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await page.goto("/#/map");
         await expect(page.locator(".flight-row")).toHaveCount(12);
@@ -228,10 +222,7 @@ for (const locale of ["zh-CN", "zh-TW"]) {
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(locale);
-        await page
-          .locator(".settings-fields select")
-          .nth(1)
-          .selectOption(theme);
+        await page.locator("#settings-appearance").selectOption(theme);
         await page.goto("/#/map");
         await expect(
           page.locator(".flight-route-cities").first(),

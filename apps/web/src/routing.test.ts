@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatRoute,
+  isLandingFragment,
   parseRoute,
   primaryViewOrder,
   sameRoute,
@@ -13,6 +14,16 @@ describe("fragment routing", () => {
     expect(parseRoute("#")).toEqual({ view: "map" });
     expect(parseRoute("#/")).toEqual({ view: "map" });
     expect(parseRoute("", "log")).toEqual({ view: "log" });
+  });
+
+  it("tells an address that names no view from one that does", () => {
+    for (const fragment of ["", "#", "#/", "#passport", "#flights", "#share"]) {
+      expect(isLandingFragment(fragment)).toBe(true);
+      expect(parseRoute(fragment, "passport")).toEqual({ view: "passport" });
+    }
+    for (const fragment of ["#/map", "#/log", "#settings", "#main-content"])
+      expect(isLandingFragment(fragment)).toBe(false);
+    expect(parseRoute("#/map", "log")).toEqual({ view: "map" });
   });
 
   it("keeps legacy fragments working", () => {

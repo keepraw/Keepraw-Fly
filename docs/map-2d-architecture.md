@@ -74,7 +74,7 @@ page mounts a WebGL canvas or requests Globe code or imagery.
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Passport      | `PassportPage` mounts `PassportMap` at every width (the map is new on mobile). It wraps the themed `PassportRouteMap` and adds the route/airport pickers. Selection, row focus, keyboard activation, pan, zoom and reset are unchanged; frequency tiers and hubs come from `buildMapScene`.                                                                                        |
 | Flight Detail | `FlightDetailPage` mounts `FlightRouteMap` at every width; narrow layouts lead with it at the content width, capped at `min(52svh, 480px)`. `flightRouteScene` models flown, diverted (flown leg plus a dashed planned leg), cancelled and unavailable flights; `flightRouteCamera` fits the sampled great-circle arc, recentred on the route so date-line routes stay one stroke. |
-| Theme setting | `ViewerSettings.mapTheme` is chosen in Settings, stored with the other viewer settings and resolved through `resolveMapTheme`, so a missing or retired ID renders the default theme. `neon-aviation` and `daylight-chart` are registered.                                                                                                                                          |
+| Theme setting | `ViewerSettings.mapTheme` is chosen in Settings, stored with the other viewer settings and resolved through `resolveMapTheme`, so a missing or retired ID renders the default theme. `neon-aviation` and `daylight-chart` are registered for that choice; `graphite-chart` is registered for the `minimal` [skin](views-and-skins.md), which sets the map theme itself.            |
 
 A themed map sets `data-map-theme` and the `--map-theme-*` variables on its root.
 Legacy Passport paint rules are scoped to `.route-map:not([data-map-theme])`, so
@@ -131,7 +131,7 @@ PR 3 之后，两个正式地图入口都使用共享 2D SVG 地图，正式页�
 `FlightRouteMap`（窄屏置于页面顶部，宽度随屏幕自适应，高度不超过约半屏）：`flightRouteScene` 区分已飞、备降（实飞航段加虚线计划航段）、取消和不可用
 四种状态，`flightRouteCamera` 以航线为中心自动取景，跨日期变更线的航线保持为一条连续线。
 设置中的 `mapTheme` 随查看设置保存，并经 `resolveMapTheme` 解析，缺失或已下线的 ID 回退到
-默认主题；目前注册了 `neon-aviation` 与 `daylight-chart`。
+默认主题；目前可供选择的是 `neon-aviation` 与 `daylight-chart`；`graphite-chart` 供 `minimal`[皮肤](views-and-skins.md)使用，该皮肤自行决定地图主题。
 
 主题地图在根节点设置 `data-map-theme` 与 `--map-theme-*` 变量；旧的 Passport 绘制规则限定在
 `.route-map:not([data-map-theme])`，只作用于无主题的回退地图。光晕使用叠加描边，航线、光晕

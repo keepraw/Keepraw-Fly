@@ -196,7 +196,7 @@ test("shares search and year scope, map selection and adjacent detail navigation
     await page.goto("/#settings");
     const settings = page.locator(".settings-display-fields select");
     await settings.nth(0).selectOption(locale);
-    await settings.nth(1).selectOption(appearance);
+    await page.locator("#settings-appearance").selectOption(appearance);
     await page.goto("/#passport");
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
     await page.setViewportSize({ width: 1280, height: 720 });

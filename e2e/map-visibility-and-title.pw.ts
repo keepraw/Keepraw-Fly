@@ -77,10 +77,7 @@ test("shows all twelve offline routes with visible frequency encoding in both th
   for (const theme of ["light", "dark"]) {
     await context.setOffline(false);
     await page.goto("/#settings");
-    await page
-      .locator(".settings-display-fields select")
-      .nth(1)
-      .selectOption(theme);
+    await page.locator("#settings-appearance").selectOption(theme);
     await page.goto("/#passport");
     await expect(page.locator(".map-route-line")).toHaveCount(12);
     // Hash navigation can leave the pointer or focus on a flight row. Measure

@@ -238,10 +238,7 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
       .selectOption(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
     for (const theme of ["light", "dark"]) {
-      await page
-        .locator(".settings-display-fields select")
-        .nth(1)
-        .selectOption(theme);
+      await page.locator("#settings-appearance").selectOption(theme);
       for (const width of [390, 360, 320]) {
         await page.setViewportSize({ width, height: 800 });
         const layout = await page

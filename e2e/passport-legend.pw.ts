@@ -143,7 +143,7 @@ test("keeps the same Stats regions on desktop and on mobile", async ({
       await page.goto("/#settings");
       const settings = page.locator(".settings-display-fields select");
       await settings.nth(0).selectOption(locale);
-      await settings.nth(1).selectOption(theme);
+      await page.locator("#settings-appearance").selectOption(theme);
       await page.setViewportSize({ width: 1280, height: 720 });
       await page.goto("/#/map");
       await expect(page.locator("html")).toHaveAttribute("lang", locale);

@@ -276,6 +276,7 @@ describe("BrowserStorageAdapter", () => {
       distanceUnit: "kilometers" as const,
       timeFormat: "12-hour" as const,
       powerUserMode: true,
+      skin: "minimal" as const,
       mapTheme: "daylight-chart" as const,
       passportTemplate: "book" as const,
     };

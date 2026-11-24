@@ -100,6 +100,11 @@ and project selection. Relevant coverage includes:
   exploration query across reload, Back and Forward, dense rows, every Stats
   region, the Flight context, and Compact parity at 320 and 390 px in English,
   Chinese and German.
+- [`skins.pw.ts`](../e2e/skins.pw.ts): choosing a skin in Settings, its
+  persistence, landing view and navigation order, the map theme per appearance,
+  one inventory in both skins, `minimal` on every screen class from 320 px to
+  3840 px and at device scales of 1.25, 1.5 and 2, Chinese, German and Japanese
+  at 320 px, and the accessibility checks in light and dark.
 - [`unified-page-theme.pw.ts`](../e2e/unified-page-theme.pw.ts): live System
   appearance, Settings dialogs, persistence affordances, export and cancellation.
 - [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and

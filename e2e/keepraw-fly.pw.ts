@@ -376,7 +376,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
             : null;
       if (controls) {
         const titles = region.getByRole("heading", { level: 3 });
-        await expect(controls).toHaveCount(category === "常规" ? 6 : 3);
+        await expect(controls).toHaveCount(category === "常规" ? 7 : 3);
         for (let index = 0; index < (await controls.count()); index++) {
           const control = controls.nth(index);
           await expect(control).toBeVisible();
@@ -387,8 +387,10 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
             headingBounds.y + headingBounds.height,
           );
           expect(bounds.height).toBeGreaterThanOrEqual(44);
-          if (category === "常规" && index < 4) {
+          const described = await control.getAttribute("aria-describedby");
+          if (category === "常规" && index < 5 && !described) {
             // Compact title/control units replace the former horizontal rows.
+            // A control with a hint (the skin) is taller by that hint.
             expect(bounds.y + bounds.height - title.y).toBeLessThanOrEqual(80);
           }
           controlBounds.push(bounds);
@@ -422,7 +424,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       expect(fit.noOverflow).toBe(true);
       if (viewport.width <= 760) expect(fit.smallTargets).toEqual([]);
       if (category === "常规") {
-        await expect(region.getByRole("combobox").nth(4)).toHaveValue(
+        await expect(region.locator("#settings-map-theme")).toHaveValue(
           "neon-aviation",
         );
         for (const select of await region.getByRole("combobox").all()) {
@@ -466,7 +468,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         }
       }
     }
-    expect(controlBounds).toHaveLength(9);
+    expect(controlBounds).toHaveLength(10);
     expect(
       Math.max(...controlBounds.map((bounds) => bounds.x)) -
         Math.min(...controlBounds.map((bounds) => bounds.x)),
@@ -1533,7 +1535,7 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
       Number.parseFloat(getComputedStyle(element).fontSize),
     );
   await page.getByLabel("Language").selectOption("zh-CN");
-  await page.locator(".settings-fields select").nth(1).selectOption("dark");
+  await page.locator("#settings-appearance").selectOption("dark");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 

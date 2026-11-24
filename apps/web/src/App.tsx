@@ -1,4 +1,12 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type {
   KeeprawFlight,
@@ -39,9 +47,19 @@ import {
 } from "./storage/persistence";
 import { defaultViewerSettings, type ViewerSettings } from "./storage/types";
 import { loadChineseWebfonts } from "./typography/load-webfonts";
-import { applyAppearance, initialAppearance } from "./appearance";
 import {
-  DEFAULT_LANDING_VIEW,
+  applyAppearance,
+  initialAppearance,
+  initialSkin,
+  resolveAppearance,
+} from "./appearance";
+import {
+  resolveSkin,
+  skinMapTheme,
+  skinPassportTemplate,
+} from "./skins/registry";
+import {
+  isLandingFragment,
   PRIMARY_VIEWS,
   formatRoute,
   parseRoute,
@@ -79,6 +97,18 @@ export type ArchiveLoadState =
     }
   | { readonly status: "loading" | "read-error" };
 
+function useSystemDark(): boolean {
+  const query = "(prefers-color-scheme: dark)";
+  return useSyncExternalStore(
+    (notify) => {
+      const media = window.matchMedia?.(query);
+      media?.addEventListener("change", notify);
+      return () => media?.removeEventListener("change", notify);
+    },
+    () => window.matchMedia?.(query).matches ?? false,
+  );
+}
+
 export function App() {
   const { i18n, t } = useTranslation();
   const [document, setDocumentState] = useState<KeeprawFlyDocument | null>(
@@ -106,7 +136,22 @@ export function App() {
   const [settings, setSettings] = useState<ViewerSettings>(() => ({
     ...defaultViewerSettings(),
     appearance: initialAppearance(),
+    skin: initialSkin(),
   }));
+  const skin = resolveSkin(settings.skin);
+  const landingView = skin.landingView;
+  const systemDark = useSystemDark();
+  const mapTheme = skinMapTheme(
+    skin,
+    resolveAppearance(settings.appearance, () => ({ matches: systemDark })),
+    settings.mapTheme,
+  );
+  // Readable from event handlers that outlive a render.
+  const landingViewRef = useRef(landingView);
+  landingViewRef.current = landingView;
+  // True while the address names no view and the user has not navigated: the
+  // stored skin, once read, may then still choose a different landing view.
+  const landingPendingRef = useRef(isLandingFragment(window.location.hash));
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [languageLoadError, setLanguageLoadError] = useState(false);
@@ -136,7 +181,8 @@ export function App() {
     ),
   );
   const [route, setRouteState] = useState<Route>(
-    () => parseRoute(window.location.hash) ?? { view: DEFAULT_LANDING_VIEW },
+    () =>
+      parseRoute(window.location.hash, landingView) ?? { view: landingView },
   );
   // The route as last set, readable from event handlers before a render.
   const routeRef = useRef(route);
@@ -147,7 +193,7 @@ export function App() {
   const selectedFlightId = route.view === "flight" ? route.flightId : null;
   // The primary view to return to from Flight or Settings.
   const lastPrimaryViewRef = useRef<PrimaryView>(
-    primaryView(route.view) ?? DEFAULT_LANDING_VIEW,
+    primaryView(route.view) ?? landingView,
   );
   const [flightNotFound, setFlightNotFound] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -233,6 +279,7 @@ export function App() {
     if (mode === "replace") window.history.replaceState(state, "", fragment);
     else if (window.location.hash !== fragment)
       window.history.pushState(state, "", fragment);
+    landingPendingRef.current = false;
     setFlightNotFound(false);
     setRoute(next);
   }
@@ -321,8 +368,21 @@ export function App() {
         if (archiveResult.status === "fulfilled")
           applyArchiveLoad(archiveResult.value);
         else updateArchiveLoad({ status: "read-error" });
-        if (settingsResult.status === "fulfilled" && settingsResult.value)
+        if (settingsResult.status === "fulfilled" && settingsResult.value) {
           setSettings(settingsResult.value);
+          // The first-paint hint can be missing or stale; the stored skin wins
+          // while the entry still shows a landing view nobody chose.
+          const landing = resolveSkin(settingsResult.value.skin).landingView;
+          if (landingPendingRef.current && routeRef.current.view !== landing) {
+            lastPrimaryViewRef.current = landing;
+            window.history.replaceState(
+              mirroredState(),
+              "",
+              fragmentFor({ view: landing }),
+            );
+            setRoute({ view: landing });
+          }
+        }
         if (settingsResult.status === "rejected") setStorageError("storage");
       })
       .finally(() => {
@@ -422,7 +482,7 @@ export function App() {
       await browserStorage.clearDocument();
       applyArchiveLoad({ status: "empty" });
       setStorageError(null);
-      navigate({ view: DEFAULT_LANDING_VIEW });
+      navigate({ view: landingView });
     });
   }
 
@@ -450,9 +510,9 @@ export function App() {
 
   useEffect(() => {
     if (!loaded) return;
-    applyAppearance(settings.appearance);
+    applyAppearance(settings.appearance, settings.skin);
     delete window.document.documentElement.dataset.startupTheme;
-  }, [loaded, settings.appearance]);
+  }, [loaded, settings.appearance, settings.skin]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -468,7 +528,7 @@ export function App() {
     // fragment (an in-page anchor such as Skip to content) leaves the view
     // alone; its entry takes the view's address so reload and Back still work.
     const syncRoute = () => {
-      const next = parseRoute(window.location.hash);
+      const next = parseRoute(window.location.hash, landingViewRef.current);
       if (!next) {
         window.history.replaceState(
           window.history.state,
@@ -510,12 +570,16 @@ export function App() {
       routeRef.current = next;
       setRouteState(next);
     };
+    const followAddress = () => {
+      landingPendingRef.current = false;
+      syncRoute();
+    };
     syncRoute();
-    window.addEventListener("popstate", syncRoute);
-    window.addEventListener("hashchange", syncRoute);
+    window.addEventListener("popstate", followAddress);
+    window.addEventListener("hashchange", followAddress);
     return () => {
-      window.removeEventListener("popstate", syncRoute);
-      window.removeEventListener("hashchange", syncRoute);
+      window.removeEventListener("popstate", followAddress);
+      window.removeEventListener("hashchange", followAddress);
     };
   }, []);
 
@@ -576,7 +640,7 @@ export function App() {
     setDocument(null);
     setArchiveKind(null);
     void documentWrites.save(null);
-    navigate({ view: DEFAULT_LANDING_VIEW });
+    navigate({ view: landingView });
     setEditor(null);
   }
 
@@ -588,7 +652,7 @@ export function App() {
         ? window.document.activeElement
         : null;
     storeDocument(createEmptyDocument(), "personal");
-    navigate({ view: DEFAULT_LANDING_VIEW });
+    navigate({ view: landingView });
     setEditor({ kind: "create" });
   }
 
@@ -599,7 +663,7 @@ export function App() {
     navigate(
       nextDocument.flights.length >= LARGE_IMPORT_FLIGHT_COUNT
         ? { view: "settings", part: "data" }
-        : { view: DEFAULT_LANDING_VIEW },
+        : { view: landingView },
     );
   }
 
@@ -616,7 +680,7 @@ export function App() {
     if (!canWriteDocument()) return;
     setPassportView(initialPassportView);
     storeDocument(structuredClone(demoDocument), "demo");
-    navigate({ view: DEFAULT_LANDING_VIEW });
+    navigate({ view: landingView });
   }
 
   async function saveFlight(flight: KeeprawFlight) {
@@ -741,6 +805,7 @@ export function App() {
       </a>
       <AppHeader
         route={route}
+        landingView={landingView}
         hasArchive={Boolean(document) && !archiveBlocked}
         onNavigate={navigate}
         onAddFlight={canAddFlight ? addFlight : undefined}
@@ -946,7 +1011,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          mapTheme={settings.mapTheme}
+          mapTheme={mapTheme}
         />
       ) : route.view === "flight" ? null : (
         <PassportPage
@@ -957,7 +1022,7 @@ export function App() {
           locale={locale}
           distanceUnit={settings.distanceUnit}
           timeFormat={settings.timeFormat}
-          mapTheme={settings.mapTheme}
+          mapTheme={mapTheme}
           onOpenFlight={openFlight}
           onOpenShare={() => setShareOpen(true)}
           onAddFlight={addFlight}
@@ -975,6 +1040,7 @@ export function App() {
       )}
       {canAddFlight ? (
         <PrimaryTabBar
+          landingView={landingView}
           route={route}
           onNavigate={navigate}
           onAddFlight={addFlight}
@@ -1006,8 +1072,11 @@ export function App() {
           document={document}
           locale={locale}
           distanceUnit={settings.distanceUnit}
-          mapTheme={settings.mapTheme}
-          passportTemplate={settings.passportTemplate}
+          mapTheme={mapTheme}
+          passportTemplate={skinPassportTemplate(
+            skin,
+            settings.passportTemplate,
+          )}
           onClose={() => setShareOpen(false)}
         />
       ) : null}

@@ -1,7 +1,6 @@
 import type { MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  DEFAULT_LANDING_VIEW,
   formatRoute,
   primaryViewOrder,
   type PrimaryView,
@@ -10,6 +9,8 @@ import {
 
 interface NavigationProps {
   route: Route;
+  /** The skin's landing view: the wordmark opens it and it is listed first. */
+  landingView: PrimaryView;
   onNavigate: (route: Route) => void;
   onAddFlight?: () => void;
 }
@@ -50,6 +51,7 @@ function followInApp(
 
 export function AppHeader({
   route,
+  landingView,
   hasArchive,
   onNavigate,
   onAddFlight,
@@ -57,9 +59,11 @@ export function AppHeader({
   detailActions,
 }: AppHeaderProps) {
   const { t } = useTranslation();
-  const home: Route = { view: DEFAULT_LANDING_VIEW };
+  const home: Route = { view: landingView };
   const links: Route[] = [
-    ...(hasArchive ? primaryViewOrder().map((view) => ({ view })) : []),
+    ...(hasArchive
+      ? primaryViewOrder(landingView).map((view) => ({ view }))
+      : []),
     { view: "settings" },
   ];
   const currentView = route.view === "flight" ? null : route.view;
@@ -233,6 +237,7 @@ export function AppHeader({
 /** Bottom tab bar for the Compact screen class; hidden from 761 px. */
 export function PrimaryTabBar({
   route,
+  landingView,
   onNavigate,
   onAddFlight,
 }: NavigationProps) {
@@ -240,7 +245,7 @@ export function PrimaryTabBar({
   return (
     <div className="primary-tab-bar">
       <nav aria-label={t("nav.label")}>
-        {primaryViewOrder().map((view) => (
+        {primaryViewOrder(landingView).map((view) => (
           <a
             key={view}
             href={formatRoute({ view })}

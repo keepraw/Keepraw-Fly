@@ -617,6 +617,16 @@
     "backupDescription": "將飛行檔案儲存為本機 JSON 備份。",
     "restoreDescription": "從 Keepraw Fly 備份中新增航班紀錄。",
     "csvDescription": "從試算表匯入飛行歷史。",
+    "skin": "佈景主題",
+    "skinHint": "決定外觀、版面和開啟時的檢視，不會更動你的航班記錄。",
+    "skinOption": {
+      "classic": "經典",
+      "minimal": "極簡"
+    },
+    "appearanceFixed": {
+      "light": "「{{skin}}」佈景主題只有淺色外觀。",
+      "dark": "「{{skin}}」佈景主題只有深色外觀。"
+    },
     "mapTheme": "地圖主題",
     "mapThemeHint": "套用於護照地圖和航班航線地圖。",
     "passportLayout": "飛行護照版式",

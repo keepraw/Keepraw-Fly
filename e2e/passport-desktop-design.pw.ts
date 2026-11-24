@@ -296,10 +296,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         .locator(".settings-display-fields select")
         .nth(0)
         .selectOption("zh-CN");
-      await page
-        .locator(".settings-display-fields select")
-        .nth(1)
-        .selectOption(theme);
+      await page.locator("#settings-appearance").selectOption(theme);
       await page.goto("/#/map");
       await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
       await expect(page.locator(".map-relief-texture")).toHaveCount(0);

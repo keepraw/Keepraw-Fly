@@ -35,6 +35,7 @@ import "./styles/flight-list.css";
 import "./styles/share-overlay.css";
 import "./styles/views.css";
 import "./styles/stats.css";
+import "./styles/skin-minimal.css";
 
 const NeonLabRoute = import.meta.env.DEV
   ? lazy(() =>
@@ -91,7 +92,7 @@ function ApplicationBootstrap() {
           settings &&
           document.documentElement.hasAttribute("data-startup-theme")
         )
-          applyAppearance(settings.appearance);
+          applyAppearance(settings.appearance, settings.skin);
       })
       .catch(() => {});
     void loadApplication()

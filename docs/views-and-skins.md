@@ -4,17 +4,18 @@
 
 ## English
 
-**Status: phase 2 of 6 implemented.** The views, the fragment routes, the
+**Status: phase 3 of 6 implemented.** The views, the fragment routes, the
 addressable Flight, the primary navigation with its persistent Add flight and
 the Compact touch targets below are in the application, and so are the Log
 filters and order, the denser Log row, every Stats region, the flight's place in
 the archive and the exploration state in the fragment query. Stats and the Log
-controls render one markup on every screen class. The six totals still use the
-v0.3.0 arrangement (a row on wider screens, a card on Compact), the palette is
-the one described in the [visual system](design-system.md), and the landing view
-is Map for every user. Skins, their extensions and the Wide, Ultrawide and Short
-layouts are not implemented yet. Each later phase updates this document with its
-implementation.
+controls render one markup on every screen class. The skin mechanism and the
+`minimal` skin are implemented: the skin is chosen in Settings, and it sets the
+tokens, the supported appearances, the landing view, the navigation order, the
+map theme and the Flight Passport layout. See
+[what phase 3 implements](#what-phase-3-implements) for the transitional parts.
+`aviation`, `archive` and the skin extensions are not implemented yet. Each
+later phase updates this document with its implementation.
 
 **Contract version: `skin-contract/0` (internal, unstable).** The contract exists
 so that the three official skins are built against one structure. It is not a
@@ -250,6 +251,34 @@ A skin is a first-party definition with these parts:
   written by earlier versions still load.
 - Switching skins is immediate, needs no reload and writes nothing to the archive.
 
+#### What phase 3 implements
+
+- The registry is [`skins/registry.ts`](../apps/web/src/skins/registry.ts). It
+  holds `minimal` and, until phase 4, a transitional `classic` skin: the v0.3.0
+  look, with both appearances, Map as its landing view, and the stored Map theme
+  and Flight Passport layout still chosen in Settings. `classic` is the default
+  and the fallback for an unknown or missing value until `aviation` replaces it.
+- `minimal` uses Daylight Chart in light and the new `graphite-chart` theme in
+  dark, and the single-page Flight Passport. With `minimal` selected, Settings
+  does not offer Map theme or Flight Passport layout; the stored values are kept
+  and are read again under `classic`.
+- The root element carries `data-skin`. `theme-init.js` restores it before the
+  first paint from a cosmetic cache, next to the appearance; a test keeps its
+  table of skins in step with the registry.
+- An empty or legacy address opens the skin's landing view, and the primary
+  navigation lists that view first. Changing the skin never moves the reader
+  away from an explicit address.
+- A skin with one appearance disables the Appearance control and explains why.
+  Both registered skins have two appearances, so this is exercised by tests.
+- `minimal` tokens, font roles and layouts are in
+  [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css). From Wide up the
+  Log row is one table-like line; from Ultrawide the four primary views use the
+  full width, Settings and Flight detail keep a centred reading width, and the
+  v0.3.0 enlargement of the Passport workspace is switched off, so one
+  unit stays one CSS pixel at every system scale.
+- Not in this phase: the navigation rail, the extension slots, and Short-specific
+  layouts beyond the shared ones.
+
 Styling rules:
 
 - Component styles use semantic tokens only. Literal colours in page styles are
@@ -356,13 +385,13 @@ synchronisation; live flight data; 3D maps.
 
 ## 简体中文
 
-**状态：6 个阶段中的阶段 2 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
+**状态：6 个阶段中的阶段 3 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
 「添加航班」的主导航，以及紧凑档的触控目标已经在应用中；日志的筛选与排序、更密的日志行、
 统计的全部区域、航班在档案中的位置，以及写入片段查询串的探索状态也已实现。统计和日志的
-筛选控件在所有屏幕档位使用同一份标记。六项合计仍沿用 v0.3.0 的排布（较宽屏幕为一行，
-紧凑档为一张卡片），配色仍是[视觉系统](design-system.md)所描述的那一套，落地视图对所有
-用户都是地图。皮肤、皮肤扩展以及宽屏、超宽、矮屏布局尚未实现。后续每个阶段在实现的同时
-更新本文。
+筛选控件在所有屏幕档位使用同一份标记。皮肤机制和 `minimal` 皮肤已实现：皮肤在设置中
+选择，并决定令牌、支持的外观、落地视图、导航顺序、地图主题和飞行护照版式。过渡性的部分见
+[阶段 3 的实现范围](#阶段-3-的实现范围)。`aviation`、`archive` 和皮肤扩展尚未实现。
+后续每个阶段在实现的同时更新本文。
 
 **约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让三套官方皮肤基于同一
 结构实现。它不是对外的扩展接口：不支持第三方皮肤、皮肤导入，也不支持运行时加载的代码
@@ -561,6 +590,27 @@ synchronisation; live flight data; 3D maps.
   受皮肤约束。
 - 已保存的「地图主题」「飞行护照版式」取值不再读取。旧版本写入的记录仍可加载。
 - 切换皮肤立即生效，无需刷新，不向档案写入任何内容。
+
+#### 阶段 3 的实现范围
+
+- 注册表是 [`skins/registry.ts`](../apps/web/src/skins/registry.ts)。其中有 `minimal`，
+  以及在阶段 4 之前过渡使用的 `classic` 皮肤：即 v0.3.0 的外观，深浅两种外观都有，落地
+  视图是地图，「地图主题」和「飞行护照版式」仍在设置中选择。在 `aviation` 取代它之前，
+  `classic` 是默认皮肤，也是存储值未知或缺失时的回退值。
+- `minimal` 浅色用 Daylight Chart，深色用新增的 `graphite-chart` 主题，飞行护照用单页
+  版式。选中 `minimal` 时，设置中不提供「地图主题」和「飞行护照版式」；已保存的值保留，
+  切回 `classic` 时重新生效。
+- 根元素带有 `data-skin`。`theme-init.js` 在首次绘制前从外观缓存恢复它，做法与外观相同；
+  有测试保证其中的皮肤表与注册表一致。
+- 空地址或旧地址打开皮肤的落地视图，主导航把该视图排在第一位。切换皮肤不会把读者从明确
+  的地址上移走。
+- 只有一种外观的皮肤会禁用「外观」控件并说明原因。目前注册的两套皮肤都有两种外观，所以
+  这一行为由测试覆盖。
+- `minimal` 的令牌、字体角色和布局在
+  [`skin-minimal.css`](../apps/web/src/styles/skin-minimal.css)。从宽屏档起，日志行是
+  一行表格式的记录；从超宽档起，四个主视图铺满宽度，设置和航班详情保持居中的阅读宽度，并关闭 v0.3.0 对护照工作区的整体放大，
+  因此在任何系统缩放下一个单位都是一个 CSS 像素。
+- 本阶段不包含：导航栏（rail）、扩展位，以及共享布局之外的矮屏专用布局。
 
 样式规则：
 

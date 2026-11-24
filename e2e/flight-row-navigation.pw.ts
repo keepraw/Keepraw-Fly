@@ -77,10 +77,7 @@ for (const width of [1280, 390]) {
       });
       for (const theme of ["light", "dark"]) {
         await page.goto("/#settings");
-        await page
-          .locator(".settings-display-fields select")
-          .nth(1)
-          .selectOption(theme);
+        await page.locator("#settings-appearance").selectOption(theme);
         await page.goto("/#passport");
         await page.locator("#passport-flight-search").focus();
         await page.keyboard.press("Tab");

@@ -1,24 +1,26 @@
-/* Approved Passport palette, scoped to the shared pages and onboarding/loading.
+/* The `classic` skin (the v0.3.0 look): the approved Passport palette, scoped
+   to the shared pages and onboarding/loading. Other skins set their own tokens.
    Preserve the original 760/761px differences, aliases and explicit/System cascade.
    Recovery reuses Settings layout classes, so exclude it at zero specificity.
    Portal confirmations opt in via their own Settings scope; root defaults stay intact. */
 @media (max-width: 760px) {
-  :is(
-    .app-shell:has(
-      .passport-archive-page,
-      .welcome,
-      .passport-empty-page,
-      .detail-page,
-      .settings-page:where(:not(.recovery-page))
-    ),
-    :root:where(
+  :root[data-skin="classic"]:where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-    .bootstrap-screen,
-    .loading-screen,
-    .confirmation-backdrop--settings
-  ) {
+  :where(:root[data-skin="classic"])
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .bootstrap-screen,
+      .loading-screen,
+      .confirmation-backdrop--settings
+    ) {
     --color-text: #1e2b3e;
     --color-text-muted: #57677b;
     --color-text-faint: #566982;
@@ -50,11 +52,11 @@
 }
 
 @media (max-width: 760px) {
-  :root[data-theme="dark"]:where(
+  :root[data-theme="dark"]:where([data-skin="classic"]):where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-  :root[data-theme="dark"]
+  :root[data-theme="dark"]:where([data-skin="classic"])
     :is(
       .app-shell:has(
         .passport-archive-page,
@@ -86,11 +88,11 @@
 }
 
 @media (max-width: 760px) and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]):where(
+  :root:not([data-theme="light"]):where([data-skin="classic"]):where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-  :root:not([data-theme="light"])
+  :root:not([data-theme="light"]):where([data-skin="classic"])
     :is(
       .app-shell:has(
         .passport-archive-page,
@@ -122,22 +124,23 @@
 }
 
 @media (min-width: 761px) {
-  :is(
-    .app-shell:has(
-      .passport-archive-page,
-      .welcome,
-      .passport-empty-page,
-      .detail-page,
-      .settings-page:where(:not(.recovery-page))
-    ),
-    :root:where(
+  :root[data-skin="classic"]:where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-    .bootstrap-screen,
-    .loading-screen,
-    .confirmation-backdrop--settings
-  ) {
+  :where(:root[data-skin="classic"])
+    :is(
+      .app-shell:has(
+        .passport-archive-page,
+        .welcome,
+        .passport-empty-page,
+        .detail-page,
+        .settings-page:where(:not(.recovery-page))
+      ),
+      .bootstrap-screen,
+      .loading-screen,
+      .confirmation-backdrop--settings
+    ) {
     --color-text: #1e2b3e;
     --color-text-muted: #57677b;
     --color-text-faint: #566982;
@@ -185,11 +188,11 @@
 }
 
 @media (min-width: 761px) {
-  :root[data-theme="dark"]:where(
+  :root[data-theme="dark"]:where([data-skin="classic"]):where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-  :root[data-theme="dark"]
+  :root[data-theme="dark"]:where([data-skin="classic"])
     :is(
       .app-shell:has(
         .passport-archive-page,
@@ -241,11 +244,11 @@
 }
 
 @media (min-width: 761px) and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]):where(
+  :root:not([data-theme="light"]):where([data-skin="classic"]):where(
       [data-startup-theme],
       :has(.welcome, .passport-empty-page, .bootstrap-screen, .loading-screen)
     ),
-  :root:not([data-theme="light"])
+  :root:not([data-theme="light"]):where([data-skin="classic"])
     :is(
       .app-shell:has(
         .passport-archive-page,
