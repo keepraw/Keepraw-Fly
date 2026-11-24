@@ -841,5 +841,54 @@
       "invalid": "Invalide / annulé"
     },
     "showMore": "Afficher plus de lignes"
+  },
+  "insights": {
+    "filters": {
+      "label": "Filtres et tri",
+      "airline": "Compagnie aérienne",
+      "allAirlines": "Toutes les compagnies",
+      "aircraft": "Type d’appareil",
+      "allAircraft": "Tous les types d’appareil",
+      "sort": "Ordre de tri",
+      "sortOrders": {
+        "newest": "Du plus récent au plus ancien",
+        "oldest": "Du plus ancien au plus récent",
+        "longest": "Distance décroissante",
+        "shortest": "Distance croissante"
+      },
+      "active": "Filtres actifs",
+      "remove": "Retirer le filtre : {{filter}}",
+      "clearAll": "Effacer tous les filtres",
+      "noMatches": "Aucun vol ne correspond aux filtres actuels."
+    },
+    "facts": {
+      "duration": "Durée",
+      "distance": "Distance",
+      "aircraft": "Appareil",
+      "seat": "Siège"
+    },
+    "stats": {
+      "title": "Statistiques",
+      "year": "Année",
+      "arrivalDelay": "Retard à l’arrivée",
+      "months": "Vols par mois",
+      "airports": "Aéroports par visites",
+      "airlines": "Compagnies par vols",
+      "aircraft": "Types d’appareil par vols",
+      "cabins": "Classes de cabine",
+      "cabinNotRecorded": "Non renseignée",
+      "records": "Records",
+      "longestArrivalDelay": "Plus long retard à l’arrivée",
+      "mostFlownRoute": "Liaison la plus empruntée",
+      "filterAircraft": "Filtrer les vols effectués en {{aircraft}}",
+      "showAll": "Tout afficher ({{count, number}})",
+      "showFewer": "Afficher moins",
+      "noData": "Données insuffisantes"
+    },
+    "context": {
+      "title": "Dans cette archive",
+      "airportVisit": "Visite {{ordinal, number}} sur {{total, number}}",
+      "routeFlight": "Vol {{ordinal, number}} sur {{total, number}}"
+    }
   }
 }

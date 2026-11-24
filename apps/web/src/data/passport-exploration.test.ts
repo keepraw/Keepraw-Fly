@@ -17,7 +17,7 @@ describe("passport exploration", () => {
     expect(
       passportVisibleFlights(flights, {
         ...initialPassportView,
-        selection: { kind: "airline", code: "UA" },
+        airline: "UA",
       }).map((f) => f.id),
     ).toEqual(["recent", "first"]);
     expect(
@@ -30,9 +30,36 @@ describe("passport exploration", () => {
       passportVisibleFlights(flights, {
         ...initialPassportView,
         year: 2025,
-        selection: { kind: "airline", code: "UA" },
+        airline: "UA",
       }),
     ).toEqual([]);
+  });
+
+  it("combines airline, aircraft type and selection, then applies the order", () => {
+    const typed = flights.map((flight) =>
+      flight.id === "return"
+        ? flight
+        : {
+            ...flight,
+            extensions: {
+              "keepraw-fly.aircraft": {
+                type: flight.id === "first" ? "B738" : "A320",
+              },
+            },
+          },
+    );
+    const ids = (view: Partial<typeof initialPassportView>) =>
+      passportVisibleFlights(typed, { ...initialPassportView, ...view }).map(
+        (flight) => flight.id,
+      );
+    expect(ids({ aircraft: "A320" })).toEqual(["recent"]);
+    expect(ids({ airline: "UA", aircraft: "B738" })).toEqual(["first"]);
+    expect(ids({ airline: "AA", aircraft: "B738" })).toEqual([]);
+    expect(
+      ids({ airline: "UA", selection: { kind: "airport", code: "LAX" } }),
+    ).toEqual(["recent", "first"]);
+    expect(ids({ sort: "oldest" })).toEqual(["first", "return", "recent"]);
+    expect(ids({ airline: "UA", sort: "oldest" })).toEqual(["first", "recent"]);
   });
   it("collects an airport's arrivals and departures once per flight", () => {
     const result = explorePassportFlights(flights, {
@@ -47,18 +74,6 @@ describe("passport exploration", () => {
     ]);
     expect(result?.firstServiceDate).toBe("2024-04-03");
     expect(result?.lastServiceDate).toBe("2026-08-19");
-  });
-
-  it("uses the stored airline identity without inferring a carrier", () => {
-    const result = explorePassportFlights(flights, {
-      kind: "airline",
-      code: "UA",
-    });
-
-    expect(result?.flights.map((flight) => flight.id)).toEqual([
-      "recent",
-      "first",
-    ]);
   });
 
   it("keeps opposite directions as separate route histories", () => {

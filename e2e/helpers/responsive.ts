@@ -251,14 +251,14 @@ export async function expectPassportLayout(page: Page, mobile: boolean) {
     await expect(page.locator(".passport-mobile-summary")).toBeVisible();
     await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
     await expect(
-      page.locator(".route-map-loading, .passport-highlights"),
+      page.locator(".route-map-loading, .stats-insights"),
     ).toHaveCount(0);
   } else {
     await expectColumns(layout, 2);
     await expect(page.locator(".passport-mobile-summary")).toBeHidden();
     await expect(page.locator(".route-map-canvas")).toBeVisible();
-    // Highlights belong to Stats, not to Map.
-    await expect(page.locator(".passport-highlights")).toHaveCount(0);
+    // The Stats regions belong to Stats, not to Map.
+    await expect(page.locator(".stats-insights")).toHaveCount(0);
   }
 }
 

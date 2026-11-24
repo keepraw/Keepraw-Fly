@@ -809,5 +809,54 @@
       "invalid": "Ungültig / annulliert"
     },
     "showMore": "Weitere Zeilen anzeigen"
+  },
+  "insights": {
+    "filters": {
+      "label": "Filter und Sortierung",
+      "airline": "Fluggesellschaft",
+      "allAirlines": "Alle Fluggesellschaften",
+      "aircraft": "Flugzeugtyp",
+      "allAircraft": "Alle Flugzeugtypen",
+      "sort": "Sortierung",
+      "sortOrders": {
+        "newest": "Neueste zuerst",
+        "oldest": "Älteste zuerst",
+        "longest": "Längste Strecke zuerst",
+        "shortest": "Kürzeste Strecke zuerst"
+      },
+      "active": "Aktive Filter",
+      "remove": "Filter entfernen: {{filter}}",
+      "clearAll": "Alle Filter löschen",
+      "noMatches": "Keine Flüge entsprechen den aktuellen Filtern."
+    },
+    "facts": {
+      "duration": "Dauer",
+      "distance": "Entfernung",
+      "aircraft": "Flugzeug",
+      "seat": "Sitzplatz"
+    },
+    "stats": {
+      "title": "Statistik",
+      "year": "Jahr",
+      "arrivalDelay": "Ankunftsverspätung",
+      "months": "Flüge pro Monat",
+      "airports": "Flughäfen nach Besuchen",
+      "airlines": "Fluggesellschaften nach Flügen",
+      "aircraft": "Flugzeugtypen nach Flügen",
+      "cabins": "Reiseklassen",
+      "cabinNotRecorded": "Nicht erfasst",
+      "records": "Rekorde",
+      "longestArrivalDelay": "Längste Ankunftsverspätung",
+      "mostFlownRoute": "Meistgeflogene Strecke",
+      "filterAircraft": "Flüge mit {{aircraft}} filtern",
+      "showAll": "Alle {{count, number}} anzeigen",
+      "showFewer": "Weniger anzeigen",
+      "noData": "Nicht genügend Daten"
+    },
+    "context": {
+      "title": "In diesem Archiv",
+      "airportVisit": "Besuch {{ordinal, number}} von {{total, number}}",
+      "routeFlight": "Flug {{ordinal, number}} von {{total, number}}"
+    }
   }
 }

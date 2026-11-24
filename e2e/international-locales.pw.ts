@@ -125,10 +125,18 @@ for (const language of newLanguages) {
         await expect(page.locator(".passport-mobile-hero > span")).toHaveText(
           text.passport.flights_one ?? text.passport.flights,
         );
-        await expect(
-          page.locator(".passport-network-facts > div").first().locator("span"),
-        ).toHaveText(text.passport.countries_one ?? text.passport.countries);
       }
+      // The Stats regions are the same on every screen class.
+      await expect(page.locator(".stats-panel > h2")).toHaveText([
+        text.passport.totalDelay,
+        text.passport.byYear,
+        text.insights.stats.months,
+        text.insights.stats.airports,
+        text.insights.stats.airlines,
+        text.insights.stats.aircraft,
+        text.insights.stats.cabins,
+        text.insights.stats.records,
+      ]);
       await healthy(page);
       await reviewScreenshot(page, language, "stats", width);
       await page.locator(`${navigation} a[href="#/map"]`).click();

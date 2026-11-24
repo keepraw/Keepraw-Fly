@@ -21,7 +21,7 @@ async function openDemo(page: Page) {
 
 function highlightsHeight(page: Page) {
   return page
-    .locator(".passport-highlights")
+    .locator(".stats-insights")
     .evaluate((element) => element.getBoundingClientRect().height);
 }
 
@@ -127,14 +127,16 @@ test("Passport desktop grows as one composition above the 1080p reference", asyn
     expect(await layout(page)).toEqual(base);
   });
 
-  await test.step("Stats highlights grow by the same factor", async () => {
+  await test.step("Stats regions grow by the same factor", async () => {
     await page.goto("/#/stats");
     await settle(page, reference);
     const height = await highlightsHeight(page);
     await settle(page, { width: 3840, height: 2160 });
-    expect(Math.abs((await highlightsHeight(page)) - height * 2)).toBeLessThan(
-      4,
-    );
+    // Hairline borders stay one device pixel, so the stacked panels and
+    // records fall a few pixels short of the exact factor.
+    expect(
+      Math.abs((await highlightsHeight(page)) - height * 2) / (height * 2),
+    ).toBeLessThan(0.01);
   });
 });
 

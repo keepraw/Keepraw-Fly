@@ -124,16 +124,26 @@ describe("FlightRow", () => {
     }
   });
 
-  it("keeps even large delays in Detail and marks only cancellation or diversion", async () => {
+  it("shows a late arrival in the detail line and badges only cancellation or diversion", async () => {
     for (const presentation of ["passport", "standard"] as const) {
       const delayed = await archiveMarkup(
         "en",
         { actualArrival: "2026-09-22T09:20:00+08:00" },
         presentation,
       );
-      expect(delayed).not.toMatch(
-        /Delayed|Early|On Time|flight-status|flight-deviation/,
+      expect(delayed).toContain(
+        '<span class="flight-deviation is-late">Arrival delayed 150 min</span>',
       );
+      expect(delayed).not.toMatch(/Delayed|Early|On Time|flight-status/);
+      // Early and on-time arrivals, and cancelled flights, show no deviation.
+      for (const changes of [
+        {},
+        { actualArrival: "2026-09-22T06:50:00+08:00" },
+        { actualArrival: "2026-09-22T09:20:00+08:00", cancelled: true },
+      ])
+        expect(await archiveMarkup("en", changes, presentation)).not.toContain(
+          "flight-deviation",
+        );
       expect(
         await archiveMarkup("en", { cancelled: true }, presentation),
       ).toContain("Canceled");
@@ -145,6 +155,50 @@ describe("FlightRow", () => {
       expect(diverted).toContain("Diverted PEK");
       expect(diverted).not.toContain("Diverted to");
     }
+  });
+
+  it("adds duration, distance, aircraft type and seat, and only what is recorded", async () => {
+    const facts = (markup: string) =>
+      [
+        ...markup.matchAll(
+          /<span data-fact="(\w+)"><span class="sr-only">([^<]*)<\/span>([^<]*)<\/span>/g,
+        ),
+      ].map((match) => [match[1], match[2]!.trim(), match[3]]);
+    for (const presentation of ["passport", "standard"] as const) {
+      const full = await archiveMarkup(
+        "en",
+        {
+          extensions: {
+            "keepraw-fly.aircraft": { type: "A321", registration: "B-1234" },
+            "keepraw-fly.seat": { seat: "31A", cabin: "economy" },
+          },
+        },
+        presentation,
+      );
+      expect(facts(full)).toEqual([
+        ["duration", "Duration", "4h 06m"],
+        ["distance", "Distance", "1,642 km"],
+        ["aircraft", "Aircraft", "A321"],
+        ["seat", "Seat", "31A"],
+      ]);
+      expect(full).not.toContain("B-1234");
+      expect(facts(await archiveMarkup("en", {}, presentation))).toEqual([
+        ["duration", "Duration", "4h 06m"],
+        ["distance", "Distance", "1,642 km"],
+      ]);
+      // A cancelled flight was not flown: no duration or distance.
+      const cancelled = await archiveMarkup(
+        "en",
+        { cancelled: true },
+        presentation,
+      );
+      expect(facts(cancelled)).toEqual([]);
+      expect(cancelled).not.toContain("flight-row-detail");
+    }
+    expect(facts(await archiveMarkup("zh-CN")).map((fact) => fact[1])).toEqual([
+      "时长",
+      "距离",
+    ]);
   });
 
   it.each([

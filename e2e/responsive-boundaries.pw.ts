@@ -70,11 +70,9 @@ for (const viewport of viewports) {
         .click();
       await expect(editor).toHaveCount(0);
       if (!mobile && viewport.height > 540) {
-        // Normal desktop shows all Highlights without a right scrollport.
+        // Stats entries are reachable without a right scrollport.
         await page.locator('.site-navigation a[href="#/stats"]').click();
-        await expectReachable(
-          page.locator("button.passport-spotlight-item").first(),
-        );
+        await expectReachable(page.locator("button.stats-rank").first());
         await expectHealthyPage(page, errors);
         await page.locator('.site-navigation a[href="#/map"]').click();
       }

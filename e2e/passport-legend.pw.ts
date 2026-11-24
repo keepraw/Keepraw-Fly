@@ -6,7 +6,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 
-test("preserves desktop flight highlights and removes them only on mobile", async ({
+test("keeps the same Stats regions on desktop and on mobile", async ({
   page,
 }) => {
   test.setTimeout(90_000);
@@ -55,21 +55,14 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   });
   await page.getByRole("button", { name: "Import this archive" }).click();
   const flightCount = page.locator(".passport-core-stat:nth-child(2)");
-  // Highlights live in Stats and the flights in Log; both share one selection.
+  // The regions live in Stats and the flights in Log; both share one selection.
   const show = (view: "log" | "stats") =>
     page.locator(`.site-navigation a[href="#/${view}"]`).click();
   await expect(flightCount).toContainText("9Flights");
   await show("stats");
-  await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
-    "1h 30m",
-  );
-  await expect(page.locator(".passport-visual")).not.toContainText(
-    "Early arrivals do not offset delays",
-  );
-  await expect(page.locator(".passport-delay-highlight")).toHaveAttribute(
-    "title",
-    "Early arrivals do not offset delays",
-  );
+  const totals = page.locator('.stats-panel[data-region="totals"]');
+  await expect(totals.locator(".stats-figure")).toHaveText("1h 30m");
+  await expect(totals).toContainText("Early arrivals do not offset delays");
   await expect(
     page.locator(".primary-stats, .passport-counts, .highlight-list"),
   ).toHaveCount(0);
@@ -83,12 +76,9 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await expect(page.locator(".passport-core-stat").nth(5)).toHaveText(
     "3Countries",
   );
-  await expect(page.locator(".passport-visual")).not.toContainText(
-    "Aircraft types",
-  );
 
-  await expect(page.locator(".passport-highlights")).toBeVisible();
-  await expect(page.locator(".passport-highlight")).toHaveCount(5);
+  await expect(page.locator(".stats-insights")).toBeVisible();
+  await expect(page.locator(".stats-panel")).toHaveCount(8);
   await show("log");
   await page.locator("#passport-flight-search").fill("TAO");
   await expect(page.locator(".flight-row")).toHaveCount(8);
@@ -112,14 +102,29 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
   await show("stats");
   await airport.click();
   await expect(flightCount).toContainText("9Flights");
+  const airline = page.getByRole("button", {
+    name: /Filter flights flown with Cathay Pacific/,
+  });
+  await expect(airline).toContainText("4 flights");
+  await airline.click();
+  await expect(airline).toHaveAttribute("aria-pressed", "true");
+  await expect(flightCount).toContainText("4Flights");
+  // Every airline stays listed, so another one can be picked directly.
   await expect(
-    page.getByRole("button", {
-      name: /Filter flights flown with Cathay Pacific/,
-    }),
-  ).toHaveCount(0);
+    page.locator('.stats-panel[data-region="airlines"] .stats-rank'),
+  ).toHaveCount(3);
+  await show("log");
+  await expect(page.locator(".flight-row")).toHaveCount(4);
+  await expect(page.locator('select[name="airline"]')).toHaveValue("CX");
+  await page
+    .getByRole("button", { name: "Remove filter: Cathay Pacific · CX" })
+    .click();
+  await expect(page.locator(".flight-row")).toHaveCount(9);
+  await show("stats");
+  await expect(airline).toHaveAttribute("aria-pressed", "false");
   await expect(
     page.getByRole("button", { name: /Shortest flight: filter/ }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
   await page
     .getByRole("button", {
       name: /Longest flight: filter flights from HKG to BOM/,
@@ -154,9 +159,9 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
             .locator("html")
             .evaluate((element) => element.scrollWidth <= element.clientWidth),
         ).toBe(true);
+        await expect(page.locator(".stats-insights")).toBeVisible();
+        await expect(page.locator(".stats-panel")).toHaveCount(8);
         if (width > 760) {
-          await expect(page.locator(".passport-highlights")).toBeVisible();
-          await expect(page.locator(".passport-highlight")).toHaveCount(5);
           expect(
             await page
               .locator(".passport-visual-sticky")
@@ -181,14 +186,7 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
               .evaluate((el) => el.scrollHeight <= el.clientHeight + 1),
           ).toBe(true);
         } else {
-          await expect(
-            page.locator(
-              ".passport-highlights, .passport-highlight, .passport-spotlight",
-            ),
-          ).toHaveCount(0);
           await expect(page.locator(".passport-mobile-summary")).toBeVisible();
-          await expect(page.locator(".passport-delay-panel")).toBeVisible();
-          await expect(page.locator(".passport-network-panel")).toBeVisible();
         }
       }
       expect(
@@ -203,19 +201,9 @@ test("preserves desktop flight highlights and removes them only on mobile", asyn
 
   for (const width of [760, 761, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    if (width > 760) {
-      await expect(page.locator(".passport-highlights")).toBeVisible();
-      await expect(page.locator(".passport-highlight")).toHaveCount(5);
-    } else {
-      await expect(page.locator(".passport-highlights")).toHaveCount(0);
-      const highlightsInTabOrder = await page
-        .locator("button")
-        .evaluateAll((buttons) =>
-          buttons.some(
-            (button) => button.closest(".passport-highlights") !== null,
-          ),
-        );
-      expect(highlightsInTabOrder).toBe(false);
-    }
+    // Every entry stays reachable from the keyboard on every screen class.
+    await expect(page.locator(".stats-insights")).toBeVisible();
+    await expect(page.locator(".stats-panel")).toHaveCount(8);
+    await expect(page.locator("button.stats-rank").first()).toBeVisible();
   }
 });

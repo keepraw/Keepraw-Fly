@@ -35,8 +35,9 @@ effects and controls. `import.css`, `settings.css`, `flight-editor.css`,
 `flight-detail.css` and `passport.css` own their workflows and composition,
 including their responsive rules. Passport also owns the archive and flight-row
 presentation. `views.css` selects which of those regions each view shows
-(`data-view` on the Passport layout) and owns the Compact tab bar; see
-[views and skins](views-and-skins.md).
+(`data-view` on the Passport layout) and owns the Compact tab bar. `stats.css`
+owns the Log filters, the dense flight-row facts, the Stats regions and the
+Flight context; see [views and skins](views-and-skins.md).
 
 The exact import order in [main.tsx](../apps/web/src/main.tsx) is authoritative.
 `shared-page-theme.css` follows base/shell and owns the shared Passport blue-gray

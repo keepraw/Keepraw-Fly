@@ -65,63 +65,81 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
     .getByRole("combobox", { name: "Distance", exact: true })
     .selectOption("kilometers");
   await page.goto("/#/stats");
-  const years = page.locator(".passport-delay-chart li");
-  await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
-    "1h 10m",
+  const region = (name: string) =>
+    page.locator(`.stats-panel[data-region="${name}"]`);
+  const total = region("totals").locator(".stats-figure");
+  const years = page.locator(".stats-years tbody tr");
+  const delays = years.locator("td:last-child");
+  await expect(total).toHaveText("1h 10m");
+  // Early arrivals do not offset delays, and the note says so in the open.
+  await expect(region("totals")).toContainText(
+    "Early arrivals do not offset delays",
   );
   expect(
-    await years.evaluateAll((items) =>
-      items.map((item) => [
-        item.getAttribute("data-year"),
-        item.getAttribute("data-minutes"),
+    await years.evaluateAll((rows) =>
+      rows.map((row) => [
+        row.getAttribute("data-year"),
+        row.querySelector("td")!.textContent,
+        row.querySelector("td:last-child")!.getAttribute("data-minutes"),
       ]),
     ),
   ).toEqual([
-    ["2024", "0"],
-    ["2025", "unknown"],
-    ["2026", "30"],
+    ["2026", "2", "30"],
+    ["2025", "1", "unknown"],
+    ["2024", "1", "0"],
+    ["2023", "1", "40"],
   ]);
-  await expect(page.locator(".passport-chart-scope")).toHaveText(
-    "Latest 3 recorded years",
-  );
-  await expect(years.nth(0).locator(".passport-delay-bar")).toHaveAttribute(
-    "style",
-    "--delay-height: 0%;",
-  );
-  await expect(years.nth(1).locator(".passport-delay-bar")).toHaveCount(0);
-  await expect(years.nth(2).locator(".passport-delay-bar")).toHaveAttribute(
-    "style",
-    "--delay-height: 100%;",
-  );
-  const ranks = page.locator(".passport-airport-rank");
   expect(
-    await ranks.evaluateAll((items) =>
-      items.map((item) => [
-        item.getAttribute("data-airport"),
-        item.getAttribute("data-visits"),
-        item.querySelector<HTMLElement>(".passport-airport-track > span")!.style
-          .width,
-      ]),
-    ),
-  ).toEqual([
+    await page
+      .locator(".stats-months li")
+      .evaluateAll((items) =>
+        items.map((item) => Number(item.getAttribute("data-count"))),
+      ),
+  ).toEqual([5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const ranks = region("airports").locator(".stats-rank");
+  const ranking = (name: string) =>
+    region(name)
+      .locator(".stats-rank")
+      .evaluateAll((items) =>
+        items.map((item) => [
+          item.getAttribute("data-key"),
+          item.getAttribute("data-count"),
+          item
+            .querySelector<HTMLElement>(".stats-bar-fill")!
+            .style.getPropertyValue("--stats-share"),
+        ]),
+      );
+  expect(await ranking("airports")).toEqual([
     ["HKG", "4", "100%"],
     ["TAO", "3", "75%"],
     ["LAX", "1", "25%"],
     ["SFO", "1", "25%"],
+    ["SYD", "1", "25%"],
   ]);
-  const longest = page.locator(".passport-longest-flight");
-  await expect(
-    longest.locator(".passport-longest-endpoint").first(),
-  ).toHaveText("LAXLos Angeles");
-  await expect(longest.locator(".passport-longest-endpoint").last()).toHaveText(
-    "SYDSydney",
+  // Cancelled flights count nowhere; nothing recorded is not a category.
+  expect(await ranking("airlines")).toEqual([["CX", "5", "100%"]]);
+  await expect(region("aircraft")).toContainText("Not enough data");
+  expect(await ranking("cabins")).toEqual([["not-recorded", "5", "100%"]]);
+  const record = (kind: string) =>
+    page.locator(`.stats-record[data-record="${kind}"]`);
+  const longest = record("longest");
+  await expect(longest.locator(".stats-record-route")).toHaveText("LAX → SYD");
+  await expect(longest.locator(".stats-record-places")).toHaveText(
+    "Los Angeles → Sydney",
   );
-  await expect(longest.locator(".passport-longest-facts")).toHaveText(
-    "Flight duration14h 27mDistance12,061 km",
+  await expect(longest.locator(".stats-record-facts")).toHaveText(
+    "14h 27m12,061 km",
   );
   await expect(longest.locator("svg, canvas, img")).toHaveCount(0);
+  await expect(record("delay")).toContainText("HKG → TAO");
+  await expect(record("delay").locator(".stats-record-facts")).toHaveText(
+    "CX20230h 40m",
+  );
+  // The diverted flight counts on the route it actually flew.
+  await expect(record("route")).toContainText("HKG → TAO");
+  await expect(record("route")).toContainText("3 flights");
 
-  const tao = page.locator('[data-airport="TAO"]');
+  const tao = page.locator('.stats-rank[data-key="TAO"]');
   await tao.focus();
   await page.keyboard.press("Enter");
   await expect(tao).toHaveAttribute("aria-pressed", "true");
@@ -145,13 +163,16 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
   await page.goto("/#/log");
   await expect(page.locator(".flight-row")).toHaveCount(6);
   await page.goto("/#/stats");
+  // The longest delay is one flight, so its record opens that flight.
+  await record("delay").click();
+  await expect(page).toHaveURL(/#\/flight\/2023$/);
+  await page.goBack();
+  await expect(page.locator(".stats-insights")).toBeVisible();
 
   await page.getByRole("button", { name: "2024", exact: true }).click();
   await expect(years).toHaveCount(1);
-  await expect(years).toHaveAttribute("data-minutes", "0");
-  await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
-    "0h 00m",
-  );
+  await expect(delays).toHaveAttribute("data-minutes", "0");
+  await expect(total).toHaveText("0h 00m");
   await page.getByRole("button", { name: "All", exact: true }).click();
   // Stats has no search field; it names the search made in Log instead.
   await page.goto("/#/log");
@@ -160,32 +181,33 @@ test("statistics charts use recorded, filtered data and keep keyboard selections
   await expect(page.locator(".passport-active-search")).toContainText("CX2023");
   await expect(years).toHaveCount(1);
   await expect(years).toHaveAttribute("data-year", "2023");
-  await expect(years).toHaveAttribute("data-minutes", "40");
+  await expect(delays).toHaveAttribute("data-minutes", "40");
   await expect(ranks).toHaveCount(2);
-  await expect(page.locator(".passport-delay-highlight > strong")).toHaveText(
-    "0h 40m",
-  );
+  await expect(total).toHaveText("0h 40m");
   await page.goto("/#/log");
   await page.locator("#passport-flight-search").fill("no matching flight");
   await page.goto("/#/stats");
   await expect(years).toHaveCount(0);
   await expect(ranks).toHaveCount(0);
   await expect(longest).not.toHaveAttribute("aria-pressed");
-  await expect(
-    longest.locator(".passport-longest-endpoint > strong"),
-  ).toHaveText(["—", "—"]);
+  await expect(page.locator(".stats-record-route")).toHaveText([
+    "—",
+    "—",
+    "—",
+    "—",
+  ]);
   await page
     .locator(".passport-active-search")
     .getByRole("button", { name: /Clear search/ })
     .click();
   await expect(page.locator(".passport-active-search")).toHaveCount(0);
-  await expect(years).toHaveCount(3);
+  await expect(years).toHaveCount(4);
   await page.goto("/#settings");
   await page
     .getByRole("combobox", { name: "Distance", exact: true })
     .selectOption("miles");
   await page.goto("/#/stats");
-  await expect(longest.locator(".passport-longest-facts")).toContainText(
+  await expect(longest.locator(".stats-record-facts")).toContainText(
     "7,494 mi",
   );
 });

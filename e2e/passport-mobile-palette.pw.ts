@@ -63,13 +63,10 @@ test.describe("Mobile Passport palette", { tag: "@cross-browser" }, () => {
         );
         await expect(page.locator(".passport-mobile-summary")).toBeVisible();
         await page.goto("/#/stats");
-        await expect(page.locator(".passport-delay-panel")).toBeVisible();
-        await expect(page.locator(".passport-network-panel")).toBeVisible();
-        for (const selector of [
-          ".passport-delay-panel",
-          ".passport-network-panel",
-        ]) {
-          const panel = page.locator(selector);
+        await expect(page.locator(".stats-panel")).toHaveCount(8);
+        for (const region of ["totals", "airports", "records"]) {
+          const panel = page.locator(`.stats-panel[data-region="${region}"]`);
+          await expect(panel).toBeVisible();
           const title = panel.getByRole("heading", { level: 2 });
           await expect(title).toBeVisible();
           await expect(panel).toHaveRole("region");

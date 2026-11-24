@@ -810,11 +810,16 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     expect(workspace.selectorUsesAvailableContentWidth).toBe(true);
     expect(workspace.visualFitsViewport).toBe(true);
 
-    // Stats holds the highlights at every desktop height.
+    // Stats holds its regions at every desktop height.
     await page.locator('.site-navigation a[href="#/stats"]').click();
-    await expect(page.locator(".passport-highlights")).toBeVisible();
-    await expect(page.locator(".passport-airport-rank")).toHaveCount(4);
-    await expect(page.locator(".passport-longest-flight")).toHaveCount(1);
+    await expect(page.locator(".stats-insights")).toBeVisible();
+    await expect(page.locator(".stats-panel")).toHaveCount(8);
+    await expect(
+      page.locator('.stats-panel[data-region="airports"] .stats-rank'),
+    ).toHaveCount(6);
+    await expect(
+      page.locator('.stats-record[data-record="longest"]'),
+    ).toHaveCount(1);
     expect(
       await page.evaluate(
         () =>
@@ -824,11 +829,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
             ).fontSize,
           ) >
           parseFloat(
-            getComputedStyle(
-              document.querySelector(
-                ".passport-delay-highlight .passport-spotlight-label",
-              )!,
-            ).fontSize,
+            getComputedStyle(document.querySelector(".stats-panel > h2")!)
+              .fontSize,
           ),
       ),
     ).toBe(true);
@@ -864,7 +866,7 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
 
   await expect(
     page.locator(
-      ".passport-heading, .route-map-heading, .route-map-legend, .passport-highlights .section-heading",
+      ".passport-heading, .route-map-heading, .route-map-legend, .stats-insights .section-heading",
     ),
   ).toHaveCount(0);
   await expect(
@@ -878,8 +880,8 @@ test("keeps Passport as a complete desktop workspace and a mobile document", asy
     await page.locator('.site-navigation a[href="#/settings"]').click();
     await page.locator(".settings-fields select").first().selectOption(locale);
     await page.locator('.site-navigation a[href="#/stats"]').click();
-    await expect(page.locator(".passport-highlights")).toBeVisible();
-    await expect(page.locator(".passport-highlight")).toHaveCount(5);
+    await expect(page.locator(".stats-insights")).toBeVisible();
+    await expect(page.locator(".stats-panel")).toHaveCount(8);
     expect(
       await page
         .locator("html")
@@ -987,9 +989,7 @@ test("keeps the mobile Passport composition visually stable", async ({
           document.querySelector(".route-map[data-map-theme] svg") !== null &&
           document.querySelector(".route-map-loading, canvas") === null,
         highlightsAbsent:
-          document.querySelector(
-            ".passport-highlights, .passport-highlight",
-          ) === null,
+          document.querySelector(".stats-insights, .stats-panel") === null,
         periodYears: Array.from(
           document.querySelectorAll(".passport-period button"),
         ).map((button) => button.textContent),
@@ -1015,18 +1015,16 @@ test("keeps the mobile Passport composition visually stable", async ({
     expect(composition.pastFlightsTitle).toBe("Past flights");
     expect(composition.addFlightInTabBar).toBe(true);
 
-    // Stats carries the delay and network panels below the same summary.
+    // Stats carries its regions below the same summary.
     await page.locator('.primary-tab-bar a[href="#/stats"]').click();
     const panels = await page.evaluate(() => {
       const list = [
         ".passport-mobile-summary",
-        ".passport-delay-panel",
-        ".passport-network-panel",
+        '.stats-panel[data-region="totals"]',
+        '.stats-panel[data-region="airports"]',
+        '.stats-panel[data-region="records"]',
       ].map((selector) => document.querySelector<HTMLElement>(selector)!);
       return {
-        distinct:
-          new Set(list.map((panel) => getComputedStyle(panel).backgroundColor))
-            .size === 3,
         contentsFit: list.every((panel) => {
           const bounds = panel.getBoundingClientRect();
           return Array.from(panel.querySelectorAll("*")).every((element) => {
@@ -1050,7 +1048,6 @@ test("keeps the mobile Passport composition visually stable", async ({
       };
     });
     expect(panels).toEqual({
-      distinct: true,
       contentsFit: true,
       ordered: true,
       fitsViewport: true,

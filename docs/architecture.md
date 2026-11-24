@@ -146,10 +146,11 @@ map theme chosen in Settings; see [2D map architecture](map-2d-architecture.md).
 
 Passport alone permits an overview zoom below 1 to fit the full world into wide
 stages; regional cameras retain 16% padding and a maximum initial zoom of 6 for
-geographic context. Desktop flight rows localize city names from airport data,
-fall back to IATA when a city is unavailable, and flag arrival delays of at least
-30 minutes. Flight Detail retains every timing deviation. Short desktop windows
-(height at most 540px) show all six core statistics and omit the three Highlights.
+geographic context. Flight rows localize city names from airport data, fall back
+to IATA when a city is unavailable, and add duration, distance, aircraft type,
+seat and a late arrival. Flight Detail retains every timing deviation. Stats
+renders the same regions at every width and height; see
+[views and skins](views-and-skins.md).
 
 ## Source entry points
 

@@ -155,22 +155,21 @@ for (const theme of ["light", "dark"]) {
       }
       await expect(
         page.locator(
-          ".flight-ledger-duration, .flight-ledger-exception, .flight-scheduled-times, .flight-deviation",
+          ".flight-ledger-duration, .flight-ledger-exception, .flight-scheduled-times",
         ),
       ).toHaveCount(0);
-      // Map keeps the six core facts; Stats holds the highlights at every
+      // Map keeps the six core facts; Stats holds the other regions at every
       // height.
-      await expect(page.locator(".passport-highlights")).toHaveCount(0);
+      await expect(page.locator(".stats-insights")).toHaveCount(0);
       await page.goto("/#/stats");
-      await expect(page.locator(".passport-highlights")).toBeVisible();
-      await expect(
-        page.locator(".passport-longest-route").last(),
-      ).toBeVisible();
-      await expect(page.locator(".passport-longest-route").last()).toHaveText(
-        /\S.+\s*→\s*\S.+/,
+      await expect(page.locator(".stats-insights")).toBeVisible();
+      const longest = page.locator('.stats-record[data-record="longest"]');
+      await expect(longest).toBeVisible();
+      await expect(longest.locator(".stats-record-route")).toHaveText(
+        /^[A-Z]{3} → [A-Z]{3}$/,
       );
-      await expect(page.locator(".passport-longest-facts")).toHaveText(
-        /Flight duration\d+h.*Distance.*\d/,
+      await expect(longest.locator(".stats-record-facts")).toHaveText(
+        /\d+h.*\d/,
       );
       await page.goto("/#/map");
       await expect(page.locator(".route-map-canvas > svg")).toBeVisible();

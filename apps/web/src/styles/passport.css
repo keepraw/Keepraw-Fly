@@ -412,8 +412,7 @@
     animation-delay: calc(130ms + var(--flight-row-index, 0) * 28ms);
   }
 
-  .route-map,
-  .passport-highlights {
+  .route-map {
     animation: content-enter 440ms 150ms var(--ease-out) both;
   }
 }
@@ -911,131 +910,6 @@
   line-height: 1.6;
 }
 
-.passport-archive-page .passport-highlights {
-  min-width: 0;
-  margin-top: calc(22 * var(--passport-px, 1px));
-  padding: calc(12 * var(--passport-px, 1px)) 0 0;
-  border: 0;
-  border-top: 1px solid var(--line);
-  border-radius: 0;
-  background: transparent;
-}
-
-.passport-spotlight {
-  display: flex;
-  flex-direction: column;
-}
-
-.passport-spotlight-item {
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  min-height: calc(44 * var(--passport-px, 1px));
-  grid-template-columns:
-    calc(64 * var(--passport-px, 1px)) minmax(0, 1fr)
-    auto calc(14 * var(--passport-px, 1px));
-  align-items: baseline;
-  gap: calc(8 * var(--passport-px, 1px));
-  padding: calc(10 * var(--passport-px, 1px)) calc(6 * var(--passport-px, 1px));
-  border: 0;
-  border-radius: 0;
-  color: var(--ink);
-  background: transparent;
-  text-align: left;
-}
-
-.passport-spotlight-label {
-  color: var(--muted);
-  font-size: calc(0.75 * var(--passport-rem, 1rem));
-  line-height: 1.5;
-}
-
-.passport-spotlight-copy {
-  min-width: 0;
-  font-size: calc(0.875 * var(--passport-rem, 1rem));
-  line-height: 1.5;
-}
-
-.passport-spotlight-copy strong {
-  font-weight: var(--font-weight-semibold);
-  overflow-wrap: anywhere;
-}
-
-.passport-spotlight-code {
-  margin-left: calc(8 * var(--passport-px, 1px));
-  color: var(--muted);
-  font-family: var(--font-family-data);
-  font-size: calc(0.75 * var(--passport-rem, 1rem));
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.passport-spotlight-item small {
-  color: var(--muted);
-  font-size: calc(0.75 * var(--passport-rem, 1rem));
-  font-variant-numeric: tabular-nums;
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
-.passport-spotlight-arrow {
-  color: var(--green);
-  font-size: calc(0.75 * var(--passport-rem, 1rem));
-}
-
-.passport-spotlight-routes {
-  display: grid;
-  grid-template-columns: calc(64 * var(--passport-px, 1px)) minmax(0, 1fr);
-  gap: calc(8 * var(--passport-px, 1px));
-  margin-top: calc(6 * var(--passport-px, 1px));
-  padding-left: calc(6 * var(--passport-px, 1px));
-}
-
-.passport-spotlight-routes > .passport-spotlight-label {
-  padding-top: calc(10 * var(--passport-px, 1px));
-}
-
-.passport-spotlight-routes > div {
-  min-width: 0;
-}
-
-.passport-spotlight-routes .passport-spotlight-item {
-  grid-template-columns: minmax(0, 1fr) auto calc(14 * var(--passport-px, 1px));
-  padding-left: 0;
-}
-
-.passport-spotlight-context {
-  margin-right: calc(7 * var(--passport-px, 1px));
-  color: var(--muted);
-  font-size: calc(0.75 * var(--passport-rem, 1rem));
-}
-
-.passport-spotlight-routes strong {
-  font-family: var(--font-family-data);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.passport-spotlight-item:is(button):hover {
-  color: var(--green);
-  background: var(--color-accent-soft);
-}
-
-.passport-spotlight-item:is(button):focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: -2px;
-  background: var(--color-accent-soft);
-}
-
-.passport-spotlight-item[aria-pressed="true"] {
-  background: var(--color-accent-soft);
-  box-shadow: inset calc(3 * var(--passport-px, 1px)) 0 var(--color-accent);
-}
-
-.passport-spotlight-item.is-unavailable {
-  color: var(--muted);
-}
-
 .passport-archive .passport-exploration {
   display: block;
   margin: calc(18 * var(--passport-px, 1px)) 0 calc(6 * var(--passport-px, 1px));
@@ -1141,10 +1015,6 @@
 }
 
 @media (max-width: 760px) {
-  .passport-archive-page .passport-highlights {
-    display: none;
-  }
-
   .passport-archive-page {
     max-width: 760px;
 
@@ -1177,8 +1047,7 @@
     display: none;
   }
 
-  .passport-mobile-summary,
-  .passport-mobile-panel {
+  .passport-mobile-summary {
     display: block;
     min-width: 0;
     padding: var(--passport-mobile-panel-padding-block)
@@ -1190,22 +1059,6 @@
     order: 1;
     color: var(--passport-surface-text);
     background: var(--passport-surface);
-  }
-
-  .passport-mobile-panel {
-    margin-top: var(--passport-mobile-panel-gap);
-  }
-
-  .passport-delay-panel {
-    order: 2;
-    color: var(--delay-surface-text);
-    background: var(--delay-surface);
-  }
-
-  .passport-network-panel {
-    order: 3;
-    color: var(--network-surface-text);
-    background: var(--network-surface);
   }
 
   .passport-archive {
@@ -1276,16 +1129,19 @@
     font-weight: var(--font-weight-medium);
   }
 
+  /* Two equal columns while both unbroken values fit; otherwise they stack. */
   .passport-mobile-journey {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 8px;
   }
 
   .passport-mobile-journey > div {
     display: grid;
-    min-width: 0;
+    min-width: max-content;
+    max-width: 100%;
+    flex: 1 1 0;
     align-content: start;
     gap: 2px;
   }
@@ -1323,98 +1179,6 @@
 
   .passport-mobile-support span {
     white-space: nowrap;
-  }
-
-  .passport-mobile-panel h2 {
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  .passport-delay-main {
-    display: flex;
-    align-items: baseline;
-    margin-top: 8px;
-  }
-
-  .passport-delay-main strong {
-    font-size: 1.375rem;
-    font-weight: var(--font-weight-medium);
-    letter-spacing: -0.025em;
-    line-height: 1.5;
-    white-space: nowrap;
-  }
-
-  .passport-delay-panel p {
-    margin: 6px 0 0;
-    color: var(--delay-surface-muted);
-    font-size: var(--passport-mobile-card-copy-size);
-    line-height: 1.5;
-  }
-
-  .passport-delay-panel .passport-delay-longest {
-    display: grid;
-    gap: 0;
-    color: var(--delay-surface-muted);
-  }
-
-  .passport-delay-longest span {
-    font-weight: var(--font-weight-medium);
-  }
-
-  .passport-delay-longest strong {
-    color: var(--delay-surface-text);
-    font-weight: var(--font-weight-regular);
-  }
-
-  .passport-network-facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 8px;
-  }
-
-  .passport-network-facts div {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  .passport-network-facts strong {
-    font-size: var(--passport-mobile-card-number-size);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  .passport-network-facts span {
-    color: var(--network-surface-muted);
-    font-size: var(--passport-mobile-card-copy-size);
-    line-height: 1.5;
-  }
-
-  .passport-network-panel p {
-    display: grid;
-    gap: 3px;
-    margin: 8px 0 0;
-    color: var(--network-surface-muted);
-    font-size: var(--passport-mobile-card-copy-size);
-    line-height: 1.5;
-  }
-
-  .passport-network-panel p > span {
-    font-size: 0.9375rem;
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  .passport-network-panel p strong {
-    color: var(--network-surface-text);
-    font-size: var(--passport-mobile-card-copy-size);
-    font-weight: var(--font-weight-regular);
-    line-height: 1.5;
-    overflow-wrap: normal;
-    word-break: keep-all;
   }
 
   .passport-mobile-section-title {
@@ -1799,11 +1563,6 @@
   .passport-network-line {
     grid-column: 1;
     grid-row: 4;
-  }
-
-  .passport-archive-page .passport-highlights {
-    grid-column: 1;
-    grid-row: 5;
   }
 
   /* The six-column ledger needs 463px plus scrollport space. Keep the date in

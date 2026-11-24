@@ -578,9 +578,10 @@ test("full archive is used even with year and search filters", async ({
   await expect(image(page)).toHaveAttribute("data-map-routes", "49");
   expect((await readLog(page)).text).toContain("91");
   await page.keyboard.press("Escape");
-  // The filters belong to the session and are still set back on Map.
+  // The year is part of the address and the search stays in the session;
+  // both are still set back on Map.
   await page.goBack();
-  await expect(page).toHaveURL(/#\/map$/);
+  await expect(page).toHaveURL(/#\/map\?year=2023$/);
   await expect(page.locator("#passport-flight-search")).toHaveValue("SFO");
   await expect(
     page.getByRole("button", { name: "2023", exact: true }),

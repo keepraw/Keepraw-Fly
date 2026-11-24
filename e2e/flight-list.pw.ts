@@ -88,7 +88,7 @@ for (const [locale, origin, destination] of [
       await expect(rows.locator(".flight-status")).toHaveCount(2);
       await expect(
         rows.locator(
-          ".flight-scheduled-times, .flight-deviation, .flight-ledger-duration, .flight-ledger-exception",
+          ".flight-scheduled-times, .flight-ledger-duration, .flight-ledger-exception",
         ),
       ).toHaveCount(0);
       const actual = rows.filter({ hasText: "ZH9911" });
@@ -192,11 +192,9 @@ for (const [locale, origin, destination] of [
       if (sample.width <= 760) {
         await expect(page.locator(".route-map")).toHaveCount(1);
         await expect(page.locator(".globe-webgl, canvas")).toHaveCount(0);
-        // Map keeps the totals; delay and network detail belong to Stats.
+        // Map keeps the totals; the other regions belong to Stats.
         await expect(
-          page.locator(
-            ".passport-mobile-summary, .passport-delay-panel, .passport-network-panel",
-          ),
+          page.locator(".passport-mobile-summary, .stats-insights"),
         ).toHaveCount(1);
       }
     }

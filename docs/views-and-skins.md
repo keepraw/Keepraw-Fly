@@ -4,15 +4,17 @@
 
 ## English
 
-**Status: phase 1 of 6 implemented.** The views, the fragment routes, the
+**Status: phase 2 of 6 implemented.** The views, the fragment routes, the
 addressable Flight, the primary navigation with its persistent Add flight and
-the Compact touch targets below are in the application. Log, Map and Stats still
-share the v0.3.0 Passport composition and palette described in the
-[visual system](design-system.md), and the landing view is Map for every user.
-The exploration state is kept in memory; mirroring it into the fragment query
-arrives with the Log filters in phase 2. Skins, their extensions and the Wide,
-Ultrawide and Short layouts are not implemented yet. Each later phase updates
-this document with its implementation.
+the Compact touch targets below are in the application, and so are the Log
+filters and order, the denser Log row, every Stats region, the flight's place in
+the archive and the exploration state in the fragment query. Stats and the Log
+controls render one markup on every screen class. The six totals still use the
+v0.3.0 arrangement (a row on wider screens, a card on Compact), the palette is
+the one described in the [visual system](design-system.md), and the landing view
+is Map for every user. Skins, their extensions and the Wide, Ultrawide and Short
+layouts are not implemented yet. Each later phase updates this document with its
+implementation.
 
 **Contract version: `skin-contract/0` (internal, unstable).** The contract exists
 so that the three official skins are built against one structure. It is not a
@@ -74,11 +76,21 @@ no server rewrite.
   Log with a notice; it never shows a blank page.
 - Opening a flight adds a history entry, so browser Back returns to the view it
   was opened from with its scroll position. Previous/next inside Flight replace
-  the entry instead of adding one.
-- The exploration state — year scope and the selected airport, airline or route —
-  is shared by Log, Map and Stats and is mirrored into the fragment query with
-  `replaceState`. Search text stays in memory: typing must not rewrite the
-  address on every key, and search terms should not persist in browser history.
+  the entry instead of adding one, and walk the list the flight was opened from;
+  the entry keeps that list's filters and order, so a reload does not change it.
+- The exploration state — year scope, the selected airport or route, the airline
+  and aircraft-type filters and the sort order — is shared by Log, Map and Stats
+  and is mirrored into the fragment query with `replaceState`. Search text stays
+  in memory: typing must not rewrite the address on every key, and search terms
+  should not persist in browser history.
+- The query keys are `year`, `airport` (with `at` for the physical airport),
+  `route` as `ORIGIN-DESTINATION` (with `from` and `to`), `airline`, `aircraft`
+  and `sort` (`oldest`, `longest`, `shortest`). Defaults are left out, so
+  `#/log` is the unfiltered Log. Unknown or malformed values are ignored, and a
+  year without flights falls back to All.
+- Back, Forward and reload restore the state their entry names. A link or typed
+  address without a query keeps the state in memory, so moving between views
+  does not drop the filters.
 - The welcome, recovery and conflict states keep precedence over routes, as today.
 - The flight editor, share overlay and confirmation dialogs remain overlays, not
   routes.
@@ -143,6 +155,24 @@ The cross-filter between map, statistics and list — the best interaction of
 v0.3.0 — is kept: selecting an airport, airline or route anywhere updates the
 shared exploration state, and the active selection is always shown with a clear
 action.
+
+How the regions behave:
+
+- An airport or route is one selection; airline and aircraft type are separate
+  filters, so all three can narrow the flights together. Changing the year keeps
+  the airline, the aircraft type and the order, and clears the selection and
+  the search.
+- Each filter lists its choices from the flights the other filters leave, with
+  their counts. An active airline never hides the other airlines.
+- Log orders by date (newest or oldest first, grouped by year) or by distance
+  (longest or shortest first, in one group, flights without a known distance
+  last).
+- A Log row shows a late arrival; an early or on-time arrival adds nothing.
+  A cancelled flight shows no duration, distance or delay.
+- A Stats ranking shows its first six entries and opens in place to all of them.
+  Stats counts and the flight context leave out cancelled flights, count a
+  diverted flight at the airport it arrived at, and skip airports that are not
+  confirmed at the flight date.
 
 ### Extension slots
 
@@ -326,11 +356,13 @@ synchronisation; live flight data; 3D maps.
 
 ## 简体中文
 
-**状态：6 个阶段中的阶段 1 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
-「添加航班」的主导航，以及紧凑档的触控目标已经在应用中。日志、地图、统计仍沿用
-[视觉系统](design-system.md)所描述的 v0.3.0 飞行护照构图与配色，落地视图对所有用户都是
-地图。探索状态目前只保存在内存中；写入片段查询串的部分随阶段 2 的日志筛选一起实现。
-皮肤、皮肤扩展以及宽屏、超宽、矮屏布局尚未实现。后续每个阶段在实现的同时更新本文。
+**状态：6 个阶段中的阶段 2 已实现。** 下文的视图、片段路由、可寻址的航班、带常驻
+「添加航班」的主导航，以及紧凑档的触控目标已经在应用中；日志的筛选与排序、更密的日志行、
+统计的全部区域、航班在档案中的位置，以及写入片段查询串的探索状态也已实现。统计和日志的
+筛选控件在所有屏幕档位使用同一份标记。六项合计仍沿用 v0.3.0 的排布（较宽屏幕为一行，
+紧凑档为一张卡片），配色仍是[视觉系统](design-system.md)所描述的那一套，落地视图对所有
+用户都是地图。皮肤、皮肤扩展以及宽屏、超宽、矮屏布局尚未实现。后续每个阶段在实现的同时
+更新本文。
 
 **约定版本：`skin-contract/0`（内部、不稳定）。** 约定的作用是让三套官方皮肤基于同一
 结构实现。它不是对外的扩展接口：不支持第三方皮肤、皮肤导入，也不支持运行时加载的代码
@@ -383,10 +415,17 @@ synchronisation; live flight data; 3D maps.
 - 刷新后保留视图；在航班视图下保留该航班。航班 id 不存在时打开日志并给出提示，不出现
   空白页。
 - 打开一条航班会新增一条历史记录，因此浏览器后退回到打开它的视图及其滚动位置。航班
-  视图内的上一条/下一条替换当前记录，不新增。
-- 探索状态（年份范围，以及选中的机场、航司或航线）由日志、地图、统计三个视图共享，并用
-  `replaceState` 同步到片段的查询部分。搜索文字只保存在内存里：输入时不应每按一个键就
-  改写地址，搜索词也不应留在浏览器历史中。
+  视图内的上一条/下一条替换当前记录，不新增，并沿打开该航班时的列表前后移动；这条
+  记录保留该列表的筛选和排序，刷新后不变。
+- 探索状态（年份范围、选中的机场或航线、航司与机型筛选、排序方式）由日志、地图、统计
+  三个视图共享，并用 `replaceState` 同步到片段的查询部分。搜索文字只保存在内存里：输入
+  时不应每按一个键就改写地址，搜索词也不应留在浏览器历史中。
+- 查询键为 `year`、`airport`（实体机场用 `at`）、`route`（写作 `出发-到达`，配合 `from`
+  和 `to`）、`airline`、`aircraft` 和 `sort`（`oldest`、`longest`、`shortest`）。默认值
+  不写入，因此 `#/log` 就是未筛选的日志。未知或格式错误的值会被忽略；没有航班的年份回退
+  到「全部」。
+- 后退、前进和刷新会恢复该历史记录所写的状态。不带查询的链接或手动输入的地址保留内存中
+  的状态，所以在视图之间切换不会丢失筛选。
 - 欢迎、恢复和冲突状态仍然优先于路由，与现在一致。
 - 航班编辑器、分享覆盖层和确认对话框仍是覆盖层，不是路由。
 
@@ -445,6 +484,17 @@ synchronisation; live flight data; 3D maps.
 
 地图、统计和列表之间的联动筛选是 v0.3.0 最好的交互，予以保留：在任何地方选中机场、航司
 或航线都会更新共享的探索状态，当前筛选始终可见并带清除操作。
+
+各区域的行为：
+
+- 机场或航线是一项「选中」；航司和机型是两个独立的筛选，三者可以同时收窄航班。切换年份
+  会保留航司、机型和排序，并清除选中项和搜索。
+- 每个筛选的可选项来自其他筛选留下的航班，并带数量。已选中的航司不会让其他航司消失。
+- 日志可按日期排序（从新到旧或从旧到新，按年份分组），或按距离排序（从长到短或从短到长，
+  合为一组，距离未知的航班排在最后）。
+- 日志行显示到达晚点；提前或准点到达不额外显示。已取消的航班不显示时长、距离和晚点。
+- 统计中的排行默认显示前六项，可就地展开全部。统计计数和航班上下文不计入已取消的航班；
+  备降航班计入实际到达的机场；在航班日期无法确认的机场不计入。
 
 ### 扩展位
 

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
-import { groupFlightsByYear, sortFlightsNewestFirst } from "../src/sorting";
+import {
+  groupFlightsByYear,
+  sortFlights,
+  sortFlightsNewestFirst,
+} from "../src/sorting";
 
 function flight(id: string, scheduledDeparture: string): KeeprawFlight {
   return {
@@ -61,5 +65,87 @@ describe("newest-first flight sorting", () => {
     expect(groupFlightsByYear(flights)[0]?.flights).toEqual(
       sortFlightsNewestFirst(flights),
     );
+  });
+});
+
+describe("selectable flight orders", () => {
+  const route = (
+    id: string,
+    departure: string,
+    origin: string,
+    destination: string,
+  ): KeeprawFlight => ({
+    ...flight(id, departure),
+    origin: { iata: origin },
+    destination: { iata: destination },
+  });
+  const flights = [
+    route("short-old", "2024-03-01T09:00:00Z", "SFO", "LAX"),
+    route("long", "2025-06-01T09:00:00Z", "LAX", "SYD"),
+    route("unknown", "2025-07-01T09:00:00Z", "ZZX", "ZZY"),
+    route("short-new", "2026-01-01T09:00:00Z", "SFO", "LAX"),
+    route("medium", "2026-02-01T09:00:00Z", "SFO", "JFK"),
+  ];
+  const ids = (order: Parameters<typeof sortFlights>[1]) =>
+    sortFlights(flights, order).map(({ id }) => id);
+
+  it("orders by date in both directions without changing the input", () => {
+    expect(ids("newest")).toEqual([
+      "medium",
+      "short-new",
+      "unknown",
+      "long",
+      "short-old",
+    ]);
+    expect(ids("oldest")).toEqual([
+      "short-old",
+      "long",
+      "unknown",
+      "short-new",
+      "medium",
+    ]);
+    expect(flights[0]!.id).toBe("short-old");
+  });
+
+  it("orders by distance, newest first on ties and undetermined distances last", () => {
+    expect(ids("longest")).toEqual([
+      "long",
+      "medium",
+      "short-new",
+      "short-old",
+      "unknown",
+    ]);
+    expect(ids("shortest")).toEqual([
+      "short-new",
+      "short-old",
+      "medium",
+      "long",
+      "unknown",
+    ]);
+  });
+
+  it("lists cancelled flights with the undetermined distances", () => {
+    const cancelled = {
+      ...route("cancelled", "2026-03-01T09:00:00Z", "LAX", "SYD"),
+      cancelled: true,
+    };
+    const order = (direction: "longest" | "shortest") =>
+      sortFlights([cancelled, ...flights], direction).map(({ id }) => id);
+    expect(order("longest").slice(-2)).toEqual(["cancelled", "unknown"]);
+    expect(order("shortest").slice(-2)).toEqual(["cancelled", "unknown"]);
+    expect(order("longest")[0]).toBe("long");
+  });
+
+  it("groups years oldest first on request", () => {
+    expect(
+      groupFlightsByYear(flights, "oldest").map(({ year, flights }) => [
+        year,
+        flights.map(({ id }) => id),
+      ]),
+    ).toEqual([
+      ["2024", ["short-old"]],
+      ["2025", ["long", "unknown"]],
+      ["2026", ["short-new", "medium"]],
+    ]);
   });
 });

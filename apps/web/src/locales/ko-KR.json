@@ -774,5 +774,54 @@
       "invalid": "무효 / 취소됨"
     },
     "showMore": "더 많은 행 표시"
+  },
+  "insights": {
+    "filters": {
+      "label": "필터 및 정렬",
+      "airline": "항공사",
+      "allAirlines": "모든 항공사",
+      "aircraft": "기종",
+      "allAircraft": "모든 기종",
+      "sort": "정렬 순서",
+      "sortOrders": {
+        "newest": "최신순",
+        "oldest": "오래된순",
+        "longest": "거리 긴 순",
+        "shortest": "거리 짧은 순"
+      },
+      "active": "적용 중인 필터",
+      "remove": "필터 해제: {{filter}}",
+      "clearAll": "모든 필터 해제",
+      "noMatches": "현재 필터에 맞는 항공편이 없습니다."
+    },
+    "facts": {
+      "duration": "소요 시간",
+      "distance": "거리",
+      "aircraft": "기종",
+      "seat": "좌석"
+    },
+    "stats": {
+      "title": "통계",
+      "year": "연도",
+      "arrivalDelay": "도착 지연",
+      "months": "월별 항공편 수",
+      "airports": "공항별 방문 횟수",
+      "airlines": "항공사별 항공편 수",
+      "aircraft": "기종별 항공편 수",
+      "cabins": "좌석 등급",
+      "cabinNotRecorded": "기록 없음",
+      "records": "기록",
+      "longestArrivalDelay": "최장 도착 지연",
+      "mostFlownRoute": "가장 많이 탄 노선",
+      "filterAircraft": "{{aircraft}} 항공편만 보기",
+      "showAll": "{{count, number}}개 모두 보기",
+      "showFewer": "접기",
+      "noData": "데이터가 부족합니다"
+    },
+    "context": {
+      "title": "이 기록에서",
+      "airportVisit": "총 {{total, number}}회 중 {{ordinal, number}}번째 방문",
+      "routeFlight": "총 {{total, number}}회 중 {{ordinal, number}}번째 비행"
+    }
   }
 }

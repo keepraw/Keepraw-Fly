@@ -185,7 +185,7 @@ try {
     await sample("passport-selected");
     if (viewport.width <= 760)
       await page.setViewportSize({ width: 1440, height: 900 });
-    await page.locator("button.passport-spotlight-item").first().click();
+    await page.locator("button.stats-rank").first().click();
     await expect(page.locator(".passport-exploration")).toBeVisible();
     await page.setViewportSize(viewport);
     await sample("passport-exploration");
@@ -276,7 +276,7 @@ try {
       .nth(1)
       .selectOption(theme);
     await page.goto("http://127.0.0.1:5173/#passport");
-    await page.locator("button.passport-spotlight-item").first().click();
+    await page.locator("button.stats-rank").first().click();
     await sample("variables-" + theme + "-desktop");
     await page.setViewportSize({ width: 390, height: 844 });
     await sample("variables-" + theme + "-mobile");

@@ -5,7 +5,10 @@ import {
   distanceForFlight,
   formatDistance,
 } from "@keepraw-fly/core";
-import { passportVisibleFlights } from "../data/passport-exploration";
+import {
+  initialPassportView,
+  passportVisibleFlights,
+} from "../data/passport-exploration";
 import {
   buildPosterModel,
   MAX_POSTER_ROUTES,
@@ -133,6 +136,7 @@ describe("poster data model", () => {
 
   it("is independent of Passport year, search and selection state", () => {
     const visible = passportVisibleFlights(archive, {
+      ...initialPassportView,
       year: 2023,
       query: "SFO",
       selection: { kind: "airport", code: "SFO" },
