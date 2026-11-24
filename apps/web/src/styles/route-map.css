@@ -625,6 +625,8 @@
   }
 
   .passport-archive-page [data-map-theme] .route-map-canvas {
+    /* The minimum height must not widen the stage past a 320 px screen. */
+    max-width: 100%;
     height: auto;
     min-height: calc(240 * var(--passport-px, 1px));
     aspect-ratio: 4 / 3;

@@ -26,10 +26,28 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+/**
+ * A production build has one stylesheet in the head, so its first paint has the
+ * skin tokens. The dev server delivers styles with the entry module; link the
+ * skins there too. They stay out of index.html so the build keeps them last.
+ */
+function skinFirstPaint(): Plugin {
+  return {
+    name: "keepraw-fly-skin-first-paint",
+    apply: "serve",
+    transformIndexHtml: () =>
+      ["minimal", "aviation"].map((skin) => ({
+        tag: "link",
+        attrs: { rel: "stylesheet", href: `/src/styles/skin-${skin}.css` },
+        injectTo: "head",
+      })),
+  };
+}
+
 export default defineConfig({
   base: "./",
   json: { stringify: "auto" },
-  plugins: [react(), contentSecurityPolicy()],
+  plugins: [react(), contentSecurityPolicy(), skinFirstPaint()],
   build: {
     rollupOptions: {
       output: {

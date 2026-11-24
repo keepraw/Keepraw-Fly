@@ -6,6 +6,7 @@ import {
   importArchive,
 } from "./helpers/responsive";
 import { disablePassportWebGL } from "./helpers/passport-svg";
+import { chooseAppearance } from "./helpers/settings";
 
 test.beforeEach(async ({ page }) => {
   await disablePassportWebGL(page);
@@ -28,18 +29,17 @@ test("mobile Settings edits memberships and preserves all preferences after relo
     .getByRole("group", { name: "Primary name", exact: true })
     .getByRole("radio", { name: "Romanized", exact: true })
     .check();
+  // Appearance is a preference only under a skin that offers a choice.
   await page
-    .getByRole("combobox", { name: "Appearance", exact: true })
-    .selectOption("dark");
+    .getByRole("combobox", { name: "Skin", exact: true })
+    .selectOption("minimal");
+  await chooseAppearance(page, "dark");
   await page
     .getByRole("combobox", { name: "Distance", exact: true })
     .selectOption("kilometers");
   await page
     .getByRole("combobox", { name: "Time format", exact: true })
     .selectOption("12-hour");
-  await page
-    .getByLabel("Map theme", { exact: true })
-    .selectOption("daylight-chart");
   await page.getByRole("switch", { name: /Power User Mode/ }).check();
 
   const add = page.getByRole("button", {
@@ -105,7 +105,7 @@ test("mobile Settings edits memberships and preserves all preferences after relo
         appearance: "dark",
         distanceUnit: "kilometers",
         timeFormat: "12-hour",
-        mapTheme: "daylight-chart",
+        skin: "minimal",
         powerUserMode: true,
       },
       profile: {
@@ -135,9 +135,9 @@ test("mobile Settings edits memberships and preserves all preferences after relo
   await expect(
     page.getByRole("combobox", { name: "Time format", exact: true }),
   ).toHaveValue("12-hour");
-  await expect(page.getByLabel("Map theme", { exact: true })).toHaveValue(
-    "daylight-chart",
-  );
+  await expect(
+    page.getByRole("combobox", { name: "Skin", exact: true }),
+  ).toHaveValue("minimal");
   await expect(
     page.getByRole("switch", { name: /Power User Mode/ }),
   ).toBeChecked();
@@ -237,8 +237,8 @@ test("mobile Settings wraps all languages with system fonts and keeps membership
       .first()
       .selectOption(language);
     await expect(page.locator("html")).toHaveAttribute("lang", language);
-    for (const theme of ["light", "dark"]) {
-      await page.locator("#settings-appearance").selectOption(theme);
+    for (const theme of ["light", "dark"] as const) {
+      await chooseAppearance(page, theme);
       for (const width of [390, 360, 320]) {
         await page.setViewportSize({ width, height: 800 });
         const layout = await page

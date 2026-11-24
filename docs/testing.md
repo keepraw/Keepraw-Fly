@@ -19,7 +19,8 @@ pnpm test:e2e --list
 workers, timeouts, runtime pins and upload policy. Static checks/build run in
 `checks`; Chromium runs the full suite across six shards, and Firefox/WebKit run
 compatibility smoke projects. Production CSP/font journeys run separately in
-`csp` for all three engines. Both matrices keep `fail-fast: false`.
+one `csp` job that builds once and runs the three engine projects in turn. Both
+matrices keep `fail-fast: false`.
 
 Chromium uses `CI_CHROMIUM_SHARD=N/6` and
 [`scripts/playwright-shards.mjs`](../scripts/playwright-shards.mjs) to balance whole
@@ -31,7 +32,7 @@ Firefox runs headed on an Xvfb display. Test retries and
 `fullyParallel: false` remain defined by the Playwright configuration.
 
 The `verify` aggregate gate uses `always()` and requires `checks`, all Chromium
-shards, both compatibility engines and all CSP jobs to succeed. A failed,
+shards, both compatibility engines and the CSP job to succeed. A failed,
 cancelled or skipped dependency fails the gate, with one exception: a pull
 request that changes only Markdown files skips the browser jobs (Chromium,
 compatibility and CSP), and the gate then requires exactly that skip. Only a successful push-to-main
@@ -102,9 +103,10 @@ and project selection. Relevant coverage includes:
   Chinese and German.
 - [`skins.pw.ts`](../e2e/skins.pw.ts): choosing a skin in Settings, its
   persistence, landing view and navigation order, the map theme per appearance,
-  one inventory in both skins, `minimal` on every screen class from 320 px to
-  3840 px and at device scales of 1.25, 1.5 and 2, Chinese, German and Japanese
-  at 320 px, and the accessibility checks in light and dark.
+  one inventory in both skins, `aviation` as the default with its fixed dark
+  appearance and its Flight extension, both skins on every screen class from
+  320 px to 3840 px and at device scales of 1.25, 1.5 and 2, Chinese, German and
+  Japanese at 320 px, and the accessibility checks.
 - [`unified-page-theme.pw.ts`](../e2e/unified-page-theme.pw.ts): live System
   appearance, Settings dialogs, persistence affordances, export and cancellation.
 - [`responsive-boundaries.pw.ts`](../e2e/responsive-boundaries.pw.ts) and
@@ -140,6 +142,6 @@ projects. The Chromium list must still contain every pre-existing regression.
 Use [engineering standards](engineering-standards.md#quality-gates) for the
 repository-wide command checklist. Run focused journeys when their code, inputs
 or capture paths change; inspect `pnpm test:e2e --list` for current discovery.
-GitHub Actions runs the complete Chromium, compatibility and CSP matrices before
+GitHub Actions runs the complete Chromium and compatibility matrices and the CSP job before
 `verify` can pass. Historical test counts and audit timings are not a current
 inventory or evidence that a new change passed.

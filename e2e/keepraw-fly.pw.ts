@@ -1,4 +1,4 @@
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 import { expectDetailHero } from "./helpers/detail-hero";
 import { expectDetailMap } from "./helpers/detail-map";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -310,9 +310,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(powerUserMode).not.toBeChecked();
   await openSettingsCategory(page, "General");
 
-  await page
-    .getByRole("combobox", { name: "Appearance", exact: true })
-    .selectOption("light");
+  await chooseAppearance(page, "light");
   await page
     .getByRole("combobox", { name: "Language", exact: true })
     .selectOption("zh-CN");
@@ -376,7 +374,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
             : null;
       if (controls) {
         const titles = region.getByRole("heading", { level: 3 });
-        await expect(controls).toHaveCount(category === "常规" ? 7 : 3);
+        await expect(controls).toHaveCount(category === "常规" ? 5 : 3);
         for (let index = 0; index < (await controls.count()); index++) {
           const control = controls.nth(index);
           await expect(control).toBeVisible();
@@ -424,9 +422,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
       expect(fit.noOverflow).toBe(true);
       if (viewport.width <= 760) expect(fit.smallTargets).toEqual([]);
       if (category === "常规") {
-        await expect(region.locator("#settings-map-theme")).toHaveValue(
-          "neon-aviation",
-        );
+        await expect(region.locator("#settings-skin")).toHaveValue("minimal");
         for (const select of await region.getByRole("combobox").all()) {
           await expect(select).toHaveCSS("opacity", "1");
           await expect(select).not.toHaveCSS("position", "absolute");
@@ -468,7 +464,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
         }
       }
     }
-    expect(controlBounds).toHaveLength(10);
+    expect(controlBounds).toHaveLength(8);
     expect(
       Math.max(...controlBounds.map((bounds) => bounds.x)) -
         Math.min(...controlBounds.map((bounds) => bounds.x)),
@@ -603,9 +599,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   await expect(clearButton).toBeFocused();
   await page.setViewportSize({ width: 1024, height: 900 });
   await openSettingsCategory(page, "General");
-  await page
-    .getByRole("combobox", { name: "Appearance", exact: true })
-    .selectOption("dark");
+  await chooseAppearance(page, "dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page
     .getByRole("combobox", { name: "Language", exact: true })
@@ -617,7 +611,7 @@ test("keeps grouped Settings readable and operable at desktop, tablet and mobile
   // its actual text color has updated, including in WebKit.
   const settingsHeading = page.locator(".settings-page-heading h1");
   await settingsHeading.scrollIntoViewIfNeeded();
-  await expect(settingsHeading).toHaveCSS("color", "rgb(229, 234, 242)");
+  await expect(settingsHeading).toHaveCSS("color", "rgb(236, 238, 241)");
   expect(
     await page
       .locator("html")
@@ -1263,7 +1257,7 @@ test("aligns Flight Detail to one grid without dashboard or table patterns", asy
 
   await page.locator(".detail-header-back").click();
   await navigateTo(page, "settings");
-  await page.getByLabel("Appearance").selectOption("light");
+  await chooseAppearance(page, "light");
   await page.getByLabel("Language").selectOption("zh-CN");
   await navigateTo(page, "passport");
   await page.getByRole("button", { name: /打开 UA123/ }).click();
@@ -1412,22 +1406,23 @@ test("supports dark mode, keyboard modal controls and WCAG checks", async ({
       exact: true,
     }),
   ).toBeVisible();
-  await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.+/);
+  // The default skin, aviation, is drawn in dark only.
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   const welcomeAudit = await new AxeBuilder({ page }).analyze();
   expect(welcomeAudit.violations).toEqual([]);
   await page.getByRole("button", { name: "Try demo" }).click();
 
   await navigateTo(page, "settings");
-  await page.getByLabel("Appearance").selectOption("light");
+  await chooseAppearance(page, "light");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   const lightSettingsAudit = await new AxeBuilder({ page }).analyze();
   expect(lightSettingsAudit.violations).toEqual([]);
-  await page.getByLabel("Appearance").selectOption("dark");
+  await chooseAppearance(page, "dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   // Audit the rendered theme after inherited text styles have updated.
   await expect(page.locator(".settings-page-heading h1")).toHaveCSS(
     "color",
-    "rgb(229, 234, 242)",
+    "rgb(236, 238, 241)",
   );
   const settingsAudit = await new AxeBuilder({ page }).analyze();
   expect(settingsAudit.violations).toEqual([]);
@@ -1535,7 +1530,7 @@ test("keeps bilingual typography distinct, scannable and inside the viewport", a
       Number.parseFloat(getComputedStyle(element).fontSize),
     );
   await page.getByLabel("Language").selectOption("zh-CN");
-  await page.locator("#settings-appearance").selectOption("dark");
+  await chooseAppearance(page, "dark");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
@@ -1921,7 +1916,7 @@ test("localizes airport identity and keeps sparse facility and map layouts legib
 
   await page.locator(".detail-header-back").click();
   await navigateTo(page, "settings");
-  await page.getByLabel("Appearance").selectOption("light");
+  await chooseAppearance(page, "light");
   await page.getByLabel("Language").selectOption("zh-CN");
   await navigateTo(page, "passport");
   await page.getByRole("button", { name: /打开 ZH9911/ }).click();

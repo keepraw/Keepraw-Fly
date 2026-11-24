@@ -652,20 +652,12 @@
     "skin": "Skin",
     "skinHint": "Sets the look, the layout and the view that opens first. Your flights are not changed.",
     "skinOption": {
-      "classic": "Classic",
-      "minimal": "Minimal"
+      "minimal": "Minimal",
+      "aviation": "Aviation"
     },
     "appearanceFixed": {
       "light": "{{skin}} is only available in light.",
       "dark": "{{skin}} is only available in dark."
-    },
-    "mapTheme": "Map theme",
-    "mapThemeHint": "Applies to the Passport map and the flight route map.",
-    "passportLayout": "Flight Passport layout",
-    "passportLayoutHint": "Layout of the shared Flight Passport image. Neon follows the map theme.",
-    "passportLayoutOption": {
-      "neon": "Neon sheet",
-      "book": "Classic passport book"
     }
   },
   "recovery": {
@@ -867,6 +859,20 @@
       "title": "In this archive",
       "airportVisit": "Visit {{ordinal, number}} of {{total, number}}",
       "routeFlight": "Flight {{ordinal, number}} of {{total, number}}"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "Scheduled and actual",
+      "durationSame": "Same time in the air as scheduled",
+      "durationLonger": "{{count, number}} min longer than scheduled",
+      "durationShorter": "{{count, number}} min shorter than scheduled",
+      "clocksTitle": "Local time at both airports",
+      "dateLine": "Date line",
+      "midnightNote": "A tick marks local midnight.",
+      "midnightAfter": "Local midnight {{duration}} after departure.",
+      "dateLineNote": "The date line is placed where the great-circle route crosses it; it is not a recorded time.",
+      "dateLineAt": "Date line at about {{percent}} of the route."
     }
   }
 }

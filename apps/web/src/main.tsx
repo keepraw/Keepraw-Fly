@@ -36,6 +36,7 @@ import "./styles/share-overlay.css";
 import "./styles/views.css";
 import "./styles/stats.css";
 import "./styles/skin-minimal.css";
+import "./styles/skin-aviation.css";
 
 const NeonLabRoute = import.meta.env.DEV
   ? lazy(() =>

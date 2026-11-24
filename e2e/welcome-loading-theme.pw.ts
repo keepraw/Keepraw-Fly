@@ -1,34 +1,45 @@
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 import { collectBrowserErrors, expectHealthyPage } from "./helpers/responsive";
 
 test.describe.configure({ mode: "parallel" });
 
+// Each palette is one skin in one appearance. `aviation`, the default skin, is
+// drawn in dark only; `light` and `dark` are the `minimal` skin.
 const colors = {
+  aviation: {
+    canvas: "rgb(12, 10, 36)",
+    text: "rgb(241, 238, 255)",
+    muted: "rgb(188, 181, 234)",
+    faint: "rgb(165, 157, 220)",
+    surface: "rgb(19, 16, 52)",
+    accent: "rgb(125, 227, 244)",
+    line: "rgb(43, 37, 104)",
+    focus: "rgb(165, 240, 251)",
+    danger: "rgb(255, 154, 160)",
+  },
   light: {
-    canvas: "rgb(243, 246, 250)",
-    text: "rgb(30, 43, 62)",
-    muted: "rgb(87, 103, 123)",
-    faint: "rgb(86, 105, 130)",
-    surface: "rgb(247, 249, 252)",
-    accent: "rgb(37, 77, 132)",
-    line: "rgb(217, 225, 236)",
-    focus: "rgb(101, 88, 199)",
-    danger: "rgb(189, 68, 58)",
-    mobileDanger: "rgb(180, 64, 54)",
+    canvas: "rgb(251, 251, 250)",
+    text: "rgb(22, 24, 29)",
+    muted: "rgb(86, 93, 105)",
+    faint: "rgb(102, 110, 123)",
+    surface: "rgb(255, 255, 255)",
+    accent: "rgb(29, 63, 148)",
+    line: "rgb(227, 229, 233)",
+    focus: "rgb(47, 95, 214)",
+    danger: "rgb(179, 56, 44)",
   },
   dark: {
-    canvas: "rgb(18, 25, 35)",
-    text: "rgb(229, 234, 242)",
-    muted: "rgb(165, 177, 194)",
-    faint: "rgb(148, 163, 183)",
-    surface: "rgb(21, 30, 42)",
-    accent: "rgb(164, 187, 223)",
-    line: "rgb(42, 54, 71)",
-    focus: "rgb(183, 167, 245)",
-    danger: "rgb(237, 139, 124)",
-    mobileDanger: "rgb(237, 139, 124)",
+    canvas: "rgb(14, 15, 18)",
+    text: "rgb(236, 238, 241)",
+    muted: "rgb(163, 169, 179)",
+    faint: "rgb(143, 151, 163)",
+    surface: "rgb(20, 22, 26)",
+    accent: "rgb(143, 176, 255)",
+    line: "rgb(39, 43, 50)",
+    focus: "rgb(169, 193, 255)",
+    danger: "rgb(240, 138, 124)",
   },
 };
 type Theme = keyof typeof colors;
@@ -78,18 +89,22 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
         await page.goto("/");
         await expect(page.locator(".welcome")).toBeVisible();
         await expect(page.locator("html")).toHaveAttribute("lang", language);
-        await expectSurface(page.locator(".app-shell"), "light");
+        await expectSurface(page.locator(".app-shell"), "aviation");
 
+        // The default skin first, then `minimal` in each appearance.
         for (const [mode, os, theme] of [
+          [null, "light", "aviation"],
           ["light", "dark", "light"],
           ["dark", "light", "dark"],
           ["system", "light", "light"],
           ["system", "dark", "dark"],
         ] as const) {
-          await page.goto("/#/settings");
-          await page.locator("#settings-appearance").selectOption(mode);
+          if (mode) {
+            await page.goto("/#/settings");
+            await chooseAppearance(page, mode);
+            await expect(page.locator(".persistence-status")).toHaveText("");
+          }
           await page.emulateMedia({ colorScheme: os });
-          await expect(page.locator(".persistence-status")).toHaveText("");
           await page.goto("/#passport");
           await expect(page.locator(".welcome")).toBeVisible();
           await expectSurface(page.locator(".app-shell"), theme);
@@ -150,7 +165,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await expect(page.locator(".persistence-status")).toHaveText("");
         }
 
-        // Demo uses the approved Passport scope and the same navigation colors.
+        // Demo keeps the skin's palette and the same navigation colors.
         const welcomeHeader = await headerColors(page);
         await page.locator(".welcome .button-secondary").click();
         await expect(page.locator(".passport-archive-page")).toBeVisible();
@@ -182,7 +197,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
         await page.emulateMedia({ colorScheme: "light" });
         await expect(page.locator(".validation-errors > strong")).toHaveCSS(
           "color",
-          width <= 760 ? colors.light.mobileDanger : colors.light.danger,
+          colors.light.danger,
         );
         await file.setInputFiles("examples/basic.keepraw-fly.json");
         await page.locator(".import-preview .button-primary").click();
@@ -196,7 +211,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
     }
 
     for (const width of [390, 1440]) {
-      for (const mode of ["light", "dark", "system"] as const) {
+      for (const mode of ["aviation", "light", "dark", "system"] as const) {
         test(`first paint, loading failure and retry at ${width}px in ${mode}${language === "en-US" && mode === "system" ? " @cross-browser" : ""}`, async ({
           page,
         }) => {
@@ -204,11 +219,16 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await page.emulateMedia({
             colorScheme: mode === "light" ? "dark" : "light",
           });
+          // Without a cached skin the page opens in `aviation`, which stays
+          // dark on a light device; the other modes cache `minimal`.
           await page.addInitScript((appearance) => {
+            if (appearance === "aviation") return;
+            localStorage.setItem("keepraw-fly-skin", "minimal");
             if (appearance !== "system")
               localStorage.setItem("keepraw-fly-appearance", appearance);
           }, mode);
-          const theme: Theme = mode === "dark" ? "dark" : "light";
+          const theme: Theme =
+            mode === "aviation" || mode === "dark" ? mode : "light";
           let releaseEntry!: () => void;
           const entryGate = new Promise<void>((resolve) => {
             releaseEntry = resolve;
@@ -243,10 +263,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
           await expect(page.locator(".bootstrap-screen--failed")).toBeVisible();
           await expect(
             page.locator(".bootstrap-screen [role=alert]"),
-          ).toHaveCSS(
-            "color",
-            width <= 760 ? colors[theme].mobileDanger : colors[theme].danger,
-          );
+          ).toHaveCSS("color", colors[theme].danger);
           const retry = page.locator(".bootstrap-screen .button-primary");
           await expectPrimary(retry, theme);
           await retry.focus();
@@ -304,7 +321,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
   });
 }
 
-test("blocked cosmetic cache and storage read failure keep System recovery usable", async ({
+test("blocked cosmetic cache and storage read failure keep recovery usable", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "dark" });
@@ -331,22 +348,16 @@ test("blocked cosmetic cache and storage read failure keep System recovery usabl
   });
   await expect(failure).toBeVisible();
   await expect(page.locator(".welcome, input[type=file]")).toHaveCount(0);
-  // Recovery uses the existing root palette, while welcome has a page palette.
-  await expect(page.locator("body")).toHaveCSS(
-    "background-color",
-    "rgb(9, 11, 14)",
-  );
-  await expect(page.locator("body")).toHaveCSS("color", "rgb(244, 246, 248)");
-  await expect(page.locator(".storage-warning")).toHaveCSS(
-    "color",
-    "rgb(255, 116, 107)",
-  );
-  await page.emulateMedia({ colorScheme: "light" });
-  await expect(page.locator("body")).toHaveCSS(
-    "background-color",
-    "rgb(250, 249, 246)",
-  );
-  await expect(page.locator("body")).toHaveCSS("color", "rgb(32, 35, 31)");
+  // With the cache blocked the page opens in the default skin, which is dark
+  // on either device scheme; Recovery takes the same palette from the root.
+  for (const os of ["dark", "light"] as const) {
+    await page.emulateMedia({ colorScheme: os });
+    await expectSurface(page.locator("body"), "aviation");
+    await expect(page.locator(".storage-warning")).toHaveCSS(
+      "color",
+      colors.aviation.danger,
+    );
+  }
   const retry = page.getByRole("button", { name: "Try again", exact: true });
   await retry.click();
   await expect(retry).toBeEnabled();
@@ -361,14 +372,14 @@ test("blocked cosmetic cache and storage read failure keep System recovery usabl
   await retry.click();
   await expect(page.locator(".welcome")).toBeVisible();
   await expect(failure).toHaveCount(0);
-  await page.emulateMedia({ colorScheme: "dark" });
-  await expectSurface(page.locator(".app-shell"), "dark");
-  await expect(page.locator(".storage-warning")).toHaveCSS(
-    "color",
-    colors.dark.danger,
-  );
-  await page.emulateMedia({ colorScheme: "light" });
-  await expectSurface(page.locator(".app-shell"), "light");
+  for (const os of ["dark", "light"] as const) {
+    await page.emulateMedia({ colorScheme: os });
+    await expectSurface(page.locator(".app-shell"), "aviation");
+    await expect(page.locator(".storage-warning")).toHaveCSS(
+      "color",
+      colors.aviation.danger,
+    );
+  }
   await page.locator(".welcome .button-primary").click();
   await expect(page.getByRole("dialog")).toBeVisible();
 });

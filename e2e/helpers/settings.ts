@@ -58,3 +58,28 @@ export async function openSettingsCategory(page: Page, name: string) {
     "1",
   );
 }
+
+/**
+ * Sets the appearance from General settings. A skin with one appearance
+ * disables the control: its own appearance needs nothing, any other value
+ * first switches to the `minimal` skin, which offers a choice. Pass `skin`
+ * when the assertions that follow are about that skin's palette.
+ */
+export async function chooseAppearance(
+  page: Page,
+  appearance: "light" | "dark" | "system",
+  skin?: "minimal",
+) {
+  const control = page.locator("#settings-appearance");
+  await expect(control).toBeVisible();
+  if (skin) {
+    await page.locator("#settings-skin").selectOption(skin);
+    await expect(control).toBeEnabled();
+  } else if (await control.isDisabled()) {
+    if ((await control.inputValue()) === appearance) return;
+    await page.locator("#settings-skin").selectOption("minimal");
+    await expect(control).toBeEnabled();
+  }
+  await control.selectOption(appearance);
+  await expect(control).toHaveValue(appearance);
+}

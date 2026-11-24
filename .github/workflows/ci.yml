@@ -258,10 +258,6 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
       options: --user 1001
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
 
     steps:
       - name: Check out repository
@@ -281,22 +277,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check matching Playwright runtime
-        run: node scripts/check-playwright-runtime.mjs ${{ matrix.browser }}
+      - name: Check matching Playwright runtimes
+        run: |
+          for browser in chromium firefox webkit; do
+            node scripts/check-playwright-runtime.mjs "$browser"
+          done
 
       # Production build + vite preview: the dev server deliberately has no CSP.
+      # One job builds once and runs the three engine projects in turn; each
+      # journey takes a minute or two, so a job per engine only repeated setup.
       - name: Run CSP and font SRI journeys against the production build
-        run: xvfb-run -a pnpm test:e2e:csp --project=${{ matrix.browser }} --reporter=list,json
+        run: xvfb-run -a pnpm test:e2e:csp --workers=1 --reporter=list,json
 
       - name: Summarize CSP results
         if: always()
-        run: node scripts/report-playwright.mjs test-results/results.json csp-${{ matrix.browser }}
+        run: node scripts/report-playwright.mjs test-results/results.json csp
 
       - name: Upload CSP diagnostics
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-csp-${{ matrix.browser }}
+          name: playwright-csp
           path: test-results/
           retention-days: 7
 

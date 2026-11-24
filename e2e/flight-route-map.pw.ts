@@ -258,7 +258,23 @@ test("zoom, drag, keyboard and reset work, and the camera resets per flight", as
   await controls
     .getByRole("button", { name: "Fit recorded routes", exact: true })
     .click();
-  await expect.poll(view).toBe(home);
+  // The fit is recomputed, so it may differ from the first one by a rounding
+  // residue (a translate of -0.003 instead of 0); it is the same view.
+  const numbers = (transform: string | null) =>
+    (transform?.match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/g) ?? []).map(Number);
+  const homeNumbers = numbers(home);
+  expect(homeNumbers).toHaveLength(3);
+  await expect
+    .poll(async () => {
+      const current = numbers(await view());
+      return (
+        current.length === homeNumbers.length &&
+        current.every(
+          (value, index) => Math.abs(value - homeNumbers[index]!) < 0.01,
+        )
+      );
+    })
+    .toBe(true);
 
   // Resizing the window re-frames, and another flight starts from its own fit.
   await page.setViewportSize({ width: 1920, height: 1080 });

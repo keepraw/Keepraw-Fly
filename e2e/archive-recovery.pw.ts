@@ -1158,7 +1158,7 @@ test("recovery and its confirmation dialog have no accessibility violations", as
   await expectRecovery(page);
   await expect(page.locator(".recovery-heading h1")).toHaveCSS(
     "color",
-    "rgb(244, 246, 248)",
+    "rgb(241, 238, 255)",
   );
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.setViewportSize({ width: 390, height: 844 });

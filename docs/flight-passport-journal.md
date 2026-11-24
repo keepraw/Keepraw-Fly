@@ -290,9 +290,11 @@ eight CSS pins against jsDelivr and unpkg. CSP is unchanged.
 
 ## Neon layout (map redesign PR 4)
 
-The default share layout is now the Neon sheet (`passportTemplate: "neon"`);
-the passport book described above remains available as `"book"` under
-Settings → Flight Passport layout. Both draw the same `PosterCopy`. See
+The share layout of the `minimal` and `aviation` skins is the Neon sheet
+(`passportTemplate: "neon"`). The passport book described above is the `"book"`
+template; the skin chooses the template, and no skin selects `"book"` until
+`archive` is implemented. Both draw the same `PosterCopy`. See
 "Flight Passport templates" in `docs/map-2d-architecture.md`.
 `e2e/share-neon-passport.pw.ts` covers the Neon layout; this file's
-`e2e/share-passport.pw.ts` pins `passportTemplate: "book"`.
+`e2e/share-passport.pw.ts` points the `minimal` skin at `"book"` in the test
+page to keep the book covered.

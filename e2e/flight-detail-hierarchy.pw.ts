@@ -6,6 +6,7 @@ import {
   collectBrowserErrors,
   expectHealthyPage,
 } from "./helpers/responsive";
+import { chooseAppearance } from "./helpers/settings";
 
 test.describe.configure({ mode: "parallel" });
 
@@ -228,7 +229,7 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
       await page.goto("/#settings");
       const selects = page.locator(".settings-display-fields select");
       await selects.nth(0).selectOption(language);
-      await page.locator("#settings-appearance").selectOption(appearance);
+      await chooseAppearance(page, appearance);
       await page.locator("#settings-distance").selectOption("kilometers");
       await page
         .locator("#settings-time-format")
@@ -276,11 +277,16 @@ for (const language of ["en-US", "zh-CN", "zh-TW"] as const) {
         }
         await expectHealthyPage(page, errors);
       }
-      // The map follows the map theme setting, not the page appearance.
+      // The map follows the skin: aviation in dark, minimal where the
+      // appearance had to be chosen.
       await page.setViewportSize({ width: 1440, height: 900 });
       await expect(page.locator(".detail-flight-map")).toHaveAttribute(
         "data-map-theme",
-        "neon-aviation",
+        {
+          light: "daylight-chart",
+          dark: "neon-aviation",
+          system: "graphite-chart",
+        }[appearance],
       );
       for (const record of records.slice(1)) {
         await page.setViewportSize({ width: 390, height: 900 });

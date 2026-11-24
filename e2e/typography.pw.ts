@@ -7,6 +7,7 @@ import {
   passportTypographyBounds,
   waitForPassportLayout,
 } from "../scripts/passport-typography-evidence.mjs";
+import { chooseAppearance } from "./helpers/settings";
 
 const fixture = "e2e/fixtures/chinese-passport.keepraw-fly.json";
 async function importFixture(page) {
@@ -105,7 +106,7 @@ for (const locale of ["zh-CN", "zh-TW"])
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(locale);
-        await page.locator("#settings-appearance").selectOption(theme);
+        await chooseAppearance(page, theme);
         await page.locator("#settings-distance").selectOption("kilometers");
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await page.goto("/#/map");
@@ -188,7 +189,10 @@ for (const locale of ["zh-CN", "zh-TW"])
             )
             .toMatchObject({
               language: locale,
-              appearance: theme,
+              // Dark is aviation's own appearance; light needs `minimal`.
+              ...(theme === "light"
+                ? { skin: "minimal", appearance: "light" }
+                : {}),
               distanceUnit: "kilometers",
             });
           await page.reload();
@@ -222,7 +226,7 @@ for (const locale of ["zh-CN", "zh-TW"]) {
           .locator(".settings-fields select")
           .nth(0)
           .selectOption(locale);
-        await page.locator("#settings-appearance").selectOption(theme);
+        await chooseAppearance(page, theme);
         await page.goto("/#/map");
         await expect(
           page.locator(".flight-route-cities").first(),

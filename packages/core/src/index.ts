@@ -14,6 +14,7 @@ export * from "./statistics";
 export * from "./passport-highlights";
 export * from "./insights";
 export * from "./time-display";
+export * from "./flight-timeline";
 export * from "./travel-extensions";
 export * from "./airport-history";
 export * from "./flight-airports";

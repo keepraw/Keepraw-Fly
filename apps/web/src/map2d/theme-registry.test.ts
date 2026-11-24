@@ -4,7 +4,6 @@ import {
   DEFAULT_MAP_THEME_ID,
   isMapThemeId,
   listMapThemes,
-  listSelectableMapThemes,
   MAP_THEMES,
   resolveMapTheme,
 } from "./theme-registry";
@@ -28,15 +27,11 @@ describe("map theme registry", () => {
     expect(isMapThemeId(null)).toBe(false);
   });
 
-  it("offers every theme except the ones a skin brings with it", () => {
+  it("lists every registered theme", () => {
     expect(listMapThemes().map((theme) => theme.id)).toEqual([
       "neon-aviation",
       "daylight-chart",
       "graphite-chart",
-    ]);
-    expect(listSelectableMapThemes().map((theme) => theme.id)).toEqual([
-      "neon-aviation",
-      "daylight-chart",
     ]);
   });
 

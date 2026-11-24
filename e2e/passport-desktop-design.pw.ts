@@ -1,4 +1,4 @@
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 import { disablePassportWebGL } from "./helpers/passport-svg";
 test.beforeEach(async ({ page }) => disablePassportWebGL(page));
 
@@ -29,9 +29,7 @@ for (const theme of ["light", "dark"]) {
     await page.goto("/");
     await page.getByRole("button", { name: "Try demo" }).click();
     await page.goto("/#/settings");
-    await page
-      .getByRole("combobox", { name: "Appearance", exact: true })
-      .selectOption(theme);
+    await chooseAppearance(page, theme);
     await page.goto("/#/map");
     await expect(page.locator(".route-map-canvas > svg")).toBeVisible();
     await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
@@ -296,7 +294,7 @@ test("regional and Asia cameras retain accurate interactive relief and localized
         .locator(".settings-display-fields select")
         .nth(0)
         .selectOption("zh-CN");
-      await page.locator("#settings-appearance").selectOption(theme);
+      await chooseAppearance(page, theme);
       await page.goto("/#/map");
       await expect(page.locator(".map-land-hatch:visible")).toHaveCount(1);
       await expect(page.locator(".map-relief-texture")).toHaveCount(0);

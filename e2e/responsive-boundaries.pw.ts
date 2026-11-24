@@ -1,4 +1,4 @@
-import { openSettingsCategory } from "./helpers/settings";
+import { chooseAppearance, openSettingsCategory } from "./helpers/settings";
 import { expectDetailMap } from "./helpers/detail-map";
 import { expectFlightRowGeometry } from "./helpers/flight-row-geometry";
 import { disablePassportWebGL } from "./helpers/passport-svg";
@@ -121,8 +121,10 @@ for (const viewport of viewports) {
         name: "Appearance",
         exact: true,
       });
-      await expectReachable(appearance);
-      await appearance.selectOption("dark");
+      await expectReachable(page.locator("#settings-skin"));
+      // The default skin has one appearance: the control is shown, not offered.
+      await expect(appearance).toBeDisabled();
+      await expect(appearance).toHaveValue("dark");
       await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
       await openSettingsCategory(page, "Data and backup");
       await expectReachable(
@@ -221,9 +223,7 @@ for (const theme of ["light", "dark"]) {
     const errors = collectBrowserErrors(page);
     await importArchive(page);
     await navigateTo(page, "settings");
-    await page
-      .getByRole("combobox", { name: "Appearance", exact: true })
-      .selectOption(theme);
+    await chooseAppearance(page, theme);
     await navigateTo(page, "passport");
 
     for (const viewport of viewports) {
@@ -274,9 +274,7 @@ for (const theme of ["light", "dark"]) {
     await page.setViewportSize({ width: 844, height: 390 });
     await importArchive(page);
     await navigateTo(page, "settings");
-    await page
-      .getByRole("combobox", { name: "Appearance", exact: true })
-      .selectOption(theme);
+    await chooseAppearance(page, theme);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await navigateTo(page, "passport");
 

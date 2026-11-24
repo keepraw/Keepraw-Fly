@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { fileURLToPath } from "node:url";
+import { chooseAppearance } from "./helpers/settings";
 
 for (const width of [1280, 390]) {
   test.describe(`Flight row navigation at ${width}px`, () => {
@@ -77,11 +78,14 @@ for (const width of [1280, 390]) {
       });
       for (const theme of ["light", "dark"]) {
         await page.goto("/#settings");
-        await page.locator("#settings-appearance").selectOption(theme);
+        await chooseAppearance(page, theme);
         await page.goto("/#passport");
         await page.locator("#passport-flight-search").focus();
-        await page.keyboard.press("Tab");
-        await expect(row).toBeFocused();
+        // The Log filters sit between the search field and the first row.
+        await expect(async () => {
+          await page.keyboard.press("Tab");
+          await expect(row).toBeFocused({ timeout: 250 });
+        }).toPass();
         const focus = await row.evaluate((element) => ({
           visible: element.matches(":focus-visible"),
           style: getComputedStyle(element).outlineStyle,

@@ -681,20 +681,12 @@
     "skin": "Estilo",
     "skinHint": "Define a aparência, a disposição e a tela inicial. Seus voos não são alterados.",
     "skinOption": {
-      "classic": "Clássico",
-      "minimal": "Minimalista"
+      "minimal": "Minimalista",
+      "aviation": "Aviação"
     },
     "appearanceFixed": {
       "light": "{{skin}} só está disponível em claro.",
       "dark": "{{skin}} só está disponível em escuro."
-    },
-    "mapTheme": "Tema do mapa",
-    "mapThemeHint": "Aplica-se ao mapa do passaporte e ao mapa de rota do voo.",
-    "passportLayout": "Layout do passaporte de voo",
-    "passportLayoutHint": "Layout da imagem do passaporte de voo compartilhada. Neon segue o tema do mapa.",
-    "passportLayoutOption": {
-      "neon": "Folha Neon",
-      "book": "Caderneta de passaporte clássica"
     }
   },
   "recovery": {
@@ -899,6 +891,20 @@
       "title": "Neste arquivo",
       "airportVisit": "Visita {{ordinal, number}} de {{total, number}}",
       "routeFlight": "Voo {{ordinal, number}} de {{total, number}}"
+    }
+  },
+  "extension": {
+    "aviation": {
+      "comparisonTitle": "Programado e real",
+      "durationSame": "Tempo de voo igual ao programado",
+      "durationLonger": "{{count, number}} min a mais que o programado",
+      "durationShorter": "{{count, number}} min a menos que o programado",
+      "clocksTitle": "Hora local nos dois aeroportos",
+      "dateLine": "Linha de data",
+      "midnightNote": "Um traço marca a meia-noite local.",
+      "midnightAfter": "Meia-noite local {{duration}} após a partida.",
+      "dateLineNote": "A linha de data fica onde a rota ortodrômica a cruza; não é um horário registrado.",
+      "dateLineAt": "Linha de data a cerca de {{percent}} da rota."
     }
   }
 }

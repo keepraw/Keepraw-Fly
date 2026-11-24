@@ -117,6 +117,12 @@ test("KF-27: stale tabs merge preference fields and backup metadata across reloa
   await expect(page.locator(".flight-row")).toHaveCount(1);
   await expect(page.locator(".persistence-status")).toHaveText("");
   await page.goto("/#settings");
+  // Appearance, the same-field conflict below, is a choice only under a skin
+  // that offers one, so both tabs start from that skin.
+  await page.locator("#settings-skin").selectOption("minimal");
+  await expect
+    .poll(async () => (await savedSettings(page))?.skin)
+    .toBe("minimal");
   const stale = await context.newPage();
   await stale.goto("/#settings");
   await expect(stale.locator("#settings-language")).toHaveValue("en-US");

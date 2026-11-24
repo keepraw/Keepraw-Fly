@@ -170,6 +170,7 @@ describe("complete released resources", () => {
           "Miles",
           "Records",
           "Minimal",
+          "Aviation",
           "min",
           "h",
         ],

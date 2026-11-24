@@ -1,4 +1,4 @@
-/* Passport mobile focus; palette and original aliases live in shared-page-theme.css. */
+/* Passport mobile focus; the palette and aliases come from the active skin. */
 @media (max-width: 760px) {
   .passport-search-field:focus-within {
     border-color: var(--color-focus);

@@ -77,7 +77,10 @@ export function FlightDeviation({
  * The UTC offset to show beside a time. Without a determined airport zone, the
  * offset written in the stored RFC 3339 timestamp is shown.
  */
-function zoneLabel(timestamp: string, timeZone: string | undefined): string {
+export function zoneLabel(
+  timestamp: string,
+  timeZone: string | undefined,
+): string {
   const instant = Date.parse(timestamp);
   if (!Number.isFinite(instant)) return "—";
   const fixed = timeZone && isFixedOffset(timeZone) ? timeZone : null;
