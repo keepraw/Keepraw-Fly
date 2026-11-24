@@ -172,6 +172,22 @@ describe("aviation flight extension", () => {
     expect(markup).not.toContain("aviation-clocks-note");
   });
 
+  it("says the midnight to the minute for a flight recorded to the second", async () => {
+    // Midnight in Los Angeles is 198 min 29 s after departure. The flight
+    // lasts 300 min 31 s; scaled by its rounded 301 min it would say 3h 19m.
+    const markup = await render(
+      "aviation",
+      flight({
+        destination: { iata: "HNL" },
+        scheduledDeparture: "2024-11-27T20:20:00-08:00",
+        scheduledArrival: "2024-11-27T23:30:00-10:00",
+        actualDeparture: "2024-11-27T20:41:31-08:00",
+        actualArrival: "2024-11-27T23:42:02-10:00",
+      }),
+    );
+    expect(text(markup)).toContain("Local midnight 3h 18m after departure.");
+  });
+
   it("names both offsets of an airport that changes its clock in flight", async () => {
     // Los Angeles moves to daylight time at 10:00 UTC, during the flight.
     const markup = await render(

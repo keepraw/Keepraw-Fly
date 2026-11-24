@@ -21,6 +21,10 @@ export function AviationFlightExtension({
 }: FlightExtensionProps) {
   const { t } = useTranslation();
   const { comparison, timeline } = insights;
+  // Unrounded, so a share of it is the same minute the times themselves give.
+  const elapsedMinutes = timeline
+    ? (Date.parse(timeline.arrival) - Date.parse(timeline.departure)) / 60_000
+    : 0;
   const notes = timeline
     ? [
         ...(timeline.origin.midnights.length ||
@@ -166,7 +170,7 @@ export function AviationFlightExtension({
                     <span key={fraction} className="sr-only">
                       {t("extension.aviation.midnightAfter", {
                         duration: formatDuration(
-                          Math.round(fraction * timeline.durationMinutes),
+                          Math.round(fraction * elapsedMinutes),
                           locale,
                         ),
                       })}{" "}
