@@ -164,6 +164,25 @@ describe("aviation flight extension", () => {
     expect(markup).not.toContain("aviation-clocks-note");
   });
 
+  it("names both offsets of an airport that changes its clock in flight", async () => {
+    // Los Angeles moves to daylight time at 10:00 UTC, during the flight.
+    const markup = await render(
+      "aviation",
+      flight({
+        origin: { iata: "LAX" },
+        destination: { iata: "JFK" },
+        scheduledDeparture: "2026-03-08T00:30:00-08:00",
+        scheduledArrival: "2026-03-08T09:40:00-04:00",
+        actualDeparture: undefined,
+        actualArrival: undefined,
+      }),
+    );
+    expect(markup).toContain('role="group" aria-label="LAX UTC-8 → UTC-7"');
+    expect(markup).toContain('role="group" aria-label="JFK UTC-4"');
+    expect(text(markup)).toContain("LAX UTC-8 → UTC-7 Departure 00:30");
+    expect(text(markup)).toContain("Arrival 06:40");
+  });
+
   it("shows only the clocks for a flight without actual times", async () => {
     const markup = await render(
       "aviation",

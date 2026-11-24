@@ -127,43 +127,50 @@ export function AviationFlightExtension({
             {t("extension.aviation.clocksTitle")}
           </h2>
           <div className="aviation-clock-rows">
-            {[timeline.origin, timeline.destination].map((clock, index) => (
-              <div
-                key={index}
-                className="aviation-clock-row"
-                role="group"
-                aria-label={`${clock.iata} ${zoneLabel(timeline.departure, clock.timezone)}`}
-              >
-                <span className="aviation-row-label" aria-hidden="true">
-                  <strong>{clock.iata}</strong>{" "}
-                  {zoneLabel(timeline.departure, clock.timezone)}
-                </span>
-                <span className="aviation-clock-time is-departure">
-                  <span className="sr-only">
-                    {t("flightDetail.departure")}{" "}
+            {[timeline.origin, timeline.destination].map((clock, index) => {
+              // An airport may change its offset during the flight.
+              const from = zoneLabel(timeline.departure, clock.timezone);
+              const to = zoneLabel(timeline.arrival, clock.timezone);
+              const zone = from === to ? from : `${from} → ${to}`;
+              return (
+                <div
+                  key={index}
+                  className="aviation-clock-row"
+                  role="group"
+                  aria-label={`${clock.iata} ${zone}`}
+                >
+                  <span className="aviation-row-label" aria-hidden="true">
+                    <strong>{clock.iata}</strong> {zone}
                   </span>
-                  {clockTime(
-                    clock,
-                    timeline.departure,
-                    clock.departureDayOffset,
-                  )}
-                </span>
-                <span className="aviation-track" aria-hidden="true">
-                  <span className="aviation-line" />
-                  {clock.midnights.map((fraction) => (
-                    <span
-                      key={fraction}
-                      className="aviation-midnight"
-                      style={{ "--at": share(fraction) } as CSSProperties}
-                    />
-                  ))}
-                </span>
-                <span className="aviation-clock-time is-arrival">
-                  <span className="sr-only">{t("flightDetail.arrival")} </span>
-                  {clockTime(clock, timeline.arrival, clock.arrivalDayOffset)}
-                </span>
-              </div>
-            ))}
+                  <span className="aviation-clock-time is-departure">
+                    <span className="sr-only">
+                      {t("flightDetail.departure")}{" "}
+                    </span>
+                    {clockTime(
+                      clock,
+                      timeline.departure,
+                      clock.departureDayOffset,
+                    )}
+                  </span>
+                  <span className="aviation-track" aria-hidden="true">
+                    <span className="aviation-line" />
+                    {clock.midnights.map((fraction) => (
+                      <span
+                        key={fraction}
+                        className="aviation-midnight"
+                        style={{ "--at": share(fraction) } as CSSProperties}
+                      />
+                    ))}
+                  </span>
+                  <span className="aviation-clock-time is-arrival">
+                    <span className="sr-only">
+                      {t("flightDetail.arrival")}{" "}
+                    </span>
+                    {clockTime(clock, timeline.arrival, clock.arrivalDayOffset)}
+                  </span>
+                </div>
+              );
+            })}
             {timeline.dateLineFraction !== null ? (
               <span className="aviation-date-line-track" aria-hidden="true">
                 <span
