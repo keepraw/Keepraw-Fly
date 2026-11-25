@@ -140,6 +140,9 @@ test("manages associated airlines as searchable chips with a constrained default
     name: "Associated airlines",
   });
   const defaultAirline = membership.getByLabel("Default airline");
+  const airChina = membership.getByRole("option", {
+    name: /^CA Air China CCA\b/,
+  });
 
   await airlineSearch.fill("ZH");
   await membership
@@ -152,7 +155,7 @@ test("manages associated airlines as searchable chips with a constrained default
   await expect(defaultAirline).toHaveValue("ZH");
 
   await airlineSearch.fill("CA");
-  await membership.getByRole("option", { name: /CA.*Air China/ }).click();
+  await airChina.click();
   await expect(membership.locator(".airline-chip")).toHaveCount(2);
   await expect(defaultAirline.locator("option")).toHaveText([
     "No default",
@@ -175,7 +178,7 @@ test("manages associated airlines as searchable chips with a constrained default
   await expect(defaultAirline.locator('option[value="CA"]')).toHaveCount(0);
 
   await airlineSearch.fill("CA");
-  await membership.getByRole("option", { name: /CA.*Air China/ }).click();
+  await airChina.click();
   await expect(membership.locator(".airline-chip")).toHaveCount(2);
 });
 

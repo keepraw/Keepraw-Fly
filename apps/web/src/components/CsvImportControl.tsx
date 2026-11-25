@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   assertRecordCount,
+  exceedsAppendLimit,
   importLimitValues,
   readImportFile,
 } from "../data/import-limits";
@@ -95,6 +96,7 @@ export function CsvImportControl({
 
   function cancel() {
     selection.current++;
+    setTimezoneOverrides({});
     setPending(null);
     setReading(false);
     setIncludePossibleDuplicates(false);
@@ -150,6 +152,7 @@ export function CsvImportControl({
     ? preflight.newRecords +
       (includePossibleDuplicates ? preflight.possibleDuplicateRecords : 0)
     : 0;
+  const overRecordLimit = exceedsAppendLimit(document, selectedRecords);
 
   return (
     <div className="csv-import-control">
@@ -253,6 +256,7 @@ export function CsvImportControl({
           {preflight ? (
             <ImportPreflightSummary
               preflight={preflight}
+              overRecordLimit={overRecordLimit}
               includePossibleDuplicates={includePossibleDuplicates}
               onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
             />
@@ -339,7 +343,12 @@ export function CsvImportControl({
             <button
               className="button-primary"
               type="button"
-              disabled={busy || !preflight?.canImport || selectedRecords === 0}
+              disabled={
+                busy ||
+                !preflight?.canImport ||
+                selectedRecords === 0 ||
+                overRecordLimit
+              }
               onClick={() => void confirmImport()}
             >
               {busy

@@ -3,7 +3,9 @@ import {
   originIdentity,
   plannedDestinationIdentity,
   arrivalIdentity,
+  resolveAirline,
 } from "@keepraw-fly/core";
+import { splitFlightNumberInput } from "./flight-editor";
 import { finishImportPreflight } from "./import-preflight-work";
 
 export type FlightImportDisposition = "new" | "possible" | "exact" | "conflict";
@@ -197,9 +199,19 @@ function sameJsonFacts(a: unknown, b: unknown): boolean {
 }
 
 function coreKey(flight: KeeprawFlight): string {
+  let flightNumber = flight.flightNumber;
+  const parsed = splitFlightNumberInput(flightNumber);
+  if (parsed) {
+    const recorded = resolveAirline(flight.airline);
+    const carrier =
+      recorded?.iata === parsed.airlineCode
+        ? recorded.icao
+        : (parsed.airline.icao ?? parsed.airlineCode);
+    flightNumber = carrier + parsed.serviceNumber;
+  }
   return JSON.stringify([
     flight.serviceDate,
-    flight.flightNumber,
+    flightNumber,
     flight.origin.iata,
     flight.destination.iata,
   ]);

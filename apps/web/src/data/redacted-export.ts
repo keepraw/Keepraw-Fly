@@ -135,6 +135,7 @@ function redactFlight(
   if (legacyTicket && typeof legacyTicket === "object")
     summary.ticketNumbers += 1;
   const next: KeeprawFlight = structuredClone(facts);
+  next.id = crypto.randomUUID();
   if (frequentFlyer) {
     const membershipId = memberIds.get(frequentFlyer.membershipId);
     if (!membershipId) throw new Error("Invalid frequent-flyer reference");

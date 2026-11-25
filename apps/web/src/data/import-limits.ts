@@ -1,3 +1,5 @@
+import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
+
 /**
  * Resource limits for user-selected import files, checked before the file is
  * read into memory. Generous on purpose: a decade of heavy travel is a few
@@ -42,6 +44,13 @@ export async function readImportFile(file: Blob): Promise<string> {
 
 export function assertRecordCount(count: number): void {
   if (count > MAX_IMPORT_RECORDS) throw new ImportFileError("too-many-records");
+}
+
+export function exceedsAppendLimit(
+  existing: KeeprawFlyDocument | null,
+  selected: number,
+): boolean {
+  return (existing?.flights.length ?? 0) + selected > MAX_IMPORT_RECORDS;
 }
 
 export const importLimitValues = {

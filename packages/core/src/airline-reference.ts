@@ -103,7 +103,10 @@ export function canonicalAirlineCode(
   codeOrReference: string | { iata?: string; icao?: string },
 ): string {
   const airline = resolveAirline(codeOrReference);
-  if (airline) return airline.iata || airline.icao;
+  if (airline)
+    return airlineByIata.get(airline.iata) === airline
+      ? airline.iata
+      : airline.icao;
   return typeof codeOrReference === "string"
     ? codeOrReference.trim().toUpperCase()
     : codeOrReference.iata || codeOrReference.icao || "";
@@ -132,7 +135,8 @@ export function searchAirlines(query: string): AirlineReference[] {
 }
 
 function airlineSearchRank(airline: AirlineReference, query: string): number {
-  if (airline.iata.toLocaleLowerCase() === query) return 0;
+  if (airline.iata.toLocaleLowerCase() === query)
+    return airlineByIata.get(airline.iata) === airline ? 0 : 1;
   if (airline.icao.toLocaleLowerCase() === query) return 1;
   if (
     [airline.nameEn, airline.nameZh, airline.nameZhTw].some((name) =>

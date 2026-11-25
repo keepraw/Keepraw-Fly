@@ -42,6 +42,7 @@ export interface UmetripDiagnostic extends UmetripSource {
 }
 export interface UmetripRecord extends UmetripSource {
   values: Partial<Record<UmetripField, UmetripCellValue>>;
+  ticketNumberText?: string;
   cellProblem: boolean;
   date1904: boolean;
 }
@@ -75,7 +76,7 @@ export async function parseUmetripXls(
       cellDates: false,
       cellFormula: true,
       cellHTML: false,
-      cellText: false,
+      cellText: true,
       bookVBA: false,
       sheetRows: MAX_IMPORT_RECORDS + 1,
       WTF: true,
@@ -128,9 +129,12 @@ function extractUmetripWorkbook(workbook: WorkBook): ParsedUmetrip {
         parsed.issues.push({ ...source, code: "missing-header" });
       }
       let cellProblem = !mapping;
+      let ticketNumberText: string | undefined;
       const values: UmetripRecord["values"] = {};
       for (const [field, column] of Object.entries(mapping ?? {})) {
         const cell = cells.get(column);
+        if (field === "ticketNumber" && cell?.t === "n" && cell.w)
+          ticketNumberText = cell.w;
         if (cell?.f || (cell && !["s", "n", "z"].includes(cell.t)))
           cellProblem = true;
         values[field as UmetripField] =
@@ -141,6 +145,7 @@ function extractUmetripWorkbook(workbook: WorkBook): ParsedUmetrip {
       parsed.records.push({
         ...source,
         values,
+        ticketNumberText,
         cellProblem,
         date1904: Boolean(workbook.Workbook?.WBProps?.date1904),
       });

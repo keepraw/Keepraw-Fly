@@ -246,6 +246,19 @@ describe("Umetrip BIFF8 XLS adapter", () => {
     },
   );
 
+  it("keeps the displayed leading zeros of a numeric XLS ticket", async () => {
+    const book = workbook([
+      ["已结束", [headers, row({ 4: 10 / 24, 8: 12345678901 })]],
+    ]);
+    book.Sheets["已结束"]!.I2.z = "0000000000000";
+    const result = preflight(await parsed(book));
+    const [flight] = buildDocumentFromUmetripPreflight(result, null).flights;
+    expect(flight).toMatchObject({
+      ticketNumber: "0012345678901",
+      scheduledDeparture: "2024-02-12T10:00:00+08:00",
+    });
+  });
+
   it("handles Excel numeric dates, times and safely representable ticket numbers", async () => {
     const dateSerial =
       (Date.parse("2024-02-12Z") - Date.parse("1899-12-30Z")) / 86400000;

@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { KeeprawFlyDocument } from "@keepraw-fly/schema";
-import { importLimitValues } from "../data/import-limits";
+import { exceedsAppendLimit, importLimitValues } from "../data/import-limits";
 import { readUmetripFile, type ParsedUmetrip } from "../data/umetrip-xls";
 import { ImportPreflightSummary } from "./ImportPreflightSummary";
 import {
@@ -58,6 +58,7 @@ export function UmetripImportControl({
 
   function cancel() {
     selection.current++;
+    setTimezoneOverrides({});
     setPending(null);
     setReading(false);
     setError(null);
@@ -108,6 +109,7 @@ export function UmetripImportControl({
     ? preflight.newRecords +
       (includePossibleDuplicates ? preflight.possibleDuplicateRecords : 0)
     : 0;
+  const overRecordLimit = exceedsAppendLimit(document, selected);
   const location = (source: { sheetName: string; lineNumber: number }) =>
     t("umetripImport.location", {
       sheet: source.sheetName,
@@ -169,6 +171,7 @@ export function UmetripImportControl({
             <>
               <ImportPreflightSummary
                 preflight={preflight}
+                overRecordLimit={overRecordLimit}
                 includePossibleDuplicates={includePossibleDuplicates}
                 onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
               />
@@ -314,7 +317,12 @@ export function UmetripImportControl({
             <button
               className="button-primary"
               type="button"
-              disabled={busy || !preflight?.canImport || selected === 0}
+              disabled={
+                busy ||
+                !preflight?.canImport ||
+                selected === 0 ||
+                overRecordLimit
+              }
               onClick={() => void confirmImport()}
             >
               {busy

@@ -17,7 +17,11 @@ import {
   preflightFlightyImport,
   preflightFlightyImportWork,
 } from "./flighty-import";
-import { runImportPreflight } from "./import-preflight-work";
+import {
+  finishImportPreflight,
+  runImportPreflight,
+} from "./import-preflight-work";
+import { MAX_IMPORT_RECORDS } from "./import-limits";
 import {
   buildDocumentFromJsonImport,
   preflightJsonFileWork,
@@ -25,6 +29,43 @@ import {
 
 installAirportDirectory(airportRows as CompactAirportRow[]);
 afterEach(() => vi.restoreAllMocks());
+
+it("blocks the 100001st flight and counts only selected duplicates at the limit", () => {
+  const existing = scaleArchive(MAX_IMPORT_RECORDS - 1);
+  const incoming = scaleArchive(1, MAX_IMPORT_RECORDS);
+  incoming.flights.push({ ...existing.flights[0]!, id: "possible" });
+  const preview = finishImportPreflight(
+    preflightJsonFileWork(
+      JSON.stringify(incoming),
+      existing,
+      validateAndMigrateKeeprawFly,
+    ),
+  );
+  expect(preview).toMatchObject({
+    canImport: true,
+    newRecords: 1,
+    possibleDuplicateRecords: 1,
+  });
+  expect(() => buildDocumentFromJsonImport(preview, existing, true)).toThrow(
+    "too-many-records",
+  );
+  const full = buildDocumentFromJsonImport(preview, existing);
+  expect(full.flights).toHaveLength(MAX_IMPORT_RECORDS);
+  const extra = scaleArchive(1, MAX_IMPORT_RECORDS + 1);
+  const blocked = finishImportPreflight(
+    preflightJsonFileWork(
+      JSON.stringify(extra),
+      full,
+      validateAndMigrateKeeprawFly,
+    ),
+  );
+  expect(blocked.canImport).toBe(false);
+  expect(() => buildDocumentFromJsonImport(blocked, full)).toThrow();
+  const csv = parseCsv(headers + "\n" + row);
+  expect(
+    preflightCsvImport(csv, detectCsvMapping(csv.headers), full).canImport,
+  ).toBe(false);
+});
 
 const headers =
   "flightNumber,serviceDate,originIata,destinationIata,scheduledDeparture,scheduledArrival,actualDeparture,actualArrival";

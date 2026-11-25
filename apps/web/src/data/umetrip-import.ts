@@ -198,7 +198,7 @@ export function* preflightUmetripImportWork(
           destination.iata,
           times.departure,
           times.arrival,
-          String(ticket ?? ""),
+          record.ticketNumberText ?? String(ticket ?? ""),
         ]);
         sources.push(record);
       }

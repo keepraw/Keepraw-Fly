@@ -521,6 +521,12 @@ describe("airline and travel references", () => {
     expect(canonicalAirlineCode("CSZ")).toBe("ZH");
   });
 
+  it("ranks Air China first for CA and keeps the other CA carriers selectable", () => {
+    const codes = searchAirlines("ca").map(canonicalAirlineCode);
+    expect(codes[0]).toBe("CA");
+    expect(codes).toEqual(expect.arrayContaining(["BJN", "CAO", "CCD", "CMN"]));
+  });
+
   it("deduplicates associated airlines and maintains a valid default", () => {
     expect(normalizeMembershipAirlines(["ZH", "CSZ", "ZH"], null)).toEqual({
       associatedAirlines: ["ZH"],

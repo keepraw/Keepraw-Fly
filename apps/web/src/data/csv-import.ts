@@ -22,6 +22,11 @@ import {
   type FlightImportAssessment,
 } from "./duplicate-detection";
 import type { ImportPreflightCounts } from "./import-preview";
+import {
+  assertRecordCount,
+  exceedsAppendLimit,
+  ImportFileError,
+} from "./import-limits";
 import { finishImportPreflight } from "./import-preflight-work";
 
 export type CsvFlightField =
@@ -316,12 +321,16 @@ export function buildDocumentFromCsvPreflight(
   existing: KeeprawFlyDocument | null,
   includePossibleDuplicates = false,
 ): KeeprawFlyDocument {
-  if (!preflight.canImport)
-    throw new Error(formatCsvIssue(preflight.issues[0]!));
+  if (!preflight.canImport) {
+    if (preflight.issues.length)
+      throw new Error(formatCsvIssue(preflight.issues[0]!));
+    throw new ImportFileError("too-many-records");
+  }
   const importedFlights = selectFlightsForImport(
     preflight.assessments,
     includePossibleDuplicates,
   );
+  assertRecordCount((existing?.flights.length ?? 0) + importedFlights.length);
 
   return {
     ...(existing ?? {}),
@@ -385,12 +394,14 @@ export function* preflightCsvImportWork(
     flights,
     existing?.flights ?? [],
   );
+  const counts = countFlightImportAssessments(assessments);
   return {
     totalRecords: parsed.rows.length,
     validRecords: flights.length,
     problemRecords: issues.length,
-    ...countFlightImportAssessments(assessments),
-    canImport: issues.length === 0,
+    ...counts,
+    canImport:
+      issues.length === 0 && !exceedsAppendLimit(existing, counts.newRecords),
     flights,
     assessments,
     issues,
@@ -640,10 +651,7 @@ function parseImportTime(
   } catch {
     throw new Error(`line-${lineNumber}:invalid-timezone`);
   }
-  if (offset)
-    return isFixedOffset(timezone)
-      ? minuteIsoAtOffset(value)
-      : minuteIsoAtAirport(value, timezone);
+  if (offset) return minuteIsoAtAirport(value, timezone);
   try {
     return zonedDateTimeToIso(date!, time!.slice(0, 5), timezone);
   } catch (error) {

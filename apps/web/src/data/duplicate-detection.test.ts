@@ -7,6 +7,31 @@ import {
 } from "./duplicate-detection";
 
 describe("duplicate flight detection", () => {
+  it("matches UA123 with UAL123 and keeps the two 3S carriers separate", () => {
+    const saved = {
+      ...baseFlight,
+      flightNumber: "UAL123",
+      airline: { icao: "UAL" },
+    };
+    const [united] = assessFlightImports(
+      [{ ...baseFlight, id: "csv" }],
+      [saved],
+    );
+    expect(united?.disposition).toBe("exact");
+    const box = {
+      ...baseFlight,
+      flightNumber: "3S123",
+      airline: { iata: "3S", icao: "BOX" },
+    };
+    const guy = { ...box, id: "guy", airline: { iata: "3S", icao: "GUY" } };
+    const ambiguous = { ...box, id: "3s", airline: { iata: "3S" } };
+    expect(
+      assessFlightImports([guy, ambiguous], [box]).map(
+        (row) => row.disposition,
+      ),
+    ).toEqual(["new", "new"]);
+  });
+
   it("classifies a completely identical record as exact", () => {
     expect(classify(structuredClone(baseFlight))).toBe("exact");
   });

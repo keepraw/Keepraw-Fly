@@ -31,7 +31,7 @@ declare global {
 
 async function exposeActions(page: Page) {
   await page.route("**/src/App.tsx*", async (route) => {
-    const response = await route.fetch();
+    const response = await route.fetch({ maxRetries: 1 });
     const source = await response.text();
     expect(source).toContain("if (!loaded) {");
     await route.fulfill({
