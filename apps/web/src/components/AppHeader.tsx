@@ -6,6 +6,7 @@ import {
   type PrimaryView,
   type Route,
 } from "../routing";
+import { KeeprawFlyMark } from "./KeeprawFlyMark";
 
 interface NavigationProps {
   route: Route;
@@ -167,6 +168,7 @@ export function AppHeader({
                 aria-label={t("app.homeLabel")}
                 onClick={(event) => followInApp(event, home, onNavigate)}
               >
+                <KeeprawFlyMark className="wordmark-logo" />
                 <span className="wordmark-name">KEEPRAW FLY</span>
               </a>
               <nav className="site-navigation" aria-label={t("nav.label")}>

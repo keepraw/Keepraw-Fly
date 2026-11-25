@@ -17,9 +17,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # A pull request that only edits Markdown cannot change what a browser loads,
-  # so it skips the browser jobs; `checks` still runs the documentation, unit
-  # and build gates. Pushes to main always run everything.
+  # A pull request that only edits Markdown or static brand/icon assets cannot
+  # affect interactive browser behavior, so it skips the browser jobs; `checks`
+  # still runs the documentation, unit, build, CSP and packaging gates. Pushes
+  # to main always run everything.
   changes:
     if: github.repository == 'keepraw/Keepraw-Fly'
     runs-on: ubuntu-latest
@@ -41,7 +42,7 @@ jobs:
           browser=true
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
             files=$(git diff --name-only --no-renames "$BASE_SHA"...HEAD)
-            if ! printf '%s\n' "$files" | grep -qv '\.md$'; then
+            if ! printf '%s\n' "$files" | grep -Eqv '(^|/)[^/]+\.md$|^apps/web/public/(icon\.svg|icon-[0-9]+\.png|favicon\.ico|apple-touch-icon\.png|site\.webmanifest)$'; then
               browser=false
             fi
           fi

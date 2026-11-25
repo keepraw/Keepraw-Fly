@@ -8,6 +8,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation } from "react-i18next";
+import { KeeprawFlyMark } from "./components/KeeprawFlyMark";
 import { browserStorage } from "./storage/browser";
 import { applyAppearance } from "./appearance";
 import "./i18n";
@@ -116,7 +117,7 @@ function ApplicationBootstrap() {
       aria-live="polite"
     >
       <span className="wordmark-mark" aria-hidden="true">
-        K
+        <KeeprawFlyMark className="wordmark-logo" />
       </span>
       <strong>Keepraw Fly</strong>
       {status === "loading" ? (
