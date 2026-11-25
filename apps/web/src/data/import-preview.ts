@@ -17,7 +17,7 @@ import {
   type FlightImportAssessment,
   type FlightImportCounts,
 } from "./duplicate-detection";
-import { assertRecordCount } from "./import-limits";
+import { assertRecordCount, exceedsAppendLimit } from "./import-limits";
 import {
   finishImportPreflight,
   type ImportPreflightWork,
@@ -160,15 +160,17 @@ function* preflightJsonImportWork(
         yield;
       }
     }
+    const counts = countFlightImportAssessments(assessments);
     return {
       base: existing,
       document: result.data,
       totalRecords: result.data.flights.length,
       validRecords: result.data.flights.length,
       problemRecords: issues.length,
-      ...countFlightImportAssessments(assessments),
+      ...counts,
       ...(!existing ? { newRecords: result.data.flights.length } : {}),
-      canImport: issues.length === 0,
+      canImport:
+        issues.length === 0 && !exceedsAppendLimit(existing, counts.newRecords),
       assessments,
       issues,
       migrations: result.migrations,
@@ -214,6 +216,7 @@ export function buildDocumentFromJsonImport(
     preflight.assessments,
     includePossibleDuplicates,
   );
+  assertRecordCount(existing.flights.length + importedFlights.length);
 
   const merged = mergeFrequentFlyerMemberships(
     existing.frequentFlyerMemberships ?? [],

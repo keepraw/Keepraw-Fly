@@ -1,4 +1,5 @@
 import type { KeeprawFlight } from "@keepraw-fly/schema";
+import { canonicalAirlineCode } from "./airline-reference";
 import { arrivalDelayMinutes } from "./calculations";
 import { aircraftFacts, seatFacts } from "./extensions";
 import {
@@ -42,9 +43,9 @@ function countBy(
   return counts;
 }
 
-/** The airline code a flight is filed under: IATA, else ICAO. */
+/** Use the IATA code when it identifies this carrier, otherwise its ICAO code. */
 export function flightAirlineCode(flight: KeeprawFlight): string | null {
-  return flight.airline.iata ?? flight.airline.icao ?? null;
+  return canonicalAirlineCode(flight.airline) || null;
 }
 
 /** The recorded aircraft type of a flight, or null when none is recorded. */

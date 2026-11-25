@@ -155,6 +155,16 @@ describe("shareable (redacted) export", () => {
     );
   });
 
+  it("removes a booking reference used as a flight ID from the shareable copy", async () => {
+    const source = sensitiveArchive();
+    source.flights[0]!.id = "PNR-DEMO01";
+    source.flights[0]!.bookingReference = "DEMO01";
+    const text = await serializeKeeprawFly(source, "shareable");
+    expect(text).not.toContain("DEMO01");
+    expect(validateAndMigrateKeeprawFly(JSON.parse(text)).valid).toBe(true);
+    expect(source.flights[0]!.id).toBe("PNR-DEMO01");
+  });
+
   it("never modifies the stored archive", () => {
     const source = sensitiveArchive();
     const snapshot = structuredClone(source);
@@ -169,12 +179,9 @@ describe("shareable (redacted) export", () => {
     const preview = preflightJsonImport(text, validation, null);
     expect(preview.canImport).toBe(true);
     expect(preview.validRecords).toBe(preview.totalRecords);
-    // A redacted revision is not byte-for-byte the original flight.
     const beside = preflightJsonImport(text, validation, sensitiveArchive());
-    expect(beside.canImport).toBe(false);
-    expect(
-      beside.issues.some((issue) => issue.keyword === "conflictingFlightId"),
-    ).toBe(true);
+    expect(beside.canImport).toBe(true);
+    expect(beside.possibleDuplicateRecords).toBe(beside.totalRecords);
   });
 
   it("redacts legacy membership extensions while keeping their programs", () => {

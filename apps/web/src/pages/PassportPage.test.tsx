@@ -16,6 +16,7 @@ import {
   type PassportViewState,
 } from "../data/passport-exploration";
 import { PassportPage } from "./PassportPage";
+import { parseExplorationQuery } from "../data/exploration-query";
 import type { PrimaryView } from "../routing";
 import en from "../locales/en-US.json";
 import zhCN from "../locales/zh-CN.json";
@@ -95,6 +96,48 @@ const STATS_REGIONS = [
 ];
 
 describe("Stats regions", () => {
+  it("ranks and filters UA and UAL together and keeps both 3S airlines distinct", async () => {
+    const records = [
+      { ...flight, id: "ua", airline: { iata: "UA" } },
+      { ...flight, id: "ual", airline: { icao: "UAL" } },
+      { ...flight, id: "box", airline: { iata: "3S", icao: "BOX" } },
+      { ...flight, id: "guy", airline: { iata: "3S", icao: "GUY" } },
+    ];
+    expect(calculatePassportStatistics(records).airlines).toBe(3);
+    const { markup } = await render("en", initialPassportView, records);
+    expect(markup).toContain('data-key="UA" data-count="2"');
+    for (const name of [
+      "United Airlines · UA",
+      "AeroLogic · BOX",
+      "Air Guyane Express · GUY",
+    ])
+      expect(text(markup)).toContain(name);
+    for (const [code, ids] of [
+      ["UAL", ["ua", "ual"]],
+      ["BOX", ["box"]],
+      ["GUY", ["guy"]],
+    ] as const) {
+      const log = await render(
+        "en",
+        {
+          ...initialPassportView,
+          ...parseExplorationQuery(`#/log?airline=${code}`),
+        },
+        records,
+        true,
+        "miles",
+        "log",
+      );
+      expect(
+        [...log.markup.matchAll(/data-flight-id="([^"]+)"/g)].map(
+          (match) => match[1],
+        ),
+      ).toEqual(ids);
+      if (code === "UAL")
+        expect(log.markup.match(/data-airline-code="UA"/g)).toHaveLength(2);
+    }
+  });
+
   it("keeps the yearly table and airport bars in the same Lifetime, Year and Search scope", async () => {
     const records = [2023, 2024, 2025, 2026].map((year, index) => ({
       ...flight,

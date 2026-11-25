@@ -1,14 +1,17 @@
 import { useTranslation } from "react-i18next";
+import { importLimitValues } from "../data/import-limits";
 import type { ImportPreflightCounts } from "../data/import-preview";
 
 interface ImportPreflightSummaryProps {
   preflight: ImportPreflightCounts;
+  overRecordLimit: boolean;
   includePossibleDuplicates?: boolean;
   onIncludePossibleDuplicatesChange?: (include: boolean) => void;
 }
 
 export function ImportPreflightSummary({
   preflight,
+  overRecordLimit,
   includePossibleDuplicates = false,
   onIncludePossibleDuplicatesChange,
 }: ImportPreflightSummaryProps) {
@@ -54,6 +57,11 @@ export function ImportPreflightSummary({
           <dd>{preflight.exactDuplicateRecords}</dd>
         </div>
       </dl>
+      {overRecordLimit && (
+        <p role="alert">
+          {t("settings.exportErrors.too-many-records", importLimitValues)}
+        </p>
+      )}
       {preflight.canImport ? (
         <div className="import-resolution" role="note">
           <strong>{t("import.importPlan", { count: selectedRecords })}</strong>

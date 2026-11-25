@@ -1,4 +1,8 @@
-import { FLIGHT_SORT_ORDERS, type FlightSortOrder } from "@keepraw-fly/core";
+import {
+  canonicalAirlineCode,
+  FLIGHT_SORT_ORDERS,
+  type FlightSortOrder,
+} from "@keepraw-fly/core";
 import type {
   PassportSelection,
   PassportViewState,
@@ -97,7 +101,8 @@ export function parseExplorationQuery(
   return {
     year: /^\d{4}$/.test(year) ? Number(year) : "lifetime",
     selection: parseSelection(params),
-    airline: airline && CODE.test(airline) ? airline : null,
+    airline:
+      airline && CODE.test(airline) ? canonicalAirlineCode(airline) : null,
     // Free text matched exactly against the recorded type, so it is kept as written.
     aircraft: params.get("aircraft") || null,
     sort: FLIGHT_SORT_ORDERS.includes(sort) ? sort : "newest",

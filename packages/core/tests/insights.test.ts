@@ -43,7 +43,7 @@ describe("ranked airlines, aircraft types and airports", () => {
     expect(rankAirlines(flights)).toEqual([
       { code: "CX", count: 2 },
       { code: "BA", count: 1 },
-      { code: "KLM", count: 1 },
+      { code: "KL", count: 1 },
     ]);
   });
 
@@ -51,7 +51,7 @@ describe("ranked airlines, aircraft types and airports", () => {
     expect(rankAirlines(flights, { includeCancelled: true })).toEqual([
       { code: "BA", count: 2 },
       { code: "CX", count: 2 },
-      { code: "KLM", count: 1 },
+      { code: "KL", count: 1 },
     ]);
   });
 

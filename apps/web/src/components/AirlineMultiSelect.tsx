@@ -29,7 +29,10 @@ export function AirlineMultiSelect({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const selectedCodes = useMemo(() => new Set(value), [value]);
+  const selectedCodes = useMemo(
+    () => new Set(value.map(canonicalAirlineCode)),
+    [value],
+  );
   const results = useMemo(
     () =>
       searchAirlines(query)

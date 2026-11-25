@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { KeeprawFlight } from "@keepraw-fly/schema";
 import {
   aircraftFacts,
+  canonicalAirlineCode,
   airportByIata,
   arrivalDelayMinutes,
   distanceForFlight,
@@ -84,10 +85,9 @@ export function FlightRow({
 }: FlightRowProps) {
   const { t } = useTranslation();
   const times = flightTimeDisplay(flight, locale, timeFormat);
-  const airlineCode = flight.airline.iata ?? flight.airline.icao ?? "";
-  const airlineMark = airlineCode.slice(0, 2).toUpperCase() || "--";
-  const airlineLogo =
-    airlineLogoByCode[flight.airline.iata?.toUpperCase() ?? ""];
+  const airlineCode = canonicalAirlineCode(flight.airline);
+  const airlineMark = airlineCode || "--";
+  const airlineLogo = airlineLogoByCode[airlineCode];
   const origin = airportByIata.get(flight.origin.iata);
   const destination = airportByIata.get(flight.destination.iata);
   const specialStatus = flight.cancelled

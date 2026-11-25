@@ -103,7 +103,10 @@ export function canonicalAirlineCode(
   codeOrReference: string | { iata?: string; icao?: string },
 ): string {
   const airline = resolveAirline(codeOrReference);
-  if (airline) return airline.iata || airline.icao;
+  if (airline)
+    return airlineByIata.get(airline.iata) === airline
+      ? airline.iata
+      : airline.icao;
   return typeof codeOrReference === "string"
     ? codeOrReference.trim().toUpperCase()
     : codeOrReference.iata || codeOrReference.icao || "";

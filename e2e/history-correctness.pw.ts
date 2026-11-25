@@ -106,6 +106,45 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
+test("asks again for the JJU offset after cancelling the winter CSV", async ({
+  page,
+}) => {
+  await openImport(page);
+  const file = page.getByLabel("Open CSV file", { exact: true });
+  const control = page.locator(".csv-import-control").filter({ has: file });
+  const zone = control.getByLabel("Time zone at JJU");
+  const apply = control.getByRole("button", {
+    name: "Check again with these time zones",
+  });
+  const add = control.getByRole("button", {
+    name: "Add 1 flight",
+    exact: true,
+  });
+  const select = (date: string) =>
+    file.setInputFiles(
+      csvFile(csvHeaders, `GL101,${date},JJU,UAK,${date}T09:00,${date}T10:30`),
+    );
+
+  await select("2025-01-15");
+  await zone.fill("-02:00");
+  await apply.click();
+  await expect(add).toBeEnabled();
+  await control.getByRole("button", { name: "Cancel", exact: true }).click();
+
+  await select("2025-07-15");
+  await expect(zone).toHaveValue("");
+  await zone.fill("-01:00");
+  await apply.click();
+  await add.click();
+  await expect
+    .poll(async () =>
+      (await stored(page))?.document.flights.map(
+        (flight) => flight.scheduledDeparture,
+      ),
+    )
+    .toEqual(["2025-07-15T09:00:00-01:00"]);
+});
+
 for (const [source, number] of [
   ["JSON", flight.flightNumber],
   ["CSV", flight.flightNumber],

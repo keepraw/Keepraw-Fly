@@ -285,6 +285,39 @@ describe("Keepraw Fly validator", () => {
     }
   });
 
+  it("recovers legacy ticket, carousel and membership values behind empty fields", () => {
+    const archive = {
+      ...validDocument,
+      flights: [
+        {
+          ...validDocument.flights[0],
+          ticketNumber: null,
+          baggageCarousel: "",
+          frequentFlyer: null,
+          extensions: {
+            "keepraw-fly.ticket": { number: "9991234567890" },
+            "keepraw-fly.baggage": { carousel: "7B" },
+            "keepraw-fly.frequent-flyer": {
+              programName: "MileagePlus",
+              memberNumber: "01642",
+            },
+          },
+        },
+      ],
+    };
+    const result = validateAndMigrateKeeprawFly(archive);
+    expect(result.valid).toBe(true);
+    if (!result.valid) return;
+    const [membership] = result.data.frequentFlyerMemberships!;
+    expect(membership!.memberNumber).toBe("01642");
+    expect(result.data.flights[0]).toMatchObject({
+      ticketNumber: "9991234567890",
+      baggageCarousel: "7B",
+      frequentFlyer: { membershipId: membership!.id },
+    });
+    expect(result.data.flights[0]?.extensions).toBeUndefined();
+  });
+
   it("migrates legacy travel extensions into relationship-based flight metadata", () => {
     const legacy = structuredClone(validDocument) as Record<string, any>;
     legacy.extensions = {

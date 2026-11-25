@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   ImportFileError,
+  exceedsAppendLimit,
   importLimitValues,
   readImportFile,
 } from "../data/import-limits";
@@ -132,6 +133,7 @@ export function ImportControl({
       (includePossibleDuplicates ? pending.possibleDuplicateRecords : 0)
     : 0;
   const hasImportableContent = !existingDocument || selectedRecords > 0;
+  const overRecordLimit = exceedsAppendLimit(existingDocument, selectedRecords);
 
   const summary = useMemo(
     () => (pending?.document ? summarizeImport(pending.document) : null),
@@ -230,6 +232,7 @@ export function ImportControl({
           </div>
           <ImportPreflightSummary
             preflight={pending}
+            overRecordLimit={overRecordLimit}
             includePossibleDuplicates={includePossibleDuplicates}
             onIncludePossibleDuplicatesChange={setIncludePossibleDuplicates}
           />
@@ -298,7 +301,12 @@ export function ImportControl({
             <button
               className="button-primary"
               type="button"
-              disabled={busy || !pending.canImport || !hasImportableContent}
+              disabled={
+                busy ||
+                !pending.canImport ||
+                !hasImportableContent ||
+                overRecordLimit
+              }
               onClick={() => void confirmImport()}
             >
               {busy

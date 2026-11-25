@@ -38,6 +38,31 @@ function mappedRow(overrides: Record<string, string> = {}) {
 }
 
 describe("CSV flight import", () => {
+  it("commits UTC departures on the previous local day at a confirmed fixed offset", () => {
+    const parsed = parseCsv(
+      [
+        "flightNumber,serviceDate,origin,destination,scheduledDeparture,scheduledArrival",
+        "GL101,2025-01-15,JJU,UAK,2025-01-16T01:30:00Z,2025-01-16T00:05",
+        "GL102,2025-01-17,JJU,UAK,2025-01-17T09:00,2025-01-17T09:30",
+      ].join("\n"),
+    );
+    const preview = preflightCsvImport(
+      parsed,
+      detectCsvMapping(parsed.headers),
+      null,
+      undefined,
+      {
+        timezoneOverrides: { JJU: "-02:00" },
+      },
+    );
+    const saved = buildDocumentFromCsvPreflight(preview, null);
+    expect(saved.flights).toHaveLength(2);
+    expect(saved.flights[0]?.scheduledDeparture).toBe(
+      "2025-01-15T23:30:00-02:00",
+    );
+    expect(validateKeeprawFly(saved).valid).toBe(true);
+  });
+
   it.each(["Y", "true", "1", " YeS "])(
     "preserves cancellation %j through preview and commit without counting it as flown",
     (cancelled) => {

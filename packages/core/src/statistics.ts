@@ -8,7 +8,11 @@ import {
   type FlightEndpointIdentity,
 } from "./flight-airports";
 import { flightRouteIdentityKey } from "./routes";
-import { airlineNames, resolveAirline } from "./airline-reference";
+import {
+  airlineNames,
+  canonicalAirlineCode,
+  resolveAirline,
+} from "./airline-reference";
 
 export interface RankedCode {
   code: string;
@@ -96,7 +100,7 @@ export function calculatePassportStatistics(
 
   for (const flight of flights) {
     if (flight.cancelled) continue;
-    const airlineCode = flight.airline.iata ?? flight.airline.icao;
+    const airlineCode = canonicalAirlineCode(flight.airline);
     if (airlineCode) increment(airlineCounts, airlineCode);
     for (const identity of [originIdentity(flight), arrivalIdentity(flight)]) {
       if (!identity.confirmed) {

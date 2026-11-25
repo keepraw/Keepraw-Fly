@@ -74,6 +74,37 @@ function flight(
   };
 }
 
+it("keeps LAX mileage and map routes for every accepted arrival separator", () => {
+  const trip = flight(
+    "ua123",
+    "SFO",
+    "LAX",
+    "2025-03-01",
+    "2025-03-01T10:00:00-08:00",
+    "2025-03-01T11:30:00-08:00",
+  );
+  const distance = distanceForFlight(trip);
+  expect(distance).toBeCloseTo(543.66, 2);
+  for (const separator of ["t", " "]) {
+    const record = {
+      ...trip,
+      scheduledArrival: trip.scheduledArrival.replace("T", separator),
+    };
+    expect(
+      validateKeeprawFly({
+        format: "keepraw-fly",
+        formatVersion: "0.2.0",
+        profile: {},
+        flights: [record],
+      }).valid,
+    ).toBe(true);
+    expect(calculatePassportStatistics([record]).distanceKilometers).toBe(
+      distance,
+    );
+    expect(buildRouteSegments([record])).toHaveLength(1);
+  }
+});
+
 describe("Flight Editor keeps flights with unknown airports", () => {
   it("never drops a well-formed unknown code; asks for a zone instead of assuming UTC", () => {
     vi.stubGlobal("crypto", { ...crypto, randomUUID: () => "u1" });

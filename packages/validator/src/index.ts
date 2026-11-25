@@ -519,11 +519,11 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
 
       const baggage = objectValue(extensions["keepraw-fly.baggage"]);
       if (baggage) {
-        if (!("baggageCarousel" in next)) {
+        if (next.baggageCarousel == null || next.baggageCarousel === "") {
           next.baggageCarousel =
             typeof baggage.carousel === "string" && baggage.carousel
               ? baggage.carousel
-              : null;
+              : (next.baggageCarousel ?? null);
         }
         delete extensions["keepraw-fly.baggage"];
         changed = true;
@@ -531,11 +531,11 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
 
       const ticket = objectValue(extensions["keepraw-fly.ticket"]);
       if (ticket) {
-        if (!("ticketNumber" in next)) {
+        if (next.ticketNumber == null || next.ticketNumber === "") {
           next.ticketNumber =
             typeof ticket.number === "string" && ticket.number
               ? ticket.number
-              : null;
+              : (next.ticketNumber ?? null);
         }
         delete extensions["keepraw-fly.ticket"];
         changed = true;
@@ -543,7 +543,7 @@ function migrateFlightMetadata(document: Record<string, unknown>): boolean {
 
       const oldSnapshot = objectValue(extensions["keepraw-fly.frequent-flyer"]);
       if (oldSnapshot) {
-        if (!("frequentFlyer" in next)) {
+        if (next.frequentFlyer == null) {
           let membershipId =
             typeof oldSnapshot.membershipId === "string"
               ? oldSnapshot.membershipId

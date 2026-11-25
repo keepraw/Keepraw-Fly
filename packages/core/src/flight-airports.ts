@@ -103,7 +103,7 @@ export function localDateInZone(iso: string, zone: string): string | null {
   }
 }
 export function writtenLocalDate(iso: string): string | null {
-  return /^\d{4}-\d{2}-\d{2}T/.test(iso) ? iso.slice(0, 10) : null;
+  return /^\d{4}-\d{2}-\d{2}[Tt ]/.test(iso) ? iso.slice(0, 10) : null;
 }
 export function assignmentEvidenceFor(identity: {
   status: AirportHistoryStatus;
