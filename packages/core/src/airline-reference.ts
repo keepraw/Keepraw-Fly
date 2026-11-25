@@ -135,7 +135,8 @@ export function searchAirlines(query: string): AirlineReference[] {
 }
 
 function airlineSearchRank(airline: AirlineReference, query: string): number {
-  if (airline.iata.toLocaleLowerCase() === query) return 0;
+  if (airline.iata.toLocaleLowerCase() === query)
+    return airlineByIata.get(airline.iata) === airline ? 0 : 1;
   if (airline.icao.toLocaleLowerCase() === query) return 1;
   if (
     [airline.nameEn, airline.nameZh, airline.nameZhTw].some((name) =>
